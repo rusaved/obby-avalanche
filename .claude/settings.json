@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(git *)",
+      "Bash(gh run *)",
+      "Bash(gh workflow run *)",
+      "Bash(bash init.sh)",
+      "Bash(bash scripts/*)"
+    ],
+    "deny": [
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" || exit 0; if [ \"$CLAUDE_CODE_REMOTE\" = \"true\" ] && [ -f package-lock.json ]; then if npm ci --no-audit --no-fund >/tmp/session-npm-ci.log 2>&1; then echo 'npm ci: ok'; else echo 'npm ci: failed, see /tmp/session-npm-ci.log'; fi; if [ -f scripts/ensure-chromium.sh ]; then bash scripts/ensure-chromium.sh >/tmp/session-chromium.log 2>&1 && echo 'chromium: ok' || echo 'chromium: failed, see /tmp/session-chromium.log'; fi; fi; exit 0",
+            "timeout": 600
+          }
+        ]
+      }
+    ]
+  }
+}

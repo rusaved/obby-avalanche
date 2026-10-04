@@ -1,0 +1,695 @@
+[
+  {
+    "id": "M0-01",
+    "milestone": "M0",
+    "description": "Проект на стеке из docs/02-tech.md, раздел 2: точные версии без ^ и ~, package-lock.json, TypeScript strict, Vite с base './'",
+    "acceptance": "В чистом клоне `npm ci` без ошибок; в package.json нет ^ и ~; three 0.186.1, @types/three 0.186.0, vite 8.3.2 (или замена, записанная в docs/допущения.md); `npm run typecheck` — код 0",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M0-02",
+    "milestone": "M0",
+    "description": "Все скрипты package.json из docs/02-tech.md, раздел 3, плюс build:pages; verify — полная цепочка без заглушек",
+    "acceptance": "Каждый скрипт из таблицы 02, раздел 3, запускается; `npm run verify` — код 0, вывод в docs/evidence/M0/verify.txt; ни одна ступень verify не состоит из пустой команды или безусловного exit 0",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M0-03",
+    "milestone": "M0",
+    "description": "init.sh и браузер в облаке: проверка Node ≥ 22.12, npm ci, scripts/ensure-chromium.sh, смоук-тест",
+    "acceptance": "`bash init.sh` — код 0 в облачной сессии; e2e смоук создаёт WebGL2-контекст, renderer.info.render.calls > 0, в лог выводится UNMASKED_RENDERER_WEBGL; выбранный путь получения Chromium и причина записаны в docs/допущения.md; perl -v: есть — perl docs/references/balance-model.pl --md совпадает с docs/01a-content.md, раздел 3, вывод в docs/evidence/M0/balance-model.txt; нет — запись в docs/допущения.md, порт sim:balance идёт по тексту файла",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M0-04",
+    "milestone": "M0",
+    "description": "Мок SDK dev/yasdk-mock/sdk.js: поверхность YaGames, параметры адреса, журнал вызовов, лимиты Яндекса (docs/02-tech.md, 11.9)",
+    "acceptance": "Тесты: параметры mock_lang, mock_device, mock_auth, mock_player, mock_save, mock_ad, mock_startup_ad, mock_init_delay, mock_time_offset, mock_flags (включая mock_flags=error), mocks меняют поведение; mock_ad=slow — onOpen через 5 с; вокруг оверлея рекламы мок шлёт game_api_pause и game_api_resume; mock_ad=error — onError, затем onClose(false); второй ready() и 101-й setData за 5 минут бросают ошибку и пишутся в window.__YA_MOCK__.violations и console.error; общий afterEach всех e2e требует пустой violations (docs/02-tech.md, 11.9 и 17.2); все вызовы видны в window.__YA_MOCK__.calls; в dist/ мока нет",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M0-05",
+    "milestone": "M0",
+    "description": "Слой src/platform и порядок запуска из docs/02-tech.md, 11.2: язык из SDK до первого кадра интерфейса, ready() по реальной готовности",
+    "acceptance": "e2e: LoadingAPI.ready() вызван ровно один раз и после первого нарисованного кадра; язык интерфейса берётся из environment.i18n.lang мока; за 3 минуты игрового времени (`setTimeScale(20)`) ноль console.error и pageerror; e2e `?mock_init_delay=15000`: ready() ровно 1 раз, язык из мока (с `?mock_lang=en` — английский), `__TEST__.state().platform === 'yandex'`, событие sdk_init_slow ровно 1 раз (docs/02-tech.md, 11.2)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M0-06",
+    "milestone": "M0",
+    "description": "Ядро src/core: фиксированный шаг 1/60 с с интерполяцией, типизированная шина событий, PauseManager с набором причин, rng с сидом, логгер",
+    "acceptance": "Vitest: при причинах ad и hidden игра возобновляется только после снятия обеих; при одинаковом сиде rng даёт одинаковую последовательность; симуляция делает ровно 60 шагов за 1 с игрового времени при любом FPS рендера",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M0-07",
+    "milestone": "M0",
+    "description": "Пакеты данных content/avalanche и content/_sample, выбор через VITE_CONTENT и алиас @content, валидатор на valibot",
+    "acceptance": "`npm run validate:content` зелёный на обоих пакетах и падает с понятным сообщением (файл, поле) на намеренно сломанной копии; `VITE_CONTENT=_sample npm run build:e2e` и смоук e2e на нём зелёные; все ключи localStorage с префиксом <pack.id>: (docs/02-tech.md, 4.4)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M0-08",
+    "milestone": "M0",
+    "description": "Архитектурные тесты: запреты импортов (sim, level, meta, core без DOM, рендера и платформы), из three — только белый список именованных импортов (docs/02-tech.md, 4.1), запрет Math.random в sim и meta, запрет кириллицы в src вне комментариев",
+    "acceptance": "tests/architecture.test.ts зелёный; намеренное нарушение во временном файле роняет тест (вывод падения один раз сохранён в docs/evidence/M0/)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M0-09",
+    "milestone": "M0",
+    "description": "Релизная сборка, архив и проверка архива: build, build:playtest, pack, check-release с 7 проверками docs/02-tech.md, 16.3 и e2e:release (смоук на распакованном релизном архиве)",
+    "acceptance": "check-release зелёный на архиве build (строка пространства имён http://www.w3.org/1999/xhtml из three.js его не роняет) и красный на архиве build:playtest; отчёт docs/evidence/release-check.txt с размерами, списком файлов и результатом каждой проверки; e2e BLD-02 зелёный: за смоук-сессию нет сетевых запросов вне своего origin, кроме /sdk.js и mc.yandex.ru; e2e:release зелёный: распакованный release/*.zip, ready() ровно один раз, ноль console.error и pageerror (docs/02-tech.md, 16.3)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M0-10",
+    "milestone": "M0",
+    "description": "Ссылка продюсера: npm run build:pages собирает dist-pages по docs/05, раздел 2 (playtest на моке, sdk.js относительным путём, метка вехи, без Метрики)",
+    "acceptance": "Локально: dist-pages/index.html подключает sdk.js относительным путём, файл dist-pages/sdk.js есть, e2e против статического сервера над dist-pages открывает сцену с меткой вехи без ошибок консоли; после push в main `gh run list --workflow pages.yml --limit 1` показывает success или в progress.md записано, что проверить не удалось",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M1-01",
+    "milestone": "M1",
+    "description": "Кинематический контроллер героя: капсула против Octree, константы docs/02-tech.md, 6.1 (скорость 16, отрыв 50, гравитация 196,2), coyote 0,10 с, буфер прыжка 0,12 с",
+    "acceptance": "Vitest: высота прыжка 6,4 ед ±2% и время полёта 0,51 с ±2%; coyote и буфер срабатывают в своих окнах и не срабатывают вне; на 64 ед/с нет прохода сквозь стену толщиной 1 ед; реплей записанного ввода в Node даёт ту же позицию",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M1-02",
+    "milestone": "M1",
+    "description": "Ввод на ПК по event.code: WASD и стрелки, Space, Escape и KeyP; мышь крутит камеру, колесо — зум; страница не прокручивается",
+    "acceptance": "e2e: нажатия по code двигают героя и в русской раскладке; Space не прокручивает страницу; перетаскивание мышью меняет угол камеры, колесо — дистанцию; сочетаний с Ctrl, Alt, F1–F12 нет",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M1-03",
+    "milestone": "M1",
+    "description": "Телефон: динамический стик слева, поворот камеры свайпом справа, кнопка прыжка не меньше 18% короткой стороны, мультитач, setPointerCapture, стик не стартует на элементах HUD",
+    "acceptance": "e2e в мобильном проекте через CDP Input.dispatchTouchEvent: стик, камера и прыжок работают одновременно (три касания с разными id); тап-зоны не меньше 44 CSS px; скриншот docs/evidence/M1/touch_844x390_ru.png; InputState сбрасывается после рекламы, на pointercancel, lostpointercapture и blur (стик зажат + реклама на моке → после возврата скорость героя 0); касание кнопки HUD не запускает стик (docs/02-tech.md, 6.3)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M1-04",
+    "milestone": "M1",
+    "description": "Автобег для одной руки (бесплатный переключатель в настройках): герой бежит по controlYaw (задаёт свайп), постановочные кадры камеры направление не меняют; тап — прыжок, свайп — камера; кнопка прыжка видна",
+    "acceptance": "e2e: включённый автобег двигает героя без стика; тап короче 200 мс и сдвиг меньше 12 px — прыжок, свайп на 100 px — без прыжка; автобег + сценарная лавина, герой в пещере → inShelter всё время кадра камеры на лавину (docs/02-tech.md, 6.3); свайп поворачивает камеру и меняет направление бега; настройка переживает F5",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M1-05",
+    "milestone": "M1",
+    "description": "Камера за героем: обход стен, FOV растёт от скорости, демпфирование, автоповорот (docs/02-tech.md, раздел 7)",
+    "acceptance": "e2e: в 3 точках трассы у стен камера не внутри геометрии (сфера радиусом 0,4 против Octree, ближняя плоскость 0,1); авторазворот тянет камеру к оси +Z и меняет только viewYaw (docs/02-tech.md, раздел 7); FOV на максимальной скорости больше, чем в покое, на величину из tuning.json; скриншоты в docs/evidence/M1/",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M1-06",
+    "milestone": "M1",
+    "description": "Процедурный блочный герой из 6 частей с лицами из атласа (8 эмоций), анимации бега, прыжка и стояния твинами, образ по умолчанию из skins.json, инстансинг персонажей",
+    "acceptance": "Скриншот всех 8 эмоций в docs/evidence/M1/faces.png; все персонажи рисуются не больше чем 8 draw calls (renderer.info); цвета образа берутся из skins.json, в src их нет",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M1-07",
+    "milestone": "M1",
+    "description": "Серый склон горы 1 из worlds.json: сегменты, стены (пока закрытые статично), флажки, падение с трассы и возврат",
+    "acceptance": "Геометрия строится из данных, а не из кода; после падения с трассы герой на флажке за ≤ 0,5 с (e2e по событиям); validate:content проверяет достижимость каждого уступа с запасом 20%",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M1-08",
+    "milestone": "M1",
+    "description": "Раскладки, ресайз и запреты браузера: touch-action none, user-select none, нет контекстного меню и прокрутки, HUD резиновый; на ПК поле не шире 2:1, лишнее — поля цветом sky.bottom (docs/02-tech.md, 6.3–6.4; docs/03-yandex-compliance.md, SCR-02)",
+    "acceptance": "unit-тест fitField: 2560×1080 desktop → 2160×1080, 600×1300 desktop → 600×1200, 844×390 mobile → 844×390. e2e на ПК 1280×1024, 1920×1080, 2560×1080, 3840×2160, 1536×864, 600×1300 и на телефоне (?mock_device=mobile) 640×360, 844×390: на ПК длинная сторона canvas ≤ 2 коротких и canvas касается краёв окна хотя бы по одной оси, на 2560×1080 по бокам поля по 200 px цветом sky.bottom; элементы HUD внутри прямоугольника canvas; после ресайза и поворота состояние игры то же; правый клик и долгий тап не открывают меню; scrollY всегда 0",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M1-09",
+    "milestone": "M1",
+    "description": "Отладка ?debug=1: lil-gui с папками Controller, Camera, Render, оверлей FPS и draw calls, экспорт tuning JSON (docs/02-tech.md, раздел 15)",
+    "acceptance": "e2e: изменение ползунка меняет параметр без перезагрузки; «Экспорт» отдаёт JSON, который проходит схему tuning.json; в архиве build панели нет (check-release); на телефоне панель сворачивается одной кнопкой",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M1-10",
+    "milestone": "M1",
+    "description": "Три уровня качества (своя таблица для телефона: без карты теней, только блоб) с автоснижением (первый рычаг — DPR), параметры ?quality, ?dpr и ?gpuload=2, бюджеты рендера тестовой сцены (docs/02-tech.md, 9.3)",
+    "acceptance": "e2e: на склоне горы 1 draw calls ≤ 60, треугольники ≤ 150 тыс., текстур ≤ 16; при искусственно низком FPS качество снижается на уровень; цифры в docs/evidence/M1/budgets.txt; ?quality=low|medium|high и ?dpr=<число> фиксируют уровень и DPR без автоснижения, оверлей ?debug=1 показывает уровень, DPR и мс кадра; в релизной сборке параметры не читаются",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M2-01",
+    "milestone": "M2",
+    "description": "Шаги и Скорость: каждые stepLength (4 ед) пути по земле или ленте дорожки — +gainPerStep со всеми множителями, в воздухе шагов нет, «+N» над героем",
+    "acceptance": "Vitest: 40 ед бега по земле дают ровно 10 шагов; прыжок не добавляет шагов; на дорожке ×3 прибавка втрое больше; числа берутся из balance.json; e2e: над героем появляется «+N» при первом шаге",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M2-02",
+    "milestone": "M2",
+    "description": "Ледяные стены с числом: открыта, если Скорость ≥ требования (wall(p) × wallScale[ступень]), тает в арку, за ней флажок (GDD-07)",
+    "acceptance": "Vitest: при Скорости на 1 меньше требования стена закрыта, при равной — открыта, на ступенях 0 и 3 требование = wall(p) × wallScale[n]; e2e: табличка считает «15/20» и зеленеет, скриншот docs/evidence/M2/gate_1920x1080_ru.png",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M2-03",
+    "milestone": "M2",
+    "description": "Гора 1 целиком по docs/01-gdd.md, 5.2 и docs/01a-content.md: лагерь, 12 стен, 6 зон по редкости, 12 пещер, вершина с сундуком и порталом; новые сегменты gift, eggStand (в лагере и у флажка за стеной 6), zoneArch, summit; worlds.json генерирует npm run gen:worlds (docs/02-tech.md, раздел 3)",
+    "acceptance": "validate:content на горе 1: у каждой стены 1–11 перед ней есть пещера с дорожкой, из любой точки до пещеры или лагеря ≤ warnSec × 0,8 при минимальной скорости участка, зазоры ≤ 60% прыжка; вход в портал переносит на гору 2; npm run gen:worlds детерминирован (повторный запуск не меняет файл), worlds.json руками не правится",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M2-04",
+    "milestone": "M2",
+    "description": "Подарки по редкости зон: касание даёт монеты по таблице зоны, после каждой лавины подарки появляются снова",
+    "acceptance": "Vitest: касание подарка начисляет монеты зоны из 01a, подарок исчезает; после фазы gone все подарки снова на местах; e2e: плашка монет выезжает при первой монете",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M2-05",
+    "milestone": "M2",
+    "description": "Ледяные пещеры с беговой дорожкой ×N: зона безопасности — объём пещеры, на ленте герой бежит на месте сам, шаги с множителем",
+    "acceptance": "Vitest: герой в AABB пещеры считается в укрытии (inShelter); на дорожке шаги идут без ввода с множителем treadmill; e2e: первый шаг на дорожке шлёт treadmill_first",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M2-06",
+    "milestone": "M2",
+    "description": "Лавина: фазы idle → warn → run → gone, сход в spawnAhead 160 ед над героем (from: aboveHero), числа по горам из worlds.json, firstIntervalSec 30, «Лавина через N», подсветка ближайшей пещеры и стрелка",
+    "acceptance": "Vitest: вне пещеры лавина ловит, в пещере, лагере и на вершине — нет; фазы стоят, пока есть любая причина паузы; от конца отсчёта до прохода фронта над героем 3–4 с на горе 1; e2e: скриншоты warn и shelter в docs/evidence/M2/; unit: в 5 ед от входа бежит к нему → waveSurvived, в 7 ед → waveCaught (niche.graceDist, niche.graceMoving); первые 3 обычные лавины — warnSec +3 с (threat.newbieWaves), 4-я — без бонуса; точка появления лавины видна на всех горах и уровнях качества (docs/02-tech.md, 8.3); e2e: камера в пещере во время волны не внутри Octree и корпуса лавины (docs/02-tech.md, раздел 7)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M2-07",
+    "milestone": "M2",
+    "description": "«Накрыло снегом!»: ком с шапкой за 1,2 с укатывается в ближайшую пещеру ниже (или в лагерь), весь ролик ≤ 2 с, ничего не теряется, питомцы не ловятся (GDD-04)",
+    "acceptance": "Vitest на 100 случайных точках трассы: управление вернулось ≤ 2,0 с, герой в пещере ниже или в лагере, Скорость, монеты и открытые стены не изменились, второй поимки этой же лавиной нет; скриншот caught в docs/evidence/M2/",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M2-08",
+    "milestone": "M2",
+    "description": "Первые 60 секунд по docs/01-gdd.md, 6.2: стены 20, 40 и 80 открываются на подходе, сценарная лавина у пещеры 4 не ловит, дорожка ×7, бесплатное яйцо «Подарок горы», подсказки 6.5 (GDD-01, GDD-03)",
+    "acceptance": "e2e бот-скрипт на свежем сохранении: gate_1 ≤ 15 с, gate_3 ≤ 40 с, first_wave_survived с inShelter: true ≤ 55 с, treadmill_first и egg_1 ≤ 70 с, стена 4 ≤ 90 с; сценарная лавина не ловит героя ни в пещере, ни вне её (unit + e2e); бот-скрипт идёт к стенам 1–3 по прямой, без дорожки, и ни разу не стоит у закрытой стены дольше 0,5 с; пороги — игровое время (totalPlaySec)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M2-09",
+    "milestone": "M2",
+    "description": "HUD ядра по docs/01-gdd.md, 10.1: ледяная плашка Скорости с ледяной молнией, полоса-склон «Гора N · k/12» с засечками и лицом героя, цель «Стена N», монеты, подсказки-плашки, формат чисел",
+    "acceptance": "e2e: элементы на местах из 10.1 на 640×360, 844×390 и 1920×1080 и не перекрывают друг друга; одновременно не больше одной подсказки; все тексты из i18n; скриншоты spawn в docs/evidence/M2/",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M2-10",
+    "milestone": "M2",
+    "description": "Боты на трассе: 6 на горе (на low — 3), с подписями-именами из bots.json при showNames: true (docs/01-gdd.md, 7.12, Q-011), без счётчика игроков и чата (GDD-15); конечный автомат в sim, прячутся на warn, не проходят закрытую для игрока стену",
+    "acceptance": "e2e через __TEST__.state(): ботов 6; при showNames: true у каждого бота подпись из bot.n01…bot.n24 без цифр, имена на горе не повторяются, в режимах shots, promo и в студии подписей нет; при showNames: false текстовых меток нет; на warn 90% ботов идут в пещеры; ни один бот не оказывается выше закрытой для игрока стены за 5 минут игры",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M2-11",
+    "milestone": "M2",
+    "description": "Бот проходит гору 1: в Node (sim:balance, профиль «жадный» и «ленивый») и в браузере (e2e при `setTimeScale(≥ 20)`, время — игровое: тики / 60)",
+    "acceptance": "sim:balance: проверки 1, 2, 4 и 7 из docs/01-gdd.md, 8.5 проходят, таблица в docs/evidence/balance.txt; bot-world1.spec.ts: бот доходит до портала горы 1, ноль console.error и pageerror",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M2-12",
+    "milestone": "M2",
+    "description": "Золотой подарок на предупреждении по docs/01-gdd.md, 4.9: со 2-й обычной лавины за загрузку в 20–50 ед от ближайшей к герою пещеры, стоит mult (по умолчанию 10) подарков зоны, герой несёт его над головой; засчитывается, если лавина прошла, а герой цел; накрыло — лопается, больше ничего не теряется; данные game.json.threat.bonus, подсказка hint.gold, события gold_take, gold_saved, gold_lost",
+    "acceptance": "Vitest (sim, фиксированный сид): в сценарной и 1-й обычной лавине подарка нет, со 2-й — ровно один на лавину, на земле открытой для героя части трассы в distMin–distMax ед от ближайшей к герою пещеры (не за закрытой стеной, не в пещере, не над зазором, не на вершине); герой в лагере или на вершине на начале warn — подарка нет; взял и фронт прошёл над пещерой с героем → монеты = обычное «Уф, успел!» + mult × подарок зоны; вход в портал с подарком — засчитан сразу; в лагере, на вершине или там, куда фронт не дошёл, — засчитан на gone; накрыло → подарок исчез, Скорость, монеты и стены не изменились; не взял → исчез, когда фронт дошёл до его точки (после фронта не взять); без threat.bonus в данных подарка нет никогда; validate:content на горе 1: путь «пещера → точка на distMax → пещера» при минимальной скорости участка ≤ 60% от warnSec + spawnAhead / threat.speed (скорость фронта); sim:balance, профиль «Золотоискатель»: гора 1 ступени 0 ≥ 4,0 мин; e2e: на 2-й обычной лавине state().bonus не null, герой берёт подарок и возвращается в пещеру → события gold_take и gold_saved по порядку, при поимке — gold_lost; скриншот gold_carry_1920x1080_ru.png в docs/evidence/M2/",
+    "passes": false,
+    "priority": "P1",
+    "deferred": false
+  },
+  {
+    "id": "M3-01",
+    "milestone": "M3",
+    "description": "Экономика по формулам docs/01-gdd.md, 8.1: монеты, цены, множители шага (кроссовки, питомцы, трейлы, ауры, дорожки, бусты, ступень) — только данными",
+    "acceptance": "Vitest: прибавка за шаг для 5 заданных наборов множителей совпадает с ручным расчётом по формуле 8.1; изменение balance.json меняет результат без правки кода",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M3-02",
+    "milestone": "M3",
+    "description": "Кроссовки: 16 ступеней, кнопка «Кроссовки ×N · цена» внизу по центру, одно нажатие — покупка, обнуляются при перерождении",
+    "acceptance": "Vitest: покупка списывает цену и повышает уровень, при нехватке монет не срабатывает; e2e: кнопка появляется, когда монет впервые хватает, дальше видна всегда (серая, если не хватает)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M3-03",
+    "milestone": "M3",
+    "description": "Яйца и питомцы: 5 яиц (по одному на гору, стойки в лагере и у флажка за стеной 6; яйцо покупается сколько угодно раз), 27 питомцев, шансы из eggs.json, вылупление за 1 с без окна, надеты 3, питомцы прыгают рядом и не ловятся лавиной",
+    "acceptance": "Vitest: шансы каждого яйца в сумме 1, на 100 000 открытий с сидом частоты в пределах ±1% от шансов; надеть можно не больше 3; e2e: скриншот pets в docs/evidence/M3/",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M3-04",
+    "milestone": "M3",
+    "description": "Трейлы и ауры за кубки (множители, навсегда), гардероб с одним скином по умолчанию из skins.json (docs/01-gdd.md, 7.3 и 7.4)",
+    "acceptance": "Vitest: покупка за кубки, множитель трейла и ауры входит в шаг; после перерождения трейлы и ауры остаются; e2e: гардероб открывается, на герое скин по умолчанию из skins.json",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M3-04b",
+    "milestone": "M3",
+    "description": "Скины и крылья (только внешность, docs/01-gdd.md, 7.4): 12 скинов и 8 крыльев в гардеробе, источники — кубки, календарь, ступени перерождения",
+    "acceptance": "Vitest: покупка скина и крыльев за кубки; скин и крылья не меняют числа; после перерождения остаются; e2e: смена скина видна на герое (скриншот docs/evidence/M3/)",
+    "passes": false,
+    "priority": "P1",
+    "deferred": false
+  },
+  {
+    "id": "M3-05",
+    "milestone": "M3",
+    "description": "Горы 2–5 данными: 60 стен, 60 пещер, 180 мест подарков, числа лавины по горам, портал между горами; вид пока серый (GDD-14)",
+    "acceptance": "validate:content на всех 5 горах: пещера перед каждой стеной 1–11, честность warnSec × 0,8, зазоры ≤ 60% прыжка; счёт стен, пещер и мест подарков совпадает с 01a; если есть threat.bonus — честность золотого подарка на всех 5 горах (docs/02-tech.md, 5.4); e2e: телепорт на каждую гору без ошибок",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M3-06",
+    "milestone": "M3",
+    "description": "Перерождение на 10 ступеней: шаг ×3 за ступень, горы выше, окно заранее показывает, что сбросится и что останется (GDD-08)",
+    "acceptance": "Vitest: после перерождения Скорость 0, монеты 0, кроссовки L0, гора 1, лагерь; питомцы, скины, крылья, трейлы, ауры, кубки, календарь и задания на месте; шаг ×3^n; e2e: скриншот окна перерождения ru (en — на M4)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M3-07",
+    "milestone": "M3",
+    "description": "Сохранения: SaveData с v, rev, savedAt и миграциями, локальное зеркало и облако с дебаунсом и ведром записи (≤ 86 за 5 минут), размер ≤ 20 КБ, возврат на флажок дальней стены",
+    "acceptance": "e2e: F5 сразу после покупки и после стены — состояние на месте; ресайз и поворот — то же; бот 15 минут игрового времени через `__TEST__.runSim` (тег @full; на M3 прогнать отдельно: `npx playwright test save.spec.ts --grep @full`) — ни в одном 5-минутном окне журнала мока нет больше 100 setData; Vitest: битое сохранение даёт чистый старт без ошибки консоли",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M3-08",
+    "milestone": "M3",
+    "description": "Календарь на 7 дней по docs/01-gdd.md, 7.6 (GDD-10)",
+    "acceptance": "e2e: календарь, прогресс яйца за рекламу и буст ×2 переживают F5 и смену суток мока (?mock_time_offset); награда календаря забирается раз в сутки по правилу 20 ч",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M3-08b",
+    "milestone": "M3",
+    "description": "3 задания дня из 9 (q_gold — только когда золотой подарок в игре, иначе из 8), 8 наград за время, колесо (последнее в очереди) по docs/01-gdd.md, 7.7, 7.8 и 7.13 (GDD-10)",
+    "acceptance": "e2e: задания и награды за время переживают F5 и смену суток мока (?mock_time_offset) и обновляются вместе с календарём по правилу 20 ч; бесплатный спин колеса — один в сутки; без game.json.threat.bonus q_gold не выпадает (Vitest на 1000 зёрен)",
+    "passes": false,
+    "priority": "P1",
+    "deferred": false
+  },
+  {
+    "id": "M3-09",
+    "milestone": "M3",
+    "description": "Окна docs/01-gdd.md, 10.2 и появление кнопок HUD по расписанию 6.4 (GDD-11, GDD-12)",
+    "acceptance": "e2e: каждое окно открывается своей кнопкой и закрывается крестиком, Esc и тапом по затемнению, в каждом есть кнопка дальше, лавина стоит, пока окно открыто; в игровом времени (setTimeScale, runSim) кнопки HUD появляются по таблице 6.4 и не раньше; до 180 с игры ни одного окна",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M3-10",
+    "milestone": "M3",
+    "description": "Баланс всех гор и ступеней: sim:balance проходит все 10 проверок docs/01-gdd.md, 8.5 (GDD-09)",
+    "acceptance": "`npm run sim:balance` — код 0, все 10 проверок с порогами зелёные, отчёт docs/evidence/balance.txt с таблицей «стена → секунда, Скорость, кроссовки, питомцы, монеты» и итогом по горам и ступеням; правки баланса — только в данных; порт повторяет столбец «Бот модели» docs/01a-content.md, раздел 3, ±10%; при красной проверке — sim:balance --fit, не больше 2 запусков на веху, diff в docs/evidence/balance.txt; если есть threat.bonus — профиль «Золотоискатель»: ступень 0 ≥ 24 мин (docs/01-gdd.md, 8.5)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M3-11",
+    "milestone": "M3",
+    "description": "Большие числа: суффиксы K, M, B, T, Qa … до Dc из i18n, Intl.NumberFormat, кубки за всё время < 2^53",
+    "acceptance": "Vitest: 1 234 → «1,23K» в ru и «1.23K» в en (3 значащие цифры, docs/01-gdd.md, 10.4), числа на каждой границе суффикса до Dc форматируются верно; Скорость на ступени 9 конечна и < 1e30; таблица рекордов идёт по кубкам",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M4-01",
+    "milestone": "M4",
+    "description": "Протокол паузы docs/03-yandex-compliance.md, 2.3: причины ad, sdk, hidden, blur, menu, shop, pointerlock, orientation, transition (единый список docs/02-tech.md, 4.3); звук и симуляция стоят; GameplayAPI start/stop на переходах",
+    "acceptance": "e2e (имена с SND-02, SND-03, SND-04): AudioContext в suspended не позже 2 с после blur, hidden, game_api_pause и открытия рекламы; после снятия всех причин игра и звук идут; GameplayAPI.start и stop в журнале мока только на переходах, без повторов подряд",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M4-02",
+    "milestone": "M4",
+    "description": "Стартовая реклама платформы: game_api_pause и game_api_resume до первого старта геймплея, события startup_ad_start и startup_ad_end",
+    "acceptance": "e2e с ?mock_startup_ad=1: пока идёт ролик, лавина и звук стоят, ввод не двигает героя; после resume игра стартует; события startup_ad_start и startup_ad_end ушли по одному разу",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M4-03",
+    "milestone": "M4",
+    "description": "Реклама за награду по docs/01-gdd.md, 9.1: места x2_stat, stat_now, skip_gate, x2_chest, egg; условия показа кнопки, надпись «▶ Реклама: …», сторож 10 с, у каждого вызова свой requestId (GDD-05)",
+    "acceptance": "e2e (ADS-04): кнопки появляются через 1 с стояния после 60 с игры и первой лавины (firstWaveDone) и прячутся за 1 кадр при движении и на warn; во время лавины кнопок нет; на кнопках есть слово «Реклама» и нет слова «Бесплатно»; кнопка блокируется до ответа; без единого колбэка SDK за 10 с игра продолжается с тостом, поздний колбэк ничего не ломает; место egg — «▶ Реклама: {egg}», один ролик = яйцо текущей горы (ads.eggViews 1); e2e ?mock_device=mobile: стоять 1,5 с → касание в центре левой половины → герой бежит, вызовов showRewardedVideo 0",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M4-03b",
+    "milestone": "M4",
+    "description": "Реклама за награду, места P1 по docs/01-gdd.md, 9.1: daily_x2 в окне календаря, wheel в окне «Награды за время»; предпросмотр пользы stat_now и skip_gate на полосе цели",
+    "acceptance": "e2e на моке (ADS-04): «▶ Реклама: ×2» у сегодняшней награды календаря с монетами или кубками удваивает её не чаще раза в день; «▶ Реклама: крутить колесо» даёт спин не чаще раза в 10 мин; награда только при onRewarded; пока видна кнопка stat_now или skip_gate, на полоске цели светлый отрезок показывает, куда дотянет награда, а если она открывает стену — значок стены на полосе горы зелёный",
+    "passes": false,
+    "priority": "P1",
+    "deferred": false
+  },
+  {
+    "id": "M4-04",
+    "milestone": "M4",
+    "description": "Полноэкранная реклама только в точках portal, rebirth, menu по нажатию игрока, вызов ≤ 200 мс, не раньше 180 с от gameReady и не чаще раза в 180 с (GDD-02, GDD-06)",
+    "acceptance": "e2e в игровом времени (setTimeScale, runSim; ADS-03): первые 180 с ни одного окна и вызова полноэкранной, кроме стартовой; кнопок «▶ Реклама» нет до 60 с и до первой лавины; первые 300 с нет «Особого» и цен; после 180 с «Дальше» на портале вызывает showFullscreenAdv ≤ 200 мс, кроме первого портала нового игрока при ads.skipFirstPortal: true — там вызова нет, флаг firstPortalDone ставится (проверить оба значения флага); второй вызов раньше 180 с не происходит; при покупке «Без рекламы» вызовов нет",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M4-05",
+    "milestone": "M4",
+    "description": "Все исходы рекламы на моке: ok, error, noshow, slow, closenoreward × полноэкранная и за награду — игра всегда продолжается",
+    "acceptance": "e2e (ADS-05): для каждого из 10 сочетаний после рекламы герой двигается, событие ad_resume_ok ушло, награда начислена только при onRewarded и ровно один раз, звук возобновился; поздний onRewarded после сторожа — одно начисление на requestId (docs/02-tech.md, 11.5)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M4-06",
+    "milestone": "M4",
+    "description": "Таблица рекордов по кубкам за флагом game.json.leaderboard: запись только у авторизованных, кнопка «Войти», setScore не чаще раза в 5 с (GDD-16)",
+    "acceptance": "e2e на моке: без ?mock_auth=1 нет вызовов setScore и есть кнопка «Войти»; с авторизацией отправка на вершине и при перерождении, не чаще раза в 5 с; при пустом поле leaderboard кнопки «Рекорды» нет и вызовов лидерборда нет; ошибка, 404 или 3 с без ответа getEntries → кнопки «Рекорды» нет до конца сессии, окна нет",
+    "passes": false,
+    "priority": "P1",
+    "deferred": false
+  },
+  {
+    "id": "M4-07",
+    "milestone": "M4",
+    "description": "Покупки за яны за флагом game.json.payments.enabled (P1): vip, autopilot, no_ads, starter; цены из getCatalog, восстановление покупок при старте",
+    "acceptance": "e2e на моке (IAP-01, IAP-03, IAP-04): при enabled: true вкладка «Особое» появляется после 300 с, цены и иконка валюты из каталога, необработанные покупки выдаются при старте, «Без рекламы» отключает полноэкранную рекламу; при enabled: false вкладки и вызовов ysdk.payments нет",
+    "passes": false,
+    "priority": "P1",
+    "deferred": false
+  },
+  {
+    "id": "M4-08",
+    "milestone": "M4",
+    "description": "Локализация ru и en: все ключи docs/01a-content.md, раздел 11, язык из SDK, ?mock_lang=en, числа по языку (GDD-13)",
+    "acceptance": "Vitest: ключи и плейсхолдеры ru.json и en.json совпадают, в en нет кириллицы, пустых строк нет; e2e (LOC-): у кнопок нет переполнения (scrollWidth ≤ clientWidth) на 640×360 в обоих языках; скриншоты всех ключевых экранов ru и en в docs/evidence/M4/",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M4-09",
+    "milestone": "M4",
+    "description": "Аналитика по docs/06-analytics.md: каталог событий, track(), буфер, обёртка Метрики (counterId 0 — тишина), правило «один раз» через флаги сохранения",
+    "acceptance": "e2e: события воронки уходят в порядке и с кратностью из таблицы 06 (по __TEST__.events и журналу); неизвестное имя не проходит typecheck; вне Яндекса скрипт Метрики не грузится; ошибка внутри ym не роняет игру (тест с подменой ym, бросающей исключение); включая shoes_1, gate_4, wave_real_1 с caught, gate_9, rewarded_shown с placement, session_180s, session_300s и session_600s (e2e в игровом времени, setTimeScale) и sdk_init_slow (1 раз при ?mock_init_delay=15000); если M2-12 не отложена — gold_take, gold_saved, gold_lost уходят в Метрику только как params({ goldGift }), без reachGoal (docs/06-analytics.md, раздел 7, п. 6)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M4-10",
+    "milestone": "M4",
+    "description": "Сценарии модерации docs/03-yandex-compliance.md, 7.1.5: «Назад» браузера, смена вкладки, правый клик и долгий тап, клавиши в русской раскладке, нет WebGL2, потеря и восстановление WebGL-контекста",
+    "acceptance": "moderation.spec.ts зелёный, имена тестов с ID пунктов 03; без WebGL2 показывается нейтральная заставка без ошибок консоли; после WEBGL_lose_context и восстановления игра снова рисует и управляется",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M4-11",
+    "milestone": "M4",
+    "description": "Удалённые флаги: platform.getFlags() → ysdk.getFlags({ defaultFlags }) один раз при старте, значения по умолчанию — из balance.json, worlds.json и game.json по путям, перечисленным в game.json.flags, без сети игра работает как без флагов (docs/02-tech.md, 11.11)",
+    "acceptance": "Vitest: значение флага вне правил docs/03-yandex-compliance.md, раздел 2 (например ads.interstitialCooldownSec ниже 180) зажимается и пишется предупреждением; e2e на моке: getFlags вызван ровно 1 раз; флаг, отданный моком, меняет свой параметр без пересборки; при ошибке getFlags (?mock_flags=error) игра идёт на значениях по умолчанию без console.error и pageerror; набор флагов уходит параметром flags в gameReady (docs/06-analytics.md, раздел 4)",
+    "passes": false,
+    "priority": "P1",
+    "deferred": false
+  },
+  {
+    "id": "M5-01",
+    "milestone": "M5",
+    "description": "Темы 5 гор из theme.json: палитра, небо, туман, свет, процедурные текстуры, декор (ёлки, снеговики, флажки, пещеры со светящимся входом)",
+    "acceptance": "Все цвета и параметры в theme.json, в src их нет; скриншоты 3 точек каждой горы в docs/evidence/M5/; draw calls в этих точках ≤ 60",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M5-02",
+    "milestone": "M5",
+    "description": "Лавина визуально по docs/01-gdd.md, 4.8 и docs/02-tech.md, 8.3: пушистая белая волна с комьями и пылью, не больше 4 draw calls, мягкий гул, тряска до 0,3, отдельный кадр камеры над пещерой; экран не темнеет и не краснеет",
+    "acceptance": "e2e: renderer.info показывает прирост ≤ 4 draw calls при активной лавине; амплитуда тряски из tuning.json ≤ 0,3; скриншоты warn, run и shelter в docs/evidence/M5/; скриншоты warn на low и на горе 4 в docs/evidence/M5/ (точка появления лавины видна, docs/02-tech.md, 8.3)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M5-03",
+    "milestone": "M5",
+    "description": "Сочность: снег из-под ног, «+N», таяние стены, сундук, вылупление яйца, тосты, «Уф, успел!» — отклик на каждое действие (docs/01-gdd.md, 10.3)",
+    "acceptance": "Для каждого события из таблицы 10.3 есть визуальный отклик и звук (тест сверяет список событий с sfx.json и эффектами); плейтестер ставит по пункту «Сочность» не ниже 3 (по лимиту правок M5-08 после 2 циклов — не ниже 2, остаток в progress.md)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M5-04",
+    "milestone": "M5",
+    "description": "Звук: ZzFX по sfx.json на каждое событие, музыка из assets/ после ready() (если продюсер её положил), раздельные кнопки музыки и эффектов, выбор сохраняется",
+    "acceptance": "e2e (SND-01, SND-05): ни одного <audio>, <video>, new Audio(); музыка начинает грузиться только после ready(); без файлов музыки игра работает без ошибок; выключатели переживают F5",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M5-05",
+    "milestone": "M5",
+    "description": "Весь контент релиза данными, кроме скинов и крыльев: 16 кроссовок, 5 яиц, 27 питомцев, 8 трейлов, 6 аур, скин по умолчанию, календарь на 7 дней, 9 шаблонов заданий (q_gold — только когда золотой подарок в игре, иначе 8), 8 наград за время, 10 ступеней перерождения",
+    "acceptance": "Vitest: счёт каждого вида контента совпадает с таблицами docs/01a-content.md; каждый питомец и скин по умолчанию рисуются без ошибок (e2e обходит все и снимает контактный лист docs/evidence/M5/content.png)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M5-05b",
+    "milestone": "M5",
+    "description": "Скины и крылья данными: 12 скинов, 8 крыльев (docs/01a-content.md, раздел 8)",
+    "acceptance": "Vitest: число скинов и крыльев совпадает с таблицами docs/01a-content.md, раздел 8; каждый скин и крылья рисуются без ошибок (e2e обходит все и добавляет их в контактный лист docs/evidence/M5/content.png)",
+    "passes": false,
+    "priority": "P1",
+    "deferred": false
+  },
+  {
+    "id": "M5-06",
+    "milestone": "M5",
+    "description": "Бюджеты производительности docs/02-tech.md, 9.5 на финальном контенте",
+    "acceptance": "perf.spec.ts: время до ready() ≤ 4 с (медиана 3 прогонов при 10 Мбит/с, RTT 100 мс, CPU ×4), скачано до ready() ≤ 1,2 МБ, шаг симуляции ≤ 2 мс при CPU ×4; draw calls ≤ 60, треугольники ≤ 150 тыс., текстуры ≤ 16 в 3 точках каждой горы; переход между горами ≤ 1 с при CPU ×4; память не растёт после 5 переходов; ZIP ≤ 4 МБ, JS ≤ 500 КБ gzip; всё в docs/evidence/budgets.txt; FPS в облаке не меряется: в итоге M1 и M5 — пункт продюсеру «≥ 30 FPS на ?quality=medium, мощный телефон — ещё с ?gpuload=2» (docs/02-tech.md, 9.3 и 9.5)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M5-07",
+    "milestone": "M5",
+    "description": "Фотостудия ?studio=1 по docs/02-tech.md, раздел 14 и пресеты docs/04-packaging.md, 7.2 в studio-presets.json",
+    "acceptance": "`npm run studio:shots` создаёт PNG всех пресетов и вариантов (scene, hero, plate) в art/studio/<дата>/ в размерах из docs/04-packaging.md, 7.2; гейт пресетов B показывает требование стены gateWall из данных; в кадре нет интерфейса; у прозрачного фона есть альфа-канал; примеры в docs/evidence/studio/; кода студии нет в архиве build",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M5-08",
+    "milestone": "M5",
+    "description": "Плейтест по рубрике docs/05, раздел 5 субагентом .claude/agents/playtester.md",
+    "acceptance": "docs/evidence/M5/playtest.md: средний балл не ниже 3,5 и ни одного пункта ниже 3; 3 худших момента с кадрами и что по ним сделано. Не больше 2 циклов «правки → повторный плейтест» (docs/05, раздел 5, «Лимит правок»): если после второго порог не взят — passes: true при среднем не ниже 3,0 и ни одном пункте ниже 2; средний, худшие пункты и что осталось — в progress.md и новым пунктом в QUESTIONS.md. Третьего цикла нет",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M5-09",
+    "milestone": "M5",
+    "description": "Игра 2 — замена данных: пакет _sample с другим статом (эффект jumpPower), другой угрозой-визуалом, своей палитрой, 1 горой и 3 стенами",
+    "acceptance": "`VITE_CONTENT=_sample npm run build:e2e` и sample.spec.ts зелёные; для _sample код менялся только в src/sim/effects/ и каталоге сегментов (git diff по вехе); скриншот docs/evidence/M5/sample.png; content/README.md описывает контракт пакета: файлы, поля, перечисления, версия схемы (docs/02-tech.md, 5.2)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M6-01",
+    "milestone": "M6",
+    "description": "Полная проверка в чистом клоне",
+    "acceptance": "Свежий клон, `npm ci && npm run verify:full` — код 0; вывод в docs/evidence/verify.txt; все фичи M0–M5 по-прежнему проходят свои тесты",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M6-02",
+    "milestone": "M6",
+    "description": "Матрица размеров docs/03-yandex-compliance.md, 7.1.4: ПК, ужатое окно, стики-баннер, телефон альбомный, планшет",
+    "acceptance": "layout.spec.ts проходит все размеры матрицы (SCR-01, SCR-02, SCR-03, ADS-07): элементы HUD и окон внутри области, нет перекрытий и прокрутки; скриншоты в docs/evidence/compliance/layout/",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M6-03",
+    "milestone": "M6",
+    "description": "Бот-сессия на 10 минут игрового времени (`setTimeScale(20)`) с сидом на релиз-кандидате (docs/03-yandex-compliance.md, 7.1.7)",
+    "acceptance": "bot-session.spec.ts: ноль console.error и pageerror, лимиты SDK не нарушены (журнал мока), нет замёрзших состояний (герой двигается после каждого окна и рекламы), бот доходит до вершины горы 1",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M6-04",
+    "milestone": "M6",
+    "description": "Неофициальный чекер Яндекса debugcheck.js на playtest-сборке (docs/03-yandex-compliance.md, 7.1.3)",
+    "acceptance": "Отчёт docs/evidence/compliance/checker.md: каждая проверка со статусом, ни одного FAIL без объяснения и исправления; в релизном архиве файла чекера нет (check-release). Если чекер не запускается в облаке — причина в отчёте и пункт продюсеру в progress.md",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M6-05",
+    "milestone": "M6",
+    "description": "Отчёт соответствия по всем пунктам docs/03-yandex-compliance.md, раздел 1",
+    "acceptance": "docs/evidence/compliance/report.md: у каждого ID статус PASS-auto (с именем теста), PASS-manual (со ссылкой на скриншот или лог), PRODUCER или N/A с причиной; ни одного TODO",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M6-06",
+    "milestone": "M6",
+    "description": "Карточка каталога: content/avalanche/store.json с текстами docs/04-packaging.md, раздел 4, название в игре и в карточке совпадает",
+    "acceptance": "tests/content/store.test.ts зелёный на ru и en; title совпадает с game.title в i18n символ в символ; e2e на ru и en: заголовок окна паузы и заставки без WebGL2 равен title из store.json (LOC-04); `npm run promo:listing` пишет docs/evidence/promo/listing.txt с длинами полей; store.test.ts падает, если в тексте есть слово-обещание выключенной или отложенной фичи из таблицы docs/04-packaging.md, 4.2 (скины — M3-04b, задания и колесо — M3-08b, таблица рекордов — M4-06); тексты 4.3 — с «трейлы и ауры» и «5 снежных гор»",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M6-07",
+    "milestone": "M6",
+    "description": "Скриншоты для каталога по docs/04-packaging.md, раздел 9: 5 кадров ПК и 4 телефона, ru и en, 1920×1080",
+    "acceptance": "`npm run promo:shots` создаёт 18 файлов и контактный лист в art/promo/<дата>/shots/; `npm run promo:check` зелёный (пустая art/promo/final/ — WARN, не ошибка: иконки и обложки делает продюсер, docs/04-packaging.md, 11.4); на кадрах нет кнопок рекламы, покупок и подсказок",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M6-08",
+    "milestone": "M6",
+    "description": "Видео 16:9 на 26 с по раскадровке docs/04-packaging.md, 10.2 (вертикальное 9:16 — после выхода, P2, 10.4)",
+    "acceptance": "`npm run promo:video` создаёт MP4 H.264 16:9 (gameplay_16x9.mp4) в art/promo/<дата>/video/ с контактным листом по секундам; `npm run promo:check` зелёный (длительность ≤ 28 с, ≤ 30 МБ, высота ≥ 400). Или, если ffmpeg-static не скачался или не работает в облаке (docs/04-packaging.md, 10.3): кадры планов в art/promo/<дата>/video/frames/ (не в git) и контактный лист по секундам, docs/evidence/promo/video-howto.txt с тем, что не сработало, и командой сборки, причина в docs/допущения.md, пункт продюсеру в progress.md; `npm run promo:check` без ошибок (WARN по видео допустим)",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M6-09",
+    "milestone": "M6",
+    "description": "Архивы и ссылка продюсера: релизный и playtest-архивы в downloads/, check-release, итоговый отчёт",
+    "acceptance": "check-release зелёный на релизном архиве и красный на playtest; после push в main оба архива доступны в dist-pages/downloads/ со страницей-списком; в progress.md итоговый отчёт: что сделано, чем доказано, чек-лист продюсера по docs/03-yandex-compliance.md, 7.2 с полями черновика 7.3",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M6-10",
+    "milestone": "M6",
+    "description": "Финальный плейтест релиз-кандидата по рубрике docs/05, раздел 5",
+    "acceptance": "docs/evidence/M6/playtest.md: средний балл не ниже 3,5, ни одного пункта ниже 3, первые 60 секунд в мобильном проекте пройдены по сценарию без замечаний уровня 1–2. Не больше 2 циклов «правки → повторный плейтест» (docs/05, раздел 5, «Лимит правок»): если после второго порог не взят — passes: true при среднем не ниже 3,0, ни одном пункте ниже 2 и пункте 5 (первые 60 секунд) не ниже 3; средний, худшие пункты и что осталось — в progress.md и новым пунктом в QUESTIONS.md. Третьего цикла нет",
+    "passes": false,
+    "priority": "P0",
+    "deferred": false
+  }
+]

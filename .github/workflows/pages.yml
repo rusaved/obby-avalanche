@@ -1,0 +1,136 @@
+# Ссылка продюсера: GitHub Pages.
+# Лежит в репозитории заранее: облачная сессия Claude Code не может пушить файлы в .github/workflows/.
+# После каждого push в main: npm ci, npm run build:pages, публикация папки dist-pages/.
+# Пока в package.json нет скрипта build:pages, публикация молча пропускается.
+# job ci — чистый клон и `verify` на каждый push; результат: `gh run list --workflow pages.yml`.
+# job ci не зависит от публикации: ручной запуск (Actions → pages → Run workflow) гоняет `verify:full`.
+# Пока в package.json нет скрипта verify, job ci молча пропускается.
+# Итог ci: `gh run view <id>` (статус каждого job), `gh run download <id> -n ci-verify -D /tmp/ci-verify` (verify.txt и release/*.zip, вне репозитория).
+# Новый push отменяет незаконченный запуск (concurrency ниже): статус cancelled — не ошибка, смотри следующий запуск.
+# Нужно один раз: Settings → Pages → Build and deployment → Source: GitHub Actions.
+
+name: pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - id: check
+        name: Check build:pages script
+        run: |
+          if [ -f package-lock.json ] && grep -q '"build:pages"' package.json; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::build:pages is not defined yet, publishing skipped"
+          fi
+
+      - if: steps.check.outputs.ready == 'true'
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - if: steps.check.outputs.ready == 'true'
+        run: npm ci
+
+      - if: steps.check.outputs.ready == 'true'
+        run: npm run build:pages
+        env:
+          BUILD_SHA: ${{ github.sha }}
+
+      - if: steps.check.outputs.ready == 'true'
+        uses: actions/configure-pages@v6
+
+      - if: steps.check.outputs.ready == 'true'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist-pages
+
+  deploy:
+    needs: build
+    if: needs.build.outputs.ready == 'true'
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
+
+  ci:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - id: check
+        name: Check verify script
+        run: |
+          if [ -f package-lock.json ] && grep -q '"verify"' package.json; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::verify is not defined yet, CI skipped"
+          fi
+
+      - if: steps.check.outputs.ready == 'true'
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - if: steps.check.outputs.ready == 'true'
+        run: npm ci
+
+      - if: steps.check.outputs.ready == 'true'
+        run: npx playwright install --with-deps chromium
+
+      - if: steps.check.outputs.ready == 'true'
+        name: Verify (verify:full on manual run)
+        shell: bash
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          script=verify
+          if [ "$EVENT" = workflow_dispatch ]; then
+            if grep -q '"verify:full"' package.json; then
+              script=verify:full
+            else
+              echo "::warning::verify:full is not defined yet, running verify"
+            fi
+          fi
+          mkdir -p docs/evidence
+          echo "npm run $script"
+          npm run "$script" 2>&1 | tee docs/evidence/verify.txt
+
+      - if: always() && steps.check.outputs.ready == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-verify
+          path: |
+            release/*.zip
+            docs/evidence/verify.txt
+          if-no-files-found: warn
+          retention-days: 30
+          overwrite: true
