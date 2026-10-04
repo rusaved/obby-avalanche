@@ -41,7 +41,7 @@
 - Результат: герой «Мандарин» бегает и прыгает по склону горы 1 из `worlds.json`, камера не проваливается в стены, клавиатура, мышь, стик и кнопка прыжка работают одновременно, есть автобег; ползунки `?debug=1` и три уровня качества. Петли «+1», стен-открытий и лавины ещё нет — это M2
 - Фичи: M1-01 … M1-10 — passes: true (пункт критерия M1-04 про лавину — Q-016, проверяется на M2)
 - verify: код 0, docs/evidence/M1/verify.txt (последняя строка EXIT=0), 11 ступеней за 112 с; 66 unit, 36 e2e
-- Ссылка: https://rusaved.github.io/obby-avalanche/ — метка «M1 · 2026-10-04 · <хеш>» (появится после push в main; статус workflow — в следующей записи)
+- Ссылка: https://rusaved.github.io/obby-avalanche/ — метка «M1 · 2026-10-04 · 526dba7», workflow pages run 37200270103: job `ci` (чистый клон, `verify`) success за 3 мин 5 с, `build` и `deploy` success
 - Бюджеты: релизный ZIP 292.9 KB, JS 161.7 KB gzip; z=20: draw calls 21, triangles 6458, textures 4, geometries 15, character draw calls 6; z=400: draw calls 20, triangles 6450, textures 4, geometries 15, character draw calls 6; z=1150: draw calls 19, triangles 5594, textures 4, geometries 16, character draw calls 6
 - Плейтестер: — (не на этой вехе)
 - Открытые вопросы: Q-002, Q-003, Q-004, Q-006 … Q-011, Q-016 (новый: пункт M1-04 про лавину)
