@@ -1,9 +1,9 @@
 check-release: release/avalanche-0.1.0.zip
-date: 2026-10-04T13:01:42.841Z
+date: 2026-10-04T19:20:42.969Z
 files: 13
   assets/en-BADTK6fa.json  2.5 KB
   assets/index--qQtqn5r.css  3.7 KB
-  assets/index-CG2nWX0P.js  646.2 KB
+  assets/index-PauMQm86.js  646.3 KB
   assets/ru-CZXn3o4j.json  3.4 KB
   assets/rubik-cyrillic-500-normal-BH_pkKR0.woff  9.7 KB
   assets/rubik-cyrillic-500-normal-Didq2w9O.woff2  7.7 KB

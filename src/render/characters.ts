@@ -27,7 +27,9 @@ import type { AccessoriesJson, SkinsJson } from '../content/types.ts';
 export const FACES = ['neutral', 'happy', 'wow', 'scared', 'determined', 'laugh', 'wink', 'sleep'] as const;
 export type FaceName = (typeof FACES)[number];
 
-export const PART = { head: 1.6, torso: { w: 1.6, h: 1.6, d: 0.9 }, arm: { w: 0.55, h: 1.5, d: 0.55 }, leg: { w: 0.7, h: 1.6, d: 0.7 } };
+/** Classic blocky proportions (canon of the niche, producer's decision 04.10): head 1, torso 2×2×1, limbs 1×2×1, scaled to a 5-unit hero. */
+const K = 0.95;
+export const PART = { head: 1.2 * K, torso: { w: 2.0 * K, h: 2.0 * K, d: 1.0 * K }, arm: { w: 1.0 * K, h: 2.0 * K, d: 1.0 * K }, leg: { w: 1.0 * K, h: 2.0 * K, d: 1.0 * K } };
 const FACE_CELL = 128;
 
 export type CharacterPose = 'idle' | 'run' | 'jump' | 'fall' | 'land' | 'cover' | 'win' | 'ball';
@@ -171,10 +173,10 @@ interface PartSpec {
 }
 
 const PARTS: PartSpec[] = [
-  { name: 'head', geometry: () => new RoundedBoxGeometry(PART.head, PART.head, PART.head, 2, 0.22), perCharacter: 1 },
-  { name: 'torso', geometry: () => new RoundedBoxGeometry(PART.torso.w, PART.torso.h, PART.torso.d, 2, 0.18), perCharacter: 1 },
-  { name: 'arm', geometry: () => new RoundedBoxGeometry(PART.arm.w, PART.arm.h, PART.arm.d, 2, 0.14), perCharacter: 2 },
-  { name: 'leg', geometry: () => new RoundedBoxGeometry(PART.leg.w, PART.leg.h, PART.leg.d, 2, 0.14), perCharacter: 2 },
+  { name: 'head', geometry: () => new RoundedBoxGeometry(PART.head, PART.head, PART.head, 2, 0.16), perCharacter: 1 },
+  { name: 'torso', geometry: () => new RoundedBoxGeometry(PART.torso.w, PART.torso.h, PART.torso.d, 2, 0.1), perCharacter: 1 },
+  { name: 'arm', geometry: () => new RoundedBoxGeometry(PART.arm.w, PART.arm.h, PART.arm.d, 2, 0.1), perCharacter: 2 },
+  { name: 'leg', geometry: () => new RoundedBoxGeometry(PART.leg.w, PART.leg.h, PART.leg.d, 2, 0.1), perCharacter: 2 },
 ];
 
 const _dummy = new Object3D();
@@ -349,7 +351,7 @@ if (vObjNormal.z > 0.6) {
         ch.phase += dt * (running ? 6 + 8 * ch.speedFactor : 1.2);
         if (ch.squash > 0) ch.squash = Math.max(0, ch.squash - dt);
         const sq = ch.squash > 0 ? 1 - 0.15 * (ch.squash / 0.1) : 1;
-        const swing = running ? Math.sin(ch.phase) * (0.45 + 0.35 * ch.speedFactor) : 0;
+        const swing = running ? Math.sin(ch.phase) * (0.5 + 0.5 * ch.speedFactor) : 0;
         const breathe = ch.pose === 'idle' ? Math.sin(ch.phase) * 0.03 : 0;
         const lean = running ? -0.21 * ch.speedFactor : 0;
         let armL = swing;
@@ -406,7 +408,7 @@ if (vObjNormal.z > 0.6) {
           [0, armL, -1],
           [1, armR, 1],
         ] as const) {
-          _dummy.position.set(sx * (PART.torso.w / 2 + PART.arm.w / 2 + 0.05), armPivotY, 0);
+          _dummy.position.set(sx * (PART.torso.w / 2 + PART.arm.w / 2 + 0.02), armPivotY, 0);
           _dummy.rotation.set(rot, 0, 0);
           _dummy.updateMatrix();
           const pivot = _dummy.matrix.clone();
@@ -420,7 +422,7 @@ if (vObjNormal.z > 0.6) {
           [0, legL, -1],
           [1, legR, 1],
         ] as const) {
-          _dummy.position.set(sx * (PART.leg.w / 2 + 0.08), legTop, 0);
+          _dummy.position.set(sx * (PART.leg.w / 2 + 0.01), legTop, 0);
           _dummy.rotation.set(rot, 0, 0);
           _dummy.updateMatrix();
           const pivot = _dummy.matrix.clone();
