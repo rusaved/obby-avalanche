@@ -47,6 +47,8 @@ export interface LevelNiche {
   /** The recess itself (inside the side wall). */
   box: Aabb;
   treadmill: number;
+  /** Gift zone of the stretch (docs/01a-content.md 4): «Phew, made it!» pays 3 × its gift. */
+  zone?: number;
 }
 
 export interface LevelCheckpoint {

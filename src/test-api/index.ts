@@ -32,6 +32,10 @@ export interface TestState {
   coins: number;
   giftsTaken: boolean[];
   gifts: Array<{ x: number; y: number; z: number; coins: number; rarity: string }>;
+  /** On a treadmill belt; inside a cave shelter (cave volume + graceDist) and its index (M2-05). */
+  onBelt: boolean;
+  inShelter: boolean;
+  shelter: number;
   /** Coin plaque on the HUD: shown (slid in) and its text. */
   coinPlaque: { shown: boolean; text: string };
   controlYaw: number;
@@ -131,6 +135,9 @@ export function installTestApi(g: GameHandles): TestApi {
         giftsTaken: g.sim ? g.sim.gifts.map((x) => x.taken) : [],
         gifts: g.sim ? g.sim.gifts.map((x) => ({ x: x.x, y: x.y, z: x.z, coins: x.coins, rarity: x.rarity })) : [],
         coinPlaque: coinPlaque(),
+        onBelt: g.sim?.onBelt ?? false,
+        inShelter: g.sim?.inShelter() ?? false,
+        shelter: g.sim?.shelterIndex() ?? -1,
         controlYaw: g.frame.controlYaw,
         viewYaw: g.frame.viewYaw,
         cameraDistance: cam?.currentDistance ?? 0,

@@ -11,6 +11,7 @@ import { createStepTracker, type StepGain, type StepTracker } from './steps.ts';
 import { gateIsOpen, gateRequirement, wallScale } from './gates.ts';
 import { giftsFromLevel, touchesGift, type Gift } from './gifts.ts';
 import { createCollisionWorld, type CollisionWorld } from './collision.ts';
+import { beltAt, belts, shelterIndex } from './shelter.ts';
 import { PORTAL_HALF_WIDTH } from '../level/builder.ts';
 import { createHero, placeHero, stepHero, type ControllerParams, type HeroInput, type HeroState, NO_INPUT } from './controller.ts';
 
@@ -21,8 +22,8 @@ export interface SimEvents extends Record<string, unknown> {
   respawn: { tick: number; z: number; checkpoint: number };
   jump: { tick: number };
   land: { tick: number; airTime: number };
-  /** One step taken: the stat grew by `amount` (docs/01-gdd.md 3.3). */
-  gain: StepGain & { tick: number };
+  /** One step taken: the stat grew by `amount` (docs/01-gdd.md 3.3); `belt` — taken on a treadmill belt. */
+  gain: StepGain & { tick: number; belt: boolean };
   /** A gate melted open: the stat reached its requirement (docs/01-gdd.md 3.3). */
   gateOpen: { tick: number; index: number; wall: number; z: number; requires: number };
   /** A gift touched: `coins` added (zone gift × wallScale[tier]), `total` is the coin balance after it. */
@@ -62,14 +63,19 @@ export interface Sim {
   step(input: HeroInput, dt: number): void;
   teleport(x: number, y: number, z: number): void;
   respawn(): void;
-  /** Treadmill multiplier of the niche the hero stands in, 1 on plain ground (docs/02-tech.md 5.3). */
+  /** Treadmill multiplier of the belt the hero stands on, 1 on plain ground (docs/02-tech.md 5.3). */
   treadmillAt(): number;
+  /** The hero stands on a treadmill belt: he runs in place by himself, steps count at run speed (M2-05). */
+  onBelt: boolean;
+  /** Index of the cave sheltering the hero (cave volume + niche.graceDist past the entrance), −1 outside. */
+  shelterIndex(): number;
+  inShelter(): boolean;
   /** Requirement of gate `index` on this tier (docs/01-gdd.md 8.1). */
   gateRequirement(index: number): number;
 }
 
 export interface SimOptions {
-  balance: Pick<BalanceJson, 'stepLength' | 'gainPerStep' | 'rebirth'> & { gifts?: BalanceJson['gifts'] };
+  balance: Pick<BalanceJson, 'stepLength' | 'gainPerStep' | 'rebirth'> & { gifts?: BalanceJson['gifts']; niche?: BalanceJson['niche'] };
   /** Coins carried in (portal to the next mountain). */
   coins?: number;
   /** Rebirth tier n (0 at the start). */
@@ -113,8 +119,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   const prev = { x: hero.pos.x, z: hero.pos.z, onGround: hero.onGround };
   const portal = level.points.find((p) => p.type === 'portal');
   const portalNext = typeof portal?.['next'] === 'number' ? (portal['next'] as number) : null;
-  const inBox = (b: { min: readonly number[]; max: readonly number[] }, x: number, y: number, z: number): boolean =>
-    x >= b.min[0]! && x <= b.max[0]! && y >= b.min[1]! - 0.5 && y <= b.max[1]! && z >= b.min[2]! && z <= b.max[2]!;
+  const beltList = belts(level);
+  const graceDist = opts.balance.niche?.graceDist ?? 0;
 
   const sim: Sim = {
     hero,
@@ -130,6 +136,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     checkpoint: -1,
     respawnTicksLeft: -1,
     portalEntered: false,
+    onBelt: false,
     gifts: giftsFromLevel(level),
     coins: opts.coins ?? 0,
     respawnGifts() {
@@ -161,10 +168,15 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         events.emit('giftTake', { tick: sim.tick, index, coins, zone: gift.zone, rarity: gift.rarity, total: sim.coins });
       });
       // Steps: horizontal path while on the ground before and after the tick; the air and the landing tick count nothing.
+      // On a belt the belt runs under the hero at his run speed: he runs in place by himself (docs/02-tech.md 5.3).
+      const belt = hero.onGround ? beltAt(beltList, hero.pos.x, hero.pos.y, hero.pos.z) : null;
+      sim.onBelt = belt !== null;
       if (hero.onGround && prev.onGround && !hero.jumpedThisTick) {
         const dx = hero.pos.x - prev.x;
         const dz = hero.pos.z - prev.z;
-        for (const gain of progress.advance(Math.hypot(dx, dz), sim.treadmillAt())) events.emit('gain', { ...gain, tick: sim.tick });
+        const path = belt ? params.speed * dt : Math.hypot(dx, dz);
+        const mult = belt && typeof belt['mult'] === 'number' ? (belt['mult'] as number) : 1;
+        for (const gain of progress.advance(path, mult)) events.emit('gain', { ...gain, tick: sim.tick, belt: belt !== null });
         params.speed = moveSpeed(progress.stat, speedCurve);
       } else if (!hero.onGround) progress.resetCarry();
       prev.x = hero.pos.x;
@@ -206,8 +218,14 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       return gate ? gateRequirement(gate.requires, level.worldIndex, gate.index, tier, opts.balance.rebirth) : Infinity;
     },
     treadmillAt() {
-      for (const n of level.niches) if (n.treadmill > 1 && inBox(n.box, hero.pos.x, hero.pos.y, hero.pos.z)) return n.treadmill;
-      return 1;
+      const belt = beltAt(beltList, hero.pos.x, hero.pos.y, hero.pos.z);
+      return belt && typeof belt['mult'] === 'number' ? (belt['mult'] as number) : 1;
+    },
+    shelterIndex() {
+      return shelterIndex(level, graceDist, hero.pos.x, hero.pos.y, hero.pos.z);
+    },
+    inShelter() {
+      return sim.shelterIndex() >= 0;
     },
     respawn() {
       const c = level.checkpoints[sim.checkpoint];

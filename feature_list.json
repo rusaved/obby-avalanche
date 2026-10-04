@@ -220,7 +220,7 @@
     "milestone": "M2",
     "description": "Ледяные пещеры с беговой дорожкой ×N: зона безопасности — объём пещеры, на ленте герой бежит на месте сам, шаги с множителем",
     "acceptance": "Vitest: герой в AABB пещеры считается в укрытии (inShelter); на дорожке шаги идут без ввода с множителем treadmill; e2e: первый шаг на дорожке шлёт treadmill_first",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

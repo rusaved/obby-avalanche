@@ -15,6 +15,9 @@ export const LEDGE_SIZE = 4;
 export const KILL_DEPTH = 20;
 /** Half width of the summit portal opening: the arch is 10 units wide with 1-unit pillars (docs/01-gdd.md 5.2). */
 export const PORTAL_HALF_WIDTH = 4;
+/** Treadmill belt inside a cave (docs/01-gdd.md 4.3): 3 × 5 units at the back wall, room for two bots in front of it. */
+export const NICHE_BELT_WIDTH = 3;
+export const NICHE_BELT_LENGTH = 5;
 
 function num(seg: Segment, key: string, def = 0): number {
   const v = seg[key];
@@ -82,6 +85,8 @@ export function buildLevel(world: World): LevelData {
   const floors = world.segments.filter((s) => s.type === 'floor');
   const rampSegs = world.segments.filter((s) => s.type === 'ramp');
   const nicheSegs = world.segments.filter((s) => s.type === 'niche');
+  // Multiplier of every treadmill of the mountain (flag w1_treadmillMult, docs/01a-content.md 1).
+  const mountainTreadmill = world.treadmillMult ?? 1;
 
   // Floors and ramps with side borders; borders leave a gap where a niche sits.
   const nicheGap = (side: 'left' | 'right', z0: number, z1: number): Array<[number, number]> => {
@@ -157,9 +162,21 @@ export function buildLevel(world: World): LevelData {
       y,
       side,
       box: { min: [lo, y, zA], max: [hi, y + NICHE_HEIGHT, zB] },
-      treadmill: num(n, 'treadmill', 1),
+      treadmill: num(n, 'treadmill', 1) * mountainTreadmill,
+      zone: num(n, 'zone', 0),
     });
-    points.push({ type: 'treadmill', x: sign * (half + BORDER_WIDTH + depth / 2), y, z: n.z, mult: num(n, 'treadmill', 1), inNiche: true });
+    const beltX = sign * (half + BORDER_WIDTH + depth - NICHE_BELT_WIDTH / 2 - 0.5);
+    points.push({
+      type: 'treadmill',
+      x: beltX,
+      y,
+      z: n.z,
+      mult: num(n, 'treadmill', 1) * mountainTreadmill,
+      length: NICHE_BELT_LENGTH,
+      width: NICHE_BELT_WIDTH,
+      inNiche: true,
+      niche: niches.length - 1,
+    });
   }
 
   for (const s of world.segments) {
@@ -195,7 +212,7 @@ export function buildLevel(world: World): LevelData {
         break;
       }
       case 'treadmill':
-        points.push({ type: 'treadmill', x: num(s, 'x'), y, z: s.z, mult: num(s, 'mult', 1), length: num(s, 'length', 10), width: num(s, 'width', 6), inNiche: false });
+        points.push({ type: 'treadmill', x: num(s, 'x'), y, z: s.z, mult: num(s, 'mult', 1) * mountainTreadmill, length: num(s, 'length', 10), width: num(s, 'width', 6), inNiche: false });
         break;
       case 'eggStand':
       case 'chest':

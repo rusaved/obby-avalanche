@@ -30,7 +30,7 @@ function level(): LevelData {
     gates: [],
     niches: [{ stretch: 0, z: 60, y: 0, side: 'left', box: { min: [-10, 0, 50], max: [10, 8, 70] }, treadmill: 3 }],
     checkpoints: [],
-    points: [],
+    points: [{ type: 'treadmill', x: 0, y: 0, z: 60, mult: 3, width: 20, length: 20, inNiche: true }],
     safeZones: [],
     floorYAt: () => 0,
   };
@@ -85,14 +85,19 @@ describe('steps and the stat (docs/01-gdd.md 3.3, M2-01)', () => {
     expect(s.progress.steps - before).toBeLessThan(flown / bal.stepLength - 1);
   });
 
-  it('on a treadmill ×3 every step gives three times more', () => {
+  it('on a treadmill ×3 every step gives three times more (the belt runs, the hero stays)', () => {
     const s = sim();
     s.teleport(0, 0.3, 52);
     for (let i = 0; i < 30; i++) s.step(NO_INPUT, DT);
     expect(s.treadmillAt()).toBe(3);
     const gains: number[] = [];
     s.events.on('gain', (g) => gains.push(g.amount));
-    runUntilZ(s, 52 + bal.stepLength * 2);
+    const steps0 = s.progress.steps;
+    const carry0 = s.progress.carry;
+    const ticks = Math.ceil(((bal.stepLength * 2 - carry0) / s.params.speed) * 60);
+    for (let i = 0; i < ticks; i++) s.step(NO_INPUT, DT);
+    expect(s.progress.steps - steps0).toBe(2);
     expect(gains).toEqual([bal.gainPerStep * 3, bal.gainPerStep * 3]);
+    expect(s.hero.pos.z).toBeCloseTo(52, 1);
   });
 });

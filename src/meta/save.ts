@@ -16,6 +16,8 @@ export interface SaveData {
   savedAt: number;
   sessions: number;
   settings: SaveSettings;
+  /** «Already sent» flags of player-once funnel events and one-time moments (docs/06 section 2: kind `player`). */
+  flags?: Record<string, boolean>;
 }
 
 export const SAVE_VERSION = 1;

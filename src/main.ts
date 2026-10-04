@@ -78,6 +78,14 @@ async function boot(): Promise<void> {
     save.savedAt = platform.serverTime();
     platform.markDirty(save, { flush });
   };
+  /** Funnel event of kind `player` (docs/06 section 2): sent once in the life of the player, the flag lives in the save. */
+  const trackOnce = (name: string, params?: Record<string, unknown>): void => {
+    const flags = (save.flags ??= {});
+    if (flags[name]) return;
+    flags[name] = true;
+    track(name, params);
+    persist();
+  };
 
   const mobile = platform.device !== 'desktop';
   const nav = navigator as Navigator & { deviceMemory?: number };
@@ -140,9 +148,10 @@ async function boot(): Promise<void> {
         if (simEvents.length > 2000) simEvents.splice(0, simEvents.length - 2000);
       });
     }
-    s.events.on('gain', ({ amount, steps }) => {
+    s.events.on('gain', ({ amount, steps, belt }) => {
       pendingGain = amount;
       if (steps === 1) track('gameTutorialStart');
+      if (belt) trackOnce('treadmill_first');
     });
     // Gifts (M2-04): a taken gift disappears, the coin plaque slides in on the first coin.
     s.events.on('giftTake', ({ index, total }) => {
@@ -344,7 +353,9 @@ async function boot(): Promise<void> {
       heroChar.position.copy(renderPos);
       heroChar.yaw = hero.yaw;
       heroChar.speedFactor = Math.min(1, hero.speed / Math.max(1, maxSpeed));
-      heroChar.pose = hero.onGround ? (hero.speed > 0.5 ? 'run' : 'idle') : hero.vel.y > 2 ? 'jump' : 'fall';
+      // On a belt the hero runs in place by himself (docs/01-gdd.md 3.4).
+      heroChar.pose = hero.onGround ? (hero.speed > 0.5 || sim.onBelt ? 'run' : 'idle') : hero.vel.y > 2 ? 'jump' : 'fall';
+      if (sim.onBelt) heroChar.speedFactor = 1;
       if (hero.landedThisTick) heroChar.squash = 0.1;
       heroChar.visible = !(cameraRig?.heroHidden ?? false) && sim.respawnTicksLeft < 0;
     }
