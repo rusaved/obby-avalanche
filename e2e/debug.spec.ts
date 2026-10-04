@@ -11,13 +11,15 @@ test.describe('debug panel', () => {
     await expect(page.locator('[data-role="debug-overlay"]')).toBeVisible();
     await page.keyboard.down('KeyW');
     await waitTicks(page, 36);
-    const v1 = (await testState(page)).hero!.speed;
+    const s1 = await testState(page);
     await page.evaluate(() => window.__DEBUG__!.set('controller.baseSpeed', 32));
     await waitTicks(page, 36);
-    const v2 = (await testState(page)).hero!.speed;
+    const s2 = await testState(page);
     await page.keyboard.up('KeyW');
-    expect(v1).toBeCloseTo(16, 0);
-    expect(v2).toBeCloseTo(32, 0);
+    // Since M2-01 the run speed also grows with the stat (docs/02-tech.md 6.1): compare against the curve at each moment.
+    const curve = (base: number, stat: number) => Math.min(64, base * (1 + 0.3 * Math.log10(1 + stat)));
+    expect(s1.hero!.speed).toBeCloseTo(curve(16, s1.stat), 0);
+    expect(s2.hero!.speed).toBeCloseTo(curve(32, s2.stat), 0);
     // Remembered on this device until Reset.
     await page.reload();
     await page.waitForFunction(() => window.__TEST__?.ready === true, undefined, { timeout: 60_000 });

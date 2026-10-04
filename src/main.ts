@@ -35,6 +35,9 @@ import type { DebugPanel } from './debug/index.ts';
 const DEG = Math.PI / 180;
 /** «+N» above the hero at most 4 times a second (docs/01-gdd.md 10.3). */
 const GAIN_POP_MIN_SEC = 0.25;
+/** A gate melts into an arch in 0.4 s (docs/01-gdd.md 3.3). */
+const GATE_MELT_SEC = 0.4;
+const GATE_FUNNEL_WALLS = [1, 2, 3, 4, 6, 9];
 const KEYS_HINT_SEC = 30;
 
 /**
@@ -99,10 +102,10 @@ async function boot(): Promise<void> {
   const level = buildLevel(world);
   // Feel values (base and ceiling) come from tuning.json sliders; the curve shape from balance.json.
   const speedCurve = () => ({ ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed });
-  const sim: Sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat: 0 });
+  const sim: Sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat: 0, tier: 0 });
   let maxSpeed = sim.params.speed;
   const simEvents: GameHandles['simEvents'] = [];
-  for (const name of ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain'] as const) {
+  for (const name of ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen'] as const) {
     sim.events.on(name, (payload) => {
       simEvents.push({ name, ...(payload as Record<string, unknown>), tick: sim.tick });
       if (simEvents.length > 2000) simEvents.splice(0, simEvents.length - 2000);
@@ -137,6 +140,13 @@ async function boot(): Promise<void> {
     pendingGain = amount;
     if (steps === 1) track('gameTutorialStart');
   });
+  // Gates melt into an arch over GATE_MELT_SEC; funnel events gate_N for mountain 1 on tier 0 (docs/06, steps 5–15).
+  const melting = new Map<number, number>();
+  sim.events.on('gateOpen', ({ index, wall }) => {
+    melting.set(index, playSec);
+    if (level.worldIndex === 1 && sim.tier === 0 && GATE_FUNNEL_WALLS.includes(wall)) track(`gate_${wall}`);
+  });
+  const numSuffix = (k: string): string => t(`num.${k}`);
   const headPos = new Vector3();
   const prevPos = new Vector3().copy(sim.hero.pos);
   const curPos = new Vector3().copy(sim.hero.pos);
@@ -221,6 +231,7 @@ async function boot(): Promise<void> {
     renderOnce() {
       renderFrame(1, 0);
     },
+    gateSign: (index) => levelMeshes?.gateSign(index) ?? { text: '', open: false },
     showFaces() {
       if (!characters || !cameraRig) return;
       const base = sim.hero.pos;
@@ -294,6 +305,19 @@ async function boot(): Promise<void> {
       );
     }
     characters?.update(frameDt);
+    if (levelMeshes) {
+      for (const [index, startedAt] of melting) {
+        const k = Math.min(1, (playSec - startedAt) / GATE_MELT_SEC);
+        levelMeshes.setGateOpen(index, k);
+        if (k >= 1) melting.delete(index);
+      }
+      const statText = formatNumber(sim.progress.stat, numSuffix);
+      level.gates.forEach((_, i) => {
+        const req = formatNumber(sim.gateRequirement(i), numSuffix);
+        const open = sim.gatesOpen[i] ?? false;
+        levelMeshes!.setGateSign(i, open ? req : `${statText}/${req}`, open);
+      });
+    }
     gr.follow(renderPos);
     levelMeshes?.cullByDistance(renderPos.z, quality.params.fogFar);
     if (hud) {

@@ -26,6 +26,8 @@ export interface TestState {
   /** Stat (Speed) and steps taken (M2-01). */
   stat: number;
   steps: number;
+  /** Open state per gate of the current mountain (M2-02). */
+  gatesOpen: boolean[];
   controlYaw: number;
   viewYaw: number;
   cameraDistance: number;
@@ -73,6 +75,7 @@ export interface TestApi {
   showFaces(): void;
   setFace(index: number): void;
   charactersDrawCalls(): number;
+  gateSign(index: number): { text: string; open: boolean };
   showAd(kind: 'interstitial' | 'rewarded'): Promise<{ shown?: boolean; rewarded?: boolean; error?: string }>;
 }
 
@@ -110,6 +113,7 @@ export function installTestApi(g: GameHandles): TestApi {
           : null,
         stat: g.sim?.progress.stat ?? 0,
         steps: g.sim?.progress.steps ?? 0,
+        gatesOpen: g.sim ? [...g.sim.gatesOpen] : [],
         controlYaw: g.frame.controlYaw,
         viewYaw: g.frame.viewYaw,
         cameraDistance: cam?.currentDistance ?? 0,
@@ -179,6 +183,7 @@ export function installTestApi(g: GameHandles): TestApi {
         distance: opts.dist ?? g.frame.distance,
       };
     },
+    gateSign: (index) => g.gateSign(index),
     cameraInsideGeometry() {
       if (!g.camera || !g.sim) return false;
       return g.camera.insideGeometry(g.sim.collision);

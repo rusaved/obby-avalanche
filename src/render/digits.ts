@@ -15,7 +15,7 @@ import {
   SRGBColorSpace,
 } from 'three';
 
-export const ATLAS_CHARS = '0123456789.KMBTQaixpOcNoD+×';
+export const ATLAS_CHARS = '0123456789.KMBTQaixpOcNoD+×/';
 const CELL = 64;
 const COLS = 8;
 
@@ -52,7 +52,7 @@ export function createDigitAtlas(): { texture: CanvasTexture; cols: number; rows
   return { texture, cols: COLS, rows };
 }
 
-const CHARS_PER_LABEL = 6;
+const CHARS_PER_LABEL = 10; // «1.2K/2K»-style progress fits (docs/01-gdd.md 3.3)
 
 export function createDigitLabels(maxChars: number): DigitLabels {
   const { texture, cols, rows } = createDigitAtlas();

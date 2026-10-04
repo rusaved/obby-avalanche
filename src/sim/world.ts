@@ -8,6 +8,7 @@ import type { LevelData } from '../level/types.ts';
 import type { BalanceJson, Curve, TuningJson } from '../content/types.ts';
 import { moveSpeed } from './effects/moveSpeed.ts';
 import { createStepTracker, type StepGain, type StepTracker } from './steps.ts';
+import { gateIsOpen, gateRequirement } from './gates.ts';
 import { createCollisionWorld, type CollisionWorld } from './collision.ts';
 import { createHero, placeHero, stepHero, type ControllerParams, type HeroInput, type HeroState, NO_INPUT } from './controller.ts';
 
@@ -20,6 +21,8 @@ export interface SimEvents extends Record<string, unknown> {
   land: { tick: number; airTime: number };
   /** One step taken: the stat grew by `amount` (docs/01-gdd.md 3.3). */
   gain: StepGain & { tick: number };
+  /** A gate melted open: the stat reached its requirement (docs/01-gdd.md 3.3). */
+  gateOpen: { tick: number; index: number; wall: number; z: number; requires: number };
 }
 
 export interface Sim {
@@ -32,6 +35,9 @@ export interface Sim {
   readonly progress: StepTracker;
   /** Mutable: the debug panel re-applies tuning into it. */
   readonly speedCurve: Curve;
+  /** Per gate of `level.gates`: open (melted) or still a collider. */
+  readonly gatesOpen: boolean[];
+  readonly tier: number;
   tick: number;
   checkpoint: number;
   /** -1 when not respawning; otherwise ticks left of the ≤0.5 s fade (docs/02-tech.md 6.1). */
@@ -41,10 +47,14 @@ export interface Sim {
   respawn(): void;
   /** Treadmill multiplier of the niche the hero stands in, 1 on plain ground (docs/02-tech.md 5.3). */
   treadmillAt(): number;
+  /** Requirement of gate `index` on this tier (docs/01-gdd.md 8.1). */
+  gateRequirement(index: number): number;
 }
 
 export interface SimOptions {
-  balance: Pick<BalanceJson, 'stepLength' | 'gainPerStep'>;
+  balance: Pick<BalanceJson, 'stepLength' | 'gainPerStep' | 'rebirth'>;
+  /** Rebirth tier n (0 at the start). */
+  tier?: number;
   /** Stat → run speed (docs/02-tech.md 6.1): base and max from tuning, k from balance. */
   speedCurve: Curve;
   stat?: number;
@@ -71,7 +81,10 @@ export function controllerParams(tuning: TuningJson, speed: number): ControllerP
 
 export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions): Sim {
   const collision = createCollisionWorld(level.staticTriangles);
-  collision.setDynamicBoxes(level.gates.map((g) => g.box));
+  const gatesOpen = level.gates.map(() => false);
+  const tier = opts.tier ?? 0;
+  const syncGates = (): void => collision.setDynamicBoxes(level.gates.filter((_, i) => !gatesOpen[i]).map((g) => g.box));
+  syncGates();
   const hero = createHero(level.spawn);
   const events = createEmitter<SimEvents>();
   const progress = createStepTracker(opts.balance, opts.stat ?? 0);
@@ -89,6 +102,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     params,
     progress,
     speedCurve,
+    gatesOpen,
+    tier,
     tick: 0,
     checkpoint: -1,
     respawnTicksLeft: -1,
@@ -112,6 +127,15 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       prev.x = hero.pos.x;
       prev.z = hero.pos.z;
       prev.onGround = hero.onGround;
+      // Gates: the number is all that matters; an open gate stays open until rebirth (docs/01-gdd.md 3.3).
+      let opened = false;
+      level.gates.forEach((gate, i) => {
+        if (gatesOpen[i] || !gateIsOpen(progress.stat, sim.gateRequirement(i))) return;
+        gatesOpen[i] = true;
+        opened = true;
+        events.emit('gateOpen', { tick: sim.tick, index: i, wall: gate.index, z: gate.z, requires: sim.gateRequirement(i) });
+      });
+      if (opened) syncGates();
       if (hero.jumpedThisTick) events.emit('jump', { tick: sim.tick });
       if (hero.landedThisTick) events.emit('land', { tick: sim.tick, airTime: hero.airTime });
       // Checkpoints: the flag behind the last wall passed (highest z reached on the ground).
@@ -133,6 +157,10 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       placeHero(hero, x, y, z);
       progress.resetCarry();
       prev.onGround = false;
+    },
+    gateRequirement(index) {
+      const gate = level.gates[index];
+      return gate ? gateRequirement(gate.requires, level.worldIndex, gate.index, tier, opts.balance.rebirth) : Infinity;
     },
     treadmillAt() {
       for (const n of level.niches) if (n.treadmill > 1 && inBox(n.box, hero.pos.x, hero.pos.y, hero.pos.z)) return n.treadmill;

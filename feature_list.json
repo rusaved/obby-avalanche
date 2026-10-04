@@ -193,7 +193,7 @@
     "milestone": "M2",
     "description": "Ледяные стены с числом: открыта, если Скорость ≥ требования (wall(p) × wallScale[ступень]), тает в арку, за ней флажок (GDD-07)",
     "acceptance": "Vitest: при Скорости на 1 меньше требования стена закрыта, при равной — открыта, на ступенях 0 и 3 требование = wall(p) × wallScale[n]; e2e: табличка считает «15/20» и зеленеет, скриншот docs/evidence/M2/gate_1920x1080_ru.png",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

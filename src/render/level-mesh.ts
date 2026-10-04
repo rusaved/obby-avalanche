@@ -35,6 +35,10 @@ export interface LevelMeshes {
   digits: DigitLabels;
   /** Scale a gate slab (1 = closed, 0 = gone); M2 melts gates with this. */
   setGateOpen(index: number, openness: number): void;
+  /** Sign text («15/20» while closed, the requirement when open) and colour by state (docs/01-gdd.md 3.3). */
+  setGateSign(index: number, text: string, open: boolean): void;
+  /** What a sign currently shows (test API). */
+  gateSign(index: number): { text: string; open: boolean };
   cullByDistance(z: number, far: number): void;
   dispose(): void;
 }
@@ -167,7 +171,8 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   const gates = new InstancedMesh(gateGeo, gateMat, Math.max(1, level.gates.length));
   gates.instanceMatrix.setUsage(DynamicDrawUsage);
   const signGeo = new BoxGeometry(1, 1, 1);
-  const signMat = new MeshLambertMaterial({ color: materialColor(theme, 'gateSign') });
+  // White base: the per-instance colour (red closed / green open from theme.json) is the sign colour.
+  const signMat = new MeshLambertMaterial({ color: 0xffffff });
   const signs = new InstancedMesh(signGeo, signMat, Math.max(1, level.gates.length));
   const dummy = new Object3D();
   level.gates.forEach((g, i) => {
@@ -186,11 +191,21 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   signs.instanceMatrix.needsUpdate = true;
   group.add(gates, signs);
 
-  const digits = createDigitLabels(level.gates.length * 6 + 8);
-  level.gates.forEach((g, i) => {
+  const digits = createDigitLabels(level.gates.length * 10 + 8);
+  const signState = level.gates.map((g) => ({ text: formatNumber(g.requires, suffix), open: false }));
+  const signColor = new Color();
+  const signOpenColor = materialColor(theme, 'gateSignOpen');
+  const signClosedColor = materialColor(theme, 'gateSign');
+  const applySign = (i: number): void => {
+    const g = level.gates[i];
+    const st = signState[i];
+    if (!g || !st) return;
     const d = g.box.max[2] - g.box.min[2];
-    digits.setLabel(i, formatNumber(g.requires, suffix), 0, g.y + g.signHeight, g.z - d / 2 - 0.52, 2.2, '#ffffff');
-  });
+    digits.setLabel(i, st.text, 0, g.y + g.signHeight, g.z - d / 2 - 0.52, 2.2, '#ffffff');
+    signs.setColorAt(i, signColor.set(st.open ? signOpenColor : signClosedColor));
+    if (signs.instanceColor) signs.instanceColor.needsUpdate = true;
+  };
+  level.gates.forEach((_, i) => applySign(i));
   group.add(digits.mesh);
 
   return {
@@ -199,6 +214,17 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     gates,
     signs,
     digits,
+    setGateSign(index, text, open) {
+      const st = signState[index];
+      if (!st || (st.text === text && st.open === open)) return;
+      st.text = text;
+      st.open = open;
+      applySign(index);
+    },
+    gateSign(index) {
+      const st = signState[index];
+      return st ? { ...st } : { text: '', open: false };
+    },
     setGateOpen(index, openness) {
       const g = level.gates[index];
       if (!g) return;
