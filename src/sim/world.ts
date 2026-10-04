@@ -2,7 +2,8 @@
  * Simulation of one mountain (docs/02-tech.md 4.2, 6.1): hero, checkpoints, fall and respawn.
  * Steps and the stat (M2-01, `steps.ts`): run speed follows the stat through the `moveSpeed` effect.
  * Gates that open (M2-02), the summit portal (M2-03), gifts and coins (M2-04), the avalanche (M2-05…M2-07),
- * coins for passing a gate and the free egg of the first minute (M2-08). Pure TS, no DOM, no rendering.
+ * coins for passing a gate and the free egg of the first minute (M2-08), the golden gift of the warning (M2-12).
+ * Pure TS, no DOM, no rendering.
  */
 import { createEmitter, type Emitter } from '../core/events.ts';
 import type { LevelData } from '../level/types.ts';
@@ -18,12 +19,23 @@ import { caughtPosition, caughtTotalSec, createCaught, type CaughtState } from '
 import { createGiftEgg, stepGiftEgg, type GiftEggState } from './gift-egg.ts';
 import { createMilestones, type Milestones } from './milestones.ts';
 import { createBots, type BotContext, type BotCrowd, type BotsOptions } from './bots.ts';
+import { placeBonus, touchesBonus, zoneAt, type BonusConfig, type BonusState } from './bonus.ts';
+import { createRng } from '../core/rng.ts';
+import { inSafeZone } from './shelter.ts';
 import { PORTAL_HALF_WIDTH } from '../level/builder.ts';
 import { createHero, placeHero, stepHero, type ControllerParams, type HeroInput, type HeroState, NO_INPUT } from './controller.ts';
 
 export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, Record<string, unknown> {
-  /** «Phew, made it!» (docs/01-gdd.md 4.4): `coins` = coins.waveSurvived × gift of the cave's zone × wallScale[tier]. */
-  waveSurvived: ThreatEvents['waveSurvived'] & { coins: number; total: number };
+  /**
+   * «Phew, made it!» (docs/01-gdd.md 4.4): `coins` = coins.waveSurvived × gift of the cave's zone × wallScale[tier],
+   * plus `gold` when the hero brought the golden gift into the cave (one toast, docs/01-gdd.md 4.9).
+   */
+  waveSurvived: ThreatEvents['waveSurvived'] & { coins: number; total: number; gold: number };
+  /** Golden gift (docs/01-gdd.md 4.9): placed on warn, taken, saved (`coins` = mult × zone gift × wallScale) or lost. */
+  bonusSpawn: { tick: number; x: number; y: number; z: number; zone: number };
+  bonusTake: { tick: number; x: number; y: number; z: number };
+  bonusSaved: { tick: number; coins: number; total: number; where: 'cave' | 'portal' | 'gone' };
+  bonusLost: { tick: number; x: number; y: number; z: number };
   step: { tick: number };
   checkpoint: { index: number; z: number };
   fall: { tick: number; z: number };
@@ -85,6 +97,10 @@ export interface Sim {
   readonly milestones: Milestones;
   /** Bots on the track (M2-10); null when the sim runs without them. */
   readonly bots: BotCrowd | null;
+  /** Golden gift of this wave (M2-12): on the ground or carried by the hero; null when there is none. */
+  bonus: BonusState | null;
+  /** __TEST__.giveBonus(): the hero carries a golden gift now (only with threat.bonus in the data, on warn or run). */
+  giveBonus(): boolean;
   /** True once the hero has walked through the portal of this mountain (one `portal` event per sim). */
   portalEntered: boolean;
   step(input: HeroInput, dt: number): void;
@@ -124,6 +140,8 @@ export interface SimOptions {
   giftEgg?: { wall: number; pet: string; hatchSec: number } | undefined;
   /** Bots (docs/01-gdd.md 7.12): bots.json, how many for the quality level and the seed; caught and avalanche come from here. */
   bots?: Pick<BotsOptions, 'cfg' | 'count' | 'seed'> | undefined;
+  /** Golden gift (docs/01-gdd.md 4.9): game.json threat.bonus, the seed, normal waves of this load before this mountain. */
+  bonus?: { cfg: BonusConfig; seed: number; wavesBefore: number } | undefined;
 }
 
 export const RESPAWN_FADE_TICKS = 18;
@@ -187,6 +205,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     onBelt: false,
     threat: null,
     bots: null,
+    bonus: null,
     caught: null,
     gifts: giftsFromLevel(level),
     coins: opts.coins ?? 0,
@@ -203,6 +222,9 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         heroView.vx = hero.vel.x;
         heroView.vz = hero.vel.z;
         threat.step(dt, heroView, gatesOpen, sim.tick);
+        // Not taken before the front reached its point: it melts, no event (docs/01-gdd.md 4.9).
+        const b = sim.bonus;
+        if (b && !b.carried && threat.state.phase === 'run' && threat.state.frontZ <= b.z) sim.bonus = null;
       }
       if (bots) {
         botCtx.hero.x = hero.pos.x;
@@ -227,6 +249,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       // Portal: the hero crosses the arch plane inside its opening (docs/01-gdd.md 5.2).
       if (portal && !sim.portalEntered && zBefore < portal.z && hero.pos.z >= portal.z && Math.abs(hero.pos.x - portal.x) <= PORTAL_HALF_WIDTH) {
         sim.portalEntered = true;
+        if (sim.bonus?.carried) saveBonus('portal');
         events.emit('portal', { tick: sim.tick, from: level.worldIndex, next: portalNext });
       }
       // Gifts: a touch takes the gift and pays the coins of its zone (docs/01-gdd.md 3.2).
@@ -237,6 +260,12 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         sim.coins += coins;
         events.emit('giftTake', { tick: sim.tick, index, coins, zone: gift.zone, rarity: gift.rarity, total: sim.coins });
       });
+      // Golden gift: a touch on warn or run and the hero carries it over his head.
+      const bonus = sim.bonus;
+      if (bonus && !bonus.carried && (threat?.state.phase === 'warn' || threat?.state.phase === 'run') && touchesBonus(bonus, hero.pos.x, hero.pos.y, hero.pos.z)) {
+        bonus.carried = true;
+        events.emit('bonusTake', { tick: sim.tick, x: bonus.x, y: bonus.y, z: bonus.z });
+      }
       // Steps: horizontal path while on the ground before and after the tick; the air and the landing tick count nothing.
       // On a belt the belt runs under the hero at his run speed: he runs in place by himself (docs/02-tech.md 5.3).
       const belt = hero.onGround ? beltAt(beltList, hero.pos.x, hero.pos.y, hero.pos.z) : null;
@@ -315,6 +344,16 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     inShelter() {
       return sim.shelterIndex() >= 0;
     },
+    giveBonus() {
+      const phase = threat?.state.phase;
+      if (!bonusCfg || (phase !== 'warn' && phase !== 'run')) return false;
+      if (sim.bonus?.carried) return true;
+      const p = hero.pos;
+      sim.bonus ??= { x: p.x, y: p.y, z: p.z, zone: zoneAt(level, p.z), carried: false };
+      sim.bonus.carried = true;
+      events.emit('bonusTake', { tick: sim.tick, x: sim.bonus.x, y: sim.bonus.y, z: sim.bonus.z });
+      return true;
+    },
     respawn() {
       const c = level.checkpoints[sim.checkpoint];
       const target: [number, number, number] = c ? [c.x, c.y, c.z] : level.spawn;
@@ -329,17 +368,51 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   // The avalanche emits through the sim bus; «Phew, made it!» pays coins first (docs/01-gdd.md 4.4).
   const zoneGift = new Map<number, number>();
   for (const gift of sim.gifts) if (!zoneGift.has(gift.zone)) zoneGift.set(gift.zone, gift.coins);
+  // Golden gift (docs/01-gdd.md 4.9): worth mult gifts of the zone where it lay.
+  const bonusCfg = opts.bonus?.cfg ?? null;
+  const bonusRng = createRng(opts.bonus?.seed ?? 0);
+  const goldCoins = (b: BonusState): number => (bonusCfg?.mult ?? 0) * (zoneGift.get(b.zone) ?? 0) * wallScale(tier, opts.balance.rebirth);
+  const saveBonus = (where: 'cave' | 'portal' | 'gone', coins?: number): void => {
+    const b = sim.bonus;
+    sim.bonus = null;
+    if (!b) return;
+    const gold = coins ?? goldCoins(b);
+    if (coins === undefined) sim.coins += gold;
+    events.emit('bonusSaved', { tick: sim.tick, coins: gold, total: sim.coins, where });
+  };
+  const onWarn = (p: ThreatEvents['waveWarn']): void => {
+    sim.bonus = null;
+    if (!bonusCfg || p.scripted || (opts.bonus?.wavesBefore ?? 0) + p.normalWaves < bonusCfg.fromWave) return;
+    // In the camp or on the summit at the start of the warning: no gift this wave.
+    if (inSafeZone(level, hero.pos.z) || p.shelter < 0) return;
+    sim.bonus = placeBonus(level, bonusCfg, gatesOpen, p.shelter, bonusRng);
+    if (sim.bonus) events.emit('bonusSpawn', { tick: p.tick, x: sim.bonus.x, y: sim.bonus.y, z: sim.bonus.z, zone: sim.bonus.zone });
+  };
   const threat = opts.threat
     ? createThreat(level, opts.threat, (name, payload) => {
         if (name === 'waveSurvived') {
           const p = payload as ThreatEvents['waveSurvived'];
           const zone = level.niches[p.niche]?.zone ?? 0;
-          const coins = (opts.balance.coins?.waveSurvived ?? 0) * (zoneGift.get(zone) ?? 0) * wallScale(tier, opts.balance.rebirth);
+          let coins = (opts.balance.coins?.waveSurvived ?? 0) * (zoneGift.get(zone) ?? 0) * wallScale(tier, opts.balance.rebirth);
+          // The golden gift brought into the cave: one toast with both rewards (docs/01-gdd.md 4.9).
+          const gold = sim.bonus?.carried ? goldCoins(sim.bonus) : 0;
+          coins += gold;
           sim.coins += coins;
-          events.emit('waveSurvived', { ...p, coins, total: sim.coins });
+          events.emit('waveSurvived', { ...p, coins, total: sim.coins, gold });
+          if (gold > 0) saveBonus('cave', gold);
           return;
         }
         (events.emit as (n: string, p: unknown) => void)(name, payload);
+        if (name === 'waveWarn') onWarn(payload as ThreatEvents['waveWarn']);
+        else if (name === 'waveCaught' && sim.bonus?.carried) {
+          // Snowed in with the gift: it pops, nothing else is lost (a gift left on the ground melts with the front).
+          sim.bonus = null;
+          events.emit('bonusLost', { tick: sim.tick, x: hero.pos.x, y: hero.pos.y, z: hero.pos.z });
+        } else if (name === 'waveGone') {
+          // The camp, the summit or a slope the front never reached: the carried gift counts now.
+          if (sim.bonus?.carried) saveBonus('gone');
+          sim.bonus = null;
+        }
       })
     : null;
   (sim as { threat: Threat | null }).threat = threat;

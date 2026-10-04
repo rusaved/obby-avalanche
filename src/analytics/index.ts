@@ -12,7 +12,7 @@ declare global {
   interface Window {
     __T0?: number;
     __ANALYTICS_BUFFER__?: AnalyticsEvent[];
-    ym?: (id: number, action: string, goal: string, params?: Record<string, unknown>) => void;
+    ym?: (id: number, action: string, ...args: unknown[]) => void;
   }
 }
 
@@ -20,6 +20,13 @@ const buffer: AnalyticsEvent[] = typeof window !== 'undefined' && window.__ANALY
 let counterId = 0;
 let echo = false;
 let listener: ((ev: AnalyticsEvent) => void) | null = null;
+
+/** Events that reach Metrika as a visit parameter, not a goal (docs/06-analytics.md: the golden gift, no goals). */
+const PARAM_EVENTS: Readonly<Record<string, Record<string, string>>> = {
+  gold_take: { goldGift: 'take' },
+  gold_saved: { goldGift: 'saved' },
+  gold_lost: { goldGift: 'lost' },
+};
 
 /** One listener for every tracked event (the e2e test API stamps events with play time). */
 export function onTrack(fn: ((ev: AnalyticsEvent) => void) | null): void {
@@ -44,7 +51,9 @@ export function track(name: string, params?: Record<string, unknown>): void {
   if (buffer.length > 500) buffer.splice(0, buffer.length - 500);
   if (counterId > 0 && typeof window !== 'undefined' && typeof window.ym === 'function') {
     try {
-      window.ym(counterId, 'reachGoal', name, { t: ev.t, ...(params ?? {}) });
+      const asParam = PARAM_EVENTS[name];
+      if (asParam) window.ym(counterId, 'params', asParam);
+      else window.ym(counterId, 'reachGoal', name, { t: ev.t, ...(params ?? {}) });
     } catch {
       /* Metrika is best effort */
     }

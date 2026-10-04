@@ -56,6 +56,8 @@ export interface CharacterInstance {
   visible: boolean;
   skinId: string;
   hatId: string | null;
+  /** Hands up over the head (the golden gift, docs/01-gdd.md 4.9); legs keep the pose. */
+  carry: boolean;
 }
 
 export interface Characters {
@@ -346,6 +348,7 @@ if (vObjNormal.z > 0.6) {
         visible: true,
         skinId,
         hatId: null,
+        carry: false,
       };
       instances.push(ch);
       applySkin(ch);
@@ -432,6 +435,10 @@ if (vObjNormal.z > 0.6) {
           armR = 0.3;
           legL = -1.2;
           legR = -1.2;
+        }
+        if (ch.carry && ch.pose !== 'ball') {
+          armL = -3.0;
+          armR = -3.0;
         }
 
         // Run bob: a light bounce twice per stride and a hint of side sway make the stride read as springy.

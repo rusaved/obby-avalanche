@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { PACK_FILES, validatePack, type PackFiles } from '../../src/level/validate.ts';
+import { goldFairnessReport, PACK_FILES, validatePack, type PackFiles } from '../../src/level/validate.ts';
+import { moveSpeed } from '../../src/sim/effects/moveSpeed.ts';
 import { generateWorlds, ceilToSeries, stringifyWorlds } from '../../src/level/generate.ts';
-import type { WorldsSpecJson } from '../../src/content/types.ts';
+import type { BalanceJson, GameJson, TuningJson, WorldsJson, WorldsSpecJson } from '../../src/content/types.ts';
 
 const root = resolve(__dirname, '../..');
 const packs = readdirSync(resolve(root, 'content'), { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name);
@@ -126,6 +127,28 @@ describe('validate:content (docs/02-tech.md 5.4)', () => {
     const hero = clone(files);
     (hero['bots.json'] as { palette: { jackets: string[] } }).palette.jackets.push('#FF7A00');
     expect(validatePack(hero).errors.some((e) => e.startsWith('bots.json: palette.jackets'))).toBe(true);
+  });
+
+  it('golden gift fairness (M2-12): cave → distMax → cave at the slowest speed of the stretch ≤ 60% of warnSec + spawnAhead / speed', () => {
+    const files = loadPack('avalanche');
+    const bonus = (files['game.json'] as GameJson).threat.bonus!;
+    const tuning = files['tuning.json'] as TuningJson;
+    const curve = { ...(files['balance.json'] as BalanceJson).speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed };
+    const rows = goldFairnessReport(files['worlds.json'] as WorldsJson, (s) => moveSpeed(s, curve), bonus.distMax);
+    // Mountain 1, cave 1: 100 units at 16 u/s = 6.25 s against 0.6 × (8 + 160 / 45) = 6.93 s (docs/01-gdd.md 4.9).
+    const first = rows.find((r) => r.world === 'slope' && r.stretch === 1)!;
+    expect(first.sec).toBeCloseTo(6.25, 2);
+    expect(first.limitSec).toBeCloseTo(6.93, 2);
+    expect(rows.filter((r) => r.world === 'slope')).toHaveLength(12);
+    for (const r of rows) expect(r.sec, `${r.world} ${r.stretch}`).toBeLessThanOrEqual(r.limitSec);
+    const far = clone(files);
+    (far['game.json'] as GameJson).threat.bonus!.distMax = 60;
+    expect(validatePack(far).errors.some((e) => e.startsWith('game.json: threat.bonus — golden gift fairness on slope, cave of stretch 1'))).toBe(true);
+    // No threat.bonus — no check.
+    const none = clone(far);
+    delete (none['game.json'] as GameJson).threat.bonus;
+    delete (none['game.json'] as { flags: Record<string, unknown> }).flags['goldGift_mult'];
+    expect(validatePack(none).errors).toEqual([]);
   });
 
   it('ceilToSeries rounds up along 1; 1.2; 1.5; 2; 2.5; 3; 4; 5; 6; 8 × 10^k', () => {

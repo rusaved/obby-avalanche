@@ -488,6 +488,7 @@ export function validatePack(files: PackFiles): ValidationResult {
     const curve = { ...(balance.speedCurve as Curve), base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed };
     const speedAt = (stat: number): number => (game.stat.effect === 'moveSpeed' ? moveSpeed(stat, curve) : tuning.controller.baseSpeed);
     errors.push(...validateFairness(worlds, speedAt));
+    if (game.threat.bonus) errors.push(...validateGoldFairness(worlds, speedAt, game.threat.bonus.distMax));
   }
 
   // Remote flags: every path resolves to a number or boolean inside its range (docs/02-tech.md 11.11).
@@ -710,5 +711,48 @@ export function validateFairness(worlds: WorldsJson, speedAt: (stat: number) => 
     .map(
       ({ r, wi }) =>
         `worlds.json: worlds[${wi}] (${r.world}): cave fairness — from z=${r.worstZ} the nearest cave or safe zone is ${r.worstSec.toFixed(2)} s away, above warnSec × ${FAIRNESS_SHARE} = ${r.limitSec.toFixed(2)} s`,
+    );
+}
+
+/** Share of the warning plus the front's way down that the golden gift run may take (docs/01-gdd.md 4.9). */
+export const GOLD_FAIRNESS_SHARE = 0.6;
+
+export interface GoldFairnessRow {
+  world: string;
+  /** Stretch of the cave, its run «cave → gift at distMax → cave» at the minimum speed of the stretch, and the limit. */
+  stretch: number;
+  sec: number;
+  limitSec: number;
+}
+
+/**
+ * Golden gift fairness (docs/02-tech.md 5.4; docs/01-gdd.md 4.9): from every cave of every mountain the way «cave →
+ * gift at distMax → cave» at the minimum speed of the cave's stretch (the stat that opened the wall below it; stretch
+ * 1 — the last wall of the mountain before, stat 0 on mountain 1) takes ≤ 60% of warnSec + spawnAhead / threat.speed (the speed of the front, not the stat).
+ */
+export function goldFairnessReport(worlds: WorldsJson, speedAt: (stat: number) => number, distMax: number): GoldFairnessRow[] {
+  const rows: GoldFairnessRow[] = [];
+  // Stretch 1 of a mountain is run with the stat of the last wall of the mountain before it (stat 0 on mountain 1).
+  let carried = 0;
+  for (const w of worlds.worlds) {
+    const gates = w.segments.filter((s) => s.type === 'gate').sort((a, b) => a.z - b.z);
+    const limitSec = GOLD_FAIRNESS_SHARE * (w.threat.warnSec + w.threat.spawnAhead / w.threat.speed);
+    for (const n of w.segments.filter((s) => s.type === 'niche')) {
+      const stretch = num(n, 'stretch');
+      const speed = speedAt(stretch <= 1 ? carried : num(gates[stretch - 2] as Segment, 'requires'));
+      rows.push({ world: w.id, stretch, sec: (2 * distMax) / speed, limitSec });
+    }
+    const last = gates[gates.length - 1];
+    if (last) carried = num(last, 'requires');
+  }
+  return rows;
+}
+
+export function validateGoldFairness(worlds: WorldsJson, speedAt: (stat: number) => number, distMax: number): string[] {
+  return goldFairnessReport(worlds, speedAt, distMax)
+    .filter((r) => r.sec > r.limitSec)
+    .map(
+      (r) =>
+        `game.json: threat.bonus — golden gift fairness on ${r.world}, cave of stretch ${r.stretch}: cave → ${distMax} units → cave takes ${r.sec.toFixed(2)} s, above ${GOLD_FAIRNESS_SHARE} × (warnSec + spawnAhead / speed) = ${r.limitSec.toFixed(2)} s`,
     );
 }

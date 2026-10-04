@@ -20,6 +20,8 @@ export interface HudOptions {
   coinColor: string;
   /** Avalanche colour for the banner outline, frost frame and cave arrow (theme.json threat.front[1]). */
   threatColor: string;
+  /** Golden gift colour (theme.json bonus.color, docs/01-gdd.md 4.9): the golden toast; absent — the plain one. */
+  bonusColor?: string | undefined;
   /** «Shoes ×N · price» pressed (docs/01-gdd.md 6.2, 10.1): one tap buys. */
   onShoes: () => void;
   /** «Can» and «not yet» colours of the shoes button (theme.json ui.ok, ui.no). */
@@ -74,8 +76,8 @@ export interface Hud {
   setFrost(level: number): void;
   /** Arrow at the field edge towards the lit cave when it is off screen (x, y in px, angle in rad); null hides it. */
   setCaveArrow(arrow: { x: number; y: number; angle: number } | null): void;
-  /** Short toast in the middle («Phew, made it! +15», «Snowed in!»); `gold` for the bigger golden one later. */
-  toast(text: string, sec?: number): void;
+  /** Short toast in the middle («Phew, made it! +15», «Snowed in!»); `gold` — the bigger golden one (docs/01-gdd.md 4.9). */
+  toast(text: string, sec?: number, gold?: boolean): void;
   /** Soft white veil when the camera is inside the snow body (docs/02-tech.md 7). */
   setVeil(on: boolean): void;
   /** Speed plaque: the number and «+N per step» under it (docs/01-gdd.md 10.1). */
@@ -207,6 +209,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
 
   // Avalanche (docs/01-gdd.md 4.8): banner, frost frame, arrow to the cave, toast, veil. Never red (docs/03, 3.2).
   root.style.setProperty('--threat', opts.threatColor);
+  if (opts.bonusColor) root.style.setProperty('--gold', opts.bonusColor);
   root.style.setProperty('--stat-goal', opts.statColor);
   const frost = el('div', 'hud-frost');
   frost.dataset['role'] = 'frost';
@@ -392,8 +395,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       arrow.classList.toggle('shown', a !== null);
       if (a) arrow.style.transform = `translate(${Math.round(a.x)}px, ${Math.round(a.y)}px) translate(-50%, -50%) rotate(${a.angle.toFixed(3)}rad)`;
     },
-    toast(text, sec = 2) {
+    toast(text, sec = 2, gold = false) {
       toastEl.textContent = text;
+      toastEl.classList.toggle('gold', gold);
       toastEl.classList.remove('shown');
       void toastEl.offsetWidth;
       toastEl.classList.add('shown');

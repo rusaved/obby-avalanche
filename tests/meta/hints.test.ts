@@ -15,6 +15,8 @@ const idle: HintFrame = {
   shoesBought: false,
   waveWarnId: 0,
   waveActive: false,
+  goldOnGround: false,
+  goldCarried: false,
   inShelter: false,
   caughtNow: false,
   treadmillCave: false,
@@ -99,5 +101,18 @@ describe('hint plaques (M2-08)', () => {
     expect(saved['hint.caught']).toBe(1);
     const again = createHints(timing, JSON.parse(JSON.stringify(saved)) as Record<string, number>);
     expect(again.update({ ...idle, playSec: 400, caughtNow: true, moving: true }, DT)).toBeNull();
+  });
+
+  it('M2-12: the first golden gift says «Bring the golden gift to a cave!» instead of «To the cave!», once in a life', () => {
+    const h = createHints(timing, {});
+    const t = { t: 200 };
+    const warn = { moving: true, waveWarnId: 5, waveActive: true, goldOnGround: true };
+    expect(run(h, warn, 0.5, t)).toBe('hint.gold');
+    // Taken: the hint goes, and «To the cave!» does not come up on this wave.
+    expect(run(h, { ...warn, goldOnGround: false, goldCarried: true }, 0.5, t)).toBeNull();
+    run(h, { moving: true }, 1, t);
+    // The next wave with a gift: the golden hint is spent, «To the cave!» as usual.
+    expect(run(h, { ...warn, waveWarnId: 9 }, 0.5, t)).toBe('wave.cave');
+    expect(h.counts['hint.gold']).toBe(1);
   });
 });

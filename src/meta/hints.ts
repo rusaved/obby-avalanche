@@ -6,6 +6,7 @@
 import type { HintsTiming } from '../content/types.ts';
 
 export type HintId =
+  | 'hint.gold'
   | 'wave.cave'
   | 'hint.caught'
   | 'hint.stuck'
@@ -32,6 +33,9 @@ export interface HintFrame {
   /** Id of the avalanche on its warning (0 when none), and whether that wave is still coming (warn or run, not resolved). */
   waveWarnId: number;
   waveActive: boolean;
+  /** The golden gift of this wave lies on the slope / the hero carries it (docs/01-gdd.md 4.9). */
+  goldOnGround: boolean;
+  goldCarried: boolean;
   inShelter: boolean;
   /** The hero was caught by an avalanche this frame. */
   caughtNow: boolean;
@@ -67,6 +71,13 @@ interface HintsState {
 
 /** Order = priority: the first rule wins when two want the plaque. */
 const RULES: Rule[] = [
+  {
+    // The first golden gift in the player's life: instead of «To the cave!» on its warning (docs/01-gdd.md 4.9, 6.5).
+    id: 'hint.gold',
+    max: () => 1,
+    show: (f) => f.waveWarnId > 0 && f.goldOnGround,
+    hide: (f) => f.goldCarried || !f.goldOnGround || !f.waveActive,
+  },
   {
     id: 'wave.cave',
     max: (t) => t.waveCaveMax,
@@ -155,7 +166,8 @@ export function createHints(timing: HintsTiming, counts: Record<string, number>)
       }
       s.stuckSec = f.nearClosedGate && !f.moving && !f.inShelter ? s.stuckSec + dt : 0;
       s.portalIdleSec = f.onSummit && !f.towardsPortal ? s.portalIdleSec + dt : 0;
-      if (f.caughtNow && left(RULES[1]!)) s.caughtPending = true;
+      const caughtRule = RULES.find((r) => r.id === 'hint.caught')!;
+      if (f.caughtNow && left(caughtRule)) s.caughtPending = true;
 
       if (current) {
         elapsed += dt;
@@ -172,7 +184,7 @@ export function createHints(timing: HintsTiming, counts: Record<string, number>)
         current = r;
         elapsed = 0;
         counts[r.id] = (counts[r.id] ?? 0) + 1;
-        if (r.id === 'wave.cave') s.lastWaveId = f.waveWarnId;
+        if (r.id === 'wave.cave' || r.id === 'hint.gold') s.lastWaveId = f.waveWarnId;
         if (r.id === 'hint.move') s.movedSec = 0;
         break;
       }

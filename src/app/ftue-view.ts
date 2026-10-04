@@ -115,6 +115,8 @@ export function createFtueView(d: FtueViewDeps): FtueView {
         shoesBought: shoes.level > 0,
         waveWarnId: warn ? waveId : 0,
         waveActive: active,
+        goldOnGround: sim.bonus !== null && !sim.bonus.carried,
+        goldCarried: sim.bonus?.carried ?? false,
         inShelter,
         caughtNow,
         treadmillCave: firstWaveDone && sim.level.worldIndex === 1 && sim.shelterIndex() === scriptedCave,

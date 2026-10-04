@@ -18,6 +18,8 @@ import { createLevelMeshes, type LevelMeshes } from './render/level-mesh.ts';
 import { createCharacters, type CharacterInstance, type Characters } from './render/characters.ts';
 import { createBlobShadow } from './render/blob.ts';
 import { createSnowball } from './render/threat/snowball.ts';
+import { createBonusVisual, type BonusVisual } from './render/threat/bonus.ts';
+import { BONUS_HEIGHT } from './sim/bonus.ts';
 import { createCameraRig, type CameraRig } from './render/camera.ts';
 import { createAvalancheVisual, type AvalancheVisual } from './render/threat/avalanche.ts';
 import { createWaveView, type WaveView } from './app/wave-view.ts';
@@ -142,7 +144,12 @@ async function boot(): Promise<void> {
       : undefined;
   // Bots (docs/01-gdd.md 7.12): count by the quality level, deterministic by the seed and the mountain.
   const botOptions = (w: World): { cfg: typeof bots; count: number; seed: number } => ({ cfg: bots, count: bots.count[quality.level], seed: (seed + w.index * 7919) >>> 0 });
-  let sim: Sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat: 0, tier: 0, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world) });
+  // Golden gift (docs/01-gdd.md 4.9): only with game.json threat.bonus; «from the 2nd normal wave of the load» counts
+  // the waves of every mountain since the page opened.
+  let loadWaves = 0;
+  const bonusOptions = (w: World): { cfg: NonNullable<typeof game.threat.bonus>; seed: number; wavesBefore: number } | undefined =>
+    game.threat.bonus ? { cfg: game.threat.bonus, seed: (seed + w.index * 104729) >>> 0, wavesBefore: loadWaves } : undefined;
+  let sim: Sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat: 0, tier: 0, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world) });
   let maxSpeed = sim.params.speed;
   const simEvents: GameHandles['simEvents'] = [];
   let pendingPortal: number | null = null;
@@ -174,6 +181,7 @@ async function boot(): Promise<void> {
   let hudView: HudView | null = null;
   let audio: GameAudio | null = null;
   let botsView: BotsView | null = null;
+  let bonusVisual: BonusVisual | null = null;
   let hudMode: HudMode = 'normal';
   let field: FieldRect = { width: 1, height: 1, left: 0, top: 0 };
   let lastSnap: InputSnapshot | null = null;
@@ -183,7 +191,7 @@ async function boot(): Promise<void> {
   const melting = new Map<number, number>();
   const wireSim = (s: Sim): void => {
     const recorded = ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'gatePass', 'portal', 'giftTake', 'giftsRespawn', 'eggTouch', 'eggHatch', 'statMilestone'] as const;
-    const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'caughtEnd', 'waveDusted', 'waveGone', 'waveEnd'] as const;
+    const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'caughtEnd', 'waveDusted', 'waveGone', 'waveEnd', 'bonusSpawn', 'bonusTake', 'bonusSaved', 'bonusLost'] as const;
     for (const name of [...recorded, ...waves]) {
       s.events.on(name, (payload) => {
         simEvents.push({ name, world: s.level.worldIndex, ...(payload as Record<string, unknown>), tick: s.tick });
@@ -223,12 +231,26 @@ async function boot(): Promise<void> {
     // Avalanche (M2-06): newbie counter and first-wave flag in the save, toasts, funnel steps 9 and 15 (docs/06).
     s.events.on('waveWarn', ({ scripted, normalWavesDone }) => {
       if (scripted) return;
+      loadWaves++;
       save.wavesNormal = normalWavesDone;
       persist();
     });
-    s.events.on('waveSurvived', ({ coins, total }) => {
-      hud?.toast(t('wave.survived', { n: formatNumber(coins, numSuffix) }));
+    s.events.on('waveSurvived', ({ coins, total, gold }) => {
+      // With the golden gift: one toast, bigger and golden, both rewards in it (docs/01-gdd.md 4.9).
+      hud?.toast(t('wave.survived', { n: formatNumber(coins, numSuffix) }), gold > 0 ? 3 : 2, gold > 0);
       if (coins > 0) hud?.setCoins(formatNumber(total, numSuffix));
+    });
+    // Golden gift (M2-12): chime on its warning, carried over the head, saved or popped; docs/06 goldGift params.
+    s.events.on('bonusSpawn', () => audio?.play('goldSpawn'));
+    s.events.on('bonusTake', () => track('gold_take'));
+    s.events.on('bonusSaved', ({ coins, total, where }) => {
+      track('gold_saved');
+      if (where !== 'cave') hud?.toast(t('wave.goldSaved', { n: formatNumber(coins, numSuffix) }), 3, true);
+      hud?.setCoins(formatNumber(total, numSuffix));
+    });
+    s.events.on('bonusLost', (at) => {
+      track('gold_lost');
+      bonusVisual?.pop(at, playSec);
     });
     s.events.on('waveDusted', () => hud?.toast(t('wave.firstMiss'), 3));
     // «Snowed in!» (M2-07, docs/01-gdd.md 4.5): toast; the ball and the pose follow sim.caught in renderFrame.
@@ -408,7 +430,7 @@ async function boot(): Promise<void> {
     const coins = sim.coins;
     world = next;
     level = buildLevel(world);
-    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier: sim.tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world) });
+    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier: sim.tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world) });
     avalanche?.setLevel(level);
     wireSim(sim);
     g.sim = sim;
@@ -493,11 +515,13 @@ async function boot(): Promise<void> {
       // On a belt the hero runs in place by himself (docs/01-gdd.md 3.4).
       heroChar.pose = hero.onGround ? (hero.speed > 0.5 || sim.onBelt ? 'run' : 'idle') : hero.vel.y > 2 ? 'jump' : 'fall';
       if (sim.onBelt) heroChar.speedFactor = 1;
+      heroChar.carry = (sim.bonus?.carried ?? false) && !sim.caught;
       snowball.update(sim.caught, renderPos, heroChar, playSec);
       if (hero.landedThisTick) heroChar.squash = 0.1;
       heroChar.visible = !(cameraRig?.heroHidden ?? false) && sim.respawnTicksLeft < 0;
     }
     blob.update(renderPos, sim.collision);
+    bonusVisual?.update(sim.bonus, renderPos, playSec);
     waveView?.update(frameDt, playSec);
     const gameDt = (loop.ticks - lastRenderTicks) * loop.step;
     lastRenderTicks = loop.ticks;
@@ -532,8 +556,8 @@ async function boot(): Promise<void> {
     if (hud) {
       if (pendingGain !== null && cameraRig && playSec - lastGainPopAt >= GAIN_POP_MIN_SEC && heroChar?.visible) {
         headPos.copy(renderPos);
-        // «+N» at the feet (Q-019; tuning.hud.gainHeight), floating up past the hero.
-        headPos.y += tuning.hud.gainHeight;
+        // «+N» at the feet (Q-019; tuning.hud.gainHeight), floating up past the hero; over the golden gift while carried.
+        headPos.y += sim.bonus?.carried ? HERO_HEIGHT + BONUS_HEIGHT : tuning.hud.gainHeight;
         headPos.project(cameraRig.camera);
         if (headPos.z < 1) hud.popGain(`+${formatNumber(pendingGain, (k) => t(`num.${k}`))}`, (headPos.x * 0.5 + 0.5 + tuning.hud.gainSide) * field.width, (0.5 - headPos.y * 0.5) * field.height);
         lastGainPopAt = playSec;
@@ -619,6 +643,10 @@ async function boot(): Promise<void> {
   g.hero = heroChar;
   gr.scene.add(blob.mesh);
   gr.scene.add(snowball.mesh);
+  if (game.threat.bonus && theme.bonus) {
+    bonusVisual = createBonusVisual(theme.bonus.color);
+    gr.scene.add(bonusVisual.group);
+  }
   avalanche = createAvalancheVisual(level, theme, tuning, rng.next);
   gr.scene.add(avalanche.group);
   cameraRig = createCameraRig(gr.camera, frame, tuning, rng.next);
@@ -634,6 +662,7 @@ async function boot(): Promise<void> {
     onQuality: (level) => g.setQualitySetting(level),
     coinColor: theme.ui.coins,
     threatColor: theme.threat.front[1],
+    bonusColor: theme.bonus?.color,
     onShoes: () => void meta?.buyShoes(),
     okColor: theme.ui.ok,
     statColor: theme.ui.stat,

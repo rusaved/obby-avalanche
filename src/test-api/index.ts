@@ -60,8 +60,8 @@ export interface TestState {
   botLabels: number;
   botStats: { hid: number; dawdled: number; caught: number };
   hudMode: string;
-  /** Golden gift (M2-12): null until the feature arrives. */
-  bonus: { z: number; carried: boolean } | null;
+  /** Golden gift of this wave (M2-12): null when there is none; x and zone for the e2e run to it. */
+  bonus: { x: number; z: number; zone: number; carried: boolean } | null;
   /** First minute (M2-08): play time of the player (save.totalPlaySec), the hint on screen and how many plaques are
    * visible, arrows on the snow, the hand over the egg, the free egg, pets, shoes and the step multiplier. */
   playSec: number;
@@ -135,6 +135,8 @@ export interface TestApi {
   waveGone(): void;
   /** Starts the next avalanche now (scripted if the first wave is still pending). */
   triggerWave(): void;
+  /** The hero carries a golden gift now (threat.bonus in the data, on warn or run); false otherwise (docs/02-tech.md 17). */
+  giveBonus(): boolean;
   /** Is the camera inside the snow body of the avalanche (docs/02-tech.md 7). */
   cameraInsideAvalanche(): boolean;
   /** Sets the stat (docs/02-tech.md 17.3); gates whose number it reaches open on the next tick. */
@@ -243,7 +245,7 @@ export function installTestApi(g: GameHandles): TestApi {
         botLabels: [...document.querySelectorAll<HTMLElement>('[data-role="bot-label"]')].filter((e) => Number(e.style.opacity || 0) > 0 && e.textContent !== '').length,
         botStats: { ...(g.sim?.bots?.stats ?? { hid: 0, dawdled: 0, caught: 0 }) },
         hudMode: g.hudMode,
-        bonus: null,
+        bonus: g.sim?.bonus ? { x: g.sim.bonus.x, z: g.sim.bonus.z, zone: g.sim.bonus.zone, carried: g.sim.bonus.carried } : null,
         playSec: g.save.totalPlaySec ?? 0,
         hint: g.ftue?.hint ?? null,
         hintsVisible: document.querySelectorAll('[data-role="hint"].shown').length,
@@ -353,6 +355,7 @@ export function installTestApi(g: GameHandles): TestApi {
       g.sim?.events.emit('waveGone', { tick: g.sim.tick });
     },
     triggerWave: () => g.triggerWave(),
+    giveBonus: () => g.sim?.giveBonus() ?? false,
     setStat(n) {
       if (g.sim) g.sim.progress.stat = n;
     },
