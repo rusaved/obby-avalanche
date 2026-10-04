@@ -27,11 +27,14 @@ export function onMoveStarted(frame: ControlFrame): void {
   if (!frame.scripted) frame.controlYaw = frame.viewYaw;
 }
 
-/** Control-frame direction (x right, y forward) → world XZ with yaw = 0 facing +Z. */
+/**
+ * Control-frame direction (x right, y forward) → world XZ. Forward at yaw 0 is +Z; the camera sits behind the hero
+ * looking along +Z, and in a right-handed world the screen's right is then −X. Right = forward × up = (−cos, 0, sin).
+ */
 export function toWorld(moveX: number, moveY: number, yaw: number): { x: number; z: number } {
   const s = Math.sin(yaw);
   const c = Math.cos(yaw);
-  return { x: moveX * c + moveY * s, z: -moveX * s + moveY * c };
+  return { x: -moveX * c + moveY * s, z: moveX * s + moveY * c };
 }
 
 export function wrapAngle(a: number): number {

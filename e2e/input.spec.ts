@@ -14,7 +14,7 @@ test.describe('PC input', () => {
     expect(await page.evaluate(() => window.scrollY)).toBe(0);
   });
 
-  test('arrows and WASD move in the control frame; A moves left, D moves right', async ({ page, openGame }) => {
+  test('arrows and WASD move in the control frame; A moves to screen-left (+X), D to screen-right (−X)', async ({ page, openGame }) => {
     await openGame();
     const s0 = (await testState(page)).hero!;
     await page.keyboard.down('ArrowUp');
@@ -26,12 +26,13 @@ test.describe('PC input', () => {
     await page.waitForTimeout(400);
     await page.keyboard.up('KeyA');
     const s2 = (await testState(page)).hero!;
-    expect(s2.x).toBeLessThan(s1.x - 1);
+    // Camera behind the hero looks along +Z, so screen-left is world +X (right-handed axes).
+    expect(s2.x).toBeGreaterThan(s1.x + 1);
     await page.keyboard.down('KeyD');
     await page.waitForTimeout(700);
     await page.keyboard.up('KeyD');
     const s3 = (await testState(page)).hero!;
-    expect(s3.x).toBeGreaterThan(s2.x + 1);
+    expect(s3.x).toBeLessThan(s2.x - 1);
   });
 
   test('SCR-03 Space jumps and never scrolls the page; wheel zooms the camera, not the page', async ({ page, openGame }) => {

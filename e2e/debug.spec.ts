@@ -1,5 +1,6 @@
 import { test, expect, testState } from './fixtures.ts';
 import { validateTuning } from '../src/level/validate.ts';
+import tuning from '../content/avalanche/tuning.json' with { type: 'json' };
 
 // ?debug=1 (docs/02-tech.md, section 15): sliders apply without reload, Export passes the tuning schema,
 // the panel collapses on a phone. check-release proves the panel is absent from the release archive.
@@ -30,7 +31,8 @@ test.describe('debug panel', () => {
     const parsed = JSON.parse(json);
     const res = validateTuning(parsed);
     expect(res.errors).toEqual([]);
-    expect(parsed.controller.jumpSpeed).toBe(50);
+    expect(parsed.controller.jumpSpeed).toBe(tuning.controller.jumpSpeed);
+    expect(parsed.camera.distance).toBe(tuning.camera.distance);
   });
 
   test('on a phone the panel starts collapsed and the overlay shows level, DPR and frame time', async ({ page, openGame }) => {

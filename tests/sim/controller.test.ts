@@ -7,7 +7,8 @@ import { controllerParams } from '../../src/sim/world.ts';
 import type { TuningJson } from '../../src/content/types.ts';
 
 const DT = 1 / 60;
-const params: ControllerParams = controllerParams(tuning as TuningJson, 16);
+// Genre constants of docs/02-tech.md 6.1 (jump 50, gravity 196.2); tuning.json may differ once the producer tunes the feel.
+const params: ControllerParams = { ...controllerParams(tuning as TuningJson, 16), jumpSpeed: 50, gravity: 196.2, fallMult: 1, accelSec: 0.1, decelSec: 0.06 };
 
 /** Flat floor 200×200 with its top at y = 0, plus optional extra boxes. */
 function world(extra: Array<{ min: [number, number, number]; max: [number, number, number] }> = []) {

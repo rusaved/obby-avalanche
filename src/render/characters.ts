@@ -349,7 +349,7 @@ if (vObjNormal.z > 0.6) {
         ch.phase += dt * (running ? 6 + 8 * ch.speedFactor : 1.2);
         if (ch.squash > 0) ch.squash = Math.max(0, ch.squash - dt);
         const sq = ch.squash > 0 ? 1 - 0.15 * (ch.squash / 0.1) : 1;
-        const swing = running ? Math.sin(ch.phase) * (0.7 * ch.speedFactor) : 0;
+        const swing = running ? Math.sin(ch.phase) * (0.45 + 0.35 * ch.speedFactor) : 0;
         const breathe = ch.pose === 'idle' ? Math.sin(ch.phase) * 0.03 : 0;
         const lean = running ? -0.21 * ch.speedFactor : 0;
         let armL = swing;
@@ -376,8 +376,12 @@ if (vObjNormal.z > 0.6) {
           armR = -3.0;
         }
 
+        // Run bob: a light bounce twice per stride and a hint of side sway make the stride read as springy.
+        const bob = running ? Math.abs(Math.sin(ch.phase)) * 0.12 * ch.speedFactor : 0;
+        const sway = running ? Math.sin(ch.phase) * 0.04 * ch.speedFactor : 0;
         root.position.copy(ch.position);
-        root.rotation.set(0, ch.yaw, 0);
+        root.position.y += bob;
+        root.rotation.set(0, ch.yaw, sway);
         root.scale.set(1 / sq, sq, 1 / sq);
         root.updateMatrix();
         const world = root.matrix;
