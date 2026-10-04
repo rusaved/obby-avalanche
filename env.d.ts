@@ -9,3 +9,7 @@ declare const __BUILD_LABEL__: string;
 declare const __SDK_PATH__: string;
 /** Pack id of this build (VITE_CONTENT). */
 declare const __CONTENT_PACK__: string;
+/** ZzFX 1.4.0 ships no types; the sound module uses only ZZFX.buildSamples on its own context (docs/02-tech.md 10). */
+declare module 'zzfx' {
+  export const ZZFX: { sampleRate: number; audioContext: AudioContext; buildSamples(...params: number[]): number[] };
+}

@@ -10,6 +10,7 @@ import worlds from '@content/worlds.json';
 import skins from '@content/skins.json';
 import accessories from '@content/accessories.json';
 import pets from '@content/pets.json';
+import sfx from '@content/sfx.json';
 import ruUrl from '@content/i18n/ru.json?url';
 import enUrl from '@content/i18n/en.json?url';
 import type { ContentPack } from './types.ts';
@@ -23,6 +24,7 @@ export const content: ContentPack = {
   skins: skins as unknown as ContentPack['skins'],
   accessories: accessories as unknown as ContentPack['accessories'],
   pets: pets as unknown as ContentPack['pets'],
+  sfx: sfx as unknown as ContentPack['sfx'],
 };
 
 export const i18nUrls: Record<'ru' | 'en', string> = { ru: ruUrl, en: enUrl };

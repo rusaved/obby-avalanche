@@ -91,9 +91,14 @@ canvas.fallback {
 .hud-stat-body { display: flex; flex-direction: column; line-height: 1; }
 .hud-stat-value { font-size: clamp(28px, 3.2vmin, 36px); font-weight: 800; font-variant-numeric: tabular-nums; text-shadow: -2px -2px 0 #1b4a7a, 2px -2px 0 #1b4a7a, -2px 2px 0 #1b4a7a, 2px 2px 0 #1b4a7a; }
 .hud-stat-per { margin-top: 3px; font-size: 13px; font-weight: 800; color: #1b4a7a; white-space: nowrap; }
-.hud-stat-gain { position: absolute; right: 8px; top: 0; opacity: 0; font-size: 18px; font-weight: 800; color: #fff; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35); pointer-events: none; }
+.hud-stat-gain { position: absolute; left: calc(100% + 6px); top: 20%; white-space: nowrap; opacity: 0; font-size: 18px; font-weight: 800; color: #fff; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35); pointer-events: none; }
 .hud-stat-gain.show { animation: stat-gain 0.6s ease-out forwards; }
 @keyframes stat-gain { 0% { opacity: 0; transform: translateY(0); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateY(-22px); } }
+/* Round number of Speed (docs/01-gdd.md 10.3, M2-13): white glow over the ice plaque, the number bounces. */
+.hud-stat.flash { animation: stat-flash 0.9s ease-out; }
+.hud-stat.flash .hud-stat-value { display: inline-block; animation: stat-bounce 0.6s cubic-bezier(0.3, 1.6, 0.5, 1); }
+@keyframes stat-flash { 0% { box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.85), 0 0 0 0 rgba(255, 255, 255, 0.95); filter: brightness(1.6); } 60% { box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.85), 0 0 24px 10px rgba(255, 255, 255, 0.6); } 100% { box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.85), 0 3px 10px rgba(0, 0, 0, 0.12); filter: none; } }
+@keyframes stat-bounce { 0% { transform: scale(1); } 40% { transform: scale(1.45) translateY(-4px); } 100% { transform: scale(1); } }
 .hud.short .hud-stat { min-height: 36px; padding: 3px 10px 3px 4px; }
 .hud.short .hud-stat-value { font-size: 22px; }
 .hud.short .hud-stat-icon { width: 26px; height: 26px; }
@@ -155,7 +160,7 @@ canvas.fallback {
 .hud-cave-arrow { position: absolute; left: 0; top: 0; font-size: 40px; line-height: 1; color: #ffffff; pointer-events: none; opacity: 0; text-shadow: 0 0 6px var(--threat), 0 0 2px var(--threat); }
 .hud-cave-arrow.shown { opacity: 1; animation: cave-arrow-pulse 0.8s ease-in-out infinite alternate; }
 @keyframes cave-arrow-pulse { from { filter: brightness(1); } to { filter: brightness(1.4); } }
-.hud-toast { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%) scale(0.8); font-size: clamp(22px, 4.6vmin, 48px); font-weight: 800; color: #ffffff; white-space: nowrap; pointer-events: none; opacity: 0; text-shadow: -2px -2px 0 var(--threat), 2px -2px 0 var(--threat), -2px 2px 0 var(--threat), 2px 2px 0 var(--threat); transition: opacity 0.25s, transform 0.25s; }
+.hud-toast { position: absolute; left: 50%; top: 36%; transform: translate(-50%, -50%) scale(0.8); font-size: clamp(22px, 4.6vmin, 48px); font-weight: 800; color: #ffffff; white-space: nowrap; pointer-events: none; opacity: 0; text-shadow: -2px -2px 0 var(--threat), 2px -2px 0 var(--threat), -2px 2px 0 var(--threat), 2px 2px 0 var(--threat); transition: opacity 0.25s, transform 0.25s; }
 .hud-toast.shown { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 .hud.short .hud-hint { flex-direction: row; gap: 8px; padding: 4px 10px; }
 .hud.short .hud-pict-stick { width: 24px; height: 24px; border-width: 2px; box-shadow: inset 0 0 0 5px rgba(27, 42, 58, 0.25); }

@@ -26,6 +26,7 @@ import { createFtueView, type FtueView } from './app/ftue-view.ts';
 import { createMetaView, type MetaView } from './app/meta-view.ts';
 import { createHudView, type HudView } from './app/hud-view.ts';
 import { faceDataUrl } from './render/characters.ts';
+import { createAudio, type GameAudio } from './audio/index.ts';
 import type { ThreatOptions } from './sim/threat.ts';
 import type { World } from './content/types.ts';
 import { createQuality, type QualityLevel } from './render/quality.ts';
@@ -56,7 +57,7 @@ const PLAY_PERSIST_SEC = 5;
  * LoadingAPI.ready() exactly once → GameplayAPI.start() when nothing pauses the game.
  */
 async function boot(): Promise<void> {
-  const { game, theme, tuning, balance, skins, accessories, pets } = content;
+  const { game, theme, tuning, balance, skins, accessories, pets, sfx } = content;
   const params = new URLSearchParams(location.search);
   // Address parameters exist only in dev, playtest, e2e and pages builds (docs/02-tech.md 9.3).
   const debugParams = __DEBUG_TOOLS__ ? params : new URLSearchParams();
@@ -165,6 +166,7 @@ async function boot(): Promise<void> {
   let ftueView: FtueView | null = null;
   let meta: MetaView | null = null;
   let hudView: HudView | null = null;
+  let audio: GameAudio | null = null;
   let field: FieldRect = { width: 1, height: 1, left: 0, top: 0 };
   let lastSnap: InputSnapshot | null = null;
   let pendingGain: number | null = null;
@@ -172,7 +174,7 @@ async function boot(): Promise<void> {
   // Gates melt into an arch over GATE_MELT_SEC; funnel events gate_N for mountain 1 on tier 0 (docs/06, steps 5–15).
   const melting = new Map<number, number>();
   const wireSim = (s: Sim): void => {
-    const recorded = ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'gatePass', 'portal', 'giftTake', 'giftsRespawn', 'eggTouch', 'eggHatch'] as const;
+    const recorded = ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'gatePass', 'portal', 'giftTake', 'giftsRespawn', 'eggTouch', 'eggHatch', 'statMilestone'] as const;
     const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'caughtEnd', 'waveDusted', 'waveGone', 'waveEnd'] as const;
     for (const name of [...recorded, ...waves]) {
       s.events.on(name, (payload) => {
@@ -196,6 +198,12 @@ async function boot(): Promise<void> {
       meta?.addPet(pet);
       const egg = s.giftEgg;
       ftueView?.showPet(pet, egg ? new Vector3(egg.x, egg.y + 1, egg.z) : undefined);
+    });
+    // Round number of Speed (M2-13, Q-023): flash, bounce, chime, toast; no analytics.
+    s.events.on('statMilestone', ({ value }) => {
+      hud?.flashStat();
+      hud?.toast(t('toast.statMilestone', { n: formatNumber(value, numSuffix) }));
+      audio?.play('statMilestone');
     });
     s.events.on('giftsRespawn', () => {
       s.gifts.forEach((_, i) => levelMeshes?.setGiftShown(i, true));
@@ -355,6 +363,9 @@ async function boot(): Promise<void> {
     },
     get ftue() {
       return ftueView;
+    },
+    get audio() {
+      return audio;
     },
   };
 
@@ -598,10 +609,18 @@ async function boot(): Promise<void> {
     onSound: () => {
       save.settings.sound = !save.settings.sound;
       hud?.setSound(save.settings.sound);
+      audio?.setEnabled(save.settings.sound);
       persist(true);
     },
   });
   hud.setSound(save.settings.sound);
+  audio = createAudio({
+    sfx,
+    enabled: save.settings.sound,
+    paused: () => pause.paused,
+    onPauseChange: (fn) => void pause.onChange(fn),
+    gestureTarget: window,
+  });
   waveView = createWaveView({
     tuning,
     frame,

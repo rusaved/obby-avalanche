@@ -46,6 +46,7 @@
   "hint.portal": "В портал!",
   "toast.newPet": "Новый питомец! +{n}% к шагу",
   "toast.newShoes": "{name}: ×{m} за шаг",
+  "toast.statMilestone": "{n} Скорости!",
   "egg.gift": "Подарок горы",
   "pet.bunny": "Зайка",
   "shoes.old_sneakers": "Старые кеды",

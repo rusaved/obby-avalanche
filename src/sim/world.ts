@@ -16,6 +16,7 @@ import { beltAt, belts, shelterIndex } from './shelter.ts';
 import { createThreat, type Threat, type ThreatEvents, type ThreatOptions } from './threat.ts';
 import { caughtPosition, caughtTotalSec, createCaught, type CaughtState } from './caught.ts';
 import { createGiftEgg, stepGiftEgg, type GiftEggState } from './gift-egg.ts';
+import { createMilestones, type Milestones } from './milestones.ts';
 import { PORTAL_HALF_WIDTH } from '../level/builder.ts';
 import { createHero, placeHero, stepHero, type ControllerParams, type HeroInput, type HeroState, NO_INPUT } from './controller.ts';
 
@@ -37,6 +38,8 @@ export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, Record<st
   /** The free egg (docs/01-gdd.md 6.2): touched, then the pet jumps out `ftue.eggHatchSec` later. */
   eggTouch: { tick: number };
   eggHatch: { tick: number; pet: string };
+  /** The stat crossed a round number of balance.ui.statMilestones for the first time in this load (M2-13, no analytics). */
+  statMilestone: { tick: number; value: number };
   /** A gift touched: `coins` added (zone gift × wallScale[tier]), `total` is the coin balance after it. */
   giftTake: { tick: number; index: number; coins: number; zone: number; rarity: string; total: number };
   /** All gifts back in place (after every avalanche, docs/01-gdd.md 3.2). */
@@ -77,6 +80,8 @@ export interface Sim {
   readonly gatesPassed: boolean[];
   /** The free egg «Mountain Gift» in its cave (M2-08); null when the player already has it or on other mountains. */
   readonly giftEgg: GiftEggState | null;
+  /** Round numbers of the stat already celebrated (M2-13); `reset` after a rebirth. */
+  readonly milestones: Milestones;
   /** True once the hero has walked through the portal of this mountain (one `portal` event per sim). */
   portalEntered: boolean;
   step(input: HeroInput, dt: number): void;
@@ -99,6 +104,7 @@ export interface SimOptions {
     niche?: BalanceJson['niche'];
     coins?: BalanceJson['coins'];
     caught?: BalanceJson['caught'];
+    ui?: Partial<BalanceJson['ui']>;
   };
   /** The avalanche (docs/02-tech.md 8.1): world threat, balance and tuning, save counters. */
   threat?: ThreatOptions;
@@ -166,6 +172,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     speedCurve,
     gatesOpen,
     gatesPassed: level.gates.map(() => false),
+    milestones: createMilestones(opts.balance.ui?.statMilestones ?? [], opts.stat ?? 0),
     giftEgg: opts.giftEgg ? createGiftEgg(level, opts.giftEgg.wall, opts.giftEgg.pet, opts.giftEgg.hatchSec) : null,
     tier,
     tick: 0,
@@ -230,6 +237,9 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         for (const gain of progress.advance(path, mult)) events.emit('gain', { ...gain, tick: sim.tick, belt: belt !== null });
         params.speed = moveSpeed(progress.stat, speedCurve);
       } else if (!hero.onGround) progress.resetCarry();
+      // A round number of the stat (docs/01-gdd.md 10.4): one event with the biggest value crossed.
+      const milestone = sim.milestones.check(progress.stat);
+      if (milestone !== null) events.emit('statMilestone', { tick: sim.tick, value: milestone });
       prev.x = hero.pos.x;
       prev.z = hero.pos.z;
       prev.onGround = hero.onGround;

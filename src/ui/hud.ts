@@ -82,6 +82,8 @@ export interface Hud {
   setStat(value: string, perStep: string): void;
   /** «+N» flying up over the Speed plaque on a gain. */
   popStatGain(text: string): void;
+  /** A round number of Speed (docs/01-gdd.md 10.3, M2-13): the plaque flashes, the number bounces. */
+  flashStat(): void;
   /** Mountain bar: built once per mountain. */
   setMountain(bar: MountainBar): void;
   /** Per frame: «Mountain 1 · 7/12», hero position, the avalanche mark (null — none), the cave mark that blinks on warn (−1 — none). */
@@ -96,6 +98,9 @@ export interface Hud {
 const HINT_TOP_MIN = 0.24;
 const HINT_TOP_WAVE = 0.34;
 const HINT_BOTTOM_MAX = 0.78;
+
+/** How long the Speed plaque keeps its flash class (the CSS animation is shorter). */
+const STAT_FLASH_MS = 1200;
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string): HTMLElementTagNameMap[K] {
   const e = document.createElement(tag);
@@ -176,6 +181,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   mountainBar.append(mountainSlope, mountainFlag, mountainWave, mountainHero);
   root.appendChild(mountain);
   let caveMarks: HTMLElement[] = [];
+  let flashTimer: ReturnType<typeof setTimeout> | null = null;
   let blinking = -1;
 
   // Goal under the bar: what next («Wall 2K» and «1.2K/2K»).
@@ -409,6 +415,13 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     setStat(value, perStep) {
       if (statValue.textContent !== value) statValue.textContent = value;
       if (statPer.textContent !== perStep) statPer.textContent = perStep;
+    },
+    flashStat() {
+      stat.classList.remove('flash');
+      void stat.offsetWidth;
+      stat.classList.add('flash');
+      if (flashTimer) clearTimeout(flashTimer);
+      flashTimer = setTimeout(() => stat.classList.remove('flash'), STAT_FLASH_MS);
     },
     popStatGain(text) {
       statGain.textContent = text;

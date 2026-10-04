@@ -17,6 +17,7 @@ import type { AvalancheVisual } from '../render/threat/avalanche.ts';
 import type { WaveView } from './wave-view.ts';
 import type { MetaView } from './meta-view.ts';
 import type { FtueView } from './ftue-view.ts';
+import type { GameAudio } from '../audio/index.ts';
 
 export interface BootState {
   firstFrameAt: number | null;
@@ -81,4 +82,6 @@ export interface GameHandles {
   /** Shoes and pets (M2-08) and the teaching layer: hints, arrows, egg (M2-08). */
   readonly meta: MetaView | null;
   readonly ftue: FtueView | null;
+  /** Sound (M2-13: minimal, ZzFX by the first gesture). */
+  readonly audio: GameAudio | null;
 }

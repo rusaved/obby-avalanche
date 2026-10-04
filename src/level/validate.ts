@@ -18,6 +18,7 @@ export const PACK_FILES = [
   'skins.json',
   'accessories.json',
   'pets.json',
+  'sfx.json',
   'i18n/ru.json',
   'i18n/en.json',
 ] as const;
@@ -131,7 +132,7 @@ const balanceSchema = v.object({
   caught: v.object({ rollSec: positive, maxSec: v.pipe(v.number(), v.maxValue(2)) }),
   threat: v.object({ newbieWaves: v.object({ count: v.pipe(v.number(), v.integer(), v.minValue(0)), warnBonusSec: nonNeg }) }),
   niche: v.object({ graceDist: nonNeg, graceMoving: nonNeg }),
-  ui: v.object({ unlockMenusSec: nonNeg, unlockTimeRewardsSec: nonNeg }),
+  ui: v.object({ unlockMenusSec: nonNeg, unlockTimeRewardsSec: nonNeg, statMilestones: v.array(v.number()) }),
   ads: v.object({
     rewardedMinPlaySec: nonNeg,
     standStillSec: nonNeg,
@@ -335,6 +336,9 @@ const petsSchema = v.object({
   pets: v.pipe(v.array(v.object({ id: id, rarity: id, bonus: positive, color: hex, accent: hex })), v.minLength(1)),
 });
 
+/** ZzFX takes up to 21 numbers (docs/02-tech.md 10). */
+const sfxSchema = v.record(name, v.pipe(v.array(v.number()), v.minLength(1), v.maxLength(21)));
+
 const i18nSchema = v.record(v.string(), v.pipe(v.string(), v.minLength(1, 'empty text')));
 
 const SCHEMAS: Record<PackFile, v.GenericSchema> = {
@@ -347,6 +351,7 @@ const SCHEMAS: Record<PackFile, v.GenericSchema> = {
   'skins.json': skinsSchema,
   'accessories.json': accessoriesSchema,
   'pets.json': petsSchema,
+  'sfx.json': sfxSchema,
   'i18n/ru.json': i18nSchema,
   'i18n/en.json': i18nSchema,
 };
@@ -409,6 +414,18 @@ export function validatePack(files: PackFiles): ValidationResult {
     if (s.hat && !accIds.has(s.hat)) errors.push(`skins.json: skins[${i}].hat — unknown accessory "${s.hat}"`);
   }
   if (!skinIds.has(skins.default)) errors.push(`skins.json: default — unknown skin "${skins.default}"`);
+
+  // Round numbers of the stat (docs/01-gdd.md 10.4, Q-023): a growing list from 1000 up, and the toast text in both languages.
+  const milestones = (files['balance.json'] as { ui: { statMilestones: number[] } }).ui.statMilestones;
+  milestones.forEach((m, i) => {
+    if (m < 1000) errors.push(`balance.json: ui.statMilestones[${i}] — ${m} is below 1000`);
+    if (i > 0 && m <= (milestones[i - 1] ?? 0)) errors.push(`balance.json: ui.statMilestones[${i}] — ${m} must grow`);
+  });
+  if (milestones.length > 0) {
+    for (const [file, dict] of [['i18n/ru.json', ru], ['i18n/en.json', en]] as const) {
+      if (!dict['toast.statMilestone']) errors.push(`${file}: toast.statMilestone — missing (balance.json has ui.statMilestones)`);
+    }
+  }
 
   // The free egg of the first minute hatches a pet from pets.json (docs/01-gdd.md 6.2); its rarity has a colour.
   const pets = files['pets.json'] as { pets: Array<{ id: string; rarity: string }> };

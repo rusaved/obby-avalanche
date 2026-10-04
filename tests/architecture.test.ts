@@ -175,6 +175,24 @@ describe('architecture', () => {
     expect(problems).toEqual([]);
   });
 
+  // M2-13: thresholds of the stat flash live only in balance.json (ui.statMilestones), never as literals in code.
+  it('no round-number thresholds in code that handles stat milestones', () => {
+    const problems: string[] = [];
+    for (const f of tsFiles('src')) {
+      const rel = relative(root, f);
+      const code = stripComments(readFileSync(f, 'utf8'));
+      // No list of powers of ten anywhere in the code (1e3 … 1e30, or 1000, 10000 in a row).
+      if (/(?<![\w.])1e(?:[3-9]|[12]\d|30)(?![\w.])/i.test(code) || /1_?000\s*,\s*10_?000/.test(code)) problems.push(`${rel}: list of round numbers`);
+      // The milestone logic itself (sim, app, ui) has no number of that size at all.
+      if (!/^src\/(sim|app|ui)\//.test(rel.replace(/\\/g, '/')) || !/milestone/i.test(code)) continue;
+      for (const m of code.matchAll(/(?<![\w.])(\d[\d_]*(?:\.\d+)?(?:e\d+)?)(?![\w.])/gi)) {
+        const n = Number((m[1] ?? '').replace(/_/g, ''));
+        if (n >= 1000) problems.push(`${rel}: number ${m[1]} in milestone code`);
+      }
+    }
+    expect(problems).toEqual([]);
+  });
+
   it('the checks themselves catch violations', () => {
     expect(checkLayerFile(resolve(root, 'src/sim/x.ts'), "import * as THREE from 'three';")).toHaveLength(1);
     expect(checkLayerFile(resolve(root, 'src/sim/x.ts'), "import { Mesh } from 'three';")).toHaveLength(1);

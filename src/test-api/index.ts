@@ -69,6 +69,10 @@ export interface TestState {
   shoesButton: { shown: boolean; text: string; can: boolean };
   gainMult: number;
   gatesPassed: boolean[];
+  /** Round numbers of Speed (M2-13): the plaque has its flash class; sounds started so far; the audio context runs. */
+  statFlash: boolean;
+  sfx: string[];
+  audioRunning: boolean;
   /** Coin plaque on the HUD: shown (slid in) and its text. */
   coinPlaque: { shown: boolean; text: string };
   controlYaw: number;
@@ -224,6 +228,9 @@ export function installTestApi(g: GameHandles): TestApi {
         shoesButton: shoesButton(),
         gainMult: g.sim?.progress.gainMult ?? 1,
         gatesPassed: g.sim ? [...g.sim.gatesPassed] : [],
+        statFlash: document.querySelector('[data-role="stat"]')?.classList.contains('flash') ?? false,
+        sfx: [...(g.audio?.played ?? [])],
+        audioRunning: g.audio?.running ?? false,
         caught: g.sim?.caught
           ? { t: g.sim.caught.t, total: g.sim.caught.formSec + g.sim.caught.rollSec + g.sim.caught.popSec, niche: g.sim.caught.niche }
           : null,

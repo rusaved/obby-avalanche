@@ -58,6 +58,25 @@ describe('validate:content (docs/02-tech.md 5.4)', () => {
     expect(validatePack(badFlag).errors.some((e) => e.includes('flags.w1_warnSec.path'))).toBe(true);
   });
 
+  // M2-13: ui.statMilestones is a growing list of numbers ≥ 1000 and toast.statMilestone exists in ru and en.
+  it('stat milestones: growing, ≥ 1000, toast text in both languages', () => {
+    const files = loadPack('avalanche');
+    const ui = (f: PackFiles): { statMilestones: number[] } => (f['balance.json'] as { ui: { statMilestones: number[] } }).ui;
+    expect(ui(files).statMilestones.length).toBeGreaterThan(0);
+    const low = clone(files);
+    ui(low).statMilestones[0] = 500;
+    expect(validatePack(low).errors.some((e) => e.startsWith('balance.json: ui.statMilestones[0]'))).toBe(true);
+    const down = clone(files);
+    ui(down).statMilestones[2] = 10;
+    expect(validatePack(down).errors.some((e) => e.includes('ui.statMilestones[2]') && e.includes('must grow'))).toBe(true);
+    const noText = clone(files);
+    delete (noText['i18n/ru.json'] as Record<string, string>)['toast.statMilestone'];
+    delete (noText['i18n/en.json'] as Record<string, string>)['toast.statMilestone'];
+    const errs = validatePack(noText).errors;
+    expect(errs).toContain('i18n/ru.json: toast.statMilestone — missing (balance.json has ui.statMilestones)');
+    expect(errs).toContain('i18n/en.json: toast.statMilestone — missing (balance.json has ui.statMilestones)');
+  });
+
   it('gen:worlds is deterministic and worlds.json is up to date', () => {
     for (const p of packs) {
       const spec = JSON.parse(readFileSync(resolve(root, 'content', p, 'worlds-spec.json'), 'utf8')) as WorldsSpecJson;

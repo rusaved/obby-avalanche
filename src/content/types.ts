@@ -67,7 +67,8 @@ export interface BalanceJson {
   caught: { rollSec: number; maxSec: number };
   threat: { newbieWaves: { count: number; warnBonusSec: number } };
   niche: { graceDist: number; graceMoving: number };
-  ui: { unlockMenusSec: number; unlockTimeRewardsSec: number };
+  /** `statMilestones`: round numbers of the stat that flash the plaque once a load (docs/01-gdd.md 10.4, Q-023). */
+  ui: { unlockMenusSec: number; unlockTimeRewardsSec: number; statMilestones: number[] };
   ads: {
     rewardedMinPlaySec: number;
     standStillSec: number;
@@ -306,6 +307,9 @@ export interface PetsJson {
   pets: Array<{ id: string; rarity: string; bonus: number; color: string; accent: string }>;
 }
 
+/** sfx.json (docs/02-tech.md 10): ZzFX parameters per sound event. */
+export type SfxJson = Record<string, number[]>;
+
 export interface ContentPack {
   game: GameJson;
   theme: ThemeJson;
@@ -315,4 +319,5 @@ export interface ContentPack {
   skins: SkinsJson;
   accessories: AccessoriesJson;
   pets: PetsJson;
+  sfx: SfxJson;
 }
