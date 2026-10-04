@@ -15,7 +15,7 @@ import {
   SRGBColorSpace,
 } from 'three';
 
-export const ATLAS_CHARS = '0123456789.KMBTQaixpOcNoD+×/';
+export const ATLAS_CHARS = '0123456789.,KMBTQaixpOcNoD+×/';
 const CELL = 64;
 const COLS = 8;
 

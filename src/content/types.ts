@@ -116,6 +116,11 @@ export interface HintsTiming {
 }
 
 export interface TuningJson {
+  /**
+   * HUD feel: «+N» pops `gainHeight` units above the feet (Q-019: at the feet; docs/01-gdd.md 10.3: over the head ≈ 4.5)
+   * and `gainSide` of the field width to the right of the hero.
+   */
+  hud: { gainHeight: number; gainSide: number };
   controller: {
     baseSpeed: number;
     accel: number;

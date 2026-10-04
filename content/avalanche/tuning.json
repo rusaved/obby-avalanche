@@ -59,5 +59,6 @@
     "tapMovePx": 12,
     "zoomStep": 2,
     "jumpButtonFrac": 0.18
-  }
+  },
+  "hud": { "gainHeight": 0.6, "gainSide": 0.05 }
 }

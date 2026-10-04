@@ -126,6 +126,8 @@ export interface TestApi {
   triggerWave(): void;
   /** Is the camera inside the snow body of the avalanche (docs/02-tech.md 7). */
   cameraInsideAvalanche(): boolean;
+  /** Sets the stat (docs/02-tech.md 17.3); gates whose number it reaches open on the next tick. */
+  setStat(n: number): void;
   /** e2e bot: the hero walks these world points [x, z] in order, ignoring the camera; null stops the bot. */
   botPath(points: Array<[number, number]> | null): void;
   /** Points the bot has not reached yet. */
@@ -316,6 +318,9 @@ export function installTestApi(g: GameHandles): TestApi {
       g.sim?.events.emit('waveGone', { tick: g.sim.tick });
     },
     triggerWave: () => g.triggerWave(),
+    setStat(n) {
+      if (g.sim) g.sim.progress.stat = n;
+    },
     botPath(points) {
       g.botPath = points ? points.map((p) => [p[0], p[1]] as [number, number]) : null;
     },

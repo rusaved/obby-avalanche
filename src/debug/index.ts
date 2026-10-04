@@ -76,10 +76,11 @@ export function mountDebug(g: GameHandles, host: HTMLElement, isMobile: boolean)
   if (saved?.controller) Object.assign(g.tuning.controller, saved.controller);
   if (saved?.camera) Object.assign(g.tuning.camera, saved.camera);
   if (saved?.avalanche) Object.assign(g.tuning.avalanche, saved.avalanche);
+  if (saved?.hud) Object.assign(g.tuning.hud, saved.hud);
   g.applyTuning();
 
   const persist = (): void => {
-    store.setJSON('tuning', { controller: g.tuning.controller, camera: g.tuning.camera, avalanche: g.tuning.avalanche });
+    store.setJSON('tuning', { controller: g.tuning.controller, camera: g.tuning.camera, avalanche: g.tuning.avalanche, hud: g.tuning.hud });
     g.applyTuning();
   };
 
@@ -110,6 +111,12 @@ export function mountDebug(g: GameHandles, host: HTMLElement, isMobile: boolean)
   }
   avalanche.add({ now: () => g.triggerWave() }, 'now').name('Avalanche now');
   avalanche.close();
+
+  // HUD feel (Q-019): height of «+N» above the feet.
+  const hudFolder = gui.addFolder('HUD');
+  hudFolder.add(g.tuning.hud, 'gainHeight', 0, 6, 0.1).onChange(persist);
+  hudFolder.add(g.tuning.hud, 'gainSide', -0.2, 0.2, 0.01).onChange(persist);
+  hudFolder.close();
 
   const render = gui.addFolder('Render');
   const renderState = { quality: g.quality.level as QualityLevel | 'auto', dpr: g.quality.dpr, fps: 0, ms: 0, calls: 0, triangles: 0, textures: 0, simMs: 0 };

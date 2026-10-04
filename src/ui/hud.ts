@@ -1,9 +1,12 @@
 /**
- * HUD at M1 (docs/01-gdd.md 10.1, docs/02-tech.md 6.3): touch stick visual, jump button (≥ 18% of the short side),
- * pause button, pause/settings panel with the auto-run toggle. Buttons carry data-hud so a touch on them never starts
- * the stick. Coin plaque from the first coin (M2-04); hint plaques, the hand over the free egg and the shoes button (M2-08).
+ * HUD (docs/01-gdd.md 10.1, docs/02-tech.md 6.3): touch stick visual, jump button (≥ 18% of the short side),
+ * pause and sound buttons, pause/settings panel with the auto-run toggle. Buttons carry data-hud so a touch on them
+ * never starts the stick. Core HUD (M2-09): ice Speed plaque with the ice bolt, coin plaque under it (from the first
+ * coin), mountain bar as a slope with wall and cave marks and the hero's face, the goal under it. Hint plaques, the
+ * hand over the free egg and the shoes button (M2-08).
  */
 import { t } from './i18n.ts';
+import { icon } from './icons.ts';
 import type { StickState } from '../input/types.ts';
 
 export interface HudOptions {
@@ -21,6 +24,20 @@ export interface HudOptions {
   onShoes: () => void;
   /** «Can» and «not yet» colours of the shoes button (theme.json ui.ok, ui.no). */
   okColor: string;
+  /** Speed plaque colour and its icon id (theme.json ui.stat, ui.statIcon). */
+  statColor: string;
+  statIcon: string;
+  /** Sound button pressed: the caller flips the setting and calls setSound. */
+  onSound: () => void;
+}
+
+/** Mountain bar (docs/01-gdd.md 10.1): positions along the mountain are 0–1 from the camp to the summit. */
+export interface MountainBar {
+  zones: Array<{ from: number; to: number; color: string }>;
+  walls: number[];
+  caves: number[];
+  /** Hero face picture (data URL) from the emotion atlas. */
+  faceUrl: string;
 }
 
 /** Shoes button state: text, enough coins, share of the price collected (0–1). */
@@ -61,11 +78,23 @@ export interface Hud {
   toast(text: string, sec?: number): void;
   /** Soft white veil when the camera is inside the snow body (docs/02-tech.md 7). */
   setVeil(on: boolean): void;
+  /** Speed plaque: the number and «+N per step» under it (docs/01-gdd.md 10.1). */
+  setStat(value: string, perStep: string): void;
+  /** «+N» flying up over the Speed plaque on a gain. */
+  popStatGain(text: string): void;
+  /** Mountain bar: built once per mountain. */
+  setMountain(bar: MountainBar): void;
+  /** Per frame: «Mountain 1 · 7/12», hero position, the avalanche mark (null — none), the cave mark that blinks on warn (−1 — none). */
+  updateMountain(label: string, hero: number, wave: number | null, blinkCave: number): void;
+  /** Goal under the bar: «Wall 2K» with «1.2K/2K» and a fill bar; `progress` null — text only («Wall open!»). */
+  setGoal(text: string, progress: { text: string; frac: number } | null): void;
+  setSound(on: boolean): void;
   readonly jumpButton: HTMLButtonElement;
 }
 
-/** Hint plaque band: its top never above this share of the field (top HUD band), its bottom never below this one. */
-const HINT_TOP_MIN = 0.22;
+/** Hint plaque band: its top never above this share of the field (top HUD band; below the wave banner while it shows), its bottom never below this one. */
+const HINT_TOP_MIN = 0.24;
+const HINT_TOP_WAVE = 0.34;
 const HINT_BOTTOM_MAX = 0.78;
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string): HTMLElementTagNameMap[K] {
@@ -89,6 +118,15 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   });
   root.appendChild(pauseBtn);
 
+  const soundBtn = el('button', 'hud-btn hud-sound');
+  soundBtn.dataset['hud'] = 'sound';
+  soundBtn.setAttribute('aria-label', t('settings.sfx'));
+  soundBtn.addEventListener('pointerup', (ev) => {
+    ev.preventDefault();
+    opts.onSound();
+  });
+  root.appendChild(soundBtn);
+
   const jumpButton = el('button', 'hud-btn hud-jump', '↑');
   jumpButton.dataset['hud'] = 'jump';
   jumpButton.setAttribute('aria-label', t('btn.jump'));
@@ -104,6 +142,53 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   stickBase.appendChild(stickKnob);
   root.appendChild(stickBase);
 
+  // Left column (docs/01-gdd.md 10.1): the ice Speed plaque, coins under it.
+  const left = el('div', 'hud-left');
+  root.appendChild(left);
+  const stat = el('div', 'hud-stat');
+  stat.dataset['role'] = 'stat';
+  stat.setAttribute('aria-label', t('hud.speed'));
+  stat.style.setProperty('--stat', opts.statColor);
+  const statIcon = el('span', 'hud-stat-icon');
+  statIcon.innerHTML = icon(opts.statIcon);
+  const statBody = el('span', 'hud-stat-body');
+  const statValue = el('span', 'hud-stat-value', '0');
+  const statPer = el('span', 'hud-stat-per', '');
+  statBody.append(statValue, statPer);
+  const statGain = el('span', 'hud-stat-gain');
+  stat.append(statIcon, statBody, statGain);
+  left.appendChild(stat);
+
+  // Mountain bar at the top centre: a slope rising left to right, zone colours, wall and cave marks, the hero's face.
+  const mountain = el('div', 'hud-mountain');
+  mountain.dataset['role'] = 'mountain';
+  const mountainLabel = el('div', 'hud-mountain-label');
+  const mountainBar = el('div', 'hud-mountain-bar');
+  const mountainFlag = el('span', 'hud-mountain-flag');
+  mountainFlag.innerHTML = icon('flag');
+  const mountainHero = el('img', 'hud-mountain-hero');
+  mountainHero.alt = '';
+  const mountainWave = el('span', 'hud-mountain-wave');
+  mountainWave.innerHTML = icon('wave');
+  // The slope (zones, wall and cave marks) is clipped to a wedge; the hero, the flag and the wave sit on top unclipped.
+  const mountainSlope = el('div', 'hud-mountain-slope');
+  mountain.append(mountainLabel, mountainBar);
+  mountainBar.append(mountainSlope, mountainFlag, mountainWave, mountainHero);
+  root.appendChild(mountain);
+  let caveMarks: HTMLElement[] = [];
+  let blinking = -1;
+
+  // Goal under the bar: what next («Wall 2K» and «1.2K/2K»).
+  const goal = el('div', 'hud-goal');
+  goal.dataset['role'] = 'goal';
+  const goalText = el('div', 'hud-goal-text');
+  const goalBar = el('div', 'hud-goal-bar');
+  const goalFill = el('span', 'hud-goal-fill');
+  const goalNum = el('span', 'hud-goal-num');
+  goalBar.append(goalFill, goalNum);
+  goal.append(goalText, goalBar);
+  root.appendChild(goal);
+
   // Coins under the Speed plaque (docs/01-gdd.md 10.1): a coin with a snowflake and the number.
   const coins = el('div', 'hud-coins');
   coins.dataset['role'] = 'coins';
@@ -112,10 +197,11 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const coinIcon = el('span', 'hud-coin-icon', '\u2744');
   const coinValue = el('span', 'hud-coin-value', '0');
   coins.append(coinIcon, coinValue);
-  root.appendChild(coins);
+  left.appendChild(coins);
 
   // Avalanche (docs/01-gdd.md 4.8): banner, frost frame, arrow to the cave, toast, veil. Never red (docs/03, 3.2).
   root.style.setProperty('--threat', opts.threatColor);
+  root.style.setProperty('--stat-goal', opts.statColor);
   const frost = el('div', 'hud-frost');
   frost.dataset['role'] = 'frost';
   const veil = el('div', 'hud-veil');
@@ -252,8 +338,12 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       jumpButton.style.width = `${size}px`;
       jumpButton.style.height = `${size}px`;
       const btn = height < 420 ? 44 : 48;
-      pauseBtn.style.width = `${btn}px`;
-      pauseBtn.style.height = `${btn}px`;
+      for (const b of [pauseBtn, soundBtn]) {
+        b.style.width = `${btn}px`;
+        b.style.height = `${btn}px`;
+      }
+      soundBtn.style.marginRight = `${btn + (height < 420 ? 6 : 8)}px`;
+      root.classList.toggle('short', height < 420);
       const r = Math.round(short * 0.12);
       stickBase.style.width = `${r * 2}px`;
       stickBase.style.height = `${r * 2}px`;
@@ -269,7 +359,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       const w = hint.offsetWidth;
       const hh = hint.offsetHeight;
       const x = Math.min(fieldW - w / 2 - 8, Math.max(w / 2 + 8, h.x));
-      const y = Math.min(fieldH * HINT_BOTTOM_MAX, Math.max(fieldH * HINT_TOP_MIN + hh, h.y));
+      const top = banner.classList.contains('shown') ? HINT_TOP_WAVE : HINT_TOP_MIN;
+      const y = Math.min(fieldH * HINT_BOTTOM_MAX, Math.max(fieldH * top + hh, h.y));
       hint.style.transform = `translate(${Math.round(x - w / 2)}px, ${Math.round(y - hh)}px)`;
     },
     setHand(pos) {
@@ -300,8 +391,13 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       toastEl.classList.remove('shown');
       void toastEl.offsetWidth;
       toastEl.classList.add('shown');
+      // The hint plaque steps aside while a toast is up: one message near the hero at a time.
+      root.classList.add('toasting');
       if (toastTimer) clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toastEl.classList.remove('shown'), sec * 1000);
+      toastTimer = setTimeout(() => {
+        toastEl.classList.remove('shown');
+        root.classList.remove('toasting');
+      }, sec * 1000);
     },
     setVeil(on) {
       veil.classList.toggle('shown', on);
@@ -309,6 +405,63 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     setCoins(text) {
       if (coinValue.textContent !== text) coinValue.textContent = text;
       coins.classList.add('shown');
+    },
+    setStat(value, perStep) {
+      if (statValue.textContent !== value) statValue.textContent = value;
+      if (statPer.textContent !== perStep) statPer.textContent = perStep;
+    },
+    popStatGain(text) {
+      statGain.textContent = text;
+      statGain.classList.remove('show');
+      void statGain.offsetWidth;
+      statGain.classList.add('show');
+    },
+    setMountain(bar) {
+      mountainSlope.replaceChildren();
+      const pct = (f: number): string => `${(Math.max(0, Math.min(1, f)) * 100).toFixed(2)}%`;
+      for (const z of bar.zones) {
+        const n = el('span', 'hud-mz');
+        n.style.left = pct(z.from);
+        n.style.width = pct(z.to - z.from);
+        n.style.background = z.color;
+        mountainSlope.appendChild(n);
+      }
+      for (const w of bar.walls) {
+        const n = el('span', 'hud-mwall');
+        n.style.left = pct(w);
+        mountainSlope.appendChild(n);
+      }
+      caveMarks = bar.caves.map((c) => {
+        const n = el('span', 'hud-mcave');
+        n.style.left = pct(c);
+        mountainSlope.appendChild(n);
+        return n;
+      });
+      blinking = -1;
+      mountainHero.src = bar.faceUrl;
+    },
+    updateMountain(label, hero, wave, blinkCave) {
+      if (mountainLabel.textContent !== label) mountainLabel.textContent = label;
+      mountainHero.style.left = `${(Math.max(0, Math.min(1, hero)) * 100).toFixed(2)}%`;
+      mountainWave.classList.toggle('shown', wave !== null);
+      if (wave !== null) mountainWave.style.left = `${(Math.max(0, Math.min(1, wave)) * 100).toFixed(2)}%`;
+      if (blinkCave !== blinking) {
+        caveMarks[blinking]?.classList.remove('blink');
+        caveMarks[blinkCave]?.classList.add('blink');
+        blinking = blinkCave;
+      }
+    },
+    setGoal(text, progress) {
+      if (goalText.textContent !== text) goalText.textContent = text;
+      goalBar.classList.toggle('shown', progress !== null);
+      if (progress) {
+        if (goalNum.textContent !== progress.text) goalNum.textContent = progress.text;
+        goalFill.style.transform = `scaleX(${Math.max(0, Math.min(1, progress.frac)).toFixed(3)})`;
+      }
+    },
+    setSound(on) {
+      soundBtn.innerHTML = icon(on ? 'soundOn' : 'soundOff');
+      soundBtn.dataset['on'] = String(on);
     },
     popGain(text, x, y) {
       const node = gainPool[gainNext % gainPool.length]!;

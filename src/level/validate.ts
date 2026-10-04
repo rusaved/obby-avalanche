@@ -176,6 +176,7 @@ const balanceSchema = v.object({
 });
 
 const tuningSchema = v.object({
+  hud: v.object({ gainHeight: v.number(), gainSide: v.pipe(v.number(), v.minValue(-0.5), v.maxValue(0.5)) }),
   controller: v.object({
     baseSpeed: positive,
     maxSpeed: positive,

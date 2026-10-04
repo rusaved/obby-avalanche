@@ -24,13 +24,15 @@ import { createWaveView, type WaveView } from './app/wave-view.ts';
 import { createFtueVisual } from './render/ftue.ts';
 import { createFtueView, type FtueView } from './app/ftue-view.ts';
 import { createMetaView, type MetaView } from './app/meta-view.ts';
+import { createHudView, type HudView } from './app/hud-view.ts';
+import { faceDataUrl } from './render/characters.ts';
 import type { ThreatOptions } from './sim/threat.ts';
 import type { World } from './content/types.ts';
 import { createQuality, type QualityLevel } from './render/quality.ts';
 import { buildLevel } from './level/builder.ts';
 import { createSim, controllerParams, type Sim } from './sim/world.ts';
 import { HERO_HEIGHT } from './sim/controller.ts';
-import { formatNumber } from './ui/format.ts';
+import { formatNumber, setNumberLocale } from './ui/format.ts';
 import { moveSpeed } from './sim/effects/moveSpeed.ts';
 import { InputManager } from './input/manager.ts';
 import { applyManualTurn, createControlFrame, onMoveStarted, toWorld } from './input/control-frame.ts';
@@ -71,6 +73,7 @@ async function boot(): Promise<void> {
 
   const dict = await loadDictionary(i18nUrls[platform.lang]);
   setDictionary(platform.lang, dict);
+  setNumberLocale(platform.lang);
   document.documentElement.lang = platform.lang;
   document.title = t('game.title');
 
@@ -161,6 +164,7 @@ async function boot(): Promise<void> {
   let waveView: WaveView | null = null;
   let ftueView: FtueView | null = null;
   let meta: MetaView | null = null;
+  let hudView: HudView | null = null;
   let field: FieldRect = { width: 1, height: 1, left: 0, top: 0 };
   let lastSnap: InputSnapshot | null = null;
   let pendingGain: number | null = null;
@@ -228,6 +232,7 @@ async function boot(): Promise<void> {
       if (next !== null) pendingPortal = next;
     });
     ftueView?.wire(s);
+    hudView?.wire(s);
   };
   wireSim(sim);
   const numSuffix = (k: string): string => t(`num.${k}`);
@@ -468,6 +473,7 @@ async function boot(): Promise<void> {
     lastRenderTicks = loop.ticks;
     meta?.update();
     ftueView?.update(gameDt, playSec, renderPos);
+    hudView?.update(playSec);
     if (cameraRig) {
       cameraRig.update(
         frameDt,
@@ -495,9 +501,10 @@ async function boot(): Promise<void> {
     if (hud) {
       if (pendingGain !== null && cameraRig && playSec - lastGainPopAt >= GAIN_POP_MIN_SEC && heroChar?.visible) {
         headPos.copy(renderPos);
-        headPos.y += HERO_HEIGHT + 0.6;
+        // «+N» at the feet (Q-019; tuning.hud.gainHeight), floating up past the hero.
+        headPos.y += tuning.hud.gainHeight;
         headPos.project(cameraRig.camera);
-        if (headPos.z < 1) hud.popGain(`+${formatNumber(pendingGain, (k) => t(`num.${k}`))}`, (headPos.x * 0.5 + 0.5) * field.width, (0.5 - headPos.y * 0.5) * field.height);
+        if (headPos.z < 1) hud.popGain(`+${formatNumber(pendingGain, (k) => t(`num.${k}`))}`, (headPos.x * 0.5 + 0.5 + tuning.hud.gainSide) * field.width, (0.5 - headPos.y * 0.5) * field.height);
         lastGainPopAt = playSec;
         pendingGain = null;
       }
@@ -586,7 +593,15 @@ async function boot(): Promise<void> {
     threatColor: theme.threat.front[1],
     onShoes: () => void meta?.buyShoes(),
     okColor: theme.ui.ok,
+    statColor: theme.ui.stat,
+    statIcon: theme.ui.statIcon,
+    onSound: () => {
+      save.settings.sound = !save.settings.sound;
+      hud?.setSound(save.settings.sound);
+      persist(true);
+    },
   });
+  hud.setSound(save.settings.sound);
   waveView = createWaveView({
     tuning,
     frame,
@@ -615,6 +630,17 @@ async function boot(): Promise<void> {
     shoes: () => ({ shown: meta?.shoesShown ?? false, level: meta?.shoeLevel ?? 0 }),
   });
   ftueView.wire(sim);
+  const skin = skins.skins.find((x) => x.id === skins.default) ?? skins.skins[0];
+  hudView = createHudView({
+    balance,
+    theme,
+    hud,
+    getSim: () => sim,
+    getWorld: () => g.world,
+    faceUrl: skin ? faceDataUrl(skin.colors.head, skin.face) : '',
+    numSuffix,
+  });
+  hudView.wire(sim);
   for (const pet of save.pets ?? []) ftueView.showPet(pet);
   hud.setAutoRun(save.settings.autoRun);
   hud.setQuality(save.settings.quality);

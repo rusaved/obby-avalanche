@@ -68,6 +68,22 @@ export interface Characters {
   dispose(): void;
 }
 
+/** One face of the atlas on the head colour as a small picture (the hero mark on the HUD mountain bar). */
+export function faceDataUrl(headColor: string, face: string, size = 48): string {
+  const atlas = document.createElement('canvas');
+  drawFaceAtlas(atlas);
+  const out = document.createElement('canvas');
+  out.width = size;
+  out.height = size;
+  const ctx = out.getContext('2d');
+  if (!ctx) return '';
+  ctx.fillStyle = headColor;
+  ctx.fillRect(0, 0, size, size);
+  const i = Math.max(0, FACES.indexOf(face as FaceName));
+  ctx.drawImage(atlas, i * FACE_CELL, 0, FACE_CELL, FACE_CELL, 0, 0, size, size);
+  return out.toDataURL();
+}
+
 /** Draws the 8 faces into a 1024×256 atlas (transparent background, skin colour shows through). */
 export function drawFaceAtlas(canvas: HTMLCanvasElement): void {
   canvas.width = FACE_CELL * 8;
