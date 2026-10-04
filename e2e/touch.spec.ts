@@ -1,4 +1,4 @@
-import { test, expect, testState } from './fixtures.ts';
+import { test, expect, testState, waitTicks } from './fixtures.ts';
 import type { Page } from '@playwright/test';
 
 // Touch (docs/02-tech.md 6.3): dynamic stick, camera swipe, jump button, multitouch via CDP, resets.
@@ -30,11 +30,11 @@ test.describe('touch', () => {
     // Finger 1: stick on the left half; finger 2: camera on the right half.
     await touch(cdp, 'touchStart', [{ x: 150, y: 300, id: 1 }, { x: 600, y: 150, id: 2 }]);
     await touch(cdp, 'touchMove', [{ x: 150, y: 220, id: 1 }, { x: 640, y: 150, id: 2 }]);
-    await page.waitForTimeout(100);
+    await waitTicks(page, 6);
     await touch(cdp, 'touchMove', [{ x: 150, y: 220, id: 1 }, { x: 690, y: 150, id: 2 }]);
     // Finger 3: the jump button while both others stay down.
     await touch(cdp, 'touchStart', [{ x: 150, y: 220, id: 1 }, { x: 690, y: 150, id: 2 }, { x: jump.x, y: jump.y, id: 3 }]);
-    await page.waitForTimeout(400);
+    await waitTicks(page, 24);
     const s1 = await testState(page);
     expect(s1.stickActive).toBe(true);
     expect(s1.hero!.speed).toBeGreaterThan(5);
@@ -43,7 +43,7 @@ test.describe('touch', () => {
     expect(jumps).toBeGreaterThanOrEqual(1);
     await page.screenshot({ path: 'docs/evidence/M1/touch_844x390_ru.png' });
     await touch(cdp, 'touchEnd', [{ x: 150, y: 220, id: 1 }, { x: 690, y: 150, id: 2 }, { x: jump.x, y: jump.y, id: 3 }]);
-    await page.waitForTimeout(300);
+    await waitTicks(page, 12);
     expect((await testState(page)).stickActive).toBe(false);
   });
 
@@ -54,10 +54,10 @@ test.describe('touch', () => {
     const px = pauseBox!.x + pauseBox!.width / 2;
     const py = pauseBox!.y + pauseBox!.height / 2;
     await touch(cdp, 'touchStart', [{ x: px, y: py, id: 5 }]);
-    await page.waitForTimeout(100);
+    await waitTicks(page, 6);
     expect((await testState(page)).stickActive).toBe(false);
     await touch(cdp, 'touchEnd', [{ x: px, y: py, id: 5 }]);
-    await page.waitForTimeout(150);
+    await page.waitForFunction(() => window.__TEST__!.state().menuOpen, undefined, { timeout: 10_000 });
     expect((await testState(page)).menuOpen).toBe(true);
     await page.locator('[data-hud="continue"]').click();
   });
@@ -67,21 +67,21 @@ test.describe('touch', () => {
     const cdp = await page.context().newCDPSession(page);
     await touch(cdp, 'touchStart', [{ x: 150, y: 300, id: 1 }]);
     await touch(cdp, 'touchMove', [{ x: 150, y: 220, id: 1 }]);
-    await page.waitForTimeout(300);
+    await waitTicks(page, 18);
     expect((await testState(page)).hero!.speed).toBeGreaterThan(5);
     await touch(cdp, 'touchCancel', [{ x: 150, y: 220, id: 1 }]);
-    await page.waitForTimeout(300);
+    await waitTicks(page, 18);
     let s = await testState(page);
     expect(s.stickActive).toBe(false);
     expect(s.hero!.speed).toBeLessThan(0.5);
 
     await touch(cdp, 'touchStart', [{ x: 150, y: 300, id: 2 }]);
     await touch(cdp, 'touchMove', [{ x: 150, y: 220, id: 2 }]);
-    await page.waitForTimeout(300);
+    await waitTicks(page, 18);
     expect((await testState(page)).hero!.speed).toBeGreaterThan(5);
     const result = await page.evaluate(() => window.__TEST__!.showAd('interstitial'));
     expect(result.shown).toBe(true);
-    await page.waitForTimeout(300);
+    await waitTicks(page, 18);
     s = await testState(page);
     expect(s.pauseReasons).toEqual([]);
     expect(s.stickActive).toBe(false);
@@ -94,14 +94,14 @@ test.describe('touch', () => {
     const cdp = await page.context().newCDPSession(page);
     await touch(cdp, 'touchStart', [{ x: 150, y: 300, id: 1 }]);
     await touch(cdp, 'touchMove', [{ x: 150, y: 220, id: 1 }]);
-    await page.waitForTimeout(200);
+    await waitTicks(page, 12);
     await page.evaluate(() => window.dispatchEvent(new Event('blur')));
     await page.waitForTimeout(100);
     let s = await testState(page);
     expect(s.pauseReasons).toEqual(['blur']);
     expect(s.stickActive).toBe(false);
     await page.evaluate(() => window.dispatchEvent(new Event('focus')));
-    await page.waitForTimeout(300);
+    await waitTicks(page, 18);
     s = await testState(page);
     expect(s.pauseReasons).toEqual([]);
     expect(s.hero!.speed).toBeLessThan(0.5);

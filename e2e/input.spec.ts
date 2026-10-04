@@ -1,4 +1,4 @@
-import { test, expect, testState } from './fixtures.ts';
+import { test, expect, testState, waitTicks } from './fixtures.ts';
 
 // Keyboard by event.code, mouse camera, wheel zoom, no page scroll (docs/02-tech.md 6.2, docs/03 SCR-03, SCR-05).
 test.describe('PC input', () => {
@@ -7,7 +7,7 @@ test.describe('PC input', () => {
     const z0 = (await testState(page)).hero!.z;
     const cdp = await page.context().newCDPSession(page);
     await cdp.send('Input.dispatchKeyEvent', { type: 'keyDown', code: 'KeyW', key: 'ц', windowsVirtualKeyCode: 87 });
-    await page.waitForTimeout(700);
+    await waitTicks(page, 42);
     await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', code: 'KeyW', key: 'ц', windowsVirtualKeyCode: 87 });
     const z1 = (await testState(page)).hero!.z;
     expect(z1 - z0).toBeGreaterThan(4);
@@ -18,18 +18,18 @@ test.describe('PC input', () => {
     await openGame();
     const s0 = (await testState(page)).hero!;
     await page.keyboard.down('ArrowUp');
-    await page.waitForTimeout(500);
+    await waitTicks(page, 30);
     await page.keyboard.up('ArrowUp');
     const s1 = (await testState(page)).hero!;
     expect(s1.z).toBeGreaterThan(s0.z + 3);
     await page.keyboard.down('KeyA');
-    await page.waitForTimeout(400);
+    await waitTicks(page, 30);
     await page.keyboard.up('KeyA');
     const s2 = (await testState(page)).hero!;
     // Camera behind the hero looks along +Z, so screen-left is world +X (right-handed axes).
     expect(s2.x).toBeGreaterThan(s1.x + 1);
     await page.keyboard.down('KeyD');
-    await page.waitForTimeout(700);
+    await waitTicks(page, 50);
     await page.keyboard.up('KeyD');
     const s3 = (await testState(page)).hero!;
     expect(s3.x).toBeLessThan(s2.x - 1);
@@ -38,13 +38,13 @@ test.describe('PC input', () => {
   test('SCR-03 Space jumps and never scrolls the page; wheel zooms the camera, not the page', async ({ page, openGame }) => {
     await openGame();
     await page.keyboard.press('Space');
-    await page.waitForTimeout(300);
+    await waitTicks(page, 20);
     const jumps = await page.evaluate(() => window.__TEST__!.simEvents.filter((e) => e.name === 'jump').length);
     expect(jumps).toBeGreaterThanOrEqual(1);
     const d0 = (await testState(page)).cameraDistance;
     await page.mouse.move(480, 270);
     await page.mouse.wheel(0, 600);
-    await page.waitForTimeout(300);
+    await waitTicks(page, 10);
     const d1 = (await testState(page)).cameraDistance;
     expect(d1).toBeGreaterThan(d0);
     expect(await page.evaluate(() => ({ y: window.scrollY, h: document.documentElement.scrollHeight <= window.innerHeight }))).toEqual({ y: 0, h: true });
@@ -57,14 +57,14 @@ test.describe('PC input', () => {
     await page.mouse.down({ button: 'left' });
     await page.mouse.move(380, 270, { steps: 10 });
     await page.mouse.up({ button: 'left' });
-    await page.waitForTimeout(200);
+    await waitTicks(page, 6);
     const s1 = await testState(page);
     expect(Math.abs(s1.viewYaw - yaw0)).toBeGreaterThan(0.2);
     expect(Math.abs(s1.controlYaw - s1.viewYaw)).toBeLessThan(1e-6);
     await page.mouse.down({ button: 'right' });
     await page.mouse.move(480, 270, { steps: 10 });
     await page.mouse.up({ button: 'right' });
-    await page.waitForTimeout(200);
+    await waitTicks(page, 6);
     const s2 = await testState(page);
     expect(Math.abs(s2.viewYaw - s1.viewYaw)).toBeGreaterThan(0.2);
   });
@@ -74,7 +74,7 @@ test.describe('PC input', () => {
     const z0 = (await testState(page)).hero!.z;
     await page.keyboard.down('Control');
     await page.keyboard.down('KeyW');
-    await page.waitForTimeout(400);
+    await waitTicks(page, 24);
     await page.keyboard.up('KeyW');
     await page.keyboard.up('Control');
     await page.keyboard.press('F2');
@@ -82,7 +82,7 @@ test.describe('PC input', () => {
     await page.keyboard.down('Alt');
     await page.keyboard.press('ArrowUp');
     await page.keyboard.up('Alt');
-    await page.waitForTimeout(200);
+    await waitTicks(page, 12);
     const s = await testState(page);
     expect(Math.abs(s.hero!.z - z0)).toBeLessThan(0.5);
     expect(s.menuOpen).toBe(false);
@@ -90,24 +90,22 @@ test.describe('PC input', () => {
 
   test('Escape and KeyP open and close the pause menu; the menu pauses the simulation', async ({ page, openGame }) => {
     await openGame();
+    const menu = (open: boolean) => page.waitForFunction((o) => window.__TEST__!.state().menuOpen === o, open, { timeout: 10_000 });
     await page.keyboard.press('Escape');
-    await page.waitForTimeout(150);
+    await menu(true);
     let s = await testState(page);
-    expect(s.menuOpen).toBe(true);
     expect(s.pauseReasons).toEqual(['menu']);
     await expect(page.locator('[data-role="pause"]')).toBeVisible();
     const ticks = s.ticks;
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(300);
     expect((await testState(page)).ticks).toBe(ticks);
     await page.locator('[data-hud="continue"]').click();
-    await page.waitForTimeout(150);
+    await menu(false);
+    await page.keyboard.press('KeyP');
+    await menu(true);
+    await page.keyboard.press('KeyP');
+    await menu(false);
     s = await testState(page);
-    expect(s.menuOpen).toBe(false);
-    await page.keyboard.press('KeyP');
-    await page.waitForTimeout(150);
-    expect((await testState(page)).menuOpen).toBe(true);
-    await page.keyboard.press('KeyP');
-    await page.waitForTimeout(150);
-    expect((await testState(page)).menuOpen).toBe(false);
+    expect(s.pauseReasons).toEqual([]);
   });
 });

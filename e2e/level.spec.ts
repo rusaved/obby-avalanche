@@ -1,4 +1,4 @@
-import { test, expect, testState } from './fixtures.ts';
+import { test, expect, testState, waitTicks } from './fixtures.ts';
 
 // Mountain 1 from worlds.json (docs/02-tech.md 6.1): fall below the track → the last flag within 0.5 s.
 test.describe('level', () => {
@@ -6,7 +6,7 @@ test.describe('level', () => {
     await openGame();
     // Reach the flag behind wall 1 (z ≈ 134.5) by teleport, then fall outside the border.
     await page.evaluate(() => window.__TEST__!.teleport(140));
-    await page.waitForTimeout(400);
+    await waitTicks(page, 24);
     let s = await testState(page);
     expect(s.checkpoint).toBe(0);
     await page.evaluate(() => window.__TEST__!.teleport(200, 40));
@@ -15,7 +15,7 @@ test.describe('level', () => {
     const fall = events.find((e) => e.name === 'fall')!;
     const respawn = events.find((e) => e.name === 'respawn')!;
     expect(respawn.tick - fall.tick).toBeLessThanOrEqual(30);
-    await page.waitForTimeout(200);
+    await waitTicks(page, 12);
     s = await testState(page);
     expect(s.hero!.z).toBeCloseTo(134.5, 0);
     expect(s.hero!.x).toBeCloseTo(0, 0);
@@ -26,7 +26,7 @@ test.describe('level', () => {
     await openGame();
     await page.evaluate(() => window.__TEST__!.teleport(120));
     await page.keyboard.down('KeyW');
-    await page.waitForTimeout(1500);
+    await waitTicks(page, 90);
     await page.keyboard.up('KeyW');
     const s = await testState(page);
     expect(s.hero!.z).toBeLessThan(130);

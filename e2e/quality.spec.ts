@@ -1,4 +1,4 @@
-import { test, expect, testState } from './fixtures.ts';
+import { test, expect, testState, waitTicks } from './fixtures.ts';
 import { writeFileSync, mkdirSync } from 'node:fs';
 
 // Quality levels and render budgets (docs/02-tech.md 9.3, 9.5): draw calls ≤ 60, triangles ≤ 150k, textures ≤ 16.
@@ -8,7 +8,7 @@ test.describe('quality and budgets', () => {
     const rows: string[] = [];
     for (const z of [20, 400, 1150]) {
       await page.evaluate((zz) => window.__TEST__!.teleport(zz), z);
-      await page.waitForTimeout(500);
+      await waitTicks(page, 20);
       const info = await page.evaluate(() => window.__TEST__!.renderInfo()!);
       const chars = await page.evaluate(() => window.__TEST__!.charactersDrawCalls());
       rows.push(`z=${z}: draw calls ${info.calls}, triangles ${info.triangles}, textures ${info.textures}, geometries ${info.geometries}, character draw calls ${chars}`);
@@ -50,7 +50,7 @@ test.describe('quality and budgets', () => {
   test('?gpuload=2 renders the scene twice per frame', async ({ page, openGame }) => {
     await openGame('gpuload=2');
     const a = await testState(page);
-    await page.waitForTimeout(600);
+    await page.waitForFunction((n) => window.__TEST__!.state().framesPresented >= n, a.framesPresented + 10, { timeout: 20_000 });
     const b = await testState(page);
     expect(b.gpuLoad).toBe(2);
     const presented = b.framesPresented - a.framesPresented;

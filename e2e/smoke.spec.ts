@@ -1,4 +1,4 @@
-import { test, expect, testState, mockCalls, runGameTime } from './fixtures.ts';
+import { test, expect, testState, mockCalls, runGameTime, waitTicks } from './fixtures.ts';
 
 test.describe('smoke', () => {
   test('environment: WebGL2 context, renderer draws, UNMASKED_RENDERER_WEBGL logged', async ({ page, openGame }) => {
@@ -83,7 +83,7 @@ test.describe('smoke', () => {
   test('pause reasons: hidden tab stops the simulation and GameplayAPI, visible resumes it', async ({ page, openGame }) => {
     await openGame();
     const ticksBefore = (await testState(page)).ticks;
-    await page.waitForTimeout(200);
+    await waitTicks(page, 6);
     expect((await testState(page)).ticks).toBeGreaterThan(ticksBefore);
     await page.evaluate(() => {
       Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
@@ -100,7 +100,7 @@ test.describe('smoke', () => {
       document.dispatchEvent(new Event('visibilitychange'));
     });
     expect((await testState(page)).pauseReasons).toEqual([]);
-    await page.waitForTimeout(200);
+    await waitTicks(page, 6);
     expect((await testState(page)).ticks).toBeGreaterThan(t1);
     expect(await mockCalls(page, 'GameplayAPI.start')).toBe(2);
   });

@@ -1,4 +1,4 @@
-import { test, expect, testState } from './fixtures.ts';
+import { test, expect, testState, waitTicks } from './fixtures.ts';
 import { validateTuning } from '../src/level/validate.ts';
 import tuning from '../content/avalanche/tuning.json' with { type: 'json' };
 
@@ -10,10 +10,10 @@ test.describe('debug panel', () => {
     await expect(page.locator('.lil-gui').first()).toBeVisible();
     await expect(page.locator('[data-role="debug-overlay"]')).toBeVisible();
     await page.keyboard.down('KeyW');
-    await page.waitForTimeout(600);
+    await waitTicks(page, 36);
     const v1 = (await testState(page)).hero!.speed;
     await page.evaluate(() => window.__DEBUG__!.set('controller.baseSpeed', 32));
-    await page.waitForTimeout(600);
+    await waitTicks(page, 36);
     const v2 = (await testState(page)).hero!.speed;
     await page.keyboard.up('KeyW');
     expect(v1).toBeCloseTo(16, 0);
@@ -39,7 +39,7 @@ test.describe('debug panel', () => {
     await openGame('debug=1&mock_device=mobile');
     const closed = await page.locator('.lil-gui.lil-root').first().evaluate((el) => el.classList.contains('lil-closed'));
     expect(closed).toBe(true);
-    await page.waitForTimeout(700);
+    await page.waitForFunction(() => /fps \d+/.test(document.querySelector('[data-role="debug-overlay"]')?.textContent ?? ''), undefined, { timeout: 15_000 });
     const text = await page.locator('[data-role="debug-overlay"]').textContent();
     expect(text).toMatch(/(low|medium|high) dpr [\d.]+/);
     expect(text).toMatch(/\d+(\.\d+)? ms/);

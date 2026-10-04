@@ -26,6 +26,12 @@ export const test = base.extend<Options & Fixtures>({
   errors: [
     async ({ page, allowConsoleErrors }, use) => {
       const errors: string[] = [];
+      // E2E_CPU_THROTTLE=4 emulates a slow CI runner (tests must hold on game ticks, not wall time).
+      const throttle = Number(process.env.E2E_CPU_THROTTLE || 0);
+      if (throttle > 1) {
+        const cdp = await page.context().newCDPSession(page);
+        await cdp.send('Emulation.setCPUThrottlingRate', { rate: throttle });
+      }
       await page.route('**/mc.yandex.ru/**', (route) => route.fulfill({ status: 200, body: '' }));
       page.on('console', (msg) => {
         if (msg.type() === 'error') errors.push(`console.error: ${msg.text()}`);
@@ -68,4 +74,10 @@ export async function runGameTime(page: Page, targetSec: number, scale = 20): Pr
   await page.evaluate((k) => window.__TEST__!.setTimeScale(k), scale);
   await page.waitForFunction((t) => (window.__TEST__!.state().timeSec ?? 0) >= t, targetSec, { timeout: 110_000 });
   await page.evaluate(() => window.__TEST__!.setTimeScale(1));
+}
+
+/** Waits until the simulation has advanced by `n` ticks (game time, independent of the machine speed). */
+export async function waitTicks(page: Page, n: number, timeout = 60_000): Promise<void> {
+  const start = await page.evaluate(() => window.__TEST__!.state().ticks);
+  await page.waitForFunction((t) => window.__TEST__!.state().ticks >= t, start + n, { timeout });
 }
