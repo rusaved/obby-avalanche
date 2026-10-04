@@ -288,6 +288,15 @@
     "deferred": false
   },
   {
+    "id": "M2-13",
+    "milestone": "M2",
+    "description": "Вспышка на круглых числах Скорости (решение продюсера 04.10, QUESTIONS Q-023; docs/01-gdd.md, 10.3–10.4): при первом переходе Скорости через порог из списка balance.json → ui.statMilestones (1K, 10K, 100K, 1M и каждая следующая степень 10) плашка Скорости вспыхивает, число подпрыгивает, короткий звон, тост «{n} Скорости!» (toast.statMilestone, ru и en), событие шины statMilestone; аналитики нет",
+    "acceptance": "Vitest: Скорость 999 → 1 000 даёт ровно одно событие statMilestone с порогом 1000, повторный переход через 1 000 в той же загрузке события не даёт; прыжок за один шаг через 1K и 10K даёт одно событие с порогом 10 000; после перерождения пороги срабатывают снова; пороги берутся только из balance.json (в src/ чисел порогов нет, архитектурный тест); событие statMilestone не попадает в аналитику (каталог событий docs/06); validate:content: ui.statMilestones — возрастающий список чисел ≥ 1000, ключ toast.statMilestone есть в ru и en; e2e: после перехода 1K у плашки Скорости класс вспышки и тост «1K Скорости!» (ru) / «1K Speed!» (en), без ошибок консоли; скриншот stat_milestone_1920x1080_ru.png в docs/evidence/M2/",
+    "passes": false,
+    "priority": "P1",
+    "deferred": false
+  },
+  {
     "id": "M3-01",
     "milestone": "M3",
     "description": "Экономика по формулам docs/01-gdd.md, 8.1: монеты, цены, множители шага (кроссовки, питомцы, трейлы, ауры, дорожки, бусты, ступень) — только данными",
@@ -405,6 +414,24 @@
     "deferred": false
   },
   {
+    "id": "M3-12",
+    "milestone": "M3",
+    "description": "Первая лавина гор 2–5 через 10–12 с после загрузки или портала (решение продюсера 04.10, QUESTIONS Q-022; docs/01-gdd.md, 4.1; docs/01a-content.md, раздел 2): firstIntervalSec у каждой горы в worlds-spec.json — гора 1 30, горы 2–5 12 / 11,5 / 11 / 10,5; worlds.json генерирует npm run gen:worlds",
+    "acceptance": "validate:content: в worlds.json у гор 2–5 threat.firstIntervalSec в диапазоне 10–12 с и все четыре значения различны, у горы 1 = 30; честность пещер (docs/02-tech.md, 5.4) проходит на всех 5 горах; npm run gen:worlds детерминирован; Vitest (sim): после портала на гору 2 фаза warn начинается через firstIntervalSec горы 2 (±1 тик), после загрузки на горе 1 — через 30 с",
+    "passes": false,
+    "priority": "P1",
+    "deferred": false
+  },
+  {
+    "id": "M3-13",
+    "milestone": "M3",
+    "description": "Счётчик коллекции питомцев (решение продюсера 04.10, QUESTIONS Q-024; docs/01-gdd.md, 7.2): в тосте вылупления «{egg}: {k} из {n}» (toast.hatchCount) — разных питомцев этого яйца в коллекции из всех питомцев яйца; на кнопке «Питомцы» HUD «{k}/{total}» (btn.petsCount) — разных питомцев из всех 27",
+    "acceptance": "Vitest: счётчик идёт по видам, не по штукам (второй такой же питомец k не меняет), отпущенный питомец уменьшает k, только если такого вида больше нет; n и total берутся из pets.json и eggs.json, а не из кода; validate:content: ключи toast.hatchCount и btn.petsCount есть в ru и en; e2e (фиксированный сид: выпал Пингвинчик, Зайка из обучения уже в коллекции): вылупление первого Снежного яйца → тост «Снежное яйцо: 2 из 5» (ru) / «Snow Egg: 2 of 5» (en), на кнопке «Питомцы» «2/27»; после F5 счётчик тот же; скриншот hatch_count_1920x1080_ru.png в docs/evidence/M3/",
+    "passes": false,
+    "priority": "P1",
+    "deferred": false
+  },
+  {
     "id": "M4-01",
     "milestone": "M4",
     "description": "Протокол паузы docs/03-yandex-compliance.md, 2.3: причины ad, sdk, hidden, blur, menu, shop, pointerlock, orientation, transition (единый список docs/02-tech.md, 4.3); звук и симуляция стоят; GameplayAPI start/stop на переходах",
@@ -508,6 +535,15 @@
     "milestone": "M4",
     "description": "Удалённые флаги: platform.getFlags() → ysdk.getFlags({ defaultFlags }) один раз при старте, значения по умолчанию — из balance.json, worlds.json и game.json по путям, перечисленным в game.json.flags, без сети игра работает как без флагов (docs/02-tech.md, 11.11)",
     "acceptance": "Vitest: значение флага вне правил docs/03-yandex-compliance.md, раздел 2 (например ads.interstitialCooldownSec ниже 180) зажимается и пишется предупреждением; e2e на моке: getFlags вызван ровно 1 раз; флаг, отданный моком, меняет свой параметр без пересборки; при ошибке getFlags (?mock_flags=error) игра идёт на значениях по умолчанию без console.error и pageerror; набор флагов уходит параметром flags в gameReady (docs/06-analytics.md, раздел 4)",
+    "passes": false,
+    "priority": "P1",
+    "deferred": false
+  },
+  {
+    "id": "M4-12",
+    "milestone": "M4",
+    "description": "Флаги первой недели (решение продюсера 04.10, QUESTIONS Q-025; docs/06-analytics.md, раздел 8.1; docs/01a-content.md, раздел 1): в game.json.flags есть w1_warnSec, w1_firstIntervalSec, w2_firstIntervalSec, goldGift_mult, interstitialCooldownSec и sneakers1_price (цена первых кроссовок); нижняя граница interstitialCooldownSec — 120 с, стартовое значение 180 с",
+    "acceptance": "validate:content: в game.json.flags все 6 флагов первой недели с путями, которые существуют, interstitialCooldownSec.min = 120, balance.ads.interstitialCooldownSec = 180; Vitest: флаг interstitialCooldownSec = 60 зажимается до 120 с предупреждением в лог, 150 принимается как есть; sneakers1_price меняет цену кроссовок «Беговые»; w1_firstIntervalSec меняет время до первой лавины горы 1; e2e на моке: ?mock_flags={\"interstitialCooldownSec\":\"120\"} → второй interstitial по кнопке разрешён через 120 с игрового времени после первого и не раньше; набор флагов уходит параметром flags в gameReady",
     "passes": false,
     "priority": "P1",
     "deferred": false
@@ -690,6 +726,15 @@
     "acceptance": "docs/evidence/M6/playtest.md: средний балл не ниже 3,5, ни одного пункта ниже 3, первые 60 секунд в мобильном проекте пройдены по сценарию без замечаний уровня 1–2. Не больше 2 циклов «правки → повторный плейтест» (docs/05, раздел 5, «Лимит правок»): если после второго порог не взят — passes: true при среднем не ниже 3,0, ни одном пункте ниже 2 и пункте 5 (первые 60 секунд) не ниже 3; средний, худшие пункты и что осталось — в progress.md и новым пунктом в QUESTIONS.md. Третьего цикла нет",
     "passes": false,
     "priority": "P0",
+    "deferred": false
+  },
+  {
+    "id": "M6-11",
+    "milestone": "M6",
+    "description": "Покупки за яны в релизе (решение продюсера 04.10, QUESTIONS Q-002, Q-003): payments.enabled: true в релизном game.json, «Автопилот» вместе с покупками; пункты IAP-01…IAP-04 docs/03-yandex-compliance.md обязательны; в итоге M6 в блоке «Что сделать продюсеру» — завести товары vip, autopilot, no_ads, starter в Консоли",
+    "acceptance": "В релизном архиве game.json → payments.enabled: true (проверка check-release или Vitest на собранном пакете); docs/evidence/compliance/report.md: IAP-01, IAP-03, IAP-04 — PASS-auto, IAP-02 — PRODUCER или PASS-manual, ни одного N/A и TODO; e2e на моке: вкладка «Особое» видна с 300 с игры, покупка каждого из 4 товаров выдаёт награду, F5 до consumePurchase не теряет покупку; в progress.md итог M6 содержит блок «Что сделать продюсеру» с 4 товарами vip, autopilot, no_ads, starter и их id",
+    "passes": false,
+    "priority": "P1",
     "deferred": false
   }
 ]

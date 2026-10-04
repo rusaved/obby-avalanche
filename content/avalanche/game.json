@@ -20,13 +20,16 @@
     "w2_intervalSec": { "path": "worlds.2.threat.intervalSec", "min": 30, "max": 90 },
     "w1_warnSec": { "path": "worlds.1.threat.warnSec", "min": 5, "max": 14 },
     "w2_warnSec": { "path": "worlds.2.threat.warnSec", "min": 5, "max": 14 },
+    "w1_firstIntervalSec": { "path": "worlds.1.threat.firstIntervalSec", "min": 10, "max": 60 },
+    "w2_firstIntervalSec": { "path": "worlds.2.threat.firstIntervalSec", "min": 10, "max": 60 },
     "newbieWaves_count": { "path": "balance.threat.newbieWaves.count", "min": 0, "max": 5 },
     "newbieWaves_warnBonusSec": { "path": "balance.threat.newbieWaves.warnBonusSec", "min": 0, "max": 5 },
     "w1_treadmillMult": { "path": "worlds.1.treadmillMult", "min": 0.5, "max": 2 },
     "skipFirstPortal": { "path": "balance.ads.skipFirstPortal", "values": ["true", "false"] },
-    "interstitialCooldownSec": { "path": "balance.ads.interstitialCooldownSec", "min": 180, "max": 600 },
+    "interstitialCooldownSec": { "path": "balance.ads.interstitialCooldownSec", "min": 120, "max": 600 },
     "statNowCooldownSec": { "path": "balance.ads.statNowCooldownSec", "min": 120, "max": 900 },
     "skipGateCooldownSec": { "path": "balance.ads.skipGate.cooldownSec", "min": 240, "max": 1800 },
-    "goldGift_mult": { "path": "game.threat.bonus.mult", "min": 3, "max": 10 }
+    "goldGift_mult": { "path": "game.threat.bonus.mult", "min": 3, "max": 10 },
+    "sneakers1_price": { "path": "balance.upgrade.tiers.1.price", "min": 10, "max": 60 }
   }
 }

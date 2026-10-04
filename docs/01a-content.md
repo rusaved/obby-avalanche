@@ -34,9 +34,10 @@
 | `niche.graceMoving` | 6 | герой движется к входу и до него меньше 6 ед, когда фронт дошёл, — успел (4.3) |
 | `ui.unlockMenusSec` | 180 | Магазин, Питомцы, Календарь (6.4) |
 | `ui.unlockTimeRewardsSec` | 300 | Награды за время, вкладка «Особое» (6.4) |
+| `ui.statMilestones` | `[1e3, 1e4, 1e5, 1e6, …, 1e30]` — каждая степень 10 от 1K до 1e30, списком чисел | вспышка плашки Скорости на первом переходе через порог (10.3, 10.4; решение продюсера 04.10, Q-023, фича M2-13) |
 | `ads.rewardedMinPlaySec` | 60 | кнопки «▶ Реклама» на HUD не раньше и только после первой лавины, `firstWaveDone` (9.1) |
 | `ads.standStillSec` | 1 | сколько стоять до кнопки (9.1) |
-| `ads.interstitialMinSec` / `ads.interstitialCooldownSec` | 180 / 180 | 9.2 |
+| `ads.interstitialMinSec` / `ads.interstitialCooldownSec` | 180 / 180 | 9.2; кулдаун 180 — стартовое значение, флаг `interstitialCooldownSec` может опустить его до 120 (решение продюсера 04.10, Q-025) |
 | `ads.interstitialAfterRewardedSec` | 60 | нет полноэкранной столько секунд после открывшегося ролика за награду (9.2) |
 | `ads.statNowCooldownSec` | 240 | 9.1 |
 | `ads.skipGate` | `{ "cooldownSec": 480, "standSec": 2, "distance": 20, "excludeLastWall": true }` | 9.1 |
@@ -56,19 +57,25 @@
 |---|---|---|
 | `w1_intervalSec` / `w2_intervalSec` | `worlds.1.threat.intervalSec` / `worlds.2.threat.intervalSec` | 30–90 |
 | `w1_warnSec` / `w2_warnSec` | `worlds.1.threat.warnSec` / `worlds.2.threat.warnSec` | от значения, при котором проходит честность пещер (`02`, 5.4), до 14 |
+| `w1_firstIntervalSec` / `w2_firstIntervalSec` | `worlds.1.threat.firstIntervalSec` / `worlds.2.threat.firstIntervalSec` | 10–60 (решение продюсера 04.10, Q-025) |
 | `newbieWaves_count` / `newbieWaves_warnBonusSec` | `balance.threat.newbieWaves.count` / `.warnBonusSec` | 0–5 / 0–5 |
 | `w1_treadmillMult` | множитель всех дорожек горы 1 (`worlds.1.treadmillMult`, по умолчанию 1) | 0,5–2 |
 | `skipFirstPortal` | `balance.ads.skipFirstPortal` | `true` / `false` |
-| `interstitialCooldownSec` | `balance.ads.interstitialCooldownSec` | 180–600 |
+| `interstitialCooldownSec` | `balance.ads.interstitialCooldownSec` | 120–600 (нижняя граница 120 — решение продюсера 04.10, Q-025; стартовое значение 180) |
 | `statNowCooldownSec` | `balance.ads.statNowCooldownSec` | 120–900 |
 | `skipGateCooldownSec` | `balance.ads.skipGate.cooldownSec` | 240–1800 |
 | `goldGift_mult` | `game.threat.bonus.mult` (только если поле есть, фича M2-12) | 3–10 |
+| `sneakers1_price` | `balance.upgrade.tiers.1.price` — цена первых кроссовок «Беговые» (раздел 5) | 10–60 (решение продюсера 04.10, Q-025) |
+
+**Флаги первой недели** (решение продюсера 04.10, Q-025, фича M4-12; `06`, раздел 8): `w1_warnSec`, `w1_firstIntervalSec` и `w2_firstIntervalSec`, `goldGift_mult`, `interstitialCooldownSec`, `sneakers1_price`. Их продюсер крутит первым после выхода.
 
 **`game.json.threat.bonus`** (P1, фича M2-12, `01-gdd` 4.9): `{ "kind": "goldGift", "fromWave": 2, "mult": 10, "distMin": 20, "distMax": 50 }` — золотой подарок со 2-й обычной лавины за загрузку, стоит `mult` подарков зоны, в `distMin`–`distMax` ед от ближайшей к герою пещеры. Цвет — `theme.json.bonus.color` #FFD34D. M2-12 отложена — поля нет.
 
 ## 2. Горы: параметры
 
-Длина = 40 (лагерь) + 12 × d + 60 (вершина). Ширина трассы 28 ед у всех. `spawnAhead` = 160, `firstIntervalSec` = 30, `from` = `"aboveHero"` у всех.
+Длина = 40 (лагерь) + 12 × d + 60 (вершина). Ширина трассы 28 ед у всех. `spawnAhead` = 160, `from` = `"aboveHero"` у всех.
+
+`firstIntervalSec` (первая лавина после загрузки или портала, `01-gdd` 4.1) — свой у каждой горы (решение продюсера 04.10, Q-022, фича M3-12): гора 1 — 30, гора 2 — 12, гора 3 — 11,5, гора 4 — 11, гора 5 — 10,5 с. Задаётся в `worlds-spec.json` у горы, `gen:worlds` переносит в `worlds.json`.
 
 | Гора | id | d, ед | Длина, ед | `intervalSec` | `warnSec` | Скорость фронта, ед/с | Дорожка в лагере | Дорожка на вершине (×1,5 от пещеры 12) | Яйцо горы (стойки: лагерь и флажок за стеной 6) | Небо и свет (`theme.json`, допущение) |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -369,7 +376,7 @@
 ## 11. Тексты игры ru / en (`i18n/ru.json`, `i18n/en.json`)
 
 Правила:
-- Ключи плоские с точками (`02`, 12), одинаковые в обоих файлах. Подстановки: `{n}` — число в формате `01-gdd` 10.4, `{time}` — «2:41», `{name}`, `{egg}`, `{rarity}`, `{a}`, `{b}`, `{m}`, `{price}`, `{k}`.
+- Ключи плоские с точками (`02`, 12), одинаковые в обоих файлах. Подстановки: `{n}` — число в формате `01-gdd` 10.4, `{time}` — «2:41», `{name}`, `{egg}`, `{rarity}`, `{a}`, `{b}`, `{m}`, `{price}`, `{k}`, `{total}`.
 - Числа с существительными не склоняем: пишем «Стены: {n}» или иконку с числом («🏆 40» рисуется иконкой, не символом в строке).
 - Без точки в конце строк. Без слов из стоп-списков `03` (3.3, 4.2–4.5). Восклицательный знак — только в коротких радостных репликах.
 - Названия предметов — по таблицам разделов 2, 4–8 этого файла, ключи `world.<id>`, `rarity.<id>`, `shoes.<id>`, `egg.<id>`, `pet.<id>`, `trail.<id>` и `aura.<id>` (id уже с префиксом: `trail_snow` → `trail.trail_snow`), `skin.<id>`, `wings.<id>`.
@@ -396,6 +403,7 @@
 | `hud.more` | Ещё | More |
 | `btn.shop` | Магазин | Shop |
 | `btn.pets` | Питомцы | Pets |
+| `btn.petsCount` | {k}/{total} | {k}/{total} |
 | `btn.wardrobe` | Гардероб | Wardrobe |
 | `btn.daily` | Календарь | Calendar |
 | `btn.quests` | Задания | Quests |
@@ -444,6 +452,8 @@
 | `toast.wallSkipped` | Стена открыта | Wall opened |
 | `toast.eggProgress` | Яйцо: {k} из 3 | Egg: {k} of 3 |
 | `toast.tomorrow` | Завтра: {name} | Tomorrow: {name} |
+| `toast.statMilestone` | {n} Скорости! | {n} Speed! |
+| `toast.hatchCount` | {egg}: {k} из {n} | {egg}: {k} of {n} |
 
 ### 11.3 Кнопки и реклама
 

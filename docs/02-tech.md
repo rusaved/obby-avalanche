@@ -155,7 +155,7 @@ index.html, vite.config.ts, tsconfig.json, vitest.config.ts, playwright.config.t
 - Переход между мирами — затемнение до 0,5 с. Следующая гора (геометрия, коллайдеры, Octree) строится заранее, пока открыто окно «Гора пройдена» на вершине или идёт полноэкранная реклама; материалы общие на все горы. В `perf.spec.ts` — переход ≤ 1 с при CPU ×4 (9.5). Старые геометрии и текстуры освобождаются (`dispose`), `renderer.info.memory` после 5 переходов не растёт (e2e).
 
 ### 4.6 События
-Типизированная шина (`core/events.ts`, около 40 строк, без зависимостей). Имена событий симуляции — латиницей: `step`, `statGain`, `gateOpened`, `gatePassed`, `checkpoint`, `waveWarn`, `waveStart`, `waveSurvived`, `waveCaught`, `respawn`, `worldComplete`, `portal`, `rebirth`, `bonusTake`, `bonusSaved`, `bonusLost` (золотой подарок, `01-gdd.md` 4.9). На них подписаны UI, звук, частицы, аналитика.
+Типизированная шина (`core/events.ts`, около 40 строк, без зависимостей). Имена событий симуляции — латиницей: `step`, `statGain`, `gateOpened`, `gatePassed`, `checkpoint`, `waveWarn`, `waveStart`, `waveSurvived`, `waveCaught`, `respawn`, `worldComplete`, `portal`, `rebirth`, `bonusTake`, `bonusSaved`, `bonusLost` (золотой подарок, `01-gdd.md` 4.9), `statMilestone` (Скорость впервые перешла круглое число из `balance.ui.statMilestones`, `01-gdd.md` 10.4; решение продюсера 04.10, фича M2-13; без аналитики). На них подписаны UI, звук, частицы, аналитика.
 
 ## 5. Данные: пакет контента
 
@@ -456,7 +456,7 @@ export interface Platform {
 
 ### 11.4 Полноэкранная реклама (`ysdk.adv.showFullscreenAdv`)
 - Только в логических паузах: портал между мирами, перерождение, выход в меню. Вызов в обработчике нажатия игрока, не позже 2 с после действия (п. 4.4). Никогда в движении и никогда по таймеру.
-- Ограничения из `balance.json`: не в первые 180 с сессии, не чаще раза в 180 с. Частоту режет и платформа: на слишком частый вызов придёт `onClose(false)` — это нормально.
+- Ограничения из `balance.json`: не в первые 180 с сессии (`ads.interstitialMinSec`), не чаще раза в `ads.interstitialCooldownSec` — стартовое значение 180 с, удалённый флаг может опустить до 120 с (решение продюсера 04.10, Q-025; SDK Яндекса сам держит минимум 60 с). Частоту режет и платформа: на слишком частый вызов придёт `onClose(false)` — это нормально.
 - До вызова: причина паузы `ad` и `gameplayStop()`. `onOpen` → событие `gameFullscreenOpen` (все рекламные события — `docs/06-analytics.md`, раздел 3). `onClose(wasShown)` → причина снята. `onError` → причина снята, игра идёт; по документации за ним приходит ещё и `onClose(false)` — повторное снятие ничего не ломает. Если за 10 с не пришёл ни один колбэк — причину снимает сторож (п. 4.7: при `wasShown = false` игра просто продолжается). Реклама на медленном мобильном интернете может открыться через 3–6 с (допущение), поэтому сторож не короче.
 - У каждого вызова рекламы (обоих типов) свой `requestId`, колбэки привязаны к нему. Поздние колбэки идемпотентны: `onOpen` после сторожа снова ставит причину `ad` (игра и звук встают под роликом), повторный `onClose` или `onError` по тому же `requestId` ничего не делает.
 
@@ -506,13 +506,13 @@ export interface Platform {
 ```json
 "flags": {
   "w1_intervalSec": { "path": "worlds.1.threat.intervalSec", "min": 30, "max": 90 },
-  "interstitialCooldownSec": { "path": "balance.ads.interstitialCooldownSec", "min": 180, "max": 600 }
+  "interstitialCooldownSec": { "path": "balance.ads.interstitialCooldownSec", "min": 120, "max": 600 }
 }
 ```
-- Флаги игры 1: `intervalSec` и `warnSec` гор 1–2, `threat.newbieWaves` (`count`, `warnBonusSec`), множитель дорожек горы 1, `ads.skipFirstPortal`, `ads.interstitialCooldownSec`, кулдауны `stat_now` (`ads.statNowCooldownSec`) и `skip_gate` (`ads.skipGate.cooldownSec`), множитель золотого подарка `goldGift_mult` (`game.threat.bonus.mult`, если фича M2-12 в игре). Имена — латиницей, без точек (`w1_warnSec`, `newbieWaves_count`).
-- Значение вне правил `03`, раздел 2 (кулдаун полноэкранной не ниже 180 с и другие), или вне диапазона из `game.json.flags` зажимается в диапазон, нечисловое заменяется значением по умолчанию; оба случая пишутся предупреждением в лог (`log.warn`, без `console.error`). `warnSec` не опускается ниже значения, при котором проходит честность пещер (5.4).
+- Флаги игры 1: `intervalSec`, `warnSec` и `firstIntervalSec` гор 1–2, цена первых кроссовок `sneakers1_price` (`balance.upgrade.tiers.1.price`), `threat.newbieWaves` (`count`, `warnBonusSec`), множитель дорожек горы 1, `ads.skipFirstPortal`, `ads.interstitialCooldownSec`, кулдауны `stat_now` (`ads.statNowCooldownSec`) и `skip_gate` (`ads.skipGate.cooldownSec`), множитель золотого подарка `goldGift_mult` (`game.threat.bonus.mult`, если фича M2-12 в игре). Имена — латиницей, без точек (`w1_warnSec`, `newbieWaves_count`). Флаги первой недели (решение продюсера 04.10, Q-025, фича M4-12; `06-analytics.md`, раздел 8): `w1_warnSec`, `w1_firstIntervalSec`, `w2_firstIntervalSec`, `goldGift_mult`, `interstitialCooldownSec`, `sneakers1_price`; полный список с диапазонами — `01a`, раздел 1.
+- Значение вне правил `03`, раздел 2 (кулдаун полноэкранной не ниже 120 с — решение продюсера 04.10, Q-025; стартовое значение 180 с — и другие), или вне диапазона из `game.json.flags` зажимается в диапазон, нечисловое заменяется значением по умолчанию; оба случая пишутся предупреждением в лог (`log.warn`, без `console.error`). `warnSec` не опускается ниже значения, при котором проходит честность пещер (5.4).
 - Набор принятых флагов уходит параметром `flags` события `gameReady` (`06-analytics.md`, раздел 4) — для разбора экспериментов.
-- Мок: `getFlags` отдаёт `defaultFlags`, поверх них — `?mock_flags={"w1_warnSec":"10"}`; `?mock_flags=error` — `getFlags` отклоняется с ошибкой (проверка запасного пути). Проверки: unit на зажим (кулдаун 60 → 180, нечисловое → по умолчанию); e2e с `?mock_flags` — новое значение действует; e2e без флагов — поведение как без 11.11.
+- Мок: `getFlags` отдаёт `defaultFlags`, поверх них — `?mock_flags={"w1_warnSec":"10"}`; `?mock_flags=error` — `getFlags` отклоняется с ошибкой (проверка запасного пути). Проверки: unit на зажим (кулдаун 60 → 120, нечисловое → по умолчанию); e2e с `?mock_flags` — новое значение действует; e2e без флагов — поведение как без 11.11.
 - Флаги в Консоли (раздел удалённой конфигурации) заводит продюсер, когда захочет эксперимент; до этого работают значения по умолчанию.
 
 ## 12. Локализация
