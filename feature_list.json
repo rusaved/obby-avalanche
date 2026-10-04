@@ -229,7 +229,7 @@
     "milestone": "M2",
     "description": "Лавина: фазы idle → warn → run → gone, сход в spawnAhead 160 ед над героем (from: aboveHero), числа по горам из worlds.json, firstIntervalSec 30, «Лавина через N», подсветка ближайшей пещеры и стрелка",
     "acceptance": "Vitest: вне пещеры лавина ловит, в пещере, лагере и на вершине — нет; фазы стоят, пока есть любая причина паузы; от конца отсчёта до прохода фронта над героем 3–4 с на горе 1; e2e: скриншоты warn и shelter в docs/evidence/M2/; unit: в 5 ед от входа бежит к нему → waveSurvived, в 7 ед → waveCaught (niche.graceDist, niche.graceMoving); первые 3 обычные лавины — warnSec +3 с (threat.newbieWaves), 4-я — без бонуса; точка появления лавины видна на всех горах и уровнях качества (docs/02-tech.md, 8.3); e2e: камера в пещере во время волны не внутри Octree и корпуса лавины (docs/02-tech.md, раздел 7)",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

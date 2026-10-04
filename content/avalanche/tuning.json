@@ -39,7 +39,15 @@
   },
   "avalanche": {
     "shakeStrength": 1.0,
-    "rumble": 1.0
+    "rumble": 1.0,
+    "fadeSec": 1.0,
+    "spawnMinFromCamp": 40,
+    "shotTriggerDist": 30,
+    "shotDistance": 6,
+    "shotReturnSec": 1.0,
+    "noise": 1.2,
+    "bodyLength": 60,
+    "nearDist": 60
   },
   "input": {
     "stickRadiusFrac": 0.12,

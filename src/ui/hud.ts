@@ -15,6 +15,8 @@ export interface HudOptions {
   onQuality: (level: 'auto' | 'low' | 'medium' | 'high') => void;
   /** Coin plaque colour (theme.json ui.coins). */
   coinColor: string;
+  /** Avalanche colour for the banner outline, frost frame and cave arrow (theme.json threat.front[1]). */
+  threatColor: string;
 }
 
 export interface Hud {
@@ -30,6 +32,16 @@ export interface Hud {
   popGain(text: string, x: number, y: number): void;
   /** Coin plaque (docs/01-gdd.md 6.4, 10.1): hidden until the first coin, then slides in from the left and stays. */
   setCoins(text: string): void;
+  /** «Avalanche in N» at the top centre (docs/01-gdd.md 4.8); null hides it. */
+  setWaveBanner(text: string | null): void;
+  /** Frost frame at the screen edges: 0 off, warn ≈ 0.4, front near 1 (docs/01-gdd.md 4.8). */
+  setFrost(level: number): void;
+  /** Arrow at the field edge towards the lit cave when it is off screen (x, y in px, angle in rad); null hides it. */
+  setCaveArrow(arrow: { x: number; y: number; angle: number } | null): void;
+  /** Short toast in the middle («Phew, made it! +15», «Snowed in!»); `gold` for the bigger golden one later. */
+  toast(text: string, sec?: number): void;
+  /** Soft white veil when the camera is inside the snow body (docs/02-tech.md 7). */
+  setVeil(on: boolean): void;
   readonly jumpButton: HTMLButtonElement;
 }
 
@@ -78,6 +90,21 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const coinValue = el('span', 'hud-coin-value', '0');
   coins.append(coinIcon, coinValue);
   root.appendChild(coins);
+
+  // Avalanche (docs/01-gdd.md 4.8): banner, frost frame, arrow to the cave, toast, veil. Never red (docs/03, 3.2).
+  root.style.setProperty('--threat', opts.threatColor);
+  const frost = el('div', 'hud-frost');
+  frost.dataset['role'] = 'frost';
+  const veil = el('div', 'hud-veil');
+  veil.dataset['role'] = 'veil';
+  const banner = el('div', 'hud-wave');
+  banner.dataset['role'] = 'wave-banner';
+  const arrow = el('div', 'hud-cave-arrow', '\u27a4');
+  arrow.dataset['role'] = 'cave-arrow';
+  const toastEl = el('div', 'hud-toast');
+  toastEl.dataset['role'] = 'toast';
+  root.append(frost, veil, banner, arrow, toastEl);
+  let toastTimer: ReturnType<typeof setTimeout> | null = null;
 
   const hint = el('div', 'hud-hint', t('howto.pc'));
   const gainPool = Array.from({ length: 4 }, () => el('div', 'hud-gain'));
@@ -185,6 +212,29 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     },
     showKeysHint(show) {
       hint.classList.toggle('hidden', !show);
+    },
+    setWaveBanner(text) {
+      banner.classList.toggle('shown', text !== null);
+      if (text !== null && banner.textContent !== text) banner.textContent = text;
+    },
+    setFrost(level) {
+      const v = String(Math.round(Math.max(0, Math.min(1, level)) * 100) / 100);
+      if (frost.style.opacity !== v) frost.style.opacity = v;
+    },
+    setCaveArrow(a) {
+      arrow.classList.toggle('shown', a !== null);
+      if (a) arrow.style.transform = `translate(${Math.round(a.x)}px, ${Math.round(a.y)}px) translate(-50%, -50%) rotate(${a.angle.toFixed(3)}rad)`;
+    },
+    toast(text, sec = 2) {
+      toastEl.textContent = text;
+      toastEl.classList.remove('shown');
+      void toastEl.offsetWidth;
+      toastEl.classList.add('shown');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove('shown'), sec * 1000);
+    },
+    setVeil(on) {
+      veil.classList.toggle('shown', on);
     },
     setCoins(text) {
       if (coinValue.textContent !== text) coinValue.textContent = text;

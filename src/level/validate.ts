@@ -205,7 +205,18 @@ const tuningSchema = v.object({
     zoomStep: positive,
     jumpButtonFrac: v.pipe(v.number(), v.minValue(0.18), v.maxValue(0.4)),
   }),
-  avalanche: v.object({ shakeStrength: nonNeg, rumble: nonNeg }),
+  avalanche: v.object({
+    shakeStrength: nonNeg,
+    rumble: nonNeg,
+    fadeSec: positive,
+    spawnMinFromCamp: nonNeg,
+    shotTriggerDist: positive,
+    shotDistance: positive,
+    shotReturnSec: positive,
+    noise: nonNeg,
+    bodyLength: positive,
+    nearDist: positive,
+  }),
 });
 
 const segmentSchema = v.looseObject({ type: v.picklist(SEGMENT_TYPES), z: nonNeg });

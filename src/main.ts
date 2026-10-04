@@ -18,6 +18,10 @@ import { createLevelMeshes, type LevelMeshes } from './render/level-mesh.ts';
 import { createCharacters, type CharacterInstance, type Characters } from './render/characters.ts';
 import { createBlobShadow } from './render/blob.ts';
 import { createCameraRig, type CameraRig } from './render/camera.ts';
+import { createAvalancheVisual, type AvalancheVisual } from './render/threat/avalanche.ts';
+import { createWaveView, type WaveView } from './app/wave-view.ts';
+import type { ThreatOptions } from './sim/threat.ts';
+import type { World } from './content/types.ts';
 import { createQuality, type QualityLevel } from './render/quality.ts';
 import { buildLevel } from './level/builder.ts';
 import { createSim, controllerParams, type Sim } from './sim/world.ts';
@@ -110,7 +114,15 @@ async function boot(): Promise<void> {
   let level = buildLevel(world);
   // Feel values (base and ceiling) come from tuning.json sliders; the curve shape from balance.json.
   const speedCurve = () => ({ ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed });
-  let sim: Sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat: 0, tier: 0 });
+  // The avalanche (docs/02-tech.md 8.1): live world threat (debug sliders change it), save counters.
+  const threatOptions = (w: World): ThreatOptions => ({
+    threat: w.threat,
+    balance,
+    avalanche: tuning.avalanche,
+    scriptedPending: !(save.flags?.['firstWaveDone'] ?? false),
+    normalWavesDone: save.wavesNormal ?? 0,
+  });
+  let sim: Sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat: 0, tier: 0, threat: threatOptions(world) });
   let maxSpeed = sim.params.speed;
   const simEvents: GameHandles['simEvents'] = [];
   let pendingPortal: number | null = null;
@@ -135,6 +147,8 @@ async function boot(): Promise<void> {
   let cameraRig: CameraRig | null = null;
   let hud: Hud | null = null;
   let debug: DebugPanel | null = null;
+  let avalanche: AvalancheVisual | null = null;
+  let waveView: WaveView | null = null;
   let field: FieldRect = { width: 1, height: 1, left: 0, top: 0 };
   let lastSnap: InputSnapshot | null = null;
   let pendingGain: number | null = null;
@@ -142,7 +156,9 @@ async function boot(): Promise<void> {
   // Gates melt into an arch over GATE_MELT_SEC; funnel events gate_N for mountain 1 on tier 0 (docs/06, steps 5–15).
   const melting = new Map<number, number>();
   const wireSim = (s: Sim): void => {
-    for (const name of ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'portal', 'giftTake', 'giftsRespawn'] as const) {
+    const recorded = ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'portal', 'giftTake', 'giftsRespawn'] as const;
+    const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'waveDusted', 'waveGone', 'waveEnd'] as const;
+    for (const name of [...recorded, ...waves]) {
       s.events.on(name, (payload) => {
         simEvents.push({ name, world: s.level.worldIndex, ...(payload as Record<string, unknown>), tick: s.tick });
         if (simEvents.length > 2000) simEvents.splice(0, simEvents.length - 2000);
@@ -164,6 +180,26 @@ async function boot(): Promise<void> {
     s.events.on('gateOpen', ({ index, wall }) => {
       melting.set(index, playSec);
       if (s.level.worldIndex === 1 && s.tier === 0 && GATE_FUNNEL_WALLS.includes(wall)) track(`gate_${wall}`);
+    });
+    // Avalanche (M2-06): newbie counter and first-wave flag in the save, toasts, funnel steps 9 and 15 (docs/06).
+    s.events.on('waveWarn', ({ scripted, normalWavesDone }) => {
+      if (scripted) return;
+      save.wavesNormal = normalWavesDone;
+      persist();
+    });
+    s.events.on('waveSurvived', ({ coins, total }) => {
+      hud?.toast(t('wave.survived', { n: formatNumber(coins, numSuffix) }));
+      if (coins > 0) hud?.setCoins(formatNumber(total, numSuffix));
+    });
+    s.events.on('waveDusted', () => hud?.toast(t('wave.firstMiss'), 3));
+    s.events.on('waveEnd', ({ scripted, outcome }) => {
+      if (scripted) {
+        (save.flags ??= {})['firstWaveDone'] = true;
+        trackOnce('first_wave_survived', { inShelter: outcome === 'survived' });
+        persist();
+      } else if (outcome === 'survived' || outcome === 'caught') {
+        trackOnce('wave_real_1', { caught: outcome === 'caught' });
+      }
     });
     // The switch happens after the tick, not inside the emitter (docs/06 step 21: mountain 1 done on tier 0).
     s.events.on('portal', ({ from, next }) => {
@@ -271,6 +307,15 @@ async function boot(): Promise<void> {
       cameraRig.shot = { yaw: 0, pitch: 0.12, distance: 14 };
       frame.pitch = 0.12;
     },
+    get avalanche() {
+      return avalanche;
+    },
+    get waveView() {
+      return waveView;
+    },
+    triggerWave() {
+      sim.threat?.trigger();
+    },
     showAd(kind) {
       return kind === 'rewarded' ? platform.showRewarded('e2e') : platform.showInterstitial('e2e');
     },
@@ -282,6 +327,7 @@ async function boot(): Promise<void> {
     gr.resize(field.width, field.height, quality.dpr);
     if (characters) characters.group.traverse((o) => void (o.castShadow = quality.params.shadowMap > 0));
     levelMeshes?.chunks.forEach((c) => void (c.receiveShadow = quality.params.shadowMap > 0));
+    avalanche?.setParticles(quality.params.particles);
   };
 
   /**
@@ -295,7 +341,8 @@ async function boot(): Promise<void> {
     const coins = sim.coins;
     world = next;
     level = buildLevel(world);
-    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier: sim.tier });
+    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier: sim.tier, threat: threatOptions(world) });
+    avalanche?.setLevel(level);
     wireSim(sim);
     g.sim = sim;
     g.level = level;
@@ -360,6 +407,7 @@ async function boot(): Promise<void> {
       heroChar.visible = !(cameraRig?.heroHidden ?? false) && sim.respawnTicksLeft < 0;
     }
     blob.update(renderPos, sim.collision);
+    waveView?.update(frameDt, playSec);
     if (cameraRig) {
       cameraRig.update(
         frameDt,
@@ -461,6 +509,8 @@ async function boot(): Promise<void> {
   g.characters = characters;
   g.hero = heroChar;
   gr.scene.add(blob.mesh);
+  avalanche = createAvalancheVisual(level, theme, tuning, rng.next);
+  gr.scene.add(avalanche.group);
   cameraRig = createCameraRig(gr.camera, frame, tuning, rng.next);
   g.camera = cameraRig;
   cameraRig.snapTo({ pos: sim.hero.pos, vel: sim.hero.vel, speed: 0, maxSpeed });
@@ -473,6 +523,18 @@ async function boot(): Promise<void> {
     onAutoRun: (on) => g.setAutoRun(on),
     onQuality: (level) => g.setQualitySetting(level),
     coinColor: theme.ui.coins,
+    threatColor: theme.threat.front[1],
+  });
+  waveView = createWaveView({
+    tuning,
+    frame,
+    getSim: () => sim,
+    hud,
+    camera: cameraRig,
+    hero: heroChar,
+    visual: avalanche,
+    field: () => field,
+    manualCamera: () => (lastSnap?.manualCamera ?? false) || (cameraRig?.sinceManual ?? 99) < 0.5,
   });
   hud.setAutoRun(save.settings.autoRun);
   hud.setQuality(save.settings.quality);

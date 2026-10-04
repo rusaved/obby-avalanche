@@ -54,15 +54,32 @@ const CAMERA_RANGES: Partial<Record<keyof TuningJson['camera'], Range>> = {
   shake: [0, 1, 0.05],
 };
 
+const AVALANCHE_RANGES: Partial<Record<keyof TuningJson['avalanche'], Range>> = {
+  shakeStrength: [0, 2, 0.05],
+  rumble: [0, 2, 0.05],
+  noise: [0, 4, 0.1],
+  bodyLength: [10, 120, 1],
+  nearDist: [10, 160, 1],
+  shotTriggerDist: [5, 80, 1],
+  shotDistance: [2, 14, 0.5],
+  shotReturnSec: [0.2, 3, 0.1],
+};
+const THREAT_RANGES: Array<['intervalSec' | 'warnSec' | 'speed', Range]> = [
+  ['intervalSec', [10, 120, 1]],
+  ['warnSec', [2, 16, 0.5]],
+  ['speed', [10, 120, 1]],
+];
+
 export function mountDebug(g: GameHandles, host: HTMLElement, isMobile: boolean): DebugPanel {
   const store = createStorage(`${g.packId}:debug`);
   const saved = store.getJSON<Partial<TuningJson>>('tuning');
   if (saved?.controller) Object.assign(g.tuning.controller, saved.controller);
   if (saved?.camera) Object.assign(g.tuning.camera, saved.camera);
+  if (saved?.avalanche) Object.assign(g.tuning.avalanche, saved.avalanche);
   g.applyTuning();
 
   const persist = (): void => {
-    store.setJSON('tuning', { controller: g.tuning.controller, camera: g.tuning.camera });
+    store.setJSON('tuning', { controller: g.tuning.controller, camera: g.tuning.camera, avalanche: g.tuning.avalanche });
     g.applyTuning();
   };
 
@@ -84,6 +101,15 @@ export function mountDebug(g: GameHandles, host: HTMLElement, isMobile: boolean)
     camera.add(g.tuning.camera, key, range[0], range[1], range[2]).onChange(persist);
   }
   camera.close();
+
+  // Avalanche (docs/02-tech.md 15): pace of the current mountain (live, this load only), feel from tuning.json, «Avalanche now».
+  const avalanche = gui.addFolder('Avalanche');
+  for (const [key, range] of THREAT_RANGES) avalanche.add(g.world.threat, key, range[0], range[1], range[2]).name(key);
+  for (const [key, range] of Object.entries(AVALANCHE_RANGES) as Array<[keyof TuningJson['avalanche'], Range]>) {
+    avalanche.add(g.tuning.avalanche, key, range[0], range[1], range[2]).onChange(persist);
+  }
+  avalanche.add({ now: () => g.triggerWave() }, 'now').name('Avalanche now');
+  avalanche.close();
 
   const render = gui.addFolder('Render');
   const renderState = { quality: g.quality.level as QualityLevel | 'auto', dpr: g.quality.dpr, fps: 0, ms: 0, calls: 0, triangles: 0, textures: 0, simMs: 0 };

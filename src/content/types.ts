@@ -142,7 +142,24 @@ export interface TuningJson {
     zoomStep: number;
     jumpButtonFrac: number;
   };
-  avalanche: { shakeStrength: number; rumble: number };
+  avalanche: {
+    shakeStrength: number;
+    rumble: number;
+    /** Phase `gone`: seconds the snow takes to melt at the camp (the pause intervalSec counts from its start). */
+    fadeSec: number;
+    /** Lowest spawn point: this far above the camp (docs/01-gdd.md 4.2: start of zone 1 + 40). */
+    spawnMinFromCamp: number;
+    /** Camera frame on the wave from the cave (docs/02-tech.md 7): front closer than this, pull back to shotDistance, return in shotReturnSec. */
+    shotTriggerDist: number;
+    shotDistance: number;
+    shotReturnSec: number;
+    /** Front surface displacement, units. */
+    noise: number;
+    /** Snow body behind the front, units uphill. */
+    bodyLength: number;
+    /** Front closer than this: strong rumble and shake (docs/01-gdd.md 4.8). */
+    nearDist: number;
+  };
 }
 
 export type SegmentType =

@@ -12,10 +12,13 @@ import { gateIsOpen, gateRequirement, wallScale } from './gates.ts';
 import { giftsFromLevel, touchesGift, type Gift } from './gifts.ts';
 import { createCollisionWorld, type CollisionWorld } from './collision.ts';
 import { beltAt, belts, shelterIndex } from './shelter.ts';
+import { createThreat, type Threat, type ThreatEvents, type ThreatOptions } from './threat.ts';
 import { PORTAL_HALF_WIDTH } from '../level/builder.ts';
 import { createHero, placeHero, stepHero, type ControllerParams, type HeroInput, type HeroState, NO_INPUT } from './controller.ts';
 
-export interface SimEvents extends Record<string, unknown> {
+export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, Record<string, unknown> {
+  /** «Phew, made it!» (docs/01-gdd.md 4.4): `coins` = coins.waveSurvived × gift of the cave's zone × wallScale[tier]. */
+  waveSurvived: ThreatEvents['waveSurvived'] & { coins: number; total: number };
   step: { tick: number };
   checkpoint: { index: number; z: number };
   fall: { tick: number; z: number };
@@ -30,8 +33,6 @@ export interface SimEvents extends Record<string, unknown> {
   giftTake: { tick: number; index: number; coins: number; zone: number; rarity: string; total: number };
   /** All gifts back in place (after every avalanche, docs/01-gdd.md 3.2). */
   giftsRespawn: { tick: number; count: number };
-  /** The avalanche melted at the camp (phase `gone`, docs/02-tech.md 8.1); the threat emits it from M2-06. */
-  waveGone: { tick: number };
   /** The hero walked through the summit portal (docs/01-gdd.md 5.2): `next` is the next mountain index, null after the last. */
   portal: { tick: number; from: number; next: number | null };
 }
@@ -58,6 +59,8 @@ export interface Sim {
   coins: number;
   /** Puts every gift back (`balance.gifts.respawn: "onWaveGone"`). */
   respawnGifts(): void;
+  /** The avalanche of this mountain (M2-06); null when the sim runs without a threat (unit tests of other parts). */
+  readonly threat: Threat | null;
   /** True once the hero has walked through the portal of this mountain (one `portal` event per sim). */
   portalEntered: boolean;
   step(input: HeroInput, dt: number): void;
@@ -75,7 +78,13 @@ export interface Sim {
 }
 
 export interface SimOptions {
-  balance: Pick<BalanceJson, 'stepLength' | 'gainPerStep' | 'rebirth'> & { gifts?: BalanceJson['gifts']; niche?: BalanceJson['niche'] };
+  balance: Pick<BalanceJson, 'stepLength' | 'gainPerStep' | 'rebirth'> & {
+    gifts?: BalanceJson['gifts'];
+    niche?: BalanceJson['niche'];
+    coins?: BalanceJson['coins'];
+  };
+  /** The avalanche (docs/02-tech.md 8.1): world threat, balance and tuning, save counters. */
+  threat?: ThreatOptions;
   /** Coins carried in (portal to the next mountain). */
   coins?: number;
   /** Rebirth tier n (0 at the start). */
@@ -120,6 +129,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   const portal = level.points.find((p) => p.type === 'portal');
   const portalNext = typeof portal?.['next'] === 'number' ? (portal['next'] as number) : null;
   const beltList = belts(level);
+  const heroView = { x: 0, y: 0, z: 0, vx: 0, vz: 0 };
   const graceDist = opts.balance.niche?.graceDist ?? 0;
 
   const sim: Sim = {
@@ -137,6 +147,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     respawnTicksLeft: -1,
     portalEntered: false,
     onBelt: false,
+    threat: null,
     gifts: giftsFromLevel(level),
     coins: opts.coins ?? 0,
     respawnGifts() {
@@ -145,6 +156,14 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     },
     step(input, dt) {
       sim.tick++;
+      if (threat) {
+        heroView.x = hero.pos.x;
+        heroView.y = hero.pos.y;
+        heroView.z = hero.pos.z;
+        heroView.vx = hero.vel.x;
+        heroView.vz = hero.vel.z;
+        threat.step(dt, heroView, gatesOpen, sim.tick);
+      }
       if (sim.respawnTicksLeft >= 0) {
         sim.respawnTicksLeft--;
         if (sim.respawnTicksLeft < 0) sim.respawn();
@@ -238,5 +257,22 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       events.emit('respawn', { tick: sim.tick, z: target[2], checkpoint: sim.checkpoint });
     },
   };
+  // The avalanche emits through the sim bus; «Phew, made it!» pays coins first (docs/01-gdd.md 4.4).
+  const zoneGift = new Map<number, number>();
+  for (const gift of sim.gifts) if (!zoneGift.has(gift.zone)) zoneGift.set(gift.zone, gift.coins);
+  const threat = opts.threat
+    ? createThreat(level, opts.threat, (name, payload) => {
+        if (name === 'waveSurvived') {
+          const p = payload as ThreatEvents['waveSurvived'];
+          const zone = level.niches[p.niche]?.zone ?? 0;
+          const coins = (opts.balance.coins?.waveSurvived ?? 0) * (zoneGift.get(zone) ?? 0) * wallScale(tier, opts.balance.rebirth);
+          sim.coins += coins;
+          events.emit('waveSurvived', { ...p, coins, total: sim.coins });
+          return;
+        }
+        (events.emit as (n: string, p: unknown) => void)(name, payload);
+      })
+    : null;
+  (sim as { threat: Threat | null }).threat = threat;
   return sim;
 }

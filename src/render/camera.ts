@@ -34,6 +34,8 @@ export interface CameraRig {
   /** Scripted shot in progress: auto-turn and follow use the shot's yaw instead (M2 avalanche frame). */
   shot: { yaw: number; pitch: number; distance: number } | null;
   shakeAmount: number;
+  /** Keeps the camera inside a box (the cave + 2 units during the avalanche frame, docs/02-tech.md 7). */
+  bounds: { min: readonly [number, number, number]; max: readonly [number, number, number] } | null;
   update(dt: number, target: CameraTarget, input: CameraInputInfo, collision: CollisionWorld | null): void;
   snapTo(target: CameraTarget): void;
   /** Is the camera inside level geometry (sphere test) — for tests. */
@@ -64,6 +66,7 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
     sinceManual: 999,
     shot: null,
     shakeAmount: 0,
+    bounds: null,
     snapTo(target) {
       pivot.copy(target.pos).y += c.height;
       rig.currentDistance = frame.distance;
@@ -134,6 +137,14 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
         _desired.x += (rngNext() - 0.5) * 2 * amp;
         _desired.y += (rngNext() - 0.5) * 2 * amp;
         rig.shakeAmount = Math.max(0, rig.shakeAmount - dt * 2);
+      }
+      if (rig.bounds) {
+        const b = rig.bounds;
+        _desired.set(
+          Math.min(b.max[0], Math.max(b.min[0], _desired.x)),
+          Math.min(b.max[1], Math.max(b.min[1], _desired.y)),
+          Math.min(b.max[2], Math.max(b.min[2], _desired.z)),
+        );
       }
       camera.position.copy(_desired);
       camera.lookAt(pivot);

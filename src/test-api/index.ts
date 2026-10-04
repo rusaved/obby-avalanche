@@ -36,6 +36,23 @@ export interface TestState {
   onBelt: boolean;
   inShelter: boolean;
   shelter: number;
+  /** Avalanche (M2-06): phase, timers, front, lit cave, how the wave ended; HUD banner, cave arrow, camera frame, veil. */
+  wave: {
+    phase: string;
+    timer: number;
+    warnSec: number;
+    spawnZ: number;
+    frontZ: number;
+    scripted: boolean;
+    scriptedPending: boolean;
+    outcome: string;
+    shelter: number;
+    normalWaves: number;
+    normalWavesDone: number;
+  } | null;
+  waveHud: { banner: string | null; arrow: boolean; shot: boolean; veil: boolean; toast: string };
+  /** Golden gift (M2-12): null until the feature arrives. */
+  bonus: { z: number; carried: boolean } | null;
   /** Coin plaque on the HUD: shown (slid in) and its text. */
   coinPlaque: { shown: boolean; text: string };
   controlYaw: number;
@@ -87,8 +104,12 @@ export interface TestApi {
   charactersDrawCalls(): number;
   gateSign(index: number): { text: string; open: boolean };
   showAd(kind: 'interstitial' | 'rewarded'): Promise<{ shown?: boolean; rewarded?: boolean; error?: string }>;
-  /** Emits the avalanche phase `gone` into the simulation (until the threat of M2-06 does it itself). */
+  /** Emits the avalanche phase `gone` into the simulation bus (gifts come back), without a wave. */
   waveGone(): void;
+  /** Starts the next avalanche now (scripted if the first wave is still pending). */
+  triggerWave(): void;
+  /** Is the camera inside the snow body of the avalanche (docs/02-tech.md 7). */
+  cameraInsideAvalanche(): boolean;
 }
 
 declare global {
@@ -135,6 +156,15 @@ export function installTestApi(g: GameHandles): TestApi {
         giftsTaken: g.sim ? g.sim.gifts.map((x) => x.taken) : [],
         gifts: g.sim ? g.sim.gifts.map((x) => ({ x: x.x, y: x.y, z: x.z, coins: x.coins, rarity: x.rarity })) : [],
         coinPlaque: coinPlaque(),
+        wave: g.sim?.threat ? { ...g.sim.threat.state } : null,
+        waveHud: {
+          banner: g.waveView?.banner ?? null,
+          arrow: g.waveView?.arrow ?? false,
+          shot: g.waveView?.shot ?? false,
+          veil: g.waveView?.veil ?? false,
+          toast: document.querySelector('[data-role="toast"].shown')?.textContent ?? '',
+        },
+        bonus: null,
         onBelt: g.sim?.onBelt ?? false,
         inShelter: g.sim?.inShelter() ?? false,
         shelter: g.sim?.shelterIndex() ?? -1,
@@ -224,6 +254,11 @@ export function installTestApi(g: GameHandles): TestApi {
     showAd: (kind) => g.showAd(kind),
     waveGone() {
       g.sim?.events.emit('waveGone', { tick: g.sim.tick });
+    },
+    triggerWave: () => g.triggerWave(),
+    cameraInsideAvalanche() {
+      const cam = g.camera?.camera.position;
+      return cam ? (g.avalanche?.insideBody(cam) ?? false) : false;
     },
   };
   window.__TEST__ = api;

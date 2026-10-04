@@ -13,6 +13,8 @@ import type { SaveData } from '../meta/save.ts';
 import type { LevelData } from '../level/types.ts';
 import type { Characters, CharacterInstance } from '../render/characters.ts';
 import type { FieldRect } from '../ui/fit.ts';
+import type { AvalancheVisual } from '../render/threat/avalanche.ts';
+import type { WaveView } from './wave-view.ts';
 
 export interface BootState {
   firstFrameAt: number | null;
@@ -65,4 +67,9 @@ export interface GameHandles {
   /** Gate sign as rendered: text and open colour (M2-02 e2e). */
   gateSign(index: number): { text: string; open: boolean };
   showAd(kind: 'interstitial' | 'rewarded'): Promise<{ shown?: boolean; rewarded?: boolean; error?: string }>;
+  /** Avalanche visual and its per-frame presentation (M2-06). */
+  readonly avalanche: AvalancheVisual | null;
+  readonly waveView: WaveView | null;
+  /** Starts the next avalanche now (debug «Avalanche now», __TEST__.triggerWave). */
+  triggerWave(): void;
 }
