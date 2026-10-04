@@ -9,6 +9,7 @@ import tuning from '@content/tuning.json';
 import worlds from '@content/worlds.json';
 import skins from '@content/skins.json';
 import accessories from '@content/accessories.json';
+import pets from '@content/pets.json';
 import ruUrl from '@content/i18n/ru.json?url';
 import enUrl from '@content/i18n/en.json?url';
 import type { ContentPack } from './types.ts';
@@ -21,6 +22,7 @@ export const content: ContentPack = {
   worlds: worlds as unknown as ContentPack['worlds'],
   skins: skins as unknown as ContentPack['skins'],
   accessories: accessories as unknown as ContentPack['accessories'],
+  pets: pets as unknown as ContentPack['pets'],
 };
 
 export const i18nUrls: Record<'ru' | 'en', string> = { ru: ruUrl, en: enUrl };

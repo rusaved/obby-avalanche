@@ -92,7 +92,27 @@ export interface BalanceJson {
     spawnAhead: number;
     warnSec: number;
     fallbackSec: number;
+    /** The free egg «Mountain Gift» wobbles and cracks this long before the pet jumps out (docs/01-gdd.md 6.2). */
+    eggHatchSec: number;
   };
+  /** Hint plaque timings (docs/01-gdd.md 6.5). */
+  hints: HintsTiming;
+}
+
+export interface HintsTiming {
+  moveIdleSec: number;
+  moveRepeatUntilSec: number;
+  moveDoneSec: number;
+  moveMax: number;
+  jumpNearDist: number;
+  shoesSec: number;
+  waveCaveMax: number;
+  caughtSec: number;
+  stuckSec: number;
+  stuckDist: number;
+  stuckMax: number;
+  portalIdleSec: number;
+  portalMax: number;
 }
 
 export interface TuningJson {
@@ -276,6 +296,11 @@ export interface AccessoriesJson {
   }>;
 }
 
+/** pets.json (docs/01a-content.md 6): bonus is the step bonus (0.2 = +20%); the full list arrives with M3-03. */
+export interface PetsJson {
+  pets: Array<{ id: string; rarity: string; bonus: number; color: string; accent: string }>;
+}
+
 export interface ContentPack {
   game: GameJson;
   theme: ThemeJson;
@@ -284,4 +309,5 @@ export interface ContentPack {
   worlds: WorldsJson;
   skins: SkinsJson;
   accessories: AccessoriesJson;
+  pets: PetsJson;
 }

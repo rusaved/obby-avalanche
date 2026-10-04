@@ -19,6 +19,12 @@ declare global {
 const buffer: AnalyticsEvent[] = typeof window !== 'undefined' && window.__ANALYTICS_BUFFER__ ? window.__ANALYTICS_BUFFER__ : [];
 let counterId = 0;
 let echo = false;
+let listener: ((ev: AnalyticsEvent) => void) | null = null;
+
+/** One listener for every tracked event (the e2e test API stamps events with play time). */
+export function onTrack(fn: ((ev: AnalyticsEvent) => void) | null): void {
+  listener = fn;
+}
 
 export function configureAnalytics(opts: { counterId: number; echoToConsole: boolean }): void {
   counterId = opts.counterId;
@@ -34,6 +40,7 @@ function sinceStart(): number {
 export function track(name: string, params?: Record<string, unknown>): void {
   const ev: AnalyticsEvent = params ? { name, t: sinceStart(), params } : { name, t: sinceStart() };
   buffer.push(ev);
+  listener?.(ev);
   if (buffer.length > 500) buffer.splice(0, buffer.length - 500);
   if (counterId > 0 && typeof window !== 'undefined' && typeof window.ym === 'function') {
     try {

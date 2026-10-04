@@ -20,6 +20,12 @@ export interface SaveData {
   flags?: Record<string, boolean>;
   /** Normal avalanches the player has had (newbie warning bonus, docs/01-gdd.md 4.1). */
   wavesNormal?: number;
+  /** Play seconds without pauses over all sessions (docs/01-gdd.md 6.1: the «3 and 5 minutes» rules survive F5). */
+  totalPlaySec?: number;
+  /** How many times each hint plaque showed (docs/01-gdd.md 6.5). */
+  hints?: Record<string, number>;
+  /** Pets of the player by id (the free egg «Mountain Gift» at M2-08; the collection grows at M3). */
+  pets?: string[];
 }
 
 export const SAVE_VERSION = 1;

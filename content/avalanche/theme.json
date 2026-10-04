@@ -37,7 +37,9 @@
     "portal": { "color": "#7CC8F0", "emissive": "#7CC8F0" },
     "snowman": { "color": "#FFFFFF" },
     "arrow": { "color": "#FFFFFF" },
-    "eggStand": { "color": "#9ED8FF" }
+    "eggStand": { "color": "#9ED8FF" },
+    "giftEgg": { "color": "#FFFFFF", "emissive": "#7FD8FF" },
+    "petEye": { "color": "#1B2A3A" }
   },
   "rarity": {
     "common": "#EEF3F8",

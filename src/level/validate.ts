@@ -17,6 +17,7 @@ export const PACK_FILES = [
   'worlds-spec.json',
   'skins.json',
   'accessories.json',
+  'pets.json',
   'i18n/ru.json',
   'i18n/en.json',
 ] as const;
@@ -155,6 +156,22 @@ const balanceSchema = v.object({
     spawnAhead: positive,
     warnSec: positive,
     fallbackSec: positive,
+    eggHatchSec: positive,
+  }),
+  hints: v.object({
+    moveIdleSec: positive,
+    moveRepeatUntilSec: nonNeg,
+    moveDoneSec: positive,
+    moveMax: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    jumpNearDist: positive,
+    shoesSec: positive,
+    waveCaveMax: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    caughtSec: positive,
+    stuckSec: positive,
+    stuckDist: positive,
+    stuckMax: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    portalIdleSec: positive,
+    portalMax: v.pipe(v.number(), v.integer(), v.minValue(0)),
   }),
 });
 
@@ -313,6 +330,10 @@ const accessoriesSchema = v.object({
   ),
 });
 
+const petsSchema = v.object({
+  pets: v.pipe(v.array(v.object({ id: id, rarity: id, bonus: positive, color: hex, accent: hex })), v.minLength(1)),
+});
+
 const i18nSchema = v.record(v.string(), v.pipe(v.string(), v.minLength(1, 'empty text')));
 
 const SCHEMAS: Record<PackFile, v.GenericSchema> = {
@@ -324,6 +345,7 @@ const SCHEMAS: Record<PackFile, v.GenericSchema> = {
   'worlds-spec.json': specSchema,
   'skins.json': skinsSchema,
   'accessories.json': accessoriesSchema,
+  'pets.json': petsSchema,
   'i18n/ru.json': i18nSchema,
   'i18n/en.json': i18nSchema,
 };
@@ -386,6 +408,12 @@ export function validatePack(files: PackFiles): ValidationResult {
     if (s.hat && !accIds.has(s.hat)) errors.push(`skins.json: skins[${i}].hat — unknown accessory "${s.hat}"`);
   }
   if (!skinIds.has(skins.default)) errors.push(`skins.json: default — unknown skin "${skins.default}"`);
+
+  // The free egg of the first minute hatches a pet from pets.json (docs/01-gdd.md 6.2); its rarity has a colour.
+  const pets = files['pets.json'] as { pets: Array<{ id: string; rarity: string }> };
+  const freePet = (files['balance.json'] as { ftue: { freeEggPet: string } }).ftue.freeEggPet;
+  if (!pets.pets.some((p) => p.id === freePet)) errors.push(`balance.json: ftue.freeEggPet — unknown pet "${freePet}" (pets.json)`);
+  for (const [i, p] of pets.pets.entries()) if (!theme.rarity[p.rarity]) errors.push(`pets.json: pets[${i}].rarity — no colour "${p.rarity}" in theme.json rarity`);
 
   // Worlds: structure of the mountain template, then reachability by the controller physics (docs/02-tech.md 5.4).
   errors.push(...validateWorlds(worlds, theme.rarity));

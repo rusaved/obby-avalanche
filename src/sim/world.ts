@@ -1,7 +1,8 @@
 /**
  * Simulation of one mountain (docs/02-tech.md 4.2, 6.1): hero, checkpoints, fall and respawn.
  * Steps and the stat (M2-01, `steps.ts`): run speed follows the stat through the `moveSpeed` effect.
- * Gates that open (M2-02), the summit portal (M2-03), gifts and coins (M2-04); the avalanche arrives with M2-05…M2-07. Pure TS, no DOM, no rendering.
+ * Gates that open (M2-02), the summit portal (M2-03), gifts and coins (M2-04), the avalanche (M2-05…M2-07),
+ * coins for passing a gate and the free egg of the first minute (M2-08). Pure TS, no DOM, no rendering.
  */
 import { createEmitter, type Emitter } from '../core/events.ts';
 import type { LevelData } from '../level/types.ts';
@@ -14,6 +15,7 @@ import { createCollisionWorld, type CollisionWorld } from './collision.ts';
 import { beltAt, belts, shelterIndex } from './shelter.ts';
 import { createThreat, type Threat, type ThreatEvents, type ThreatOptions } from './threat.ts';
 import { caughtPosition, caughtTotalSec, createCaught, type CaughtState } from './caught.ts';
+import { createGiftEgg, stepGiftEgg, type GiftEggState } from './gift-egg.ts';
 import { PORTAL_HALF_WIDTH } from '../level/builder.ts';
 import { createHero, placeHero, stepHero, type ControllerParams, type HeroInput, type HeroState, NO_INPUT } from './controller.ts';
 
@@ -30,6 +32,11 @@ export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, Record<st
   gain: StepGain & { tick: number; belt: boolean };
   /** A gate melted open: the stat reached its requirement (docs/01-gdd.md 3.3). */
   gateOpen: { tick: number; index: number; wall: number; z: number; requires: number };
+  /** The hero walked through an open gate for the first time: `coins` = gate reward × wallScale[tier] (docs/01-gdd.md 6.2, 10.3). */
+  gatePass: { tick: number; index: number; wall: number; coins: number; total: number };
+  /** The free egg (docs/01-gdd.md 6.2): touched, then the pet jumps out `ftue.eggHatchSec` later. */
+  eggTouch: { tick: number };
+  eggHatch: { tick: number; pet: string };
   /** A gift touched: `coins` added (zone gift × wallScale[tier]), `total` is the coin balance after it. */
   giftTake: { tick: number; index: number; coins: number; zone: number; rarity: string; total: number };
   /** All gifts back in place (after every avalanche, docs/01-gdd.md 3.2). */
@@ -66,6 +73,10 @@ export interface Sim {
   readonly threat: Threat | null;
   /** «Snowed in!» clip in progress (M2-07): the hero is a snowball, no control; null otherwise. */
   caught: CaughtState | null;
+  /** Per gate: the hero has walked through it after it opened (coins paid once per gate). */
+  readonly gatesPassed: boolean[];
+  /** The free egg «Mountain Gift» in its cave (M2-08); null when the player already has it or on other mountains. */
+  readonly giftEgg: GiftEggState | null;
   /** True once the hero has walked through the portal of this mountain (one `portal` event per sim). */
   portalEntered: boolean;
   step(input: HeroInput, dt: number): void;
@@ -98,9 +109,15 @@ export interface SimOptions {
   /** Stat → run speed (docs/02-tech.md 6.1): base and max from tuning, k from balance. */
   speedCurve: Curve;
   stat?: number;
+  /** Step multiplier of the meta (shoes × pets, docs/01-gdd.md 8.1): set by the meta layer, 1 by default. */
+  gainMult?: number;
+  /** The free egg of the first minute: placed beside the belt of cave `wall`; omitted once the player has it. */
+  giftEgg?: { wall: number; pet: string; hatchSec: number } | undefined;
 }
 
 export const RESPAWN_FADE_TICKS = 18;
+/** The hero is past a gate when his centre is this far beyond its plane. */
+const GATE_PASS_DIST = 1;
 
 export function controllerParams(tuning: TuningJson, speed: number): ControllerParams {
   const c = tuning.controller;
@@ -129,6 +146,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   const events = createEmitter<SimEvents>();
   if ((opts.balance.gifts?.respawn ?? 'onWaveGone') === 'onWaveGone') events.on('waveGone', () => sim.respawnGifts());
   const progress = createStepTracker(opts.balance, opts.stat ?? 0);
+  progress.gainMult = opts.gainMult ?? 1;
   const speedCurve: Curve = { ...opts.speedCurve };
   const params = controllerParams(tuning, moveSpeed(progress.stat, speedCurve));
   const prev = { x: hero.pos.x, z: hero.pos.z, onGround: hero.onGround };
@@ -147,6 +165,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     progress,
     speedCurve,
     gatesOpen,
+    gatesPassed: level.gates.map(() => false),
+    giftEgg: opts.giftEgg ? createGiftEgg(level, opts.giftEgg.wall, opts.giftEgg.pet, opts.giftEgg.hatchSec) : null,
     tier,
     tick: 0,
     checkpoint: -1,
@@ -222,6 +242,20 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         events.emit('gateOpen', { tick: sim.tick, index: i, wall: gate.index, z: gate.z, requires: sim.gateRequirement(i) });
       });
       if (opened) syncGates();
+      // Passing an open gate pays its coins once (the flag rises, coins fly into the plaque; docs/01-gdd.md 10.3).
+      level.gates.forEach((gate, i) => {
+        if (!gatesOpen[i] || sim.gatesPassed[i] || zBefore >= gate.z + GATE_PASS_DIST || hero.pos.z < gate.z + GATE_PASS_DIST) return;
+        sim.gatesPassed[i] = true;
+        const coins = gate.rewardCoins * wallScale(tier, opts.balance.rebirth);
+        sim.coins += coins;
+        events.emit('gatePass', { tick: sim.tick, index: i, wall: gate.index, coins, total: sim.coins });
+      });
+      // The free egg: a touch starts the hatch, the pet jumps out after eggHatchSec (docs/01-gdd.md 6.2).
+      if (sim.giftEgg) {
+        const r = stepGiftEgg(sim.giftEgg, hero.pos.x, hero.pos.y, hero.pos.z, dt);
+        if (r === 'touch') events.emit('eggTouch', { tick: sim.tick });
+        else if (r === 'hatch') events.emit('eggHatch', { tick: sim.tick, pet: sim.giftEgg.pet });
+      }
       if (hero.jumpedThisTick) events.emit('jump', { tick: sim.tick });
       if (hero.landedThisTick) events.emit('land', { tick: sim.tick, airTime: hero.airTime });
       // Checkpoints: the flag behind the last wall passed (highest z reached on the ground).

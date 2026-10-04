@@ -61,8 +61,27 @@ canvas.fallback {
 .hud.touch .hud-jump { display: flex; }
 .hud-stick { position: absolute; left: 0; top: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.18); border: 2px solid rgba(255, 255, 255, 0.5); opacity: 0; pointer-events: none; transition: opacity 0.12s; }
 .hud-stick-knob { position: absolute; left: 50%; top: 50%; width: 40%; height: 40%; margin: -20% 0 0 -20%; border-radius: 50%; background: rgba(255, 255, 255, 0.85); }
-.hud-hint { position: absolute; left: 50%; bottom: calc(12px + env(safe-area-inset-bottom)); transform: translateX(-50%); padding: 6px 12px; border-radius: 10px; background: rgba(0, 0, 0, 0.35); color: #fff; font-size: 13px; white-space: nowrap; pointer-events: none; max-width: 90%; overflow: hidden; text-overflow: ellipsis; }
-.hud-hint.hidden { display: none; }
+/* Hint plaque near the hero (docs/01-gdd.md 6.5): one line, ≤ 40% of the field, never over the HUD corners. */
+.hud-hint { position: absolute; left: 0; top: 0; display: none; flex-direction: column; align-items: center; gap: 4px; max-width: 40%; padding: 6px 14px; border-radius: 12px; border: 2px solid rgba(27, 42, 58, 0.55); background: rgba(255, 255, 255, 0.92); color: #1b2a3a; font-size: clamp(14px, 2.6vmin, 22px); font-weight: 800; line-height: 1.15; text-align: center; pointer-events: none; }
+.hud-hint.shown { display: flex; animation: hint-in 0.25s ease-out; }
+@keyframes hint-in { from { opacity: 0; } to { opacity: 1; } }
+.hud-pict { display: none; gap: 3px; }
+.hud-hint[data-pict='keys'] .hud-pict-keys { display: flex; }
+.hud-hint[data-pict='stick'] .hud-pict-stick { display: block; }
+.hud-key { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 3px; border-radius: 5px; background: #1b2a3a; color: #fff; font-size: 12px; font-weight: 800; }
+.hud-pict-stick { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #1b2a3a; box-shadow: inset 0 0 0 8px rgba(27, 42, 58, 0.25); }
+.hud-hand { position: absolute; left: 0; top: 0; display: none; pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3)); }
+.hud-hand.shown { display: block; animation: hand-bob 0.9s ease-in-out infinite alternate; }
+@keyframes hand-bob { from { margin-top: 0; } to { margin-top: -8px; } }
+/* Shoes button (docs/01-gdd.md 10.1): bottom centre, 56 px high, grey with a fill bar, green with a shine when enough. */
+.hud-shoes { position: absolute; left: 50%; bottom: calc(10px + env(safe-area-inset-bottom)); height: 56px; min-width: 150px; padding: 0 18px; transform: translateX(-50%); display: none; align-items: center; justify-content: center; overflow: hidden; border: 2px solid rgba(27, 42, 58, 0.6); border-radius: 12px; background: #9aa7b4; color: #fff; font: 800 18px/1 var(--font); text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
+.hud-shoes.shown { display: flex; }
+.hud-shoes.can { background: var(--ok); }
+.hud-shoes.can::after { content: ''; position: absolute; top: 0; bottom: 0; width: 30%; background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.55), transparent); animation: shoes-shine 1.6s ease-in-out infinite; }
+@keyframes shoes-shine { from { left: -40%; } to { left: 120%; } }
+.hud-shoes-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 100%; transform-origin: left center; background: rgba(255, 255, 255, 0.28); pointer-events: none; }
+.hud-shoes-text { position: relative; white-space: nowrap; }
+.hud.touch .hud-shoes { left: 42%; height: 48px; font-size: 16px; }
 .hud-coins { position: absolute; left: calc(8px + env(safe-area-inset-left)); top: calc(16px + 9% + env(safe-area-inset-top)); display: flex; align-items: center; gap: 8px; min-width: 96px; height: 36px; padding: 0 12px 0 6px; border-radius: 12px; background: rgba(0, 0, 0, 0.32); font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; pointer-events: none; transform: translateX(calc(-100% - 24px)); opacity: 0; transition: transform 0.35s ease-out, opacity 0.35s ease-out; }
 .hud-coins.shown { transform: translateX(0); opacity: 1; }
 .hud-coin-icon { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--coins); color: #fff; font-size: 16px; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2); }

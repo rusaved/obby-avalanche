@@ -120,13 +120,29 @@
     ],
     "minPlaySec": 600
   },
+  "hints": {
+    "moveIdleSec": 15,
+    "moveRepeatUntilSec": 120,
+    "moveDoneSec": 2,
+    "moveMax": 3,
+    "jumpNearDist": 10,
+    "shoesSec": 8,
+    "waveCaveMax": 3,
+    "caughtSec": 3,
+    "stuckSec": 10,
+    "stuckDist": 12,
+    "stuckMax": 3,
+    "portalIdleSec": 10,
+    "portalMax": 3
+  },
   "ftue": {
     "freeEggPet": "bunny",
     "scriptedWaveWall": 2,
     "triggerDist": 30,
     "spawnAhead": 120,
     "warnSec": 5,
-    "fallbackSec": 120
+    "fallbackSec": 120,
+    "eggHatchSec": 1
   },
   "jumpCurve": {
     "base": 50,

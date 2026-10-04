@@ -21,6 +21,9 @@ import { createSnowball } from './render/threat/snowball.ts';
 import { createCameraRig, type CameraRig } from './render/camera.ts';
 import { createAvalancheVisual, type AvalancheVisual } from './render/threat/avalanche.ts';
 import { createWaveView, type WaveView } from './app/wave-view.ts';
+import { createFtueVisual } from './render/ftue.ts';
+import { createFtueView, type FtueView } from './app/ftue-view.ts';
+import { createMetaView, type MetaView } from './app/meta-view.ts';
 import type { ThreatOptions } from './sim/threat.ts';
 import type { World } from './content/types.ts';
 import { createQuality, type QualityLevel } from './render/quality.ts';
@@ -43,14 +46,15 @@ const GAIN_POP_MIN_SEC = 0.25;
 /** A gate melts into an arch in 0.4 s (docs/01-gdd.md 3.3). */
 const GATE_MELT_SEC = 0.4;
 const GATE_FUNNEL_WALLS = [1, 2, 3, 4, 6, 9];
-const KEYS_HINT_SEC = 30;
+/** Play time goes into the save at most this often (seconds of play). */
+const PLAY_PERSIST_SEC = 5;
 
 /**
  * Boot order (docs/02-tech.md 11.2): SDK init without a timeout → language → texts → save → world → first frame →
  * LoadingAPI.ready() exactly once → GameplayAPI.start() when nothing pauses the game.
  */
 async function boot(): Promise<void> {
-  const { game, theme, tuning, balance, skins, accessories } = content;
+  const { game, theme, tuning, balance, skins, accessories, pets } = content;
   const params = new URLSearchParams(location.search);
   // Address parameters exist only in dev, playtest, e2e and pages builds (docs/02-tech.md 9.3).
   const debugParams = __DEBUG_TOOLS__ ? params : new URLSearchParams();
@@ -123,7 +127,12 @@ async function boot(): Promise<void> {
     scriptedPending: !(save.flags?.['firstWaveDone'] ?? false),
     normalWavesDone: save.wavesNormal ?? 0,
   });
-  let sim: Sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat: 0, tier: 0, threat: threatOptions(world) });
+  // The free egg of the first minute stands on mountain 1 until the player has it (docs/01-gdd.md 6.2).
+  const giftEggOptions = (w: World): { wall: number; pet: string; hatchSec: number } | undefined =>
+    w.index === 1 && !(save.flags?.['giftEgg'] ?? false)
+      ? { wall: balance.ftue.scriptedWaveWall, pet: balance.ftue.freeEggPet, hatchSec: balance.ftue.eggHatchSec }
+      : undefined;
+  let sim: Sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat: 0, tier: 0, threat: threatOptions(world), giftEgg: giftEggOptions(world) });
   let maxSpeed = sim.params.speed;
   const simEvents: GameHandles['simEvents'] = [];
   let pendingPortal: number | null = null;
@@ -150,6 +159,8 @@ async function boot(): Promise<void> {
   let debug: DebugPanel | null = null;
   let avalanche: AvalancheVisual | null = null;
   let waveView: WaveView | null = null;
+  let ftueView: FtueView | null = null;
+  let meta: MetaView | null = null;
   let field: FieldRect = { width: 1, height: 1, left: 0, top: 0 };
   let lastSnap: InputSnapshot | null = null;
   let pendingGain: number | null = null;
@@ -157,7 +168,7 @@ async function boot(): Promise<void> {
   // Gates melt into an arch over GATE_MELT_SEC; funnel events gate_N for mountain 1 on tier 0 (docs/06, steps 5–15).
   const melting = new Map<number, number>();
   const wireSim = (s: Sim): void => {
-    const recorded = ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'portal', 'giftTake', 'giftsRespawn'] as const;
+    const recorded = ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'gatePass', 'portal', 'giftTake', 'giftsRespawn', 'eggTouch', 'eggHatch'] as const;
     const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'caughtEnd', 'waveDusted', 'waveGone', 'waveEnd'] as const;
     for (const name of [...recorded, ...waves]) {
       s.events.on(name, (payload) => {
@@ -174,6 +185,13 @@ async function boot(): Promise<void> {
     s.events.on('giftTake', ({ index, total }) => {
       levelMeshes?.setGiftShown(index, false);
       hud?.setCoins(formatNumber(total, numSuffix));
+    });
+    s.events.on('gatePass', ({ total }) => hud?.setCoins(formatNumber(total, numSuffix)));
+    // The free egg hatched (docs/01-gdd.md 6.2): the pet jumps out, +20% per step, egg_1 (docs/06 step 11).
+    s.events.on('eggHatch', ({ pet }) => {
+      meta?.addPet(pet);
+      const egg = s.giftEgg;
+      ftueView?.showPet(pet, egg ? new Vector3(egg.x, egg.y + 1, egg.z) : undefined);
     });
     s.events.on('giftsRespawn', () => {
       s.gifts.forEach((_, i) => levelMeshes?.setGiftShown(i, true));
@@ -209,6 +227,7 @@ async function boot(): Promise<void> {
       if (from === 1 && s.tier === 0) track('gameTutorialComplete', { levelComplete: 'world_1' });
       if (next !== null) pendingPortal = next;
     });
+    ftueView?.wire(s);
   };
   wireSim(sim);
   const numSuffix = (k: string): string => t(`num.${k}`);
@@ -216,8 +235,9 @@ async function boot(): Promise<void> {
   const prevPos = new Vector3().copy(sim.hero.pos);
   const curPos = new Vector3().copy(sim.hero.pos);
   const renderPos = new Vector3();
-  let jumpedOnce = false;
   let playSec = 0;
+  let playPersistAt = 0;
+  let lastRenderTicks = 0;
   const blob = createBlobShadow();
   const snowball = createSnowball(theme.threat.body);
 
@@ -323,6 +343,14 @@ async function boot(): Promise<void> {
     showAd(kind) {
       return kind === 'rewarded' ? platform.showRewarded('e2e') : platform.showInterstitial('e2e');
     },
+    botPath: null,
+    onTick: null,
+    get meta() {
+      return meta;
+    },
+    get ftue() {
+      return ftueView;
+    },
   };
 
   const applyQualityNow = (): void => {
@@ -345,10 +373,11 @@ async function boot(): Promise<void> {
     const coins = sim.coins;
     world = next;
     level = buildLevel(world);
-    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier: sim.tier, threat: threatOptions(world) });
+    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier: sim.tier, threat: threatOptions(world), giftEgg: giftEggOptions(world) });
     avalanche?.setLevel(level);
     wireSim(sim);
     g.sim = sim;
+    meta?.apply();
     g.level = level;
     g.world = world;
     melting.clear();
@@ -381,6 +410,22 @@ async function boot(): Promise<void> {
       moveY = 1;
     }
     const w = toWorld(moveX, moveY, frame.controlYaw);
+    // e2e bot (build:e2e only): walks the given points in world space, ignoring the camera.
+    if (g.botPath) {
+      const bp = g.botPath;
+      while (bp.length > 0 && Math.hypot(bp[0]![0] - sim.hero.pos.x, bp[0]![1] - sim.hero.pos.z) < 0.6) bp.shift();
+      const target = bp[0];
+      if (target) {
+        const dx = target[0] - sim.hero.pos.x;
+        const dz = target[1] - sim.hero.pos.z;
+        const len = Math.hypot(dx, dz);
+        w.x = dx / len;
+        w.z = dz / len;
+      } else {
+        w.x = 0;
+        w.z = 0;
+      }
+    }
     prevPos.copy(sim.hero.pos);
     sim.step({ moveX: w.x, moveZ: w.z, jump: snap.jumpPressed, jumpHeld: snap.jumpHeld }, dt);
     curPos.copy(sim.hero.pos);
@@ -390,8 +435,14 @@ async function boot(): Promise<void> {
       pendingPortal = null;
       enterWorld(next);
     }
-    if (sim.hero.jumpedThisTick) jumpedOnce = true;
     playSec += dt;
+    // Play time of the player (docs/01-gdd.md 6.1): survives F5, written every few seconds of play.
+    save.totalPlaySec = (save.totalPlaySec ?? 0) + dt;
+    if (playSec - playPersistAt >= PLAY_PERSIST_SEC) {
+      playPersistAt = playSec;
+      persist();
+    }
+    g.onTick?.(dt);
     g.lastSimMs = performance.now() - t0;
   };
 
@@ -413,6 +464,10 @@ async function boot(): Promise<void> {
     }
     blob.update(renderPos, sim.collision);
     waveView?.update(frameDt, playSec);
+    const gameDt = (loop.ticks - lastRenderTicks) * loop.step;
+    lastRenderTicks = loop.ticks;
+    meta?.update();
+    ftueView?.update(gameDt, playSec, renderPos);
     if (cameraRig) {
       cameraRig.update(
         frameDt,
@@ -448,7 +503,6 @@ async function boot(): Promise<void> {
       }
       hud.updateStick(input.stick, field.left, field.top);
       hud.setTouchMode(input.touchActive);
-      hud.showKeysHint(playSec < KEYS_HINT_SEC && !jumpedOnce && !input.touchActive);
     }
     const fade = sim.respawnTicksLeft >= 0 ? Math.min(1, (sim.respawnTicksLeft + 1) / 10) : 0;
     fadeEl.style.opacity = String(fade);
@@ -530,6 +584,8 @@ async function boot(): Promise<void> {
     onQuality: (level) => g.setQualitySetting(level),
     coinColor: theme.ui.coins,
     threatColor: theme.threat.front[1],
+    onShoes: () => void meta?.buyShoes(),
+    okColor: theme.ui.ok,
   });
   waveView = createWaveView({
     tuning,
@@ -542,6 +598,24 @@ async function boot(): Promise<void> {
     field: () => field,
     manualCamera: () => (lastSnap?.manualCamera ?? false) || (cameraRig?.sinceManual ?? 99) < 0.5,
   });
+  const ftueVisual = createFtueVisual(theme);
+  gr.scene.add(ftueVisual.group);
+  meta = createMetaView({ balance, pets, save, getSim: () => sim, hud, numSuffix, trackOnce, persist });
+  meta.apply();
+  ftueView = createFtueView({
+    balance,
+    pets,
+    save,
+    getSim: () => sim,
+    hud,
+    camera: cameraRig,
+    visual: ftueVisual,
+    field: () => field,
+    touch: () => input.touchActive,
+    shoes: () => ({ shown: meta?.shoesShown ?? false, level: meta?.shoeLevel ?? 0 }),
+  });
+  ftueView.wire(sim);
+  for (const pet of save.pets ?? []) ftueView.showPet(pet);
   hud.setAutoRun(save.settings.autoRun);
   hud.setQuality(save.settings.quality);
   hud.setTouchMode(mobile);

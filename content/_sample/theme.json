@@ -97,7 +97,9 @@
     },
     "eggStand": {
       "color": "#9ED8FF"
-    }
+    },
+    "giftEgg": { "color": "#FFFFFF", "emissive": "#7FD8FF" },
+    "petEye": { "color": "#1B2A3A" }
   },
   "rarity": {
     "common": "#EEF3F8",

@@ -4,7 +4,7 @@
  */
 import type { RenderInfo } from '../render/renderer.ts';
 import type { GameHandles, SimEventRecord } from '../app/handles.ts';
-import { analyticsEvents } from '../analytics/index.ts';
+import { analyticsEvents, onTrack } from '../analytics/index.ts';
 import type { QualityLevel } from '../render/quality.ts';
 
 export type { BootState as TestBootState } from '../app/handles.ts';
@@ -55,6 +55,20 @@ export interface TestState {
   caught: { t: number; total: number; niche: number } | null;
   /** Golden gift (M2-12): null until the feature arrives. */
   bonus: { z: number; carried: boolean } | null;
+  /** First minute (M2-08): play time of the player (save.totalPlaySec), the hint on screen and how many plaques are
+   * visible, arrows on the snow, the hand over the egg, the free egg, pets, shoes and the step multiplier. */
+  playSec: number;
+  hint: string | null;
+  hintsVisible: number;
+  hintText: string;
+  arrows: boolean;
+  hand: boolean;
+  egg: { phase: string; x: number; y: number; z: number } | null;
+  pets: string[];
+  shoeLevel: number;
+  shoesButton: { shown: boolean; text: string; can: boolean };
+  gainMult: number;
+  gatesPassed: boolean[];
   /** Coin plaque on the HUD: shown (slid in) and its text. */
   coinPlaque: { shown: boolean; text: string };
   controlYaw: number;
@@ -112,6 +126,14 @@ export interface TestApi {
   triggerWave(): void;
   /** Is the camera inside the snow body of the avalanche (docs/02-tech.md 7). */
   cameraInsideAvalanche(): boolean;
+  /** e2e bot: the hero walks these world points [x, z] in order, ignoring the camera; null stops the bot. */
+  botPath(points: Array<[number, number]> | null): void;
+  /** Points the bot has not reached yet. */
+  botLeft(): number;
+  /** Longest stand (game seconds) right below a closed gate since the page opened (GDD-01). */
+  gateStandMax(): number;
+  /** Analytics events with the play time (save.totalPlaySec) when they were sent. */
+  analyticsPlay(): Array<{ name: string; playSec: number; params?: Record<string, unknown> }>;
 }
 
 declare global {
@@ -126,7 +148,28 @@ function coinPlaque(): { shown: boolean; text: string } {
   return { shown: node?.classList.contains('shown') ?? false, text: node?.querySelector('.hud-coin-value')?.textContent ?? '' };
 }
 
+function shoesButton(): { shown: boolean; text: string; can: boolean } {
+  const node = document.querySelector('[data-hud="shoes"]');
+  return { shown: node?.classList.contains('shown') ?? false, text: node?.textContent ?? '', can: node?.classList.contains('can') ?? false };
+}
+
+/** A hero closer than this to a closed gate below it, and slower than STAND_SPEED, stands at the gate. */
+const STAND_GATE_DIST = 2.5;
+const STAND_SPEED = 1;
+
 export function installTestApi(g: GameHandles): TestApi {
+  const played: Array<{ name: string; playSec: number; params?: Record<string, unknown> }> = [];
+  onTrack((ev) => played.push(ev.params ? { name: ev.name, playSec: g.save.totalPlaySec ?? 0, params: ev.params } : { name: ev.name, playSec: g.save.totalPlaySec ?? 0 }));
+  let standSec = 0;
+  let standMax = 0;
+  g.onTick = (dt) => {
+    const sim = g.sim;
+    if (!sim) return;
+    const h = sim.hero;
+    const atGate = sim.level.gates.some((gate, i) => !sim.gatesOpen[i] && gate.z - h.pos.z > 0 && gate.z - h.pos.z < STAND_GATE_DIST);
+    standSec = atGate && h.speed < STAND_SPEED ? standSec + dt : 0;
+    standMax = Math.max(standMax, standSec);
+  };
   const advanceMock = (ms: number): void => {
     if (ms > 0) window.__YA_MOCK__?.advance(ms);
   };
@@ -167,6 +210,18 @@ export function installTestApi(g: GameHandles): TestApi {
           toast: document.querySelector('[data-role="toast"].shown')?.textContent ?? '',
         },
         bonus: null,
+        playSec: g.save.totalPlaySec ?? 0,
+        hint: g.ftue?.hint ?? null,
+        hintsVisible: document.querySelectorAll('[data-role="hint"].shown').length,
+        hintText: document.querySelector('[data-role="hint"].shown .hud-hint-text')?.textContent ?? '',
+        arrows: g.ftue?.arrows ?? false,
+        hand: g.ftue?.hand ?? false,
+        egg: g.sim?.giftEgg ? { phase: g.sim.giftEgg.phase, x: g.sim.giftEgg.x, y: g.sim.giftEgg.y, z: g.sim.giftEgg.z } : null,
+        pets: [...(g.save.pets ?? [])],
+        shoeLevel: g.meta?.shoeLevel ?? 0,
+        shoesButton: shoesButton(),
+        gainMult: g.sim?.progress.gainMult ?? 1,
+        gatesPassed: g.sim ? [...g.sim.gatesPassed] : [],
         caught: g.sim?.caught
           ? { t: g.sim.caught.t, total: g.sim.caught.formSec + g.sim.caught.rollSec + g.sim.caught.popSec, niche: g.sim.caught.niche }
           : null,
@@ -261,6 +316,12 @@ export function installTestApi(g: GameHandles): TestApi {
       g.sim?.events.emit('waveGone', { tick: g.sim.tick });
     },
     triggerWave: () => g.triggerWave(),
+    botPath(points) {
+      g.botPath = points ? points.map((p) => [p[0], p[1]] as [number, number]) : null;
+    },
+    botLeft: () => g.botPath?.length ?? 0,
+    gateStandMax: () => standMax,
+    analyticsPlay: () => played,
     cameraInsideAvalanche() {
       const cam = g.camera?.camera.position;
       return cam ? (g.avalanche?.insideBody(cam) ?? false) : false;

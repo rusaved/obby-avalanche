@@ -1,7 +1,7 @@
 /**
  * HUD at M1 (docs/01-gdd.md 10.1, docs/02-tech.md 6.3): touch stick visual, jump button (≥ 18% of the short side),
- * pause button, pause/settings panel with the auto-run toggle, keys hint on PC. Buttons carry data-hud so a touch on
- * them never starts the stick. Coin plaque from the first coin (M2-04); the rest of the HUD (stat, goal, wave) at M2–M3.
+ * pause button, pause/settings panel with the auto-run toggle. Buttons carry data-hud so a touch on them never starts
+ * the stick. Coin plaque from the first coin (M2-04); hint plaques, the hand over the free egg and the shoes button (M2-08).
  */
 import { t } from './i18n.ts';
 import type { StickState } from '../input/types.ts';
@@ -17,6 +17,17 @@ export interface HudOptions {
   coinColor: string;
   /** Avalanche colour for the banner outline, frost frame and cave arrow (theme.json threat.front[1]). */
   threatColor: string;
+  /** «Shoes ×N · price» pressed (docs/01-gdd.md 6.2, 10.1): one tap buys. */
+  onShoes: () => void;
+  /** «Can» and «not yet» colours of the shoes button (theme.json ui.ok, ui.no). */
+  okColor: string;
+}
+
+/** Shoes button state: text, enough coins, share of the price collected (0–1). */
+export interface ShoesButtonState {
+  text: string;
+  can: boolean;
+  progress: number;
 }
 
 export interface Hud {
@@ -27,7 +38,15 @@ export interface Hud {
   setQuality(level: 'auto' | 'low' | 'medium' | 'high'): void;
   updateStick(stick: StickState, fieldLeft: number, fieldTop: number): void;
   layout(width: number, height: number): void;
-  showKeysHint(show: boolean): void;
+  /**
+   * Hint plaque near the hero (docs/01-gdd.md 6.5): `text` with an optional controls pictogram, its bottom edge at
+   * (x, y) in field px; null hides it. One plaque at a time.
+   */
+  setHint(hint: { text: string; pict: 'keys' | 'stick' | null; x: number; y: number } | null): void;
+  /** Hand icon above the free egg (hint.egg, no text); null hides it. */
+  setHand(pos: { x: number; y: number } | null): void;
+  /** «Shoes ×N · price» at the bottom centre; null hides it (docs/01-gdd.md 6.4: shows from the first time coins suffice). */
+  setShoes(state: ShoesButtonState | null): void;
   /** «+N» floating up from a field position in px (docs/01-gdd.md 10.3); the caller limits the rate. */
   popGain(text: string, x: number, y: number): void;
   /** Coin plaque (docs/01-gdd.md 6.4, 10.1): hidden until the first coin, then slides in from the left and stays. */
@@ -44,6 +63,10 @@ export interface Hud {
   setVeil(on: boolean): void;
   readonly jumpButton: HTMLButtonElement;
 }
+
+/** Hint plaque band: its top never above this share of the field (top HUD band), its bottom never below this one. */
+const HINT_TOP_MIN = 0.22;
+const HINT_BOTTOM_MAX = 0.78;
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string): HTMLElementTagNameMap[K] {
   const e = document.createElement(tag);
@@ -106,12 +129,36 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   root.append(frost, veil, banner, arrow, toastEl);
   let toastTimer: ReturnType<typeof setTimeout> | null = null;
 
-  const hint = el('div', 'hud-hint', t('howto.pc'));
+  // Hint plaque (docs/01-gdd.md 6.5): one line up to 5 words, optional pictogram of the controls (WASD and arrows or the stick).
+  const hint = el('div', 'hud-hint');
+  hint.dataset['role'] = 'hint';
+  const hintText = el('span', 'hud-hint-text');
+  const pictKeys = el('span', 'hud-pict hud-pict-keys');
+  for (const k of ['W', 'A', 'S', 'D', '\u2191', '\u2190', '\u2193', '\u2192']) pictKeys.appendChild(el('span', 'hud-key', k));
+  const pictStick = el('span', 'hud-pict hud-pict-stick');
+  hint.append(hintText, pictKeys, pictStick);
+  root.appendChild(hint);
+  const hand = el('div', 'hud-hand');
+  hand.dataset['role'] = 'hand';
+  hand.innerHTML =
+    '<svg viewBox="0 0 24 24" width="40" height="40"><path d="M9 11V4.5a1.5 1.5 0 0 1 3 0V10h.5V3.5a1.5 1.5 0 0 1 3 0V10h.5V5a1.5 1.5 0 0 1 3 0v8c0 4-2.5 7.5-7 7.5-3 0-4.6-1.4-6-3.6L3.3 13.6a1.4 1.4 0 0 1 2.2-1.8L7.5 14V7a1.5 1.5 0 0 1 3 0" fill="#fff" stroke="#1b2a3a" stroke-width="1.2"/></svg>';
+  root.appendChild(hand);
   const gainPool = Array.from({ length: 4 }, () => el('div', 'hud-gain'));
   let gainNext = 0;
-  hint.dataset['role'] = 'keys-hint';
-  root.appendChild(hint);
   for (const node of gainPool) root.appendChild(node);
+
+  // Shoes button (docs/01-gdd.md 10.1): grey with a fill bar while coins are short, green with a shine when enough.
+  const shoes = el('button', 'hud-shoes');
+  shoes.dataset['hud'] = 'shoes';
+  shoes.style.setProperty('--ok', opts.okColor);
+  const shoesFill = el('span', 'hud-shoes-fill');
+  const shoesText = el('span', 'hud-shoes-text');
+  shoes.append(shoesFill, shoesText);
+  shoes.addEventListener('pointerup', (ev) => {
+    ev.preventDefault();
+    if (shoes.classList.contains('can')) opts.onShoes();
+  });
+  root.appendChild(shoes);
 
   // Pause and settings panel (docs/01-gdd.md 10.2): title is the game title (LOC-04), never a dead end.
   const dim = el('div', 'dim');
@@ -169,13 +216,14 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   root.appendChild(dim);
 
   let touchMode = false;
+  let fieldW = 1;
+  let fieldH = 1;
   const hud: Hud = {
     root,
     jumpButton,
     setTouchMode(touch) {
       touchMode = touch;
       root.classList.toggle('touch', touch);
-      hint.textContent = touch ? t('howto.touch') : t('howto.pc');
     },
     setPaused(paused) {
       dim.classList.toggle('open', paused);
@@ -197,6 +245,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       stickKnob.style.transform = `translate(${stick.x - stick.originX}px, ${stick.y - stick.originY}px)`;
     },
     layout(width, height) {
+      fieldW = width;
+      fieldH = height;
       const short = Math.min(width, height);
       const size = Math.max(44, Math.round(short * opts.jumpButtonFrac));
       jumpButton.style.width = `${size}px`;
@@ -210,8 +260,28 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       stickBase.style.marginLeft = `${-r}px`;
       stickBase.style.marginTop = `${-r}px`;
     },
-    showKeysHint(show) {
-      hint.classList.toggle('hidden', !show);
+    setHint(h) {
+      hint.classList.toggle('shown', h !== null);
+      if (!h) return;
+      if (hintText.textContent !== h.text) hintText.textContent = h.text;
+      hint.dataset['pict'] = h.pict ?? '';
+      // Inside the field, below the top HUD band and above the bottom buttons (docs/01-gdd.md 6.5: never over the HUD).
+      const w = hint.offsetWidth;
+      const hh = hint.offsetHeight;
+      const x = Math.min(fieldW - w / 2 - 8, Math.max(w / 2 + 8, h.x));
+      const y = Math.min(fieldH * HINT_BOTTOM_MAX, Math.max(fieldH * HINT_TOP_MIN + hh, h.y));
+      hint.style.transform = `translate(${Math.round(x - w / 2)}px, ${Math.round(y - hh)}px)`;
+    },
+    setHand(pos) {
+      hand.classList.toggle('shown', pos !== null);
+      if (pos) hand.style.transform = `translate(${Math.round(pos.x)}px, ${Math.round(pos.y)}px) translate(-50%, -100%)`;
+    },
+    setShoes(state) {
+      shoes.classList.toggle('shown', state !== null);
+      if (!state) return;
+      if (shoesText.textContent !== state.text) shoesText.textContent = state.text;
+      shoes.classList.toggle('can', state.can);
+      shoesFill.style.transform = `scaleX(${state.can ? 1 : Math.max(0, Math.min(1, state.progress)).toFixed(3)})`;
     },
     setWaveBanner(text) {
       banner.classList.toggle('shown', text !== null);

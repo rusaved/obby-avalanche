@@ -15,6 +15,8 @@ import type { Characters, CharacterInstance } from '../render/characters.ts';
 import type { FieldRect } from '../ui/fit.ts';
 import type { AvalancheVisual } from '../render/threat/avalanche.ts';
 import type { WaveView } from './wave-view.ts';
+import type { MetaView } from './meta-view.ts';
+import type { FtueView } from './ftue-view.ts';
 
 export interface BootState {
   firstFrameAt: number | null;
@@ -72,4 +74,11 @@ export interface GameHandles {
   readonly waveView: WaveView | null;
   /** Starts the next avalanche now (debug «Avalanche now», __TEST__.triggerWave). */
   triggerWave(): void;
+  /** e2e bot: world points [x, z] the hero walks to one after another (overrides the input); null — off. */
+  botPath: Array<[number, number]> | null;
+  /** Called after every simulation tick (e2e monitors). */
+  onTick: ((dt: number) => void) | null;
+  /** Shoes and pets (M2-08) and the teaching layer: hints, arrows, egg (M2-08). */
+  readonly meta: MetaView | null;
+  readonly ftue: FtueView | null;
 }

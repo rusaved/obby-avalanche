@@ -1,0 +1,11 @@
+{
+  "pets": [
+    {
+      "id": "bunny",
+      "rarity": "uncommon",
+      "bonus": 0.2,
+      "color": "#FFFFFF",
+      "accent": "#FF9EC4"
+    }
+  ]
+}
