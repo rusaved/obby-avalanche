@@ -63,6 +63,9 @@ canvas.fallback {
 .hud-stick-knob { position: absolute; left: 50%; top: 50%; width: 40%; height: 40%; margin: -20% 0 0 -20%; border-radius: 50%; background: rgba(255, 255, 255, 0.85); }
 .hud-hint { position: absolute; left: 50%; bottom: calc(12px + env(safe-area-inset-bottom)); transform: translateX(-50%); padding: 6px 12px; border-radius: 10px; background: rgba(0, 0, 0, 0.35); color: #fff; font-size: 13px; white-space: nowrap; pointer-events: none; max-width: 90%; overflow: hidden; text-overflow: ellipsis; }
 .hud-hint.hidden { display: none; }
+.hud-gain { position: absolute; left: 0; top: 0; transform: translate(-50%, -100%); opacity: 0; pointer-events: none; font-size: 22px; font-weight: 800; color: #fff; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35), 0 0 8px rgba(0, 0, 0, 0.25); white-space: nowrap; }
+.hud-gain.show { animation: gain-pop 0.7s ease-out forwards; }
+@keyframes gain-pop { 0% { opacity: 0; transform: translate(-50%, -100%) scale(0.6); } 20% { opacity: 1; transform: translate(-50%, -120%) scale(1.1); } 100% { opacity: 0; transform: translate(-50%, -220%) scale(1); } }
 .dim { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(10, 25, 45, 0.5); }
 .dim.open { display: flex; }
 .panel { width: min(92%, 420px); max-height: 92%; overflow: auto; padding: 14px 16px; border-radius: 16px; background: #f4f9ff; color: #1b2a3a; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25); }

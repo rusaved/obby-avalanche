@@ -1,10 +1,13 @@
 /**
  * Simulation of one mountain (docs/02-tech.md 4.2, 6.1): hero, checkpoints, fall and respawn.
- * The avalanche, steps and gates that open arrive at M2. Pure TS, no DOM, no rendering.
+ * Steps and the stat (M2-01, `steps.ts`): run speed follows the stat through the `moveSpeed` effect.
+ * The avalanche and gates that open arrive with M2-02…M2-07. Pure TS, no DOM, no rendering.
  */
 import { createEmitter, type Emitter } from '../core/events.ts';
 import type { LevelData } from '../level/types.ts';
-import type { TuningJson } from '../content/types.ts';
+import type { BalanceJson, Curve, TuningJson } from '../content/types.ts';
+import { moveSpeed } from './effects/moveSpeed.ts';
+import { createStepTracker, type StepGain, type StepTracker } from './steps.ts';
 import { createCollisionWorld, type CollisionWorld } from './collision.ts';
 import { createHero, placeHero, stepHero, type ControllerParams, type HeroInput, type HeroState, NO_INPUT } from './controller.ts';
 
@@ -15,6 +18,8 @@ export interface SimEvents extends Record<string, unknown> {
   respawn: { tick: number; z: number; checkpoint: number };
   jump: { tick: number };
   land: { tick: number; airTime: number };
+  /** One step taken: the stat grew by `amount` (docs/01-gdd.md 3.3). */
+  gain: StepGain & { tick: number };
 }
 
 export interface Sim {
@@ -23,6 +28,10 @@ export interface Sim {
   readonly collision: CollisionWorld;
   readonly events: Emitter<SimEvents>;
   readonly params: ControllerParams;
+  /** Stat, steps and the gain multiplier (M2-01). */
+  readonly progress: StepTracker;
+  /** Mutable: the debug panel re-applies tuning into it. */
+  readonly speedCurve: Curve;
   tick: number;
   checkpoint: number;
   /** -1 when not respawning; otherwise ticks left of the ≤0.5 s fade (docs/02-tech.md 6.1). */
@@ -30,6 +39,15 @@ export interface Sim {
   step(input: HeroInput, dt: number): void;
   teleport(x: number, y: number, z: number): void;
   respawn(): void;
+  /** Treadmill multiplier of the niche the hero stands in, 1 on plain ground (docs/02-tech.md 5.3). */
+  treadmillAt(): number;
+}
+
+export interface SimOptions {
+  balance: Pick<BalanceJson, 'stepLength' | 'gainPerStep'>;
+  /** Stat → run speed (docs/02-tech.md 6.1): base and max from tuning, k from balance. */
+  speedCurve: Curve;
+  stat?: number;
 }
 
 export const RESPAWN_FADE_TICKS = 18;
@@ -51,12 +69,17 @@ export function controllerParams(tuning: TuningJson, speed: number): ControllerP
   };
 }
 
-export function createSim(level: LevelData, tuning: TuningJson, speed: number): Sim {
+export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions): Sim {
   const collision = createCollisionWorld(level.staticTriangles);
   collision.setDynamicBoxes(level.gates.map((g) => g.box));
   const hero = createHero(level.spawn);
   const events = createEmitter<SimEvents>();
-  const params = controllerParams(tuning, speed);
+  const progress = createStepTracker(opts.balance, opts.stat ?? 0);
+  const speedCurve: Curve = { ...opts.speedCurve };
+  const params = controllerParams(tuning, moveSpeed(progress.stat, speedCurve));
+  const prev = { x: hero.pos.x, z: hero.pos.z, onGround: hero.onGround };
+  const inBox = (b: { min: readonly number[]; max: readonly number[] }, x: number, y: number, z: number): boolean =>
+    x >= b.min[0]! && x <= b.max[0]! && y >= b.min[1]! - 0.5 && y <= b.max[1]! && z >= b.min[2]! && z <= b.max[2]!;
 
   const sim: Sim = {
     hero,
@@ -64,6 +87,8 @@ export function createSim(level: LevelData, tuning: TuningJson, speed: number): 
     collision,
     events,
     params,
+    progress,
+    speedCurve,
     tick: 0,
     checkpoint: -1,
     respawnTicksLeft: -1,
@@ -77,6 +102,16 @@ export function createSim(level: LevelData, tuning: TuningJson, speed: number): 
         return;
       }
       stepHero(hero, input, dt, collision, params, level.killY);
+      // Steps: horizontal path while on the ground before and after the tick; the air and the landing tick count nothing.
+      if (hero.onGround && prev.onGround && !hero.jumpedThisTick) {
+        const dx = hero.pos.x - prev.x;
+        const dz = hero.pos.z - prev.z;
+        for (const gain of progress.advance(Math.hypot(dx, dz), sim.treadmillAt())) events.emit('gain', { ...gain, tick: sim.tick });
+        params.speed = moveSpeed(progress.stat, speedCurve);
+      } else if (!hero.onGround) progress.resetCarry();
+      prev.x = hero.pos.x;
+      prev.z = hero.pos.z;
+      prev.onGround = hero.onGround;
       if (hero.jumpedThisTick) events.emit('jump', { tick: sim.tick });
       if (hero.landedThisTick) events.emit('land', { tick: sim.tick, airTime: hero.airTime });
       // Checkpoints: the flag behind the last wall passed (highest z reached on the ground).
@@ -96,12 +131,20 @@ export function createSim(level: LevelData, tuning: TuningJson, speed: number): 
     },
     teleport(x, y, z) {
       placeHero(hero, x, y, z);
+      progress.resetCarry();
+      prev.onGround = false;
+    },
+    treadmillAt() {
+      for (const n of level.niches) if (n.treadmill > 1 && inBox(n.box, hero.pos.x, hero.pos.y, hero.pos.z)) return n.treadmill;
+      return 1;
     },
     respawn() {
       const c = level.checkpoints[sim.checkpoint];
       const target: [number, number, number] = c ? [c.x, c.y, c.z] : level.spawn;
       placeHero(hero, target[0], target[1] + 0.05, target[2]);
       hero.yaw = 0;
+      progress.resetCarry();
+      prev.onGround = false;
       sim.respawnTicksLeft = -1;
       events.emit('respawn', { tick: sim.tick, z: target[2], checkpoint: sim.checkpoint });
     },

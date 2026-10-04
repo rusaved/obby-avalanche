@@ -23,6 +23,9 @@ export interface TestState {
   readyAt: number | null;
   glRenderer: string;
   hero: { x: number; y: number; z: number; vx: number; vy: number; vz: number; speed: number; onGround: boolean; yaw: number } | null;
+  /** Stat (Speed) and steps taken (M2-01). */
+  stat: number;
+  steps: number;
   controlYaw: number;
   viewYaw: number;
   cameraDistance: number;
@@ -105,6 +108,8 @@ export function installTestApi(g: GameHandles): TestApi {
         hero: h
           ? { x: h.pos.x, y: h.pos.y, z: h.pos.z, vx: h.vel.x, vy: h.vel.y, vz: h.vel.z, speed: h.speed, onGround: h.onGround, yaw: h.yaw }
           : null,
+        stat: g.sim?.progress.stat ?? 0,
+        steps: g.sim?.progress.steps ?? 0,
         controlYaw: g.frame.controlYaw,
         viewYaw: g.frame.viewYaw,
         cameraDistance: cam?.currentDistance ?? 0,

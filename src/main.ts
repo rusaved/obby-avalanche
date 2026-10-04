@@ -21,6 +21,8 @@ import { createCameraRig, type CameraRig } from './render/camera.ts';
 import { createQuality, type QualityLevel } from './render/quality.ts';
 import { buildLevel } from './level/builder.ts';
 import { createSim, controllerParams, type Sim } from './sim/world.ts';
+import { HERO_HEIGHT } from './sim/controller.ts';
+import { formatNumber } from './ui/format.ts';
 import { moveSpeed } from './sim/effects/moveSpeed.ts';
 import { InputManager } from './input/manager.ts';
 import { applyManualTurn, createControlFrame, onMoveStarted, toWorld } from './input/control-frame.ts';
@@ -31,6 +33,8 @@ import type { TestApi } from './test-api/index.ts';
 import type { DebugPanel } from './debug/index.ts';
 
 const DEG = Math.PI / 180;
+/** «+N» above the hero at most 4 times a second (docs/01-gdd.md 10.3). */
+const GAIN_POP_MIN_SEC = 0.25;
 const KEYS_HINT_SEC = 30;
 
 /**
@@ -93,13 +97,12 @@ async function boot(): Promise<void> {
   const world = content.worlds.worlds[0];
   if (!world) throw new Error('worlds.json has no worlds');
   const level = buildLevel(world);
-  const stat = 0;
   // Feel values (base and ceiling) come from tuning.json sliders; the curve shape from balance.json.
   const speedCurve = () => ({ ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed });
-  let maxSpeed = moveSpeed(stat, speedCurve());
-  const sim: Sim = createSim(level, tuning, maxSpeed);
+  const sim: Sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat: 0 });
+  let maxSpeed = sim.params.speed;
   const simEvents: GameHandles['simEvents'] = [];
-  for (const name of ['checkpoint', 'fall', 'respawn', 'jump', 'land'] as const) {
+  for (const name of ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain'] as const) {
     sim.events.on(name, (payload) => {
       simEvents.push({ name, ...(payload as Record<string, unknown>), tick: sim.tick });
       if (simEvents.length > 2000) simEvents.splice(0, simEvents.length - 2000);
@@ -128,6 +131,13 @@ async function boot(): Promise<void> {
   let debug: DebugPanel | null = null;
   let field: FieldRect = { width: 1, height: 1, left: 0, top: 0 };
   let lastSnap: InputSnapshot | null = null;
+  let pendingGain: number | null = null;
+  let lastGainPopAt = -1;
+  sim.events.on('gain', ({ amount, steps }) => {
+    pendingGain = amount;
+    if (steps === 1) track('gameTutorialStart');
+  });
+  const headPos = new Vector3();
   const prevPos = new Vector3().copy(sim.hero.pos);
   const curPos = new Vector3().copy(sim.hero.pos);
   const renderPos = new Vector3();
@@ -168,7 +178,8 @@ async function boot(): Promise<void> {
     framesPresented: 0,
     framesRendered: 0,
     applyTuning() {
-      maxSpeed = moveSpeed(stat, speedCurve());
+      Object.assign(sim.speedCurve, speedCurve());
+      maxSpeed = moveSpeed(sim.progress.stat, sim.speedCurve);
       Object.assign(sim.params, controllerParams(tuning, maxSpeed));
       inputOpts.mouseDegPerPx = tuning.camera.mouseDegPerPx;
       inputOpts.touchDegPerPx = tuning.camera.touchDegPerPx;
@@ -254,6 +265,7 @@ async function boot(): Promise<void> {
     prevPos.copy(sim.hero.pos);
     sim.step({ moveX: w.x, moveZ: w.z, jump: snap.jumpPressed, jumpHeld: snap.jumpHeld }, dt);
     curPos.copy(sim.hero.pos);
+    maxSpeed = sim.params.speed;
     if (sim.hero.jumpedThisTick) jumpedOnce = true;
     playSec += dt;
     g.lastSimMs = performance.now() - t0;
@@ -285,6 +297,14 @@ async function boot(): Promise<void> {
     gr.follow(renderPos);
     levelMeshes?.cullByDistance(renderPos.z, quality.params.fogFar);
     if (hud) {
+      if (pendingGain !== null && cameraRig && playSec - lastGainPopAt >= GAIN_POP_MIN_SEC && heroChar?.visible) {
+        headPos.copy(renderPos);
+        headPos.y += HERO_HEIGHT + 0.6;
+        headPos.project(cameraRig.camera);
+        if (headPos.z < 1) hud.popGain(`+${formatNumber(pendingGain, (k) => t(`num.${k}`))}`, (headPos.x * 0.5 + 0.5) * field.width, (0.5 - headPos.y * 0.5) * field.height);
+        lastGainPopAt = playSec;
+        pendingGain = null;
+      }
       hud.updateStick(input.stick, field.left, field.top);
       hud.setTouchMode(input.touchActive);
       hud.showKeysHint(playSec < KEYS_HINT_SEC && !jumpedOnce && !input.touchActive);

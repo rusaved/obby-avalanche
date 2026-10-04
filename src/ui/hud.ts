@@ -24,6 +24,8 @@ export interface Hud {
   updateStick(stick: StickState, fieldLeft: number, fieldTop: number): void;
   layout(width: number, height: number): void;
   showKeysHint(show: boolean): void;
+  /** «+N» floating up from a field position in px (docs/01-gdd.md 10.3); the caller limits the rate. */
+  popGain(text: string, x: number, y: number): void;
   readonly jumpButton: HTMLButtonElement;
 }
 
@@ -64,8 +66,11 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   root.appendChild(stickBase);
 
   const hint = el('div', 'hud-hint', t('howto.pc'));
+  const gainPool = Array.from({ length: 4 }, () => el('div', 'hud-gain'));
+  let gainNext = 0;
   hint.dataset['role'] = 'keys-hint';
   root.appendChild(hint);
+  for (const node of gainPool) root.appendChild(node);
 
   // Pause and settings panel (docs/01-gdd.md 10.2): title is the game title (LOC-04), never a dead end.
   const dim = el('div', 'dim');
@@ -166,6 +171,16 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     },
     showKeysHint(show) {
       hint.classList.toggle('hidden', !show);
+    },
+    popGain(text, x, y) {
+      const node = gainPool[gainNext % gainPool.length]!;
+      gainNext++;
+      node.textContent = text;
+      node.style.left = `${Math.round(x)}px`;
+      node.style.top = `${Math.round(y)}px`;
+      node.classList.remove('show');
+      void node.offsetWidth; // restart the CSS animation
+      node.classList.add('show');
     },
   };
   hud.setTouchMode(false);
