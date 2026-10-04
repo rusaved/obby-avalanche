@@ -1,0 +1,21 @@
+{
+  "count": { "high": 3, "medium": 3, "low": 2 },
+  "showNames": false,
+  "names": ["bot.n01", "bot.n02", "bot.n03", "bot.n04", "bot.n05", "bot.n06"],
+  "palette": {
+    "jackets": ["#2E86DE", "#10AC84", "#8E44AD", "#E84393"],
+    "pants": ["#2F3542", "#34495E", "#57606F"],
+    "hats": ["#FFFFFF", "#74B9FF", "#FFEAA7"],
+    "heads": ["#F6D3B3", "#EBC09A"],
+    "hat": "hat_pompom_red",
+    "faces": ["happy", "determined"]
+  },
+  "speedFactor": [0.85, 1.05],
+  "treadmillSec": [10, 30],
+  "hideChance": 0.9,
+  "leashWalls": 3,
+  "spawnCampMax": 2,
+  "awaySec": [20, 40],
+  "campReleaseSec": [2, 12],
+  "label": { "nearDist": 35, "fadeDist": 10 }
+}

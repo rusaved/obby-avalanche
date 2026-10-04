@@ -6,6 +6,7 @@ import type { RenderInfo } from '../render/renderer.ts';
 import type { GameHandles, SimEventRecord } from '../app/handles.ts';
 import { analyticsEvents, onTrack } from '../analytics/index.ts';
 import type { QualityLevel } from '../render/quality.ts';
+import { content } from '../content/index.ts';
 
 export type { BootState as TestBootState } from '../app/handles.ts';
 
@@ -53,6 +54,12 @@ export interface TestState {
   waveHud: { banner: string | null; arrow: boolean; shot: boolean; veil: boolean; toast: string };
   /** «Snowed in!» clip (M2-07): seconds since the catch, total length, target cave (−1 camp); null when not caught. */
   caught: { t: number; total: number; niche: number } | null;
+  /** Bots out on the mountain (M2-10): name key, label as shown (text '' when hidden), mode, cave, position. */
+  bots: Array<{ name: string; label: string; labelShown: boolean; mode: string; cave: number; x: number; y: number; z: number }>;
+  /** Visible bot name labels in the DOM and decisions on warn so far (ran to a cave / dawdled / snowballs). */
+  botLabels: number;
+  botStats: { hid: number; dawdled: number; caught: number };
+  hudMode: string;
   /** Golden gift (M2-12): null until the feature arrives. */
   bonus: { z: number; carried: boolean } | null;
   /** First minute (M2-08): play time of the player (save.totalPlaySec), the hint on screen and how many plaques are
@@ -138,8 +145,14 @@ export interface TestApi {
   botLeft(): number;
   /** Longest stand (game seconds) right below a closed gate since the page opened (GDD-01). */
   gateStandMax(): number;
+  /** Highest (bot z − z of a wall closed for the hero) over every tick since the page opened; < 0 means never above (M2-10). */
+  botsOverClosedMax(): number;
   /** Analytics events with the play time (save.totalPlaySec) when they were sent. */
   analyticsPlay(): Array<{ name: string; playSec: number; params?: Record<string, unknown> }>;
+  /** HUD mode of the shots and the promo video (docs/04-packaging.md 11.2). */
+  setHudMode(mode: 'normal' | 'shots' | 'promo'): void;
+  /** Flips bots.json showNames live (the e2e check of `showNames: false`). */
+  botsShowNames(on: boolean): void;
 }
 
 declare global {
@@ -168,6 +181,7 @@ export function installTestApi(g: GameHandles): TestApi {
   onTrack((ev) => played.push(ev.params ? { name: ev.name, playSec: g.save.totalPlaySec ?? 0, params: ev.params } : { name: ev.name, playSec: g.save.totalPlaySec ?? 0 }));
   let standSec = 0;
   let standMax = 0;
+  let overClosed = -Infinity;
   g.onTick = (dt) => {
     const sim = g.sim;
     if (!sim) return;
@@ -175,6 +189,10 @@ export function installTestApi(g: GameHandles): TestApi {
     const atGate = sim.level.gates.some((gate, i) => !sim.gatesOpen[i] && gate.z - h.pos.z > 0 && gate.z - h.pos.z < STAND_GATE_DIST);
     standSec = atGate && h.speed < STAND_SPEED ? standSec + dt : 0;
     standMax = Math.max(standMax, standSec);
+    sim.level.gates.forEach((gate, i) => {
+      if (sim.gatesOpen[i]) return;
+      for (const b of sim.bots?.list ?? []) if (b.mode !== 'away' && b.mode !== 'off') overClosed = Math.max(overClosed, b.z - gate.z);
+    });
   };
   const advanceMock = (ms: number): void => {
     if (ms > 0) window.__YA_MOCK__?.advance(ms);
@@ -215,6 +233,16 @@ export function installTestApi(g: GameHandles): TestApi {
           veil: g.waveView?.veil ?? false,
           toast: document.querySelector('[data-role="toast"].shown')?.textContent ?? '',
         },
+        bots: (() => {
+          const labels = g.botsView?.labels() ?? [];
+          return (g.sim?.bots?.list ?? [])
+            .map((b, i) => ({ b, l: labels[i] }))
+            .filter(({ b }) => b.mode !== 'away' && b.mode !== 'off')
+            .map(({ b, l }) => ({ name: b.name, label: l?.text ?? '', labelShown: l?.shown ?? false, mode: b.mode, cave: b.cave, x: b.x, y: b.y, z: b.z }));
+        })(),
+        botLabels: [...document.querySelectorAll<HTMLElement>('[data-role="bot-label"]')].filter((e) => Number(e.style.opacity || 0) > 0 && e.textContent !== '').length,
+        botStats: { ...(g.sim?.bots?.stats ?? { hid: 0, dawdled: 0, caught: 0 }) },
+        hudMode: g.hudMode,
         bonus: null,
         playSec: g.save.totalPlaySec ?? 0,
         hint: g.ftue?.hint ?? null,
@@ -333,7 +361,12 @@ export function installTestApi(g: GameHandles): TestApi {
     },
     botLeft: () => g.botPath?.length ?? 0,
     gateStandMax: () => standMax,
+    botsOverClosedMax: () => overClosed,
     analyticsPlay: () => played,
+    setHudMode: (mode) => g.setHudMode(mode),
+    botsShowNames(on) {
+      content.bots.showNames = on;
+    },
     cameraInsideAvalanche() {
       const cam = g.camera?.camera.position;
       return cam ? (g.avalanche?.insideBody(cam) ?? false) : false;

@@ -25,6 +25,7 @@ import { createFtueVisual } from './render/ftue.ts';
 import { createFtueView, type FtueView } from './app/ftue-view.ts';
 import { createMetaView, type MetaView } from './app/meta-view.ts';
 import { createHudView, type HudView } from './app/hud-view.ts';
+import { createBotsView, type BotsView, type HudMode } from './app/bots-view.ts';
 import { faceDataUrl } from './render/characters.ts';
 import { createAudio, type GameAudio } from './audio/index.ts';
 import type { ThreatOptions } from './sim/threat.ts';
@@ -57,7 +58,7 @@ const PLAY_PERSIST_SEC = 5;
  * LoadingAPI.ready() exactly once → GameplayAPI.start() when nothing pauses the game.
  */
 async function boot(): Promise<void> {
-  const { game, theme, tuning, balance, skins, accessories, pets, sfx } = content;
+  const { game, theme, tuning, balance, skins, accessories, pets, sfx, bots } = content;
   const params = new URLSearchParams(location.search);
   // Address parameters exist only in dev, playtest, e2e and pages builds (docs/02-tech.md 9.3).
   const debugParams = __DEBUG_TOOLS__ ? params : new URLSearchParams();
@@ -115,7 +116,10 @@ async function boot(): Promise<void> {
     settingLevel: save.settings.quality,
   });
   const gpuLoad = Math.max(1, Math.min(4, Number(debugParams.get('gpuload') || 1) || 1));
-  const rng = createRng(seedFrom(debugParams.get('seed')));
+  const seed = seedFrom(debugParams.get('seed'));
+  const rng = createRng(seed);
+  // Photo studio (docs/04-packaging.md 9): no bot names there (docs/01-gdd.md 7.12).
+  const studio = __STUDIO__ && params.get('studio') === '1';
 
   // Mountain simulation (docs/02-tech.md 6.1): starts on mountain 1; the summit portal switches to the next one (M2-03).
   let world = content.worlds.worlds[0];
@@ -136,7 +140,9 @@ async function boot(): Promise<void> {
     w.index === 1 && !(save.flags?.['giftEgg'] ?? false)
       ? { wall: balance.ftue.scriptedWaveWall, pet: balance.ftue.freeEggPet, hatchSec: balance.ftue.eggHatchSec }
       : undefined;
-  let sim: Sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat: 0, tier: 0, threat: threatOptions(world), giftEgg: giftEggOptions(world) });
+  // Bots (docs/01-gdd.md 7.12): count by the quality level, deterministic by the seed and the mountain.
+  const botOptions = (w: World): { cfg: typeof bots; count: number; seed: number } => ({ cfg: bots, count: bots.count[quality.level], seed: (seed + w.index * 7919) >>> 0 });
+  let sim: Sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat: 0, tier: 0, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world) });
   let maxSpeed = sim.params.speed;
   const simEvents: GameHandles['simEvents'] = [];
   let pendingPortal: number | null = null;
@@ -167,6 +173,8 @@ async function boot(): Promise<void> {
   let meta: MetaView | null = null;
   let hudView: HudView | null = null;
   let audio: GameAudio | null = null;
+  let botsView: BotsView | null = null;
+  let hudMode: HudMode = 'normal';
   let field: FieldRect = { width: 1, height: 1, left: 0, top: 0 };
   let lastSnap: InputSnapshot | null = null;
   let pendingGain: number | null = null;
@@ -367,6 +375,16 @@ async function boot(): Promise<void> {
     get audio() {
       return audio;
     },
+    get botsView() {
+      return botsView;
+    },
+    get hudMode() {
+      return hudMode;
+    },
+    setHudMode(mode) {
+      hudMode = mode;
+      ui.dataset['hudMode'] = mode;
+    },
   };
 
   const applyQualityNow = (): void => {
@@ -376,6 +394,7 @@ async function boot(): Promise<void> {
     if (characters) characters.group.traverse((o) => void (o.castShadow = quality.params.shadowMap > 0));
     levelMeshes?.chunks.forEach((c) => void (c.receiveShadow = quality.params.shadowMap > 0));
     avalanche?.setParticles(quality.params.particles);
+    if (sim.bots) sim.bots.limit = Math.min(sim.bots.list.length, bots.count[quality.level]);
   };
 
   /**
@@ -389,7 +408,7 @@ async function boot(): Promise<void> {
     const coins = sim.coins;
     world = next;
     level = buildLevel(world);
-    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier: sim.tier, threat: threatOptions(world), giftEgg: giftEggOptions(world) });
+    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier: sim.tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world) });
     avalanche?.setLevel(level);
     wireSim(sim);
     g.sim = sim;
@@ -493,6 +512,7 @@ async function boot(): Promise<void> {
         sim.collision,
       );
     }
+    botsView?.update(alpha, playSec);
     characters?.update(frameDt);
     if (levelMeshes) {
       for (const [index, startedAt] of melting) {
@@ -583,6 +603,18 @@ async function boot(): Promise<void> {
   characters = createCharacters(skins, accessories);
   gr.scene.add(characters.group);
   heroChar = characters.create(skins.default);
+  botsView = createBotsView({
+    cfg: bots,
+    characters,
+    scene: gr.scene,
+    ui,
+    snowColor: theme.threat.body,
+    getSim: () => sim,
+    camera: () => cameraRig?.camera ?? null,
+    field: () => field,
+    hudMode: () => hudMode,
+    studio,
+  });
   g.characters = characters;
   g.hero = heroChar;
   gr.scene.add(blob.mesh);

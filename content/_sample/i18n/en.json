@@ -85,5 +85,11 @@
   "num.Sp": "Sp",
   "num.Oc": "Oc",
   "num.No": "No",
-  "num.Dc": "Dc"
+  "num.Dc": "Dc",
+  "bot.n01": "Ember",
+  "bot.n02": "Sparky",
+  "bot.n03": "Ashy",
+  "bot.n04": "Toasty",
+  "bot.n05": "Flicker",
+  "bot.n06": "Pebble"
 }

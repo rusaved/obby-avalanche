@@ -307,6 +307,28 @@ export interface PetsJson {
   pets: Array<{ id: string; rarity: string; bonus: number; color: string; accent: string }>;
 }
 
+/**
+ * bots.json (docs/01a-content.md 12; docs/01-gdd.md 7.12): how many bots per quality level, name keys of i18n,
+ * colours of their parts, speed factor and treadmill seconds as [min, max] ranges, the share that hides on warn.
+ */
+export interface BotsJson {
+  count: { high: number; medium: number; low: number };
+  showNames: boolean;
+  names: string[];
+  palette: { jackets: string[]; pants: string[]; hats: string[]; heads: string[]; hat: string; faces: string[] };
+  speedFactor: [number, number];
+  treadmillSec: [number, number];
+  hideChance: number;
+  /** A bot more than this many stretches below the hero leaves for the camp and comes back at his flag. */
+  leashWalls: number;
+  spawnCampMax: number;
+  awaySec: [number, number];
+  /** Bots waiting in the camp at the start leave it one by one within this range. */
+  campReleaseSec: [number, number];
+  /** Name labels: full up to `nearDist` from the camera, faded out over the next `fadeDist`. */
+  label: { nearDist: number; fadeDist: number };
+}
+
 /** sfx.json (docs/02-tech.md 10): ZzFX parameters per sound event. */
 export type SfxJson = Record<string, number[]>;
 
@@ -320,4 +342,5 @@ export interface ContentPack {
   accessories: AccessoriesJson;
   pets: PetsJson;
   sfx: SfxJson;
+  bots: BotsJson;
 }

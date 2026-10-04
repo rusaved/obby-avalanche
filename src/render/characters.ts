@@ -63,6 +63,8 @@ export interface Characters {
   drawCalls: number;
   create(skinId: string): CharacterInstance;
   setSkin(ch: CharacterInstance, skinId: string): void;
+  /** Bots (docs/01-gdd.md 7.12): own colours per part, a hat accessory in its own colour, a face of the atlas. */
+  paint(ch: CharacterInstance, look: { head: string; torso: string; arms: string; legs: string; hat: string | null; hatColor: string; face: string }): void;
   update(dt: number): void;
   faceAtlas: CanvasTexture;
   dispose(): void;
@@ -352,6 +354,30 @@ if (vObjNormal.z > 0.6) {
     setSkin(ch, skinId) {
       ch.skinId = skinId;
       applySkin(ch);
+    },
+    paint(ch, look) {
+      const set = (part: string, slot: number, hex: string): void => {
+        const mesh = meshes.get(part);
+        if (!mesh) return;
+        mesh.setColorAt(slot, _color.set(hex));
+        if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      };
+      set('head', ch.index, look.head);
+      set('torso', ch.index, look.torso);
+      set('arm', ch.index * 2, look.arms);
+      set('arm', ch.index * 2 + 1, look.arms);
+      set('leg', ch.index * 2, look.legs);
+      set('leg', ch.index * 2 + 1, look.legs);
+      ch.hatId = look.hat;
+      ch.face = Math.max(0, FACES.indexOf(look.face as FaceName));
+      const hat = look.hat ? accessoryById.get(look.hat) : undefined;
+      // The first part of the hat takes the bot's colour, the rest (pompom) keep their own.
+      hat?.parts.forEach((p, pi) => {
+        const mesh = shapeMeshes.get(p.shape);
+        if (!mesh) return;
+        mesh.setColorAt(ch.index * maxPartsPerShape + pi, _color.set(pi === 0 ? look.hatColor : p.color));
+        if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+      });
     },
     update(dt) {
       const root = new Object3D();

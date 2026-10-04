@@ -4,7 +4,7 @@
  * physics (M1) and cave fairness against warnSec (M2-03).
  */
 import * as v from 'valibot';
-import type { Curve, GameJson, Segment, TuningJson, World, WorldsJson } from '../content/types.ts';
+import type { BotsJson, Curve, GameJson, Segment, SkinsJson, TuningJson, World, WorldsJson } from '../content/types.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 import { buildLevel } from './builder.ts';
 
@@ -19,6 +19,7 @@ export const PACK_FILES = [
   'accessories.json',
   'pets.json',
   'sfx.json',
+  'bots.json',
   'i18n/ru.json',
   'i18n/en.json',
 ] as const;
@@ -339,6 +340,33 @@ const petsSchema = v.object({
 /** ZzFX takes up to 21 numbers (docs/02-tech.md 10). */
 const sfxSchema = v.record(name, v.pipe(v.array(v.number()), v.minLength(1), v.maxLength(21)));
 
+const range = v.pipe(
+  v.tuple([nonNeg, nonNeg]),
+  v.check(([a, b]) => a <= b, 'expected [min, max] with min ≤ max'),
+);
+const count = v.pipe(v.number(), v.integer(), v.minValue(0));
+const botsSchema = v.object({
+  count: v.object({ high: count, medium: count, low: count }),
+  showNames: v.boolean(),
+  names: v.array(v.pipe(v.string(), v.regex(/^bot\.[a-z0-9]+$/, 'expected an i18n key bot.*'))),
+  palette: v.object({
+    jackets: v.pipe(v.array(hex), v.minLength(1)),
+    pants: v.pipe(v.array(hex), v.minLength(1)),
+    hats: v.pipe(v.array(hex), v.minLength(1)),
+    heads: v.pipe(v.array(hex), v.minLength(1)),
+    hat: id,
+    faces: v.pipe(v.array(id), v.minLength(1)),
+  }),
+  speedFactor: range,
+  treadmillSec: range,
+  hideChance: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
+  leashWalls: v.pipe(v.number(), v.integer(), v.minValue(1)),
+  spawnCampMax: count,
+  awaySec: range,
+  campReleaseSec: range,
+  label: v.object({ nearDist: positive, fadeDist: nonNeg }),
+});
+
 const i18nSchema = v.record(v.string(), v.pipe(v.string(), v.minLength(1, 'empty text')));
 
 const SCHEMAS: Record<PackFile, v.GenericSchema> = {
@@ -352,6 +380,7 @@ const SCHEMAS: Record<PackFile, v.GenericSchema> = {
   'accessories.json': accessoriesSchema,
   'pets.json': petsSchema,
   'sfx.json': sfxSchema,
+  'bots.json': botsSchema,
   'i18n/ru.json': i18nSchema,
   'i18n/en.json': i18nSchema,
 };
@@ -432,6 +461,24 @@ export function validatePack(files: PackFiles): ValidationResult {
   const freePet = (files['balance.json'] as { ftue: { freeEggPet: string } }).ftue.freeEggPet;
   if (!pets.pets.some((p) => p.id === freePet)) errors.push(`balance.json: ftue.freeEggPet — unknown pet "${freePet}" (pets.json)`);
   for (const [i, p] of pets.pets.entries()) if (!theme.rarity[p.rarity]) errors.push(`pets.json: pets[${i}].rarity — no colour "${p.rarity}" in theme.json rarity`);
+
+  // Bots (docs/01-gdd.md 7.12; docs/03, 4.3): names are i18n keys with texts in both languages, character names
+  // without digits, enough of them for every bot on a mountain to have its own; a palette without the hero's look.
+  const bots = files['bots.json'] as BotsJson;
+  const most = Math.max(bots.count.high, bots.count.medium, bots.count.low);
+  if (new Set(bots.names).size !== bots.names.length) errors.push('bots.json: names — duplicate key');
+  if (bots.names.length < most) errors.push(`bots.json: names — ${bots.names.length} names for ${most} bots (names on a mountain do not repeat)`);
+  for (const key of bots.names) {
+    for (const [file, dict] of [['i18n/ru.json', ru], ['i18n/en.json', en]] as const) {
+      const text = dict[key];
+      if (!text) errors.push(`${file}: ${key} — missing (bots.json names)`);
+      else if (/\d/.test(text)) errors.push(`${file}: ${key} — bot name "${text}" has digits`);
+    }
+  }
+  if (!accIds.has(bots.palette.hat)) errors.push(`bots.json: palette.hat — unknown accessory "${bots.palette.hat}"`);
+  const heroSkin = (files['skins.json'] as SkinsJson).skins.find((x) => x.id === skins.default);
+  if (heroSkin && bots.palette.jackets.some((c) => c.toLowerCase() === heroSkin.colors.torso.toLowerCase()))
+    errors.push('bots.json: palette.jackets — has the hero\'s torso colour (bots never wear the default look)');
 
   // Worlds: structure of the mountain template, then reachability by the controller physics (docs/02-tech.md 5.4).
   errors.push(...validateWorlds(worlds, theme.rarity));

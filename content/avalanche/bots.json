@@ -1,0 +1,25 @@
+{
+  "count": { "high": 6, "medium": 6, "low": 3 },
+  "showNames": true,
+  "names": [
+    "bot.n01", "bot.n02", "bot.n03", "bot.n04", "bot.n05", "bot.n06", "bot.n07", "bot.n08",
+    "bot.n09", "bot.n10", "bot.n11", "bot.n12", "bot.n13", "bot.n14", "bot.n15", "bot.n16",
+    "bot.n17", "bot.n18", "bot.n19", "bot.n20", "bot.n21", "bot.n22", "bot.n23", "bot.n24"
+  ],
+  "palette": {
+    "jackets": ["#2E86DE", "#10AC84", "#8E44AD", "#E84393", "#00B8D4", "#3D5AFE", "#43A047", "#F9CA24", "#6D4C41", "#546E7A"],
+    "pants": ["#2F3542", "#34495E", "#1E3799", "#57606F", "#4B3832", "#3B5249"],
+    "hats": ["#FFFFFF", "#74B9FF", "#55EFC4", "#A29BFE", "#FD79A8", "#FFEAA7"],
+    "heads": ["#F6D3B3", "#EBC09A", "#D6A57C"],
+    "hat": "hat_pompom_red",
+    "faces": ["happy", "determined", "neutral", "laugh"]
+  },
+  "speedFactor": [0.85, 1.05],
+  "treadmillSec": [10, 30],
+  "hideChance": 0.9,
+  "leashWalls": 3,
+  "spawnCampMax": 4,
+  "awaySec": [20, 40],
+  "campReleaseSec": [2, 12],
+  "label": { "nearDist": 35, "fadeDist": 10 }
+}

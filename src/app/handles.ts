@@ -18,6 +18,7 @@ import type { WaveView } from './wave-view.ts';
 import type { MetaView } from './meta-view.ts';
 import type { FtueView } from './ftue-view.ts';
 import type { GameAudio } from '../audio/index.ts';
+import type { BotsView, HudMode } from './bots-view.ts';
 
 export interface BootState {
   firstFrameAt: number | null;
@@ -84,4 +85,9 @@ export interface GameHandles {
   readonly ftue: FtueView | null;
   /** Sound (M2-13: minimal, ZzFX by the first gesture). */
   readonly audio: GameAudio | null;
+  /** Bots on screen and their name labels (M2-10). */
+  readonly botsView: BotsView | null;
+  /** HUD mode (docs/04-packaging.md 11.2): `shots` and `promo` hide the bot names (the rest of the modes — M5/M6). */
+  readonly hudMode: HudMode;
+  setHudMode(mode: HudMode): void;
 }

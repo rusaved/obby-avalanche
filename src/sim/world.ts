@@ -17,6 +17,7 @@ import { createThreat, type Threat, type ThreatEvents, type ThreatOptions } from
 import { caughtPosition, caughtTotalSec, createCaught, type CaughtState } from './caught.ts';
 import { createGiftEgg, stepGiftEgg, type GiftEggState } from './gift-egg.ts';
 import { createMilestones, type Milestones } from './milestones.ts';
+import { createBots, type BotContext, type BotCrowd, type BotsOptions } from './bots.ts';
 import { PORTAL_HALF_WIDTH } from '../level/builder.ts';
 import { createHero, placeHero, stepHero, type ControllerParams, type HeroInput, type HeroState, NO_INPUT } from './controller.ts';
 
@@ -82,6 +83,8 @@ export interface Sim {
   readonly giftEgg: GiftEggState | null;
   /** Round numbers of the stat already celebrated (M2-13); `reset` after a rebirth. */
   readonly milestones: Milestones;
+  /** Bots on the track (M2-10); null when the sim runs without them. */
+  readonly bots: BotCrowd | null;
   /** True once the hero has walked through the portal of this mountain (one `portal` event per sim). */
   portalEntered: boolean;
   step(input: HeroInput, dt: number): void;
@@ -119,6 +122,8 @@ export interface SimOptions {
   gainMult?: number;
   /** The free egg of the first minute: placed beside the belt of cave `wall`; omitted once the player has it. */
   giftEgg?: { wall: number; pet: string; hatchSec: number } | undefined;
+  /** Bots (docs/01-gdd.md 7.12): bots.json, how many for the quality level and the seed; caught and avalanche come from here. */
+  bots?: Pick<BotsOptions, 'cfg' | 'count' | 'seed'> | undefined;
 }
 
 export const RESPAWN_FADE_TICKS = 18;
@@ -181,6 +186,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     portalEntered: false,
     onBelt: false,
     threat: null,
+    bots: null,
     caught: null,
     gifts: giftsFromLevel(level),
     coins: opts.coins ?? 0,
@@ -197,6 +203,12 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         heroView.vx = hero.vel.x;
         heroView.vz = hero.vel.z;
         threat.step(dt, heroView, gatesOpen, sim.tick);
+      }
+      if (bots) {
+        botCtx.hero.x = hero.pos.x;
+        botCtx.hero.z = hero.pos.z;
+        botCtx.flagZ = level.checkpoints[sim.checkpoint]?.z ?? level.spawn[2];
+        bots.step(dt, botCtx);
       }
       if (sim.caught) {
         stepCaught(dt);
@@ -331,6 +343,25 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       })
     : null;
   (sim as { threat: Threat | null }).threat = threat;
+
+  // Bots (M2-10): speed of the hero on the stretch under them — the stat that opened the wall below (docs/01a 12).
+  const bots = opts.bots
+    ? createBots(level, {
+        ...opts.bots,
+        caught: opts.balance.caught,
+        avalanche: tuning.avalanche,
+        graceDist,
+      })
+    : null;
+  const stretchSpeed = (z: number): number => {
+    let below = -1;
+    level.gates.forEach((g, i) => {
+      if (g.z <= z) below = i;
+    });
+    return moveSpeed(below < 0 ? 0 : sim.gateRequirement(below), speedCurve);
+  };
+  const botCtx: BotContext = { hero: { x: 0, z: 0 }, flagZ: level.spawn[2], gatesOpen, threat: threat ? threat.state : null, speedAt: stretchSpeed };
+  (sim as { bots: BotCrowd | null }).bots = bots;
 
   // «Snowed in!» (docs/01-gdd.md 4.5): the ball rolls to the cave below; stat, coins and gates stay as they are.
   const ballPos = { x: 0, y: 0, z: 0 };

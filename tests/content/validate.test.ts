@@ -115,6 +115,19 @@ describe('validate:content (docs/02-tech.md 5.4)', () => {
     expect(w.segments.filter((s) => s.type === 'treadmill').map((s) => s.mult)).toEqual([2, 3]);
   });
 
+  it('bots.json: names in both languages without digits, enough for every bot, no hero look (M2-10)', () => {
+    const files = loadPack('avalanche');
+    const digits = clone(files);
+    (digits['i18n/ru.json'] as Record<string, string>)['bot.n05'] = 'Пушинка2';
+    expect(validatePack(digits).errors).toContain('i18n/ru.json: bot.n05 — bot name "Пушинка2" has digits');
+    const few = clone(files);
+    (few['bots.json'] as { names: string[] }).names = ['bot.n01', 'bot.n02'];
+    expect(validatePack(few).errors).toContain('bots.json: names — 2 names for 6 bots (names on a mountain do not repeat)');
+    const hero = clone(files);
+    (hero['bots.json'] as { palette: { jackets: string[] } }).palette.jackets.push('#FF7A00');
+    expect(validatePack(hero).errors.some((e) => e.startsWith('bots.json: palette.jackets'))).toBe(true);
+  });
+
   it('ceilToSeries rounds up along 1; 1.2; 1.5; 2; 2.5; 3; 4; 5; 6; 8 × 10^k', () => {
     expect(ceilToSeries(22.5)).toBe(25);
     expect(ceilToSeries(60)).toBe(60);

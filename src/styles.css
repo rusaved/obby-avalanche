@@ -165,3 +165,7 @@ canvas.fallback {
 .hud.short .hud-hint { flex-direction: row; gap: 8px; padding: 4px 10px; }
 .hud.short .hud-pict-stick { width: 24px; height: 24px; border-width: 2px; box-shadow: inset 0 0 0 5px rgba(27, 42, 58, 0.25); }
 .hud.short .hud-key { min-width: 16px; height: 16px; font-size: 10px; }
+
+/* Bot names (docs/01-gdd.md 7.12): small grey over the head, thin dark outline, moved only by transform. */
+.bot-labels { position: absolute; inset: 0; overflow: hidden; }
+.bot-label { position: absolute; left: 0; top: 0; opacity: 0; font-weight: 500; line-height: 1; color: #c9d1da; white-space: nowrap; text-shadow: -1px -1px 0 #1b2a3a, 1px -1px 0 #1b2a3a, -1px 1px 0 #1b2a3a, 1px 1px 0 #1b2a3a; will-change: transform, opacity; }

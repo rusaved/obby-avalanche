@@ -77,20 +77,21 @@ export interface Threat {
 
 /** Index of the cave nearest by run time (path along the track, through open gates only), −1 in a safe zone. */
 export function nearestShelter(level: LevelData, gatesOpen: readonly boolean[], x: number, z: number): number {
-  if (inSafeZone(level, z)) return -1;
-  let best = -1;
-  let bestDist = Infinity;
+  return sheltersByRunTime(level, gatesOpen, x, z)[0] ?? -1;
+}
+
+/** Caves reachable through open gates only, nearest by run time first; empty in a safe zone (bots fill caves in this order). */
+export function sheltersByRunTime(level: LevelData, gatesOpen: readonly boolean[], x: number, z: number): number[] {
+  if (inSafeZone(level, z)) return [];
+  const found: Array<{ i: number; d: number }> = [];
   level.niches.forEach((n, i) => {
     const lo = Math.min(z, n.z);
     const hi = Math.max(z, n.z);
     if (level.gates.some((g, gi) => !gatesOpen[gi] && g.z > lo && g.z < hi)) return;
-    const d = distToEntrance(level, n, x, z).dist;
-    if (d < bestDist) {
-      bestDist = d;
-      best = i;
-    }
+    found.push({ i, d: distToEntrance(level, n, x, z).dist });
   });
-  return best;
+  // Stable order on ties: the lower index first, as the single-pass search did.
+  return found.sort((a, b) => a.d - b.d || a.i - b.i).map((f) => f.i);
 }
 
 export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K extends keyof ThreatEvents>(name: K, payload: ThreatEvents[K]) => void): Threat {
