@@ -311,6 +311,7 @@
 
   root.__YA_MOCK__ = {
     config: cfg,
+    sdk: sdk,
     calls: calls,
     violations: violations,
     now: now,

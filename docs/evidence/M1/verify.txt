@@ -1,0 +1,222 @@
+
+> obby-avalanche@0.1.0 verify
+> node scripts/verify.mjs
+
+
+== verify: typecheck
+-- verify: typecheck ok, 0.7 s
+
+== verify: test
+
+ RUN  v5.0.3 /home/user/obby-avalanche
+
+
+ Test Files  13 passed (13)
+      Tests  66 passed (66)
+   Start at  11:50:50
+   Duration  1.18s (transform 45%, tests 34%, import 17%, worker 4%)
+
+    Isolate  13 workers spawned · ~122ms startup each (spawn + environment, per file)
+             at least ~406ms faster with isolate: false — reuses workers across files instead of one per file
+
+-- verify: test ok, 1.7 s
+
+== verify: validate:content
+validate:content: _sample — ok
+validate:content: avalanche — ok
+-- verify: validate:content ok, 0.3 s
+
+== verify: build:e2e
+vite v8.3.2 building client environment for e2e...
+transforming...
+<script src="/sdk.js"> in "/index.html" can't be bundled without type="module" attribute
+✓ 57 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-e2e/index.html                                         1.70 kB │ gzip:   0.93 kB
+dist-e2e/assets/en-BADTK6fa.json                            2.51 kB │ gzip:   1.01 kB
+dist-e2e/assets/ru-CZXn3o4j.json                            3.43 kB │ gzip:   1.40 kB
+dist-e2e/assets/rubik-cyrillic-800-normal-wonQiwhm.woff2    7.85 kB
+dist-e2e/assets/rubik-cyrillic-500-normal-Didq2w9O.woff2    7.92 kB
+dist-e2e/assets/rubik-cyrillic-800-normal-DocVmW4N.woff     9.85 kB
+dist-e2e/assets/rubik-cyrillic-500-normal-BH_pkKR0.woff     9.92 kB
+dist-e2e/assets/rubik-latin-500-normal-1os41rQk.woff2      19.03 kB
+dist-e2e/assets/rubik-latin-800-normal-BtaGuVpR.woff2      19.06 kB
+dist-e2e/assets/rubik-latin-800-normal-Dq1miTTj.woff       24.17 kB
+dist-e2e/assets/rubik-latin-500-normal-LZYVHeqz.woff       24.21 kB
+dist-e2e/assets/index--qQtqn5r.css                          3.76 kB │ gzip:   1.25 kB
+dist-e2e/assets/test-api-CvJGWnV8.js                        2.60 kB │ gzip:   1.23 kB
+dist-e2e/assets/debug-CyALRKwn.js                          34.06 kB │ gzip:   9.45 kB
+dist-e2e/assets/index-DHcbxCZ_.js                         663.64 kB │ gzip: 168.32 kB
+
+✓ built in 578ms
+-- verify: build:e2e ok, 0.9 s
+
+== verify: e2e
+
+Running 36 tests using 2 workers
+
+  ✓   2 [desktop] › e2e/camera.spec.ts:28:3 › camera › auto-turn pulls the view towards +Z and changes only viewYaw (6.3s)
+  ✓   1 [desktop] › e2e/camera.spec.ts:5:3 › camera › at three points near walls the camera is never inside the geometry (7.0s)
+  ✓   4 [desktop] › e2e/characters.spec.ts:4:1 › faces.png: eight emotions in a row; nine characters still fit in 8 draw calls (4.4s)
+  ✓   3 [desktop] › e2e/camera.spec.ts:47:3 › camera › FOV at full speed exceeds the resting FOV by fovSpeedAdd from tuning.json (5.4s)
+  ✓   6 [desktop] › e2e/debug.spec.ts:27:3 › debug panel › Export gives JSON that passes the tuning.json schema (2.2s)
+  ✓   5 [desktop] › e2e/debug.spec.ts:7:3 › debug panel › a slider change applies at once: doubled baseSpeed doubles the run speed (5.4s)
+  ✓   7 [desktop] › e2e/debug.spec.ts:36:3 › debug panel › on a phone the panel starts collapsed and the overlay shows level, DPR and frame time (3.1s)
+  ✓   8 [desktop] › e2e/input.spec.ts:5:3 › PC input › SCR-05 KeyW moves the hero up the slope even with a Russian layout (code, not key) (2.8s)
+  ✓   9 [desktop] › e2e/input.spec.ts:17:3 › PC input › arrows and WASD move in the control frame; A moves left, D moves right (3.9s)
+  ✓  10 [desktop] › e2e/input.spec.ts:37:3 › PC input › SCR-03 Space jumps and never scrolls the page; wheel zooms the camera, not the page (3.0s)
+  ✓  11 [desktop] › e2e/input.spec.ts:52:3 › PC input › mouse drag turns the camera (both buttons), control yaw follows (4.2s)
+  ✓  12 [desktop] › e2e/input.spec.ts:71:3 › PC input › SCR-05 no shortcuts with Ctrl or Alt, F-keys and Tab do nothing (3.0s)
+  ✓  13 [desktop] › e2e/input.spec.ts:90:3 › PC input › Escape and KeyP open and close the pause menu; the menu pauses the simulation (3.4s)
+  ✓  14 [desktop] › e2e/level.spec.ts:5:3 › level › falling off the track returns the hero to the flag within 0.5 s of game time (3.4s)
+  ✓  15 [desktop] › e2e/level.spec.ts:25:3 › level › closed walls stop the hero; gates and caves come from data (4.3s)
+  ✓  16 [desktop] › e2e/level.spec.ts:37:3 › level › a short run from the camp: the hero stays on the ground over the ramp of stretch 1 (6.8s)
+  ✓  17 [desktop] › e2e/quality.spec.ts:6:3 › quality and budgets › render budgets on the slope of mountain 1 at three points, written to docs/evidence/M1/budgets.txt (4.6s)
+  ✓  18 [desktop] › e2e/quality.spec.ts:24:3 › quality and budgets › auto downgrade: slow frames lower DPR first, then the level; ?quality and ?dpr lock both (3.8s)
+  ✓  19 [desktop] › e2e/quality.spec.ts:50:3 › quality and budgets › ?gpuload=2 renders the scene twice per frame (3.0s)
+UNMASKED_RENDERER_WEBGL: ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)
+  ✓  20 [desktop] › e2e/smoke.spec.ts:4:3 › smoke › environment: WebGL2 context, renderer draws, UNMASKED_RENDERER_WEBGL logged (2.6s)
+  ✓  21 [desktop] › e2e/smoke.spec.ts:21:3 › smoke › SDK-02 LoadingAPI.ready() exactly once and after the first frame; platform is yandex (2.2s)
+  ✓  22 [desktop] › e2e/smoke.spec.ts:38:3 › smoke › SDK-03 interface language comes from environment.i18n.lang (6.7s)
+  ✓  23 [desktop] › e2e/smoke.spec.ts:56:3 › smoke › SDK-02 slow network: ?mock_init_delay=15000 waits for init, ready once, sdk_init_slow once (17.1s)
+  ✓  24 [desktop] › e2e/smoke.spec.ts:66:3 › smoke › 3 minutes of game time at ×20 without console errors (11.3s)
+  ✓  25 [desktop] › e2e/smoke.spec.ts:74:3 › smoke › BLD-02 no network requests outside the origin except /sdk.js and Metrika (2.7s)
+  ✓  26 [desktop] › e2e/smoke.spec.ts:83:3 › smoke › pause reasons: hidden tab stops the simulation and GameplayAPI, visible resumes it (2.5s)
+  ✓  28 [mobile] › e2e/layout.spec.ts:61:3 › layout › SCR-01 phone sizes: the whole screen, HUD inside, jump button under the right column (4.3s)
+  ✓  29 [mobile] › e2e/layout.spec.ts:76:3 › layout › SCR-07 resize and rotation keep the game state (2.9s)
+  ✓  30 [mobile] › e2e/layout.spec.ts:94:3 › layout › SCR-04 right click and long tap open no context menu, no text selection (3.0s)
+  ✓  31 [mobile] › e2e/touch-autorun.spec.ts:12:3 › auto-run › auto-run moves the hero without a stick; tap jumps, swipe does not; swipe turns the run direction (4.3s)
+  ✓  32 [mobile] › e2e/touch-autorun.spec.ts:53:3 › auto-run › the auto-run setting is in the pause menu and survives F5 (4.0s)
+  ✓  27 [mobile] › e2e/layout.spec.ts:37:3 › layout › SCR-02 desktop sizes: canvas ≤ 2:1, touches the window edges, margins in sky.bottom, HUD inside (21.5s)
+  ✓  33 [mobile] › e2e/touch.spec.ts:20:3 › touch › SCR-06 stick, camera swipe and jump button work at the same time (three touches); zones ≥ 44 px (3.3s)
+  ✓  34 [mobile] › e2e/touch.spec.ts:50:3 › touch › a touch on a HUD button never starts the stick (2.7s)
+  ✓  36 [mobile] › e2e/touch.spec.ts:92:3 › touch › blur resets held keys and the stick (3.0s)
+  ✓  35 [mobile] › e2e/touch.spec.ts:65:3 › touch › InputState resets on pointercancel and on a mock ad: stick held + ad → hero speed 0 afterwards (5.2s)
+
+  36 passed (1.6m)
+-- verify: e2e ok, 94.4 s
+
+== verify: e2e:sample
+vite v8.3.2 building client environment for e2e...
+transforming...
+<script src="/sdk.js"> in "/index.html" can't be bundled without type="module" attribute
+✓ 57 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-e2e-sample/index.html                                         1.70 kB │ gzip:   0.92 kB
+dist-e2e-sample/assets/en-DJleVxX1.json                            2.51 kB │ gzip:   1.02 kB
+dist-e2e-sample/assets/ru-D5VzYk8l.json                            3.42 kB │ gzip:   1.41 kB
+dist-e2e-sample/assets/rubik-cyrillic-800-normal-wonQiwhm.woff2    7.85 kB
+dist-e2e-sample/assets/rubik-cyrillic-500-normal-Didq2w9O.woff2    7.92 kB
+dist-e2e-sample/assets/rubik-cyrillic-800-normal-DocVmW4N.woff     9.85 kB
+dist-e2e-sample/assets/rubik-cyrillic-500-normal-BH_pkKR0.woff     9.92 kB
+dist-e2e-sample/assets/rubik-latin-500-normal-1os41rQk.woff2      19.03 kB
+dist-e2e-sample/assets/rubik-latin-800-normal-BtaGuVpR.woff2      19.06 kB
+dist-e2e-sample/assets/rubik-latin-800-normal-Dq1miTTj.woff       24.17 kB
+dist-e2e-sample/assets/rubik-latin-500-normal-LZYVHeqz.woff       24.21 kB
+dist-e2e-sample/assets/index--qQtqn5r.css                          3.76 kB │ gzip:   1.25 kB
+dist-e2e-sample/assets/test-api-WzBbejly.js                        2.60 kB │ gzip:   1.23 kB
+dist-e2e-sample/assets/debug-CHAZ4IG0.js                          34.06 kB │ gzip:   9.45 kB
+dist-e2e-sample/assets/index-CR-XdRTS.js                         618.81 kB │ gzip: 161.97 kB
+
+✓ built in 586ms
+
+Running 1 test using 1 worker
+
+  ✓  1 [desktop] › e2e/sample.spec.ts:4:1 › sample pack boots, renders and calls ready() once (2.0s)
+
+  1 passed (3.9s)
+-- verify: e2e:sample ok, 6.2 s
+
+== verify: build
+vite v8.3.2 building client environment for production...
+transforming...
+<script src="/sdk.js"> in "/index.html" can't be bundled without type="module" attribute
+✓ 54 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                         1.70 kB │ gzip:   0.93 kB
+dist/assets/en-BADTK6fa.json                            2.51 kB │ gzip:   1.01 kB
+dist/assets/ru-CZXn3o4j.json                            3.43 kB │ gzip:   1.40 kB
+dist/assets/rubik-cyrillic-800-normal-wonQiwhm.woff2    7.85 kB
+dist/assets/rubik-cyrillic-500-normal-Didq2w9O.woff2    7.92 kB
+dist/assets/rubik-cyrillic-800-normal-DocVmW4N.woff     9.85 kB
+dist/assets/rubik-cyrillic-500-normal-BH_pkKR0.woff     9.92 kB
+dist/assets/rubik-latin-500-normal-1os41rQk.woff2      19.03 kB
+dist/assets/rubik-latin-800-normal-BtaGuVpR.woff2      19.06 kB
+dist/assets/rubik-latin-800-normal-Dq1miTTj.woff       24.17 kB
+dist/assets/rubik-latin-500-normal-LZYVHeqz.woff       24.21 kB
+dist/assets/index--qQtqn5r.css                          3.76 kB │ gzip:   1.25 kB
+dist/assets/index-BV3Yt8WP.js                         661.62 kB │ gzip: 167.41 kB
+
+✓ built in 538ms
+-- verify: build ok, 0.9 s
+
+== verify: size
+size: dist
+  assets/en-BADTK6fa.json                              2.5 KB 
+  assets/index--qQtqn5r.css                            3.7 KB 
+  assets/index-BV3Yt8WP.js                           646.1 KB gzip 161.7 KB
+  assets/ru-CZXn3o4j.json                              3.4 KB 
+  assets/rubik-cyrillic-500-normal-BH_pkKR0.woff       9.7 KB 
+  assets/rubik-cyrillic-500-normal-Didq2w9O.woff2      7.7 KB 
+  assets/rubik-cyrillic-800-normal-DocVmW4N.woff       9.6 KB 
+  assets/rubik-cyrillic-800-normal-wonQiwhm.woff2      7.7 KB 
+  assets/rubik-latin-500-normal-1os41rQk.woff2        18.6 KB 
+  assets/rubik-latin-500-normal-LZYVHeqz.woff         23.6 KB 
+  assets/rubik-latin-800-normal-BtaGuVpR.woff2        18.6 KB 
+  assets/rubik-latin-800-normal-Dq1miTTj.woff         23.6 KB 
+  index.html                                           1.7 KB 
+  total 776.4 KB (target 4096.0 KB, limit 10240.0 KB)
+  js 646.1 KB → gzip 161.7 KB (target 500.0 KB, limit 800.0 KB)
+-- verify: size ok, 0.2 s
+
+== verify: pack
+pack: 13 files, 776.4 KB → release/avalanche-0.1.0.zip 292.9 KB
+-- verify: pack ok, 0.3 s
+
+== verify: check-release
+check-release: release/avalanche-0.1.0.zip
+date: 2026-10-04T11:52:35.602Z
+files: 13
+  assets/en-BADTK6fa.json  2.5 KB
+  assets/index--qQtqn5r.css  3.7 KB
+  assets/index-BV3Yt8WP.js  646.1 KB
+  assets/ru-CZXn3o4j.json  3.4 KB
+  assets/rubik-cyrillic-500-normal-BH_pkKR0.woff  9.7 KB
+  assets/rubik-cyrillic-500-normal-Didq2w9O.woff2  7.7 KB
+  assets/rubik-cyrillic-800-normal-DocVmW4N.woff  9.6 KB
+  assets/rubik-cyrillic-800-normal-wonQiwhm.woff2  7.7 KB
+  assets/rubik-latin-500-normal-1os41rQk.woff2  18.6 KB
+  assets/rubik-latin-500-normal-LZYVHeqz.woff  23.6 KB
+  assets/rubik-latin-800-normal-BtaGuVpR.woff2  18.6 KB
+  assets/rubik-latin-800-normal-Dq1miTTj.woff  23.6 KB
+  index.html  1.7 KB
+
+PASS  1. index.html at the root, paths only [A-Za-z0-9._/-]
+PASS  2. unpacked ≤ 10 MB and JS gzip ≤ 800 KB
+        zip 292.9 KB, unpacked 776.4 KB, js gzip 161.7 KB
+PASS  3. no external addresses except /sdk.js and mc.yandex.ru (namespaces allowed)
+PASS  4. <script src="/sdk.js"> exactly once
+        found 1
+PASS  5. no <audio>, <video>, new Audio(
+PASS  6. no lil-gui, __TEST__, __STUDIO__, __YA_MOCK__, yasdk-mock, localhost, debugger, sourceMappingURL
+PASS  7. no development or stop-list words in shipped texts
+
+RESULT: PASS
+
+-- verify: check-release ok, 0.5 s
+
+== verify: e2e:release
+e2e:release: unpacked /home/user/obby-avalanche/release/avalanche-0.1.0.zip (13 entries) to /home/user/obby-avalanche/.cache/release-unpacked
+
+Running 1 test using 1 worker
+
+  ✓  1 e2e/smoke-release.spec.ts:5:1 › release build: ready() exactly once, first frame drawn, zero console errors (3.0s)
+
+  1 passed (4.2s)
+-- verify: e2e:release ok, 5.6 s
+
+== verify: all 11 stages green in 112 s
+EXIT=0

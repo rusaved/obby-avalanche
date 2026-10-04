@@ -1,0 +1,230 @@
+/**
+ * Level meshes (docs/02-tech.md 9.1): static boxes and ramps merged per 120-unit chunk with baked vertex colours
+ * (one Lambert material), gates as one InstancedMesh, gate numbers from the digit atlas. Grey/flat at M1,
+ * themed details at M5.
+ */
+import {
+  BoxGeometry,
+  BufferAttribute,
+  BufferGeometry,
+  Color,
+  DynamicDrawUsage,
+  Float32BufferAttribute,
+  Group,
+  InstancedMesh,
+  Matrix4,
+  Mesh,
+  MeshLambertMaterial,
+  Object3D,
+  Quaternion,
+  Vector3,
+} from 'three';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import type { LevelBox, LevelData, LevelRamp } from '../level/types.ts';
+import type { ThemeJson } from '../content/types.ts';
+import { createDigitLabels, type DigitLabels } from './digits.ts';
+import { formatNumber } from '../ui/format.ts';
+
+export const CHUNK_LENGTH = 120;
+
+export interface LevelMeshes {
+  group: Group;
+  chunks: Mesh[];
+  gates: InstancedMesh;
+  signs: InstancedMesh;
+  digits: DigitLabels;
+  /** Scale a gate slab (1 = closed, 0 = gone); M2 melts gates with this. */
+  setGateOpen(index: number, openness: number): void;
+  cullByDistance(z: number, far: number): void;
+  dispose(): void;
+}
+
+function materialColor(theme: ThemeJson, key: string): Color {
+  const m = theme.materials[key];
+  return new Color(m ? m.color : '#cccccc');
+}
+
+function colorGeometry(geo: BufferGeometry, color: Color, shadeBottom = 0.78, shadeSide = 0.9): void {
+  const pos = geo.getAttribute('position');
+  const nor = geo.getAttribute('normal');
+  const colors = new Float32Array(pos.count * 3);
+  for (let i = 0; i < pos.count; i++) {
+    const ny = nor.getY(i);
+    const f = ny > 0.5 ? 1 : ny < -0.5 ? shadeBottom : shadeSide;
+    colors[i * 3] = color.r * f;
+    colors[i * 3 + 1] = color.g * f;
+    colors[i * 3 + 2] = color.b * f;
+  }
+  geo.setAttribute('color', new BufferAttribute(colors, 3));
+}
+
+function boxGeometry(b: LevelBox, theme: ThemeJson): BufferGeometry {
+  const w = b.max[0] - b.min[0];
+  const h = b.max[1] - b.min[1];
+  const d = b.max[2] - b.min[2];
+  const geo = new BoxGeometry(w, h, d).toNonIndexed();
+  geo.translate(b.min[0] + w / 2, b.min[1] + h / 2, b.min[2] + d / 2);
+  colorGeometry(geo, materialColor(theme, b.material));
+  return geo;
+}
+
+function rampGeometry(r: LevelRamp, theme: ThemeJson): BufferGeometry {
+  const { x0, x1, z0, z1, y0, y1, thickness: t } = r;
+  const v: number[] = [];
+  const quad = (a: number[], b: number[], c: number[], d: number[]): void => {
+    v.push(...a, ...b, ...c, ...a, ...c, ...d);
+  };
+  quad([x0, y0, z0], [x0, y1, z1], [x1, y1, z1], [x1, y0, z0]);
+  quad([x0, y0 - t, z0], [x1, y0 - t, z0], [x1, y1 - t, z1], [x0, y1 - t, z1]);
+  quad([x0, y1 - t, z1], [x1, y1 - t, z1], [x1, y1, z1], [x0, y1, z1]);
+  quad([x0, y0 - t, z0], [x0, y0, z0], [x1, y0, z0], [x1, y0 - t, z0]);
+  quad([x1, y0 - t, z0], [x1, y0, z0], [x1, y1, z1], [x1, y1 - t, z1]);
+  quad([x0, y0 - t, z0], [x0, y1 - t, z1], [x0, y1, z1], [x0, y0, z0]);
+  const geo = new BufferGeometry();
+  geo.setAttribute('position', new Float32BufferAttribute(v, 3));
+  geo.setAttribute('uv', new Float32BufferAttribute(new Array((v.length / 3) * 2).fill(0), 2));
+  geo.computeVertexNormals();
+  colorGeometry(geo, materialColor(theme, r.material));
+  return geo;
+}
+
+const _m = new Matrix4();
+const _p = new Vector3();
+const _q = new Quaternion();
+const _s = new Vector3();
+
+export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k: string) => string): LevelMeshes {
+  const group = new Group();
+  group.name = `level-${level.worldId}`;
+  const material = new MeshLambertMaterial({ vertexColors: true });
+
+  // Static geometry per chunk along Z.
+  const chunkCount = Math.ceil(level.length / CHUNK_LENGTH);
+  const buckets: BufferGeometry[][] = Array.from({ length: chunkCount }, () => []);
+  const bucketOf = (z: number): BufferGeometry[] => buckets[Math.min(chunkCount - 1, Math.max(0, Math.floor(z / CHUNK_LENGTH)))] as BufferGeometry[];
+  for (const b of level.boxes) bucketOf((b.min[2] + b.max[2]) / 2).push(boxGeometry(b, theme));
+  for (const r of level.ramps) bucketOf((r.z0 + r.z1) / 2).push(rampGeometry(r, theme));
+  // Checkpoint flags and simple decor as boxes (grey slope at M1).
+  for (const c of level.checkpoints) {
+    const pole: LevelBox = { min: [-level.width / 2 + 1.5, c.y, c.z - 0.15], max: [-level.width / 2 + 1.8, c.y + 4, c.z + 0.15], material: 'pole', kind: 'flagPole', solid: false };
+    const flag: LevelBox = { min: [-level.width / 2 + 1.8, c.y + 3, c.z - 0.1], max: [-level.width / 2 + 3.6, c.y + 4, c.z + 0.1], material: 'flag', kind: 'flag', solid: false };
+    const g1 = boxGeometry(pole, theme);
+    const g2 = boxGeometry(flag, theme);
+    colorGeometry(g2, new Color(theme.rarity[c.rarity] ?? '#ffffff'));
+    bucketOf(c.z).push(g1, g2);
+  }
+  for (const p of level.points) {
+    if (p.type === 'decor' && p['kind'] === 'tree') {
+      const trunk: LevelBox = { min: [p.x - 0.4, p.y, p.z - 0.4], max: [p.x + 0.4, p.y + 2, p.z + 0.4], material: 'trunk', kind: 'decor', solid: false };
+      const crown: LevelBox = { min: [p.x - 1.8, p.y + 1.5, p.z - 1.8], max: [p.x + 1.8, p.y + 6, p.z + 1.8], material: 'tree', kind: 'decor', solid: false };
+      bucketOf(p.z).push(boxGeometry(trunk, theme), boxGeometry(crown, theme));
+    } else if (p.type === 'decor' && p['kind'] === 'tent') {
+      const tent: LevelBox = { min: [p.x - 2.5, p.y, p.z - 2.5], max: [p.x + 2.5, p.y + 3, p.z + 2.5], material: 'tent', kind: 'decor', solid: false };
+      bucketOf(p.z).push(boxGeometry(tent, theme));
+    } else if (p.type === 'decor' && p['kind'] === 'arrow') {
+      const arrow: LevelBox = { min: [p.x - 0.6, p.y + 0.02, p.z - 1.5], max: [p.x + 0.6, p.y + 0.08, p.z + 1.5], material: 'arrow', kind: 'decor', solid: false };
+      bucketOf(p.z).push(boxGeometry(arrow, theme));
+    } else if (p.type === 'treadmill') {
+      const len = (p['length'] as number | undefined) ?? 10;
+      const wid = (p['width'] as number | undefined) ?? 6;
+      const tm: LevelBox = { min: [p.x - wid / 2, p.y + 0.02, p.z - len / 2], max: [p.x + wid / 2, p.y + 0.12, p.z + len / 2], material: 'treadmill', kind: 'treadmill', solid: false };
+      bucketOf(p.z).push(boxGeometry(tm, theme));
+    } else if (p.type === 'gift') {
+      const g: LevelBox = { min: [p.x - 0.8, p.y, p.z - 0.8], max: [p.x + 0.8, p.y + 1.6, p.z + 0.8], material: 'chest', kind: 'gift', solid: false };
+      const geo = boxGeometry(g, theme);
+      colorGeometry(geo, new Color(theme.rarity[(p['rarity'] as string) ?? 'common'] ?? '#ffffff'));
+      bucketOf(p.z).push(geo);
+    } else if (p.type === 'chest') {
+      const ch: LevelBox = { min: [p.x - 2, p.y, p.z - 1.5], max: [p.x + 2, p.y + 2.5, p.z + 1.5], material: 'chest', kind: 'chest', solid: false };
+      bucketOf(p.z).push(boxGeometry(ch, theme));
+    } else if (p.type === 'portal') {
+      const l: LevelBox = { min: [p.x - 5, p.y, p.z - 0.5], max: [p.x - 4, p.y + 10, p.z + 0.5], material: 'portal', kind: 'portal', solid: false };
+      const r: LevelBox = { min: [p.x + 4, p.y, p.z - 0.5], max: [p.x + 5, p.y + 10, p.z + 0.5], material: 'portal', kind: 'portal', solid: false };
+      const top: LevelBox = { min: [p.x - 5, p.y + 9, p.z - 0.5], max: [p.x + 5, p.y + 10, p.z + 0.5], material: 'portal', kind: 'portal', solid: false };
+      bucketOf(p.z).push(boxGeometry(l, theme), boxGeometry(r, theme), boxGeometry(top, theme));
+    } else if (p.type === 'eggStand') {
+      const st: LevelBox = { min: [p.x - 0.8, p.y, p.z - 0.8], max: [p.x + 0.8, p.y + 1.2, p.z + 0.8], material: 'eggStand', kind: 'eggStand', solid: false };
+      bucketOf(p.z).push(boxGeometry(st, theme));
+    }
+  }
+  const chunks: Mesh[] = [];
+  buckets.forEach((list, i) => {
+    if (list.length === 0) return;
+    const merged = mergeGeometries(list, false);
+    for (const g of list) g.dispose();
+    if (!merged) return;
+    merged.computeBoundingSphere();
+    const mesh = new Mesh(merged, material);
+    mesh.name = `chunk-${i}`;
+    mesh.userData['z'] = (i + 0.5) * CHUNK_LENGTH;
+    group.add(mesh);
+    chunks.push(mesh);
+  });
+
+  // Gates: one InstancedMesh of unit boxes scaled to each slab; signs as a second instanced quad set.
+  const gateGeo = new BoxGeometry(1, 1, 1);
+  const gateMat = new MeshLambertMaterial({ color: materialColor(theme, 'gateClosed') });
+  const gates = new InstancedMesh(gateGeo, gateMat, Math.max(1, level.gates.length));
+  gates.instanceMatrix.setUsage(DynamicDrawUsage);
+  const signGeo = new BoxGeometry(1, 1, 1);
+  const signMat = new MeshLambertMaterial({ color: materialColor(theme, 'gateSign') });
+  const signs = new InstancedMesh(signGeo, signMat, Math.max(1, level.gates.length));
+  const dummy = new Object3D();
+  level.gates.forEach((g, i) => {
+    const w = g.box.max[0] - g.box.min[0];
+    const d = g.box.max[2] - g.box.min[2];
+    dummy.position.set(0, g.y + g.height / 2, g.z);
+    dummy.scale.set(w, g.height, d);
+    dummy.updateMatrix();
+    gates.setMatrixAt(i, dummy.matrix);
+    dummy.position.set(0, g.y + g.signHeight, g.z - d / 2 - 0.3);
+    dummy.scale.set(Math.max(6, formatNumber(g.requires, suffix).length * 1.6 + 1.5), 3, 0.4);
+    dummy.updateMatrix();
+    signs.setMatrixAt(i, dummy.matrix);
+  });
+  gates.instanceMatrix.needsUpdate = true;
+  signs.instanceMatrix.needsUpdate = true;
+  group.add(gates, signs);
+
+  const digits = createDigitLabels(level.gates.length * 6 + 8);
+  level.gates.forEach((g, i) => {
+    const d = g.box.max[2] - g.box.min[2];
+    digits.setLabel(i, formatNumber(g.requires, suffix), 0, g.y + g.signHeight, g.z - d / 2 - 0.52, 2.2, '#ffffff');
+  });
+  group.add(digits.mesh);
+
+  return {
+    group,
+    chunks,
+    gates,
+    signs,
+    digits,
+    setGateOpen(index, openness) {
+      const g = level.gates[index];
+      if (!g) return;
+      gates.getMatrixAt(index, _m);
+      _m.decompose(_p, _q, _s);
+      const h = g.height * Math.max(0.001, 1 - openness);
+      _p.y = g.y + h / 2;
+      _s.y = h;
+      _m.compose(_p, _q, _s);
+      gates.setMatrixAt(index, _m);
+      gates.instanceMatrix.needsUpdate = true;
+    },
+    cullByDistance(z, far) {
+      for (const c of chunks) {
+        const cz = c.userData['z'] as number;
+        c.visible = Math.abs(cz - z) < far + CHUNK_LENGTH;
+      }
+    },
+    dispose() {
+      for (const c of chunks) c.geometry.dispose();
+      material.dispose();
+      gateGeo.dispose();
+      gateMat.dispose();
+      signGeo.dispose();
+      signMat.dispose();
+      digits.dispose();
+    },
+  };
+}

@@ -7,7 +7,7 @@ const dist = process.env.E2E_DIST || 'dist-e2e';
 // e2e:sample points E2E_DIST at the _sample build and runs only sample.spec.ts; static-server specs have their own config.
 const sampleMode = dist.includes('sample');
 const STATIC_SPECS = /(smoke-release|pages)\.spec\.ts$/;
-const MOBILE_SPECS = /(touch|layout|ftue)\.spec\.ts$/;
+const MOBILE_SPECS = /(touch|layout|ftue)[^/]*\.spec\.ts$/;
 const port = Number(process.env.E2E_PORT || 4173);
 const markerFile = resolve(import.meta.dirname, '.cache/chromium-path');
 const executablePath =

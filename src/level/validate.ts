@@ -4,7 +4,8 @@
  * fairness checks join at M1 and M2 when the controller and the wave exist.
  */
 import * as v from 'valibot';
-import type { GameJson, Segment, World, WorldsJson } from '../content/types.ts';
+import type { GameJson, Segment, TuningJson, World, WorldsJson } from '../content/types.ts';
+import { buildLevel } from './builder.ts';
 
 export const PACK_FILES = [
   'game.json',
@@ -177,10 +178,31 @@ const tuningSchema = v.object({
     pitchDeg: v.number(),
     fov: v.pipe(v.number(), v.minValue(30), v.maxValue(120)),
     fovSpeedAdd: nonNeg,
+    fovSmoothSec: nonNeg,
     damping: positive,
+    leadSec: nonNeg,
     autoTurnDelaySec: nonNeg,
+    autoTurnRate: nonNeg,
+    autoTurnConeDeg: v.pipe(v.number(), v.minValue(0), v.maxValue(180)),
+    zoomMin: positive,
+    zoomMax: positive,
+    pitchMinDeg: v.number(),
+    pitchMaxDeg: v.number(),
+    mouseDegPerPx: positive,
+    touchDegPerPx: positive,
     sensitivity: positive,
     shake: nonNeg,
+    collisionRadius: positive,
+    retreatSpeed: positive,
+    hideDistance: nonNeg,
+  }),
+  input: v.object({
+    stickRadiusFrac: v.pipe(v.number(), v.minValue(0.05), v.maxValue(0.3)),
+    deadZoneFrac: v.pipe(v.number(), v.minValue(0), v.maxValue(0.5)),
+    tapMaxMs: positive,
+    tapMovePx: positive,
+    zoomStep: positive,
+    jumpButtonFrac: v.pipe(v.number(), v.minValue(0.18), v.maxValue(0.4)),
   }),
   avalanche: v.object({ shakeStrength: nonNeg, rumble: nonNeg }),
 });
@@ -302,6 +324,12 @@ function placeholders(s: string): string {
   return Array.from(new Set(found)).sort().join(',');
 }
 
+/** Schema check of a single tuning.json object (the ?debug=1 Export must pass it). */
+export function validateTuning(data: unknown): ValidationResult {
+  const errors = schemaErrors('tuning.json', data);
+  return { ok: errors.length === 0, errors };
+}
+
 export function validatePack(files: PackFiles): ValidationResult {
   const errors: string[] = [];
   for (const file of PACK_FILES) {
@@ -344,8 +372,9 @@ export function validatePack(files: PackFiles): ValidationResult {
   }
   if (!skinIds.has(skins.default)) errors.push(`skins.json: default — unknown skin "${skins.default}"`);
 
-  // Worlds: structure of the mountain template.
+  // Worlds: structure of the mountain template, then reachability by the controller physics (docs/02-tech.md 5.4).
   errors.push(...validateWorlds(worlds, theme.rarity));
+  if (errors.length === 0) errors.push(...validateReachability(worlds, files['tuning.json'] as TuningJson));
 
   // Remote flags: every path resolves to a number or boolean inside its range (docs/02-tech.md 11.11).
   if (game.flags) {
@@ -438,3 +467,76 @@ export function validateWorlds(worlds: WorldsJson, rarityColors: Record<string, 
 }
 
 export type { World };
+
+/** Jump height from the controller constants: v² / (2g) (docs/02-tech.md 6.1: 6.4 units at 50 and 196.2). */
+export function jumpHeight(tuning: TuningJson): number {
+  const c = tuning.controller;
+  return (c.jumpSpeed * c.jumpSpeed) / (2 * c.gravity);
+}
+
+/** Flight distance at run speed `v`: v × 2 × v0 / g. */
+export function jumpDistance(tuning: TuningJson, runSpeed: number): number {
+  const c = tuning.controller;
+  return (runSpeed * 2 * c.jumpSpeed) / c.gravity;
+}
+
+export const REACH_MARGIN = 0.8;
+
+/**
+ * Reachability (docs/02-tech.md 5.4, M1-07): every ledge is lower than 80% of the jump height, every ramp is
+ * walkable (normal.y ≥ 0.6), every step fits the step-up, every gap is shorter than 60% of the jump at the base
+ * speed (the minimum speed of any stretch), and the cave floors sit at the track height.
+ */
+export function validateReachability(worlds: WorldsJson, tuning: TuningJson): string[] {
+  const errors: string[] = [];
+  const hJump = jumpHeight(tuning) * REACH_MARGIN;
+  const dJump = jumpDistance(tuning, tuning.controller.baseSpeed) * 0.6;
+  const stepUp = tuning.controller.stepUp;
+  for (const [wi, w] of worlds.worlds.entries()) {
+    const at = `worlds.json: worlds[${wi}] (${w.id})`;
+    let level;
+    try {
+      level = buildLevel(w);
+    } catch (err) {
+      errors.push(`${at}: builder failed — ${(err as Error).message}`);
+      continue;
+    }
+    for (const r of level.ramps) {
+      const len = r.z1 - r.z0;
+      const rise = r.y1 - r.y0;
+      const ny = len / Math.hypot(len, rise);
+      if (ny < 0.6) errors.push(`${at}: ramp at z=${r.z0} — too steep (normal.y ${ny.toFixed(2)} < 0.6)`);
+    }
+    for (const b of level.boxes) {
+      if (b.kind !== 'ledge') continue;
+      const h = b.max[1] - b.min[1];
+      if (h > hJump) errors.push(`${at}: ledge at z=${b.min[2] + 2} — height ${h} above ${hJump.toFixed(2)} (80% of the jump)`);
+    }
+    for (const s of w.segments) {
+      if (s.type === 'steps') {
+        const h = typeof s['stepHeight'] === 'number' ? (s['stepHeight'] as number) : 0;
+        if (h > stepUp) errors.push(`${at}: steps at z=${s.z} — step ${h} above stepUp ${stepUp}`);
+      }
+      if (s.type === 'gap') {
+        const len = typeof s['length'] === 'number' ? (s['length'] as number) : 0;
+        if (len > dJump) errors.push(`${at}: gap at z=${s.z} — ${len} units longer than ${dJump.toFixed(1)} (60% of the jump at ${tuning.controller.baseSpeed})`);
+      }
+    }
+    for (const n of level.niches) {
+      const floorY = level.floorYAt(n.z);
+      if (Math.abs(floorY - n.y) > 0.01) errors.push(`${at}: niche at z=${n.z} — floor ${n.y} differs from the track ${floorY}`);
+    }
+    // Consecutive floors and ramps must connect without a hole or a step above stepUp.
+    const pieces = [
+      ...level.ramps.map((r) => ({ z0: r.z0, z1: r.z1, y0: r.y0, y1: r.y1 })),
+      ...w.segments.filter((s) => s.type === 'floor').map((s) => ({ z0: s.z, z1: s.z + (s['length'] as number), y0: s['y'] as number, y1: s['y'] as number })),
+    ].sort((a, b) => a.z0 - b.z0);
+    for (let i = 1; i < pieces.length; i++) {
+      const a = pieces[i - 1]!;
+      const b = pieces[i]!;
+      if (b.z0 - a.z1 > 0.01) errors.push(`${at}: hole in the track between z=${a.z1} and z=${b.z0}`);
+      if (Math.abs(b.y0 - a.y1) > stepUp) errors.push(`${at}: step of ${Math.abs(b.y0 - a.y1)} at z=${b.z0} above stepUp ${stepUp}`);
+    }
+  }
+  return errors;
+}

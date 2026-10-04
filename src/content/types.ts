@@ -116,10 +116,31 @@ export interface TuningJson {
     pitchDeg: number;
     fov: number;
     fovSpeedAdd: number;
+    fovSmoothSec: number;
     damping: number;
+    leadSec: number;
     autoTurnDelaySec: number;
+    autoTurnRate: number;
+    autoTurnConeDeg: number;
+    zoomMin: number;
+    zoomMax: number;
+    pitchMinDeg: number;
+    pitchMaxDeg: number;
+    mouseDegPerPx: number;
+    touchDegPerPx: number;
     sensitivity: number;
     shake: number;
+    collisionRadius: number;
+    retreatSpeed: number;
+    hideDistance: number;
+  };
+  input: {
+    stickRadiusFrac: number;
+    deadZoneFrac: number;
+    tapMaxMs: number;
+    tapMovePx: number;
+    zoomStep: number;
+    jumpButtonFrac: number;
   };
   avalanche: { shakeStrength: number; rumble: number };
 }

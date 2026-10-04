@@ -2,9 +2,9 @@
   "controller": {
     "baseSpeed": 16,
     "maxSpeed": 64,
-    "accel": 60,
-    "decel": 90,
-    "airControl": 0.6,
+    "accel": 0.1,
+    "decel": 0.06,
+    "airControl": 0.75,
     "jumpSpeed": 50,
     "gravity": 196.2,
     "fallMult": 1.0,
@@ -14,15 +14,39 @@
     "stepUp": 1.0
   },
   "camera": {
-    "distance": 10,
-    "height": 4.5,
-    "pitchDeg": 14,
-    "fov": 62,
+    "distance": 14,
+    "height": 4,
+    "pitchDeg": 18,
+    "fov": 70,
     "fovSpeedAdd": 14,
-    "damping": 8,
-    "autoTurnDelaySec": 1.5,
+    "fovSmoothSec": 0.3,
+    "damping": 20,
+    "leadSec": 0.15,
+    "autoTurnDelaySec": 1.2,
+    "autoTurnRate": 2.5,
+    "autoTurnConeDeg": 30,
+    "zoomMin": 8,
+    "zoomMax": 28,
+    "pitchMinDeg": -10,
+    "pitchMaxDeg": 60,
+    "mouseDegPerPx": 0.25,
+    "touchDegPerPx": 0.35,
     "sensitivity": 1.0,
-    "shake": 1.0
+    "shake": 0.3,
+    "collisionRadius": 0.4,
+    "retreatSpeed": 4,
+    "hideDistance": 2.5
   },
-  "avalanche": { "shakeStrength": 1.0, "rumble": 1.0 }
+  "avalanche": {
+    "shakeStrength": 1.0,
+    "rumble": 1.0
+  },
+  "input": {
+    "stickRadiusFrac": 0.12,
+    "deadZoneFrac": 0.1,
+    "tapMaxMs": 200,
+    "tapMovePx": 12,
+    "zoomStep": 2,
+    "jumpButtonFrac": 0.18
+  }
 }
