@@ -3,12 +3,14 @@
   "skins": [
     {
       "id": "tangerine",
-      "unlock": { "kind": "default" },
+      "unlock": {
+        "kind": "default"
+      },
       "colors": {
         "head": "#F6D3B3",
         "torso": "#FF7A00",
-        "armL": "#FF7A00",
-        "armR": "#FF7A00",
+        "armL": "#E86A00",
+        "armR": "#E86A00",
         "legL": "#3C3F46",
         "legR": "#3C3F46"
       },

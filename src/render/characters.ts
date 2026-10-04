@@ -408,7 +408,7 @@ if (vObjNormal.z > 0.6) {
           [0, armL, -1],
           [1, armR, 1],
         ] as const) {
-          _dummy.position.set(sx * (PART.torso.w / 2 + PART.arm.w / 2 + 0.02), armPivotY, 0);
+          _dummy.position.set(sx * (PART.torso.w / 2 + PART.arm.w / 2 + 0.12), armPivotY, 0);
           _dummy.rotation.set(rot, 0, 0);
           _dummy.updateMatrix();
           const pivot = _dummy.matrix.clone();
