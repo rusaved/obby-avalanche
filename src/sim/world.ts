@@ -1,7 +1,7 @@
 /**
  * Simulation of one mountain (docs/02-tech.md 4.2, 6.1): hero, checkpoints, fall and respawn.
  * Steps and the stat (M2-01, `steps.ts`): run speed follows the stat through the `moveSpeed` effect.
- * The avalanche and gates that open arrive with M2-02…M2-07. Pure TS, no DOM, no rendering.
+ * Gates that open (M2-02), the summit portal (M2-03); the avalanche arrives with M2-05…M2-07. Pure TS, no DOM, no rendering.
  */
 import { createEmitter, type Emitter } from '../core/events.ts';
 import type { LevelData } from '../level/types.ts';
@@ -10,6 +10,7 @@ import { moveSpeed } from './effects/moveSpeed.ts';
 import { createStepTracker, type StepGain, type StepTracker } from './steps.ts';
 import { gateIsOpen, gateRequirement } from './gates.ts';
 import { createCollisionWorld, type CollisionWorld } from './collision.ts';
+import { PORTAL_HALF_WIDTH } from '../level/builder.ts';
 import { createHero, placeHero, stepHero, type ControllerParams, type HeroInput, type HeroState, NO_INPUT } from './controller.ts';
 
 export interface SimEvents extends Record<string, unknown> {
@@ -23,6 +24,8 @@ export interface SimEvents extends Record<string, unknown> {
   gain: StepGain & { tick: number };
   /** A gate melted open: the stat reached its requirement (docs/01-gdd.md 3.3). */
   gateOpen: { tick: number; index: number; wall: number; z: number; requires: number };
+  /** The hero walked through the summit portal (docs/01-gdd.md 5.2): `next` is the next mountain index, null after the last. */
+  portal: { tick: number; from: number; next: number | null };
 }
 
 export interface Sim {
@@ -42,6 +45,8 @@ export interface Sim {
   checkpoint: number;
   /** -1 when not respawning; otherwise ticks left of the ≤0.5 s fade (docs/02-tech.md 6.1). */
   respawnTicksLeft: number;
+  /** True once the hero has walked through the portal of this mountain (one `portal` event per sim). */
+  portalEntered: boolean;
   step(input: HeroInput, dt: number): void;
   teleport(x: number, y: number, z: number): void;
   respawn(): void;
@@ -91,6 +96,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   const speedCurve: Curve = { ...opts.speedCurve };
   const params = controllerParams(tuning, moveSpeed(progress.stat, speedCurve));
   const prev = { x: hero.pos.x, z: hero.pos.z, onGround: hero.onGround };
+  const portal = level.points.find((p) => p.type === 'portal');
+  const portalNext = typeof portal?.['next'] === 'number' ? (portal['next'] as number) : null;
   const inBox = (b: { min: readonly number[]; max: readonly number[] }, x: number, y: number, z: number): boolean =>
     x >= b.min[0]! && x <= b.max[0]! && y >= b.min[1]! - 0.5 && y <= b.max[1]! && z >= b.min[2]! && z <= b.max[2]!;
 
@@ -107,6 +114,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     tick: 0,
     checkpoint: -1,
     respawnTicksLeft: -1,
+    portalEntered: false,
     step(input, dt) {
       sim.tick++;
       if (sim.respawnTicksLeft >= 0) {
@@ -116,7 +124,13 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         events.emit('step', { tick: sim.tick });
         return;
       }
+      const zBefore = hero.pos.z;
       stepHero(hero, input, dt, collision, params, level.killY);
+      // Portal: the hero crosses the arch plane inside its opening (docs/01-gdd.md 5.2).
+      if (portal && !sim.portalEntered && zBefore < portal.z && hero.pos.z >= portal.z && Math.abs(hero.pos.x - portal.x) <= PORTAL_HALF_WIDTH) {
+        sim.portalEntered = true;
+        events.emit('portal', { tick: sim.tick, from: level.worldIndex, next: portalNext });
+      }
       // Steps: horizontal path while on the ground before and after the tick; the air and the landing tick count nothing.
       if (hero.onGround && prev.onGround && !hero.jumpedThisTick) {
         const dx = hero.pos.x - prev.x;

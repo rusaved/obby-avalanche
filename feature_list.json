@@ -202,7 +202,7 @@
     "milestone": "M2",
     "description": "Гора 1 целиком по docs/01-gdd.md, 5.2 и docs/01a-content.md: лагерь, 12 стен, 6 зон по редкости, 12 пещер, вершина с сундуком и порталом; новые сегменты gift, eggStand (в лагере и у флажка за стеной 6), zoneArch, summit; worlds.json генерирует npm run gen:worlds (docs/02-tech.md, раздел 3)",
     "acceptance": "validate:content на горе 1: у каждой стены 1–11 перед ней есть пещера с дорожкой, из любой точки до пещеры или лагеря ≤ warnSec × 0,8 при минимальной скорости участка, зазоры ≤ 60% прыжка; вход в портал переносит на гору 2; npm run gen:worlds детерминирован (повторный запуск не меняет файл), worlds.json руками не правится",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

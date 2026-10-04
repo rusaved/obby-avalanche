@@ -96,21 +96,16 @@ async function boot(): Promise<void> {
   const gpuLoad = Math.max(1, Math.min(4, Number(debugParams.get('gpuload') || 1) || 1));
   const rng = createRng(seedFrom(debugParams.get('seed')));
 
-  // World 1 simulation (docs/02-tech.md 6.1): stat 0 until the loop arrives at M2.
-  const world = content.worlds.worlds[0];
+  // Mountain simulation (docs/02-tech.md 6.1): starts on mountain 1; the summit portal switches to the next one (M2-03).
+  let world = content.worlds.worlds[0];
   if (!world) throw new Error('worlds.json has no worlds');
-  const level = buildLevel(world);
+  let level = buildLevel(world);
   // Feel values (base and ceiling) come from tuning.json sliders; the curve shape from balance.json.
   const speedCurve = () => ({ ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed });
-  const sim: Sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat: 0, tier: 0 });
+  let sim: Sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat: 0, tier: 0 });
   let maxSpeed = sim.params.speed;
   const simEvents: GameHandles['simEvents'] = [];
-  for (const name of ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen'] as const) {
-    sim.events.on(name, (payload) => {
-      simEvents.push({ name, ...(payload as Record<string, unknown>), tick: sim.tick });
-      if (simEvents.length > 2000) simEvents.splice(0, simEvents.length - 2000);
-    });
-  }
+  let pendingPortal: number | null = null;
   const frame = createControlFrame(tuning.camera.pitchDeg * DEG, tuning.camera.distance);
   const inputOpts = {
     stickRadiusFrac: tuning.input.stickRadiusFrac,
@@ -136,16 +131,30 @@ async function boot(): Promise<void> {
   let lastSnap: InputSnapshot | null = null;
   let pendingGain: number | null = null;
   let lastGainPopAt = -1;
-  sim.events.on('gain', ({ amount, steps }) => {
-    pendingGain = amount;
-    if (steps === 1) track('gameTutorialStart');
-  });
   // Gates melt into an arch over GATE_MELT_SEC; funnel events gate_N for mountain 1 on tier 0 (docs/06, steps 5–15).
   const melting = new Map<number, number>();
-  sim.events.on('gateOpen', ({ index, wall }) => {
-    melting.set(index, playSec);
-    if (level.worldIndex === 1 && sim.tier === 0 && GATE_FUNNEL_WALLS.includes(wall)) track(`gate_${wall}`);
-  });
+  const wireSim = (s: Sim): void => {
+    for (const name of ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'portal'] as const) {
+      s.events.on(name, (payload) => {
+        simEvents.push({ name, world: s.level.worldIndex, ...(payload as Record<string, unknown>), tick: s.tick });
+        if (simEvents.length > 2000) simEvents.splice(0, simEvents.length - 2000);
+      });
+    }
+    s.events.on('gain', ({ amount, steps }) => {
+      pendingGain = amount;
+      if (steps === 1) track('gameTutorialStart');
+    });
+    s.events.on('gateOpen', ({ index, wall }) => {
+      melting.set(index, playSec);
+      if (s.level.worldIndex === 1 && s.tier === 0 && GATE_FUNNEL_WALLS.includes(wall)) track(`gate_${wall}`);
+    });
+    // The switch happens after the tick, not inside the emitter (docs/06 step 21: mountain 1 done on tier 0).
+    s.events.on('portal', ({ from, next }) => {
+      if (from === 1 && s.tier === 0) track('gameTutorialComplete', { levelComplete: 'world_1' });
+      if (next !== null) pendingPortal = next;
+    });
+  };
+  wireSim(sim);
   const numSuffix = (k: string): string => t(`num.${k}`);
   const headPos = new Vector3();
   const prevPos = new Vector3().copy(sim.hero.pos);
@@ -258,6 +267,36 @@ async function boot(): Promise<void> {
     levelMeshes?.chunks.forEach((c) => void (c.receiveShadow = quality.params.shadowMap > 0));
   };
 
+  /**
+   * Portal → mountain `index` (docs/01-gdd.md 5.2): new level, colliders and meshes; the stat and the tier carry
+   * over, the hero stands at the spawn of the new camp. The «Mountain done» window arrives with the meta (M3).
+   */
+  const enterWorld = (index: number): void => {
+    const next = content.worlds.worlds.find((w) => w.index === index);
+    if (!next) return;
+    const stat = sim.progress.stat;
+    world = next;
+    level = buildLevel(world);
+    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, tier: sim.tier });
+    wireSim(sim);
+    g.sim = sim;
+    g.level = level;
+    g.world = world;
+    melting.clear();
+    pendingGain = null;
+    if (gr && levelMeshes) {
+      gr.scene.remove(levelMeshes.group);
+      levelMeshes.dispose();
+      levelMeshes = createLevelMeshes(level, theme, (k) => t(`num.${k}`));
+      gr.scene.add(levelMeshes.group);
+      applyQualityNow();
+    }
+    maxSpeed = sim.params.speed;
+    frame.controlYaw = 0;
+    frame.viewYaw = 0;
+    g.teleport(level.spawn[0], level.spawn[1] + 0.05, level.spawn[2]);
+  };
+
   // Simulation tick (1/60 s): input → control frame → hero.
   const simStep = (dt: number): void => {
     const t0 = performance.now();
@@ -277,6 +316,11 @@ async function boot(): Promise<void> {
     sim.step({ moveX: w.x, moveZ: w.z, jump: snap.jumpPressed, jumpHeld: snap.jumpHeld }, dt);
     curPos.copy(sim.hero.pos);
     maxSpeed = sim.params.speed;
+    if (pendingPortal !== null) {
+      const next = pendingPortal;
+      pendingPortal = null;
+      enterWorld(next);
+    }
     if (sim.hero.jumpedThisTick) jumpedOnce = true;
     playSec += dt;
     g.lastSimMs = performance.now() - t0;

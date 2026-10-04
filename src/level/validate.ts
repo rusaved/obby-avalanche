@@ -1,10 +1,11 @@
 /**
  * Content validator (docs/02-tech.md 5.4): valibot schemas per file, cross-file links, enums, i18n parity.
- * Pure: takes the parsed files, returns messages "file: path — what is wrong". Reachability and cave
- * fairness checks join at M1 and M2 when the controller and the wave exist.
+ * Pure: takes the parsed files, returns messages "file: path — what is wrong". Reachability by the controller
+ * physics (M1) and cave fairness against warnSec (M2-03).
  */
 import * as v from 'valibot';
-import type { GameJson, Segment, TuningJson, World, WorldsJson } from '../content/types.ts';
+import type { Curve, GameJson, Segment, TuningJson, World, WorldsJson } from '../content/types.ts';
+import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 import { buildLevel } from './builder.ts';
 
 export const PACK_FILES = [
@@ -375,6 +376,12 @@ export function validatePack(files: PackFiles): ValidationResult {
   // Worlds: structure of the mountain template, then reachability by the controller physics (docs/02-tech.md 5.4).
   errors.push(...validateWorlds(worlds, theme.rarity));
   if (errors.length === 0) errors.push(...validateReachability(worlds, files['tuning.json'] as TuningJson));
+  if (errors.length === 0) {
+    const tuning = files['tuning.json'] as TuningJson;
+    const curve = { ...(balance.speedCurve as Curve), base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed };
+    const speedAt = (stat: number): number => (game.stat.effect === 'moveSpeed' ? moveSpeed(stat, curve) : tuning.controller.baseSpeed);
+    errors.push(...validateFairness(worlds, speedAt));
+  }
 
   // Remote flags: every path resolves to a number or boolean inside its range (docs/02-tech.md 11.11).
   if (game.flags) {
@@ -539,4 +546,62 @@ export function validateReachability(worlds: WorldsJson, tuning: TuningJson): st
     }
   }
   return errors;
+}
+
+/** Share of warnSec the run to shelter may take (docs/02-tech.md 5.4; docs/01-gdd.md 4.3). */
+export const FAIRNESS_SHARE = 0.8;
+
+export interface FairnessRow {
+  world: string;
+  /** Worst run to shelter on the mountain, seconds, and where it starts. */
+  worstSec: number;
+  worstZ: number;
+  limitSec: number;
+}
+
+/**
+ * Cave fairness (docs/02-tech.md 5.4, M2-03): from every point of the slope the hero can stand on, the nearest
+ * cave or safe zone is reachable within warnSec × 0.8 at the minimum speed of that stretch — the speed of the
+ * stat that opened the previous wall (stretch 1: stat 0). Newbie bonus seconds are not counted. The path is
+ * measured conservatively: along the track to the cave mouth plus the whole track width across. Reachable
+ * caves: the one of the hero's stretch (in front of its closed wall) and the one behind (the wall passed is open).
+ */
+export function fairnessReport(worlds: WorldsJson, speedAt: (stat: number) => number): FairnessRow[] {
+  return worlds.worlds.map((w) => {
+    const camp = w.safeZones[0]?.[1] ?? 0;
+    const gates = w.segments.filter((s) => s.type === 'gate').sort((a, b) => a.z - b.z);
+    const niches = w.segments.filter((s) => s.type === 'niche');
+    const gateZ = (k: number): number => (k < 1 ? camp : (gates[k - 1] as Segment).z);
+    let worstSec = 0;
+    let worstZ = 0;
+    for (let i = 1; i <= gates.length; i++) {
+      const speed = speedAt(i === 1 ? 0 : num(gates[i - 2] as Segment, 'requires'));
+      const shelters = niches
+        .filter((n) => n.z > gateZ(i - 2) && n.z < gateZ(i))
+        .map((n) => ({ z0: n.z - num(n, 'length') / 2, z1: n.z + num(n, 'length') / 2, across: w.width }));
+      if (i === 1) shelters.push({ z0: 0, z1: camp, across: 0 });
+      for (let z = gateZ(i - 1); z <= gateZ(i); z += 1) {
+        let best = Infinity;
+        for (const sh of shelters) {
+          const dz = z < sh.z0 ? sh.z0 - z : z > sh.z1 ? z - sh.z1 : 0;
+          best = Math.min(best, Math.hypot(dz, sh.across));
+        }
+        if (best / speed > worstSec) {
+          worstSec = best / speed;
+          worstZ = z;
+        }
+      }
+    }
+    return { world: w.id, worstSec, worstZ, limitSec: w.threat.warnSec * FAIRNESS_SHARE };
+  });
+}
+
+export function validateFairness(worlds: WorldsJson, speedAt: (stat: number) => number): string[] {
+  return fairnessReport(worlds, speedAt)
+    .map((r, wi) => ({ r, wi }))
+    .filter(({ r }) => r.worstSec > r.limitSec)
+    .map(
+      ({ r, wi }) =>
+        `worlds.json: worlds[${wi}] (${r.world}): cave fairness — from z=${r.worstZ} the nearest cave or safe zone is ${r.worstSec.toFixed(2)} s away, above warnSec × ${FAIRNESS_SHARE} = ${r.limitSec.toFixed(2)} s`,
+    );
 }

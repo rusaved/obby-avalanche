@@ -13,6 +13,8 @@ export const NICHE_WALL = 1;
 export const GATE_THICKNESS = 1.5;
 export const LEDGE_SIZE = 4;
 export const KILL_DEPTH = 20;
+/** Half width of the summit portal opening: the arch is 10 units wide with 1-unit pillars (docs/01-gdd.md 5.2). */
+export const PORTAL_HALF_WIDTH = 4;
 
 function num(seg: Segment, key: string, def = 0): number {
   const v = seg[key];
