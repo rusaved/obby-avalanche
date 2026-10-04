@@ -27,12 +27,13 @@ import type { AccessoriesJson, SkinsJson } from '../content/types.ts';
 export const FACES = ['neutral', 'happy', 'wow', 'scared', 'determined', 'laugh', 'wink', 'sleep'] as const;
 export type FaceName = (typeof FACES)[number];
 
-/** Proportions of every blocky character, one place (Q-019, Q-021): classic avatar of the niche — head 1.2, torso 2×2×0.9,
- * legs 1×2×1, arms 0.8×2×0.8 right against the torso (gap 0.02). K scales the 5.2-unit figure to a ≈ 5-unit hero. */
+/** Proportions of every blocky character, one place (Q-019, Q-021, producer's reference 04.10): classic blocky avatar —
+ * head 1.3, torso 2×2×1, arms and legs 1×2×1, arms right against the torso (gap 0.02) and tilted 4° outward from the
+ * shoulder so they read as hanging, not glued. K scales the 5.3-unit figure to a ≈ 5-unit hero. */
 const K = 0.95;
-const P = { head: 1.2, torso: { w: 2.0, h: 2.0, d: 0.9 }, arm: { w: 0.8, h: 2.0, d: 0.8 }, leg: { w: 1.0, h: 2.0, d: 1.0 }, armGap: 0.02, legGap: 0.01 };
+const P = { head: 1.3, torso: { w: 2.0, h: 2.0, d: 1.0 }, arm: { w: 1.0, h: 2.0, d: 1.0 }, leg: { w: 1.0, h: 2.0, d: 1.0 }, armGap: 0.02, legGap: 0.01, armTiltRad: 0.07 };
 const box = (b: { w: number; h: number; d: number }) => ({ w: b.w * K, h: b.h * K, d: b.d * K });
-export const PART = { head: P.head * K, torso: box(P.torso), arm: box(P.arm), leg: box(P.leg), armGap: P.armGap * K, legGap: P.legGap * K };
+export const PART = { head: P.head * K, torso: box(P.torso), arm: box(P.arm), leg: box(P.leg), armGap: P.armGap * K, legGap: P.legGap * K, armTiltRad: P.armTiltRad };
 const FACE_CELL = 128;
 
 export type CharacterPose = 'idle' | 'run' | 'jump' | 'fall' | 'land' | 'cover' | 'win' | 'ball';
@@ -412,7 +413,7 @@ if (vObjNormal.z > 0.6) {
           [1, armR, 1],
         ] as const) {
           _dummy.position.set(sx * (PART.torso.w / 2 + PART.arm.w / 2 + PART.armGap), armPivotY, 0);
-          _dummy.rotation.set(rot, 0, 0);
+          _dummy.rotation.set(rot, 0, -sx * PART.armTiltRad);
           _dummy.updateMatrix();
           const pivot = _dummy.matrix.clone();
           _dummy.position.set(0, -PART.arm.h / 2 + 0.1, 0);
