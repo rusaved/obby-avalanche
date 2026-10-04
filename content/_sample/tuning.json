@@ -1,0 +1,28 @@
+{
+  "controller": {
+    "baseSpeed": 16,
+    "maxSpeed": 64,
+    "accel": 60,
+    "decel": 90,
+    "airControl": 0.6,
+    "jumpSpeed": 50,
+    "gravity": 196.2,
+    "fallMult": 1.0,
+    "coyoteSec": 0.1,
+    "jumpBufferSec": 0.12,
+    "variableJump": false,
+    "stepUp": 1.0
+  },
+  "camera": {
+    "distance": 10,
+    "height": 4.5,
+    "pitchDeg": 14,
+    "fov": 62,
+    "fovSpeedAdd": 14,
+    "damping": 8,
+    "autoTurnDelaySec": 1.5,
+    "sensitivity": 1.0,
+    "shake": 1.0
+  },
+  "avalanche": { "shakeStrength": 1.0, "rumble": 1.0 }
+}

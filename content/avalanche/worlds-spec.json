@@ -1,0 +1,126 @@
+{
+  "schema": 1,
+  "campLength": 40,
+  "summitLength": 60,
+  "width": 28,
+  "spawnZ": 20,
+  "threat": { "spawnAhead": 160, "firstIntervalSec": 30, "from": "aboveHero", "firstWaveScripted": true },
+  "rarities": ["common", "uncommon", "rare", "epic", "legendary", "mythic"],
+  "mountains": [
+    {
+      "id": "slope",
+      "stretch": 90,
+      "intervalSec": 50,
+      "warnSec": 8,
+      "speed": 45,
+      "egg": "snow",
+      "gifts": [5, 10, 20, 40, 80, 150],
+      "walls": [
+        { "requires": 20, "treadmill": 5 },
+        { "requires": 40, "treadmill": 6 },
+        { "requires": 80, "treadmill": 6 },
+        { "requires": 2000, "treadmill": 7 },
+        { "requires": 4000, "treadmill": 7 },
+        { "requires": 12000, "treadmill": 8 },
+        { "requires": 15000, "treadmill": 9 },
+        { "requires": 20000, "treadmill": 10 },
+        { "requires": 30000, "treadmill": 10 },
+        { "requires": 40000, "treadmill": 12 },
+        { "requires": 80000, "treadmill": 12 },
+        { "requires": 100000, "treadmill": 15 }
+      ]
+    },
+    {
+      "id": "pass",
+      "stretch": 100,
+      "intervalSec": 48,
+      "warnSec": 8,
+      "speed": 48,
+      "egg": "frost",
+      "gifts": [300, 600, 1200, 2500, 5000, 10000],
+      "walls": [
+        { "requires": 150000, "treadmill": 15 },
+        { "requires": 200000, "treadmill": 15 },
+        { "requires": 250000, "treadmill": 20 },
+        { "requires": 300000, "treadmill": 20 },
+        { "requires": 400000, "treadmill": 25 },
+        { "requires": 500000, "treadmill": 25 },
+        { "requires": 600000, "treadmill": 30 },
+        { "requires": 800000, "treadmill": 30 },
+        { "requires": 1000000, "treadmill": 30 },
+        { "requires": 1200000, "treadmill": 40 },
+        { "requires": 1500000, "treadmill": 40 },
+        { "requires": 2000000, "treadmill": 40 }
+      ]
+    },
+    {
+      "id": "canyon",
+      "stretch": 110,
+      "intervalSec": 45,
+      "warnSec": 7,
+      "speed": 52,
+      "egg": "ice",
+      "gifts": [20000, 40000, 80000, 150000, 300000, 600000],
+      "walls": [
+        { "requires": 2500000, "treadmill": 50 },
+        { "requires": 3000000, "treadmill": 50 },
+        { "requires": 4000000, "treadmill": 60 },
+        { "requires": 5000000, "treadmill": 60 },
+        { "requires": 6000000, "treadmill": 80 },
+        { "requires": 8000000, "treadmill": 80 },
+        { "requires": 10000000, "treadmill": 80 },
+        { "requires": 12000000, "treadmill": 100 },
+        { "requires": 15000000, "treadmill": 100 },
+        { "requires": 20000000, "treadmill": 120 },
+        { "requires": 25000000, "treadmill": 120 },
+        { "requires": 30000000, "treadmill": 150 }
+      ]
+    },
+    {
+      "id": "blizzard",
+      "stretch": 120,
+      "intervalSec": 42,
+      "warnSec": 7,
+      "speed": 56,
+      "egg": "blizzard",
+      "gifts": [1200000, 2500000, 5000000, 10000000, 20000000, 40000000],
+      "walls": [
+        { "requires": 40000000, "treadmill": 150 },
+        { "requires": 50000000, "treadmill": 200 },
+        { "requires": 80000000, "treadmill": 200 },
+        { "requires": 100000000, "treadmill": 250 },
+        { "requires": 120000000, "treadmill": 250 },
+        { "requires": 150000000, "treadmill": 300 },
+        { "requires": 200000000, "treadmill": 300 },
+        { "requires": 250000000, "treadmill": 400 },
+        { "requires": 300000000, "treadmill": 400 },
+        { "requires": 400000000, "treadmill": 500 },
+        { "requires": 500000000, "treadmill": 600 },
+        { "requires": 600000000, "treadmill": 600 }
+      ]
+    },
+    {
+      "id": "aurora",
+      "stretch": 130,
+      "intervalSec": 40,
+      "warnSec": 6,
+      "speed": 60,
+      "egg": "aurora",
+      "gifts": [80000000, 150000000, 300000000, 600000000, 1200000000, 2500000000],
+      "walls": [
+        { "requires": 800000000, "treadmill": 800 },
+        { "requires": 1000000000, "treadmill": 800 },
+        { "requires": 1200000000, "treadmill": 1000 },
+        { "requires": 1500000000, "treadmill": 1000 },
+        { "requires": 2000000000, "treadmill": 1200 },
+        { "requires": 3000000000, "treadmill": 1200 },
+        { "requires": 4000000000, "treadmill": 1500 },
+        { "requires": 5000000000, "treadmill": 1500 },
+        { "requires": 6000000000, "treadmill": 2000 },
+        { "requires": 8000000000, "treadmill": 2000 },
+        { "requires": 10000000000, "treadmill": 2500 },
+        { "requires": 12000000000, "treadmill": 2500 }
+      ]
+    }
+  ]
+}

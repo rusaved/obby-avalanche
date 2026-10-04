@@ -17,3 +17,6 @@ CLAUDE.local.md
 .DS_Store
 Thumbs.db
 art/promo/*/video/frames/
+.cache/
+dist-pages/
+art/studio/*/

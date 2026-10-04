@@ -1,0 +1,66 @@
+{
+  "fx": {
+    "caught": "ball",
+    "gateOpen": "melt",
+    "footFx": "snow",
+    "weather": "snow",
+    "screenFrame": "frost",
+    "shelterMesh": "cave",
+    "treadmill": "snowWhirl"
+  },
+  "sky": { "top": "#8FD3FF", "bottom": "#E8F6FF" },
+  "fog": { "color": "#E8F6FF", "near": 60, "far": 220 },
+  "light": {
+    "sun": "#FFF4E0",
+    "sunIntensity": 2.2,
+    "ambient": "#BFDFFF",
+    "ambientIntensity": 1.1,
+    "sunDir": [0.4, 1, 0.35]
+  },
+  "materials": {
+    "track": { "color": "#F4F8FC", "roughness": 0.95 },
+    "border": { "color": "#DDE9F5", "roughness": 0.95 },
+    "rock": { "color": "#6E7F94", "roughness": 0.9 },
+    "ice": { "color": "#9ED8FF", "roughness": 0.35 },
+    "gateClosed": { "color": "#A8DFFF", "roughness": 0.3 },
+    "gateSign": { "color": "#FF4D4D" },
+    "gateSignOpen": { "color": "#4CD964" },
+    "cave": { "color": "#7CC8F0", "roughness": 0.4, "emissive": "#2A6FA8" },
+    "treadmill": { "color": "#3BA4FF", "roughness": 0.6 },
+    "treadmillStripe": { "color": "#FFFFFF" },
+    "flag": { "color": "#EEF3F8" },
+    "pole": { "color": "#6B4A2B" },
+    "tent": { "color": "#FF7A00" },
+    "tree": { "color": "#2E8B57" },
+    "trunk": { "color": "#6B4A2B" },
+    "chest": { "color": "#FFB800" },
+    "portal": { "color": "#7CC8F0", "emissive": "#7CC8F0" },
+    "snowman": { "color": "#FFFFFF" },
+    "arrow": { "color": "#FFFFFF" },
+    "eggStand": { "color": "#9ED8FF" }
+  },
+  "rarity": {
+    "common": "#EEF3F8",
+    "uncommon": "#4CD964",
+    "rare": "#3BA4FF",
+    "epic": "#A45CFF",
+    "legendary": "#FFB800",
+    "mythic": "#FF4D8D"
+  },
+  "ui": {
+    "stat": "#8FD3FF",
+    "coins": "#FFD34D",
+    "trophies": "#A45CFF",
+    "ok": "#4CD964",
+    "no": "#FF4D4D",
+    "statIcon": "iceBolt"
+  },
+  "threat": {
+    "front": ["#FFFFFF", "#BFE6FF"],
+    "edge": "#FFFFFF",
+    "body": "#EAF6FF",
+    "dust": "#FFFFFF",
+    "height": 16
+  },
+  "bonus": { "color": "#FFD34D" }
+}

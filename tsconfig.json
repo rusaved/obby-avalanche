@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true,
+    "useUnknownInCatchVariables": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "types": ["vite/client", "ysdk"],
+    "paths": {
+      "@content/*": ["./content/avalanche/*"],
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src", "tests", "e2e", "scripts/**/*.ts", "vite.config.ts", "vitest.config.ts", "playwright.config.ts", "playwright.static.config.ts", "env.d.ts"]
+}

@@ -1,0 +1,59 @@
+{
+  "name": "obby-avalanche",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "3D obby for Yandex Games: three.js + TypeScript + Vite",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "dev:lan": "vite --host",
+    "build": "vite build",
+    "build:playtest": "vite build --mode playtest --outDir dist-playtest",
+    "build:e2e": "vite build --mode e2e --outDir dist-e2e",
+    "build:pages": "node scripts/build-pages.mjs",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "e2e": "playwright test --grep-invert @full",
+    "e2e:full": "playwright test --grep @full",
+    "e2e:release": "node scripts/e2e-static.mjs release",
+    "e2e:sample": "node scripts/e2e-sample.mjs",
+    "validate:content": "node scripts/validate-content.mjs",
+    "gen:worlds": "node scripts/gen-worlds.mjs",
+    "sim:balance": "node scripts/sim-balance.mjs",
+    "studio": "vite --open /?studio=1",
+    "studio:shots": "node scripts/studio-shots.mjs",
+    "promo:listing": "node scripts/promo/listing.mjs",
+    "promo:shots": "node scripts/promo/shots.mjs",
+    "promo:video": "node scripts/promo/video.mjs",
+    "promo:check": "node scripts/promo/check.mjs",
+    "size": "node scripts/size.mjs",
+    "pack": "node scripts/pack.mjs",
+    "check-release": "node scripts/check-release.mjs",
+    "verify": "node scripts/verify.mjs",
+    "verify:full": "node scripts/verify.mjs --full"
+  },
+  "dependencies": {
+    "@fontsource/rubik": "5.3.0",
+    "lil-gui": "0.21.0",
+    "three": "0.186.1",
+    "zzfx": "1.4.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "22.20.5",
+    "@types/three": "0.186.0",
+    "@types/ysdk": "1.2.0",
+    "fflate": "0.8.3",
+    "typescript": "7.0.2",
+    "valibot": "1.5.0",
+    "vite": "8.3.2",
+    "vitest": "5.0.3"
+  },
+  "optionalDependencies": {
+    "ffmpeg-static": "5.3.0"
+  }
+}

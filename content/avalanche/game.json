@@ -1,0 +1,32 @@
+{
+  "id": "avalanche",
+  "schema": 1,
+  "stat": { "key": "speed", "effect": "moveSpeed" },
+  "threat": {
+    "kind": "wave",
+    "visual": "avalanche",
+    "bonus": { "kind": "goldGift", "fromWave": 2, "mult": 10, "distMin": 20, "distMax": 50 }
+  },
+  "leaderboard": null,
+  "metrikaCounterId": 0,
+  "mobileOrientation": "landscape",
+  "payments": { "enabled": false },
+  "ads": {
+    "interstitial": ["portal", "rebirth", "menu"],
+    "rewarded": ["x2_stat", "stat_now", "skip_gate", "x2_chest", "egg", "daily_x2", "wheel"]
+  },
+  "flags": {
+    "w1_intervalSec": { "path": "worlds.1.threat.intervalSec", "min": 30, "max": 90 },
+    "w2_intervalSec": { "path": "worlds.2.threat.intervalSec", "min": 30, "max": 90 },
+    "w1_warnSec": { "path": "worlds.1.threat.warnSec", "min": 5, "max": 14 },
+    "w2_warnSec": { "path": "worlds.2.threat.warnSec", "min": 5, "max": 14 },
+    "newbieWaves_count": { "path": "balance.threat.newbieWaves.count", "min": 0, "max": 5 },
+    "newbieWaves_warnBonusSec": { "path": "balance.threat.newbieWaves.warnBonusSec", "min": 0, "max": 5 },
+    "w1_treadmillMult": { "path": "worlds.1.treadmillMult", "min": 0.5, "max": 2 },
+    "skipFirstPortal": { "path": "balance.ads.skipFirstPortal", "values": ["true", "false"] },
+    "interstitialCooldownSec": { "path": "balance.ads.interstitialCooldownSec", "min": 180, "max": 600 },
+    "statNowCooldownSec": { "path": "balance.ads.statNowCooldownSec", "min": 120, "max": 900 },
+    "skipGateCooldownSec": { "path": "balance.ads.skipGate.cooldownSec", "min": 240, "max": 1800 },
+    "goldGift_mult": { "path": "game.threat.bonus.mult", "min": 3, "max": 10 }
+  }
+}

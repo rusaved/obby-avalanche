@@ -4,7 +4,7 @@
     "milestone": "M0",
     "description": "Проект на стеке из docs/02-tech.md, раздел 2: точные версии без ^ и ~, package-lock.json, TypeScript strict, Vite с base './'",
     "acceptance": "В чистом клоне `npm ci` без ошибок; в package.json нет ^ и ~; three 0.186.1, @types/three 0.186.0, vite 8.3.2 (или замена, записанная в docs/допущения.md); `npm run typecheck` — код 0",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
@@ -13,7 +13,7 @@
     "milestone": "M0",
     "description": "Все скрипты package.json из docs/02-tech.md, раздел 3, плюс build:pages; verify — полная цепочка без заглушек",
     "acceptance": "Каждый скрипт из таблицы 02, раздел 3, запускается; `npm run verify` — код 0, вывод в docs/evidence/M0/verify.txt; ни одна ступень verify не состоит из пустой команды или безусловного exit 0",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
@@ -22,7 +22,7 @@
     "milestone": "M0",
     "description": "init.sh и браузер в облаке: проверка Node ≥ 22.12, npm ci, scripts/ensure-chromium.sh, смоук-тест",
     "acceptance": "`bash init.sh` — код 0 в облачной сессии; e2e смоук создаёт WebGL2-контекст, renderer.info.render.calls > 0, в лог выводится UNMASKED_RENDERER_WEBGL; выбранный путь получения Chromium и причина записаны в docs/допущения.md; perl -v: есть — perl docs/references/balance-model.pl --md совпадает с docs/01a-content.md, раздел 3, вывод в docs/evidence/M0/balance-model.txt; нет — запись в docs/допущения.md, порт sim:balance идёт по тексту файла",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
@@ -31,7 +31,7 @@
     "milestone": "M0",
     "description": "Мок SDK dev/yasdk-mock/sdk.js: поверхность YaGames, параметры адреса, журнал вызовов, лимиты Яндекса (docs/02-tech.md, 11.9)",
     "acceptance": "Тесты: параметры mock_lang, mock_device, mock_auth, mock_player, mock_save, mock_ad, mock_startup_ad, mock_init_delay, mock_time_offset, mock_flags (включая mock_flags=error), mocks меняют поведение; mock_ad=slow — onOpen через 5 с; вокруг оверлея рекламы мок шлёт game_api_pause и game_api_resume; mock_ad=error — onError, затем onClose(false); второй ready() и 101-й setData за 5 минут бросают ошибку и пишутся в window.__YA_MOCK__.violations и console.error; общий afterEach всех e2e требует пустой violations (docs/02-tech.md, 11.9 и 17.2); все вызовы видны в window.__YA_MOCK__.calls; в dist/ мока нет",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
@@ -40,7 +40,7 @@
     "milestone": "M0",
     "description": "Слой src/platform и порядок запуска из docs/02-tech.md, 11.2: язык из SDK до первого кадра интерфейса, ready() по реальной готовности",
     "acceptance": "e2e: LoadingAPI.ready() вызван ровно один раз и после первого нарисованного кадра; язык интерфейса берётся из environment.i18n.lang мока; за 3 минуты игрового времени (`setTimeScale(20)`) ноль console.error и pageerror; e2e `?mock_init_delay=15000`: ready() ровно 1 раз, язык из мока (с `?mock_lang=en` — английский), `__TEST__.state().platform === 'yandex'`, событие sdk_init_slow ровно 1 раз (docs/02-tech.md, 11.2)",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
@@ -49,7 +49,7 @@
     "milestone": "M0",
     "description": "Ядро src/core: фиксированный шаг 1/60 с с интерполяцией, типизированная шина событий, PauseManager с набором причин, rng с сидом, логгер",
     "acceptance": "Vitest: при причинах ad и hidden игра возобновляется только после снятия обеих; при одинаковом сиде rng даёт одинаковую последовательность; симуляция делает ровно 60 шагов за 1 с игрового времени при любом FPS рендера",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
@@ -58,7 +58,7 @@
     "milestone": "M0",
     "description": "Пакеты данных content/avalanche и content/_sample, выбор через VITE_CONTENT и алиас @content, валидатор на valibot",
     "acceptance": "`npm run validate:content` зелёный на обоих пакетах и падает с понятным сообщением (файл, поле) на намеренно сломанной копии; `VITE_CONTENT=_sample npm run build:e2e` и смоук e2e на нём зелёные; все ключи localStorage с префиксом <pack.id>: (docs/02-tech.md, 4.4)",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
@@ -67,7 +67,7 @@
     "milestone": "M0",
     "description": "Архитектурные тесты: запреты импортов (sim, level, meta, core без DOM, рендера и платформы), из three — только белый список именованных импортов (docs/02-tech.md, 4.1), запрет Math.random в sim и meta, запрет кириллицы в src вне комментариев",
     "acceptance": "tests/architecture.test.ts зелёный; намеренное нарушение во временном файле роняет тест (вывод падения один раз сохранён в docs/evidence/M0/)",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
@@ -76,7 +76,7 @@
     "milestone": "M0",
     "description": "Релизная сборка, архив и проверка архива: build, build:playtest, pack, check-release с 7 проверками docs/02-tech.md, 16.3 и e2e:release (смоук на распакованном релизном архиве)",
     "acceptance": "check-release зелёный на архиве build (строка пространства имён http://www.w3.org/1999/xhtml из three.js его не роняет) и красный на архиве build:playtest; отчёт docs/evidence/release-check.txt с размерами, списком файлов и результатом каждой проверки; e2e BLD-02 зелёный: за смоук-сессию нет сетевых запросов вне своего origin, кроме /sdk.js и mc.yandex.ru; e2e:release зелёный: распакованный release/*.zip, ready() ровно один раз, ноль console.error и pageerror (docs/02-tech.md, 16.3)",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
@@ -85,7 +85,7 @@
     "milestone": "M0",
     "description": "Ссылка продюсера: npm run build:pages собирает dist-pages по docs/05, раздел 2 (playtest на моке, sdk.js относительным путём, метка вехи, без Метрики)",
     "acceptance": "Локально: dist-pages/index.html подключает sdk.js относительным путём, файл dist-pages/sdk.js есть, e2e против статического сервера над dist-pages открывает сцену с меткой вехи без ошибок консоли; после push в main `gh run list --workflow pages.yml --limit 1` показывает success или в progress.md записано, что проверить не удалось",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

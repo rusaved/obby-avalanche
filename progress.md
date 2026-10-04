@@ -37,4 +37,26 @@
 
 ## Записи
 
-(пока пусто)
+### 2026-10-04 · Итог M0 · каркас и мок SDK
+- Результат: пустая снежная сцена с плоскостью и светом грузится на моке SDK, `ready()` ровно один раз после первого кадра, все скрипты `package.json` на месте, цепочка `verify` полная и зелёная, ссылка продюсера собирается с меткой «M0»
+- Фичи: M0-01 … M0-10 — passes: true
+- verify: код 0, docs/evidence/M0/verify.txt (последняя строка EXIT=0), 11 ступеней за 36 с
+- Ссылка: https://rusaved.github.io/obby-avalanche/ — метка «M0 · 2026-10-04 · <хеш>»; статус workflow см. ниже в записи о push
+- Бюджеты: релизный ZIP 268 КБ, JS 140 КБ gzip, 13 файлов; draw calls сцены M0 — 1 (плоскость)
+- Плейтестер: — (не на этой вехе)
+- Открытые вопросы: Q-002, Q-003, Q-004, Q-006 … Q-011 (как на старте); новых нет
+- Что проверить продюсеру:
+  1. Открыть ссылку на телефоне и ПК: голубое небо, светлая снежная плоскость, в правом нижнем углу метка «M0 · дата · хеш». Если не открылась — написать, я посмотрю лог workflow
+  2. Открыть ссылку с `?mock_lang=en`: заголовок вкладки по-английски
+  3. Ничего нажимать не нужно: герой и управление — M1
+- Дальше: M1-01 (контроллер героя); контрольная точка продюсера — после M1
+
+### 2026-10-04 · M0-01…M0-10 · каркас и мок SDK (одной сессией)
+- Сделано: проект на стеке `02` (точные версии, TS 7.0.2, Vite 8.3.2, three 0.186.1, Playwright 1.63.0); все скрипты `package.json`; `init.sh` и `scripts/ensure-chromium.sh` (Chrome for Testing 153 под Playwright 1.63, путь 1 из `05`); мок SDK `dev/yasdk-mock/sdk.js` с параметрами адреса, журналом вызовов и лимитами; слой `src/platform` (Yandex и Null, порядок запуска `02` 11.2, `sdk_init_slow`); ядро `src/core` (шаг 1/60 с интерполяцией, шина, PauseManager, rng, логгер); пакеты `content/avalanche` и `content/_sample` с генератором `gen:worlds` и валидатором на valibot; архитектурные тесты; релизная сборка, `pack`, `check-release` (7 проверок), `e2e:release`; `build:pages` с меткой вехи и относительным `sdk.js`; скелет `?debug=1` (lil-gui, оверлей, «Экспорт»), чтобы playtest-архив отличался от релизного
+- Тесты: `npm test` — 45 прошло, 0 упало (8 файлов); e2e `smoke.spec.ts` — 7 прошло (UNMASKED_RENDERER_WEBGL: ANGLE / SwiftShader, `ready()` один раз после первого кадра, язык из мока, `?mock_init_delay=15000`, 3 минуты игрового времени ×20 без ошибок, BLD-02 сеть, пауза `hidden`); `sample.spec.ts` — 1; `smoke-release.spec.ts` — 1; `pages.spec.ts` — 1; `bash init.sh` — код 0 (`docs/evidence/M0/init.txt`); `check-release`: релизный архив PASS, playtest-архив FAIL по п. 6 lil-gui (`docs/evidence/M0/release-check-playtest.txt`); архитектурный тест на намеренном нарушении — 3 падения (`docs/evidence/M0/architecture-violation.txt`); `perl balance-model.pl --md` — таблица 60 стен совпала с `01a` раздел 3 (`docs/evidence/M0/balance-model.txt`)
+- Данные: `content/avalanche/` — `game.json` (leaderboard `null` по Q-004, `payments.enabled: false` по Q-002, флаги `01a` раздел 1), `theme.json` (небо горы 1, палитра редкостей), `balance.json` (`01a` раздел 1; кроссовки — пока 3 ступени, 16 — на M3), `tuning.json` (константы `02` 6.1, остальное — стартовые значения для ползунков), `worlds-spec.json` (таблицы `01a` 2–3) → `worlds.json` генератором; `i18n` — ключи `01a` 11.1 и `fallback.noGraphics`; `_sample` — по `01a` раздел 14 (эффект `moveSpeed` до M5-09)
+- Бюджеты: релизный ZIP 268 КБ, JS 140 КБ gzip, 13 файлов
+- Скрипты `sim:balance`, `studio:shots`, `promo:*` запускаются, печатают веху, на которой появятся, и выходят с кодом 2 (`docs/допущения.md`, п. 5); в `verify` они не входят
+- Дальше: `npm run verify` в фоне → итог M0 → M1-01
+- Вопросы: нет новых
+

@@ -1,0 +1,55 @@
+{
+  "stepLength": 4,
+  "gainPerStep": 1,
+  "gainTrigger": "step",
+  "speedCurve": { "base": 16, "k": 0.3, "max": 64 },
+  "upgrade": {
+    "attach": "feet",
+    "tiers": [
+      { "id": "old_sneakers", "mult": 1, "price": 0 },
+      { "id": "runners", "mult": 2, "price": 30 },
+      { "id": "snow_runners", "mult": 3, "price": 200 }
+    ]
+  },
+  "rebirth": {
+    "stepMult": 3,
+    "wallScale": [1, 15, 50, 250, 1500, 6000, 20000, 80000, 300000, 1000000],
+    "lateEase": { "fromWall": 37, "toFactor": 0.5 },
+    "wallScaleGrowth": 3.5,
+    "unlock": "summitWorld5"
+  },
+  "trophies": { "perSummit": "world * (1 + tier)" },
+  "gifts": { "perZone": 6, "respawn": "onWaveGone" },
+  "coins": { "gatePass": 2, "waveSurvived": 3, "chest": 25 },
+  "pets": { "slots": 3, "inventory": 30 },
+  "boost": { "x2Sec": 180, "statNowSec": 120 },
+  "caught": { "rollSec": 1.2, "maxSec": 2.0 },
+  "threat": { "newbieWaves": { "count": 3, "warnBonusSec": 3 } },
+  "niche": { "graceDist": 3, "graceMoving": 6 },
+  "ui": { "unlockMenusSec": 180, "unlockTimeRewardsSec": 300 },
+  "ads": {
+    "rewardedMinPlaySec": 60,
+    "standStillSec": 1,
+    "interstitialMinSec": 180,
+    "interstitialCooldownSec": 180,
+    "interstitialAfterRewardedSec": 60,
+    "statNowCooldownSec": 240,
+    "skipGate": { "cooldownSec": 480, "standSec": 2, "distance": 20, "excludeLastWall": true },
+    "eggViews": 1,
+    "eggPauseSec": 30,
+    "skipFirstPortal": true,
+    "wheelCooldownSec": 600
+  },
+  "iap": { "showAfterPlaySec": 300 },
+  "daily": { "resetHours": 20 },
+  "quests": { "perDay": 3 },
+  "review": { "after": ["summitWorld2", "rebirth1"], "minPlaySec": 600 },
+  "ftue": {
+    "freeEggPet": "bunny",
+    "scriptedWaveWall": 4,
+    "triggerDist": 30,
+    "spawnAhead": 120,
+    "warnSec": 5,
+    "fallbackSec": 120
+  }
+}

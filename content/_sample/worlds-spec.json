@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "campLength": 40,
+  "summitLength": 60,
+  "width": 28,
+  "spawnZ": 20,
+  "threat": {
+    "spawnAhead": 160,
+    "firstIntervalSec": 30,
+    "from": "aboveHero",
+    "firstWaveScripted": true
+  },
+  "rarities": [
+    "common",
+    "uncommon",
+    "rare",
+    "epic",
+    "legendary",
+    "mythic"
+  ],
+  "mountains": [
+    {
+      "id": "slope",
+      "stretch": 60,
+      "intervalSec": 40,
+      "warnSec": 8,
+      "speed": 40,
+      "egg": "snow",
+      "gifts": [
+        5,
+        10
+      ],
+      "walls": [
+        {
+          "requires": 10,
+          "treadmill": 2
+        },
+        {
+          "requires": 30,
+          "treadmill": 2
+        },
+        {
+          "requires": 100,
+          "treadmill": 2
+        }
+      ]
+    }
+  ]
+}

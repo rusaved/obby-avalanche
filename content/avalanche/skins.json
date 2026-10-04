@@ -1,0 +1,19 @@
+{
+  "default": "tangerine",
+  "skins": [
+    {
+      "id": "tangerine",
+      "unlock": { "kind": "default" },
+      "colors": {
+        "head": "#F6D3B3",
+        "torso": "#FF7A00",
+        "armL": "#FF7A00",
+        "armR": "#FF7A00",
+        "legL": "#3C3F46",
+        "legR": "#3C3F46"
+      },
+      "face": "smile",
+      "hat": "hat_pompom_red"
+    }
+  ]
+}

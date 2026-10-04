@@ -1,0 +1,6736 @@
+{
+  "schema": 1,
+  "generator": "gen-worlds/1",
+  "worlds": [
+    {
+      "id": "slope",
+      "index": 1,
+      "length": 1180,
+      "width": 28,
+      "spawnZ": 20,
+      "egg": "snow",
+      "stretch": 90,
+      "wallCount": 12,
+      "safeZones": [
+        [
+          0,
+          40
+        ],
+        [
+          1120,
+          1180
+        ]
+      ],
+      "threat": {
+        "intervalSec": 50,
+        "firstIntervalSec": 30,
+        "warnSec": 8,
+        "speed": 45,
+        "from": "aboveHero",
+        "spawnAhead": 160,
+        "firstWaveScripted": true,
+        "safeZoneZ": [
+          0,
+          40
+        ]
+      },
+      "zones": [
+        {
+          "k": 1,
+          "rarity": "common",
+          "gift": 5,
+          "zStart": 40,
+          "zEnd": 220
+        },
+        {
+          "k": 2,
+          "rarity": "uncommon",
+          "gift": 10,
+          "zStart": 220,
+          "zEnd": 400
+        },
+        {
+          "k": 3,
+          "rarity": "rare",
+          "gift": 20,
+          "zStart": 400,
+          "zEnd": 580
+        },
+        {
+          "k": 4,
+          "rarity": "epic",
+          "gift": 40,
+          "zStart": 580,
+          "zEnd": 760
+        },
+        {
+          "k": 5,
+          "rarity": "legendary",
+          "gift": 80,
+          "zStart": 760,
+          "zEnd": 940
+        },
+        {
+          "k": 6,
+          "rarity": "mythic",
+          "gift": 150,
+          "zStart": 940,
+          "zEnd": 1120
+        }
+      ],
+      "segments": [
+        {
+          "type": "floor",
+          "z": 0,
+          "length": 40,
+          "y": 0
+        },
+        {
+          "type": "treadmill",
+          "z": 10,
+          "x": -8,
+          "y": 0,
+          "length": 10,
+          "width": 6,
+          "mult": 5
+        },
+        {
+          "type": "eggStand",
+          "z": 30,
+          "x": 8,
+          "y": 0,
+          "egg": "snow"
+        },
+        {
+          "type": "decor",
+          "z": 6,
+          "x": -11,
+          "y": 0,
+          "kind": "tent"
+        },
+        {
+          "type": "decor",
+          "z": 12,
+          "x": 11,
+          "y": 0,
+          "kind": "tent"
+        },
+        {
+          "type": "decor",
+          "z": 34,
+          "x": -12,
+          "y": 0,
+          "kind": "tree"
+        },
+        {
+          "type": "decor",
+          "z": 36,
+          "x": 12,
+          "y": 0,
+          "kind": "tree"
+        },
+        {
+          "type": "decor",
+          "z": 8,
+          "x": 4,
+          "y": 0,
+          "kind": "snowman"
+        },
+        {
+          "type": "decor",
+          "z": 26,
+          "x": 0,
+          "y": 0,
+          "kind": "arrow"
+        },
+        {
+          "type": "decor",
+          "z": 30,
+          "x": 0,
+          "y": 0,
+          "kind": "arrow"
+        },
+        {
+          "type": "decor",
+          "z": 34,
+          "x": 0,
+          "y": 0,
+          "kind": "arrow"
+        },
+        {
+          "type": "zoneArch",
+          "z": 40,
+          "y": 0,
+          "zone": 1,
+          "rarity": "common"
+        },
+        {
+          "type": "floor",
+          "z": 40,
+          "length": 13.5,
+          "y": 0
+        },
+        {
+          "type": "ramp",
+          "z": 53.5,
+          "length": 20,
+          "y": 0,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 73.5,
+          "length": 56.5,
+          "y": 6
+        },
+        {
+          "type": "gift",
+          "z": 49,
+          "x": -4,
+          "y": 0,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 5,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 82.3,
+          "x": 5,
+          "y": 6,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 5,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 91.3,
+          "x": -6,
+          "y": 6,
+          "height": 2.5,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 5,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 103,
+          "y": 6,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 5,
+          "zone": 1,
+          "stretch": 1
+        },
+        {
+          "type": "decor",
+          "z": 116.5,
+          "x": 12,
+          "y": 6,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 130,
+          "y": 6,
+          "requires": 20,
+          "reward": {
+            "coins": 10
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 1,
+          "zone": 1,
+          "rarity": "common"
+        },
+        {
+          "type": "checkpoint",
+          "z": 134.5,
+          "y": 6,
+          "zone": 1,
+          "rarity": "common",
+          "wall": 1
+        },
+        {
+          "type": "floor",
+          "z": 130,
+          "length": 13.5,
+          "y": 6
+        },
+        {
+          "type": "ramp",
+          "z": 143.5,
+          "length": 20,
+          "y": 6,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 163.5,
+          "length": 56.5,
+          "y": 12
+        },
+        {
+          "type": "gift",
+          "z": 139,
+          "x": -4,
+          "y": 6,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 5,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 172.3,
+          "x": 5,
+          "y": 12,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 5,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 181.3,
+          "x": -6,
+          "y": 12,
+          "height": 2.5,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 5,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 193,
+          "y": 12,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 6,
+          "zone": 1,
+          "stretch": 2
+        },
+        {
+          "type": "decor",
+          "z": 206.5,
+          "x": -12,
+          "y": 12,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 220,
+          "y": 12,
+          "requires": 40,
+          "reward": {
+            "coins": 10
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 2,
+          "zone": 1,
+          "rarity": "common"
+        },
+        {
+          "type": "zoneArch",
+          "z": 220,
+          "y": 12,
+          "zone": 2,
+          "rarity": "uncommon"
+        },
+        {
+          "type": "checkpoint",
+          "z": 224.5,
+          "y": 12,
+          "zone": 2,
+          "rarity": "uncommon",
+          "wall": 2
+        },
+        {
+          "type": "floor",
+          "z": 220,
+          "length": 13.5,
+          "y": 12
+        },
+        {
+          "type": "ramp",
+          "z": 233.5,
+          "length": 20,
+          "y": 12,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 253.5,
+          "length": 56.5,
+          "y": 18
+        },
+        {
+          "type": "gift",
+          "z": 229,
+          "x": -4,
+          "y": 12,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 10,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 262.3,
+          "x": 5,
+          "y": 18,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 10,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 271.3,
+          "x": -6,
+          "y": 18,
+          "height": 2.5,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 10,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 283,
+          "y": 18,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 6,
+          "zone": 2,
+          "stretch": 3
+        },
+        {
+          "type": "decor",
+          "z": 296.5,
+          "x": 12,
+          "y": 18,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 310,
+          "y": 18,
+          "requires": 80,
+          "reward": {
+            "coins": 20
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 3,
+          "zone": 2,
+          "rarity": "uncommon"
+        },
+        {
+          "type": "checkpoint",
+          "z": 314.5,
+          "y": 18,
+          "zone": 2,
+          "rarity": "uncommon",
+          "wall": 3
+        },
+        {
+          "type": "floor",
+          "z": 310,
+          "length": 13.5,
+          "y": 18
+        },
+        {
+          "type": "ramp",
+          "z": 323.5,
+          "length": 20,
+          "y": 18,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 343.5,
+          "length": 56.5,
+          "y": 24
+        },
+        {
+          "type": "gift",
+          "z": 319,
+          "x": -4,
+          "y": 18,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 10,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 352.3,
+          "x": 5,
+          "y": 24,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 10,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 361.3,
+          "x": -6,
+          "y": 24,
+          "height": 2.5,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 10,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 373,
+          "y": 24,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 7,
+          "zone": 2,
+          "stretch": 4
+        },
+        {
+          "type": "decor",
+          "z": 386.5,
+          "x": -12,
+          "y": 24,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 400,
+          "y": 24,
+          "requires": 2000,
+          "reward": {
+            "coins": 20
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 4,
+          "zone": 2,
+          "rarity": "uncommon"
+        },
+        {
+          "type": "zoneArch",
+          "z": 400,
+          "y": 24,
+          "zone": 3,
+          "rarity": "rare"
+        },
+        {
+          "type": "checkpoint",
+          "z": 404.5,
+          "y": 24,
+          "zone": 3,
+          "rarity": "rare",
+          "wall": 4
+        },
+        {
+          "type": "floor",
+          "z": 400,
+          "length": 13.5,
+          "y": 24
+        },
+        {
+          "type": "ramp",
+          "z": 413.5,
+          "length": 20,
+          "y": 24,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 433.5,
+          "length": 56.5,
+          "y": 30
+        },
+        {
+          "type": "gift",
+          "z": 409,
+          "x": -4,
+          "y": 24,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 20,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 442.3,
+          "x": 5,
+          "y": 30,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 20,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 451.3,
+          "x": -6,
+          "y": 30,
+          "height": 2.5,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 20,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 463,
+          "y": 30,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 7,
+          "zone": 3,
+          "stretch": 5
+        },
+        {
+          "type": "decor",
+          "z": 476.5,
+          "x": 12,
+          "y": 30,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 490,
+          "y": 30,
+          "requires": 4000,
+          "reward": {
+            "coins": 40
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 5,
+          "zone": 3,
+          "rarity": "rare"
+        },
+        {
+          "type": "checkpoint",
+          "z": 494.5,
+          "y": 30,
+          "zone": 3,
+          "rarity": "rare",
+          "wall": 5
+        },
+        {
+          "type": "floor",
+          "z": 490,
+          "length": 13.5,
+          "y": 30
+        },
+        {
+          "type": "ramp",
+          "z": 503.5,
+          "length": 20,
+          "y": 30,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 523.5,
+          "length": 56.5,
+          "y": 36
+        },
+        {
+          "type": "gift",
+          "z": 499,
+          "x": -4,
+          "y": 30,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 20,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 532.3,
+          "x": 5,
+          "y": 36,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 20,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 541.3,
+          "x": -6,
+          "y": 36,
+          "height": 2.5,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 20,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 553,
+          "y": 36,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 8,
+          "zone": 3,
+          "stretch": 6
+        },
+        {
+          "type": "decor",
+          "z": 566.5,
+          "x": -12,
+          "y": 36,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 580,
+          "y": 36,
+          "requires": 12000,
+          "reward": {
+            "coins": 40
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 6,
+          "zone": 3,
+          "rarity": "rare"
+        },
+        {
+          "type": "zoneArch",
+          "z": 580,
+          "y": 36,
+          "zone": 4,
+          "rarity": "epic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 584.5,
+          "y": 36,
+          "zone": 4,
+          "rarity": "epic",
+          "wall": 6
+        },
+        {
+          "type": "eggStand",
+          "z": 588.5,
+          "x": 8,
+          "y": 36,
+          "egg": "snow"
+        },
+        {
+          "type": "floor",
+          "z": 580,
+          "length": 13.5,
+          "y": 36
+        },
+        {
+          "type": "ramp",
+          "z": 593.5,
+          "length": 20,
+          "y": 36,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 613.5,
+          "length": 56.5,
+          "y": 42
+        },
+        {
+          "type": "gift",
+          "z": 589,
+          "x": -4,
+          "y": 36,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 40,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 622.3,
+          "x": 5,
+          "y": 42,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 40,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 631.3,
+          "x": -6,
+          "y": 42,
+          "height": 2.5,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 40,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 643,
+          "y": 42,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 9,
+          "zone": 4,
+          "stretch": 7
+        },
+        {
+          "type": "decor",
+          "z": 656.5,
+          "x": 12,
+          "y": 42,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 670,
+          "y": 42,
+          "requires": 15000,
+          "reward": {
+            "coins": 80
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 7,
+          "zone": 4,
+          "rarity": "epic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 674.5,
+          "y": 42,
+          "zone": 4,
+          "rarity": "epic",
+          "wall": 7
+        },
+        {
+          "type": "floor",
+          "z": 670,
+          "length": 13.5,
+          "y": 42
+        },
+        {
+          "type": "ramp",
+          "z": 683.5,
+          "length": 20,
+          "y": 42,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 703.5,
+          "length": 56.5,
+          "y": 48
+        },
+        {
+          "type": "gift",
+          "z": 679,
+          "x": -4,
+          "y": 42,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 40,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 712.3,
+          "x": 5,
+          "y": 48,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 40,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 721.3,
+          "x": -6,
+          "y": 48,
+          "height": 2.5,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 40,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 733,
+          "y": 48,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 10,
+          "zone": 4,
+          "stretch": 8
+        },
+        {
+          "type": "decor",
+          "z": 746.5,
+          "x": -12,
+          "y": 48,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 760,
+          "y": 48,
+          "requires": 20000,
+          "reward": {
+            "coins": 80
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 8,
+          "zone": 4,
+          "rarity": "epic"
+        },
+        {
+          "type": "zoneArch",
+          "z": 760,
+          "y": 48,
+          "zone": 5,
+          "rarity": "legendary"
+        },
+        {
+          "type": "checkpoint",
+          "z": 764.5,
+          "y": 48,
+          "zone": 5,
+          "rarity": "legendary",
+          "wall": 8
+        },
+        {
+          "type": "floor",
+          "z": 760,
+          "length": 13.5,
+          "y": 48
+        },
+        {
+          "type": "ramp",
+          "z": 773.5,
+          "length": 20,
+          "y": 48,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 793.5,
+          "length": 56.5,
+          "y": 54
+        },
+        {
+          "type": "gift",
+          "z": 769,
+          "x": -4,
+          "y": 48,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 80,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 802.3,
+          "x": 5,
+          "y": 54,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 80,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 811.3,
+          "x": -6,
+          "y": 54,
+          "height": 2.5,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 80,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 823,
+          "y": 54,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 10,
+          "zone": 5,
+          "stretch": 9
+        },
+        {
+          "type": "decor",
+          "z": 836.5,
+          "x": 12,
+          "y": 54,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 850,
+          "y": 54,
+          "requires": 30000,
+          "reward": {
+            "coins": 160
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 9,
+          "zone": 5,
+          "rarity": "legendary"
+        },
+        {
+          "type": "checkpoint",
+          "z": 854.5,
+          "y": 54,
+          "zone": 5,
+          "rarity": "legendary",
+          "wall": 9
+        },
+        {
+          "type": "floor",
+          "z": 850,
+          "length": 13.5,
+          "y": 54
+        },
+        {
+          "type": "ramp",
+          "z": 863.5,
+          "length": 20,
+          "y": 54,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 883.5,
+          "length": 56.5,
+          "y": 60
+        },
+        {
+          "type": "gift",
+          "z": 859,
+          "x": -4,
+          "y": 54,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 80,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 892.3,
+          "x": 5,
+          "y": 60,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 80,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 901.3,
+          "x": -6,
+          "y": 60,
+          "height": 2.5,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 80,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 913,
+          "y": 60,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 12,
+          "zone": 5,
+          "stretch": 10
+        },
+        {
+          "type": "decor",
+          "z": 926.5,
+          "x": -12,
+          "y": 60,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 940,
+          "y": 60,
+          "requires": 40000,
+          "reward": {
+            "coins": 160
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 10,
+          "zone": 5,
+          "rarity": "legendary"
+        },
+        {
+          "type": "zoneArch",
+          "z": 940,
+          "y": 60,
+          "zone": 6,
+          "rarity": "mythic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 944.5,
+          "y": 60,
+          "zone": 6,
+          "rarity": "mythic",
+          "wall": 10
+        },
+        {
+          "type": "floor",
+          "z": 940,
+          "length": 13.5,
+          "y": 60
+        },
+        {
+          "type": "ramp",
+          "z": 953.5,
+          "length": 20,
+          "y": 60,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 973.5,
+          "length": 56.5,
+          "y": 66
+        },
+        {
+          "type": "gift",
+          "z": 949,
+          "x": -4,
+          "y": 60,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 150,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 982.3,
+          "x": 5,
+          "y": 66,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 150,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 991.3,
+          "x": -6,
+          "y": 66,
+          "height": 2.5,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 150,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 1003,
+          "y": 66,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 12,
+          "zone": 6,
+          "stretch": 11
+        },
+        {
+          "type": "decor",
+          "z": 1016.5,
+          "x": 12,
+          "y": 66,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1030,
+          "y": 66,
+          "requires": 80000,
+          "reward": {
+            "coins": 300
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 11,
+          "zone": 6,
+          "rarity": "mythic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 1034.5,
+          "y": 66,
+          "zone": 6,
+          "rarity": "mythic",
+          "wall": 11
+        },
+        {
+          "type": "floor",
+          "z": 1030,
+          "length": 13.5,
+          "y": 66
+        },
+        {
+          "type": "ramp",
+          "z": 1043.5,
+          "length": 20,
+          "y": 66,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 1063.5,
+          "length": 56.5,
+          "y": 72
+        },
+        {
+          "type": "gift",
+          "z": 1039,
+          "x": -4,
+          "y": 66,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 150,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 1072.3,
+          "x": 5,
+          "y": 72,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 150,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 1081.3,
+          "x": -6,
+          "y": 72,
+          "height": 2.5,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 150,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 1093,
+          "y": 72,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 15,
+          "zone": 6,
+          "stretch": 12
+        },
+        {
+          "type": "decor",
+          "z": 1106.5,
+          "x": -12,
+          "y": 72,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1120,
+          "y": 72,
+          "requires": 100000,
+          "reward": {
+            "coins": 300
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 12,
+          "zone": 6,
+          "rarity": "mythic"
+        },
+        {
+          "type": "floor",
+          "z": 1120,
+          "length": 60,
+          "y": 72
+        },
+        {
+          "type": "summit",
+          "z": 1120,
+          "y": 72,
+          "wall": 12
+        },
+        {
+          "type": "checkpoint",
+          "z": 1123,
+          "y": 72,
+          "zone": 6,
+          "rarity": "mythic",
+          "wall": 12
+        },
+        {
+          "type": "treadmill",
+          "z": 1132,
+          "x": -8,
+          "y": 72,
+          "length": 10,
+          "width": 6,
+          "mult": 25
+        },
+        {
+          "type": "chest",
+          "z": 1150,
+          "x": 0,
+          "y": 72,
+          "coins": 3750
+        },
+        {
+          "type": "portal",
+          "z": 1170,
+          "x": 0,
+          "y": 72,
+          "next": 2
+        }
+      ],
+      "treadmillMult": 1
+    },
+    {
+      "id": "pass",
+      "index": 2,
+      "length": 1300,
+      "width": 28,
+      "spawnZ": 20,
+      "egg": "frost",
+      "stretch": 100,
+      "wallCount": 12,
+      "safeZones": [
+        [
+          0,
+          40
+        ],
+        [
+          1240,
+          1300
+        ]
+      ],
+      "threat": {
+        "intervalSec": 48,
+        "firstIntervalSec": 30,
+        "warnSec": 8,
+        "speed": 48,
+        "from": "aboveHero",
+        "spawnAhead": 160,
+        "firstWaveScripted": true,
+        "safeZoneZ": [
+          0,
+          40
+        ]
+      },
+      "zones": [
+        {
+          "k": 1,
+          "rarity": "common",
+          "gift": 300,
+          "zStart": 40,
+          "zEnd": 240
+        },
+        {
+          "k": 2,
+          "rarity": "uncommon",
+          "gift": 600,
+          "zStart": 240,
+          "zEnd": 440
+        },
+        {
+          "k": 3,
+          "rarity": "rare",
+          "gift": 1200,
+          "zStart": 440,
+          "zEnd": 640
+        },
+        {
+          "k": 4,
+          "rarity": "epic",
+          "gift": 2500,
+          "zStart": 640,
+          "zEnd": 840
+        },
+        {
+          "k": 5,
+          "rarity": "legendary",
+          "gift": 5000,
+          "zStart": 840,
+          "zEnd": 1040
+        },
+        {
+          "k": 6,
+          "rarity": "mythic",
+          "gift": 10000,
+          "zStart": 1040,
+          "zEnd": 1240
+        }
+      ],
+      "segments": [
+        {
+          "type": "floor",
+          "z": 0,
+          "length": 40,
+          "y": 0
+        },
+        {
+          "type": "treadmill",
+          "z": 10,
+          "x": -8,
+          "y": 0,
+          "length": 10,
+          "width": 6,
+          "mult": 15
+        },
+        {
+          "type": "eggStand",
+          "z": 30,
+          "x": 8,
+          "y": 0,
+          "egg": "frost"
+        },
+        {
+          "type": "decor",
+          "z": 6,
+          "x": -11,
+          "y": 0,
+          "kind": "tent"
+        },
+        {
+          "type": "decor",
+          "z": 12,
+          "x": 11,
+          "y": 0,
+          "kind": "tent"
+        },
+        {
+          "type": "decor",
+          "z": 34,
+          "x": -12,
+          "y": 0,
+          "kind": "tree"
+        },
+        {
+          "type": "decor",
+          "z": 36,
+          "x": 12,
+          "y": 0,
+          "kind": "tree"
+        },
+        {
+          "type": "decor",
+          "z": 8,
+          "x": 4,
+          "y": 0,
+          "kind": "snowman"
+        },
+        {
+          "type": "decor",
+          "z": 26,
+          "x": 0,
+          "y": 0,
+          "kind": "arrow"
+        },
+        {
+          "type": "decor",
+          "z": 30,
+          "x": 0,
+          "y": 0,
+          "kind": "arrow"
+        },
+        {
+          "type": "decor",
+          "z": 34,
+          "x": 0,
+          "y": 0,
+          "kind": "arrow"
+        },
+        {
+          "type": "zoneArch",
+          "z": 40,
+          "y": 0,
+          "zone": 1,
+          "rarity": "common"
+        },
+        {
+          "type": "floor",
+          "z": 40,
+          "length": 15,
+          "y": 0
+        },
+        {
+          "type": "ramp",
+          "z": 55,
+          "length": 20,
+          "y": 0,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 75,
+          "length": 65,
+          "y": 6
+        },
+        {
+          "type": "gift",
+          "z": 50,
+          "x": -4,
+          "y": 0,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 300,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 87,
+          "x": 5,
+          "y": 6,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 300,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 97,
+          "x": -6,
+          "y": 6,
+          "height": 2.5,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 300,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 110,
+          "y": 6,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 15,
+          "zone": 1,
+          "stretch": 1
+        },
+        {
+          "type": "decor",
+          "z": 125,
+          "x": 12,
+          "y": 6,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 140,
+          "y": 6,
+          "requires": 150000,
+          "reward": {
+            "coins": 600
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 1,
+          "zone": 1,
+          "rarity": "common"
+        },
+        {
+          "type": "checkpoint",
+          "z": 145,
+          "y": 6,
+          "zone": 1,
+          "rarity": "common",
+          "wall": 1
+        },
+        {
+          "type": "floor",
+          "z": 140,
+          "length": 15,
+          "y": 6
+        },
+        {
+          "type": "ramp",
+          "z": 155,
+          "length": 20,
+          "y": 6,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 175,
+          "length": 65,
+          "y": 12
+        },
+        {
+          "type": "gift",
+          "z": 150,
+          "x": -4,
+          "y": 6,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 300,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 187,
+          "x": 5,
+          "y": 12,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 300,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 197,
+          "x": -6,
+          "y": 12,
+          "height": 2.5,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 300,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 210,
+          "y": 12,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 15,
+          "zone": 1,
+          "stretch": 2
+        },
+        {
+          "type": "decor",
+          "z": 225,
+          "x": -12,
+          "y": 12,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 240,
+          "y": 12,
+          "requires": 200000,
+          "reward": {
+            "coins": 600
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 2,
+          "zone": 1,
+          "rarity": "common"
+        },
+        {
+          "type": "zoneArch",
+          "z": 240,
+          "y": 12,
+          "zone": 2,
+          "rarity": "uncommon"
+        },
+        {
+          "type": "checkpoint",
+          "z": 245,
+          "y": 12,
+          "zone": 2,
+          "rarity": "uncommon",
+          "wall": 2
+        },
+        {
+          "type": "floor",
+          "z": 240,
+          "length": 15,
+          "y": 12
+        },
+        {
+          "type": "ramp",
+          "z": 255,
+          "length": 20,
+          "y": 12,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 275,
+          "length": 65,
+          "y": 18
+        },
+        {
+          "type": "gift",
+          "z": 250,
+          "x": -4,
+          "y": 12,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 600,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 287,
+          "x": 5,
+          "y": 18,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 600,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 297,
+          "x": -6,
+          "y": 18,
+          "height": 2.5,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 600,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 310,
+          "y": 18,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 20,
+          "zone": 2,
+          "stretch": 3
+        },
+        {
+          "type": "decor",
+          "z": 325,
+          "x": 12,
+          "y": 18,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 340,
+          "y": 18,
+          "requires": 250000,
+          "reward": {
+            "coins": 1200
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 3,
+          "zone": 2,
+          "rarity": "uncommon"
+        },
+        {
+          "type": "checkpoint",
+          "z": 345,
+          "y": 18,
+          "zone": 2,
+          "rarity": "uncommon",
+          "wall": 3
+        },
+        {
+          "type": "floor",
+          "z": 340,
+          "length": 15,
+          "y": 18
+        },
+        {
+          "type": "ramp",
+          "z": 355,
+          "length": 20,
+          "y": 18,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 375,
+          "length": 65,
+          "y": 24
+        },
+        {
+          "type": "gift",
+          "z": 350,
+          "x": -4,
+          "y": 18,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 600,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 387,
+          "x": 5,
+          "y": 24,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 600,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 397,
+          "x": -6,
+          "y": 24,
+          "height": 2.5,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 600,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 410,
+          "y": 24,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 20,
+          "zone": 2,
+          "stretch": 4
+        },
+        {
+          "type": "decor",
+          "z": 425,
+          "x": -12,
+          "y": 24,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 440,
+          "y": 24,
+          "requires": 300000,
+          "reward": {
+            "coins": 1200
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 4,
+          "zone": 2,
+          "rarity": "uncommon"
+        },
+        {
+          "type": "zoneArch",
+          "z": 440,
+          "y": 24,
+          "zone": 3,
+          "rarity": "rare"
+        },
+        {
+          "type": "checkpoint",
+          "z": 445,
+          "y": 24,
+          "zone": 3,
+          "rarity": "rare",
+          "wall": 4
+        },
+        {
+          "type": "floor",
+          "z": 440,
+          "length": 15,
+          "y": 24
+        },
+        {
+          "type": "ramp",
+          "z": 455,
+          "length": 20,
+          "y": 24,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 475,
+          "length": 65,
+          "y": 30
+        },
+        {
+          "type": "gift",
+          "z": 450,
+          "x": -4,
+          "y": 24,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 1200,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 487,
+          "x": 5,
+          "y": 30,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 1200,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 497,
+          "x": -6,
+          "y": 30,
+          "height": 2.5,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 1200,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 510,
+          "y": 30,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 25,
+          "zone": 3,
+          "stretch": 5
+        },
+        {
+          "type": "decor",
+          "z": 525,
+          "x": 12,
+          "y": 30,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 540,
+          "y": 30,
+          "requires": 400000,
+          "reward": {
+            "coins": 2400
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 5,
+          "zone": 3,
+          "rarity": "rare"
+        },
+        {
+          "type": "checkpoint",
+          "z": 545,
+          "y": 30,
+          "zone": 3,
+          "rarity": "rare",
+          "wall": 5
+        },
+        {
+          "type": "floor",
+          "z": 540,
+          "length": 15,
+          "y": 30
+        },
+        {
+          "type": "ramp",
+          "z": 555,
+          "length": 20,
+          "y": 30,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 575,
+          "length": 65,
+          "y": 36
+        },
+        {
+          "type": "gift",
+          "z": 550,
+          "x": -4,
+          "y": 30,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 1200,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 587,
+          "x": 5,
+          "y": 36,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 1200,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 597,
+          "x": -6,
+          "y": 36,
+          "height": 2.5,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 1200,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 610,
+          "y": 36,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 25,
+          "zone": 3,
+          "stretch": 6
+        },
+        {
+          "type": "decor",
+          "z": 625,
+          "x": -12,
+          "y": 36,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 640,
+          "y": 36,
+          "requires": 500000,
+          "reward": {
+            "coins": 2400
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 6,
+          "zone": 3,
+          "rarity": "rare"
+        },
+        {
+          "type": "zoneArch",
+          "z": 640,
+          "y": 36,
+          "zone": 4,
+          "rarity": "epic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 645,
+          "y": 36,
+          "zone": 4,
+          "rarity": "epic",
+          "wall": 6
+        },
+        {
+          "type": "eggStand",
+          "z": 649,
+          "x": 8,
+          "y": 36,
+          "egg": "frost"
+        },
+        {
+          "type": "floor",
+          "z": 640,
+          "length": 15,
+          "y": 36
+        },
+        {
+          "type": "ramp",
+          "z": 655,
+          "length": 20,
+          "y": 36,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 675,
+          "length": 65,
+          "y": 42
+        },
+        {
+          "type": "gift",
+          "z": 650,
+          "x": -4,
+          "y": 36,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 2500,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 687,
+          "x": 5,
+          "y": 42,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 2500,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 697,
+          "x": -6,
+          "y": 42,
+          "height": 2.5,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 2500,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 710,
+          "y": 42,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 30,
+          "zone": 4,
+          "stretch": 7
+        },
+        {
+          "type": "decor",
+          "z": 725,
+          "x": 12,
+          "y": 42,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 740,
+          "y": 42,
+          "requires": 600000,
+          "reward": {
+            "coins": 5000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 7,
+          "zone": 4,
+          "rarity": "epic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 745,
+          "y": 42,
+          "zone": 4,
+          "rarity": "epic",
+          "wall": 7
+        },
+        {
+          "type": "floor",
+          "z": 740,
+          "length": 15,
+          "y": 42
+        },
+        {
+          "type": "ramp",
+          "z": 755,
+          "length": 20,
+          "y": 42,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 775,
+          "length": 65,
+          "y": 48
+        },
+        {
+          "type": "gift",
+          "z": 750,
+          "x": -4,
+          "y": 42,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 2500,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 787,
+          "x": 5,
+          "y": 48,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 2500,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 797,
+          "x": -6,
+          "y": 48,
+          "height": 2.5,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 2500,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 810,
+          "y": 48,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 30,
+          "zone": 4,
+          "stretch": 8
+        },
+        {
+          "type": "decor",
+          "z": 825,
+          "x": -12,
+          "y": 48,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 840,
+          "y": 48,
+          "requires": 800000,
+          "reward": {
+            "coins": 5000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 8,
+          "zone": 4,
+          "rarity": "epic"
+        },
+        {
+          "type": "zoneArch",
+          "z": 840,
+          "y": 48,
+          "zone": 5,
+          "rarity": "legendary"
+        },
+        {
+          "type": "checkpoint",
+          "z": 845,
+          "y": 48,
+          "zone": 5,
+          "rarity": "legendary",
+          "wall": 8
+        },
+        {
+          "type": "floor",
+          "z": 840,
+          "length": 15,
+          "y": 48
+        },
+        {
+          "type": "ramp",
+          "z": 855,
+          "length": 20,
+          "y": 48,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 875,
+          "length": 65,
+          "y": 54
+        },
+        {
+          "type": "gift",
+          "z": 850,
+          "x": -4,
+          "y": 48,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 5000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 887,
+          "x": 5,
+          "y": 54,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 5000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 897,
+          "x": -6,
+          "y": 54,
+          "height": 2.5,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 5000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 910,
+          "y": 54,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 30,
+          "zone": 5,
+          "stretch": 9
+        },
+        {
+          "type": "decor",
+          "z": 925,
+          "x": 12,
+          "y": 54,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 940,
+          "y": 54,
+          "requires": 1000000,
+          "reward": {
+            "coins": 10000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 9,
+          "zone": 5,
+          "rarity": "legendary"
+        },
+        {
+          "type": "checkpoint",
+          "z": 945,
+          "y": 54,
+          "zone": 5,
+          "rarity": "legendary",
+          "wall": 9
+        },
+        {
+          "type": "floor",
+          "z": 940,
+          "length": 15,
+          "y": 54
+        },
+        {
+          "type": "ramp",
+          "z": 955,
+          "length": 20,
+          "y": 54,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 975,
+          "length": 65,
+          "y": 60
+        },
+        {
+          "type": "gift",
+          "z": 950,
+          "x": -4,
+          "y": 54,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 5000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 987,
+          "x": 5,
+          "y": 60,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 5000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 997,
+          "x": -6,
+          "y": 60,
+          "height": 2.5,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 5000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 1010,
+          "y": 60,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 40,
+          "zone": 5,
+          "stretch": 10
+        },
+        {
+          "type": "decor",
+          "z": 1025,
+          "x": -12,
+          "y": 60,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1040,
+          "y": 60,
+          "requires": 1200000,
+          "reward": {
+            "coins": 10000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 10,
+          "zone": 5,
+          "rarity": "legendary"
+        },
+        {
+          "type": "zoneArch",
+          "z": 1040,
+          "y": 60,
+          "zone": 6,
+          "rarity": "mythic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 1045,
+          "y": 60,
+          "zone": 6,
+          "rarity": "mythic",
+          "wall": 10
+        },
+        {
+          "type": "floor",
+          "z": 1040,
+          "length": 15,
+          "y": 60
+        },
+        {
+          "type": "ramp",
+          "z": 1055,
+          "length": 20,
+          "y": 60,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 1075,
+          "length": 65,
+          "y": 66
+        },
+        {
+          "type": "gift",
+          "z": 1050,
+          "x": -4,
+          "y": 60,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 10000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 1087,
+          "x": 5,
+          "y": 66,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 10000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 1097,
+          "x": -6,
+          "y": 66,
+          "height": 2.5,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 10000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 1110,
+          "y": 66,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 40,
+          "zone": 6,
+          "stretch": 11
+        },
+        {
+          "type": "decor",
+          "z": 1125,
+          "x": 12,
+          "y": 66,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1140,
+          "y": 66,
+          "requires": 1500000,
+          "reward": {
+            "coins": 20000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 11,
+          "zone": 6,
+          "rarity": "mythic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 1145,
+          "y": 66,
+          "zone": 6,
+          "rarity": "mythic",
+          "wall": 11
+        },
+        {
+          "type": "floor",
+          "z": 1140,
+          "length": 15,
+          "y": 66
+        },
+        {
+          "type": "ramp",
+          "z": 1155,
+          "length": 20,
+          "y": 66,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 1175,
+          "length": 65,
+          "y": 72
+        },
+        {
+          "type": "gift",
+          "z": 1150,
+          "x": -4,
+          "y": 66,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 10000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 1187,
+          "x": 5,
+          "y": 72,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 10000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 1197,
+          "x": -6,
+          "y": 72,
+          "height": 2.5,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 10000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 1210,
+          "y": 72,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 40,
+          "zone": 6,
+          "stretch": 12
+        },
+        {
+          "type": "decor",
+          "z": 1225,
+          "x": -12,
+          "y": 72,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1240,
+          "y": 72,
+          "requires": 2000000,
+          "reward": {
+            "coins": 20000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 12,
+          "zone": 6,
+          "rarity": "mythic"
+        },
+        {
+          "type": "floor",
+          "z": 1240,
+          "length": 60,
+          "y": 72
+        },
+        {
+          "type": "summit",
+          "z": 1240,
+          "y": 72,
+          "wall": 12
+        },
+        {
+          "type": "checkpoint",
+          "z": 1243,
+          "y": 72,
+          "zone": 6,
+          "rarity": "mythic",
+          "wall": 12
+        },
+        {
+          "type": "treadmill",
+          "z": 1252,
+          "x": -8,
+          "y": 72,
+          "length": 10,
+          "width": 6,
+          "mult": 60
+        },
+        {
+          "type": "chest",
+          "z": 1270,
+          "x": 0,
+          "y": 72,
+          "coins": 250000
+        },
+        {
+          "type": "portal",
+          "z": 1290,
+          "x": 0,
+          "y": 72,
+          "next": 3
+        }
+      ],
+      "treadmillMult": 1
+    },
+    {
+      "id": "canyon",
+      "index": 3,
+      "length": 1420,
+      "width": 28,
+      "spawnZ": 20,
+      "egg": "ice",
+      "stretch": 110,
+      "wallCount": 12,
+      "safeZones": [
+        [
+          0,
+          40
+        ],
+        [
+          1360,
+          1420
+        ]
+      ],
+      "threat": {
+        "intervalSec": 45,
+        "firstIntervalSec": 30,
+        "warnSec": 7,
+        "speed": 52,
+        "from": "aboveHero",
+        "spawnAhead": 160,
+        "firstWaveScripted": true,
+        "safeZoneZ": [
+          0,
+          40
+        ]
+      },
+      "zones": [
+        {
+          "k": 1,
+          "rarity": "common",
+          "gift": 20000,
+          "zStart": 40,
+          "zEnd": 260
+        },
+        {
+          "k": 2,
+          "rarity": "uncommon",
+          "gift": 40000,
+          "zStart": 260,
+          "zEnd": 480
+        },
+        {
+          "k": 3,
+          "rarity": "rare",
+          "gift": 80000,
+          "zStart": 480,
+          "zEnd": 700
+        },
+        {
+          "k": 4,
+          "rarity": "epic",
+          "gift": 150000,
+          "zStart": 700,
+          "zEnd": 920
+        },
+        {
+          "k": 5,
+          "rarity": "legendary",
+          "gift": 300000,
+          "zStart": 920,
+          "zEnd": 1140
+        },
+        {
+          "k": 6,
+          "rarity": "mythic",
+          "gift": 600000,
+          "zStart": 1140,
+          "zEnd": 1360
+        }
+      ],
+      "segments": [
+        {
+          "type": "floor",
+          "z": 0,
+          "length": 40,
+          "y": 0
+        },
+        {
+          "type": "treadmill",
+          "z": 10,
+          "x": -8,
+          "y": 0,
+          "length": 10,
+          "width": 6,
+          "mult": 50
+        },
+        {
+          "type": "eggStand",
+          "z": 30,
+          "x": 8,
+          "y": 0,
+          "egg": "ice"
+        },
+        {
+          "type": "decor",
+          "z": 6,
+          "x": -11,
+          "y": 0,
+          "kind": "tent"
+        },
+        {
+          "type": "decor",
+          "z": 12,
+          "x": 11,
+          "y": 0,
+          "kind": "tent"
+        },
+        {
+          "type": "decor",
+          "z": 34,
+          "x": -12,
+          "y": 0,
+          "kind": "tree"
+        },
+        {
+          "type": "decor",
+          "z": 36,
+          "x": 12,
+          "y": 0,
+          "kind": "tree"
+        },
+        {
+          "type": "decor",
+          "z": 8,
+          "x": 4,
+          "y": 0,
+          "kind": "snowman"
+        },
+        {
+          "type": "decor",
+          "z": 26,
+          "x": 0,
+          "y": 0,
+          "kind": "arrow"
+        },
+        {
+          "type": "decor",
+          "z": 30,
+          "x": 0,
+          "y": 0,
+          "kind": "arrow"
+        },
+        {
+          "type": "decor",
+          "z": 34,
+          "x": 0,
+          "y": 0,
+          "kind": "arrow"
+        },
+        {
+          "type": "zoneArch",
+          "z": 40,
+          "y": 0,
+          "zone": 1,
+          "rarity": "common"
+        },
+        {
+          "type": "floor",
+          "z": 40,
+          "length": 16.5,
+          "y": 0
+        },
+        {
+          "type": "ramp",
+          "z": 56.5,
+          "length": 20,
+          "y": 0,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 76.5,
+          "length": 73.5,
+          "y": 6
+        },
+        {
+          "type": "gift",
+          "z": 51,
+          "x": -4,
+          "y": 0,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 20000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 91.7,
+          "x": 5,
+          "y": 6,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 20000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 102.7,
+          "x": -6,
+          "y": 6,
+          "height": 2.5,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 20000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 117,
+          "y": 6,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 50,
+          "zone": 1,
+          "stretch": 1
+        },
+        {
+          "type": "decor",
+          "z": 133.5,
+          "x": 12,
+          "y": 6,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 150,
+          "y": 6,
+          "requires": 2500000,
+          "reward": {
+            "coins": 40000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 1,
+          "zone": 1,
+          "rarity": "common"
+        },
+        {
+          "type": "checkpoint",
+          "z": 155.5,
+          "y": 6,
+          "zone": 1,
+          "rarity": "common",
+          "wall": 1
+        },
+        {
+          "type": "floor",
+          "z": 150,
+          "length": 16.5,
+          "y": 6
+        },
+        {
+          "type": "ramp",
+          "z": 166.5,
+          "length": 20,
+          "y": 6,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 186.5,
+          "length": 73.5,
+          "y": 12
+        },
+        {
+          "type": "gift",
+          "z": 161,
+          "x": -4,
+          "y": 6,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 20000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 201.7,
+          "x": 5,
+          "y": 12,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 20000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 212.7,
+          "x": -6,
+          "y": 12,
+          "height": 2.5,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 20000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 227,
+          "y": 12,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 50,
+          "zone": 1,
+          "stretch": 2
+        },
+        {
+          "type": "decor",
+          "z": 243.5,
+          "x": -12,
+          "y": 12,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 260,
+          "y": 12,
+          "requires": 3000000,
+          "reward": {
+            "coins": 40000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 2,
+          "zone": 1,
+          "rarity": "common"
+        },
+        {
+          "type": "zoneArch",
+          "z": 260,
+          "y": 12,
+          "zone": 2,
+          "rarity": "uncommon"
+        },
+        {
+          "type": "checkpoint",
+          "z": 265.5,
+          "y": 12,
+          "zone": 2,
+          "rarity": "uncommon",
+          "wall": 2
+        },
+        {
+          "type": "floor",
+          "z": 260,
+          "length": 16.5,
+          "y": 12
+        },
+        {
+          "type": "ramp",
+          "z": 276.5,
+          "length": 20,
+          "y": 12,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 296.5,
+          "length": 73.5,
+          "y": 18
+        },
+        {
+          "type": "gift",
+          "z": 271,
+          "x": -4,
+          "y": 12,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 40000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 311.7,
+          "x": 5,
+          "y": 18,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 40000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 322.7,
+          "x": -6,
+          "y": 18,
+          "height": 2.5,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 40000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 337,
+          "y": 18,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 60,
+          "zone": 2,
+          "stretch": 3
+        },
+        {
+          "type": "decor",
+          "z": 353.5,
+          "x": 12,
+          "y": 18,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 370,
+          "y": 18,
+          "requires": 4000000,
+          "reward": {
+            "coins": 80000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 3,
+          "zone": 2,
+          "rarity": "uncommon"
+        },
+        {
+          "type": "checkpoint",
+          "z": 375.5,
+          "y": 18,
+          "zone": 2,
+          "rarity": "uncommon",
+          "wall": 3
+        },
+        {
+          "type": "floor",
+          "z": 370,
+          "length": 16.5,
+          "y": 18
+        },
+        {
+          "type": "ramp",
+          "z": 386.5,
+          "length": 20,
+          "y": 18,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 406.5,
+          "length": 73.5,
+          "y": 24
+        },
+        {
+          "type": "gift",
+          "z": 381,
+          "x": -4,
+          "y": 18,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 40000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 421.7,
+          "x": 5,
+          "y": 24,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 40000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 432.7,
+          "x": -6,
+          "y": 24,
+          "height": 2.5,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 40000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 447,
+          "y": 24,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 60,
+          "zone": 2,
+          "stretch": 4
+        },
+        {
+          "type": "decor",
+          "z": 463.5,
+          "x": -12,
+          "y": 24,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 480,
+          "y": 24,
+          "requires": 5000000,
+          "reward": {
+            "coins": 80000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 4,
+          "zone": 2,
+          "rarity": "uncommon"
+        },
+        {
+          "type": "zoneArch",
+          "z": 480,
+          "y": 24,
+          "zone": 3,
+          "rarity": "rare"
+        },
+        {
+          "type": "checkpoint",
+          "z": 485.5,
+          "y": 24,
+          "zone": 3,
+          "rarity": "rare",
+          "wall": 4
+        },
+        {
+          "type": "floor",
+          "z": 480,
+          "length": 16.5,
+          "y": 24
+        },
+        {
+          "type": "ramp",
+          "z": 496.5,
+          "length": 20,
+          "y": 24,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 516.5,
+          "length": 73.5,
+          "y": 30
+        },
+        {
+          "type": "gift",
+          "z": 491,
+          "x": -4,
+          "y": 24,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 80000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 531.7,
+          "x": 5,
+          "y": 30,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 80000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 542.7,
+          "x": -6,
+          "y": 30,
+          "height": 2.5,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 80000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 557,
+          "y": 30,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 80,
+          "zone": 3,
+          "stretch": 5
+        },
+        {
+          "type": "decor",
+          "z": 573.5,
+          "x": 12,
+          "y": 30,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 590,
+          "y": 30,
+          "requires": 6000000,
+          "reward": {
+            "coins": 160000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 5,
+          "zone": 3,
+          "rarity": "rare"
+        },
+        {
+          "type": "checkpoint",
+          "z": 595.5,
+          "y": 30,
+          "zone": 3,
+          "rarity": "rare",
+          "wall": 5
+        },
+        {
+          "type": "floor",
+          "z": 590,
+          "length": 16.5,
+          "y": 30
+        },
+        {
+          "type": "ramp",
+          "z": 606.5,
+          "length": 20,
+          "y": 30,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 626.5,
+          "length": 73.5,
+          "y": 36
+        },
+        {
+          "type": "gift",
+          "z": 601,
+          "x": -4,
+          "y": 30,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 80000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 641.7,
+          "x": 5,
+          "y": 36,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 80000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 652.7,
+          "x": -6,
+          "y": 36,
+          "height": 2.5,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 80000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 667,
+          "y": 36,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 80,
+          "zone": 3,
+          "stretch": 6
+        },
+        {
+          "type": "decor",
+          "z": 683.5,
+          "x": -12,
+          "y": 36,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 700,
+          "y": 36,
+          "requires": 8000000,
+          "reward": {
+            "coins": 160000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 6,
+          "zone": 3,
+          "rarity": "rare"
+        },
+        {
+          "type": "zoneArch",
+          "z": 700,
+          "y": 36,
+          "zone": 4,
+          "rarity": "epic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 705.5,
+          "y": 36,
+          "zone": 4,
+          "rarity": "epic",
+          "wall": 6
+        },
+        {
+          "type": "eggStand",
+          "z": 709.5,
+          "x": 8,
+          "y": 36,
+          "egg": "ice"
+        },
+        {
+          "type": "floor",
+          "z": 700,
+          "length": 16.5,
+          "y": 36
+        },
+        {
+          "type": "ramp",
+          "z": 716.5,
+          "length": 20,
+          "y": 36,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 736.5,
+          "length": 73.5,
+          "y": 42
+        },
+        {
+          "type": "gift",
+          "z": 711,
+          "x": -4,
+          "y": 36,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 150000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 751.7,
+          "x": 5,
+          "y": 42,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 150000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 762.7,
+          "x": -6,
+          "y": 42,
+          "height": 2.5,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 150000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 777,
+          "y": 42,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 80,
+          "zone": 4,
+          "stretch": 7
+        },
+        {
+          "type": "decor",
+          "z": 793.5,
+          "x": 12,
+          "y": 42,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 810,
+          "y": 42,
+          "requires": 10000000,
+          "reward": {
+            "coins": 300000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 7,
+          "zone": 4,
+          "rarity": "epic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 815.5,
+          "y": 42,
+          "zone": 4,
+          "rarity": "epic",
+          "wall": 7
+        },
+        {
+          "type": "floor",
+          "z": 810,
+          "length": 16.5,
+          "y": 42
+        },
+        {
+          "type": "ramp",
+          "z": 826.5,
+          "length": 20,
+          "y": 42,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 846.5,
+          "length": 73.5,
+          "y": 48
+        },
+        {
+          "type": "gift",
+          "z": 821,
+          "x": -4,
+          "y": 42,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 150000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 861.7,
+          "x": 5,
+          "y": 48,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 150000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 872.7,
+          "x": -6,
+          "y": 48,
+          "height": 2.5,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 150000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 887,
+          "y": 48,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 100,
+          "zone": 4,
+          "stretch": 8
+        },
+        {
+          "type": "decor",
+          "z": 903.5,
+          "x": -12,
+          "y": 48,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 920,
+          "y": 48,
+          "requires": 12000000,
+          "reward": {
+            "coins": 300000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 8,
+          "zone": 4,
+          "rarity": "epic"
+        },
+        {
+          "type": "zoneArch",
+          "z": 920,
+          "y": 48,
+          "zone": 5,
+          "rarity": "legendary"
+        },
+        {
+          "type": "checkpoint",
+          "z": 925.5,
+          "y": 48,
+          "zone": 5,
+          "rarity": "legendary",
+          "wall": 8
+        },
+        {
+          "type": "floor",
+          "z": 920,
+          "length": 16.5,
+          "y": 48
+        },
+        {
+          "type": "ramp",
+          "z": 936.5,
+          "length": 20,
+          "y": 48,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 956.5,
+          "length": 73.5,
+          "y": 54
+        },
+        {
+          "type": "gift",
+          "z": 931,
+          "x": -4,
+          "y": 48,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 300000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 971.7,
+          "x": 5,
+          "y": 54,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 300000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 982.7,
+          "x": -6,
+          "y": 54,
+          "height": 2.5,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 300000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 997,
+          "y": 54,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 100,
+          "zone": 5,
+          "stretch": 9
+        },
+        {
+          "type": "decor",
+          "z": 1013.5,
+          "x": 12,
+          "y": 54,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1030,
+          "y": 54,
+          "requires": 15000000,
+          "reward": {
+            "coins": 600000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 9,
+          "zone": 5,
+          "rarity": "legendary"
+        },
+        {
+          "type": "checkpoint",
+          "z": 1035.5,
+          "y": 54,
+          "zone": 5,
+          "rarity": "legendary",
+          "wall": 9
+        },
+        {
+          "type": "floor",
+          "z": 1030,
+          "length": 16.5,
+          "y": 54
+        },
+        {
+          "type": "ramp",
+          "z": 1046.5,
+          "length": 20,
+          "y": 54,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 1066.5,
+          "length": 73.5,
+          "y": 60
+        },
+        {
+          "type": "gift",
+          "z": 1041,
+          "x": -4,
+          "y": 54,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 300000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 1081.7,
+          "x": 5,
+          "y": 60,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 300000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 1092.7,
+          "x": -6,
+          "y": 60,
+          "height": 2.5,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 300000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 1107,
+          "y": 60,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 120,
+          "zone": 5,
+          "stretch": 10
+        },
+        {
+          "type": "decor",
+          "z": 1123.5,
+          "x": -12,
+          "y": 60,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1140,
+          "y": 60,
+          "requires": 20000000,
+          "reward": {
+            "coins": 600000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 10,
+          "zone": 5,
+          "rarity": "legendary"
+        },
+        {
+          "type": "zoneArch",
+          "z": 1140,
+          "y": 60,
+          "zone": 6,
+          "rarity": "mythic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 1145.5,
+          "y": 60,
+          "zone": 6,
+          "rarity": "mythic",
+          "wall": 10
+        },
+        {
+          "type": "floor",
+          "z": 1140,
+          "length": 16.5,
+          "y": 60
+        },
+        {
+          "type": "ramp",
+          "z": 1156.5,
+          "length": 20,
+          "y": 60,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 1176.5,
+          "length": 73.5,
+          "y": 66
+        },
+        {
+          "type": "gift",
+          "z": 1151,
+          "x": -4,
+          "y": 60,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 600000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 1191.7,
+          "x": 5,
+          "y": 66,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 600000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 1202.7,
+          "x": -6,
+          "y": 66,
+          "height": 2.5,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 600000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 1217,
+          "y": 66,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 120,
+          "zone": 6,
+          "stretch": 11
+        },
+        {
+          "type": "decor",
+          "z": 1233.5,
+          "x": 12,
+          "y": 66,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1250,
+          "y": 66,
+          "requires": 25000000,
+          "reward": {
+            "coins": 1200000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 11,
+          "zone": 6,
+          "rarity": "mythic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 1255.5,
+          "y": 66,
+          "zone": 6,
+          "rarity": "mythic",
+          "wall": 11
+        },
+        {
+          "type": "floor",
+          "z": 1250,
+          "length": 16.5,
+          "y": 66
+        },
+        {
+          "type": "ramp",
+          "z": 1266.5,
+          "length": 20,
+          "y": 66,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 1286.5,
+          "length": 73.5,
+          "y": 72
+        },
+        {
+          "type": "gift",
+          "z": 1261,
+          "x": -4,
+          "y": 66,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 600000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 1301.7,
+          "x": 5,
+          "y": 72,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 600000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 1312.7,
+          "x": -6,
+          "y": 72,
+          "height": 2.5,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 600000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 1327,
+          "y": 72,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 150,
+          "zone": 6,
+          "stretch": 12
+        },
+        {
+          "type": "decor",
+          "z": 1343.5,
+          "x": -12,
+          "y": 72,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1360,
+          "y": 72,
+          "requires": 30000000,
+          "reward": {
+            "coins": 1200000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 12,
+          "zone": 6,
+          "rarity": "mythic"
+        },
+        {
+          "type": "floor",
+          "z": 1360,
+          "length": 60,
+          "y": 72
+        },
+        {
+          "type": "summit",
+          "z": 1360,
+          "y": 72,
+          "wall": 12
+        },
+        {
+          "type": "checkpoint",
+          "z": 1363,
+          "y": 72,
+          "zone": 6,
+          "rarity": "mythic",
+          "wall": 12
+        },
+        {
+          "type": "treadmill",
+          "z": 1372,
+          "x": -8,
+          "y": 72,
+          "length": 10,
+          "width": 6,
+          "mult": 250
+        },
+        {
+          "type": "chest",
+          "z": 1390,
+          "x": 0,
+          "y": 72,
+          "coins": 15000000
+        },
+        {
+          "type": "portal",
+          "z": 1410,
+          "x": 0,
+          "y": 72,
+          "next": 4
+        }
+      ],
+      "treadmillMult": 1
+    },
+    {
+      "id": "blizzard",
+      "index": 4,
+      "length": 1540,
+      "width": 28,
+      "spawnZ": 20,
+      "egg": "blizzard",
+      "stretch": 120,
+      "wallCount": 12,
+      "safeZones": [
+        [
+          0,
+          40
+        ],
+        [
+          1480,
+          1540
+        ]
+      ],
+      "threat": {
+        "intervalSec": 42,
+        "firstIntervalSec": 30,
+        "warnSec": 7,
+        "speed": 56,
+        "from": "aboveHero",
+        "spawnAhead": 160,
+        "firstWaveScripted": true,
+        "safeZoneZ": [
+          0,
+          40
+        ]
+      },
+      "zones": [
+        {
+          "k": 1,
+          "rarity": "common",
+          "gift": 1200000,
+          "zStart": 40,
+          "zEnd": 280
+        },
+        {
+          "k": 2,
+          "rarity": "uncommon",
+          "gift": 2500000,
+          "zStart": 280,
+          "zEnd": 520
+        },
+        {
+          "k": 3,
+          "rarity": "rare",
+          "gift": 5000000,
+          "zStart": 520,
+          "zEnd": 760
+        },
+        {
+          "k": 4,
+          "rarity": "epic",
+          "gift": 10000000,
+          "zStart": 760,
+          "zEnd": 1000
+        },
+        {
+          "k": 5,
+          "rarity": "legendary",
+          "gift": 20000000,
+          "zStart": 1000,
+          "zEnd": 1240
+        },
+        {
+          "k": 6,
+          "rarity": "mythic",
+          "gift": 40000000,
+          "zStart": 1240,
+          "zEnd": 1480
+        }
+      ],
+      "segments": [
+        {
+          "type": "floor",
+          "z": 0,
+          "length": 40,
+          "y": 0
+        },
+        {
+          "type": "treadmill",
+          "z": 10,
+          "x": -8,
+          "y": 0,
+          "length": 10,
+          "width": 6,
+          "mult": 150
+        },
+        {
+          "type": "eggStand",
+          "z": 30,
+          "x": 8,
+          "y": 0,
+          "egg": "blizzard"
+        },
+        {
+          "type": "decor",
+          "z": 6,
+          "x": -11,
+          "y": 0,
+          "kind": "tent"
+        },
+        {
+          "type": "decor",
+          "z": 12,
+          "x": 11,
+          "y": 0,
+          "kind": "tent"
+        },
+        {
+          "type": "decor",
+          "z": 34,
+          "x": -12,
+          "y": 0,
+          "kind": "tree"
+        },
+        {
+          "type": "decor",
+          "z": 36,
+          "x": 12,
+          "y": 0,
+          "kind": "tree"
+        },
+        {
+          "type": "decor",
+          "z": 8,
+          "x": 4,
+          "y": 0,
+          "kind": "snowman"
+        },
+        {
+          "type": "decor",
+          "z": 26,
+          "x": 0,
+          "y": 0,
+          "kind": "arrow"
+        },
+        {
+          "type": "decor",
+          "z": 30,
+          "x": 0,
+          "y": 0,
+          "kind": "arrow"
+        },
+        {
+          "type": "decor",
+          "z": 34,
+          "x": 0,
+          "y": 0,
+          "kind": "arrow"
+        },
+        {
+          "type": "zoneArch",
+          "z": 40,
+          "y": 0,
+          "zone": 1,
+          "rarity": "common"
+        },
+        {
+          "type": "floor",
+          "z": 40,
+          "length": 18,
+          "y": 0
+        },
+        {
+          "type": "ramp",
+          "z": 58,
+          "length": 20,
+          "y": 0,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 78,
+          "length": 82,
+          "y": 6
+        },
+        {
+          "type": "gift",
+          "z": 52,
+          "x": -4,
+          "y": 0,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 1200000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 96.4,
+          "x": 5,
+          "y": 6,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 1200000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 108.4,
+          "x": -6,
+          "y": 6,
+          "height": 2.5,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 1200000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 124,
+          "y": 6,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 150,
+          "zone": 1,
+          "stretch": 1
+        },
+        {
+          "type": "decor",
+          "z": 142,
+          "x": 12,
+          "y": 6,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 160,
+          "y": 6,
+          "requires": 40000000,
+          "reward": {
+            "coins": 2400000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 1,
+          "zone": 1,
+          "rarity": "common"
+        },
+        {
+          "type": "checkpoint",
+          "z": 166,
+          "y": 6,
+          "zone": 1,
+          "rarity": "common",
+          "wall": 1
+        },
+        {
+          "type": "floor",
+          "z": 160,
+          "length": 18,
+          "y": 6
+        },
+        {
+          "type": "ramp",
+          "z": 178,
+          "length": 20,
+          "y": 6,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 198,
+          "length": 82,
+          "y": 12
+        },
+        {
+          "type": "gift",
+          "z": 172,
+          "x": -4,
+          "y": 6,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 1200000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 216.4,
+          "x": 5,
+          "y": 12,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 1200000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 228.4,
+          "x": -6,
+          "y": 12,
+          "height": 2.5,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 1200000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 244,
+          "y": 12,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 200,
+          "zone": 1,
+          "stretch": 2
+        },
+        {
+          "type": "decor",
+          "z": 262,
+          "x": -12,
+          "y": 12,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 280,
+          "y": 12,
+          "requires": 50000000,
+          "reward": {
+            "coins": 2400000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 2,
+          "zone": 1,
+          "rarity": "common"
+        },
+        {
+          "type": "zoneArch",
+          "z": 280,
+          "y": 12,
+          "zone": 2,
+          "rarity": "uncommon"
+        },
+        {
+          "type": "checkpoint",
+          "z": 286,
+          "y": 12,
+          "zone": 2,
+          "rarity": "uncommon",
+          "wall": 2
+        },
+        {
+          "type": "floor",
+          "z": 280,
+          "length": 18,
+          "y": 12
+        },
+        {
+          "type": "ramp",
+          "z": 298,
+          "length": 20,
+          "y": 12,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 318,
+          "length": 82,
+          "y": 18
+        },
+        {
+          "type": "gift",
+          "z": 292,
+          "x": -4,
+          "y": 12,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 2500000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 336.4,
+          "x": 5,
+          "y": 18,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 2500000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 348.4,
+          "x": -6,
+          "y": 18,
+          "height": 2.5,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 2500000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 364,
+          "y": 18,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 200,
+          "zone": 2,
+          "stretch": 3
+        },
+        {
+          "type": "decor",
+          "z": 382,
+          "x": 12,
+          "y": 18,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 400,
+          "y": 18,
+          "requires": 80000000,
+          "reward": {
+            "coins": 5000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 3,
+          "zone": 2,
+          "rarity": "uncommon"
+        },
+        {
+          "type": "checkpoint",
+          "z": 406,
+          "y": 18,
+          "zone": 2,
+          "rarity": "uncommon",
+          "wall": 3
+        },
+        {
+          "type": "floor",
+          "z": 400,
+          "length": 18,
+          "y": 18
+        },
+        {
+          "type": "ramp",
+          "z": 418,
+          "length": 20,
+          "y": 18,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 438,
+          "length": 82,
+          "y": 24
+        },
+        {
+          "type": "gift",
+          "z": 412,
+          "x": -4,
+          "y": 18,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 2500000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 456.4,
+          "x": 5,
+          "y": 24,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 2500000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 468.4,
+          "x": -6,
+          "y": 24,
+          "height": 2.5,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 2500000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 484,
+          "y": 24,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 250,
+          "zone": 2,
+          "stretch": 4
+        },
+        {
+          "type": "decor",
+          "z": 502,
+          "x": -12,
+          "y": 24,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 520,
+          "y": 24,
+          "requires": 100000000,
+          "reward": {
+            "coins": 5000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 4,
+          "zone": 2,
+          "rarity": "uncommon"
+        },
+        {
+          "type": "zoneArch",
+          "z": 520,
+          "y": 24,
+          "zone": 3,
+          "rarity": "rare"
+        },
+        {
+          "type": "checkpoint",
+          "z": 526,
+          "y": 24,
+          "zone": 3,
+          "rarity": "rare",
+          "wall": 4
+        },
+        {
+          "type": "floor",
+          "z": 520,
+          "length": 18,
+          "y": 24
+        },
+        {
+          "type": "ramp",
+          "z": 538,
+          "length": 20,
+          "y": 24,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 558,
+          "length": 82,
+          "y": 30
+        },
+        {
+          "type": "gift",
+          "z": 532,
+          "x": -4,
+          "y": 24,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 5000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 576.4,
+          "x": 5,
+          "y": 30,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 5000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 588.4,
+          "x": -6,
+          "y": 30,
+          "height": 2.5,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 5000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 604,
+          "y": 30,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 250,
+          "zone": 3,
+          "stretch": 5
+        },
+        {
+          "type": "decor",
+          "z": 622,
+          "x": 12,
+          "y": 30,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 640,
+          "y": 30,
+          "requires": 120000000,
+          "reward": {
+            "coins": 10000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 5,
+          "zone": 3,
+          "rarity": "rare"
+        },
+        {
+          "type": "checkpoint",
+          "z": 646,
+          "y": 30,
+          "zone": 3,
+          "rarity": "rare",
+          "wall": 5
+        },
+        {
+          "type": "floor",
+          "z": 640,
+          "length": 18,
+          "y": 30
+        },
+        {
+          "type": "ramp",
+          "z": 658,
+          "length": 20,
+          "y": 30,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 678,
+          "length": 82,
+          "y": 36
+        },
+        {
+          "type": "gift",
+          "z": 652,
+          "x": -4,
+          "y": 30,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 5000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 696.4,
+          "x": 5,
+          "y": 36,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 5000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 708.4,
+          "x": -6,
+          "y": 36,
+          "height": 2.5,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 5000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 724,
+          "y": 36,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 300,
+          "zone": 3,
+          "stretch": 6
+        },
+        {
+          "type": "decor",
+          "z": 742,
+          "x": -12,
+          "y": 36,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 760,
+          "y": 36,
+          "requires": 150000000,
+          "reward": {
+            "coins": 10000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 6,
+          "zone": 3,
+          "rarity": "rare"
+        },
+        {
+          "type": "zoneArch",
+          "z": 760,
+          "y": 36,
+          "zone": 4,
+          "rarity": "epic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 766,
+          "y": 36,
+          "zone": 4,
+          "rarity": "epic",
+          "wall": 6
+        },
+        {
+          "type": "eggStand",
+          "z": 770,
+          "x": 8,
+          "y": 36,
+          "egg": "blizzard"
+        },
+        {
+          "type": "floor",
+          "z": 760,
+          "length": 18,
+          "y": 36
+        },
+        {
+          "type": "ramp",
+          "z": 778,
+          "length": 20,
+          "y": 36,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 798,
+          "length": 82,
+          "y": 42
+        },
+        {
+          "type": "gift",
+          "z": 772,
+          "x": -4,
+          "y": 36,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 10000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 816.4,
+          "x": 5,
+          "y": 42,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 10000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 828.4,
+          "x": -6,
+          "y": 42,
+          "height": 2.5,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 10000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 844,
+          "y": 42,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 300,
+          "zone": 4,
+          "stretch": 7
+        },
+        {
+          "type": "decor",
+          "z": 862,
+          "x": 12,
+          "y": 42,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 880,
+          "y": 42,
+          "requires": 200000000,
+          "reward": {
+            "coins": 20000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 7,
+          "zone": 4,
+          "rarity": "epic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 886,
+          "y": 42,
+          "zone": 4,
+          "rarity": "epic",
+          "wall": 7
+        },
+        {
+          "type": "floor",
+          "z": 880,
+          "length": 18,
+          "y": 42
+        },
+        {
+          "type": "ramp",
+          "z": 898,
+          "length": 20,
+          "y": 42,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 918,
+          "length": 82,
+          "y": 48
+        },
+        {
+          "type": "gift",
+          "z": 892,
+          "x": -4,
+          "y": 42,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 10000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 936.4,
+          "x": 5,
+          "y": 48,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 10000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 948.4,
+          "x": -6,
+          "y": 48,
+          "height": 2.5,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 10000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 964,
+          "y": 48,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 400,
+          "zone": 4,
+          "stretch": 8
+        },
+        {
+          "type": "decor",
+          "z": 982,
+          "x": -12,
+          "y": 48,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1000,
+          "y": 48,
+          "requires": 250000000,
+          "reward": {
+            "coins": 20000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 8,
+          "zone": 4,
+          "rarity": "epic"
+        },
+        {
+          "type": "zoneArch",
+          "z": 1000,
+          "y": 48,
+          "zone": 5,
+          "rarity": "legendary"
+        },
+        {
+          "type": "checkpoint",
+          "z": 1006,
+          "y": 48,
+          "zone": 5,
+          "rarity": "legendary",
+          "wall": 8
+        },
+        {
+          "type": "floor",
+          "z": 1000,
+          "length": 18,
+          "y": 48
+        },
+        {
+          "type": "ramp",
+          "z": 1018,
+          "length": 20,
+          "y": 48,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 1038,
+          "length": 82,
+          "y": 54
+        },
+        {
+          "type": "gift",
+          "z": 1012,
+          "x": -4,
+          "y": 48,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 20000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 1056.4,
+          "x": 5,
+          "y": 54,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 20000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 1068.4,
+          "x": -6,
+          "y": 54,
+          "height": 2.5,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 20000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 1084,
+          "y": 54,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 400,
+          "zone": 5,
+          "stretch": 9
+        },
+        {
+          "type": "decor",
+          "z": 1102,
+          "x": 12,
+          "y": 54,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1120,
+          "y": 54,
+          "requires": 300000000,
+          "reward": {
+            "coins": 40000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 9,
+          "zone": 5,
+          "rarity": "legendary"
+        },
+        {
+          "type": "checkpoint",
+          "z": 1126,
+          "y": 54,
+          "zone": 5,
+          "rarity": "legendary",
+          "wall": 9
+        },
+        {
+          "type": "floor",
+          "z": 1120,
+          "length": 18,
+          "y": 54
+        },
+        {
+          "type": "ramp",
+          "z": 1138,
+          "length": 20,
+          "y": 54,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 1158,
+          "length": 82,
+          "y": 60
+        },
+        {
+          "type": "gift",
+          "z": 1132,
+          "x": -4,
+          "y": 54,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 20000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 1176.4,
+          "x": 5,
+          "y": 60,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 20000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 1188.4,
+          "x": -6,
+          "y": 60,
+          "height": 2.5,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 20000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 1204,
+          "y": 60,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 500,
+          "zone": 5,
+          "stretch": 10
+        },
+        {
+          "type": "decor",
+          "z": 1222,
+          "x": -12,
+          "y": 60,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1240,
+          "y": 60,
+          "requires": 400000000,
+          "reward": {
+            "coins": 40000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 10,
+          "zone": 5,
+          "rarity": "legendary"
+        },
+        {
+          "type": "zoneArch",
+          "z": 1240,
+          "y": 60,
+          "zone": 6,
+          "rarity": "mythic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 1246,
+          "y": 60,
+          "zone": 6,
+          "rarity": "mythic",
+          "wall": 10
+        },
+        {
+          "type": "floor",
+          "z": 1240,
+          "length": 18,
+          "y": 60
+        },
+        {
+          "type": "ramp",
+          "z": 1258,
+          "length": 20,
+          "y": 60,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 1278,
+          "length": 82,
+          "y": 66
+        },
+        {
+          "type": "gift",
+          "z": 1252,
+          "x": -4,
+          "y": 60,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 40000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 1296.4,
+          "x": 5,
+          "y": 66,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 40000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 1308.4,
+          "x": -6,
+          "y": 66,
+          "height": 2.5,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 40000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 1324,
+          "y": 66,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 600,
+          "zone": 6,
+          "stretch": 11
+        },
+        {
+          "type": "decor",
+          "z": 1342,
+          "x": 12,
+          "y": 66,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1360,
+          "y": 66,
+          "requires": 500000000,
+          "reward": {
+            "coins": 80000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 11,
+          "zone": 6,
+          "rarity": "mythic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 1366,
+          "y": 66,
+          "zone": 6,
+          "rarity": "mythic",
+          "wall": 11
+        },
+        {
+          "type": "floor",
+          "z": 1360,
+          "length": 18,
+          "y": 66
+        },
+        {
+          "type": "ramp",
+          "z": 1378,
+          "length": 20,
+          "y": 66,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 1398,
+          "length": 82,
+          "y": 72
+        },
+        {
+          "type": "gift",
+          "z": 1372,
+          "x": -4,
+          "y": 66,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 40000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 1416.4,
+          "x": 5,
+          "y": 72,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 40000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 1428.4,
+          "x": -6,
+          "y": 72,
+          "height": 2.5,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 40000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 1444,
+          "y": 72,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 600,
+          "zone": 6,
+          "stretch": 12
+        },
+        {
+          "type": "decor",
+          "z": 1462,
+          "x": -12,
+          "y": 72,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1480,
+          "y": 72,
+          "requires": 600000000,
+          "reward": {
+            "coins": 80000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 12,
+          "zone": 6,
+          "rarity": "mythic"
+        },
+        {
+          "type": "floor",
+          "z": 1480,
+          "length": 60,
+          "y": 72
+        },
+        {
+          "type": "summit",
+          "z": 1480,
+          "y": 72,
+          "wall": 12
+        },
+        {
+          "type": "checkpoint",
+          "z": 1483,
+          "y": 72,
+          "zone": 6,
+          "rarity": "mythic",
+          "wall": 12
+        },
+        {
+          "type": "treadmill",
+          "z": 1492,
+          "x": -8,
+          "y": 72,
+          "length": 10,
+          "width": 6,
+          "mult": 1000
+        },
+        {
+          "type": "chest",
+          "z": 1510,
+          "x": 0,
+          "y": 72,
+          "coins": 1000000000
+        },
+        {
+          "type": "portal",
+          "z": 1530,
+          "x": 0,
+          "y": 72,
+          "next": 5
+        }
+      ],
+      "treadmillMult": 1
+    },
+    {
+      "id": "aurora",
+      "index": 5,
+      "length": 1660,
+      "width": 28,
+      "spawnZ": 20,
+      "egg": "aurora",
+      "stretch": 130,
+      "wallCount": 12,
+      "safeZones": [
+        [
+          0,
+          40
+        ],
+        [
+          1600,
+          1660
+        ]
+      ],
+      "threat": {
+        "intervalSec": 40,
+        "firstIntervalSec": 30,
+        "warnSec": 6,
+        "speed": 60,
+        "from": "aboveHero",
+        "spawnAhead": 160,
+        "firstWaveScripted": true,
+        "safeZoneZ": [
+          0,
+          40
+        ]
+      },
+      "zones": [
+        {
+          "k": 1,
+          "rarity": "common",
+          "gift": 80000000,
+          "zStart": 40,
+          "zEnd": 300
+        },
+        {
+          "k": 2,
+          "rarity": "uncommon",
+          "gift": 150000000,
+          "zStart": 300,
+          "zEnd": 560
+        },
+        {
+          "k": 3,
+          "rarity": "rare",
+          "gift": 300000000,
+          "zStart": 560,
+          "zEnd": 820
+        },
+        {
+          "k": 4,
+          "rarity": "epic",
+          "gift": 600000000,
+          "zStart": 820,
+          "zEnd": 1080
+        },
+        {
+          "k": 5,
+          "rarity": "legendary",
+          "gift": 1200000000,
+          "zStart": 1080,
+          "zEnd": 1340
+        },
+        {
+          "k": 6,
+          "rarity": "mythic",
+          "gift": 2500000000,
+          "zStart": 1340,
+          "zEnd": 1600
+        }
+      ],
+      "segments": [
+        {
+          "type": "floor",
+          "z": 0,
+          "length": 40,
+          "y": 0
+        },
+        {
+          "type": "treadmill",
+          "z": 10,
+          "x": -8,
+          "y": 0,
+          "length": 10,
+          "width": 6,
+          "mult": 800
+        },
+        {
+          "type": "eggStand",
+          "z": 30,
+          "x": 8,
+          "y": 0,
+          "egg": "aurora"
+        },
+        {
+          "type": "decor",
+          "z": 6,
+          "x": -11,
+          "y": 0,
+          "kind": "tent"
+        },
+        {
+          "type": "decor",
+          "z": 12,
+          "x": 11,
+          "y": 0,
+          "kind": "tent"
+        },
+        {
+          "type": "decor",
+          "z": 34,
+          "x": -12,
+          "y": 0,
+          "kind": "tree"
+        },
+        {
+          "type": "decor",
+          "z": 36,
+          "x": 12,
+          "y": 0,
+          "kind": "tree"
+        },
+        {
+          "type": "decor",
+          "z": 8,
+          "x": 4,
+          "y": 0,
+          "kind": "snowman"
+        },
+        {
+          "type": "decor",
+          "z": 26,
+          "x": 0,
+          "y": 0,
+          "kind": "arrow"
+        },
+        {
+          "type": "decor",
+          "z": 30,
+          "x": 0,
+          "y": 0,
+          "kind": "arrow"
+        },
+        {
+          "type": "decor",
+          "z": 34,
+          "x": 0,
+          "y": 0,
+          "kind": "arrow"
+        },
+        {
+          "type": "zoneArch",
+          "z": 40,
+          "y": 0,
+          "zone": 1,
+          "rarity": "common"
+        },
+        {
+          "type": "floor",
+          "z": 40,
+          "length": 19.5,
+          "y": 0
+        },
+        {
+          "type": "ramp",
+          "z": 59.5,
+          "length": 20,
+          "y": 0,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 79.5,
+          "length": 90.5,
+          "y": 6
+        },
+        {
+          "type": "gift",
+          "z": 53,
+          "x": -4,
+          "y": 0,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 80000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 101.1,
+          "x": 5,
+          "y": 6,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 80000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 114.1,
+          "x": -6,
+          "y": 6,
+          "height": 2.5,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 80000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 131,
+          "y": 6,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 800,
+          "zone": 1,
+          "stretch": 1
+        },
+        {
+          "type": "decor",
+          "z": 150.5,
+          "x": 12,
+          "y": 6,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 170,
+          "y": 6,
+          "requires": 800000000,
+          "reward": {
+            "coins": 160000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 1,
+          "zone": 1,
+          "rarity": "common"
+        },
+        {
+          "type": "checkpoint",
+          "z": 176.5,
+          "y": 6,
+          "zone": 1,
+          "rarity": "common",
+          "wall": 1
+        },
+        {
+          "type": "floor",
+          "z": 170,
+          "length": 19.5,
+          "y": 6
+        },
+        {
+          "type": "ramp",
+          "z": 189.5,
+          "length": 20,
+          "y": 6,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 209.5,
+          "length": 90.5,
+          "y": 12
+        },
+        {
+          "type": "gift",
+          "z": 183,
+          "x": -4,
+          "y": 6,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 80000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 231.1,
+          "x": 5,
+          "y": 12,
+          "height": 0,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 80000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 244.1,
+          "x": -6,
+          "y": 12,
+          "height": 2.5,
+          "zone": 1,
+          "rarity": "common",
+          "coins": 80000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 261,
+          "y": 12,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 800,
+          "zone": 1,
+          "stretch": 2
+        },
+        {
+          "type": "decor",
+          "z": 280.5,
+          "x": -12,
+          "y": 12,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 300,
+          "y": 12,
+          "requires": 1000000000,
+          "reward": {
+            "coins": 160000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 2,
+          "zone": 1,
+          "rarity": "common"
+        },
+        {
+          "type": "zoneArch",
+          "z": 300,
+          "y": 12,
+          "zone": 2,
+          "rarity": "uncommon"
+        },
+        {
+          "type": "checkpoint",
+          "z": 306.5,
+          "y": 12,
+          "zone": 2,
+          "rarity": "uncommon",
+          "wall": 2
+        },
+        {
+          "type": "floor",
+          "z": 300,
+          "length": 19.5,
+          "y": 12
+        },
+        {
+          "type": "ramp",
+          "z": 319.5,
+          "length": 20,
+          "y": 12,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 339.5,
+          "length": 90.5,
+          "y": 18
+        },
+        {
+          "type": "gift",
+          "z": 313,
+          "x": -4,
+          "y": 12,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 150000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 361.1,
+          "x": 5,
+          "y": 18,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 150000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 374.1,
+          "x": -6,
+          "y": 18,
+          "height": 2.5,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 150000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 391,
+          "y": 18,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 1000,
+          "zone": 2,
+          "stretch": 3
+        },
+        {
+          "type": "decor",
+          "z": 410.5,
+          "x": 12,
+          "y": 18,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 430,
+          "y": 18,
+          "requires": 1200000000,
+          "reward": {
+            "coins": 300000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 3,
+          "zone": 2,
+          "rarity": "uncommon"
+        },
+        {
+          "type": "checkpoint",
+          "z": 436.5,
+          "y": 18,
+          "zone": 2,
+          "rarity": "uncommon",
+          "wall": 3
+        },
+        {
+          "type": "floor",
+          "z": 430,
+          "length": 19.5,
+          "y": 18
+        },
+        {
+          "type": "ramp",
+          "z": 449.5,
+          "length": 20,
+          "y": 18,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 469.5,
+          "length": 90.5,
+          "y": 24
+        },
+        {
+          "type": "gift",
+          "z": 443,
+          "x": -4,
+          "y": 18,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 150000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 491.1,
+          "x": 5,
+          "y": 24,
+          "height": 0,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 150000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 504.1,
+          "x": -6,
+          "y": 24,
+          "height": 2.5,
+          "zone": 2,
+          "rarity": "uncommon",
+          "coins": 150000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 521,
+          "y": 24,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 1000,
+          "zone": 2,
+          "stretch": 4
+        },
+        {
+          "type": "decor",
+          "z": 540.5,
+          "x": -12,
+          "y": 24,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 560,
+          "y": 24,
+          "requires": 1500000000,
+          "reward": {
+            "coins": 300000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 4,
+          "zone": 2,
+          "rarity": "uncommon"
+        },
+        {
+          "type": "zoneArch",
+          "z": 560,
+          "y": 24,
+          "zone": 3,
+          "rarity": "rare"
+        },
+        {
+          "type": "checkpoint",
+          "z": 566.5,
+          "y": 24,
+          "zone": 3,
+          "rarity": "rare",
+          "wall": 4
+        },
+        {
+          "type": "floor",
+          "z": 560,
+          "length": 19.5,
+          "y": 24
+        },
+        {
+          "type": "ramp",
+          "z": 579.5,
+          "length": 20,
+          "y": 24,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 599.5,
+          "length": 90.5,
+          "y": 30
+        },
+        {
+          "type": "gift",
+          "z": 573,
+          "x": -4,
+          "y": 24,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 300000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 621.1,
+          "x": 5,
+          "y": 30,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 300000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 634.1,
+          "x": -6,
+          "y": 30,
+          "height": 2.5,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 300000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 651,
+          "y": 30,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 1200,
+          "zone": 3,
+          "stretch": 5
+        },
+        {
+          "type": "decor",
+          "z": 670.5,
+          "x": 12,
+          "y": 30,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 690,
+          "y": 30,
+          "requires": 2000000000,
+          "reward": {
+            "coins": 600000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 5,
+          "zone": 3,
+          "rarity": "rare"
+        },
+        {
+          "type": "checkpoint",
+          "z": 696.5,
+          "y": 30,
+          "zone": 3,
+          "rarity": "rare",
+          "wall": 5
+        },
+        {
+          "type": "floor",
+          "z": 690,
+          "length": 19.5,
+          "y": 30
+        },
+        {
+          "type": "ramp",
+          "z": 709.5,
+          "length": 20,
+          "y": 30,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 729.5,
+          "length": 90.5,
+          "y": 36
+        },
+        {
+          "type": "gift",
+          "z": 703,
+          "x": -4,
+          "y": 30,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 300000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 751.1,
+          "x": 5,
+          "y": 36,
+          "height": 0,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 300000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 764.1,
+          "x": -6,
+          "y": 36,
+          "height": 2.5,
+          "zone": 3,
+          "rarity": "rare",
+          "coins": 300000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 781,
+          "y": 36,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 1200,
+          "zone": 3,
+          "stretch": 6
+        },
+        {
+          "type": "decor",
+          "z": 800.5,
+          "x": -12,
+          "y": 36,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 820,
+          "y": 36,
+          "requires": 3000000000,
+          "reward": {
+            "coins": 600000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 6,
+          "zone": 3,
+          "rarity": "rare"
+        },
+        {
+          "type": "zoneArch",
+          "z": 820,
+          "y": 36,
+          "zone": 4,
+          "rarity": "epic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 826.5,
+          "y": 36,
+          "zone": 4,
+          "rarity": "epic",
+          "wall": 6
+        },
+        {
+          "type": "eggStand",
+          "z": 830.5,
+          "x": 8,
+          "y": 36,
+          "egg": "aurora"
+        },
+        {
+          "type": "floor",
+          "z": 820,
+          "length": 19.5,
+          "y": 36
+        },
+        {
+          "type": "ramp",
+          "z": 839.5,
+          "length": 20,
+          "y": 36,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 859.5,
+          "length": 90.5,
+          "y": 42
+        },
+        {
+          "type": "gift",
+          "z": 833,
+          "x": -4,
+          "y": 36,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 600000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 881.1,
+          "x": 5,
+          "y": 42,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 600000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 894.1,
+          "x": -6,
+          "y": 42,
+          "height": 2.5,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 600000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 911,
+          "y": 42,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 1500,
+          "zone": 4,
+          "stretch": 7
+        },
+        {
+          "type": "decor",
+          "z": 930.5,
+          "x": 12,
+          "y": 42,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 950,
+          "y": 42,
+          "requires": 4000000000,
+          "reward": {
+            "coins": 1200000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 7,
+          "zone": 4,
+          "rarity": "epic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 956.5,
+          "y": 42,
+          "zone": 4,
+          "rarity": "epic",
+          "wall": 7
+        },
+        {
+          "type": "floor",
+          "z": 950,
+          "length": 19.5,
+          "y": 42
+        },
+        {
+          "type": "ramp",
+          "z": 969.5,
+          "length": 20,
+          "y": 42,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 989.5,
+          "length": 90.5,
+          "y": 48
+        },
+        {
+          "type": "gift",
+          "z": 963,
+          "x": -4,
+          "y": 42,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 600000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 1011.1,
+          "x": 5,
+          "y": 48,
+          "height": 0,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 600000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 1024.1,
+          "x": -6,
+          "y": 48,
+          "height": 2.5,
+          "zone": 4,
+          "rarity": "epic",
+          "coins": 600000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 1041,
+          "y": 48,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 1500,
+          "zone": 4,
+          "stretch": 8
+        },
+        {
+          "type": "decor",
+          "z": 1060.5,
+          "x": -12,
+          "y": 48,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1080,
+          "y": 48,
+          "requires": 5000000000,
+          "reward": {
+            "coins": 1200000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 8,
+          "zone": 4,
+          "rarity": "epic"
+        },
+        {
+          "type": "zoneArch",
+          "z": 1080,
+          "y": 48,
+          "zone": 5,
+          "rarity": "legendary"
+        },
+        {
+          "type": "checkpoint",
+          "z": 1086.5,
+          "y": 48,
+          "zone": 5,
+          "rarity": "legendary",
+          "wall": 8
+        },
+        {
+          "type": "floor",
+          "z": 1080,
+          "length": 19.5,
+          "y": 48
+        },
+        {
+          "type": "ramp",
+          "z": 1099.5,
+          "length": 20,
+          "y": 48,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 1119.5,
+          "length": 90.5,
+          "y": 54
+        },
+        {
+          "type": "gift",
+          "z": 1093,
+          "x": -4,
+          "y": 48,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 1200000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 1141.1,
+          "x": 5,
+          "y": 54,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 1200000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 1154.1,
+          "x": -6,
+          "y": 54,
+          "height": 2.5,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 1200000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 1171,
+          "y": 54,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 2000,
+          "zone": 5,
+          "stretch": 9
+        },
+        {
+          "type": "decor",
+          "z": 1190.5,
+          "x": 12,
+          "y": 54,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1210,
+          "y": 54,
+          "requires": 6000000000,
+          "reward": {
+            "coins": 2400000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 9,
+          "zone": 5,
+          "rarity": "legendary"
+        },
+        {
+          "type": "checkpoint",
+          "z": 1216.5,
+          "y": 54,
+          "zone": 5,
+          "rarity": "legendary",
+          "wall": 9
+        },
+        {
+          "type": "floor",
+          "z": 1210,
+          "length": 19.5,
+          "y": 54
+        },
+        {
+          "type": "ramp",
+          "z": 1229.5,
+          "length": 20,
+          "y": 54,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 1249.5,
+          "length": 90.5,
+          "y": 60
+        },
+        {
+          "type": "gift",
+          "z": 1223,
+          "x": -4,
+          "y": 54,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 1200000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 1271.1,
+          "x": 5,
+          "y": 60,
+          "height": 0,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 1200000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 1284.1,
+          "x": -6,
+          "y": 60,
+          "height": 2.5,
+          "zone": 5,
+          "rarity": "legendary",
+          "coins": 1200000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 1301,
+          "y": 60,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 2000,
+          "zone": 5,
+          "stretch": 10
+        },
+        {
+          "type": "decor",
+          "z": 1320.5,
+          "x": -12,
+          "y": 60,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1340,
+          "y": 60,
+          "requires": 8000000000,
+          "reward": {
+            "coins": 2400000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 10,
+          "zone": 5,
+          "rarity": "legendary"
+        },
+        {
+          "type": "zoneArch",
+          "z": 1340,
+          "y": 60,
+          "zone": 6,
+          "rarity": "mythic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 1346.5,
+          "y": 60,
+          "zone": 6,
+          "rarity": "mythic",
+          "wall": 10
+        },
+        {
+          "type": "floor",
+          "z": 1340,
+          "length": 19.5,
+          "y": 60
+        },
+        {
+          "type": "ramp",
+          "z": 1359.5,
+          "length": 20,
+          "y": 60,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 1379.5,
+          "length": 90.5,
+          "y": 66
+        },
+        {
+          "type": "gift",
+          "z": 1353,
+          "x": -4,
+          "y": 60,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 2500000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 1401.1,
+          "x": 5,
+          "y": 66,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 2500000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 1414.1,
+          "x": -6,
+          "y": 66,
+          "height": 2.5,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 2500000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 1431,
+          "y": 66,
+          "side": "left",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 2500,
+          "zone": 6,
+          "stretch": 11
+        },
+        {
+          "type": "decor",
+          "z": 1450.5,
+          "x": 12,
+          "y": 66,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1470,
+          "y": 66,
+          "requires": 10000000000,
+          "reward": {
+            "coins": 5000000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 11,
+          "zone": 6,
+          "rarity": "mythic"
+        },
+        {
+          "type": "checkpoint",
+          "z": 1476.5,
+          "y": 66,
+          "zone": 6,
+          "rarity": "mythic",
+          "wall": 11
+        },
+        {
+          "type": "floor",
+          "z": 1470,
+          "length": 19.5,
+          "y": 66
+        },
+        {
+          "type": "ramp",
+          "z": 1489.5,
+          "length": 20,
+          "y": 66,
+          "rise": 6
+        },
+        {
+          "type": "floor",
+          "z": 1509.5,
+          "length": 90.5,
+          "y": 72
+        },
+        {
+          "type": "gift",
+          "z": 1483,
+          "x": -4,
+          "y": 66,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 2500000000,
+          "n": 1
+        },
+        {
+          "type": "gift",
+          "z": 1531.1,
+          "x": 5,
+          "y": 72,
+          "height": 0,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 2500000000,
+          "n": 2
+        },
+        {
+          "type": "gift",
+          "z": 1544.1,
+          "x": -6,
+          "y": 72,
+          "height": 2.5,
+          "zone": 6,
+          "rarity": "mythic",
+          "coins": 2500000000,
+          "n": 3
+        },
+        {
+          "type": "niche",
+          "z": 1561,
+          "y": 72,
+          "side": "right",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 2500,
+          "zone": 6,
+          "stretch": 12
+        },
+        {
+          "type": "decor",
+          "z": 1580.5,
+          "x": -12,
+          "y": 72,
+          "kind": "tree"
+        },
+        {
+          "type": "gate",
+          "z": 1600,
+          "y": 72,
+          "requires": 12000000000,
+          "reward": {
+            "coins": 5000000000
+          },
+          "height": 12,
+          "signHeight": 7,
+          "wall": 12,
+          "zone": 6,
+          "rarity": "mythic"
+        },
+        {
+          "type": "floor",
+          "z": 1600,
+          "length": 60,
+          "y": 72
+        },
+        {
+          "type": "summit",
+          "z": 1600,
+          "y": 72,
+          "wall": 12
+        },
+        {
+          "type": "checkpoint",
+          "z": 1603,
+          "y": 72,
+          "zone": 6,
+          "rarity": "mythic",
+          "wall": 12
+        },
+        {
+          "type": "treadmill",
+          "z": 1612,
+          "x": -8,
+          "y": 72,
+          "length": 10,
+          "width": 6,
+          "mult": 4000
+        },
+        {
+          "type": "chest",
+          "z": 1630,
+          "x": 0,
+          "y": 72,
+          "coins": 62500000000
+        },
+        {
+          "type": "portal",
+          "z": 1650,
+          "x": 0,
+          "y": 72,
+          "next": null
+        }
+      ],
+      "treadmillMult": 1
+    }
+  ]
+}

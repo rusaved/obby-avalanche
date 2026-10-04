@@ -1,0 +1,24 @@
+{
+  "_comment": "Stop-lists for automated checks only (docs/03-yandex-compliance.md 3.3, 4.2-4.5). Read by tests/architecture.test.ts and scripts/check-release.mjs; never shipped in the archive.",
+  "brands": [
+    "Roblox", "Роблокс", "Robux", "Робукс", "Робби", "Minecraft", "Майнкрафт", "Майн",
+    "Нубик", "Барри", "брейнрот", "brainrot", "скибиди", "skibidi", "Лабубу", "Спрунки"
+  ],
+  "onlineWords": ["онлайн", "online", "мультиплеер", "multiplayer", "PvP"],
+  "devTraces": [
+    "demo", "beta", "alpha", "test", "тест", "debug", "TODO", "WIP",
+    "в разработке", "скоро", "coming soon", "lorem ipsum"
+  ],
+  "age": {
+    "ru": [
+      "смерть", "умер", "погиб", "гибель", "убит", "убили", "насмерть", "раздавило", "похоронило",
+      "замёрз", "жертва", "труп", "катастрофа", "конец игры", "ты проиграл", "жизни", "сердечки",
+      "бойня", "жуть", "ужас"
+    ],
+    "en": [
+      "death", "dead", "die", "died", "kill", "killed", "killer", "crushed", "buried alive",
+      "frozen to death", "victim", "corpse", "disaster", "game over", "you lost", "lives", "hearts",
+      "run for your life", "horror", "scary", "terror"
+    ]
+  }
+}

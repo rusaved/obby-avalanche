@@ -1,0 +1,81 @@
+
+ RUN  v5.0.3 /home/user/obby-avalanche
+
+ ❯ tests/architecture.test.ts (5 tests | 3 failed) 66ms
+   ❯ architecture (5)
+     × sim, level, meta, core: no DOM, render, ui, platform, audio; three only by the whitelist 15ms
+     × no Math.random in sim and meta 2ms
+     × no Cyrillic in src/**/*.ts outside comments (texts live in content/<pack>/i18n) 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/architecture.test.ts > architecture > sim, level, meta, core: no DOM, render, ui, platform, audio; three only by the whitelist
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "src/sim/__violation_tmp.ts: import * / default from three is forbidden",
++ ]
+
+ ❯ tests/architecture.test.ts:142:22
+    140|       for (const f of files) problems.push(...checkLayerFile(f, readFi…
+    141|     }
+    142|     expect(problems).toEqual([]);
+       |                      ^
+    143|   });
+    144|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/architecture.test.ts > architecture > no Math.random in sim and meta
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "src/sim/__violation_tmp.ts: Math.random is forbidden here (seeded rng only)",
++ ]
+
+ ❯ tests/architecture.test.ts:156:22
+    154|       for (const f of files) problems.push(...checkRandom(f, readFileS…
+    155|     }
+    156|     expect(problems).toEqual([]);
+       |                      ^
+    157|   });
+    158|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/architecture.test.ts > architecture > no Cyrillic in src/**/*.ts outside comments (texts live in content/<pack>/i18n)
+AssertionError: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "src/sim/__violation_tmp.ts: Cyrillic outside comments (\"; export const s = 'Привет'; \")",
++ ]
+
+ ❯ tests/architecture.test.ts:162:22
+    160|     const problems: string[] = [];
+    161|     for (const f of tsFiles('src')) problems.push(...checkCyrillic(f, …
+    162|     expect(problems).toEqual([]);
+       |                      ^
+    163|   });
+    164|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 2 passed (5)
+   Start at  10:57:23
+   Duration  320ms (tests 47%, transform 41%, import 9%, worker 3%)
+
+EXIT=1

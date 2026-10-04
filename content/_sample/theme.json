@@ -1,0 +1,131 @@
+{
+  "fx": {
+    "caught": "ball",
+    "gateOpen": "melt",
+    "footFx": "snow",
+    "weather": "snow",
+    "screenFrame": "frost",
+    "shelterMesh": "cave",
+    "treadmill": "snowWhirl"
+  },
+  "sky": {
+    "top": "#3A1C0F",
+    "bottom": "#FF7A00"
+  },
+  "fog": {
+    "color": "#3A1C0F",
+    "near": 60,
+    "far": 220
+  },
+  "light": {
+    "sun": "#FFD34D",
+    "sunIntensity": 2.0,
+    "ambient": "#FF7A00",
+    "ambientIntensity": 0.9,
+    "sunDir": [
+      0.4,
+      1,
+      0.35
+    ]
+  },
+  "materials": {
+    "track": {
+      "color": "#3A1C0F",
+      "roughness": 0.95
+    },
+    "border": {
+      "color": "#3A1C0F",
+      "roughness": 0.95
+    },
+    "rock": {
+      "color": "#3A1C0F",
+      "roughness": 0.9
+    },
+    "ice": {
+      "color": "#FFD34D",
+      "roughness": 0.35
+    },
+    "gateClosed": {
+      "color": "#5A2A14",
+      "roughness": 0.3
+    },
+    "gateSign": {
+      "color": "#FFD34D"
+    },
+    "gateSignOpen": {
+      "color": "#4CD964"
+    },
+    "cave": {
+      "color": "#3A1C0F",
+      "roughness": 0.4,
+      "emissive": "#FFD34D"
+    },
+    "treadmill": {
+      "color": "#3BA4FF",
+      "roughness": 0.6
+    },
+    "treadmillStripe": {
+      "color": "#FFFFFF"
+    },
+    "flag": {
+      "color": "#EEF3F8"
+    },
+    "pole": {
+      "color": "#6B4A2B"
+    },
+    "tent": {
+      "color": "#FF7A00"
+    },
+    "tree": {
+      "color": "#2E8B57"
+    },
+    "trunk": {
+      "color": "#6B4A2B"
+    },
+    "chest": {
+      "color": "#FFB800"
+    },
+    "portal": {
+      "color": "#FFD34D",
+      "emissive": "#FF7A00"
+    },
+    "snowman": {
+      "color": "#FFFFFF"
+    },
+    "arrow": {
+      "color": "#FFFFFF"
+    },
+    "eggStand": {
+      "color": "#9ED8FF"
+    }
+  },
+  "rarity": {
+    "common": "#EEF3F8",
+    "uncommon": "#4CD964",
+    "rare": "#3BA4FF",
+    "epic": "#A45CFF",
+    "legendary": "#FFB800",
+    "mythic": "#FF4D8D"
+  },
+  "ui": {
+    "stat": "#FFD34D",
+    "coins": "#FFD34D",
+    "trophies": "#A45CFF",
+    "ok": "#4CD964",
+    "no": "#FF4D4D",
+    "statIcon": "iceBolt"
+  },
+  "threat": {
+    "front": [
+      "#FF7A00",
+      "#FFD34D"
+    ],
+    "edge": "#FFD34D",
+    "body": "#FF7A00",
+    "dust": "#FFD34D",
+    "height": 16
+  },
+  "bonus": {
+    "color": "#FFD34D"
+  }
+}

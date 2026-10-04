@@ -1,0 +1,12 @@
+{
+  "accessories": [
+    {
+      "id": "hat_pompom_red",
+      "attach": "head",
+      "parts": [
+        { "shape": "cylinder", "size": [0.56, 0.56, 0.5], "pos": [0, 0.55, 0], "color": "#E53935" },
+        { "shape": "sphere", "size": [0.22, 0.22, 0.22], "pos": [0, 0.92, 0], "color": "#FFFFFF" }
+      ]
+    }
+  ]
+}
