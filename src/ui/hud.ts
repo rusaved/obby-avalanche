@@ -1,7 +1,7 @@
 /**
  * HUD at M1 (docs/01-gdd.md 10.1, docs/02-tech.md 6.3): touch stick visual, jump button (≥ 18% of the short side),
  * pause button, pause/settings panel with the auto-run toggle, keys hint on PC. Buttons carry data-hud so a touch on
- * them never starts the stick. The full HUD (stat, coins, goal, wave) arrives at M2–M3.
+ * them never starts the stick. Coin plaque from the first coin (M2-04); the rest of the HUD (stat, goal, wave) at M2–M3.
  */
 import { t } from './i18n.ts';
 import type { StickState } from '../input/types.ts';
@@ -13,6 +13,8 @@ export interface HudOptions {
   onContinue: () => void;
   onAutoRun: (on: boolean) => void;
   onQuality: (level: 'auto' | 'low' | 'medium' | 'high') => void;
+  /** Coin plaque colour (theme.json ui.coins). */
+  coinColor: string;
 }
 
 export interface Hud {
@@ -26,6 +28,8 @@ export interface Hud {
   showKeysHint(show: boolean): void;
   /** «+N» floating up from a field position in px (docs/01-gdd.md 10.3); the caller limits the rate. */
   popGain(text: string, x: number, y: number): void;
+  /** Coin plaque (docs/01-gdd.md 6.4, 10.1): hidden until the first coin, then slides in from the left and stays. */
+  setCoins(text: string): void;
   readonly jumpButton: HTMLButtonElement;
 }
 
@@ -64,6 +68,16 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const stickKnob = el('div', 'hud-stick-knob');
   stickBase.appendChild(stickKnob);
   root.appendChild(stickBase);
+
+  // Coins under the Speed plaque (docs/01-gdd.md 10.1): a coin with a snowflake and the number.
+  const coins = el('div', 'hud-coins');
+  coins.dataset['role'] = 'coins';
+  coins.setAttribute('aria-label', t('hud.coins'));
+  coins.style.setProperty('--coins', opts.coinColor);
+  const coinIcon = el('span', 'hud-coin-icon', '\u2744');
+  const coinValue = el('span', 'hud-coin-value', '0');
+  coins.append(coinIcon, coinValue);
+  root.appendChild(coins);
 
   const hint = el('div', 'hud-hint', t('howto.pc'));
   const gainPool = Array.from({ length: 4 }, () => el('div', 'hud-gain'));
@@ -171,6 +185,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     },
     showKeysHint(show) {
       hint.classList.toggle('hidden', !show);
+    },
+    setCoins(text) {
+      if (coinValue.textContent !== text) coinValue.textContent = text;
+      coins.classList.add('shown');
     },
     popGain(text, x, y) {
       const node = gainPool[gainNext % gainPool.length]!;

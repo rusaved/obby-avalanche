@@ -134,7 +134,7 @@ async function boot(): Promise<void> {
   // Gates melt into an arch over GATE_MELT_SEC; funnel events gate_N for mountain 1 on tier 0 (docs/06, steps 5–15).
   const melting = new Map<number, number>();
   const wireSim = (s: Sim): void => {
-    for (const name of ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'portal'] as const) {
+    for (const name of ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'portal', 'giftTake', 'giftsRespawn'] as const) {
       s.events.on(name, (payload) => {
         simEvents.push({ name, world: s.level.worldIndex, ...(payload as Record<string, unknown>), tick: s.tick });
         if (simEvents.length > 2000) simEvents.splice(0, simEvents.length - 2000);
@@ -143,6 +143,14 @@ async function boot(): Promise<void> {
     s.events.on('gain', ({ amount, steps }) => {
       pendingGain = amount;
       if (steps === 1) track('gameTutorialStart');
+    });
+    // Gifts (M2-04): a taken gift disappears, the coin plaque slides in on the first coin.
+    s.events.on('giftTake', ({ index, total }) => {
+      levelMeshes?.setGiftShown(index, false);
+      hud?.setCoins(formatNumber(total, numSuffix));
+    });
+    s.events.on('giftsRespawn', () => {
+      s.gifts.forEach((_, i) => levelMeshes?.setGiftShown(i, true));
     });
     s.events.on('gateOpen', ({ index, wall }) => {
       melting.set(index, playSec);
@@ -275,9 +283,10 @@ async function boot(): Promise<void> {
     const next = content.worlds.worlds.find((w) => w.index === index);
     if (!next) return;
     const stat = sim.progress.stat;
+    const coins = sim.coins;
     world = next;
     level = buildLevel(world);
-    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, tier: sim.tier });
+    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier: sim.tier });
     wireSim(sim);
     g.sim = sim;
     g.level = level;
@@ -452,6 +461,7 @@ async function boot(): Promise<void> {
     onContinue: () => g.toggleMenu(false),
     onAutoRun: (on) => g.setAutoRun(on),
     onQuality: (level) => g.setQualitySetting(level),
+    coinColor: theme.ui.coins,
   });
   hud.setAutoRun(save.settings.autoRun);
   hud.setQuality(save.settings.quality);

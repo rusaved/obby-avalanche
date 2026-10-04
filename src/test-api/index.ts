@@ -28,6 +28,12 @@ export interface TestState {
   steps: number;
   /** Open state per gate of the current mountain (M2-02). */
   gatesOpen: boolean[];
+  /** Coin balance and taken state per gift of the current mountain (M2-04). */
+  coins: number;
+  giftsTaken: boolean[];
+  gifts: Array<{ x: number; y: number; z: number; coins: number; rarity: string }>;
+  /** Coin plaque on the HUD: shown (slid in) and its text. */
+  coinPlaque: { shown: boolean; text: string };
   controlYaw: number;
   viewYaw: number;
   cameraDistance: number;
@@ -77,6 +83,8 @@ export interface TestApi {
   charactersDrawCalls(): number;
   gateSign(index: number): { text: string; open: boolean };
   showAd(kind: 'interstitial' | 'rewarded'): Promise<{ shown?: boolean; rewarded?: boolean; error?: string }>;
+  /** Emits the avalanche phase `gone` into the simulation (until the threat of M2-06 does it itself). */
+  waveGone(): void;
 }
 
 declare global {
@@ -84,6 +92,11 @@ declare global {
     __TEST__?: TestApi;
     __YA_MOCK__?: { advance(ms: number): void; calls: Array<{ name: string; args: unknown[]; t: number }>; violations: string[] };
   }
+}
+
+function coinPlaque(): { shown: boolean; text: string } {
+  const node = document.querySelector('[data-role="coins"]');
+  return { shown: node?.classList.contains('shown') ?? false, text: node?.querySelector('.hud-coin-value')?.textContent ?? '' };
 }
 
 export function installTestApi(g: GameHandles): TestApi {
@@ -114,6 +127,10 @@ export function installTestApi(g: GameHandles): TestApi {
         stat: g.sim?.progress.stat ?? 0,
         steps: g.sim?.progress.steps ?? 0,
         gatesOpen: g.sim ? [...g.sim.gatesOpen] : [],
+        coins: g.sim?.coins ?? 0,
+        giftsTaken: g.sim ? g.sim.gifts.map((x) => x.taken) : [],
+        gifts: g.sim ? g.sim.gifts.map((x) => ({ x: x.x, y: x.y, z: x.z, coins: x.coins, rarity: x.rarity })) : [],
+        coinPlaque: coinPlaque(),
         controlYaw: g.frame.controlYaw,
         viewYaw: g.frame.viewYaw,
         cameraDistance: cam?.currentDistance ?? 0,
@@ -198,6 +215,9 @@ export function installTestApi(g: GameHandles): TestApi {
     },
     charactersDrawCalls: () => g.characters?.drawCalls ?? 0,
     showAd: (kind) => g.showAd(kind),
+    waveGone() {
+      g.sim?.events.emit('waveGone', { tick: g.sim.tick });
+    },
   };
   window.__TEST__ = api;
   return api;

@@ -1,6 +1,6 @@
 /**
  * Level meshes (docs/02-tech.md 9.1): static boxes and ramps merged per 120-unit chunk with baked vertex colours
- * (one Lambert material), gates as one InstancedMesh, gate numbers from the digit atlas. Grey/flat at M1,
+ * (one Lambert material), gates and gifts as InstancedMeshes, gate numbers from the digit atlas. Grey/flat at M1,
  * themed details at M5.
  */
 import {
@@ -24,6 +24,7 @@ import type { LevelBox, LevelData, LevelRamp } from '../level/types.ts';
 import type { ThemeJson } from '../content/types.ts';
 import { createDigitLabels, type DigitLabels } from './digits.ts';
 import { formatNumber } from '../ui/format.ts';
+import { GIFT_HALF, GIFT_HEIGHT } from '../sim/gifts.ts';
 
 export const CHUNK_LENGTH = 120;
 
@@ -39,6 +40,10 @@ export interface LevelMeshes {
   setGateSign(index: number, text: string, open: boolean): void;
   /** What a sign currently shows (test API). */
   gateSign(index: number): { text: string; open: boolean };
+  /** Gifts of the mountain in `level.points` order (M2-04). */
+  gifts: InstancedMesh;
+  setGiftShown(index: number, shown: boolean): void;
+  giftShown(index: number): boolean;
   cullByDistance(z: number, far: number): void;
   dispose(): void;
 }
@@ -133,11 +138,6 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       const wid = (p['width'] as number | undefined) ?? 6;
       const tm: LevelBox = { min: [p.x - wid / 2, p.y + 0.02, p.z - len / 2], max: [p.x + wid / 2, p.y + 0.12, p.z + len / 2], material: 'treadmill', kind: 'treadmill', solid: false };
       bucketOf(p.z).push(boxGeometry(tm, theme));
-    } else if (p.type === 'gift') {
-      const g: LevelBox = { min: [p.x - 0.8, p.y, p.z - 0.8], max: [p.x + 0.8, p.y + 1.6, p.z + 0.8], material: 'chest', kind: 'gift', solid: false };
-      const geo = boxGeometry(g, theme);
-      colorGeometry(geo, new Color(theme.rarity[(p['rarity'] as string) ?? 'common'] ?? '#ffffff'));
-      bucketOf(p.z).push(geo);
     } else if (p.type === 'chest') {
       const ch: LevelBox = { min: [p.x - 2, p.y, p.z - 1.5], max: [p.x + 2, p.y + 2.5, p.z + 1.5], material: 'chest', kind: 'chest', solid: false };
       bucketOf(p.z).push(boxGeometry(ch, theme));
@@ -208,6 +208,34 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   level.gates.forEach((_, i) => applySign(i));
   group.add(digits.mesh);
 
+  // Gifts (M2-04): one InstancedMesh in zone rarity colours; a taken gift scales to zero until the respawn.
+  const giftPoints = level.points.filter((p) => p.type === 'gift');
+  const giftGeo = new BoxGeometry(GIFT_HALF * 2, GIFT_HEIGHT, GIFT_HALF * 2);
+  giftGeo.translate(0, GIFT_HEIGHT / 2, 0);
+  const giftMat = new MeshLambertMaterial({ color: 0xffffff });
+  const gifts = new InstancedMesh(giftGeo, giftMat, Math.max(1, giftPoints.length));
+  gifts.count = giftPoints.length;
+  gifts.instanceMatrix.setUsage(DynamicDrawUsage);
+  const giftColor = new Color();
+  const placeGift = (i: number, shown: boolean): void => {
+    const p = giftPoints[i];
+    if (!p) return;
+    dummy.position.set(p.x, p.y, p.z);
+    dummy.rotation.set(0, 0, 0);
+    dummy.scale.setScalar(shown ? 1 : 0.0001);
+    dummy.updateMatrix();
+    gifts.setMatrixAt(i, dummy.matrix);
+    gifts.instanceMatrix.needsUpdate = true;
+  };
+  giftPoints.forEach((p, i) => {
+    placeGift(i, true);
+    gifts.setColorAt(i, giftColor.set(theme.rarity[(p['rarity'] as string) ?? 'common'] ?? '#ffffff'));
+  });
+  if (gifts.instanceColor) gifts.instanceColor.needsUpdate = true;
+  gifts.computeBoundingSphere();
+  group.add(gifts);
+  const giftShown = giftPoints.map(() => true);
+
   return {
     group,
     chunks,
@@ -221,6 +249,13 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       st.open = open;
       applySign(index);
     },
+    gifts,
+    setGiftShown(index, shown) {
+      if (giftShown[index] === undefined || giftShown[index] === shown) return;
+      giftShown[index] = shown;
+      placeGift(index, shown);
+    },
+    giftShown: (index) => giftShown[index] ?? false,
     gateSign(index) {
       const st = signState[index];
       return st ? { ...st } : { text: '', open: false };
@@ -250,6 +285,8 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       gateMat.dispose();
       signGeo.dispose();
       signMat.dispose();
+      giftGeo.dispose();
+      giftMat.dispose();
       digits.dispose();
     },
   };

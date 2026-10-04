@@ -1,14 +1,15 @@
 /**
  * Simulation of one mountain (docs/02-tech.md 4.2, 6.1): hero, checkpoints, fall and respawn.
  * Steps and the stat (M2-01, `steps.ts`): run speed follows the stat through the `moveSpeed` effect.
- * Gates that open (M2-02), the summit portal (M2-03); the avalanche arrives with M2-05…M2-07. Pure TS, no DOM, no rendering.
+ * Gates that open (M2-02), the summit portal (M2-03), gifts and coins (M2-04); the avalanche arrives with M2-05…M2-07. Pure TS, no DOM, no rendering.
  */
 import { createEmitter, type Emitter } from '../core/events.ts';
 import type { LevelData } from '../level/types.ts';
 import type { BalanceJson, Curve, TuningJson } from '../content/types.ts';
 import { moveSpeed } from './effects/moveSpeed.ts';
 import { createStepTracker, type StepGain, type StepTracker } from './steps.ts';
-import { gateIsOpen, gateRequirement } from './gates.ts';
+import { gateIsOpen, gateRequirement, wallScale } from './gates.ts';
+import { giftsFromLevel, touchesGift, type Gift } from './gifts.ts';
 import { createCollisionWorld, type CollisionWorld } from './collision.ts';
 import { PORTAL_HALF_WIDTH } from '../level/builder.ts';
 import { createHero, placeHero, stepHero, type ControllerParams, type HeroInput, type HeroState, NO_INPUT } from './controller.ts';
@@ -24,6 +25,12 @@ export interface SimEvents extends Record<string, unknown> {
   gain: StepGain & { tick: number };
   /** A gate melted open: the stat reached its requirement (docs/01-gdd.md 3.3). */
   gateOpen: { tick: number; index: number; wall: number; z: number; requires: number };
+  /** A gift touched: `coins` added (zone gift × wallScale[tier]), `total` is the coin balance after it. */
+  giftTake: { tick: number; index: number; coins: number; zone: number; rarity: string; total: number };
+  /** All gifts back in place (after every avalanche, docs/01-gdd.md 3.2). */
+  giftsRespawn: { tick: number; count: number };
+  /** The avalanche melted at the camp (phase `gone`, docs/02-tech.md 8.1); the threat emits it from M2-06. */
+  waveGone: { tick: number };
   /** The hero walked through the summit portal (docs/01-gdd.md 5.2): `next` is the next mountain index, null after the last. */
   portal: { tick: number; from: number; next: number | null };
 }
@@ -45,6 +52,11 @@ export interface Sim {
   checkpoint: number;
   /** -1 when not respawning; otherwise ticks left of the ≤0.5 s fade (docs/02-tech.md 6.1). */
   respawnTicksLeft: number;
+  /** Gifts of this mountain (M2-04) and the coin balance. */
+  readonly gifts: Gift[];
+  coins: number;
+  /** Puts every gift back (`balance.gifts.respawn: "onWaveGone"`). */
+  respawnGifts(): void;
   /** True once the hero has walked through the portal of this mountain (one `portal` event per sim). */
   portalEntered: boolean;
   step(input: HeroInput, dt: number): void;
@@ -57,7 +69,9 @@ export interface Sim {
 }
 
 export interface SimOptions {
-  balance: Pick<BalanceJson, 'stepLength' | 'gainPerStep' | 'rebirth'>;
+  balance: Pick<BalanceJson, 'stepLength' | 'gainPerStep' | 'rebirth'> & { gifts?: BalanceJson['gifts'] };
+  /** Coins carried in (portal to the next mountain). */
+  coins?: number;
   /** Rebirth tier n (0 at the start). */
   tier?: number;
   /** Stat → run speed (docs/02-tech.md 6.1): base and max from tuning, k from balance. */
@@ -92,6 +106,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   syncGates();
   const hero = createHero(level.spawn);
   const events = createEmitter<SimEvents>();
+  if ((opts.balance.gifts?.respawn ?? 'onWaveGone') === 'onWaveGone') events.on('waveGone', () => sim.respawnGifts());
   const progress = createStepTracker(opts.balance, opts.stat ?? 0);
   const speedCurve: Curve = { ...opts.speedCurve };
   const params = controllerParams(tuning, moveSpeed(progress.stat, speedCurve));
@@ -115,6 +130,12 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     checkpoint: -1,
     respawnTicksLeft: -1,
     portalEntered: false,
+    gifts: giftsFromLevel(level),
+    coins: opts.coins ?? 0,
+    respawnGifts() {
+      for (const gift of sim.gifts) gift.taken = false;
+      events.emit('giftsRespawn', { tick: sim.tick, count: sim.gifts.length });
+    },
     step(input, dt) {
       sim.tick++;
       if (sim.respawnTicksLeft >= 0) {
@@ -131,6 +152,14 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         sim.portalEntered = true;
         events.emit('portal', { tick: sim.tick, from: level.worldIndex, next: portalNext });
       }
+      // Gifts: a touch takes the gift and pays the coins of its zone (docs/01-gdd.md 3.2).
+      sim.gifts.forEach((gift, index) => {
+        if (gift.taken || Math.abs(gift.z - hero.pos.z) > 3 || !touchesGift(gift, hero.pos.x, hero.pos.y, hero.pos.z)) return;
+        gift.taken = true;
+        const coins = gift.coins * wallScale(tier, opts.balance.rebirth);
+        sim.coins += coins;
+        events.emit('giftTake', { tick: sim.tick, index, coins, zone: gift.zone, rarity: gift.rarity, total: sim.coins });
+      });
       // Steps: horizontal path while on the ground before and after the tick; the air and the landing tick count nothing.
       if (hero.onGround && prev.onGround && !hero.jumpedThisTick) {
         const dx = hero.pos.x - prev.x;
