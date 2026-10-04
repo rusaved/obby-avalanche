@@ -159,6 +159,10 @@ export interface TuningJson {
     bodyLength: number;
     /** Front closer than this: strong rumble and shake (docs/01-gdd.md 4.8). */
     nearDist: number;
+    /** «Snowed in!» (docs/01-gdd.md 4.5): the ball forms, rolls `balance.caught.rollSec`, pops; hop height on bumps. */
+    caughtFormSec: number;
+    caughtPopSec: number;
+    ballBounce: number;
   };
 }
 

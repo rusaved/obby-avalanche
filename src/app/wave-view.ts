@@ -154,7 +154,7 @@ export function createWaveView(d: WaveViewDeps): WaveView {
         }
       }
       view.shot = shotCave >= 0;
-      if (inCave >= 0 && running && Math.abs(dz) < COVER_DIST) d.hero.pose = 'cover';
+      if (inCave >= 0 && running && Math.abs(dz) < COVER_DIST && !sim.caught) d.hero.pose = 'cover';
 
       // Inside the snow body: the body is hidden by the visual, the HUD shows a soft white veil.
       view.veil = running && d.visual.insideBody(d.camera.camera.position);

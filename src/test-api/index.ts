@@ -51,6 +51,8 @@ export interface TestState {
     normalWavesDone: number;
   } | null;
   waveHud: { banner: string | null; arrow: boolean; shot: boolean; veil: boolean; toast: string };
+  /** «Snowed in!» clip (M2-07): seconds since the catch, total length, target cave (−1 camp); null when not caught. */
+  caught: { t: number; total: number; niche: number } | null;
   /** Golden gift (M2-12): null until the feature arrives. */
   bonus: { z: number; carried: boolean } | null;
   /** Coin plaque on the HUD: shown (slid in) and its text. */
@@ -165,6 +167,9 @@ export function installTestApi(g: GameHandles): TestApi {
           toast: document.querySelector('[data-role="toast"].shown')?.textContent ?? '',
         },
         bonus: null,
+        caught: g.sim?.caught
+          ? { t: g.sim.caught.t, total: g.sim.caught.formSec + g.sim.caught.rollSec + g.sim.caught.popSec, niche: g.sim.caught.niche }
+          : null,
         onBelt: g.sim?.onBelt ?? false,
         inShelter: g.sim?.inShelter() ?? false,
         shelter: g.sim?.shelterIndex() ?? -1,

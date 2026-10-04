@@ -187,7 +187,7 @@ export function createAvalancheVisual(initial: LevelData, theme: ThemeJson, tuni
       bodyOn = run;
       if (run) {
         const y0 = level.floorYAt(view.frontZ) - 2;
-        const yTop = level.floorYAt(view.frontZ + av.bodyLength) + t.height * 0.85;
+        const yTop = level.floorYAt(view.frontZ) + t.height * 0.85;
         body.position.set(0, y0, view.frontZ);
         body.scale.set(bodyHalf * 2, yTop - y0, av.bodyLength);
         // The camera inside the body: the body is not drawn, the HUD shows a soft white veil (docs/02-tech.md 7).

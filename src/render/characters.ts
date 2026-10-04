@@ -36,6 +36,10 @@ const box = (b: { w: number; h: number; d: number }) => ({ w: b.w * K, h: b.h * 
 export const PART = { head: P.head * K, torso: box(P.torso), arm: box(P.arm), leg: box(P.leg), armGap: P.armGap * K, legGap: P.legGap * K, armTiltRad: P.armTiltRad };
 const FACE_CELL = 128;
 
+/** In the snowball the figure shrinks and rises so the head pokes out of a 3-unit ball. */
+const BALL_SCALE = 0.55;
+const BALL_LIFT = 1.1;
+
 export type CharacterPose = 'idle' | 'run' | 'jump' | 'fall' | 'land' | 'cover' | 'win' | 'ball';
 
 export interface CharacterInstance {
@@ -380,15 +384,22 @@ if (vObjNormal.z > 0.6) {
         } else if (ch.pose === 'win') {
           armL = -3.0;
           armR = -3.0;
+        } else if (ch.pose === 'ball') {
+          // «Snowed in!» (docs/01-gdd.md 4.5): curled up and small, only the hat and the eyes stick out of the ball.
+          armL = 0.3;
+          armR = 0.3;
+          legL = -1.2;
+          legR = -1.2;
         }
 
         // Run bob: a light bounce twice per stride and a hint of side sway make the stride read as springy.
         const bob = running ? Math.abs(Math.sin(ch.phase)) * 0.12 * ch.speedFactor : 0;
         const sway = running ? Math.sin(ch.phase) * 0.04 * ch.speedFactor : 0;
+        const ballK = ch.pose === 'ball' ? BALL_SCALE : 1;
         root.position.copy(ch.position);
-        root.position.y += bob;
+        root.position.y += bob + (ch.pose === 'ball' ? BALL_LIFT : 0);
         root.rotation.set(0, ch.yaw, sway);
-        root.scale.set(1 / sq, sq, 1 / sq);
+        root.scale.set(ballK / sq, ballK * sq, ballK / sq);
         root.updateMatrix();
         const world = root.matrix;
         const legTop = PART.leg.h;

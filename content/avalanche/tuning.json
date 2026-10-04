@@ -47,7 +47,10 @@
     "shotReturnSec": 1.0,
     "noise": 1.2,
     "bodyLength": 60,
-    "nearDist": 60
+    "nearDist": 60,
+    "caughtFormSec": 0.3,
+    "caughtPopSec": 0.4,
+    "ballBounce": 0.8
   },
   "input": {
     "stickRadiusFrac": 0.12,

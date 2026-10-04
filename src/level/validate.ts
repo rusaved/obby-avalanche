@@ -216,6 +216,9 @@ const tuningSchema = v.object({
     noise: nonNeg,
     bodyLength: positive,
     nearDist: positive,
+    caughtFormSec: nonNeg,
+    caughtPopSec: nonNeg,
+    ballBounce: nonNeg,
   }),
 });
 

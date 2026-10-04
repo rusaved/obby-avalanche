@@ -17,6 +17,7 @@ import { createGameRenderer, createWebGL2Context, type GameRenderer } from './re
 import { createLevelMeshes, type LevelMeshes } from './render/level-mesh.ts';
 import { createCharacters, type CharacterInstance, type Characters } from './render/characters.ts';
 import { createBlobShadow } from './render/blob.ts';
+import { createSnowball } from './render/threat/snowball.ts';
 import { createCameraRig, type CameraRig } from './render/camera.ts';
 import { createAvalancheVisual, type AvalancheVisual } from './render/threat/avalanche.ts';
 import { createWaveView, type WaveView } from './app/wave-view.ts';
@@ -157,7 +158,7 @@ async function boot(): Promise<void> {
   const melting = new Map<number, number>();
   const wireSim = (s: Sim): void => {
     const recorded = ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'portal', 'giftTake', 'giftsRespawn'] as const;
-    const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'waveDusted', 'waveGone', 'waveEnd'] as const;
+    const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'caughtEnd', 'waveDusted', 'waveGone', 'waveEnd'] as const;
     for (const name of [...recorded, ...waves]) {
       s.events.on(name, (payload) => {
         simEvents.push({ name, world: s.level.worldIndex, ...(payload as Record<string, unknown>), tick: s.tick });
@@ -192,6 +193,8 @@ async function boot(): Promise<void> {
       if (coins > 0) hud?.setCoins(formatNumber(total, numSuffix));
     });
     s.events.on('waveDusted', () => hud?.toast(t('wave.firstMiss'), 3));
+    // «Snowed in!» (M2-07, docs/01-gdd.md 4.5): toast; the ball and the pose follow sim.caught in renderFrame.
+    s.events.on('waveCaught', () => hud?.toast(t('wave.caught')));
     s.events.on('waveEnd', ({ scripted, outcome }) => {
       if (scripted) {
         (save.flags ??= {})['firstWaveDone'] = true;
@@ -216,6 +219,7 @@ async function boot(): Promise<void> {
   let jumpedOnce = false;
   let playSec = 0;
   const blob = createBlobShadow();
+  const snowball = createSnowball(theme.threat.body);
 
   const g: GameHandles = {
     loop: null as unknown as GameHandles['loop'],
@@ -403,6 +407,7 @@ async function boot(): Promise<void> {
       // On a belt the hero runs in place by himself (docs/01-gdd.md 3.4).
       heroChar.pose = hero.onGround ? (hero.speed > 0.5 || sim.onBelt ? 'run' : 'idle') : hero.vel.y > 2 ? 'jump' : 'fall';
       if (sim.onBelt) heroChar.speedFactor = 1;
+      snowball.update(sim.caught, renderPos, heroChar, playSec);
       if (hero.landedThisTick) heroChar.squash = 0.1;
       heroChar.visible = !(cameraRig?.heroHidden ?? false) && sim.respawnTicksLeft < 0;
     }
@@ -509,6 +514,7 @@ async function boot(): Promise<void> {
   g.characters = characters;
   g.hero = heroChar;
   gr.scene.add(blob.mesh);
+  gr.scene.add(snowball.mesh);
   avalanche = createAvalancheVisual(level, theme, tuning, rng.next);
   gr.scene.add(avalanche.group);
   cameraRig = createCameraRig(gr.camera, frame, tuning, rng.next);

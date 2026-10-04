@@ -13,6 +13,7 @@ import { giftsFromLevel, touchesGift, type Gift } from './gifts.ts';
 import { createCollisionWorld, type CollisionWorld } from './collision.ts';
 import { beltAt, belts, shelterIndex } from './shelter.ts';
 import { createThreat, type Threat, type ThreatEvents, type ThreatOptions } from './threat.ts';
+import { caughtPosition, caughtTotalSec, createCaught, type CaughtState } from './caught.ts';
 import { PORTAL_HALF_WIDTH } from '../level/builder.ts';
 import { createHero, placeHero, stepHero, type ControllerParams, type HeroInput, type HeroState, NO_INPUT } from './controller.ts';
 
@@ -33,6 +34,8 @@ export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, Record<st
   giftTake: { tick: number; index: number; coins: number; zone: number; rarity: string; total: number };
   /** All gifts back in place (after every avalanche, docs/01-gdd.md 3.2). */
   giftsRespawn: { tick: number; count: number };
+  /** «Snowed in!» is over: the ball popped in a cave below (`niche`) or in the camp (−1), controls are back. */
+  caughtEnd: { tick: number; sec: number; niche: number; x: number; y: number; z: number };
   /** The hero walked through the summit portal (docs/01-gdd.md 5.2): `next` is the next mountain index, null after the last. */
   portal: { tick: number; from: number; next: number | null };
 }
@@ -61,6 +64,8 @@ export interface Sim {
   respawnGifts(): void;
   /** The avalanche of this mountain (M2-06); null when the sim runs without a threat (unit tests of other parts). */
   readonly threat: Threat | null;
+  /** «Snowed in!» clip in progress (M2-07): the hero is a snowball, no control; null otherwise. */
+  caught: CaughtState | null;
   /** True once the hero has walked through the portal of this mountain (one `portal` event per sim). */
   portalEntered: boolean;
   step(input: HeroInput, dt: number): void;
@@ -82,6 +87,7 @@ export interface SimOptions {
     gifts?: BalanceJson['gifts'];
     niche?: BalanceJson['niche'];
     coins?: BalanceJson['coins'];
+    caught?: BalanceJson['caught'];
   };
   /** The avalanche (docs/02-tech.md 8.1): world threat, balance and tuning, save counters. */
   threat?: ThreatOptions;
@@ -148,6 +154,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     portalEntered: false,
     onBelt: false,
     threat: null,
+    caught: null,
     gifts: giftsFromLevel(level),
     coins: opts.coins ?? 0,
     respawnGifts() {
@@ -163,6 +170,11 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         heroView.vx = hero.vel.x;
         heroView.vz = hero.vel.z;
         threat.step(dt, heroView, gatesOpen, sim.tick);
+      }
+      if (sim.caught) {
+        stepCaught(dt);
+        events.emit('step', { tick: sim.tick });
+        return;
       }
       if (sim.respawnTicksLeft >= 0) {
         sim.respawnTicksLeft--;
@@ -228,6 +240,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       events.emit('step', { tick: sim.tick });
     },
     teleport(x, y, z) {
+      sim.caught = null;
       placeHero(hero, x, y, z);
       progress.resetCarry();
       prev.onGround = false;
@@ -274,5 +287,31 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       })
     : null;
   (sim as { threat: Threat | null }).threat = threat;
+
+  // «Snowed in!» (docs/01-gdd.md 4.5): the ball rolls to the cave below; stat, coins and gates stay as they are.
+  const ballPos = { x: 0, y: 0, z: 0 };
+  const stepCaught = (dt: number): void => {
+    const c = sim.caught!;
+    c.t += dt;
+    caughtPosition(c, level, tuning.avalanche.ballBounce, ballPos);
+    hero.pos.set(ballPos.x, ballPos.y, ballPos.z);
+    hero.vel.set(0, 0, 0);
+    hero.speed = 0;
+    hero.onGround = true;
+    if (c.t >= caughtTotalSec(c) - 1e-9) {
+      sim.caught = null;
+      placeHero(hero, c.to.x, c.to.y + 0.05, c.to.z);
+      progress.resetCarry();
+      prev.onGround = false;
+      events.emit('caughtEnd', { tick: sim.tick, sec: c.t, niche: c.niche, x: c.to.x, y: c.to.y, z: c.to.z });
+    }
+  };
+  if (threat && opts.balance.caught) {
+    const caughtCfg = opts.balance.caught;
+    events.on('waveCaught', ({ x, y, z }) => {
+      if (sim.respawnTicksLeft >= 0) sim.respawnTicksLeft = -1;
+      sim.caught = createCaught(level, { x, y, z }, caughtCfg, tuning.avalanche);
+    });
+  }
   return sim;
 }
