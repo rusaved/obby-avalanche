@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { NO_INPUT, type HeroInput } from '../../src/sim/controller.ts';
 import { createSim } from '../../src/sim/world.ts';
@@ -115,6 +115,12 @@ describe('mountains 1–5 (M3-05)', () => {
     .map((l) => l.split('|').slice(1, -1).map((c) => c.trim()))
     .map((c) => ({ mountain: Number(c[1]), wall: Number(c[2]), requires: parseNum(c[3]!), treadmill: parseNum(c[4]!), gift: parseNum(c[6]!), gateCoins: parseNum(c[7]!) }));
   const of = (w: (typeof worlds.worlds)[number], type: string) => w.segments.filter((s) => s.type === type).sort((a, b) => a.z - b.z);
+  // `sim:balance --fit` (docs/01-gdd.md 8.5) moves walls without touching 01a; every move is in docs/evidence/balance-fit.json.
+  type FitRun = { pack: string; aborted?: string; walls: Array<{ p: number; from: number; to: number }> };
+  const fitLog = resolve(root, 'docs/evidence/balance-fit.json');
+  const fits = (existsSync(fitLog) ? (JSON.parse(readFileSync(fitLog, 'utf8')) as FitRun[]) : []).filter((r) => r.pack === 'avalanche' && !r.aborted);
+  const fittedWall = new Map<number, { from: number; to: number }>();
+  for (const d of fits.flatMap((r) => r.walls)) fittedWall.set(d.p, { from: fittedWall.get(d.p)?.from ?? d.from, to: d.to });
 
   it('release count of 01-gdd 5.4: 5 mountains, 60 walls, 60 caves, 30 zones, 180 gift places, 5 camps with a treadmill, 5 summits with a chest and a portal', () => {
     const all = (type: string): number => worlds.worlds.reduce((n, w) => n + of(w, type).length, 0);
@@ -136,7 +142,9 @@ describe('mountains 1–5 (M3-05)', () => {
       const gate = of(w, 'gate')[r.wall - 1]!;
       const cave = of(w, 'niche')[r.wall - 1]!;
       const at = `mountain ${r.mountain}, wall ${r.wall}`;
-      expect(gate['requires'], at).toBe(r.requires);
+      const fitted = fittedWall.get(12 * (r.mountain - 1) + r.wall);
+      if (fitted) expect([fitted.from, gate['requires']], `${at} (sim:balance --fit)`).toEqual([r.requires, fitted.to]);
+      else expect(gate['requires'], at).toBe(r.requires);
       expect(cave['treadmill'], at).toBe(r.treadmill);
       expect(cave['stretch'], at).toBe(r.wall);
       expect(w.zones.find((z) => z.k === gate['zone'])!.gift, at).toBe(r.gift);

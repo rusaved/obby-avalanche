@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { lcg, runCycle, type ModelPack } from '../../scripts/balance-model.ts';
+import { lcg, referenceTargets, runCycle, withWalls, type ModelPack } from '../../scripts/balance-model.ts';
 import game from '../../content/avalanche/game.json' with { type: 'json' };
 import balance from '../../content/avalanche/balance.json' with { type: 'json' };
 import tuning from '../../content/avalanche/tuning.json' with { type: 'json' };
@@ -41,9 +41,13 @@ describe('balance model (M2-11)', () => {
     expect(lazy.mountains[0]!).toBeGreaterThan(greedy.mountains[0]!);
   });
 
-  it('port of the reference: mountain 1 walls match the column «Бот модели» of docs/01a-content.md 3 within ±10%', () => {
+  it('port of the reference (M3-10): on its assumptions the inverse run gives the walls of 01a 3 and mountain 1 the column «Бот модели» ±10%', () => {
     const column = [7, 12, 18, 54, 70, 104, 117, 145, 180, 213, 261, 281];
-    const r = runCycle(pack, { profile: 'greedy', mountains: 1 });
+    const table = [20, 40, 80, 2000, 4000, 12000, 15000, 20000, 30000, 40000, 80000, 100000];
+    const t = referenceTargets([12, 12, 12, 12, 12])!;
+    const inv = runCycle(pack, { profile: 'greedy', reference: true, fit: { keep: t.keep, targetSec: t.targetSec } });
+    expect(inv.fitted.slice(0, 12)).toEqual(table);
+    const r = runCycle(withWalls(pack, inv.fitted), { profile: 'greedy', mountains: 1, reference: true });
     r.walls.forEach((w, i) => expect(Math.abs(w.sec - column[i]!) / column[i]!).toBeLessThanOrEqual(0.1));
   });
 

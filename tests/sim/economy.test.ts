@@ -47,8 +47,8 @@ describe('economy formulas (M3-01)', () => {
     expect(rewardCoins(balance, 'gatePass', 40, 2)).toBe(4000);
     expect(rewardCoins(balance, 'waveSurvived', 40, 0)).toBe(120);
     expect(rewardCoins(balance, 'chest', 40, 0)).toBe(1000);
-    // Tier 10 is past the table: 1M × 3.5.
-    expect(scaled(1, 10, balance.rebirth)).toBe(3_500_000);
+    // Tier 10 is past the table: wallScale[9] × wallScaleGrowth (800K × 3.5 after sim:balance --fit, M3-10).
+    expect(scaled(1, 10, balance.rebirth)).toBe(balance.rebirth.wallScale[9]! * balance.rebirth.wallScaleGrowth);
     // Trophies g × (1 + n): 15 for five summits on tier 0, mountain 5 on tier 9 — 50.
     expect([1, 2, 3, 4, 5].reduce((a, g) => a + summitTrophies(balance, g, 0), 0)).toBe(15);
     expect(summitTrophies(balance, 5, 9)).toBe(50);

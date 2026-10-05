@@ -14,13 +14,20 @@
  * Trails and auras (M3-04): at the end of every cycle the bot spends trophies like `spendTrophies` of the reference —
  * the next trail when it can pay and it is not dearer than the next aura, otherwise the next aura; both go into
  * the step through stepGain. The first wave of a mountain comes after its firstIntervalSec, as in the game (Q-022);
- * the reference starts every mountain with intervalSec. Not here yet (M3-10): the «active day» and «egg spammer» profiles.
+ * the reference starts every mountain with intervalSec.
+ * - activeDay — greedy + the calendar, 3 quests and the time rewards of one game day every `ACTIVE_DAY_SEC` of play;
+ * - eggSpammer — the best open egg whenever it can pay, shoes second (the reference with SPAM=1).
+ * `reference: true` runs the assumptions of balance-model.pl instead of the game ones: the first wave of a mountain after
+ * intervalSec and the unrounded treadmill curve of the reference (the data keep the rounded one, docs/01a-content.md 3).
+ * With it the port repeats the reference wall by wall (column «Бот модели» of docs/01a-content.md 3).
+ * `fit` — the inverse run of the reference for `sim:balance --fit`: a wall without a number opens at its target second and
+ * gets the stat of the bot × `FIT_SHARE`, rounded to the «nice» row (docs/01-gdd.md 8.5).
  */
-import type { AurasJson, BalanceJson, EggsJson, GameJson, PetsJson, Segment, TrailsJson, TuningJson, World } from '../src/content/types.ts';
+import type { AurasJson, BalanceJson, EggsJson, GameJson, PetsJson, Reward, Segment, TrailsJson, TuningJson, World } from '../src/content/types.ts';
 import { moveSpeed } from '../src/sim/effects/moveSpeed.ts';
 import { scaled, stepGain } from '../src/sim/economy.ts';
 
-export type Profile = 'greedy' | 'goldSeeker' | 'lazy';
+export type Profile = 'greedy' | 'goldSeeker' | 'lazy' | 'activeDay' | 'eggSpammer';
 
 export interface ModelPack {
   game: GameJson;
@@ -76,6 +83,12 @@ export interface CycleRun {
   goldTaken: number;
   coins: number;
   meta: ModelMeta;
+  /** Trophies got in this cycle (summits and rewards), for «кубки за всё время» (docs/01-gdd.md 8.5, check 10). */
+  trophiesGot: number;
+  /** State of the egg generator after the cycle: the next tier goes on with it, as the reference does. */
+  seedOut: number;
+  /** Fit mode: requirements of tier 0 by through number (index p − 1). */
+  fitted: number[];
 }
 
 export interface CycleOpts {
@@ -83,8 +96,15 @@ export interface CycleOpts {
   tier?: number;
   /** Mountains to run, from 1 (default: all of worlds.json). */
   mountains?: number;
+  /** State of the egg generator (default: the seed of the reference). */
   seed?: number;
   meta?: ModelMeta;
+  /** The assumptions of balance-model.pl instead of the game ones (see the header). */
+  reference?: boolean;
+  /** Inverse run (sim:balance --fit): walls after `keep` get their number at `targetSec[p − 1]` (second of the mountain). */
+  fit?: { keep: number; targetSec: number[] };
+  /** `wallScale[n]` to try instead of the table (the bisection of sim:balance --fit). */
+  wallScale?: number;
 }
 
 /** Model step, seconds (the reference: $dt = 0.25). */
@@ -110,16 +130,42 @@ const LAZY_REACT_SEC = 1.5;
 const LAZY_IGNORE = 0.3;
 const SEED = 12345;
 const LAZY_SEED = 54321;
+/** Active day (docs/01-gdd.md 8.5): one game day per 35 minutes of play; quests are done at 10 / 20 / 30 min of it. */
+export const ACTIVE_DAY_SEC = 35 * 60;
+const QUEST_AT_MIN = [10, 20, 30];
+/** The reference: the treadmill before wall p is max(2 × 1.13^(p−1), 5 × 1.1^(p−1)), unrounded (reference mode only). */
+const refTread = (p: number): number => Math.max(2 * 1.13 ** (p - 1), 5 * 1.1 ** (p - 1));
+/** Fit (docs/01-gdd.md 8.5): wall = stat of the bot at the target second × 0.97, the «nice» row 1 … 8 × 10^k. */
+export const FIT_SHARE = 0.97;
+const NICE = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
 
 const num = (s: Segment, k: string): number => (typeof s[k] === 'number' ? (s[k] as number) : 0);
 
 /** The generator of the reference: seed = (seed × 1103515245 + 12345) mod 2^31, value = seed / 2^31. */
-export function lcg(seed: number): () => number {
+export function lcg(seed: number): (() => number) & { state: () => number } {
   let s = seed;
-  return () => {
+  const next = (): number => {
     s = (Math.imul(s, 1103515245) + 12345) & 0x7fffffff;
     return s / 2147483648;
   };
+  return Object.assign(next, { state: () => s });
+}
+
+/** `nice` of the reference: the nearest of 1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8 × 10^k (below 10 — the nearest integer). */
+export function nice(x: number): number {
+  if (x < 10) return Math.floor(x + 0.5);
+  const e = 10 ** Math.floor(Math.log10(x));
+  const m = x / e;
+  let best = 1;
+  for (const s of NICE) if (Math.abs(s - m) < Math.abs(best - m)) best = s;
+  return best * e;
+}
+
+/** `up` of the reference: the next number of the «nice» row above x. */
+export function up(x: number): number {
+  const e = 10 ** Math.floor(Math.log10(x));
+  for (const s of NICE) if (s * e > x * 1.0001) return s * e;
+  return 10 * e;
 }
 
 /** `wallScale[n]`, after the table × `wallScaleGrowth` per tier (docs/01-gdd.md 8.4). */
@@ -149,11 +195,16 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
   const rnd = lcg(opts.seed ?? SEED);
   const lazyRnd = lcg(LAZY_SEED);
   const lazy = profile === 'lazy';
+  const spammer = profile === 'eggSpammer';
+  const activeDay = profile === 'activeDay';
+  const reference = opts.reference === true;
+  const fit = opts.fit;
+  const fitted: number[] = [];
   const curve = { ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed };
   const vel = (s: number): number => moveSpeed(s, curve);
   const stepLen = balance.stepLength;
   const shoes = balance.upgrade.tiers;
-  const Wn = wallScale(balance, n);
+  const Wn = opts.wallScale ?? wallScale(balance, n);
   const bonus = profile === 'goldSeeker' ? (pack.game.threat.bonus ?? null) : null;
   const petBonus = (id: string): number => pack.pets.pets.find((p) => p.id === id)?.bonus ?? 0;
   const freePet = petBonus(balance.ftue.freeEggPet);
@@ -176,6 +227,10 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
       return { at: before + Math.max(1, at), price: egg.price, pool: egg.pool.map((s) => ({ bonus: petBonus(s.pet), chance: s.chance })) };
     })
     .filter((e) => e !== null);
+  const eggById = (id: string): (typeof eggs)[number] | null => {
+    const egg = pack.eggs.eggs.find((e) => e.id === id);
+    return egg ? { at: 0, price: egg.price, pool: egg.pool.map((s) => ({ bonus: petBonus(s.pet), chance: s.chance })) } : null;
+  };
 
   const prunePets = (): void => {
     meta.pets.sort((a, b) => b - a);
@@ -211,6 +266,11 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
   let caught = 0;
   let doubleCaught = 0;
   let goldTaken = 0;
+  let boostUntil = -1;
+  let trophiesGot = 0;
+  // Active day: the rewards of the day in order of their second of play (calendar, time rewards, quests).
+  const dayEvents = activeDay ? activeDayEvents(balance) : [];
+  let nextEvent = 0;
   const walls: WallRow[] = [];
   const shoeBuys: number[] = [];
   const mountains: number[] = [];
@@ -234,7 +294,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
     let z = world.spawnZ;
     let phase: 'idle' | 'warn' | 'run' = 'idle';
     // First wave of a mountain after the load or the portal: its own firstIntervalSec (Q-022, M3-12); the reference uses I.
-    let phT = th.firstIntervalSec;
+    let phT = reference ? th.intervalSec : th.firstIntervalSec;
     let front = 0;
     let giftsLeft = giftsPerZone;
     let carrying = false;
@@ -251,9 +311,11 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
       const cave = niches.find((nn) => num(nn, 'stretch') === i);
       const shelter = cave ? cave.z : gz;
       const caveBelow = niches.find((nn) => num(nn, 'stretch') === i - 1)?.z ?? campTop;
-      const tread = (cave ? num(cave, 'treadmill') : 1) * (world.treadmillMult ?? 1);
+      const tread = reference ? refTread(p) : (cave ? num(cave, 'treadmill') : 1) * (world.treadmillMult ?? 1);
       const gift = zoneGift(num(gate, 'zone')) * Wn;
-      const req = num(gate, 'requires') * Wn * ease(balance, n, p, lastWall);
+      // Fit: a wall after `keep` has no number; it opens at its target second of the mountain (the reference: 'inverse').
+      const fitAt = fit && p > fit.keep ? tw0 + (fit.targetSec[p - 1] ?? 0) : null;
+      const req = fitAt !== null ? Infinity : num(gate, 'requires') * Wn * ease(balance, n, p, lastWall);
       const reward = ((gate['reward'] as { coins?: number } | undefined)?.coins ?? 0) * Wn;
       let readySince = -1;
       if (scripted && i === scriptedWall) {
@@ -293,7 +355,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
       };
       for (;;) {
         // The step of the game (docs/01-gdd.md 8.1): the same formula module as the simulation.
-        const g = stepGain(balance, { tier: n, shoe: shoes[shoe]?.mult ?? 1, pets: petMult(), trail: trailMult, aura: auraMult });
+        const g = stepGain(balance, { tier: n, shoe: shoes[shoe]?.mult ?? 1, pets: petMult(), trail: trailMult, aura: auraMult, boost: T < boostUntil });
         const v = vel(S);
         phT -= DT;
         if (phase === 'warn') warnAge += DT;
@@ -339,7 +401,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
           }
         }
         if (S >= req && readySince < 0) readySince = T;
-        const ready = S >= req && (!lazy || T - readySince >= LAZY_REACT_SEC);
+        const ready = fitAt !== null ? T >= fitAt : S >= req && (!lazy || T - readySince >= LAZY_REACT_SEC);
         if (hiding) {
           walkTo(shelter, v, g);
           S += (v / stepLen) * g * tread * DT;
@@ -366,14 +428,38 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
           z = shelter;
         }
         T += DT;
+        // Active day: rewards of the day as their second of play comes (coins are k × the gift of the hero's zone).
+        while (nextEvent < dayEvents.length && dayEvents[nextEvent]!.at <= T) {
+          const r = dayEvents[nextEvent++]!.reward;
+          if (r.kind === 'coins') C += r.gifts * gift;
+          else if (r.kind === 'trophies') {
+            meta.trophies += r.n;
+            trophiesGot += r.n;
+          }
+          else if (r.kind === 'boost') boostUntil = Math.max(T, boostUntil) + r.min * 60;
+          else if (r.kind === 'pet') {
+            meta.pets.push(petBonus(r.id));
+            prunePets();
+          } else if (r.kind === 'egg') {
+            const e = r.id === 'best' ? [...eggs].reverse().find((x) => p >= x.at) : eggById(r.id);
+            if (e) hatch(e);
+          }
+        }
+        // Egg spammer (the reference, SPAM=1): the best open egg first, shoes from what is left.
+        const best = [...eggs].reverse().find((e) => p >= e.at);
+        if (spammer && best) {
+          for (let k = 0; k < EGG_BATCH && C >= best.price * Wn; k++) {
+            C -= best.price * Wn;
+            hatch(best);
+          }
+        }
         while (shoe < shoes.length - 1 && C >= shoes[shoe + 1]!.price * Wn) {
           C -= shoes[shoe + 1]!.price * Wn;
           shoe++;
           shoeBuys.push(T);
         }
         // The best open egg, as many times as wanted, while the next shoes cost 4+ times more (the reference).
-        const best = [...eggs].reverse().find((e) => p >= e.at);
-        if (best) {
+        if (best && !spammer) {
           const next = shoe < shoes.length - 1 ? shoes[shoe + 1]!.price * Wn : Infinity;
           for (let k = 0; k < EGG_BATCH && C >= best.price * Wn && next >= EGG_VS_SHOES * best.price * Wn; k++) {
             C -= best.price * Wn;
@@ -381,7 +467,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
           }
         }
         if (T > LIMIT_SEC) {
-          return { sec: Infinity, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, goldTaken, coins: C, meta };
+          return { sec: Infinity, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, goldTaken, coins: C, meta, trophiesGot, seedOut: rnd.state(), fitted };
         }
       }
       // The free egg of the first minute hatches after wall 3 of the reference (docs/01-gdd.md 6.2).
@@ -389,12 +475,20 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
         meta.pets.push(freePet);
         prunePets();
       }
+      if (fit) {
+        // The reference: gate = nice(stat / W × 0.97), and strictly above the previous one.
+        let x = fitAt !== null ? nice((S / Wn) * FIT_SHARE) : num(gate, 'requires');
+        const prev = fitted[p - 2];
+        if (fitAt !== null && prev !== undefined && x <= prev) x = up(prev);
+        fitted[p - 1] = x;
+      }
       walls.push({ mountain: w, wall: i, p, sec: T - tw0, total: T, took: T - lastWallT, stat: S, shoe, petMult: petMult(), coins: C });
       lastWallT = T;
     }
     T += TO_PORTAL / vel(S);
     C += balance.coins.chest * zoneGift(world.zones[world.zones.length - 1]?.k ?? 0) * Wn;
     meta.trophies += w * (1 + n); // balance.trophies.perSummit: «world * (1 + tier)»
+    trophiesGot += w * (1 + n);
     // Before rebirth the bot spends coins on the best eggs it can.
     if (wi === pack.worlds.length - 1) {
       for (const e of [...eggs].reverse()) {
@@ -407,7 +501,30 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
     mountains.push(T - tw0);
   }
   spendTrophies(pack, meta);
-  return { sec: T, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, goldTaken, coins: C, meta };
+  return { sec: T, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, goldTaken, coins: C, meta, trophiesGot, seedOut: rnd.state(), fitted };
+}
+
+/**
+ * Rewards of the «active day» profile, days back to back every ACTIVE_DAY_SEC of play: the calendar day at its start
+ * (a look the bot gets for the first time gives nothing to the economy; `alt` only when it is owned — not in one week),
+ * the time rewards at their minute of the day, the quests at QUEST_AT_MIN and the bonus with the last one.
+ */
+export function activeDayEvents(balance: BalanceJson, days = 12): Array<{ at: number; reward: Reward }> {
+  const ev: Array<{ at: number; reward: Reward }> = [];
+  for (let d = 0; d < days; d++) {
+    const t0 = d * ACTIVE_DAY_SEC;
+    const day = balance.daily.days[d % balance.daily.days.length];
+    const firstRound = d < balance.daily.days.length;
+    const cal = day && (firstRound || !day.alt) ? day : day?.alt;
+    if (cal) ev.push({ at: t0, reward: cal });
+    for (const tr of balance.timeRewards) if (tr.min * 60 < ACTIVE_DAY_SEC) ev.push({ at: t0 + tr.min * 60, reward: tr.reward });
+    const quests = QUEST_AT_MIN.slice(0, balance.quests.perDay);
+    quests.forEach((m, i) => {
+      for (const r of balance.quests.reward) ev.push({ at: t0 + m * 60, reward: r });
+      if (i === quests.length - 1) for (const r of balance.quests.bonus) ev.push({ at: t0 + m * 60, reward: r });
+    });
+  }
+  return ev.sort((a, b) => a.at - b.at);
 }
 
 /** Trails and auras by price, cheapest first (the reference: @trails, @auras without the [1, 0] «none»). */
@@ -453,4 +570,86 @@ export interface MountainRun {
 export function runMountain1(pack: ModelPack, profile: Profile): MountainRun {
   const r = runCycle(pack, { profile, mountains: 1 });
   return { sec: r.mountains[0] ?? Infinity, walls: r.walls, normalWaves: r.normalWaves, goldTaken: r.goldTaken, coins: r.coins };
+}
+
+/** Pack with the tier-0 requirements of the walls replaced (index p − 1, through number), the rest shared. */
+export function withWalls(pack: ModelPack, req: readonly number[]): ModelPack {
+  let p = 0;
+  const worlds = [...pack.worlds]
+    .sort((a, b) => a.index - b.index)
+    .map((w) => {
+      const gates = w.segments.filter((s) => s.type === 'gate').sort((a, b) => a.z - b.z);
+      const byGate = new Map(gates.map((g) => [g, req[p++] ?? num(g, 'requires')]));
+      return { ...w, segments: w.segments.map((s) => (byGate.has(s) ? { ...s, requires: byGate.get(s)! } : s)) };
+    });
+  return { ...pack, worlds };
+}
+
+export interface FitTargets {
+  /** Walls 1…keep stay as they are (mountain 1: 20, 40, 80 — GDD-01). */
+  keep: number;
+  /** Target second of the mountain for every wall (index p − 1). */
+  targetSec: number[];
+  /** Target cycle minutes of tiers 1…N. */
+  cycleMin: number[];
+}
+
+/**
+ * Targets of the reference (balance-model.pl: @w1Target, @worldTarget × i / 12.4, @cycleTarget; docs/01a-content.md 9:
+ * «ступень 1 — 22 … ступень 9 — 18»). Model targets, not game numbers: the fit of `sim:balance --fit` and its check
+ * in reference mode use them; a pack with another count of walls has none.
+ */
+export function referenceTargets(wallsPerMountain: number[]): FitTargets | null {
+  const m1 = [7, 13, 25, 50, 72, 98, 125, 155, 185, 220, 258, 300];
+  const mountainSec = [330, 360, 390, 420, 450];
+  if (wallsPerMountain.length !== mountainSec.length || wallsPerMountain.some((k) => k !== m1.length)) return null;
+  const targetSec = wallsPerMountain.flatMap((k, w) => Array.from({ length: k }, (_, i) => (w === 0 ? m1[i]! : (mountainSec[w]! * (i + 1)) / 12.4)));
+  return { keep: 3, targetSec, cycleMin: [22, 21, 20, 20, 19, 19, 18, 18, 18] };
+}
+
+export interface FitResult {
+  /** Tier-0 requirements of walls 1…60 (index p − 1) and `wallScale[0…9]`. */
+  walls: number[];
+  wallScale: number[];
+  /** Cycle minutes of tiers 0…9 with the fitted numbers. */
+  cycleMin: number[];
+}
+
+/**
+ * `sim:balance --fit` (docs/01-gdd.md 8.5), steps 1–3 of the reference: the inverse run of the greedy bot puts walls
+ * after `keep` on its stat at their target second × 0.97 (nice row, strictly above the previous wall); the direct run
+ * of tier 0 on the new table; then `wallScale[n]` of tiers 1…N by bisection on its logarithm so that the cycle takes
+ * `cycleMin` minutes, rounded to the nice row and strictly growing. Prices, multipliers and gifts are not touched.
+ */
+export function fitBalance(pack: ModelPack, t: FitTargets, reference = false): FitResult {
+  const { keep, targetSec, cycleMin } = t;
+  const tiers = cycleMin.length;
+  const inv = runCycle(pack, { profile: 'greedy', fit: { keep, targetSec }, reference });
+  const walls = inv.fitted;
+  const fitted = withWalls(pack, walls);
+  const r0 = runCycle(fitted, { profile: 'greedy', reference });
+  const scale = [1];
+  const cycle = [r0.sec / 60];
+  let meta = r0.meta;
+  let seed = r0.seedOut;
+  const step = pack.balance.rebirth.stepMult;
+  for (let n = 1; n <= tiers; n++) {
+    const copy = (): ModelMeta => ({ ...meta, pets: [...meta.pets] });
+    let lo = Math.log(step ** n);
+    let hi = lo + 20;
+    for (let k = 0; k < 40; k++) {
+      const mid = (lo + hi) / 2;
+      const r = runCycle(fitted, { profile: 'greedy', tier: n, meta: copy(), seed, wallScale: Math.exp(mid), reference });
+      if (r.sec / 60 < cycleMin[n - 1]!) lo = mid;
+      else hi = mid;
+    }
+    let W = nice(Math.exp(lo));
+    if (W <= scale[n - 1]!) W = up(scale[n - 1]!);
+    const r = runCycle(fitted, { profile: 'greedy', tier: n, meta: copy(), seed, wallScale: W, reference });
+    scale.push(W);
+    cycle.push(r.sec / 60);
+    meta = r.meta;
+    seed = r.seedOut;
+  }
+  return { walls, wallScale: scale, cycleMin: cycle };
 }

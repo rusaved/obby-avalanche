@@ -400,7 +400,7 @@
     "milestone": "M3",
     "description": "Баланс всех гор и ступеней: sim:balance проходит все 10 проверок docs/01-gdd.md, 8.5 (GDD-09)",
     "acceptance": "`npm run sim:balance` — код 0, все 10 проверок с порогами зелёные, отчёт docs/evidence/balance.txt с таблицей «стена → секунда, Скорость, кроссовки, питомцы, монеты» и итогом по горам и ступеням; правки баланса — только в данных; порт повторяет столбец «Бот модели» docs/01a-content.md, раздел 3, ±10%; при красной проверке — sim:balance --fit, не больше 2 запусков на веху, diff в docs/evidence/balance.txt; если есть threat.bonus — профиль «Золотоискатель»: ступень 0 ≥ 24 мин (docs/01-gdd.md, 8.5)",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

@@ -17,7 +17,7 @@ describe('level builder (docs/02-tech.md 6.1): geometry comes from worlds.json',
     expect(level.length).toBe(1180);
     expect(level.staticTriangles.length % 9).toBe(0);
     expect(level.staticTriangles.length / 9).toBeGreaterThan(500);
-    expect(level.gates.map((g) => g.requires)).toEqual([20, 40, 80, 2000, 4000, 12000, 15000, 20000, 30000, 40000, 80000, 100000]);
+    expect(level.gates.map((g) => g.requires)).toEqual([20, 40, 80, 2000, 4000, 12000, 15000, 25000, 30000, 40000, 80000, 100000]);
     expect(level.niches.map((n) => n.side)).toEqual(['left', 'right', 'left', 'right', 'left', 'right', 'left', 'right', 'left', 'right', 'left', 'right']);
     expect(level.killY).toBeLessThan(-10);
   });

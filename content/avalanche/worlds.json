@@ -910,7 +910,7 @@
           "type": "gate",
           "z": 760,
           "y": 48,
-          "requires": 20000,
+          "requires": 25000,
           "reward": {
             "coins": 80
           },
@@ -1584,7 +1584,7 @@
           "type": "gate",
           "z": 140,
           "y": 6,
-          "requires": 150000,
+          "requires": 120000,
           "reward": {
             "coins": 600
           },
@@ -1676,7 +1676,7 @@
           "type": "gate",
           "z": 240,
           "y": 12,
-          "requires": 200000,
+          "requires": 150000,
           "reward": {
             "coins": 600
           },
@@ -4467,7 +4467,7 @@
           "type": "gate",
           "z": 400,
           "y": 18,
-          "requires": 80000000,
+          "requires": 60000000,
           "reward": {
             "coins": 5000000
           },
@@ -4559,7 +4559,7 @@
           "type": "gate",
           "z": 520,
           "y": 24,
-          "requires": 100000000,
+          "requires": 80000000,
           "reward": {
             "coins": 5000000
           },
@@ -4658,7 +4658,7 @@
           "type": "gate",
           "z": 640,
           "y": 30,
-          "requires": 120000000,
+          "requires": 100000000,
           "reward": {
             "coins": 10000000
           },
@@ -4750,7 +4750,7 @@
           "type": "gate",
           "z": 760,
           "y": 36,
-          "requires": 150000000,
+          "requires": 120000000,
           "reward": {
             "coins": 10000000
           },
@@ -4856,7 +4856,7 @@
           "type": "gate",
           "z": 880,
           "y": 42,
-          "requires": 200000000,
+          "requires": 150000000,
           "reward": {
             "coins": 20000000
           },
@@ -4948,7 +4948,7 @@
           "type": "gate",
           "z": 1000,
           "y": 48,
-          "requires": 250000000,
+          "requires": 200000000,
           "reward": {
             "coins": 20000000
           },
@@ -5047,7 +5047,7 @@
           "type": "gate",
           "z": 1120,
           "y": 54,
-          "requires": 300000000,
+          "requires": 250000000,
           "reward": {
             "coins": 40000000
           },
@@ -5139,7 +5139,7 @@
           "type": "gate",
           "z": 1240,
           "y": 60,
-          "requires": 400000000,
+          "requires": 300000000,
           "reward": {
             "coins": 40000000
           },
@@ -5238,7 +5238,7 @@
           "type": "gate",
           "z": 1360,
           "y": 66,
-          "requires": 500000000,
+          "requires": 400000000,
           "reward": {
             "coins": 80000000
           },
@@ -5714,7 +5714,7 @@
           "type": "gate",
           "z": 300,
           "y": 12,
-          "requires": 1000000000,
+          "requires": 1500000000,
           "reward": {
             "coins": 160000000
           },
@@ -5813,7 +5813,7 @@
           "type": "gate",
           "z": 430,
           "y": 18,
-          "requires": 1200000000,
+          "requires": 2000000000,
           "reward": {
             "coins": 300000000
           },
@@ -5905,7 +5905,7 @@
           "type": "gate",
           "z": 560,
           "y": 24,
-          "requires": 1500000000,
+          "requires": 2500000000,
           "reward": {
             "coins": 300000000
           },
@@ -6004,7 +6004,7 @@
           "type": "gate",
           "z": 690,
           "y": 30,
-          "requires": 2000000000,
+          "requires": 3000000000,
           "reward": {
             "coins": 600000000
           },
@@ -6096,7 +6096,7 @@
           "type": "gate",
           "z": 820,
           "y": 36,
-          "requires": 3000000000,
+          "requires": 4000000000,
           "reward": {
             "coins": 600000000
           },
@@ -6202,7 +6202,7 @@
           "type": "gate",
           "z": 950,
           "y": 42,
-          "requires": 4000000000,
+          "requires": 5000000000,
           "reward": {
             "coins": 1200000000
           },
@@ -6294,7 +6294,7 @@
           "type": "gate",
           "z": 1080,
           "y": 48,
-          "requires": 5000000000,
+          "requires": 6000000000,
           "reward": {
             "coins": 1200000000
           },
@@ -6393,7 +6393,7 @@
           "type": "gate",
           "z": 1210,
           "y": 54,
-          "requires": 6000000000,
+          "requires": 8000000000,
           "reward": {
             "coins": 2400000000
           },
@@ -6485,7 +6485,7 @@
           "type": "gate",
           "z": 1340,
           "y": 60,
-          "requires": 8000000000,
+          "requires": 10000000000,
           "reward": {
             "coins": 2400000000
           },
@@ -6584,7 +6584,7 @@
           "type": "gate",
           "z": 1470,
           "y": 66,
-          "requires": 10000000000,
+          "requires": 15000000000,
           "reward": {
             "coins": 5000000000
           },
@@ -6676,7 +6676,7 @@
           "type": "gate",
           "z": 1600,
           "y": 72,
-          "requires": 12000000000,
+          "requires": 20000000000,
           "reward": {
             "coins": 5000000000
           },

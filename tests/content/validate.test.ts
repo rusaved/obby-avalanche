@@ -98,7 +98,7 @@ describe('validate:content (docs/02-tech.md 5.4)', () => {
     expect(worlds.map((w) => treadmills(w).at(-1))).toEqual([25, 60, 250, 1000, 4000]);
     expect(worlds.map((w) => w.segments.find((s) => s.type === 'chest')!.coins)).toEqual([3750, 250000, 15000000, 1000000000, 62500000000]);
     const slopeGates = worlds[0]!.segments.filter((s) => s.type === 'gate');
-    expect(slopeGates.map((g) => g.requires)).toEqual([20, 40, 80, 2000, 4000, 12000, 15000, 20000, 30000, 40000, 80000, 100000]);
+    expect(slopeGates.map((g) => g.requires)).toEqual([20, 40, 80, 2000, 4000, 12000, 15000, 25000, 30000, 40000, 80000, 100000]);
     expect(slopeGates.map((g) => (g.reward as { coins: number }).coins)).toEqual([10, 10, 20, 20, 40, 40, 80, 80, 160, 160, 300, 300]);
     expect(slopeGates.map((g) => g.z)).toEqual([130, 220, 310, 400, 490, 580, 670, 760, 850, 940, 1030, 1120]);
     expect(worlds[0]!.segments.filter((s) => s.type === 'gift')).toHaveLength(36);
