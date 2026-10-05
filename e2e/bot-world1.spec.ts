@@ -72,8 +72,9 @@ async function playMountain1(page: Page, untilWalls: number, realMs: number): Pr
     if (!s.hero || s.caught) continue;
     const k = s.gatesPassed.indexOf(false);
     const wave = s.wave;
-    // The free egg of the first minute stands beside the belt of cave 4 (docs/01-gdd.md 6.2): touch it from inside.
-    if (s.egg && s.egg.phase === 'idle' && s.inShelter && s.shelter === 3) {
+    // The free egg of the first minute stands beside the belt of cave 4 (docs/01-gdd.md 6.2): touch it from inside,
+    // once it is there — after «Phew, made it!» of the scripted wave (16.6, PR-08).
+    if (s.egg && s.egg.phase === 'idle' && s.egg.shown && s.inShelter && s.shelter === 3) {
       await setPlan('egg', s, [[s.egg.x, s.egg.z]]);
       continue;
     }

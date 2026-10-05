@@ -54,6 +54,10 @@ test('avalanche: scripted wave in cave 1, then a normal wave — warn and shelte
 
   // 3. Into the cave; the front goes over it: camera frame on the wave, never inside the level or the snow body.
   await page.evaluate(() => window.__TEST__!.teleport(283, -17, 18.05));
+  // The rest of the warning at ×3: game time on a slow runner (the frame from the cave renders more than the slope, PR-07).
+  await page.evaluate(() => window.__TEST__!.setTimeScale(3));
+  await page.waitForFunction(() => window.__TEST__!.state().wave!.phase === 'run', undefined, { timeout: 60_000 });
+  await page.evaluate(() => window.__TEST__!.setTimeScale(1));
   await page.waitForFunction(() => {
     const st = window.__TEST__!.state();
     return st.wave!.phase === 'run' && st.wave!.frontZ - st.hero!.z < 25;

@@ -28,8 +28,10 @@ test.describe('camera', () => {
     await page.screenshot({ path: 'docs/evidence/M1/camera_wall_960x540_ru.png' });
   });
 
-  test('auto-turn pulls the view towards +Z and changes only viewYaw', async ({ page, openGame }) => {
-    await openGame();
+  // Off since 05.10 (PR-06, docs/01-gdd.md 16.7): tuning camera.autoTurn = true brings back the M1–M3 behaviour.
+  test('with camera.autoTurn = true the auto-turn pulls the view towards +Z and changes only viewYaw', async ({ page, openGame }) => {
+    await openGame('debug=1');
+    await page.evaluate(() => window.__DEBUG__!.set('camera.autoTurn', true));
     await page.mouse.move(480, 270);
     await page.mouse.down();
     await page.mouse.move(300, 270, { steps: 12 });

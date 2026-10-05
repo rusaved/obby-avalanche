@@ -37,6 +37,11 @@ export interface HudOptions {
   onEgg: () => void;
   /** Trophy plaque colour (theme.json ui.trophies). */
   trophyColor: string;
+  /** Dark see-through plaque under the avalanche banner and the small arrows, and its text (theme.json ui.plaque,
+   * ui.plaqueAlpha, ui.plaqueText; docs/01-gdd.md 16.7). */
+  plaqueColor: string;
+  plaqueAlpha: number;
+  plaqueText: string;
 }
 
 /** A button of the right column: id, caption under the icon, icon id, optional counter on it («2/27»). */
@@ -83,7 +88,9 @@ export interface Hud {
    * (x, y) in field px; null hides it. One plaque at a time.
    */
   /** `urgent` (the wave hints): the plaque stays over a toast and the toast waits (one message near the hero at a time). */
-  setHint(hint: { text: string; pict: 'keys' | 'stick' | null; x: number; y: number; urgent?: boolean } | null): void;
+  /** `arrow` — a small arrow in the plaque turned to this screen angle (rad, 0 — right, π/2 — down): the way to the belt
+   * of hint.stuck (docs/01-gdd.md 16.6). */
+  setHint(hint: { text: string; pict: 'keys' | 'stick' | null; x: number; y: number; urgent?: boolean; arrow?: number | null } | null): void;
   /** Hand icon above the free egg (hint.egg, no text); null hides it. */
   setHand(pos: { x: number; y: number } | null): void;
   /** «Shoes ×N · price» at the bottom centre; null hides it (docs/01-gdd.md 6.4: shows from the first time coins suffice). */
@@ -92,15 +99,20 @@ export interface Hud {
   popGain(text: string, x: number, y: number): void;
   /** Coin plaque (docs/01-gdd.md 6.4, 10.1): hidden until the first coin, then slides in from the left and stays. */
   setCoins(text: string): void;
-  /** «Avalanche in N» at the top centre (docs/01-gdd.md 4.8); null hides it. */
+  /** «Avalanche in N» at the top centre on a dark plaque (docs/01-gdd.md 4.8, 16.7); null hides it. */
   setWaveBanner(text: string | null): void;
+  /** The banner box in field px while it shows, null otherwise (gate signs under it hide, docs/01-gdd.md 16.7). */
+  waveBannerRect(): { x0: number; y0: number; x1: number; y1: number } | null;
+  /** «Wrong way» arrow by the hero (docs/01-gdd.md 16.7): centre in field px and the screen angle; null hides it. */
+  setWayArrow(arrow: { x: number; y: number; angle: number } | null): void;
   /** Frost frame at the screen edges: 0 off, warn ≈ 0.4, front near 1 (docs/01-gdd.md 4.8). */
   setFrost(level: number): void;
   /** Arrow at the field edge towards the lit cave when it is off screen (x, y in px, angle in rad); null hides it. */
   setCaveArrow(arrow: { x: number; y: number; angle: number } | null): void;
   /** Short toast in the middle («Phew, made it! +15», «Snowed in!»); `gold` — the bigger golden one (docs/01-gdd.md 4.9);
-   * `sub` — a smaller second line (the collection counter of a hatch, M3-13). */
-  toast(text: string, sec?: number, gold?: boolean, sub?: string): void;
+   * `sub` — a smaller second line (the collection counter of a hatch, M3-13); `onShow` — called when it is on screen
+   * (it may wait for the avalanche banner: the egg of the first wave comes after «Phew, made it!», docs/01-gdd.md 16.6). */
+  toast(text: string, sec?: number, gold?: boolean, sub?: string, onShow?: () => void): void;
   /** Soft white veil when the camera is inside the snow body (docs/02-tech.md 7). */
   setVeil(on: boolean): void;
   /** Speed plaque: the number and «+N per step» under it (docs/01-gdd.md 10.1). */
@@ -131,6 +143,8 @@ export interface Hud {
 /** Hint plaque band: its top never above this share of the field (top HUD band; below the wave banner while it shows), its bottom never below this one. */
 const HINT_TOP_MIN = 0.24;
 const HINT_TOP_WAVE = 0.34;
+/** Gap between the bottom of the avalanche plaque and a hint under it (px). */
+const HINT_UNDER_BANNER = 6;
 const HINT_BOTTOM_MAX = 0.78;
 
 /** Short window (docs/01-gdd.md 10.1): below this height the column is icons 44 px, 6 px apart, ending above 72% H. */
@@ -147,6 +161,15 @@ const TAP_CLICK_MS = 800;
 const STAT_FLASH_MS = 1200;
 /** Toasts waiting for the avalanche banner to go (playtest M2), the oldest dropped past this. */
 const TOAST_QUEUE_MAX = 3;
+
+/** «#RRGGBB» and an alpha → «rgba(r, g, b, a)». */
+function rgba(hex: string, alpha: number): string {
+  const n = Number.parseInt(hex.replace('#', ''), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+}
+
+/** A white arrow pointing right (turned by the caller), for the dark round plaques. */
+const ARROW_SVG = '<svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M4 10h9V5.5L21 12l-8 6.5V14H4z" fill="currentColor"/></svg>';
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string): HTMLElementTagNameMap[K] {
   const e = document.createElement(tag);
@@ -305,6 +328,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   root.style.setProperty('--threat', opts.threatColor);
   if (opts.bonusColor) root.style.setProperty('--gold', opts.bonusColor);
   root.style.setProperty('--stat-goal', opts.statColor);
+  root.style.setProperty('--plaque', rgba(opts.plaqueColor, opts.plaqueAlpha));
+  root.style.setProperty('--plaque-text', opts.plaqueText);
   const frost = el('div', 'hud-frost');
   frost.dataset['role'] = 'frost';
   const veil = el('div', 'hud-veil');
@@ -313,17 +338,21 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   banner.dataset['role'] = 'wave-banner';
   const arrow = el('div', 'hud-cave-arrow', '\u27a4');
   arrow.dataset['role'] = 'cave-arrow';
+  const wayArrow = el('div', 'hud-way');
+  wayArrow.dataset['role'] = 'way-arrow';
+  wayArrow.innerHTML = ARROW_SVG;
   const toastEl = el('div', 'hud-toast');
   toastEl.dataset['role'] = 'toast';
   const toastMain = el('span', 'hud-toast-main');
   const toastSub = el('span', 'hud-toast-sub');
   toastSub.dataset['role'] = 'toast-sub';
   toastEl.append(toastMain, toastSub);
-  root.append(frost, veil, banner, arrow, toastEl);
+  root.append(frost, veil, wayArrow, banner, arrow, toastEl);
   let toastTimer: ReturnType<typeof setTimeout> | null = null;
-  const pendingToasts: Array<{ text: string; sec: number; gold: boolean; sub: string | undefined }> = [];
-  let currentToast: { text: string; sec: number; gold: boolean; sub: string | undefined } | null = null;
-  const showToast = (text: string, sec: number, gold: boolean, sub: string | undefined): void => {
+  type Toast = { text: string; sec: number; gold: boolean; sub: string | undefined; onShow?: (() => void) | undefined };
+  const pendingToasts: Toast[] = [];
+  let currentToast: Toast | null = null;
+  const showToast = (text: string, sec: number, gold: boolean, sub: string | undefined, onShow?: () => void): void => {
     currentToast = { text, sec, gold, sub };
     toastMain.textContent = text;
     toastSub.textContent = sub ?? '';
@@ -331,6 +360,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     toastEl.classList.remove('shown');
     void toastEl.offsetWidth;
     toastEl.classList.add('shown');
+    onShow?.();
     // The hint plaque steps aside while a toast is up: one message near the hero at a time.
     root.classList.add('toasting');
     if (toastTimer) clearTimeout(toastTimer);
@@ -340,7 +370,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       toastEl.classList.remove('shown');
       root.classList.remove('toasting');
       const next = banner.classList.contains('shown') ? undefined : pendingToasts.shift();
-      if (next) showToast(next.text, next.sec, next.gold, next.sub);
+      if (next) showToast(next.text, next.sec, next.gold, next.sub, next.onShow);
     }, sec * 1000);
   };
 
@@ -351,7 +381,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const pictKeys = el('span', 'hud-pict hud-pict-keys');
   for (const k of ['W', 'A', 'S', 'D', '\u2191', '\u2190', '\u2193', '\u2192']) pictKeys.appendChild(el('span', 'hud-key', k));
   const pictStick = el('span', 'hud-pict hud-pict-stick');
-  hint.append(hintText, pictKeys, pictStick);
+  const hintArrow = el('span', 'hud-hint-arrow');
+  hintArrow.dataset['role'] = 'hint-arrow';
+  hintArrow.innerHTML = ARROW_SVG;
+  hint.append(hintText, pictKeys, pictStick, hintArrow);
   root.appendChild(hint);
   const hand = el('div', 'hud-hand');
   hand.dataset['role'] = 'hand';
@@ -478,12 +511,18 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (!h) return;
       if (hintText.textContent !== h.text) hintText.textContent = h.text;
       hint.dataset['pict'] = h.pict ?? '';
+      const turn = h.arrow ?? null;
+      hintArrow.classList.toggle('shown', turn !== null);
+      if (turn !== null) hintArrow.style.transform = `rotate(${turn.toFixed(3)}rad)`;
       // Inside the field, below the top HUD band and above the bottom buttons (docs/01-gdd.md 6.5: never over the HUD).
       const w = hint.offsetWidth;
       const hh = hint.offsetHeight;
       const x = Math.min(fieldW - w / 2 - 8, Math.max(w / 2 + 8, h.x));
-      const top = banner.classList.contains('shown') ? HINT_TOP_WAVE : HINT_TOP_MIN;
-      const y = Math.min(fieldH * HINT_BOTTOM_MAX, Math.max(fieldH * top + hh, h.y));
+      // Under the banner plaque whatever its size on this screen (PR-08: the plaque is taller than the bare text).
+      const top = banner.classList.contains('shown')
+        ? Math.max(fieldH * HINT_TOP_WAVE, banner.offsetTop + banner.offsetHeight + HINT_UNDER_BANNER)
+        : fieldH * HINT_TOP_MIN;
+      const y = Math.min(fieldH * HINT_BOTTOM_MAX, Math.max(top + hh, h.y));
       hint.style.transform = `translate(${Math.round(x - w / 2)}px, ${Math.round(y - hh)}px)`;
     },
     setHand(pos) {
@@ -513,8 +552,18 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       }
       if (was && text === null && !toastTimer) {
         const next = pendingToasts.shift();
-        if (next) showToast(next.text, next.sec, next.gold, next.sub);
+        if (next) showToast(next.text, next.sec, next.gold, next.sub, next.onShow);
       }
+    },
+    waveBannerRect() {
+      if (!banner.classList.contains('shown')) return null;
+      const b = banner.getBoundingClientRect();
+      const r = root.getBoundingClientRect();
+      return { x0: b.left - r.left, y0: b.top - r.top, x1: b.right - r.left, y1: b.bottom - r.top };
+    },
+    setWayArrow(a) {
+      wayArrow.classList.toggle('shown', a !== null);
+      if (a) wayArrow.style.transform = `translate(${Math.round(a.x)}px, ${Math.round(a.y)}px) translate(-50%, -50%) rotate(${a.angle.toFixed(3)}rad)`;
     },
     setFrost(level) {
       const v = String(Math.round(Math.max(0, Math.min(1, level)) * 100) / 100);
@@ -524,14 +573,14 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       arrow.classList.toggle('shown', a !== null);
       if (a) arrow.style.transform = `translate(${Math.round(a.x)}px, ${Math.round(a.y)}px) translate(-50%, -50%) rotate(${a.angle.toFixed(3)}rad)`;
     },
-    toast(text, sec = 2, gold = false, sub) {
+    toast(text, sec = 2, gold = false, sub, onShow) {
       // Never over the avalanche banner (playtest M2): it waits until the banner goes, the latest few in order.
       if (banner.classList.contains('shown')) {
-        pendingToasts.push({ text, sec, gold, sub });
+        pendingToasts.push({ text, sec, gold, sub, onShow });
         if (pendingToasts.length > TOAST_QUEUE_MAX) pendingToasts.shift();
         return;
       }
-      showToast(text, sec, gold, sub);
+      showToast(text, sec, gold, sub, onShow);
     },
     setVeil(on) {
       veil.classList.toggle('shown', on);

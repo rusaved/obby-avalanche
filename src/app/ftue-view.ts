@@ -1,7 +1,8 @@
 /**
  * Teaching in the world (docs/01-gdd.md 6.1, 6.2, 6.5): hint plaques above the hero (one at a time), white arrows
- * on the snow to the cave entrance on the warning, the free egg «Mountain Gift» with a hand over it (the pet that
- * jumps out of it — app/pets-view.ts). Reads the simulation, never changes it; the hints controller lives in meta/hints.ts.
+ * on the snow to the cave entrance on the warning, and with hint.stuck to the cave below that gate plus an arrow in
+ * the plaque to its belt (16.6), the free egg «Mountain Gift» with a hand over it (the pet that jumps out of it —
+ * app/pets-view.ts). Reads the simulation, never changes it; the hints controller lives in meta/hints.ts.
  */
 import { Vector3 } from 'three';
 import type { BalanceJson, PetsJson } from '../content/types.ts';
@@ -14,6 +15,7 @@ import { createHints, type HintFrame, type HintId, type Hints } from '../meta/hi
 import { entranceX } from '../sim/shelter.ts';
 import { HERO_HEIGHT } from '../sim/controller.ts';
 import { t } from '../ui/i18n.ts';
+import { screenAngle } from './way-view.ts';
 
 /** A hero slower than this stands (units/s). */
 const MOVING_SPEED = 1.5;
@@ -40,9 +42,13 @@ export interface FtueView {
   wire(sim: Sim): void;
   update(frameDt: number, timeSec: number, heroRender: Vector3): void;
   readonly hint: HintId | null;
+  /** Screen angle of the arrow in the hint.stuck plaque (to the belt), null — no arrow. */
+  readonly hintArrow: number | null;
   readonly hints: Hints;
   readonly arrows: boolean;
   readonly hand: boolean;
+  /** The free egg is drawn now. */
+  readonly eggShown: boolean;
 }
 
 export function createFtueView(d: FtueViewDeps): FtueView {
@@ -50,6 +56,7 @@ export function createFtueView(d: FtueViewDeps): FtueView {
   const p = new Vector3();
   const from = new Vector3();
   const to = new Vector3();
+  const chest = new Vector3();
   let jumped = false;
   let caughtNow = false;
   let waveId = 0;
@@ -64,11 +71,15 @@ export function createFtueView(d: FtueViewDeps): FtueView {
   };
 
   let lastHead: { x: number; y: number } | null = null;
-  const view: FtueView & { hint: HintId | null; arrows: boolean; hand: boolean } = {
+  const view: FtueView & { hint: HintId | null; hintArrow: number | null; arrows: boolean; hand: boolean } = {
     hint: null,
+    hintArrow: null,
     arrows: false,
     hand: false,
     hints,
+    get eggShown() {
+      return d.visual.eggShown;
+    },
     wire(sim) {
       sim.events.on('jump', () => void (jumped = true));
       sim.events.on('waveCaught', () => void (caughtNow = true));
@@ -90,9 +101,13 @@ export function createFtueView(d: FtueViewDeps): FtueView {
       const active = ts !== undefined && (warn || (ts.phase === 'run' && ts.outcome === 'none'));
       // Closed gate ahead within stuckDist (docs/01-gdd.md 6.5, hint.stuck).
       let nearClosedGate = false;
+      let stuckGateZ = Infinity;
       sim.level.gates.forEach((g, i) => {
         const dz = g.z - hero.pos.z;
-        if (!sim.gatesOpen[i] && dz > 0 && dz < d.balance.hints.stuckDist) nearClosedGate = true;
+        if (!sim.gatesOpen[i] && dz > 0 && dz < d.balance.hints.stuckDist) {
+          nearClosedGate = true;
+          stuckGateZ = Math.min(stuckGateZ, g.z);
+        }
       });
       const summitZone = sim.level.safeZones[sim.level.safeZones.length - 1];
       const onSummit = sim.level.safeZones.length > 1 && summitZone !== undefined && hero.pos.z >= summitZone[0];
@@ -124,6 +139,16 @@ export function createFtueView(d: FtueViewDeps): FtueView {
       caughtNow = false;
       const id = hints.update(frame, frameDt);
       view.hint = id;
+      // hint.stuck: the belt of the nearest cave below that gate (docs/01-gdd.md 16.6).
+      let stuckCave = -1;
+      if (id === 'hint.stuck') {
+        sim.level.niches.forEach((n, i) => {
+          if (n.z < stuckGateZ && (stuckCave < 0 || n.z > sim.level.niches[stuckCave]!.z)) stuckCave = i;
+        });
+      }
+      const belt = stuckCave >= 0 ? sim.level.points.find((x) => x.type === 'treadmill' && x['niche'] === stuckCave) : undefined;
+      chest.set(heroRender.x, heroRender.y + HERO_HEIGHT / 2, heroRender.z);
+      view.hintArrow = belt ? screenAngle(d.camera.camera, chest, to.set(belt.x, belt.y + 1, belt.z), d.field()) : null;
 
       // The plaque: above the head by 15% of the field height. The head off the view for a frame (camera over the
       // hero) keeps the plaque where it was: no blinking (playtest M2).
@@ -134,12 +159,12 @@ export function createFtueView(d: FtueViewDeps): FtueView {
         const f = d.field();
         const pict = id === 'hint.move' ? (d.touch() ? 'stick' : 'keys') : null;
         // The wave hints win over a toast (a zone announcement must not hide «To the cave!»).
-        d.hud.setHint({ text: t(id), pict, x: head.x, y: head.y - PLAQUE_ABOVE * f.height, urgent: id === 'wave.cave' || id === 'hint.gold' });
+        d.hud.setHint({ text: t(id), pict, x: head.x, y: head.y - PLAQUE_ABOVE * f.height, urgent: id === 'wave.cave' || id === 'hint.gold', arrow: view.hintArrow });
       } else d.hud.setHint(null);
 
-      // Arrows on the snow from the hero to the cave entrance, together with «To the cave!».
-      const cave = ts ? sim.level.niches[ts.shelter] : undefined;
-      if (id === 'wave.cave' && cave) {
+      // Arrows on the snow from the hero to the cave entrance, together with «To the cave!» (and with hint.stuck).
+      const cave = id === 'hint.stuck' ? sim.level.niches[stuckCave] : ts ? sim.level.niches[ts.shelter] : undefined;
+      if ((id === 'wave.cave' || id === 'hint.stuck') && cave) {
         from.set(hero.pos.x, hero.pos.y, hero.pos.z);
         to.set(entranceX(sim.level, cave), cave.y, Math.min(cave.box.max[2] - 1, Math.max(cave.box.min[2] + 1, hero.pos.z)));
         d.visual.setArrows({ from, to, floorY: (z) => sim.level.floorYAt(z) });
@@ -149,7 +174,7 @@ export function createFtueView(d: FtueViewDeps): FtueView {
       // The free egg and the hand over it (hint.egg: near the egg, until the touch).
       const egg = sim.giftEgg;
       d.visual.setEgg(egg, timeSec);
-      const handAt = egg && egg.phase === 'idle' && sim.shelterIndex() === egg.niche ? project(egg.x, egg.y + HAND_ABOVE, egg.z) : null;
+      const handAt = egg && egg.shown && egg.phase === 'idle' && sim.shelterIndex() === egg.niche ? project(egg.x, egg.y + HAND_ABOVE, egg.z) : null;
       d.hud.setHand(handAt);
       view.hand = handAt !== null;
     },

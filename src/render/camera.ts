@@ -1,7 +1,7 @@
 /**
  * Third-person camera (docs/02-tech.md, section 7): orbit around a point above the hero, critically damped
- * follow with velocity lead, auto-turn towards +Z, wall avoidance by a sphere against the Octree,
- * FOV growing with speed. Only `viewYaw` of the control frame is changed here.
+ * follow with velocity lead, auto-turn towards +Z only with `camera.autoTurn` (off since 05.10, docs/01-gdd.md 16.7),
+ * wall avoidance by a sphere against the Octree, FOV growing with speed. Only `viewYaw` of the control frame is changed here.
  * Playtest M2: the point above the hero never leads into a wall; when a wall is right behind the hero the camera
  * rises over him (pitch up to `raiseMaxDeg`) instead of collapsing into his head; the final position is checked
  * once more after shake and the fixed cave frame; the hero and bots hide only by the real distance to the camera.
@@ -40,6 +40,8 @@ export interface CameraRig {
   /** Fixed frame (the wide cave shot during an avalanche, playtest M2): camera point and the point it looks at.
    * The camera blends to it and back in `avalanche.shotReturnSec`. */
   fixed: { pos: Vector3; look: Vector3; fov: number } | null;
+  /** Share of the fixed frame in the view now: 1 — the frame, 0 — the player's camera (tests: the way back). */
+  readonly fixedBlend: number;
   update(dt: number, target: CameraTarget, input: CameraInputInfo, collision: CollisionWorld | null): void;
   snapTo(target: CameraTarget): void;
   /** Is the camera inside level geometry (sphere test) — for tests. */
@@ -55,6 +57,7 @@ const _tmp = new Vector3();
 const _head = new Vector3();
 const _look = new Vector3();
 const _seg = new Vector3();
+const _from = new Vector3();
 /** Chest height of a character over its feet (hide and occlusion checks). */
 const CHEST = 1.5;
 /** Steps of the sweep from the hero's head to the lead point. */
@@ -96,6 +99,15 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
     return want;
   };
 
+  /** Is the straight way between two camera points through level geometry (then the frame cuts instead of blending). */
+  const pathBlocked = (a: Vector3, b: Vector3, collision: CollisionWorld): boolean => {
+    const len = a.distanceTo(b);
+    const n = Math.max(1, Math.ceil(len / c.collisionRadius));
+    for (let i = 1; i < n; i++) if (blocked(_tmp.copy(a).lerp(b, i / n), c.collisionRadius * 0.5, collision)) return true;
+    return false;
+  };
+  let wasFixed = false;
+
   const rig: CameraRig = {
     camera,
     frame,
@@ -106,6 +118,9 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
     shot: null,
     shakeAmount: 0,
     fixed: null,
+    get fixedBlend() {
+      return fixedK;
+    },
     snapTo(target) {
       pivot.copy(target.pos).y += c.height;
       rig.currentDistance = frame.distance;
@@ -153,7 +168,8 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
         if (ok < PIVOT_STEPS) pivot.copy(_head).addScaledVector(_seg, ok / PIVOT_STEPS);
       }
 
-      // Auto-turn towards the track axis +Z (docs/02-tech.md 7), never during manual control or autorun.
+      // Auto-turn towards the track axis +Z (docs/02-tech.md 7), never during manual control or autorun; off unless
+      // tuning camera.autoTurn (docs/01-gdd.md 16.7: running down the slope the view stays where the player left it).
       let yaw = frame.viewYaw;
       let pitch = frame.pitch;
       let wantDist = frame.distance;
@@ -162,7 +178,7 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
         pitch = rig.shot.pitch;
         wantDist = rig.shot.distance;
         frame.viewYaw = yaw;
-      } else if (!input.autoRun && !input.manualCamera && rig.sinceManual >= c.autoTurnDelaySec && dt > 0) {
+      } else if (c.autoTurn && !input.autoRun && !input.manualCamera && rig.sinceManual >= c.autoTurnDelaySec && dt > 0) {
         const moving = input.moveX !== 0 || input.moveY !== 0;
         if (moving) {
           const moveAngle = Math.atan2(input.moveX, input.moveY);
@@ -215,6 +231,13 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
         fixedFov = rig.fixed.fov;
       }
       const kRate = dt > 0 ? dt / Math.max(1e-3, tuning.avalanche.shotReturnSec) : 1;
+      // A frame outside the cave (over its roof, PR-07) is reached by a cut, not through the walls: in and out when the straight
+      // way between the player's camera and the frame goes through the level (the camera is never inside it).
+      if (collision && (rig.fixed !== null) !== wasFixed && (rig.fixed ? fixedK === 0 : fixedK > 0)) {
+        _from.copy(_desired).lerp(fixedPos, smooth01(fixedK));
+        if (pathBlocked(_from, rig.fixed ? fixedPos : _desired, collision)) fixedK = rig.fixed ? 1 : 0;
+      }
+      wasFixed = rig.fixed !== null;
       fixedK = rig.fixed ? Math.min(1, fixedK + kRate) : Math.max(0, fixedK - kRate);
       // The hero is far from the frame (moved to another cave): no blend through the level, the player's view at once.
       if (!rig.fixed && fixedPos.distanceTo(pivot) > c.zoomMax + c.distance) fixedK = 0;
@@ -239,6 +262,8 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       }
       camera.position.copy(_desired);
       if (_desired.distanceToSquared(_look) > 1e-6) camera.lookAt(_look);
+      // Projections later in this frame (HUD arrows, signs under the banner) use this view, not the last one.
+      camera.updateMatrixWorld();
       rig.heroHidden = camera.position.distanceTo(heroChest) < c.hideDistance;
 
       // FOV from speed, smoothed.

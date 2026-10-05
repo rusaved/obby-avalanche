@@ -101,6 +101,8 @@ export function mountDebug(g: GameHandles, host: HTMLElement, isMobile: boolean)
   controller.close();
 
   const camera = gui.addFolder('Camera');
+  // Auto-turn to +Z: off since 05.10 (docs/01-gdd.md 16.7), the box brings back the M1–M3 camera to compare.
+  camera.add(g.tuning.camera, 'autoTurn').onChange(persist);
   for (const [key, range] of Object.entries(CAMERA_RANGES) as Array<[keyof TuningJson['camera'], Range]>) {
     camera.add(g.tuning.camera, key, range[0], range[1], range[2]).onChange(persist);
   }

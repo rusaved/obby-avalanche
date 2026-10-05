@@ -27,6 +27,8 @@ import { createAvalancheVisual, type AvalancheVisual } from './render/threat/ava
 import { createWaveView, type WaveView } from './app/wave-view.ts';
 import { createFtueVisual } from './render/ftue.ts';
 import { createFtueView, type FtueView } from './app/ftue-view.ts';
+import { createWayView, type WayView } from './app/way-view.ts';
+import { guardBannerSigns } from './app/banner-signs.ts';
 import { createMetaView, type MetaView } from './app/meta-view.ts';
 import { createPetsView, type PetsView } from './app/pets-view.ts';
 import { createRebirthView, type RebirthView } from './app/rebirth-view.ts';
@@ -159,10 +161,11 @@ async function boot(): Promise<void> {
     scriptedPending: !(save.flags?.['firstWaveDone'] ?? false),
     normalWavesDone: save.wavesNormal ?? 0,
   });
-  // The free egg of the first minute stands on mountain 1 until the player has it (docs/01-gdd.md 6.2).
-  const giftEggOptions = (w: World): { wall: number; pet: string; hatchSec: number } | undefined =>
+  // The free egg of the first minute stands on mountain 1 until the player has it (docs/01-gdd.md 6.2); before the
+  // scripted wave is over it is not there yet — it comes with «Phew, made it!» (16.6, playtest M3).
+  const giftEggOptions = (w: World): { wall: number; pet: string; hatchSec: number; shown: boolean } | undefined =>
     w.index === 1 && !(save.flags?.['giftEgg'] ?? false)
-      ? { wall: balance.ftue.scriptedWaveWall, pet: balance.ftue.freeEggPet, hatchSec: balance.ftue.eggHatchSec }
+      ? { wall: balance.ftue.scriptedWaveWall, pet: balance.ftue.freeEggPet, hatchSec: balance.ftue.eggHatchSec, shown: save.flags?.['firstWaveDone'] ?? false }
       : undefined;
   // Bots (docs/01-gdd.md 7.12): count by the quality level, deterministic by the seed and the mountain.
   const botOptions = (w: World): { cfg: typeof bots; count: number; seed: number } => ({ cfg: bots, count: bots.count[quality.level], seed: (seed + w.index * 7919) >>> 0 });
@@ -248,6 +251,7 @@ async function boot(): Promise<void> {
   let avalanche: AvalancheVisual | null = null;
   let waveView: WaveView | null = null;
   let ftueView: FtueView | null = null;
+  let wayView: WayView | null = null;
   let meta: MetaView | null = null;
   let petsView: PetsView | null = null;
   let cosmeticsView: CosmeticsView | null = null;
@@ -312,9 +316,13 @@ async function boot(): Promise<void> {
       save.wavesNormal = normalWavesDone;
       persist();
     });
-    s.events.on('waveSurvived', ({ coins, total, gold }) => {
+    // The free egg comes on its stand after the scripted wave: with its «Phew, made it!» (docs/01-gdd.md 16.6).
+    const showEgg = (): void => {
+      if (s.giftEgg) s.giftEgg.shown = true;
+    };
+    s.events.on('waveSurvived', ({ coins, total, gold, scripted }) => {
       // With the golden gift: one toast, bigger and golden, both rewards in it (docs/01-gdd.md 4.9).
-      hud?.toast(t('wave.survived', { n: formatNumber(coins, numSuffix) }), gold > 0 ? 3 : 2, gold > 0);
+      hud?.toast(t('wave.survived', { n: formatNumber(coins, numSuffix) }), gold > 0 ? 3 : 2, gold > 0, undefined, scripted ? showEgg : undefined);
       if (coins > 0) hud?.setCoins(formatNumber(total, numSuffix));
     });
     // Golden gift (M2-12): chime on its warning, carried over the head, saved or popped; docs/06 goldGift params.
@@ -334,6 +342,8 @@ async function boot(): Promise<void> {
     s.events.on('waveCaught', () => hud?.toast(t('wave.caught')));
     s.events.on('waveEnd', ({ scripted, outcome }) => {
       if (scripted) {
+        // Not in a cave (no «Phew»), or the toast was dropped from a full queue: the egg is there now anyway.
+        showEgg();
         (save.flags ??= {})['firstWaveDone'] = true;
         trackOnce('first_wave_survived', { inShelter: outcome === 'survived' });
         persist();
@@ -505,6 +515,12 @@ async function boot(): Promise<void> {
     },
     get ftue() {
       return ftueView;
+    },
+    get way() {
+      return wayView;
+    },
+    get levelMeshes() {
+      return levelMeshes;
     },
     get pets() {
       return petsView;
@@ -777,6 +793,7 @@ async function boot(): Promise<void> {
       );
     }
     botsView?.update(alpha, playSec);
+    wayView?.update(renderPos);
     g.onFrame?.();
     characters?.update(frameDt);
     if (levelMeshes) {
@@ -791,6 +808,7 @@ async function boot(): Promise<void> {
         const open = sim.gatesOpen[i] ?? false;
         levelMeshes!.setGateSign(i, open ? req : `${statText}/${req}`, open);
       });
+      if (hud && cameraRig) guardBannerSigns(hud, levelMeshes, level, cameraRig.camera, field);
     }
     gr.follow(renderPos);
     levelMeshes?.cullByDistance(renderPos.z, quality.params.fogFar);
@@ -911,6 +929,9 @@ async function boot(): Promise<void> {
     onEgg: () => void petsView?.buyEgg(),
     onMenu: (id) => openMenuWindow(id),
     trophyColor: theme.ui.trophies,
+    plaqueColor: theme.ui.plaque,
+    plaqueAlpha: theme.ui.plaqueAlpha,
+    plaqueText: theme.ui.plaqueText,
     okColor: theme.ui.ok,
     statColor: theme.ui.stat,
     statIcon: theme.ui.statIcon,
@@ -940,7 +961,9 @@ async function boot(): Promise<void> {
     visual: avalanche,
     field: () => field,
     manualCamera: () => (lastSnap?.manualCamera ?? false) || (cameraRig?.sinceManual ?? 99) < 0.5,
+    hideCaveParts: (niche, parts) => levelMeshes?.setCaveCut(niche, parts),
   });
+  wayView = createWayView({ balance, getSim: () => sim, hud, camera: cameraRig, field: () => field });
   const ftueVisual = createFtueVisual(theme);
   gr.scene.add(ftueVisual.group);
   meta = createMetaView({ balance, pets, trails, auras, save, getSim: () => sim, hud, numSuffix, trackOnce, persist, onShoes: () => questsView?.shoes(), shoesColor: theme.ui.stat });

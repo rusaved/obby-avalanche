@@ -36,7 +36,9 @@ export interface ThemeJson {
   light: { sun: string; sunIntensity: number; ambient: string; ambientIntensity: number; sunDir: [number, number, number] };
   materials: Record<string, { color: string; roughness?: number; metalness?: number; emissive?: string }>;
   rarity: Record<string, string>;
-  ui: { stat: string; coins: string; trophies: string; ok: string; no: string; statIcon: string };
+  /** `plaque`, `plaqueAlpha`, `plaqueText`: the dark see-through plaque under the avalanche banner and the small HUD
+   * arrows («wrong way», the way to the belt) with its text colour (docs/01-gdd.md 16.7: contrast ≥ 4.5:1). */
+  ui: { stat: string; coins: string; trophies: string; ok: string; no: string; statIcon: string; plaque: string; plaqueAlpha: number; plaqueText: string };
   threat: { front: [string, string]; edge: string; body: string; dust: string; height: number };
   bonus?: { color: string };
 }
@@ -144,6 +146,9 @@ export interface HintsTiming {
   stuckSec: number;
   stuckDist: number;
   stuckMax: number;
+  /** «Wrong way» arrow (docs/01-gdd.md 16.7): the hero went this far down the slope over the last `wrongWaySec`. */
+  wrongWaySec: number;
+  wrongWayDist: number;
   portalIdleSec: number;
   portalMax: number;
 }
@@ -177,6 +182,8 @@ export interface TuningJson {
     fovSmoothSec: number;
     damping: number;
     leadSec: number;
+    /** Auto-turn towards the track axis +Z (docs/01-gdd.md 16.7: off by the producer's decision 05.10; true — as on M1–M3). */
+    autoTurn: boolean;
     autoTurnDelaySec: number;
     autoTurnRate: number;
     autoTurnConeDeg: number;
@@ -221,7 +228,9 @@ export interface TuningJson {
     shotDistance: number;
     shotReturnSec: number;
     /** Wide cave frame while an avalanche is on (playtest M2): camera point and look point in cave coordinates —
-     * across from the mouth (0) to the back wall (1), floor (0) to roof (1), downhill (0) to uphill (1) side; its FOV. */
+     * across from the mouth (0) to the back wall (1), floor (0) to roof (1), downhill (0) to uphill (1) side; its FOV.
+     * pos[1] > 1 — over the roof, pos[0] > 1 — behind the back wall: that part is not drawn while the frame lasts
+     * (PR-07: the cave is too low for the whole hero at ≤ 30% of the frame). */
     caveShot: { pos: [number, number, number]; look: [number, number, number]; fov: number };
     /** Front surface displacement, units. */
     noise: number;

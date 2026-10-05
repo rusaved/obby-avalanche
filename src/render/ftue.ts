@@ -1,9 +1,11 @@
 /**
  * First-minute visuals (docs/01-gdd.md 6.2, 6.5): the free egg «Mountain Gift» on its stand (glows, wobbles and
- * cracks on the touch), white arrows on the snow towards the cave entrance on the warning. The pet that jumps out
- * lives in src/render/pets.ts with the others (M3-03). Primitives only, 3 draw calls at most (egg, stand, arrows).
+ * cracks on the touch; comes with a burst of sparks after the scripted wave, 16.6), white arrows on the snow towards
+ * the cave entrance on the warning or the belt of hint.stuck. The pet that jumps out lives in src/render/pets.ts with
+ * the others (M3-03). Primitives only, 4 draw calls at most (egg, stand, sparks, arrows).
  */
 import {
+  BufferAttribute,
   BufferGeometry,
   CylinderGeometry,
   DoubleSide,
@@ -14,6 +16,8 @@ import {
   MeshBasicMaterial,
   MeshLambertMaterial,
   Object3D,
+  Points,
+  PointsMaterial,
   SphereGeometry,
   Vector3,
 } from 'three';
@@ -27,11 +31,19 @@ const ARROW_WIDTH = 2.4;
 /** Thickness of the chevron strokes. */
 const ARROW_STROKE = 0.8;
 const ARROW_END_GAP = 2;
+/** Sparks when the egg comes: how many, for how long (s), how far they fly out (units) and their size. */
+const SPARKS = 20;
+const SPARK_SEC = 1.6;
+const SPARK_REACH = 2.2;
+const SPARK_SIZE = 0.5;
 
 export interface FtueVisual {
   group: Group;
-  /** Egg on its stand; null hides it (the player already has it, or another mountain). */
+  /** Egg on its stand; null or not `shown` hides it (the player already has it, another mountain, or before the
+   * scripted wave is over); the moment it shows, sparks burst around it. */
   setEgg(egg: GiftEggState | null, timeSec: number): void;
+  /** The egg is drawn now (test API). */
+  readonly eggShown: boolean;
   /** Arrows from `from` towards `to` on the snow (y from the floor function); null hides them. */
   setArrows(path: { from: Vector3; to: Vector3; floorY: (z: number) => number } | null): void;
   readonly arrowsShown: boolean;
@@ -59,6 +71,18 @@ export function createFtueVisual(theme: ThemeJson): FtueVisual {
   eggRoot.add(egg);
   eggRoot.visible = false;
   group.add(eggRoot);
+  const sparkPos = new Float32Array(SPARKS * 3);
+  const sparkGeo = new BufferGeometry();
+  sparkGeo.setAttribute('position', new BufferAttribute(sparkPos, 3));
+  // Golden, like every reward of the game (the coin colour of theme.json).
+  const sparkMat = new PointsMaterial({ color: theme.ui.coins, size: SPARK_SIZE, transparent: true, depthWrite: false });
+  const sparks = new Points(sparkGeo, sparkMat);
+  sparks.frustumCulled = false;
+  sparks.visible = false;
+  group.add(sparks);
+  /** Was the egg shown on the last call (null — no call yet: an egg there from the start comes without sparks). */
+  let lastShown: boolean | null = null;
+  let sparkFrom = -1;
 
   // Arrows: one flat chevron per instance, white, slightly above the snow.
   const shape = new BufferGeometry();
@@ -79,15 +103,35 @@ export function createFtueVisual(theme: ThemeJson): FtueVisual {
   const dummy = new Object3D();
   const dir = new Vector3();
 
-  const visual: FtueVisual & { arrowsShown: boolean } = {
+  const visual: FtueVisual & { arrowsShown: boolean; eggShown: boolean } = {
     group,
     arrowsShown: false,
+    eggShown: false,
     setEgg(state, timeSec) {
-      if (!state || state.phase === 'done') {
+      const shown = state !== null && state.shown;
+      if (shown && lastShown === false) sparkFrom = timeSec;
+      lastShown = state ? shown : null;
+      const k = sparkFrom >= 0 ? (timeSec - sparkFrom) / SPARK_SEC : 1;
+      sparks.visible = state !== null && k >= 0 && k < 1;
+      if (state && sparks.visible) {
+        // Sparks fly out of the egg and up, fading.
+        for (let i = 0; i < SPARKS; i++) {
+          const a = (i / SPARKS) * Math.PI * 2 + i * 0.7;
+          const r = SPARK_REACH * Math.sqrt(k) * (0.6 + 0.4 * ((i * 37) % 10) / 10);
+          sparkPos[i * 3] = state.x + Math.cos(a) * r;
+          sparkPos[i * 3 + 1] = state.y + 1.2 + k * 2.4 * (0.5 + ((i * 53) % 10) / 20);
+          sparkPos[i * 3 + 2] = state.z + Math.sin(a) * r;
+        }
+        sparkGeo.attributes['position']!.needsUpdate = true;
+        sparkMat.opacity = 1 - k;
+      }
+      if (!state || !shown || state.phase === 'done') {
         eggRoot.visible = false;
+        visual.eggShown = false;
         return;
       }
       eggRoot.visible = true;
+      visual.eggShown = true;
       eggRoot.position.set(state.x, state.y, state.z);
       if (state.phase === 'hatching') {
         // Wobble faster and faster, then a crack (squash) right before the pet jumps out.
@@ -136,6 +180,8 @@ export function createFtueVisual(theme: ThemeJson): FtueVisual {
       eggMat.dispose();
       standGeo.dispose();
       standMat.dispose();
+      sparkGeo.dispose();
+      sparkMat.dispose();
       shape.dispose();
       arrowMat.dispose();
     },

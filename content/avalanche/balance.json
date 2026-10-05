@@ -120,9 +120,11 @@
     "shoesSec": 8,
     "waveCaveMax": 3,
     "caughtSec": 3,
-    "stuckSec": 10,
+    "stuckSec": 3,
     "stuckDist": 12,
     "stuckMax": 3,
+    "wrongWaySec": 2,
+    "wrongWayDist": 8,
     "portalIdleSec": 10,
     "portalMax": 3
   },

@@ -74,7 +74,12 @@ export interface TestState {
   hintText: string;
   arrows: boolean;
   hand: boolean;
-  egg: { phase: string; x: number; y: number; z: number } | null;
+  /** `shown` — on its stand in the simulation (after the scripted wave), `visible` — drawn now (PR-08). */
+  egg: { phase: string; x: number; y: number; z: number; shown: boolean; visible: boolean } | null;
+  /** Screen angle (rad, 0 right, π/2 down) of the arrow in the hint.stuck plaque, null — none (PR-08). */
+  hintArrow: number | null;
+  /** «Wrong way» arrow by the hero: up, its screen angle and centre in field px (PR-06). */
+  wrongWay: { shown: boolean; angle: number; x: number; y: number };
   pets: string[];
   /** M3-03: ids of the pets on, pets drawn next to the hero, the egg button over a stand, the egg being hatched. */
   petsOn: string[];
@@ -124,6 +129,8 @@ export interface TestState {
   cameraDistance: number;
   cameraFov: number;
   cameraPos: [number, number, number];
+  /** Share of the fixed cave frame in the view (1 — the frame, 0 — the player's camera; PR-07). */
+  cameraFixedBlend: number;
   autoRun: boolean;
   checkpoint: number;
   respawning: boolean;
@@ -158,6 +165,10 @@ export interface TestApi {
   setAutoRun(on: boolean): void;
   setCamera(opts: { yaw?: number; pitch?: number; dist?: number; fov?: number } | 'auto'): void;
   cameraInsideGeometry(): boolean;
+  /** A world point in field px as the camera sees it now; `ahead` false — behind the camera (PR-06, PR-07). */
+  project(x: number, y: number, z: number): { x: number; y: number; ahead: boolean };
+  /** Gate sign plaque as a world box and whether it is hidden now (PR-08: never under the avalanche banner). */
+  signBox(index: number): { center: [number, number, number]; size: [number, number, number]; hidden: boolean };
   /** Per rendered frame since the last reset (playtest M2): camera inside a collider (solid box, closed gate, ramp —
    * with the near plane), hero hidden by the camera while he should be seen, hero behind level geometry; first bad frames. */
   cameraStats(): { frames: number; inside: number; heroHidden: number; heroBlocked: number; bad: string[] };
@@ -298,8 +309,25 @@ export function installTestApi(g: GameHandles): TestApi {
       return;
     }
     chest.set(h.x, h.y + CHEST, h.z);
-    const len = chest.distanceTo(p);
+    let len = chest.distanceTo(p);
     ray.set(p, chest.clone().sub(p).normalize());
+    // The cave frame looks through cave parts that are not drawn (PR-07): a first hit inside one of them moves the
+    // line of sight past it.
+    const cut = g.levelMeshes?.cutBoxes() ?? [];
+    for (let k = 0; k < cut.length; k++) {
+      const first = sim.collision.static.rayIntersect(ray);
+      if (!first || first.distance >= len - 0.3) break;
+      const at = ray.origin.clone().addScaledVector(ray.direction, first.distance + 0.01);
+      const box = cut.find((b) => [at.x, at.y, at.z].every((v, a) => v > b.min[a]! - 0.05 && v < b.max[a]! + 0.05));
+      if (!box) break;
+      // Slabs: where the ray leaves that box.
+      let exit = Infinity;
+      const o = [ray.origin.x, ray.origin.y, ray.origin.z];
+      const dir = [ray.direction.x, ray.direction.y, ray.direction.z];
+      for (let a = 0; a < 3; a++) if (Math.abs(dir[a]!) > 1e-9) exit = Math.min(exit, ((dir[a]! > 0 ? box.max[a]! : box.min[a]!) - o[a]!) / dir[a]!);
+      ray.origin.addScaledVector(ray.direction, exit + 0.05);
+      len -= exit + 0.05;
+    }
     const hitS = sim.collision.static.rayIntersect(ray);
     const hitD = sim.collision.dynamic?.rayIntersect(ray);
     const d = Math.min(hitS ? hitS.distance : Infinity, hitD ? hitD.distance : Infinity);
@@ -365,7 +393,11 @@ export function installTestApi(g: GameHandles): TestApi {
         hintText: document.querySelector('[data-role="hint"].shown .hud-hint-text')?.textContent ?? '',
         arrows: g.ftue?.arrows ?? false,
         hand: g.ftue?.hand ?? false,
-        egg: g.sim?.giftEgg ? { phase: g.sim.giftEgg.phase, x: g.sim.giftEgg.x, y: g.sim.giftEgg.y, z: g.sim.giftEgg.z } : null,
+        egg: g.sim?.giftEgg
+          ? { phase: g.sim.giftEgg.phase, x: g.sim.giftEgg.x, y: g.sim.giftEgg.y, z: g.sim.giftEgg.z, shown: g.sim.giftEgg.shown, visible: g.ftue?.eggShown ?? false }
+          : null,
+        hintArrow: g.ftue?.hintArrow ?? null,
+        wrongWay: { shown: g.way?.shown ?? false, angle: g.way?.angle ?? 0, x: g.way?.x ?? 0, y: g.way?.y ?? 0 },
         pets: [...(g.save.pets ?? [])],
         petsOn: g.pets?.equippedIds ?? [],
         petsShown: g.pets?.shownPets ?? 0,
@@ -419,6 +451,7 @@ export function installTestApi(g: GameHandles): TestApi {
         cameraDistance: cam?.currentDistance ?? 0,
         cameraFov: cam?.camera.fov ?? 0,
         cameraPos: cam ? [cam.camera.position.x, cam.camera.position.y, cam.camera.position.z] : [0, 0, 0],
+        cameraFixedBlend: cam?.fixedBlend ?? 0,
         autoRun: g.input.autoRun,
         checkpoint: g.sim?.checkpoint ?? -1,
         respawning: (g.sim?.respawnTicksLeft ?? -1) >= 0,
@@ -487,6 +520,18 @@ export function installTestApi(g: GameHandles): TestApi {
     cameraInsideGeometry() {
       if (!g.camera || !g.sim) return false;
       return g.camera.insideGeometry(g.sim.collision);
+    },
+    project(x, y, z) {
+      const c = g.camera?.camera;
+      if (!c) return { x: 0, y: 0, ahead: false };
+      const ahead = new Vector3(x, y, z).applyMatrix4(c.matrixWorldInverse).z < -c.near;
+      const p = new Vector3(x, y, z).project(c);
+      return { x: (p.x * 0.5 + 0.5) * g.field.width, y: (0.5 - p.y * 0.5) * g.field.height, ahead };
+    },
+    signBox(index) {
+      const m = g.levelMeshes;
+      if (!m) return { center: [0, 0, 0], size: [0, 0, 0], hidden: false };
+      return { ...m.signBox(index), hidden: m.signHidden(index) };
     },
     cameraStats: () => ({ ...cam, bad: [...cam.bad] }),
     resetCameraStats() {
