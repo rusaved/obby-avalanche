@@ -20,3 +20,4 @@ art/promo/*/video/frames/
 .cache/
 dist-pages/
 art/studio/*/
+.claude/worktrees/
