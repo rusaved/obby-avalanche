@@ -6,11 +6,13 @@ import fastWorlds from '../content/avalanche/pace/fast/worlds.json' with { type:
 // PR-01: the pace flag (docs/01-gdd.md 16.1). Without ?pace — game.json `pace` (fast: 15 gates on mountain 1),
 // ?pace=classic — the M3 game (12 walls); each pace keeps its own progress: classic at the root of the save as before,
 // fast in its own slot; F5 brings each pace back to its own flag.
-type Seg = { type: string; z: number };
-const gatesOf = (w: unknown): number[] =>
-  (w as { worlds: Array<{ segments: Seg[] }> }).worlds[0]!.segments.filter((s) => s.type === 'gate').map((s) => s.z);
+type Seg = { type: string; z: number; requires?: number };
+const gateSegs = (w: unknown): Seg[] => (w as { worlds: Array<{ segments: Seg[] }> }).worlds[0]!.segments.filter((s) => s.type === 'gate');
+const gatesOf = (w: unknown): number[] => gateSegs(w).map((s) => s.z);
 const classicGates = gatesOf(classicWorlds);
 const fastGates = gatesOf(fastWorlds);
+/** Gate 2 of fast after sim:balance --fit (PR-10): the stat that opens it comes from the data. */
+const fastGate2 = gateSegs(fastWorlds)[1]!.requires!;
 
 async function open(page: Page, query: string): Promise<void> {
   await page.goto(query ? `/?${query}` : '/');
@@ -75,7 +77,7 @@ test('separate saves: classic progress (wall 3) is not seen in fast and not eras
   expect(s.gatesPassed.some(Boolean)).toBe(false);
   expect(s.hero!.z).toBeLessThan(40);
   expect(s.stat).toBe(0);
-  await passGate(page, fastGates, 2, 20);
+  await passGate(page, fastGates, 2, fastGate2);
   await page.reload();
   await waitReady(page);
   await waitTicks(page, 2);

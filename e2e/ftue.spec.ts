@@ -44,7 +44,8 @@ test('first minute: bot walks walls 1–3 straight, scripted wave in cave 4, bel
     const names = (await played()).map((e) => e.name);
     if (stage === 'cave' && names.includes('first_wave_survived')) {
       stage = 'egg';
-      expect(s.hand).toBe(true);
+      // first_wave_survived goes as the front passes the hero; the egg and the hand come with «Phew, made it!» on screen.
+      await expect.poll(async () => (await testState(page)).hand).toBe(true);
       handSeen = true;
       await page.evaluate(([x, z]) => window.__TEST__!.botPath([[x, z]]), [s.egg!.x, s.egg!.z] as [number, number]);
     }

@@ -1,12 +1,15 @@
 /**
- * ?debug=1 panel (docs/02-tech.md, section 15): lil-gui folders Controller, Camera, Avalanche, Fun, HUD, Render, Analytics, stats
- * overlay, Export of tuning JSON. Only in dev, playtest, e2e and pages builds — the release never imports this
- * module (check-release rejects lil-gui). Values apply at once and are remembered on this device.
+ * ?debug=1 panel (docs/02-tech.md, section 15): lil-gui folders Controller, Camera, Avalanche, Fun, HUD, Mountains
+ * («to mountain N», PR-09), Render, Analytics, stats overlay, Export of tuning JSON. Only in dev, playtest, e2e and pages
+ * builds — the release never imports this module (check-release rejects lil-gui). Values apply at once and are
+ * remembered on this device.
  */
 import GUI from 'lil-gui';
 import type { GameHandles } from '../app/handles.ts';
 import { analyticsEvents } from '../analytics/index.ts';
+import { content } from '../content/index.ts';
 import type { TuningJson } from '../content/types.ts';
+import { modelEntry } from './model-entry.ts';
 import { createStorage } from '../platform/storage.ts';
 import { QUALITY_LEVELS, type QualityLevel } from '../render/quality.ts';
 
@@ -147,6 +150,35 @@ export function mountDebug(g: GameHandles, host: HTMLElement, isMobile: boolean)
   hudFolder.add(g.tuning.hud, 'gainHeight', 0, 6, 0.1).onChange(persist);
   hudFolder.add(g.tuning.hud, 'gainSide', -0.2, 0.2, 0.01).onChange(persist);
   hudFolder.close();
+
+  // «To mountain N» (PR-09): the camp of mountain N of this pace with the state of the greedy bot of the balance model
+  // entering it on this tier — stat, shoes, coins, its pets (pets.json by their bonuses, on); summits 1…N−1 done.
+  const pack = { ...content, worlds: content.worlds.worlds };
+  const toMountain = (n: number): void => {
+    const sim = g.sim;
+    if (!sim) return;
+    const e = modelEntry(pack, g.save.tier ?? 0, n);
+    const on: number[] = [];
+    for (const bonus of e.pets) {
+      const id = content.pets.pets.find((p) => Math.abs(p.bonus - bonus) < 1e-9)?.id;
+      if (!id) continue;
+      let i = (g.save.pets ?? []).findIndex((x, k) => x === id && !on.includes(k));
+      if (i < 0) i = g.pets?.hatched(id, null, false, undefined, true) ?? -1;
+      if (i >= 0) on.push(i);
+    }
+    g.save.petsOn = on;
+    g.save.shoes = e.shoe;
+    g.save.summits = n - 1;
+    sim.progress.stat = e.stat;
+    sim.coins = e.coins;
+    g.gotoWorld(n);
+    g.persist(true);
+  };
+  const mountains = gui.addFolder('Mountains');
+  for (const w of [...content.worlds.worlds].sort((a, b) => a.index - b.index)) {
+    mountains.add({ go: () => toMountain(w.index) }, 'go').name(`to mountain ${w.index}`);
+  }
+  mountains.close();
 
   const render = gui.addFolder('Render');
   const renderState = { quality: g.quality.level as QualityLevel | 'auto', dpr: g.quality.dpr, fps: 0, ms: 0, calls: 0, triangles: 0, textures: 0, simMs: 0 };

@@ -325,6 +325,9 @@ async function boot(): Promise<void> {
       if (s.giftEgg) s.giftEgg.shown = true;
     };
     s.events.on('waveSurvived', ({ coins, total, gold, scripted }) => {
+      // The scripted wave passed the hero in a cave (docs/01-gdd.md 4.6): step 9 of docs/06 with «Phew, made it!», so
+      // before its egg — on the fast pace the front still runs on for seconds down to the camp (waveEnd below).
+      if (scripted) trackOnce('first_wave_survived', { inShelter: true });
       // With the golden gift: one toast, bigger and golden, both rewards in it (docs/01-gdd.md 4.9).
       hud?.toast(t('wave.survived', { n: formatNumber(coins, numSuffix) }), gold > 0 ? 3 : 2, gold > 0, undefined, scripted ? showEgg : undefined);
       if (coins > 0) hud?.setCoins(formatNumber(total, numSuffix));
@@ -341,7 +344,10 @@ async function boot(): Promise<void> {
       track('gold_lost');
       bonusVisual?.pop(at, playSec);
     });
-    s.events.on('waveDusted', () => hud?.toast(t('wave.firstMiss'), 3));
+    s.events.on('waveDusted', () => {
+      trackOnce('first_wave_survived', { inShelter: false });
+      hud?.toast(t('wave.firstMiss'), 3);
+    });
     // «Snowed in!» (M2-07, docs/01-gdd.md 4.5): toast; the ball and the pose follow sim.caught in renderFrame.
     s.events.on('waveCaught', () => hud?.toast(t('wave.caught')));
     s.events.on('waveEnd', ({ scripted, outcome }) => {
@@ -349,6 +355,7 @@ async function boot(): Promise<void> {
         // Not in a cave (no «Phew»), or the toast was dropped from a full queue: the egg is there now anyway.
         showEgg();
         (save.flags ??= {})['firstWaveDone'] = true;
+        // Already sent when the front passed the hero; here only for a wave that never reached him.
         trackOnce('first_wave_survived', { inShelter: outcome === 'survived' });
         persist();
       } else if (outcome === 'survived' || outcome === 'caught') {

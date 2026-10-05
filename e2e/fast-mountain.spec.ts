@@ -211,8 +211,8 @@ test('fast pace, first 2 minutes: gate_1 ≤ 8 s, gate_3 ≤ 20 s, the scripted 
   let shot = false;
   const r = await playMountain1(page, 240_000, async (st) => {
     if (st.window && st.window !== 'summit') windows.push(`${st.window} at ${st.playSec.toFixed(1)} s`);
-    // The scripted wave at the cave of gate 7: «Avalanche in N», the arrow, the cave a step aside of the gate.
-    if (!shot && st.wave?.phase === 'warn' && st.wave.scripted) {
+    // The scripted wave at the cave of gate 7: «Avalanche in N» with the hero already on the belt a step aside of the gate.
+    if (!shot && st.wave?.phase === 'warn' && st.wave.scripted && (st.inShelter || st.wave.timer <= 1)) {
       shot = true;
       await page.evaluate(() => window.__TEST__!.setTimeScale(1));
       mkdirSync(EVIDENCE, { recursive: true });
@@ -237,13 +237,15 @@ test('fast pace, first 2 minutes: gate_1 ≤ 8 s, gate_3 ≤ 20 s, the scripted 
   // «Next» on the summit window, then game time up to 180 s of play on mountain 2: nothing opens by itself.
   await page.locator('[data-role="window"] [data-next]:visible').first().click();
   await expect.poll(async () => (await testState(page)).world).toBe(worlds[1]!.id);
-  for (s = await testState(page); s.playSec < 179.9; s = await testState(page)) {
-    await page.evaluate((sec) => window.__TEST__!.runSim(sec), Math.min(20, 179.9 - s.playSec));
+  for (let i = 0; i < 40; i++) {
+    s = await testState(page);
+    // An open window stops the game: recorded, and the run ends there.
     if (s.window) windows.push(`${s.window} at ${s.playSec.toFixed(1)} s`);
+    if (s.window || s.playSec >= 179.9) break;
+    await page.evaluate((sec) => window.__TEST__!.runSim(sec), Math.max(0.1, Math.min(20, 179.9 - s.playSec)));
   }
-  s = await testState(page);
-  if (s.window) windows.push(`${s.window} at ${s.playSec.toFixed(1)} s`);
   expect(windows).toEqual([]);
+  expect(s.playSec).toBeGreaterThanOrEqual(179.9);
   expect(await mockCalls(page, 'adv.showFullscreenAdv')).toBe(0);
 });
 

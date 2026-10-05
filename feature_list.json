@@ -454,7 +454,7 @@
     "milestone": "PR",
     "description": "Первые 2 минуты темпа fast по docs/01-gdd.md 16.6: ворота часто мелкими шагами, сценарная лавина у пещеры ворот 7 (ftue.scriptedWaveWall в заплатке темпа), яйцо после «Уф, успел!», подсказка дорожки через 3 с",
     "acceptance": "e2e (fast, свежее сохранение, бот по прямой, дорожка только у закрытых ворот): gate_1 ≤ 8 с, gate_3 ≤ 20 с, first_wave_survived с inShelter: true ≤ 50 с, egg_1 позже first_wave_survived, ворота 8 ≤ 75 с, вершина горы 1 ≤ 120 с игрового времени; до 180 с ни одного окна и полноэкранной рекламы (GDD-02 на fast); ноль console.error",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
@@ -508,7 +508,7 @@
     "milestone": "PR",
     "description": "Кнопка «к горе N» в ?debug=1 (обещание итога M3, пункт 4): переносит героя в лагерь горы N текущего темпа с состоянием жадного бота модели баланса на входе в гору N (Скорость, кроссовки, монеты, питомцы по бонусам), вершины 1…N−1 засчитаны; в релизе кнопки нет",
     "acceptance": "e2e (оба темпа): ?debug=1 → «к горе 5» (classic) и «к горе 10» (fast) → герой в лагере этой горы, ворота 1 открываются на подходе или после дорожки ≤ 30 с игрового времени, вершина последней горы открывает перерождение; ноль console.error; в релизном архиве кода кнопки нет (check-release)",
-    "passes": false,
+    "passes": true,
     "priority": "P1",
     "deferred": false
   },
@@ -517,7 +517,7 @@
     "milestone": "PR",
     "description": "Баланс темпа fast (docs/01-gdd.md 16.8): sim:balance гоняет оба темпа, проверки F1–F10 для fast и 10 проверок 8.5 для classic зелёные, правки только в данных; таблицы 01a разделы 3 и 9 переписаны под данные после --fit (решение продюсера 05.10, Q-027)",
     "acceptance": "npm run sim:balance — код 0: classic 10 PASS и сверка порта с эталоном, fast F1–F10 PASS; отчёты docs/evidence/balance.txt и docs/evidence/balance-fast.txt; --fit --pace=fast не больше 2 запусков на вехе (docs/evidence/balance-fit.json); правки баланса — только в content/; в 01a разделах 3 и 9 столбцы «Требование» и wallScale совпадают с данными classic, эталон — в своих столбцах",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
