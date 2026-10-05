@@ -274,7 +274,7 @@
     "milestone": "M2",
     "description": "Бот проходит гору 1: в Node (sim:balance, профиль «жадный» и «ленивый») и в браузере (e2e при `setTimeScale(≥ 20)`, время — игровое: тики / 60)",
     "acceptance": "sim:balance: проверки 1, 2, 4 и 7 из docs/01-gdd.md, 8.5 проходят, таблица в docs/evidence/balance.txt; bot-world1.spec.ts: бот доходит до портала горы 1, ноль console.error и pageerror",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

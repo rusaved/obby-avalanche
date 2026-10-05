@@ -8,7 +8,20 @@
     "tiers": [
       { "id": "old_sneakers", "mult": 1, "price": 0 },
       { "id": "runners", "mult": 2, "price": 30 },
-      { "id": "snow_runners", "mult": 3, "price": 200 }
+      { "id": "snow_runners", "mult": 3, "price": 200 },
+      { "id": "ice_spikes", "mult": 5, "price": 900 },
+      { "id": "puffy_kicks", "mult": 8, "price": 4000 },
+      { "id": "snowflakes", "mult": 12, "price": 18000 },
+      { "id": "frost_bolts", "mult": 20, "price": 80000 },
+      { "id": "ice_rockets", "mult": 30, "price": 350000 },
+      { "id": "blizzard_boots", "mult": 50, "price": 1500000 },
+      { "id": "comets", "mult": 80, "price": 6500000 },
+      { "id": "north_wind", "mult": 120, "price": 28000000 },
+      { "id": "aurora_kicks", "mult": 200, "price": 120000000 },
+      { "id": "star_runners", "mult": 300, "price": 500000000 },
+      { "id": "avalanche_boots", "mult": 500, "price": 2200000000 },
+      { "id": "cosmic_kicks", "mult": 800, "price": 9000000000 },
+      { "id": "slope_legend", "mult": 1200, "price": 40000000000 }
     ]
   },
   "rebirth": {

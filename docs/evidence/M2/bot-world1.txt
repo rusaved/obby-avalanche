@@ -1,0 +1,8 @@
+npx playwright test e2e/bot-world1.spec.ts --repeat-each=3 (build:e2e, setTimeScale(20), время игровое: тики / 60), 2026-10-05
+bot-world1: {"sec":380.56666666666666,"shoes":3,"walls":12,"caught":1,"waves":5,"portal":true} — game minutes 6.34
+  ✓   2 [desktop] › e2e/bot-world1.spec.ts:114:1 › bot on game time plays mountain 1 to the portal with shoe purchases, no console errors (29.3s)
+bot-world1: {"sec":384.8666666666667,"shoes":3,"walls":12,"caught":0,"waves":5,"portal":true} — game minutes 6.41
+  ✓   6 [desktop] › e2e/bot-world1.spec.ts:114:1 › bot on game time plays mountain 1 to the portal with shoe purchases, no console errors (28.2s)
+bot-world1: {"sec":380.6333333333333,"shoes":3,"walls":12,"caught":0,"waves":5,"portal":true} — game minutes 6.34
+  ✓  11 [desktop] › e2e/bot-world1.spec.ts:114:1 › bot on game time plays mountain 1 to the portal with shoe purchases, no console errors (27.7s)
+Итог: 3 из 3 прошли, ноль console.error и pageerror (общий прогон вместе с hud.spec и touch-autorun.spec: 21 passed, 2.2m). Модель sim:balance для сравнения: жадный 4,78 мин, ленивый 5,01 мин; браузерный бот без яиц за монеты (M3-03) и без подарков на уступах — 6,3–6,4 мин

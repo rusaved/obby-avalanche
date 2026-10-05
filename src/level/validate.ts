@@ -4,7 +4,7 @@
  * physics (M1) and cave fairness against warnSec (M2-03).
  */
 import * as v from 'valibot';
-import type { BotsJson, Curve, GameJson, Segment, SkinsJson, TuningJson, World, WorldsJson } from '../content/types.ts';
+import type { BotsJson, Curve, EggsJson, GameJson, Segment, SkinsJson, TuningJson, World, WorldsJson } from '../content/types.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 import { buildLevel } from './builder.ts';
 
@@ -18,6 +18,7 @@ export const PACK_FILES = [
   'skins.json',
   'accessories.json',
   'pets.json',
+  'eggs.json',
   'sfx.json',
   'bots.json',
   'i18n/ru.json',
@@ -337,6 +338,13 @@ const petsSchema = v.object({
   pets: v.pipe(v.array(v.object({ id: id, rarity: id, bonus: positive, color: hex, accent: hex })), v.minLength(1)),
 });
 
+/** eggs.json (docs/02-tech.md 5.1, docs/01a-content.md 6): price at tier 0 and the pool of pets with chances. */
+const eggsSchema = v.object({
+  eggs: v.array(
+    v.object({ id: id, price: positive, pool: v.pipe(v.array(v.object({ pet: id, chance: positive })), v.minLength(1)) }),
+  ),
+});
+
 /** ZzFX takes up to 21 numbers (docs/02-tech.md 10). */
 const sfxSchema = v.record(name, v.pipe(v.array(v.number()), v.minLength(1), v.maxLength(21)));
 
@@ -379,6 +387,7 @@ const SCHEMAS: Record<PackFile, v.GenericSchema> = {
   'skins.json': skinsSchema,
   'accessories.json': accessoriesSchema,
   'pets.json': petsSchema,
+  'eggs.json': eggsSchema,
   'sfx.json': sfxSchema,
   'bots.json': botsSchema,
   'i18n/ru.json': i18nSchema,
@@ -461,6 +470,16 @@ export function validatePack(files: PackFiles): ValidationResult {
   const freePet = (files['balance.json'] as { ftue: { freeEggPet: string } }).ftue.freeEggPet;
   if (!pets.pets.some((p) => p.id === freePet)) errors.push(`balance.json: ftue.freeEggPet — unknown pet "${freePet}" (pets.json)`);
   for (const [i, p] of pets.pets.entries()) if (!theme.rarity[p.rarity]) errors.push(`pets.json: pets[${i}].rarity — no colour "${p.rarity}" in theme.json rarity`);
+
+  // Eggs (docs/01a-content.md 6): pets of the pool exist, chances sum to 1, every mountain's egg is in eggs.json.
+  const eggs = files['eggs.json'] as EggsJson;
+  const petIds = new Set(pets.pets.map((p) => p.id));
+  for (const [i, e] of eggs.eggs.entries()) {
+    for (const [j, slot] of e.pool.entries()) if (!petIds.has(slot.pet)) errors.push(`eggs.json: eggs[${i}].pool[${j}].pet — unknown pet "${slot.pet}" (pets.json)`);
+    const sum = e.pool.reduce((a, slot) => a + slot.chance, 0);
+    if (Math.abs(sum - 1) > 1e-9) errors.push(`eggs.json: eggs[${i}].pool — chances sum to ${sum}, expected 1`);
+  }
+  for (const w of worlds.worlds) if (!eggs.eggs.some((e) => e.id === w.egg)) errors.push(`worlds.json: worlds[${w.index - 1}].egg — unknown egg "${w.egg}" (eggs.json)`);
 
   // Bots (docs/01-gdd.md 7.12; docs/03, 4.3): names are i18n keys with texts in both languages, character names
   // without digits, enough of them for every bot on a mountain to have its own; a palette without the hero's look.

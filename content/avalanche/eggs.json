@@ -1,0 +1,134 @@
+{
+  "eggs": [
+    {
+      "id": "snow",
+      "price": 500,
+      "pool": [
+        {
+          "pet": "penguin",
+          "chance": 0.5
+        },
+        {
+          "pet": "bunny",
+          "chance": 0.3
+        },
+        {
+          "pet": "seal",
+          "chance": 0.15
+        },
+        {
+          "pet": "fox",
+          "chance": 0.045
+        },
+        {
+          "pet": "owl",
+          "chance": 0.005
+        }
+      ]
+    },
+    {
+      "id": "frost",
+      "price": 40000,
+      "pool": [
+        {
+          "pet": "bullfinch",
+          "chance": 0.5
+        },
+        {
+          "pet": "arctic_fox",
+          "chance": 0.3
+        },
+        {
+          "pet": "goat_kid",
+          "chance": 0.15
+        },
+        {
+          "pet": "lynx_cub",
+          "chance": 0.045
+        },
+        {
+          "pet": "polar_bear",
+          "chance": 0.005
+        }
+      ]
+    },
+    {
+      "id": "ice",
+      "price": 3000000,
+      "pool": [
+        {
+          "pet": "husky",
+          "chance": 0.5
+        },
+        {
+          "pet": "fawn",
+          "chance": 0.3
+        },
+        {
+          "pet": "bear",
+          "chance": 0.15
+        },
+        {
+          "pet": "walrus",
+          "chance": 0.045
+        },
+        {
+          "pet": "leopard",
+          "chance": 0.005
+        }
+      ]
+    },
+    {
+      "id": "blizzard",
+      "price": 300000000,
+      "pool": [
+        {
+          "pet": "ermine",
+          "chance": 0.5
+        },
+        {
+          "pet": "petrel",
+          "chance": 0.3
+        },
+        {
+          "pet": "yak",
+          "chance": 0.15
+        },
+        {
+          "pet": "mammoth_calf",
+          "chance": 0.045
+        },
+        {
+          "pet": "ice_griffin",
+          "chance": 0.005
+        }
+      ]
+    },
+    {
+      "id": "aurora",
+      "price": 20000000000,
+      "pool": [
+        {
+          "pet": "snowman",
+          "chance": 0.5
+        },
+        {
+          "pet": "whale",
+          "chance": 0.3
+        },
+        {
+          "pet": "dragonling",
+          "chance": 0.15
+        },
+        {
+          "pet": "phoenix",
+          "chance": 0.045
+        },
+        {
+          "pet": "crystal_hedgehog",
+          "chance": 0.005
+        }
+      ]
+    }
+  ]
+}

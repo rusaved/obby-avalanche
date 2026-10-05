@@ -4,15 +4,17 @@ import game from '../../content/avalanche/game.json' with { type: 'json' };
 import balance from '../../content/avalanche/balance.json' with { type: 'json' };
 import tuning from '../../content/avalanche/tuning.json' with { type: 'json' };
 import pets from '../../content/avalanche/pets.json' with { type: 'json' };
+import eggs from '../../content/avalanche/eggs.json' with { type: 'json' };
 import worldsJson from '../../content/avalanche/worlds.json' with { type: 'json' };
-import type { BalanceJson, GameJson, PetsJson, TuningJson, WorldsJson } from '../../src/content/types.ts';
+import type { BalanceJson, EggsJson, GameJson, PetsJson, TuningJson, WorldsJson } from '../../src/content/types.ts';
 
 const pack: ModelPack = {
   game: game as unknown as GameJson,
   balance: balance as BalanceJson,
   tuning: tuning as TuningJson,
   pets: pets as PetsJson,
-  world: (worldsJson as unknown as WorldsJson).worlds[0]!,
+  eggs: eggs as EggsJson,
+  worlds: (worldsJson as unknown as WorldsJson).worlds,
 };
 
 // M2-12: profile «Gold seeker» of the economic model (docs/01-gdd.md 8.5): mountain 1 of tier 0 takes ≥ 4.0 min.

@@ -1,0 +1,14 @@
+{
+  "eggs": [
+    {
+      "id": "snow",
+      "price": 500,
+      "pool": [
+        {
+          "pet": "bunny",
+          "chance": 1
+        }
+      ]
+    }
+  ]
+}

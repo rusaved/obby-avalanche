@@ -307,6 +307,11 @@ export interface PetsJson {
   pets: Array<{ id: string; rarity: string; bonus: number; color: string; accent: string }>;
 }
 
+/** eggs.json (docs/01a-content.md 6): price at tier 0 (× wallScale on tier n), pool of pets with chances summing to 1. */
+export interface EggsJson {
+  eggs: Array<{ id: string; price: number; pool: Array<{ pet: string; chance: number }> }>;
+}
+
 /**
  * bots.json (docs/01a-content.md 12; docs/01-gdd.md 7.12): how many bots per quality level, name keys of i18n,
  * colours of their parts, speed factor and treadmill seconds as [min, max] ranges, the share that hides on warn.
