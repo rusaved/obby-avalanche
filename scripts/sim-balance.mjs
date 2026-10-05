@@ -59,7 +59,8 @@ const median = (xs) => {
   return s.length % 2 ? s[(s.length - 1) / 2] : (s[s.length / 2 - 1] + s[s.length / 2]) / 2;
 };
 
-// docs/01a-content.md: section 3 (wall p → requirement, second of the reference bot) and section 9 (wallScale, cycle).
+// docs/01a-content.md: the reference columns of section 3 (wall p → requirement, second of the reference bot) and of
+// section 9 (wallScale, cycle), found by the column title — the tables also carry the game data after --fit (Q-027).
 function referenceTables() {
   if (packName !== 'avalanche') return null;
   const md = readFileSync(resolve(root, 'docs/01a-content.md'), 'utf8');
@@ -69,21 +70,28 @@ function referenceTables() {
     const m = /^×?([\d.]+)(K|M|B|T|Qa)?$/.exec(s.replace(/\s/g, ''));
     return m ? Number(m[1]) * MULT[m[2] ?? ''] : NaN;
   };
+  // The first table of a section: [key, …cells of the columns whose titles start with `titles`] for every row.
+  const columns = (h, titles) => {
+    const rows = section(h)
+      .split('\n')
+      .filter((l) => l.startsWith('|'))
+      .map((l) => l.split('|').slice(1, -1).map((x) => x.trim()));
+    const at = titles.map((t) => rows[0].findIndex((x) => x.startsWith(t)));
+    if (at.some((i) => i < 0)) throw new Error(`docs/01a-content.md ${h}: no column «${titles[at.indexOf(-1)]}»`);
+    return rows.filter((c) => /^\d+$/.test(c[0])).map((c) => [Number(c[0]), ...at.map((i) => c[i])]);
+  };
   const walls = [];
   const sec = [];
-  for (const line of section(3).split('\n')) {
-    const c = line.split('|').map((x) => x.trim());
-    if (c.length < 10 || !/^\d+$/.test(c[1])) continue;
-    walls[Number(c[1]) - 1] = parse(c[4]);
-    sec[Number(c[1]) - 1] = Number(c[c.length - 2]);
+  for (const [p, req, s] of columns(3, ['Эталон', 'Бот модели'])) {
+    walls[p - 1] = parse(req);
+    sec[p - 1] = Number(s);
   }
   const scale = [];
   const cycle = [];
-  for (const line of section(9).split('\n')) {
-    const c = line.split('|').map((x) => x.trim());
-    if (c.length < 10 || !/^\d+$/.test(c[1]) || Number(c[1]) > TIERS) continue;
-    scale[Number(c[1])] = parse(c[3]);
-    cycle[Number(c[1])] = Number(c[8].replace(',', '.'));
+  for (const [n, ws, c] of columns(9, ['`wallScale` эталона', 'Бот эталона: цикл'])) {
+    if (n > TIERS) continue;
+    scale[n] = parse(ws);
+    cycle[n] = Number(c.replace(',', '.'));
   }
   return { walls, sec, scale, cycle };
 }
@@ -280,7 +288,7 @@ if (ref) {
   gates.push({
     title: 'порт = эталон: столбец «Бот модели» docs/01a-content.md 3 ±10% (допущения эталона)',
     ok,
-    detail: `в допуске ${within} из ${ref.sec.length} стен (наибольшее отклонение ${(fidelity.worst * 100).toFixed(1)}%${firstOut >= 0 ? `, первая вне — стена ${firstOut + 1}` : ''}); обратный расчёт дал столбец «Требование» — ${wallsSame} из ${ref.walls.length}; циклы ступеней 0–${TIERS} по разделу 9 ±10% — ${cycOk ? 'да' : 'нет'} (${cyc.map(([a]) => a.toFixed(1)).join(' / ')})`,
+    detail: `в допуске ${within} из ${ref.sec.length} стен (наибольшее отклонение ${(fidelity.worst * 100).toFixed(1)}%${firstOut >= 0 ? `, первая вне — стена ${firstOut + 1}` : ''}); обратный расчёт дал столбец «Эталон» — ${wallsSame} из ${ref.walls.length}; циклы ступеней 0–${TIERS} по разделу 9 ±10% — ${cycOk ? 'да' : 'нет'} (${cyc.map(([a]) => a.toFixed(1)).join(' / ')})`,
   });
 }
 if (gold) {
@@ -343,7 +351,7 @@ table('ленивый', lazy);
 if (existsSync(fitLog)) {
   const log = JSON.parse(readFileSync(fitLog, 'utf8')).filter((r) => r.pack === packName);
   L();
-  L(`Подгонка sim:balance --fit (docs/01-gdd.md 8.5; не больше ${FIT_LIMIT} запусков на веху; 01a не правится, отличия — здесь):`);
+  L(`Подгонка sim:balance --fit (docs/01-gdd.md 8.5; не больше ${FIT_LIMIT} запусков на веху; 01a 3 и 9 переписываются под данные, эталон — в своих столбцах, Q-027):`);
   for (const r of log) {
     if (r.aborted) {
       L(` ${r.date}, ${r.milestone}: запуск прерван (${r.aborted}); данные не изменились`);

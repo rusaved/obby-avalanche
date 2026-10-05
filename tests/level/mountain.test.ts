@@ -107,15 +107,16 @@ describe('mountains 1–5 (M3-05)', () => {
     if (!m) throw new Error(`not a number: ${s}`);
     return Number(m[1]) * SUFFIX[m[2]!]!;
   };
-  // docs/01a-content.md section 3: «| p | mountain | wall | requires | ×treadmill | zone | gift | gate coins | bot s |».
+  // docs/01a-content.md section 3: «| p | mountain | wall | requires | reference | ×treadmill | zone | gift | gate coins | bot s | game bot s |».
   const section3 = doc.slice(doc.indexOf('## 3.'), doc.indexOf('## 4.'));
   const rows = section3
     .split('\n')
     .filter((l) => /^\| \d+ \| \d \|/.test(l))
     .map((l) => l.split('|').slice(1, -1).map((c) => c.trim()))
-    .map((c) => ({ mountain: Number(c[1]), wall: Number(c[2]), requires: parseNum(c[3]!), treadmill: parseNum(c[4]!), gift: parseNum(c[6]!), gateCoins: parseNum(c[7]!) }));
+    .map((c) => ({ mountain: Number(c[1]), wall: Number(c[2]), requires: parseNum(c[3]!), reference: parseNum(c[4]!), treadmill: parseNum(c[5]!), gift: parseNum(c[7]!), gateCoins: parseNum(c[8]!) }));
   const of = (w: (typeof worlds.worlds)[number], type: string) => w.segments.filter((s) => s.type === type).sort((a, b) => a.z - b.z);
-  // `sim:balance --fit` (docs/01-gdd.md 8.5) moves walls without touching 01a; every move is in docs/evidence/balance-fit.json.
+  // `sim:balance --fit` (docs/01-gdd.md 8.5) moves walls: 01a 3 keeps the game data and the reference beside it (Q-027);
+  // every move is in docs/evidence/balance-fit.json.
   type FitRun = { pack: string; aborted?: string; walls: Array<{ p: number; from: number; to: number }> };
   const fitLog = resolve(root, 'docs/evidence/balance-fit.json');
   const fits = (existsSync(fitLog) ? (JSON.parse(readFileSync(fitLog, 'utf8')) as FitRun[]) : []).filter((r) => r.pack === 'avalanche' && !r.aborted);
@@ -143,8 +144,8 @@ describe('mountains 1–5 (M3-05)', () => {
       const cave = of(w, 'niche')[r.wall - 1]!;
       const at = `mountain ${r.mountain}, wall ${r.wall}`;
       const fitted = fittedWall.get(12 * (r.mountain - 1) + r.wall);
-      if (fitted) expect([fitted.from, gate['requires']], `${at} (sim:balance --fit)`).toEqual([r.requires, fitted.to]);
-      else expect(gate['requires'], at).toBe(r.requires);
+      expect(gate['requires'], at).toBe(r.requires);
+      expect(r.reference, `${at} (sim:balance --fit)`).toBe(fitted ? fitted.from : r.requires);
       expect(cave['treadmill'], at).toBe(r.treadmill);
       expect(cave['stretch'], at).toBe(r.wall);
       expect(w.zones.find((z) => z.k === gate['zone'])!.gift, at).toBe(r.gift);
