@@ -4,7 +4,7 @@
  * physics (M1) and cave fairness against warnSec (M2-03).
  */
 import * as v from 'valibot';
-import type { AurasJson, BalanceJson, BotsJson, Curve, EggsJson, TrailsJson, GameJson, Segment, SkinsJson, TuningJson, World, WorldsJson } from '../content/types.ts';
+import type { AurasJson, BalanceJson, BotsJson, Curve, EggsJson, TrailsJson, GameJson, Segment, SkinsJson, TuningJson, World, WorldsJson, WorldsSpecJson } from '../content/types.ts';
 import { summitTrophies } from '../sim/economy.ts';
 import { LEADERBOARD_SCORES } from '../meta/trophies.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
@@ -572,6 +572,8 @@ export function validatePack(files: PackFiles): ValidationResult {
     errors.push(...validateFairness(worlds, speedAt));
     if (game.threat.bonus) errors.push(...validateGoldFairness(worlds, speedAt, game.threat.bonus.distMax));
   }
+  // The count of 01a against the generated mountains (M3-05): after fairness, so a broken number still gets its seconds named.
+  errors.push(...validateContentCount(worlds, files['worlds-spec.json'] as WorldsSpecJson, (files['balance.json'] as BalanceJson).gifts.perZone));
 
   // Remote flags: every path resolves to a number or boolean inside its range (docs/02-tech.md 11.11).
   if (game.flags) {
@@ -664,6 +666,48 @@ export function validateWorlds(worlds: WorldsJson, rarityColors: Record<string, 
 }
 
 export type { World };
+
+/**
+ * Content count (docs/01-gdd.md 5.4, GDD-14; M3-05): worlds.json carries every mountain of worlds-spec.json (the tables
+ * of docs/01a-content.md 2–4) — the same walls with the same numbers, a cave with the same treadmill before each wall,
+ * `gifts.perZone` gift places in every zone, the threat numbers of the mountain, and portals chained 1 → 2 → … → last.
+ */
+export function validateContentCount(worlds: WorldsJson, spec: WorldsSpecJson, perZone: number): string[] {
+  const errors: string[] = [];
+  if (worlds.worlds.length !== spec.mountains.length) errors.push(`worlds.json: worlds — ${worlds.worlds.length} mountains, worlds-spec.json has ${spec.mountains.length} (npm run gen:worlds)`);
+  for (const [mi, m] of spec.mountains.entries()) {
+    const w = worlds.worlds[mi];
+    if (!w) continue;
+    const at = `worlds.json: worlds[${mi}] (${w.id})`;
+    if (w.id !== m.id) errors.push(`${at}: id — worlds-spec.json has "${m.id}"`);
+    const gates = w.segments.filter((s) => s.type === 'gate').sort((a, b) => a.z - b.z);
+    const niches = w.segments.filter((s) => s.type === 'niche').sort((a, b) => a.z - b.z);
+    if (gates.length !== m.walls.length) errors.push(`${at}: walls — ${gates.length}, worlds-spec.json has ${m.walls.length}`);
+    if (niches.length !== m.walls.length) errors.push(`${at}: caves — ${niches.length}, expected one per wall (${m.walls.length})`);
+    for (const [i, wall] of m.walls.entries()) {
+      const g = gates[i];
+      const n = niches[i];
+      if (g && num(g, 'requires') !== wall.requires) errors.push(`${at}: wall ${i + 1} — requires ${num(g, 'requires')}, worlds-spec.json has ${wall.requires}`);
+      if (n && num(n, 'treadmill') !== wall.treadmill) errors.push(`${at}: cave ${i + 1} — treadmill ×${num(n, 'treadmill')}, worlds-spec.json has ×${wall.treadmill}`);
+    }
+    const zoneCount = Math.ceil(m.walls.length / 2);
+    if (w.zones.length !== zoneCount) errors.push(`${at}: zones — ${w.zones.length}, expected ${zoneCount} (two stretches each)`);
+    const gifts = w.segments.filter((s) => s.type === 'gift');
+    for (const zone of w.zones) {
+      // A zone is two stretches; the last one of an odd count has one, and half the places (docs/01a-content.md 4).
+      const want = (perZone * Math.min(2, m.walls.length - 2 * (zone.k - 1))) / 2;
+      const inZone = gifts.filter((s) => num(s, 'zone') === zone.k);
+      if (inZone.length !== want) errors.push(`${at}: zone ${zone.k} — ${inZone.length} gift places, expected ${want} (balance.json gifts.perZone ${perZone})`);
+      if (inZone.some((s) => num(s, 'coins') !== m.gifts[zone.k - 1])) errors.push(`${at}: zone ${zone.k} — gift coins differ from worlds-spec.json (${m.gifts[zone.k - 1]})`);
+    }
+    for (const key of ['intervalSec', 'warnSec', 'speed'] as const)
+      if (w.threat[key] !== m[key]) errors.push(`${at}: threat.${key} — ${w.threat[key]}, worlds-spec.json has ${m[key]}`);
+    const portal = w.segments.find((s) => s.type === 'portal');
+    const next = mi + 1 < spec.mountains.length ? mi + 2 : null;
+    if (portal && (portal['next'] ?? null) !== next) errors.push(`${at}: portal — leads to ${String(portal['next'])}, expected ${String(next)}`);
+  }
+  return errors;
+}
 
 /** Jump height from the controller constants: v² / (2g) (docs/02-tech.md 6.1: 6.4 units at 50 and 196.2). */
 export function jumpHeight(tuning: TuningJson): number {

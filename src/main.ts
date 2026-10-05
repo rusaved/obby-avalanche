@@ -371,6 +371,9 @@ async function boot(): Promise<void> {
       curPos.copy(sim.hero.pos);
       cameraRig?.snapTo({ pos: sim.hero.pos, vel: sim.hero.vel, speed: 0, maxSpeed });
     },
+    gotoWorld(index) {
+      enterWorld(index);
+    },
     renderOnce() {
       renderFrame(1, 0);
     },

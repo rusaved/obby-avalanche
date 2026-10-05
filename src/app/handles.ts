@@ -67,6 +67,8 @@ export interface GameHandles {
   setQualitySetting(level: QualityLevel | 'auto'): void;
   toggleMenu(open?: boolean): void;
   teleport(x: number, y: number, z: number): void;
+  /** To the camp of mountain `index` as through a portal: the stat, coins and tier carry over (M3-05). */
+  gotoWorld(index: number): void;
   renderOnce(): void;
   /** Eight characters in a row with the eight faces, camera on them (faces.png evidence). */
   showFaces(): void;

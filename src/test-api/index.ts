@@ -161,6 +161,8 @@ export interface TestApi {
   waveGone(): void;
   /** Starts the next avalanche now (scripted if the first wave is still pending). */
   triggerWave(): void;
+  /** To the camp of mountain `index` (1…5) as through a portal (M3-05: every mountain loads without errors). */
+  gotoWorld(index: number): void;
   /** The hero carries a golden gift now (threat.bonus in the data, on warn or run); false otherwise (docs/02-tech.md 17). */
   giveBonus(): boolean;
   /** Is the camera inside the snow body of the avalanche (docs/02-tech.md 7). */
@@ -469,6 +471,7 @@ export function installTestApi(g: GameHandles): TestApi {
       g.sim?.events.emit('waveGone', { tick: g.sim.tick });
     },
     triggerWave: () => g.triggerWave(),
+    gotoWorld: (index) => g.gotoWorld(index),
     giveBonus: () => g.sim?.giveBonus() ?? false,
     setStat(n) {
       if (g.sim) g.sim.progress.stat = n;
