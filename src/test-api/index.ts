@@ -107,6 +107,10 @@ export interface TestState {
   daily: { n: number; canClaim: boolean; nextSec: number; dayStart: number; last: number };
   boostSec: number;
   adEgg: number;
+  /** Quests of the day, time rewards (seconds today, claimed), the free spin of the wheel (M3-08b). */
+  quests: { day: number; list: Array<{ id: string; n: number; k: number; got: boolean }>; bonus: boolean };
+  timeRw: { day: number; sec: number; got: number[] };
+  wheelFree: boolean;
   /** Round numbers of Speed (M2-13): the plaque has its flash class; sounds started so far; the audio context runs. */
   statFlash: boolean;
   sfx: string[];
@@ -187,6 +191,9 @@ export interface TestApi {
   /** The ×2 boost for `sec` seconds of play and the ad views toward the egg, as an ad would give them (M3-08; ads — M4). */
   setBoost(sec: number): void;
   setAdEgg(k: number): void;
+  /** Quest progress as the game counts it, and play seconds today (M3-08b). */
+  questProgress(id: string, amount: number): void;
+  addPlayToday(sec: number): void;
   /** Sets the trophies to spend and over all time (M3-04: a summit done, trails and auras to buy). */
   setTrophies(n: number): void;
   /** A pet joins the player as from the free egg of the first minute (M3-13: «Bunny from the teaching»). */
@@ -392,6 +399,9 @@ export function installTestApi(g: GameHandles): TestApi {
         },
         boostSec: g.save.boostSec ?? 0,
         adEgg: g.save.adEgg ?? 0,
+        quests: structuredClone(g.save.quests ?? { day: 0, list: [], bonus: false }),
+        timeRw: structuredClone(g.save.timeRw ?? { day: 0, sec: 0, got: [] }),
+        wheelFree: g.save.wheel?.day !== g.save.daily?.dayStart,
         statFlash: document.querySelector('[data-role="stat"]')?.classList.contains('flash') ?? false,
         sfx: [...(g.audio?.played ?? [])],
         audioRunning: g.audio?.running ?? false,
@@ -518,6 +528,14 @@ export function installTestApi(g: GameHandles): TestApi {
     },
     setAdEgg(k) {
       g.save.adEgg = k;
+      g.persist(true);
+    },
+    questProgress(id, amount) {
+      g.quests?.progress(id, amount);
+      g.persist(true);
+    },
+    addPlayToday(sec) {
+      if (g.save.timeRw) g.save.timeRw.sec += sec;
       g.persist(true);
     },
     setTrophies(n) {

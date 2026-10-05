@@ -185,7 +185,7 @@ canvas.fallback {
 .hud-menu-icon svg { width: 100%; height: 100%; display: block; }
 .hud-menu-label { font-size: 11px; font-weight: 800; line-height: 1; white-space: nowrap; }
 .hud-menu-btn[data-hud="menu-rebirth"] .hud-menu-label { font-size: 9px; letter-spacing: -0.2px; }
-.hud-menu-badge { position: absolute; right: -6px; top: -6px; padding: 1px 5px; border-radius: 8px; background: #1b2a3a; color: #fff; font-size: 11px; font-weight: 800; line-height: 15px; font-variant-numeric: tabular-nums; }
+.hud-menu-badge { position: absolute; right: -6px; top: -6px; padding: 1px 5px; border-radius: 8px; background: #1b2a3a; color: #fff; font-size: 11px; font-weight: 800; line-height: 15px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .hud-menu-badge:empty { display: none; }
 .hud.short .hud-menu { gap: 6px; }
 .hud.short .hud-menu-btn { width: 44px; height: 44px; border-radius: 12px; }
@@ -288,3 +288,28 @@ canvas.fallback {
 .hud.touch ~ .win .dl-card.today, .hud.short ~ .win .dl-card.today { transform: scale(1.04); }
 .hud.touch ~ .win .rw-icon, .hud.short ~ .win .rw-icon { width: 28px; height: 28px; font-size: 22px; }
 .hud.touch ~ .win .rw-icon svg, .hud.short ~ .win .rw-icon svg { width: 26px; height: 26px; }
+.qs-list { display: flex; flex-direction: column; gap: 6px; padding: 4px 0; }
+.qs-row { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 4px 10px; border-radius: 12px; background: #eef3f8; }
+.qs-row.ready { background: #e3f7e7; }
+.qs-bonus { background: #fff4d6; }
+.qs-main { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.qs-text { flex: 1; font-size: 14px; font-weight: 800; }
+.qs-bar { position: relative; height: 16px; border-radius: 8px; background: #d3dde8; overflow: hidden; }
+.qs-fill { position: absolute; inset: 0 auto 0 0; background: #4cd964; }
+.qs-num { position: relative; display: block; text-align: center; font-size: 11px; font-weight: 800; line-height: 16px; font-variant-numeric: tabular-nums; }
+.qs-got { display: inline-flex; width: 30px; height: 30px; }
+.qs-got svg { width: 30px; height: 30px; }
+.qs-next { margin-top: 6px; text-align: center; }
+.tr-played { padding: 4px 12px; border-radius: 10px; background: #dde9f5; }
+.tr-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.tr-tile { min-height: 96px; justify-content: space-between; }
+.tr-tile.ready { border-color: #4cd964; }
+.tr-timer { min-height: 30px; display: inline-flex; align-items: center; font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.tr-tile .card-btn, .tr-tile .qs-got { min-height: 30px; }
+.wh { margin-top: 8px; padding: 6px 8px; border-radius: 12px; background: #eef3f8; }
+.wh-ring { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; }
+.wh-sector { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 2px; border-radius: 10px; background: #fff; border: 2px solid #c8d6e5; }
+.wh-sector.hit { border-color: #ffb800; box-shadow: 0 0 10px 2px rgba(255, 184, 0, 0.7); }
+.wh-name { font-size: 11px; font-weight: 800; text-align: center; line-height: 1.1; }
+.hud.touch ~ .win .tr-tile, .hud.short ~ .win .tr-tile { min-height: 80px; padding: 4px; gap: 2px; }
+.hud.touch ~ .win .wh-ring, .hud.short ~ .win .wh-ring { grid-template-columns: repeat(4, minmax(0, 1fr)); }

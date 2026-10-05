@@ -46,6 +46,8 @@ export interface PetsViewDeps {
   trackOnce(name: string, params?: Record<string, unknown>): void;
   /** The pets on changed: the meta multiplier goes into the simulation again. */
   onChange(): void;
+  /** An egg hatched (the quest «Open an egg», M3-08b). */
+  onHatch?(): void;
 }
 
 export interface PetsView {
@@ -212,6 +214,7 @@ export function createPetsView(d: PetsViewDeps): PetsView {
       const res = addPet(d.save, d.pets, d.balance.pets, pet);
       if (!res) return;
       if (gift) (d.save.flags ??= {})['giftEgg'] = true;
+      d.onHatch?.();
       syncLooks();
       if (res.on && from) {
         const slot = equipped(d.save, d.pets, slots).indexOf(res.index);

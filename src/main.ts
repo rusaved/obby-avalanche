@@ -50,6 +50,7 @@ import { applyManualTurn, createControlFrame, onMoveStarted, toWorld } from './i
 import type { InputSnapshot } from './input/types.ts';
 import { createRewards } from './app/rewards.ts';
 import { createDailyView, type DailyView } from './app/daily-view.ts';
+import { createQuestsView, type QuestsView } from './app/quests-view.ts';
 import { createSave, type SaveData } from './meta/save.ts';
 import { addTrophies } from './meta/trophies.ts';
 import { summitTrophies } from './sim/economy.ts';
@@ -224,6 +225,7 @@ async function boot(): Promise<void> {
   let cosmeticsView: CosmeticsView | null = null;
   let rebirthView: RebirthView | null = null;
   let dailyView: DailyView | null = null;
+  let questsView: QuestsView | null = null;
   let windows: WindowFrame | null = null;
   let hudView: HudView | null = null;
   let audio: GameAudio | null = null;
@@ -322,6 +324,7 @@ async function boot(): Promise<void> {
     });
     ftueView?.wire(s);
     hudView?.wire(s);
+    questsView?.wire(s);
     petsView?.wire(s);
   };
   wireSim(sim);
@@ -477,6 +480,9 @@ async function boot(): Promise<void> {
     get daily() {
       return dailyView;
     },
+    get quests() {
+      return questsView;
+    },
     setHudMode(mode) {
       hudMode = mode;
       ui.dataset['hudMode'] = mode;
@@ -595,6 +601,7 @@ async function boot(): Promise<void> {
     }
     saveClimb();
     playSec += dt;
+    questsView?.tick(dt);
     // The ×2 step boost runs on play seconds (stands on pause, survives F5; docs/01-gdd.md 9.1).
     if ((save.boostSec ?? 0) > 0) {
       save.boostSec = Math.max(0, save.boostSec! - dt);
@@ -649,7 +656,7 @@ async function boot(): Promise<void> {
     // HUD column (docs/01-gdd.md 10.1): shop, pets, wardrobe — each when it is due (6.4).
     const cm = cosmeticsView?.menuItems();
     dailyView?.tick();
-    hud?.setMenu([cm?.shop, petsView?.menuItem(), cm?.wardrobe, dailyView?.menuItem(), rebirthView?.menuItem()].filter((x): x is MenuItem => !!x));
+    hud?.setMenu([cm?.shop, petsView?.menuItem(), cm?.wardrobe, dailyView?.menuItem(), questsView?.questsItem(), questsView?.timeItem(), rebirthView?.menuItem()].filter((x): x is MenuItem => !!x));
     ftueView?.update(gameDt, playSec, renderPos);
     hudView?.update(playSec);
     if (cameraRig) {
@@ -799,6 +806,8 @@ async function boot(): Promise<void> {
       else if (id === 'wardrobe') cosmeticsView?.openWardrobe();
       else if (id === 'rebirth') rebirthView?.openWindow();
       else if (id === 'daily') dailyView?.openWindow();
+      else if (id === 'quests') questsView?.openQuests();
+      else if (id === 'timeRewards') questsView?.openTime();
     },
     trophyColor: theme.ui.trophies,
     okColor: theme.ui.ok,
@@ -833,7 +842,7 @@ async function boot(): Promise<void> {
   });
   const ftueVisual = createFtueVisual(theme);
   gr.scene.add(ftueVisual.group);
-  meta = createMetaView({ balance, pets, trails, auras, save, getSim: () => sim, hud, numSuffix, trackOnce, persist });
+  meta = createMetaView({ balance, pets, trails, auras, save, getSim: () => sim, hud, numSuffix, trackOnce, persist, onShoes: () => questsView?.shoes() });
   meta.apply();
   // Windows (docs/01-gdd.md 10.2): one at a time, the game and the avalanche stand while it is open (pause `menu`).
   windows = createWindowFrame(ui, { closeLabel: t('btn.close'), onChange: (id) => pause.set_('menu', id !== null) });
@@ -857,6 +866,7 @@ async function boot(): Promise<void> {
     persist,
     trackOnce,
     onChange: () => meta?.apply(),
+    onHatch: () => questsView?.hatched(),
   });
   petsView.wire(sim);
   // Trails, auras and the wardrobe (docs/01-gdd.md 7.3, 7.4): the hero wears the skin of the save or the default one.
@@ -913,8 +923,24 @@ async function boot(): Promise<void> {
     onLook: () => cosmeticsView?.syncHero(),
     onBoost: () => meta?.apply(),
   });
-  dailyView = createDailyView({ balance, save, hud, windows, rewards, now: () => platform.serverTime(), track, persist });
+  dailyView = createDailyView({ balance, save, hud, windows, rewards, now: () => platform.serverTime(), track, persist, onNewDay: () => questsView?.refresh() });
   dailyView.tick(true);
+  // Quests, time rewards and the wheel (docs/01-gdd.md 7.7, 7.8, 7.13): the game day of the calendar.
+  questsView = createQuestsView({
+    balance,
+    game,
+    save,
+    getSim: () => sim,
+    hud,
+    windows,
+    rewards,
+    rng: createRng((seed ^ 0x2f6b7d19) >>> 0),
+    numSuffix,
+    nextDaySec: () => dailyView?.nextSec ?? 0,
+    persist,
+  });
+  questsView.refresh();
+  questsView.wire(sim);
   ftueView = createFtueView({
     balance,
     pets,

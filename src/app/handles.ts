@@ -23,6 +23,7 @@ import type { RebirthView } from './rebirth-view.ts';
 import type { GameAudio } from '../audio/index.ts';
 import type { BotsView, HudMode } from './bots-view.ts';
 import type { DailyView } from './daily-view.ts';
+import type { QuestsView } from './quests-view.ts';
 
 export interface BootState {
   firstFrameAt: number | null;
@@ -108,5 +109,7 @@ export interface GameHandles {
   readonly hudMode: HudMode;
   /** The calendar (M3-08). */
   readonly daily: DailyView | null;
+  /** Quests, time rewards and the wheel (M3-08b). */
+  readonly quests: QuestsView | null;
   setHudMode(mode: HudMode): void;
 }

@@ -104,7 +104,15 @@ export interface BalanceJson {
   iap: { showAfterPlaySec: number; vipMult: number };
   /** The 7-day calendar (docs/01-gdd.md 7.6, docs/01a-content.md 10): one reward a day, `alt` after the first circle when owned. */
   daily: { resetHours: number; days: DailyReward[] };
-  quests: { perDay: number };
+  /**
+   * Quests of the day (docs/01-gdd.md 7.7): `perDay` of `list`, each pays `reward`, all of them `bonus`; q_shoes and
+   * q_summit stay out when they are farther than `farWalls` walls; q_gold only with game.json threat.bonus.
+   */
+  quests: { perDay: number; farWalls: number; reward: Reward[]; bonus: Reward[]; list: Array<{ id: string; n: number }> };
+  /** Time rewards of the day (7.8): minutes of play today → reward. */
+  timeRewards: Array<{ min: number; reward: Reward }>;
+  /** Lucky wheel (7.13): equal sectors. */
+  wheel: { sectors: Reward[] };
   review: { after: string[]; minPlaySec: number };
   ftue: {
     freeEggPet: string;

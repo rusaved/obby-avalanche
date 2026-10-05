@@ -70,7 +70,45 @@
       { "kind": "pet", "id": "reindeer", "wings": "wings_snow", "alt": { "kind": "trophies", "n": 25 } }
     ]
   },
-  "quests": { "perDay": 3 },
+  "quests": {
+    "perDay": 3,
+    "farWalls": 6,
+    "reward": [{ "kind": "coins", "gifts": 10 }, { "kind": "trophies", "n": 2 }],
+    "bonus": [{ "kind": "trophies", "n": 5 }, { "kind": "egg", "id": "snow" }],
+    "list": [
+      { "id": "q_walls", "n": 5 },
+      { "id": "q_caves", "n": 3 },
+      { "id": "q_gifts", "n": 15 },
+      { "id": "q_steps", "n": 1000 },
+      { "id": "q_treadmill", "n": 2 },
+      { "id": "q_egg", "n": 1 },
+      { "id": "q_shoes", "n": 1 },
+      { "id": "q_summit", "n": 1 },
+      { "id": "q_gold", "n": 3 }
+    ]
+  },
+  "timeRewards": [
+    { "min": 1, "reward": { "kind": "coins", "gifts": 5 } },
+    { "min": 3, "reward": { "kind": "boost", "min": 3 } },
+    { "min": 5, "reward": { "kind": "egg", "id": "snow" } },
+    { "min": 10, "reward": { "kind": "trophies", "n": 3 } },
+    { "min": 15, "reward": { "kind": "coins", "gifts": 20 } },
+    { "min": 25, "reward": { "kind": "boost", "min": 5 } },
+    { "min": 40, "reward": { "kind": "egg", "id": "best" } },
+    { "min": 60, "reward": { "kind": "trophies", "n": 10 } }
+  ],
+  "wheel": {
+    "sectors": [
+      { "kind": "coins", "gifts": 5 },
+      { "kind": "coins", "gifts": 10 },
+      { "kind": "coins", "gifts": 20 },
+      { "kind": "boost", "min": 3 },
+      { "kind": "egg", "id": "snow" },
+      { "kind": "trophies", "n": 3 },
+      { "kind": "trophies", "n": 5 },
+      { "kind": "trophies", "n": 10 }
+    ]
+  },
   "review": { "after": ["summitWorld2", "rebirth1"], "minPlaySec": 600 },
   "hints": {
     "moveIdleSec": 15,

@@ -122,6 +122,8 @@ const themeSchema = v.object({
   bonus: v.optional(v.object({ color: hex })),
 });
 
+/** Quest kinds the game counts (docs/01a-content.md 10); a new one needs its counter in src/app/quests-view.ts. */
+const QUEST_IDS = ['q_walls', 'q_caves', 'q_gifts', 'q_steps', 'q_treadmill', 'q_egg', 'q_shoes', 'q_summit', 'q_gold'] as const;
 const rewardSchema = v.variant('kind', [
   v.object({ kind: v.literal('coins'), gifts: positive }),
   v.object({ kind: v.literal('trophies'), n: positive }),
@@ -174,7 +176,15 @@ const balanceSchema = v.object({
   }),
   iap: v.object({ showAfterPlaySec: nonNeg, vipMult: positive }),
   daily: v.object({ resetHours: positive, days: v.pipe(v.array(dailyRewardSchema), v.length(7)) }),
-  quests: v.object({ perDay: v.pipe(v.number(), v.integer()) }),
+  quests: v.object({
+    perDay: v.pipe(v.number(), v.integer(), v.minValue(1)),
+    farWalls: v.pipe(v.number(), v.integer(), v.minValue(1)),
+    reward: v.array(rewardSchema),
+    bonus: v.array(rewardSchema),
+    list: v.pipe(v.array(v.object({ id: v.picklist(QUEST_IDS), n: positive })), v.minLength(1)),
+  }),
+  timeRewards: v.pipe(v.array(v.object({ min: positive, reward: rewardSchema })), v.minLength(1)),
+  wheel: v.object({ sectors: v.pipe(v.array(rewardSchema), v.minLength(2)) }),
   review: v.object({ after: v.array(v.string()), minPlaySec: nonNeg }),
   ftue: v.object({
     freeEggPet: id,
@@ -582,6 +592,19 @@ export function validatePack(files: PackFiles): ValidationResult {
       for (const [file, dict] of [['i18n/ru.json', ru], ['i18n/en.json', en]] as const) if (!dict[key]) errors.push(`${file}: ${key} — missing (balance.json daily.days)`);
     }
   });
+  bal.quests.reward.forEach((r, i) => checkReward(`quests.reward[${i}]`, r));
+  bal.quests.bonus.forEach((r, i) => checkReward(`quests.bonus[${i}]`, r));
+  bal.timeRewards.forEach((x, i) => checkReward(`timeRewards[${i}].reward`, x.reward));
+  bal.wheel.sectors.forEach((r, i) => checkReward(`wheel.sectors[${i}]`, r));
+  if (new Set(bal.quests.list.map((q) => q.id)).size !== bal.quests.list.length) errors.push('balance.json: quests.list — duplicate id');
+  const questPool = bal.quests.list.filter((q) => q.id !== 'q_gold' || !!game.threat.bonus).length;
+  if (questPool < bal.quests.perDay) errors.push(`balance.json: quests.perDay — ${bal.quests.perDay} of only ${questPool} quests`);
+  for (const [file, dict] of [['i18n/ru.json', ru], ['i18n/en.json', en]] as const) {
+    for (const q of bal.quests.list) if (!dict[`quests.${q.id}`]) errors.push(`${file}: quests.${q.id} — missing (balance.json quests.list)`);
+    for (const key of ['btn.quests', 'btn.timeRewards', 'btn.spin', 'quests.title', 'quests.bonus', 'quests.new', 'time.title', 'time.at', 'time.played', 'wheel.title', 'wheel.free', 'wheel.next', 'reward.coins', 'reward.trophies', 'reward.boost', 'reward.bestEgg']) {
+      if (!dict[key]) errors.push(`${file}: ${key} — missing (quests, time rewards, wheel, docs/01-gdd.md 7.7–7.13)`);
+    }
+  }
   for (const key of ['daily.title', 'daily.day', 'daily.next', 'daily.soon', 'btn.daily', 'btn.claim', 'toast.reward', 'toast.tomorrow', 'toast.boostOn']) {
     for (const [file, dict] of [['i18n/ru.json', ru], ['i18n/en.json', en]] as const) if (!dict[key]) errors.push(`${file}: ${key} — missing (calendar, docs/01-gdd.md 7.6)`);
   }

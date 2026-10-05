@@ -26,6 +26,8 @@ export interface MetaViewDeps {
   numSuffix(k: string): string;
   trackOnce(name: string, params?: Record<string, unknown>): void;
   persist(flush?: boolean): void;
+  /** Shoes bought (the quest «Buy new sneakers», M3-08b). */
+  onShoes?(): void;
 }
 
 export interface MetaView {
@@ -96,6 +98,7 @@ export function createMetaView(d: MetaViewDeps): MetaView {
       d.hud.setCoins(formatNumber(sim.coins, d.numSuffix));
       d.hud.toast(t('toast.newShoes', { name: t(`shoes.${next.id}`), m: formatNumber(next.mult, d.numSuffix) }));
       d.trackOnce('shoes_1');
+      d.onShoes?.();
       view.update();
       return true;
     },
