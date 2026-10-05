@@ -19,8 +19,9 @@ test('1K Speed: flash class, toast «1K Скорости!», chime, one event pe
   const s = await crossOneK(page, 990);
   expect(s.stat).toBeGreaterThanOrEqual(1000);
   expect(s.waveHud.toast).toBe('1K Скорости!');
-  await waitTicks(page, 15);
-  expect((await testState(page)).statFlash).toBe(true);
+  // The flash class lives STAT_FLASH_MS of real time (a UI effect), so the shot is taken at once, not after game ticks:
+  // under CPU load 15 ticks outlast it.
+  expect(s.statFlash).toBe(true);
   await page.screenshot({ path: 'docs/evidence/M2/stat_milestone_1920x1080_ru.png' });
   expect(s.audioRunning).toBe(true);
   expect(s.sfx).toContain('statMilestone');
