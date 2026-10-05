@@ -61,7 +61,8 @@ export interface Hud {
    * Hint plaque near the hero (docs/01-gdd.md 6.5): `text` with an optional controls pictogram, its bottom edge at
    * (x, y) in field px; null hides it. One plaque at a time.
    */
-  setHint(hint: { text: string; pict: 'keys' | 'stick' | null; x: number; y: number } | null): void;
+  /** `urgent` (the wave hints): the plaque stays over a toast and the toast waits (one message near the hero at a time). */
+  setHint(hint: { text: string; pict: 'keys' | 'stick' | null; x: number; y: number; urgent?: boolean } | null): void;
   /** Hand icon above the free egg (hint.egg, no text); null hides it. */
   setHand(pos: { x: number; y: number } | null): void;
   /** «Shoes ×N · price» at the bottom centre; null hides it (docs/01-gdd.md 6.4: shows from the first time coins suffice). */
@@ -361,6 +362,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     },
     setHint(h) {
       hint.classList.toggle('shown', h !== null);
+      root.classList.toggle('urgent', h?.urgent === true);
       if (!h) return;
       if (hintText.textContent !== h.text) hintText.textContent = h.text;
       hint.dataset['pict'] = h.pict ?? '';

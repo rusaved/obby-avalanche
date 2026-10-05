@@ -46,6 +46,11 @@ export class InputManager {
     private readonly now: () => number = () => performance.now(),
   ) {}
 
+  /** When the event happened, not when its handler ran: a long frame between down and up must not turn a tap into a hold. */
+  private eventTime(ev: Event): number {
+    return ev.timeStamp > 0 ? ev.timeStamp : this.now();
+  }
+
   attach(field: HTMLElement, hudRoot: HTMLElement): void {
     this.field = field;
     const on = <K extends keyof WindowEventMap>(target: Window, type: K, fn: (ev: WindowEventMap[K]) => void, opts?: AddEventListenerOptions): void => {
@@ -217,7 +222,7 @@ export class InputManager {
       if (ev.button !== 0 && ev.button !== 2) return;
       this.touchActive = false;
       this.mouseDown = true;
-      this.pointers.set(ev.pointerId, { id: ev.pointerId, kind: 'camera', startX: ev.clientX, startY: ev.clientY, lastX: ev.clientX, lastY: ev.clientY, startTime: this.now(), moved: 0 });
+      this.pointers.set(ev.pointerId, { id: ev.pointerId, kind: 'camera', startX: ev.clientX, startY: ev.clientY, lastX: ev.clientX, lastY: ev.clientY, startTime: this.eventTime(ev), moved: 0 });
       try {
         this.field?.setPointerCapture(ev.pointerId);
       } catch {
@@ -243,7 +248,7 @@ export class InputManager {
       this.stick.dy = 0;
       this.moveStartEdge = true;
     }
-    this.pointers.set(ev.pointerId, { id: ev.pointerId, kind, startX: ev.clientX, startY: ev.clientY, lastX: ev.clientX, lastY: ev.clientY, startTime: this.now(), moved: 0 });
+    this.pointers.set(ev.pointerId, { id: ev.pointerId, kind, startX: ev.clientX, startY: ev.clientY, lastX: ev.clientX, lastY: ev.clientY, startTime: this.eventTime(ev), moved: 0 });
     try {
       this.field?.setPointerCapture(ev.pointerId);
     } catch {
@@ -311,7 +316,7 @@ export class InputManager {
       this.stick.dx = 0;
       this.stick.dy = 0;
     } else if (p.kind === 'tap') {
-      const dt = this.now() - p.startTime;
+      const dt = this.eventTime(ev) - p.startTime;
       if (dt < this.opts.tapMaxMs && p.moved < this.opts.tapMovePx) this.jumpEdge = true;
     }
     if (ev.pointerType === 'mouse') this.mouseDown = false;

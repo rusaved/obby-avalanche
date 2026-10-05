@@ -135,7 +135,8 @@ export function createFtueView(d: FtueViewDeps): FtueView {
       if (id && head) {
         const f = d.field();
         const pict = id === 'hint.move' ? (d.touch() ? 'stick' : 'keys') : null;
-        d.hud.setHint({ text: t(id), pict, x: head.x, y: head.y - PLAQUE_ABOVE * f.height });
+        // The wave hints win over a toast (a zone announcement must not hide «To the cave!»).
+        d.hud.setHint({ text: t(id), pict, x: head.x, y: head.y - PLAQUE_ABOVE * f.height, urgent: id === 'wave.cave' || id === 'hint.gold' });
       } else d.hud.setHint(null);
 
       // Arrows on the snow from the hero to the cave entrance, together with «To the cave!».

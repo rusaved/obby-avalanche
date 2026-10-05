@@ -65,6 +65,7 @@ canvas.fallback {
 .hud-hint { position: absolute; left: 0; top: 0; display: none; flex-direction: column; align-items: center; gap: 4px; max-width: 40%; padding: 6px 14px; border-radius: 12px; border: 2px solid rgba(27, 42, 58, 0.55); background: rgba(255, 255, 255, 0.92); color: #1b2a3a; font-size: clamp(14px, 2.6vmin, 22px); font-weight: 800; line-height: 1.15; text-align: center; pointer-events: none; }
 .hud-hint.shown { display: flex; animation: hint-in 0.25s ease-out; }
 .hud.toasting .hud-hint { visibility: hidden; }
+.hud.urgent.toasting .hud-hint { visibility: visible; }
 @keyframes hint-in { from { opacity: 0; } to { opacity: 1; } }
 .hud-pict { display: none; gap: 3px; }
 .hud-hint[data-pict='keys'] .hud-pict-keys { display: flex; }
@@ -162,6 +163,7 @@ canvas.fallback {
 @keyframes cave-arrow-pulse { from { filter: brightness(1); } to { filter: brightness(1.4); } }
 .hud-toast { position: absolute; left: 50%; top: 36%; transform: translate(-50%, -50%) scale(0.8); font-size: clamp(22px, 4.6vmin, 48px); font-weight: 800; color: #ffffff; white-space: nowrap; pointer-events: none; opacity: 0; text-shadow: -2px -2px 0 var(--threat), 2px -2px 0 var(--threat), -2px 2px 0 var(--threat), 2px 2px 0 var(--threat); transition: opacity 0.25s, transform 0.25s; }
 .hud-toast.shown { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.hud.urgent .hud-toast.shown { opacity: 0; }
 /* Golden gift saved (docs/01-gdd.md 4.9): bigger and golden, colour from theme.json bonus.color. */
 .hud-toast.gold { color: var(--gold, #ffffff); font-size: clamp(26px, 5.6vmin, 58px); }
 .hud.short .hud-hint { flex-direction: row; gap: 8px; padding: 4px 10px; }
