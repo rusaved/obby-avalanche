@@ -96,9 +96,11 @@ async function boot(): Promise<void> {
 
   // Save and settings (docs/02-tech.md 4.4): settings live in SaveData and survive F5.
   const store = createStorage(game.id);
-  let save: SaveData = (await platform.loadSave()) ?? createSave(platform.serverTime());
+  const loaded = await platform.loadSave();
+  let save: SaveData = loaded ?? createSave(platform.serverTime());
   save.sessions += 1;
   const persist = (flush = false): void => {
+    syncSave();
     save.rev += 1;
     save.savedAt = platform.serverTime();
     platform.markDirty(save, { flush });
@@ -133,13 +135,15 @@ async function boot(): Promise<void> {
   const studio = __STUDIO__ && params.get('studio') === '1';
 
   // Mountain simulation (docs/02-tech.md 6.1): starts on mountain 1; the summit portal switches to the next one (M2-03).
-  let world = content.worlds.worlds[0];
+  // Back after F5 or another day (docs/01-gdd.md 6.6): the mountain of the save, the hero at its farthest flag.
+  let world = content.worlds.worlds.find((w) => w.index === save.world) ?? content.worlds.worlds[0];
   if (!world) throw new Error('worlds.json has no worlds');
   let level = buildLevel(world);
   // Feel values (base and ceiling) come from tuning.json sliders; the curve shape from balance.json.
   const speedCurve = () => ({ ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed });
   // The avalanche (docs/02-tech.md 8.1): live world threat (debug sliders change it), save counters.
-  const threatOptions = (w: World): ThreatOptions => ({
+  const threatOptions = (w: World, firstSec?: number): ThreatOptions => ({
+    firstSec,
     threat: w.threat,
     balance,
     avalanche: tuning.avalanche,
@@ -158,7 +162,32 @@ async function boot(): Promise<void> {
   let loadWaves = 0;
   const bonusOptions = (w: World): { cfg: NonNullable<typeof game.threat.bonus>; seed: number; wavesBefore: number } | undefined =>
     game.threat.bonus ? { cfg: game.threat.bonus, seed: (seed + w.index * 104729) >>> 0, wavesBefore: loadWaves } : undefined;
-  let sim: Sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat: 0, tier: save.tier ?? 0, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world) });
+  let sim: Sim = createSim(level, tuning, {
+    balance,
+    speedCurve: speedCurve(),
+    stat: save.stat ?? 0,
+    coins: save.coins ?? 0,
+    tier: save.tier ?? 0,
+    threat: threatOptions(world, loaded ? balance.threat.resumeSec : undefined),
+    giftEgg: giftEggOptions(world),
+    bots: botOptions(world),
+    bonus: bonusOptions(world),
+    resume: { frontierWall: save.frontierWall ?? 0 },
+  });
+  /** The climb into the save (docs/01-gdd.md 7.10): stat, best stat, coins, mountain, farthest wall passed. */
+  const frontierOf = (s: Sim): number => s.level.gates.reduce((m, g, i) => (s.gatesPassed[i] ? Math.max(m, g.index) : m), 0);
+  function syncSave(): void {
+    save.stat = sim.progress.stat;
+    save.bestStat = Math.max(save.bestStat ?? 0, sim.progress.stat);
+    save.coins = sim.coins;
+    save.world = sim.level.worldIndex;
+    save.frontierWall = frontierOf(sim);
+  }
+  /** Every change of the climb goes to the mirror at once; a new wall or mountain also to the cloud (SAV-01). */
+  const saveClimb = (): void => {
+    const far = save.world !== sim.level.worldIndex || save.frontierWall !== frontierOf(sim);
+    if (far || save.stat !== sim.progress.stat || save.coins !== sim.coins) persist(far);
+  };
   let maxSpeed = sim.params.speed;
   const simEvents: GameHandles['simEvents'] = [];
   let pendingPortal: number | null = null;
@@ -241,7 +270,7 @@ async function boot(): Promise<void> {
     });
     s.events.on('gateOpen', ({ index, wall }) => {
       melting.set(index, playSec);
-      if (s.level.worldIndex === 1 && s.tier === 0 && GATE_FUNNEL_WALLS.includes(wall)) track(`gate_${wall}`);
+      if (s.level.worldIndex === 1 && s.tier === 0 && GATE_FUNNEL_WALLS.includes(wall)) trackOnce(`gate_${wall}`);
     });
     // Avalanche (M2-06): newbie counter and first-wave flag in the save, toasts, funnel steps 9 and 15 (docs/06).
     s.events.on('waveWarn', ({ scripted, normalWavesDone }) => {
@@ -555,6 +584,7 @@ async function boot(): Promise<void> {
       pendingPortal = null;
       enterWorld(next);
     }
+    saveClimb();
     playSec += dt;
     // Play time of the player (docs/01-gdd.md 6.1): survives F5, written every few seconds of play.
     save.totalPlaySec = (save.totalPlaySec ?? 0) + dt;
@@ -701,6 +731,8 @@ async function boot(): Promise<void> {
   bootState.glRenderer = gr.glRenderer;
   levelMeshes = createLevelMeshes(level, theme, (k) => t(`num.${k}`));
   gr.scene.add(levelMeshes.group);
+  // Walls open from the save stand as arches at once (M3-07), no melt.
+  sim.gatesOpen.forEach((open, i) => open && levelMeshes!.setGateOpen(i, 1));
   characters = createCharacters(skins, accessories);
   gr.scene.add(characters.group);
   heroChar = characters.create(skins.default);
@@ -761,6 +793,7 @@ async function boot(): Promise<void> {
     },
   });
   hud.setSound(save.settings.sound);
+  if (sim.coins > 0) hud.setCoins(formatNumber(sim.coins, numSuffix));
   audio = createAudio({
     sfx,
     enabled: save.settings.sound,
@@ -907,7 +940,18 @@ async function boot(): Promise<void> {
       platform.gameplayStart();
     }
   });
-  document.addEventListener('visibilitychange', () => pause.set_('hidden', document.hidden));
+  document.addEventListener('visibilitychange', () => {
+    pause.set_('hidden', document.hidden);
+    // Hidden page or closing tab: the latest save to the cloud now, within the bucket (docs/02-tech.md 11.6).
+    if (document.hidden) {
+      persist(true);
+      void platform.flushNow();
+    }
+  });
+  window.addEventListener('pagehide', () => {
+    persist(true);
+    void platform.flushNow();
+  });
   window.addEventListener('blur', () => pause.add('blur'));
   window.addEventListener('focus', () => pause.remove('blur'));
   if (document.hidden) pause.add('hidden');

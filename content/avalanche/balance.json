@@ -37,7 +37,7 @@
   "pets": { "slots": 3, "inventory": 30 },
   "boost": { "x2Sec": 180, "x2Mult": 2, "statNowSec": 120 },
   "caught": { "rollSec": 1.2, "maxSec": 2.0 },
-  "threat": { "newbieWaves": { "count": 3, "warnBonusSec": 3 } },
+  "threat": { "newbieWaves": { "count": 3, "warnBonusSec": 3 }, "resumeSec": 30 },
   "niche": { "graceDist": 3, "graceMoving": 6 },
   "ui": {
     "unlockMenusSec": 180,

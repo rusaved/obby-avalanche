@@ -145,7 +145,7 @@ const balanceSchema = v.object({
   pets: v.object({ slots: v.pipe(v.number(), v.integer()), inventory: v.pipe(v.number(), v.integer()) }),
   boost: v.object({ x2Sec: positive, x2Mult: positive, statNowSec: positive }),
   caught: v.object({ rollSec: positive, maxSec: v.pipe(v.number(), v.maxValue(2)) }),
-  threat: v.object({ newbieWaves: v.object({ count: v.pipe(v.number(), v.integer(), v.minValue(0)), warnBonusSec: nonNeg }) }),
+  threat: v.object({ newbieWaves: v.object({ count: v.pipe(v.number(), v.integer(), v.minValue(0)), warnBonusSec: nonNeg }), resumeSec: positive }),
   niche: v.object({ graceDist: nonNeg, graceMoving: nonNeg }),
   ui: v.object({ unlockMenusSec: nonNeg, unlockTimeRewardsSec: nonNeg, statMilestones: v.array(v.number()) }),
   ads: v.object({

@@ -14,8 +14,6 @@ export class NullPlatform implements Platform {
   private readonly store: KeyValueStore;
   private readyDone = false;
   private gameplay = false;
-  private pending: SaveData | null = null;
-  private timer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(private readonly opts: PlatformOptions) {
     this.store = createStorage(opts.packId);
@@ -59,24 +57,13 @@ export class NullPlatform implements Platform {
     return parseSave(this.store.getJSON('save'));
   }
 
-  markDirty(data: SaveData, opts?: { flush?: boolean }): void {
-    this.pending = data;
-    if (opts?.flush) {
-      void this.flushNow();
-      return;
-    }
-    if (this.timer) return;
-    this.timer = setTimeout(() => void this.flushNow(), 500);
+  markDirty(data: SaveData): void {
+    // No cloud outside Yandex: the mirror is the save, written at once (docs/02-tech.md 11.6).
+    this.store.setJSON('save', data);
   }
 
   async flushNow(): Promise<void> {
-    if (this.timer) {
-      clearTimeout(this.timer);
-      this.timer = null;
-    }
-    if (!this.pending) return;
-    this.store.setJSON('save', this.pending);
-    this.pending = null;
+    /* written in markDirty */
   }
 
   async submitScore(): Promise<void> {

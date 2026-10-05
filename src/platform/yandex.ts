@@ -1,8 +1,9 @@
 import type { Player, SDK } from 'ysdk';
 import type { SaveData } from '../meta/save.ts';
-import { parseSave } from '../meta/save.ts';
+import { newerSave, parseSave } from '../meta/save.ts';
 import { log } from '../core/log.ts';
 import { createStorage, type KeyValueStore } from './storage.ts';
+import { SaveQueue } from './save-queue.ts';
 import { mapLang, type DeviceType, type Lang, type LeaderEntry, type Platform, type PlatformOptions } from './types.ts';
 
 /** How long YaGames.init() may take before the `sdk_init_slow` event (docs/02-tech.md 11.2); init itself is never cut. */
@@ -11,8 +12,6 @@ export const SDK_SLOW_INIT_MS = 8000;
 export const AD_WATCHDOG_MS = 10000;
 /** Retry delay after a failed init (11.2). */
 export const INIT_RETRY_MS = 1000;
-/** Save debounce (11.6, refined at M3). */
-export const SAVE_DEBOUNCE_MS = 2000;
 
 export interface YandexDeps {
   /** Defaults to window.YaGames; tests inject a fake. */
@@ -36,9 +35,17 @@ export class YandexPlatform implements Platform {
   private gameplay: boolean | null = null;
   private pauseCbs: Array<() => void> = [];
   private resumeCbs: Array<() => void> = [];
-  private pending: SaveData | null = null;
-  private saveTimer: ReturnType<typeof setTimeout> | null = null;
-  private flushing: Promise<void> | null = null;
+  /** Cloud writes (11.6): debounce, token bucket and retries on the platform clock. */
+  readonly cloud = new SaveQueue<SaveData>({
+    now: () => this.serverTime(),
+    write: (data) => {
+      if (!this.player) return Promise.resolve();
+      return this.player.setData(data as unknown as Record<string, unknown>, true).catch((err: unknown) => {
+        log.warn('setData failed, kept locally', err);
+        throw err;
+      });
+    },
+  });
   private reviewAsked = false;
 
   constructor(
@@ -209,47 +216,23 @@ export class YandexPlatform implements Platform {
     let cloud: SaveData | null = null;
     if (this.player) {
       try {
-        const data = await this.player.getData();
-        cloud = parseSave(data && typeof data === 'object' && 'v' in data ? data : null);
+        cloud = parseSave(await this.player.getData());
       } catch (err) {
         log.warn('getData failed', err);
       }
     }
-    const local = parseSave(this.store.getJSON('save'));
-    if (cloud && local) return local.rev > cloud.rev ? local : cloud;
-    return cloud ?? local;
+    // Broken data in one source → the other one; both broken → a new player (11.6, SAV-05).
+    return newerSave(cloud, parseSave(this.store.getJSON('save')));
   }
 
   markDirty(data: SaveData, opts?: { flush?: boolean }): void {
-    this.pending = data;
+    // Every change goes to the mirror at once: F5 right after an action loses nothing (11.6, SAV-01).
     this.store.setJSON('save', data);
-    if (opts?.flush) {
-      void this.flushNow();
-      return;
-    }
-    if (this.saveTimer) return;
-    this.saveTimer = setTimeout(() => void this.flushNow(), SAVE_DEBOUNCE_MS);
+    if (this.player) this.cloud.push(data, opts?.flush ?? false);
   }
 
   async flushNow(): Promise<void> {
-    if (this.saveTimer) {
-      clearTimeout(this.saveTimer);
-      this.saveTimer = null;
-    }
-    if (!this.pending || !this.player) return;
-    if (this.flushing) await this.flushing;
-    const data = this.pending;
-    this.pending = null;
-    this.flushing = this.player
-      .setData(data, true)
-      .catch((err: unknown) => {
-        log.warn('setData failed, kept locally', err);
-        this.pending = this.pending ?? data;
-      })
-      .finally(() => {
-        this.flushing = null;
-      });
-    await this.flushing;
+    await this.cloud.flush();
   }
 
   async submitScore(score: number): Promise<void> {

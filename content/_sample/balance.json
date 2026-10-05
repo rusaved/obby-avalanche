@@ -77,7 +77,8 @@
     "newbieWaves": {
       "count": 3,
       "warnBonusSec": 3
-    }
+    },
+    "resumeSec": 30
   },
   "niche": {
     "graceDist": 3,

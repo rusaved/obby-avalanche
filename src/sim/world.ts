@@ -143,6 +143,11 @@ export interface SimOptions {
   bots?: Pick<BotsOptions, 'cfg' | 'count' | 'seed'> | undefined;
   /** Golden gift (docs/01-gdd.md 4.9): game.json threat.bonus, the seed, normal waves of this load before this mountain. */
   bonus?: { cfg: BonusConfig; seed: number; wavesBefore: number } | undefined;
+  /**
+   * Back after F5 or another day (docs/01-gdd.md 6.6, M3-07): walls up to `frontierWall` are passed (no coins again),
+   * every wall the stat reaches stands open from the start, the hero stands at the flag behind `frontierWall`.
+   */
+  resume?: { frontierWall: number } | undefined;
 }
 
 export const RESPAWN_FADE_TICKS = 18;
@@ -436,6 +441,24 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   };
   const botCtx: BotContext = { hero: { x: 0, z: 0 }, flagZ: level.spawn[2], gatesOpen, threat: threat ? threat.state : null, speedAt: stretchSpeed };
   (sim as { bots: BotCrowd | null }).bots = bots;
+
+  if (opts.resume) {
+    const front = opts.resume.frontierWall;
+    level.gates.forEach((gate, i) => {
+      if (gate.index <= front) sim.gatesPassed[i] = true;
+      if (gate.index <= front || gateIsOpen(progress.stat, sim.gateRequirement(i))) gatesOpen[i] = true;
+    });
+    syncGates();
+    const flag = level.checkpoints.findIndex((c) => c.wall === front);
+    const c = level.checkpoints[flag];
+    if (c) {
+      sim.checkpoint = flag;
+      placeHero(hero, c.x, c.y + 0.05, c.z);
+      hero.yaw = 0;
+      prev.x = hero.pos.x;
+      prev.z = hero.pos.z;
+    }
+  }
 
   // «Snowed in!» (docs/01-gdd.md 4.5): the ball rolls to the cave below; stat, coins and gates stay as they are.
   const ballPos = { x: 0, y: 0, z: 0 };

@@ -22,6 +22,8 @@ export interface ThreatOptions {
   scriptedPending: boolean;
   /** Normal waves the player has had in his life (newbie bonus counter, kept in the save). */
   normalWavesDone: number;
+  /** First wave after this many seconds instead of `firstIntervalSec` (back after F5: balance.threat.resumeSec). */
+  firstSec?: number | undefined;
 }
 
 export interface ThreatState {
@@ -101,7 +103,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
   const scriptedCave = level.niches[balance.ftue.scriptedWaveWall - 1] ?? null;
   const state: ThreatState = {
     phase: 'idle',
-    timer: threat.firstIntervalSec,
+    timer: opts.firstSec ?? threat.firstIntervalSec,
     warnSec: 0,
     spawnZ: 0,
     frontZ: 0,

@@ -66,7 +66,8 @@ export interface BalanceJson {
   /** `x2Mult`: the ×2 step boost (ad, rewards); `statNowSec`: treadmill seconds of «speed now» (docs/01-gdd.md 8.1). */
   boost: { x2Sec: number; x2Mult: number; statNowSec: number };
   caught: { rollSec: number; maxSec: number };
-  threat: { newbieWaves: { count: number; warnBonusSec: number } };
+  /** `resumeSec`: the first avalanche after F5 or another day comes this late (docs/01-gdd.md 6.6). */
+  threat: { newbieWaves: { count: number; warnBonusSec: number }; resumeSec: number };
   niche: { graceDist: number; graceMoving: number };
   /** `statMilestones`: round numbers of the stat that flash the plaque once a load (docs/01-gdd.md 10.4, Q-023). */
   ui: { unlockMenusSec: number; unlockTimeRewardsSec: number; statMilestones: number[] };
