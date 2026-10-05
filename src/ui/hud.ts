@@ -133,12 +133,28 @@ const HINT_BOTTOM_MAX = 0.78;
 
 /** How long the Speed plaque keeps its flash class (the CSS animation is shorter). */
 const STAT_FLASH_MS = 1200;
+/** Toasts waiting for the avalanche banner to go (playtest M2), the oldest dropped past this. */
+const TOAST_QUEUE_MAX = 3;
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string): HTMLElementTagNameMap[K] {
   const e = document.createElement(tag);
   e.className = className;
   if (text !== undefined) e.textContent = text;
   return e;
+}
+
+/** HUD buttons fire on pointerdown of their own finger (playtest M2: with the stick held, a second finger never got
+ * its pointerup); a keyboard click (detail 0) still presses them. */
+function onPress(b: HTMLElement, fn: () => void): void {
+  b.addEventListener('pointerdown', (ev) => {
+    if (ev.pointerType === 'mouse' && ev.button !== 0) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    fn();
+  });
+  b.addEventListener('click', (ev) => {
+    if (ev.detail === 0) fn();
+  });
 }
 
 export function createHud(host: HTMLElement, opts: HudOptions): Hud {
@@ -149,19 +165,13 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const pauseBtn = el('button', 'hud-btn hud-pause', '‖');
   pauseBtn.dataset['hud'] = 'pause';
   pauseBtn.setAttribute('aria-label', t('btn.pause'));
-  pauseBtn.addEventListener('pointerup', (ev) => {
-    ev.preventDefault();
-    opts.onPause();
-  });
+  onPress(pauseBtn, () => opts.onPause());
   root.appendChild(pauseBtn);
 
   const soundBtn = el('button', 'hud-btn hud-sound');
   soundBtn.dataset['hud'] = 'sound';
   soundBtn.setAttribute('aria-label', t('settings.sfx'));
-  soundBtn.addEventListener('pointerup', (ev) => {
-    ev.preventDefault();
-    opts.onSound();
-  });
+  onPress(soundBtn, () => opts.onSound());
   root.appendChild(soundBtn);
 
   const jumpButton = el('button', 'hud-btn hud-jump', '↑');
@@ -257,10 +267,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const eggBtn = el('button', 'hud-egg');
   eggBtn.dataset['hud'] = 'egg';
   eggBtn.style.setProperty('--ok', opts.okColor);
-  eggBtn.addEventListener('pointerup', (ev) => {
-    ev.preventDefault();
-    opts.onEgg();
-  });
+  onPress(eggBtn, () => opts.onEgg());
   root.appendChild(eggBtn);
 
   // Avalanche (docs/01-gdd.md 4.8): banner, frost frame, arrow to the cave, toast, veil. Never red (docs/03, 3.2).
@@ -283,6 +290,28 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   toastEl.append(toastMain, toastSub);
   root.append(frost, veil, banner, arrow, toastEl);
   let toastTimer: ReturnType<typeof setTimeout> | null = null;
+  const pendingToasts: Array<{ text: string; sec: number; gold: boolean; sub: string | undefined }> = [];
+  let currentToast: { text: string; sec: number; gold: boolean; sub: string | undefined } | null = null;
+  const showToast = (text: string, sec: number, gold: boolean, sub: string | undefined): void => {
+    currentToast = { text, sec, gold, sub };
+    toastMain.textContent = text;
+    toastSub.textContent = sub ?? '';
+    toastEl.classList.toggle('gold', gold);
+    toastEl.classList.remove('shown');
+    void toastEl.offsetWidth;
+    toastEl.classList.add('shown');
+    // The hint plaque steps aside while a toast is up: one message near the hero at a time.
+    root.classList.add('toasting');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toastTimer = null;
+      currentToast = null;
+      toastEl.classList.remove('shown');
+      root.classList.remove('toasting');
+      const next = banner.classList.contains('shown') ? undefined : pendingToasts.shift();
+      if (next) showToast(next.text, next.sec, next.gold, next.sub);
+    }, sec * 1000);
+  };
 
   // Hint plaque (docs/01-gdd.md 6.5): one line up to 5 words, optional pictogram of the controls (WASD and arrows or the stick).
   const hint = el('div', 'hud-hint');
@@ -309,8 +338,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const shoesFill = el('span', 'hud-shoes-fill');
   const shoesText = el('span', 'hud-shoes-text');
   shoes.append(shoesFill, shoesText);
-  shoes.addEventListener('pointerup', (ev) => {
-    ev.preventDefault();
+  onPress(shoes, () => {
     if (shoes.classList.contains('can')) opts.onShoes();
   });
   root.appendChild(shoes);
@@ -446,8 +474,23 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       shoesFill.style.transform = `scaleX(${state.can ? 1 : Math.max(0, Math.min(1, state.progress)).toFixed(3)})`;
     },
     setWaveBanner(text) {
+      const was = banner.classList.contains('shown');
       banner.classList.toggle('shown', text !== null);
       if (text !== null && banner.textContent !== text) banner.textContent = text;
+      if (text !== null && toastTimer) {
+        // A toast already up when the banner comes: it steps back into the queue, the banner speaks alone.
+        clearTimeout(toastTimer);
+        toastTimer = null;
+        if (currentToast) pendingToasts.unshift(currentToast);
+        if (pendingToasts.length > TOAST_QUEUE_MAX) pendingToasts.pop();
+        currentToast = null;
+        toastEl.classList.remove('shown');
+        root.classList.remove('toasting');
+      }
+      if (was && text === null && !toastTimer) {
+        const next = pendingToasts.shift();
+        if (next) showToast(next.text, next.sec, next.gold, next.sub);
+      }
     },
     setFrost(level) {
       const v = String(Math.round(Math.max(0, Math.min(1, level)) * 100) / 100);
@@ -458,19 +501,13 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (a) arrow.style.transform = `translate(${Math.round(a.x)}px, ${Math.round(a.y)}px) translate(-50%, -50%) rotate(${a.angle.toFixed(3)}rad)`;
     },
     toast(text, sec = 2, gold = false, sub) {
-      toastMain.textContent = text;
-      toastSub.textContent = sub ?? '';
-      toastEl.classList.toggle('gold', gold);
-      toastEl.classList.remove('shown');
-      void toastEl.offsetWidth;
-      toastEl.classList.add('shown');
-      // The hint plaque steps aside while a toast is up: one message near the hero at a time.
-      root.classList.add('toasting');
-      if (toastTimer) clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => {
-        toastEl.classList.remove('shown');
-        root.classList.remove('toasting');
-      }, sec * 1000);
+      // Never over the avalanche banner (playtest M2): it waits until the banner goes, the latest few in order.
+      if (banner.classList.contains('shown')) {
+        pendingToasts.push({ text, sec, gold, sub });
+        if (pendingToasts.length > TOAST_QUEUE_MAX) pendingToasts.shift();
+        return;
+      }
+      showToast(text, sec, gold, sub);
     },
     setVeil(on) {
       veil.classList.toggle('shown', on);
@@ -557,10 +594,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
           ic.innerHTML = icon(item.icon);
           const badge = el('span', 'hud-menu-badge');
           b.append(ic, el('span', 'hud-menu-label', item.label), badge);
-          b.addEventListener('pointerup', (ev) => {
-            ev.preventDefault();
-            opts.onMenu(item.id);
-          });
+          onPress(b, () => opts.onMenu(item.id));
           menu.appendChild(b);
           menuButtons.set(item.id, { badge });
         }

@@ -35,7 +35,12 @@
     "shake": 0.3,
     "collisionRadius": 0.4,
     "retreatSpeed": 4,
-    "hideDistance": 2.5
+    "hideDistance": 2.5,
+    "minDistance": 4,
+    "raiseMaxDeg": 75,
+    "raiseStepDeg": 7.5,
+    "raiseReturnRate": 1.5,
+    "occludeRadius": 1.1
   },
   "avalanche": {
     "shakeStrength": 1.0,
@@ -45,6 +50,7 @@
     "shotTriggerDist": 30,
     "shotDistance": 6,
     "shotReturnSec": 1.0,
+    "caveShot": { "pos": [0.92, 0.92, 0.06], "look": [0.0, 0.25, 0.8], "fov": 95 },
     "noise": 1.2,
     "bodyLength": 60,
     "nearDist": 60,

@@ -7,6 +7,8 @@ import type { GameHandles, SimEventRecord } from '../app/handles.ts';
 import { analyticsEvents, onTrack } from '../analytics/index.ts';
 import type { QualityLevel } from '../render/quality.ts';
 import { content } from '../content/index.ts';
+import { Ray, Vector3 } from 'three';
+import type { LevelData } from '../level/types.ts';
 
 export type { BootState as TestBootState } from '../app/handles.ts';
 
@@ -139,6 +141,10 @@ export interface TestApi {
   setAutoRun(on: boolean): void;
   setCamera(opts: { yaw?: number; pitch?: number; dist?: number; fov?: number } | 'auto'): void;
   cameraInsideGeometry(): boolean;
+  /** Per rendered frame since the last reset (playtest M2): camera inside a collider (solid box, closed gate, ramp —
+   * with the near plane), hero hidden by the camera while he should be seen, hero behind level geometry; first bad frames. */
+  cameraStats(): { frames: number; inside: number; heroHidden: number; heroBlocked: number; bad: string[] };
+  resetCameraStats(): void;
   forceSlowFrames(sec: number): boolean;
   setQuality(level: QualityLevel | 'auto'): void;
   /** Puts the auto controller at a level without locking it (tests of the downgrade on a weak machine). */
@@ -203,6 +209,24 @@ function shoesButton(): { shown: boolean; text: string; can: boolean } {
 /** A hero closer than this to a closed gate below it, and slower than STAND_SPEED, stands at the gate. */
 const STAND_GATE_DIST = 2.5;
 const STAND_SPEED = 1;
+/** Camera near plane: a collider closer than this cuts the frame. */
+const NEAR = 0.1;
+/** Hero chest height for the line of sight. */
+const CHEST = 1.5;
+
+/** Is the point inside a solid box, a closed gate or a ramp of the level (grown by `pad`). */
+function insideLevel(level: LevelData, gatesOpen: readonly boolean[], p: Vector3, pad: number): string | null {
+  const inBox = (min: readonly number[], max: readonly number[]): boolean =>
+    p.x > min[0]! - pad && p.x < max[0]! + pad && p.y > min[1]! - pad && p.y < max[1]! + pad && p.z > min[2]! - pad && p.z < max[2]! + pad;
+  for (const b of level.boxes) if (b.solid && inBox(b.min, b.max)) return b.kind;
+  for (let i = 0; i < level.gates.length; i++) if (!gatesOpen[i] && inBox(level.gates[i]!.box.min, level.gates[i]!.box.max)) return 'gate';
+  for (const r of level.ramps) {
+    if (p.x < r.x0 - pad || p.x > r.x1 + pad || p.z < r.z0 - pad || p.z > r.z1 + pad) continue;
+    const top = r.y0 + ((r.y1 - r.y0) * Math.min(1, Math.max(0, (p.z - r.z0) / (r.z1 - r.z0))));
+    if (p.y < top + pad && p.y > top - r.thickness - pad) return 'ramp';
+  }
+  return null;
+}
 
 export function installTestApi(g: GameHandles): TestApi {
   const played: Array<{ name: string; playSec: number; params?: Record<string, unknown> }> = [];
@@ -221,6 +245,41 @@ export function installTestApi(g: GameHandles): TestApi {
       if (sim.gatesOpen[i]) return;
       for (const b of sim.bots?.list ?? []) if (b.mode !== 'away' && b.mode !== 'off') overClosed = Math.max(overClosed, b.z - gate.z);
     });
+  };
+  const cam = { frames: 0, inside: 0, heroHidden: 0, heroBlocked: 0, bad: [] as string[] };
+  const ray = new Ray();
+  const chest = new Vector3();
+  g.onFrame = () => {
+    const sim = g.sim;
+    const rig = g.camera;
+    if (!sim || !rig || !g.hero || g.windows?.current) return;
+    cam.frames++;
+    const p = rig.camera.position;
+    const h = sim.hero.pos;
+    const note = (what: string): void => {
+      if (cam.bad.length < 12) cam.bad.push(`${what} t=${(g.sim?.tick ?? 0) / 60} hero=(${h.x.toFixed(1)},${h.y.toFixed(1)},${h.z.toFixed(1)}) cam=(${p.x.toFixed(1)},${p.y.toFixed(1)},${p.z.toFixed(1)})`);
+    };
+    const inside = insideLevel(sim.level, sim.gatesOpen, p, NEAR);
+    if (inside) {
+      cam.inside++;
+      note(`inside ${inside}`);
+    }
+    if (sim.caught || sim.respawnTicksLeft >= 0) return;
+    if (!g.hero.visible) {
+      cam.heroHidden++;
+      note('hero hidden');
+      return;
+    }
+    chest.set(h.x, h.y + CHEST, h.z);
+    const len = chest.distanceTo(p);
+    ray.set(p, chest.clone().sub(p).normalize());
+    const hitS = sim.collision.static.rayIntersect(ray);
+    const hitD = sim.collision.dynamic?.rayIntersect(ray);
+    const d = Math.min(hitS ? hitS.distance : Infinity, hitD ? hitD.distance : Infinity);
+    if (d < len - 0.3) {
+      cam.heroBlocked++;
+      note('hero blocked');
+    }
   };
   const advanceMock = (ms: number): void => {
     if (ms > 0) window.__YA_MOCK__?.advance(ms);
@@ -384,6 +443,14 @@ export function installTestApi(g: GameHandles): TestApi {
     cameraInsideGeometry() {
       if (!g.camera || !g.sim) return false;
       return g.camera.insideGeometry(g.sim.collision);
+    },
+    cameraStats: () => ({ ...cam, bad: [...cam.bad] }),
+    resetCameraStats() {
+      cam.frames = 0;
+      cam.inside = 0;
+      cam.heroHidden = 0;
+      cam.heroBlocked = 0;
+      cam.bad = [];
     },
     forceSlowFrames: (sec) => g.quality.forceSlow(sec),
     setQuality: (level) => g.setQualitySetting(level),

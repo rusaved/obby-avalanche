@@ -52,6 +52,9 @@ const CAMERA_RANGES: Partial<Record<keyof TuningJson['camera'], Range>> = {
   autoTurnRate: [0, 6, 0.1],
   sensitivity: [0.5, 2, 0.05],
   shake: [0, 1, 0.05],
+  hideDistance: [0, 6, 0.1],
+  minDistance: [0, 12, 0.5],
+  raiseMaxDeg: [0, 85, 1],
 };
 
 const AVALANCHE_RANGES: Partial<Record<keyof TuningJson['avalanche'], Range>> = {

@@ -22,16 +22,24 @@ const COLS = 8;
 export interface DigitLabels {
   mesh: InstancedMesh;
   setLabel(slot: number, text: string, x: number, y: number, z: number, size: number, color: string): void;
+  /** Width of the label in world units at glyph size `size` (the plaque under it fits this). */
+  measure(text: string, size: number): number;
   clear(slot: number): void;
   dispose(): void;
 }
 
-export function createDigitAtlas(): { texture: CanvasTexture; cols: number; rows: number } {
+/** Advance of a glyph we could not measure, share of the glyph size; spacing between glyphs. */
+const DEFAULT_ADVANCE = 0.62;
+const TRACKING = 0.04;
+
+export function createDigitAtlas(): { texture: CanvasTexture; cols: number; rows: number; advances: number[] } {
   const rows = Math.ceil(ATLAS_CHARS.length / COLS);
   const canvas = document.createElement('canvas');
   canvas.width = CELL * COLS;
   canvas.height = CELL * rows;
   const ctx = canvas.getContext('2d');
+  // Proportional advances (playtest M2: «4 ,2K» — a comma took a whole digit cell).
+  const advances = Array.from(ATLAS_CHARS, () => DEFAULT_ADVANCE);
   if (ctx) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = '#ffffff';
@@ -42,6 +50,8 @@ export function createDigitAtlas(): { texture: CanvasTexture; cols: number; rows
       const cx = (i % COLS) * CELL + CELL / 2;
       const cy = Math.floor(i / COLS) * CELL + CELL / 2;
       ctx.fillText(ATLAS_CHARS[i] as string, cx, cy + CELL * 0.04);
+      const w = ctx.measureText(ATLAS_CHARS[i] as string).width;
+      if (w > 0) advances[i] = Math.min(1, w / CELL + TRACKING);
     }
   }
   const texture = new CanvasTexture(canvas);
@@ -49,13 +59,13 @@ export function createDigitAtlas(): { texture: CanvasTexture; cols: number; rows
   texture.minFilter = LinearFilter;
   texture.magFilter = LinearFilter;
   texture.generateMipmaps = false;
-  return { texture, cols: COLS, rows };
+  return { texture, cols: COLS, rows, advances };
 }
 
 const CHARS_PER_LABEL = 10; // «1.2K/2K»-style progress fits (docs/01-gdd.md 3.3)
 
 export function createDigitLabels(maxChars: number): DigitLabels {
-  const { texture, cols, rows } = createDigitAtlas();
+  const { texture, cols, rows, advances } = createDigitAtlas();
   const geo = new PlaneGeometry(1, 1);
   const mat = new MeshBasicMaterial({ map: texture, transparent: true, alphaTest: 0.1, side: DoubleSide, depthWrite: false });
   const count = Math.max(CHARS_PER_LABEL, maxChars);
@@ -81,13 +91,20 @@ export function createDigitLabels(maxChars: number): DigitLabels {
   mesh.frustumCulled = false;
 
   const cellOf = (ch: string): number => Math.max(0, ATLAS_CHARS.indexOf(ch));
+  const advanceOf = (ch: string): number => advances[cellOf(ch)] ?? DEFAULT_ADVANCE;
+  const measure = (text: string, size: number): number => {
+    let w = 0;
+    for (const ch of text.slice(0, CHARS_PER_LABEL)) w += advanceOf(ch) * size;
+    return w;
+  };
   return {
     mesh,
+    measure,
     setLabel(slot, text, x, y, z, size, color) {
       const base = slot * CHARS_PER_LABEL;
       const chars = text.slice(0, CHARS_PER_LABEL);
-      const advance = size * 0.62;
-      const total = (chars.length - 1) * advance;
+      const total = measure(chars, size);
+      let pen = 0;
       colorTmp.set(color);
       for (let i = 0; i < CHARS_PER_LABEL; i++) {
         const idx = base + i;
@@ -96,7 +113,9 @@ export function createDigitLabels(maxChars: number): DigitLabels {
           const cell = cellOf(chars[i] as string);
           uvOffset.setXY(idx, cell % cols, rows - 1 - Math.floor(cell / cols));
           // Quads face −Z (towards the hero running up the slope), so characters go right to left in +X.
-          dummy.position.set(x + total / 2 - i * advance, y, z);
+          const adv = advanceOf(chars[i] as string) * size;
+          dummy.position.set(x + total / 2 - pen - adv / 2, y, z);
+          pen += adv;
           dummy.scale.set(size, size, 1);
           dummy.rotation.set(0, Math.PI, 0);
           mesh.setColorAt(idx, colorTmp);

@@ -61,7 +61,7 @@ test('eggs and pets: buy at the camp stand, hatch in 1 s, 3 pets on next to the 
   await page.evaluate(() => window.__TEST__!.setPlaySec(181));
   await waitTicks(page, 3);
   expect((await testState(page)).menu).toEqual(['shop', 'pets']);
-  await page.locator('[data-hud="menu-pets"]').dispatchEvent('pointerup');
+  await page.locator('[data-hud="menu-pets"]').dispatchEvent('pointerdown');
   await expect(page.locator('[data-role="window"][data-window="pets"]')).toBeVisible();
   s = await testState(page);
   expect(s.window).toBe('pets');
@@ -87,10 +87,10 @@ test('eggs and pets: buy at the camp stand, hatch in 1 s, 3 pets on next to the 
   s = await testState(page);
   expect(s.window).toBeNull();
   expect(s.pauseReasons).not.toContain('menu');
-  await page.locator('[data-hud="menu-pets"]').dispatchEvent('pointerup');
+  await page.locator('[data-hud="menu-pets"]').dispatchEvent('pointerdown');
   await page.mouse.click(30, 540);
   expect((await testState(page)).window).toBeNull();
-  await page.locator('[data-hud="menu-pets"]').dispatchEvent('pointerup');
+  await page.locator('[data-hud="menu-pets"]').dispatchEvent('pointerdown');
   await page.locator('[data-hud="win-close"]').click();
   await waitTicks(page, 3);
   expect((await testState(page)).window).toBeNull();

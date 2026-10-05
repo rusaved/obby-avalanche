@@ -31,6 +31,8 @@ export interface BotsViewDeps {
   snowColor: string;
   getSim(): Sim;
   camera(): Camera | null;
+  /** The bot at these feet stands too close to the camera or in front of the hero: hidden (playtest M2). */
+  hides(feet: Vector3): boolean;
   field(): { width: number; height: number };
   /** HUD mode of the shots and the promo video, and the photo studio: names hidden. */
   hudMode(): HudMode;
@@ -114,7 +116,7 @@ export function createBotsView(d: BotsViewDeps): BotsView {
         }
         s.tick = sim.tick;
         pos.copy(s.prev).lerp(s.cur, alpha);
-        s.ch.visible = true;
+        s.ch.visible = !d.hides(pos);
         s.ch.position.copy(pos);
         s.ch.yaw = b.yaw;
         s.ch.pose = b.moving ? 'run' : 'idle';

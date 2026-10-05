@@ -61,7 +61,7 @@ test.describe('auto-run', () => {
     await openGame();
     const cdp = await page.context().newCDPSession(page);
     expect((await testState(page)).autoRun).toBe(false);
-    await page.locator('[data-hud="pause"]').dispatchEvent('pointerup');
+    await page.locator('[data-hud="pause"]').dispatchEvent('pointerdown');
     await expect(page.locator('[data-role="pause"]')).toBeVisible();
     await page.locator('[data-hud="autorun"]').click();
     await page.locator('[data-hud="continue"]').click();

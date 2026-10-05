@@ -15,9 +15,9 @@ export const LEDGE_SIZE = 4;
 export const KILL_DEPTH = 20;
 /** Half width of the summit portal opening: the arch is 10 units wide with 1-unit pillars (docs/01-gdd.md 5.2). */
 export const PORTAL_HALF_WIDTH = 4;
-/** Treadmill belt inside a cave (docs/01-gdd.md 4.3): 3 × 5 units at the back wall, room for two bots in front of it. */
+/** Treadmill belt inside a cave (docs/01-gdd.md 4.3): 3 units wide, flush with the back wall and as long as the cave
+ * (playtest M2: running forward the hero hit the side wall past a 5-unit belt and lost it), room in front of it. */
 export const NICHE_BELT_WIDTH = 3;
-export const NICHE_BELT_LENGTH = 5;
 
 function num(seg: Segment, key: string, def = 0): number {
   const v = seg[key];
@@ -165,14 +165,14 @@ export function buildLevel(world: World): LevelData {
       treadmill: num(n, 'treadmill', 1) * mountainTreadmill,
       zone: num(n, 'zone', 0),
     });
-    const beltX = sign * (half + BORDER_WIDTH + depth - NICHE_BELT_WIDTH / 2 - 0.5);
+    const beltX = sign * (half + BORDER_WIDTH + depth - NICHE_BELT_WIDTH / 2);
     points.push({
       type: 'treadmill',
       x: beltX,
       y,
       z: n.z,
       mult: num(n, 'treadmill', 1) * mountainTreadmill,
-      length: NICHE_BELT_LENGTH,
+      length: len,
       width: NICHE_BELT_WIDTH,
       inNiche: true,
       niche: niches.length - 1,

@@ -1,4 +1,5 @@
 import { test, expect, testState, waitTicks } from './fixtures.ts';
+import worldsJson from '../content/avalanche/worlds.json' with { type: 'json' };
 
 // Camera (docs/02-tech.md, section 7): wall avoidance, auto-turn only on viewYaw, FOV from speed.
 test.describe('camera', () => {
@@ -58,4 +59,96 @@ test.describe('camera', () => {
     await waitTicks(page, 12);
     await page.screenshot({ path: 'docs/evidence/M1/camera_run_960x540_ru.png' });
   });
+});
+
+// Playtest M2, item 2: the camera went into walls and caves. The bot walks mountain 1 like a player: into every cave
+// and onto its belt (W held, camera turned by the mouse), out to the closed wall and into it with the camera turned
+// round, into the lit cave on every avalanche; in no rendered frame the camera is inside a collider or loses the hero.
+type WSeg = { type: string; z: number; side?: string; requires?: number };
+test('walk of mountain 1 by botPath: the camera is never inside a collider and never loses the hero', async ({ page, openGame }) => {
+  test.setTimeout(300_000);
+  const worlds = worldsJson as unknown as { worlds: Array<{ segments: WSeg[] }> };
+  const segs = worlds.worlds[0]!.segments;
+  const gates = segs.filter((s) => s.type === 'gate').sort((a, b) => a.z - b.z);
+  const caves = segs.filter((s) => s.type === 'niche').sort((a, b) => a.z - b.z).map((s) => ({ z: s.z, side: s.side === 'right' ? 1 : -1 }));
+  await openGame('seed=3');
+  await page.evaluate(() => window.__TEST__!.setTimeScale(6));
+  await page.evaluate(() => window.__TEST__!.resetCameraStats());
+  const into = (i: number): Array<[number, number]> => [
+    [caves[i]!.side * 12, caves[i]!.z - 2],
+    [caves[i]!.side * 19.5, caves[i]!.z],
+  ];
+  const drag = async (px: number): Promise<void> => {
+    await page.mouse.move(480, 300);
+    await page.mouse.down();
+    await page.mouse.move(480 + px, 280, { steps: 8 });
+    await page.mouse.up();
+  };
+  let waves = 0;
+  let shotTaken = false;
+  /** Walks the points; on an avalanche runs into the lit cave and waits it out, then walks the points again. */
+  const walk = async (points: Array<[number, number]>, sec = 25): Promise<void> => {
+    const end = (await testState(page)).timeSec + sec;
+    let plan: Array<[number, number]> | null = null;
+    for (;;) {
+      const s = await testState(page);
+      if (s.timeSec > end || !s.hero) break;
+      const w = s.wave;
+      if (s.caught) {
+        plan = null;
+        continue;
+      }
+      const h = s.hero;
+      const out: Array<[number, number]> = Math.abs(h.x) > 12.5 ? [[Math.sign(h.x) * 11, h.z]] : [];
+      if (!shotTaken && w?.phase === 'run' && s.waveHud.shot && s.inShelter && w.frontZ - h.z < 25) {
+        await page.screenshot({ path: 'docs/evidence/M3/camera_cave_wave_960x540_ru.png' });
+        shotTaken = true;
+      }
+      if (w && (w.phase === 'warn' || w.phase === 'run') && w.outcome === 'none' && w.shelter >= 0) {
+        if (plan !== null || (await page.evaluate(() => window.__TEST__!.botLeft())) === 0) {
+          if (s.shelter !== w.shelter) await page.evaluate((p) => window.__TEST__!.botPath(p), [...(s.shelter >= 0 ? out : []), ...into(w.shelter)]);
+          if (plan !== null) waves++;
+          plan = null;
+        }
+        continue;
+      }
+      if (plan === null) {
+        plan = [...out, ...points];
+        await page.evaluate((p) => window.__TEST__!.botPath(p), plan);
+        continue;
+      }
+      if ((await page.evaluate(() => window.__TEST__!.botLeft())) === 0) break;
+    }
+  };
+  for (let i = 0; i < gates.length; i++) {
+    // Into the cave below wall i, onto the belt; W held and the camera turned both ways.
+    await walk(into(i));
+    await page.keyboard.down('KeyW');
+    await drag(-260);
+    await waitTicks(page, 90);
+    await drag(520);
+    await waitTicks(page, 90);
+    if (i === 0) await page.screenshot({ path: 'docs/evidence/M3/camera_cave_belt_960x540_ru.png' });
+    await page.keyboard.up('KeyW');
+    // Out to the closed wall, pressed into it, the camera turned to look from the front.
+    const s = await testState(page);
+    await walk([[caves[i]!.side * 11, caves[i]!.z], [0, caves[i]!.z + 4], [0, gates[i]!.z - 2]]);
+    await page.evaluate((z) => window.__TEST__!.botPath([[0, z]]), gates[i]!.z);
+    await drag(720);
+    await waitTicks(page, 60);
+    await drag(-720);
+    await page.evaluate((n) => window.__TEST__!.setStat(n), Math.max(s.stat, gates[i]!.requires ?? 0));
+    await walk([[0, gates[i]!.z + 4]]);
+  }
+  const st = await page.evaluate(() => window.__TEST__!.cameraStats());
+  const end = await testState(page);
+  console.log(`camera walk: walls ${end.gatesPassed.filter(Boolean).length}, waves ${waves}, shot ${shotTaken}, ${JSON.stringify(st)}`);
+  expect(end.gatesPassed.filter(Boolean).length).toBe(gates.length);
+  expect(waves).toBeGreaterThanOrEqual(1);
+  expect(shotTaken).toBe(true);
+  expect(st.frames).toBeGreaterThan(500);
+  expect(st.inside, st.bad.join('\n')).toBe(0);
+  expect(st.heroHidden, st.bad.join('\n')).toBe(0);
+  // A line camera → hero chest may graze a border edge for a frame while the camera catches up (hero out of a cave).
+  expect(st.heroBlocked, st.bad.join('\n')).toBeLessThanOrEqual(Math.ceil(st.frames * 0.01));
 });

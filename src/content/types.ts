@@ -160,7 +160,16 @@ export interface TuningJson {
     shake: number;
     collisionRadius: number;
     retreatSpeed: number;
+    /** The hero hides when the camera is closer than this to his chest; a bot too, or near the line camera → hero. */
     hideDistance: number;
+    /** Playtest M2: a wall right behind the hero closer than this — the camera rises over him, up to raiseMaxDeg
+     * of pitch in raiseStepDeg steps, and comes down at raiseReturnRate rad/s. */
+    minDistance: number;
+    raiseMaxDeg: number;
+    raiseStepDeg: number;
+    raiseReturnRate: number;
+    /** A bot closer than this to the line camera → hero hides. */
+    occludeRadius: number;
   };
   input: {
     stickRadiusFrac: number;
@@ -181,6 +190,9 @@ export interface TuningJson {
     shotTriggerDist: number;
     shotDistance: number;
     shotReturnSec: number;
+    /** Wide cave frame while an avalanche is on (playtest M2): camera point and look point in cave coordinates —
+     * across from the mouth (0) to the back wall (1), floor (0) to roof (1), downhill (0) to uphill (1) side; its FOV. */
+    caveShot: { pos: [number, number, number]; look: [number, number, number]; fov: number };
     /** Front surface displacement, units. */
     noise: number;
     /** Snow body behind the front, units uphill. */

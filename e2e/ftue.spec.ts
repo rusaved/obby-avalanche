@@ -33,6 +33,8 @@ test('first minute: bot walks walls 1–3 straight, scripted wave in cave 4, bel
       expect(s.wave.shelter).toBe(3);
       expect(s.hint).toBe('wave.cave');
       expect(s.arrows).toBe(true);
+      // Playtest M2: the arrow to the cave from the first second of the warning (not from «in 3»).
+      expect(s.waveHud.arrow).toBe(true);
       await page.evaluate(() => window.__TEST__!.setTimeScale(1));
       await page.screenshot({ path: 'docs/evidence/M2/ftue_warn_1920x1080_ru.png' });
       warnSeen = true;

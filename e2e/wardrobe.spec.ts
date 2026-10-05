@@ -19,7 +19,7 @@ test('wardrobe opens with the default skin on the hero; trail and aura bought fo
   expect(s.trophyPlaque).toEqual({ shown: true, text: '30' });
   expect(s.menu).toEqual(['shop', 'pets', 'wardrobe']);
 
-  await page.locator('[data-hud="menu-wardrobe"]').dispatchEvent('pointerup');
+  await page.locator('[data-hud="menu-wardrobe"]').dispatchEvent('pointerdown');
   await expect(page.locator('[data-role="window"][data-window="wardrobe"]')).toBeVisible();
   await expect(page.locator('[data-role="wardrobe-hero"]')).toBeVisible();
   await expect(page.locator('[data-role="wardrobe-grid"] [data-skin="tangerine"]')).toHaveClass(/on/);
@@ -32,7 +32,7 @@ test('wardrobe opens with the default skin on the hero; trail and aura bought fo
   await page.locator('[data-hud="win-close"]').click();
 
   // Shop: trail «Snow Trail» ×1.1 for 3 trophies, aura «Sparks» ×1.2 for 8.
-  await page.locator('[data-hud="menu-shop"]').dispatchEvent('pointerup');
+  await page.locator('[data-hud="menu-shop"]').dispatchEvent('pointerdown');
   await expect(page.locator('[data-role="window"][data-window="shop"]')).toBeVisible();
   await expect(page.locator('[data-item="trail_comet"] [data-hud="shop-item"]')).toHaveText('Ещё 970');
   await page.locator('[data-item="trail_snow"] [data-hud="shop-item"]').click();

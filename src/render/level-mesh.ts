@@ -27,6 +27,10 @@ import { formatNumber } from '../ui/format.ts';
 import { GIFT_HALF, GIFT_HEIGHT } from '../sim/gifts.ts';
 
 export const CHUNK_LENGTH = 120;
+/** Gate sign: glyph size, plaque width at least and its margin around the text (world units). */
+const SIGN_TEXT = 2.2;
+const SIGN_MIN_WIDTH = 6;
+const SIGN_PAD = 2;
 
 export interface LevelMeshes {
   group: Group;
@@ -182,10 +186,6 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     dummy.scale.set(w, g.height, d);
     dummy.updateMatrix();
     gates.setMatrixAt(i, dummy.matrix);
-    dummy.position.set(0, g.y + g.signHeight, g.z - d / 2 - 0.3);
-    dummy.scale.set(Math.max(6, formatNumber(g.requires, suffix).length * 1.6 + 1.5), 3, 0.4);
-    dummy.updateMatrix();
-    signs.setMatrixAt(i, dummy.matrix);
   });
   gates.instanceMatrix.needsUpdate = true;
   signs.instanceMatrix.needsUpdate = true;
@@ -201,7 +201,14 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     const st = signState[i];
     if (!g || !st) return;
     const d = g.box.max[2] - g.box.min[2];
-    digits.setLabel(i, st.text, 0, g.y + g.signHeight, g.z - d / 2 - 0.52, 2.2, '#ffffff');
+    digits.setLabel(i, st.text, 0, g.y + g.signHeight, g.z - d / 2 - 0.52, SIGN_TEXT, '#ffffff');
+    // The plaque fits the text it shows now, «4,2K/12K» included (playtest M2: the text ran past it).
+    dummy.position.set(0, g.y + g.signHeight, g.z - d / 2 - 0.3);
+    dummy.rotation.set(0, 0, 0);
+    dummy.scale.set(Math.max(SIGN_MIN_WIDTH, digits.measure(st.text, SIGN_TEXT) + SIGN_PAD), 3, 0.4);
+    dummy.updateMatrix();
+    signs.setMatrixAt(i, dummy.matrix);
+    signs.instanceMatrix.needsUpdate = true;
     signs.setColorAt(i, signColor.set(st.open ? signOpenColor : signClosedColor));
     if (signs.instanceColor) signs.instanceColor.needsUpdate = true;
   };

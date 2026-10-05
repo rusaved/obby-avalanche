@@ -8,6 +8,7 @@
  */
 import type { BalanceJson, BotsJson, TuningJson } from '../content/types.ts';
 import type { LevelData, LevelNiche } from '../level/types.ts';
+import { NICHE_BELT_WIDTH } from '../level/builder.ts';
 import { createRng, type Rng } from '../core/rng.ts';
 import { caughtPosition, caughtTotalSec, createCaught, type CaughtState } from './caught.ts';
 import { distToEntrance, entranceX, inSafeZone, nicheSign, shelterIndex } from './shelter.ts';
@@ -113,10 +114,12 @@ export function laneIntervals(level: LevelData): Array<[number, number]> {
   return free.length ? free : [[0, 0]];
 }
 
-/** Where place `spot` of cave `n` is: beside the belt, clear of the cave walls. */
+/** Where place `spot` of cave `n` is: on the belt at the back wall, towards its ends, clear of the side walls
+ * (playtest M2: the belt runs the whole cave; the egg stands off it on the mouth side). */
 export function caveSpot(n: LevelNiche, spot: number): { x: number; z: number } {
   const half = (n.box.max[2] - n.box.min[2]) / 2;
-  return { x: (n.box.min[0] + n.box.max[0]) / 2, z: n.z + (spot === 0 ? -1 : 1) * (half - 1.8) };
+  const x = n.side === 'left' ? n.box.min[0] + NICHE_BELT_WIDTH / 2 : n.box.max[0] - NICHE_BELT_WIDTH / 2;
+  return { x, z: n.z + (spot === 0 ? -1 : 1) * (half - 1.8) };
 }
 
 export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {

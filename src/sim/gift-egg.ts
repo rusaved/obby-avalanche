@@ -5,8 +5,10 @@
  */
 import type { LevelData } from '../level/types.ts';
 
-/** Gap between the belt end and the egg, units (the egg sits on the uphill side of the belt, inside the cave). */
+/** Gap between the belt edge and the egg, units: the egg sits off the belt on the mouth side, in the downhill corner
+ * (clear of the way from the mouth to the belt centre). */
 const EGG_GAP = 1.3;
+const EGG_CORNER = 1.5;
 /** The hero touches the egg within this horizontal distance of its centre and this height. */
 export const EGG_TOUCH_DIST = 1.4;
 const EGG_TOUCH_HEIGHT = 2.5;
@@ -32,7 +34,9 @@ export function giftEggSpot(level: LevelData, wall: number): { x: number; y: num
   const belt = level.points.find((p) => p.type === 'treadmill' && p['inNiche'] === true && p['niche'] === niche);
   if (!belt) return null;
   const len = typeof belt['length'] === 'number' ? (belt['length'] as number) : 0;
-  return { x: belt.x, y: belt.y, z: belt.z + len / 2 + EGG_GAP, niche };
+  const width = typeof belt['width'] === 'number' ? (belt['width'] as number) : 0;
+  const inward = level.niches[niche]?.side === 'right' ? 1 : -1;
+  return { x: belt.x - inward * (width / 2 + EGG_GAP), y: belt.y, z: belt.z - len / 2 + EGG_CORNER, niche };
 }
 
 export function createGiftEgg(level: LevelData, wall: number, pet: string, hatchSec: number): GiftEggState | null {

@@ -402,6 +402,7 @@ async function boot(): Promise<void> {
     },
     botPath: null,
     onTick: null,
+    onFrame: null,
     get meta() {
       return meta;
     },
@@ -570,6 +571,7 @@ async function boot(): Promise<void> {
       );
     }
     botsView?.update(alpha, playSec);
+    g.onFrame?.();
     characters?.update(frameDt);
     if (levelMeshes) {
       for (const [index, startedAt] of melting) {
@@ -668,6 +670,7 @@ async function boot(): Promise<void> {
     snowColor: theme.threat.body,
     getSim: () => sim,
     camera: () => cameraRig?.camera ?? null,
+    hides: (feet) => cameraRig?.blocksView(feet) ?? false,
     field: () => field,
     hudMode: () => hudMode,
     studio,

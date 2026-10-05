@@ -63,6 +63,7 @@ export function createFtueView(d: FtueViewDeps): FtueView {
     return { x: (p.x * 0.5 + 0.5) * f.width, y: (0.5 - p.y * 0.5) * f.height };
   };
 
+  let lastHead: { x: number; y: number } | null = null;
   const view: FtueView & { hint: HintId | null; arrows: boolean; hand: boolean } = {
     hint: null,
     arrows: false,
@@ -124,8 +125,11 @@ export function createFtueView(d: FtueViewDeps): FtueView {
       const id = hints.update(frame, frameDt);
       view.hint = id;
 
-      // The plaque: above the head by 15% of the field height.
-      const head = id ? project(heroRender.x, heroRender.y + HERO_HEIGHT, heroRender.z) : null;
+      // The plaque: above the head by 15% of the field height. The head off the view for a frame (camera over the
+      // hero) keeps the plaque where it was: no blinking (playtest M2).
+      const seen = id ? project(heroRender.x, heroRender.y + HERO_HEIGHT, heroRender.z) : null;
+      if (seen) lastHead = seen;
+      const head = seen ?? (id ? lastHead ?? { x: d.field().width / 2, y: d.field().height / 2 } : null);
       if (id && head) {
         const f = d.field();
         const pict = id === 'hint.move' ? (d.touch() ? 'stick' : 'keys') : null;

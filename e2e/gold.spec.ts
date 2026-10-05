@@ -50,9 +50,22 @@ test('2nd normal wave: a golden gift, carried into the cave → gold_take, gold_
   // Not past a wall closed for the hero (walls of mountain 1 at 130, 220, 310…; the belt may have opened wall 1).
   expect(b.z).toBeLessThan(130 + 90 * s.gatesOpen.indexOf(false));
   expect(s.hint).toBe('hint.gold');
+  // Playtest M2: the plaque blinked ~20 times; now it stays on until the gift is in the hands (at most that one hide).
+  await page.evaluate(() => {
+    const node = document.querySelector('[data-role="hint"]')!;
+    const w = window as unknown as { __hintOff: number };
+    w.__hintOff = 0;
+    let was = node.classList.contains('shown');
+    new MutationObserver(() => {
+      const now = node.classList.contains('shown');
+      if (was && !now) w.__hintOff++;
+      was = now;
+    }).observe(node, { attributes: true, attributeFilter: ['class'] });
+  });
   const coins0 = s.coins;
   await walk(page, [mouth, [b.x, b.z]]);
   await page.waitForFunction(() => window.__TEST__!.state().bonus?.carried === true, undefined, { timeout: 10_000 });
+  expect(await page.evaluate(() => (window as unknown as { __hintOff: number }).__hintOff)).toBeLessThanOrEqual(1);
   // Running back with the gift over the head: the screenshot of the carry.
   await page.evaluate((p) => window.__TEST__!.botPath(p), [mouth, inCave]);
   await waitTicks(page, 20);

@@ -53,11 +53,11 @@ test.describe('touch', () => {
     const pauseBox = await page.locator('[data-hud="pause"]').boundingBox();
     const px = pauseBox!.x + pauseBox!.width / 2;
     const py = pauseBox!.y + pauseBox!.height / 2;
+    // The button fires on its pointerdown (playtest M2): the menu opens and pauses the game on the touch itself.
     await touch(cdp, 'touchStart', [{ x: px, y: py, id: 5 }]);
-    await waitTicks(page, 6);
+    await page.waitForFunction(() => window.__TEST__!.state().menuOpen, undefined, { timeout: 10_000 });
     expect((await testState(page)).stickActive).toBe(false);
     await touch(cdp, 'touchEnd', [{ x: px, y: py, id: 5 }]);
-    await page.waitForFunction(() => window.__TEST__!.state().menuOpen, undefined, { timeout: 10_000 });
     expect((await testState(page)).menuOpen).toBe(true);
     await page.locator('[data-hud="continue"]').click();
   });
@@ -106,5 +106,42 @@ test.describe('touch', () => {
     expect(s.pauseReasons).toEqual([]);
     expect(s.hero!.speed).toBeLessThan(0.5);
     await touch(cdp, 'touchEnd', [{ x: 150, y: 220, id: 1 }]);
+  });
+
+  // Playtest M2: with the stick held the shoes button did nothing; HUD buttons fire on pointerdown of their own finger.
+  test('stick held: a second finger presses the shoes and the shop buttons at once', async ({ page, openGame }) => {
+    await openGame();
+    const cdp = await page.context().newCDPSession(page);
+    await page.evaluate(() => window.__TEST__!.setPlaySec(181));
+    await page.evaluate(() => window.__TEST__!.setCoins(1000));
+    await page.waitForFunction(() => window.__TEST__!.state().shoesButton.can, undefined, { timeout: 10_000 });
+    // Finger 1: the stick, moving; the hero runs.
+    await touch(cdp, 'touchStart', [{ x: 150, y: 300, id: 1 }]);
+    await touch(cdp, 'touchMove', [{ x: 150, y: 220, id: 1 }]);
+    await waitTicks(page, 12);
+    expect((await testState(page)).hero!.speed).toBeGreaterThan(5);
+    // Finger 2: the shoes button, while finger 1 stays down and keeps moving.
+    const sb = (await page.locator('[data-hud="shoes"]').boundingBox())!;
+    const shoes = { x: sb.x + sb.width / 2, y: sb.y + sb.height / 2, id: 2 };
+    await touch(cdp, 'touchStart', [{ x: 150, y: 220, id: 1 }, shoes]);
+    await touch(cdp, 'touchMove', [{ x: 160, y: 215, id: 1 }, shoes]);
+    await waitTicks(page, 3);
+    expect((await testState(page)).shoeLevel).toBe(1);
+    await touch(cdp, 'touchEnd', [shoes]);
+    await waitTicks(page, 6);
+    let s = await testState(page);
+    expect(s.shoeLevel).toBe(1);
+    expect(s.stickActive).toBe(true);
+    // Finger 3: the shop button of the right column; the window opens though the stick is still held.
+    await page.waitForFunction(() => document.querySelector('[data-hud="menu-shop"]') !== null, undefined, { timeout: 10_000 });
+    const mb = (await page.locator('[data-hud="menu-shop"]').boundingBox())!;
+    const shop = { x: mb.x + mb.width / 2, y: mb.y + mb.height / 2, id: 3 };
+    await touch(cdp, 'touchStart', [{ x: 160, y: 215, id: 1 }, shop]);
+    await page.waitForFunction(() => window.__TEST__!.state().window === 'shop', undefined, { timeout: 10_000 });
+    await touch(cdp, 'touchEnd', [shop]);
+    await touch(cdp, 'touchEnd', [{ x: 160, y: 215, id: 1 }]);
+    s = await testState(page);
+    expect(s.window).toBe('shop');
+    await page.screenshot({ path: 'docs/evidence/M3/touch_buttons_844x390_ru.png' });
   });
 });

@@ -1,6 +1,6 @@
 /**
  * How the avalanche looks and feels each frame (docs/01-gdd.md 4.3, 4.8; docs/02-tech.md 7, 8.3): «Avalanche in N»,
- * frost frame, arrow to the lit cave when it is off screen, camera frame on the wave from the cave, shake by distance,
+ * frost frame, steady arrow to the lit cave, wide camera frame on the wave from the cave, shake by distance,
  * white veil inside the snow body, the hero covering his head while the front goes over the cave.
  * Reads the simulation, never changes it.
  */
@@ -12,7 +12,6 @@ import type { CharacterInstance } from '../render/characters.ts';
 import type { AvalancheVisual } from '../render/threat/avalanche.ts';
 import type { Hud } from '../ui/hud.ts';
 import type { ControlFrame } from '../input/control-frame.ts';
-import { angleDiff } from '../input/control-frame.ts';
 import { t } from '../ui/i18n.ts';
 
 /** Shake amplitude share while the front is far (0.05 of 0.3 units, docs/01-gdd.md 4.8) and the longest strong burst. */
@@ -23,12 +22,7 @@ const FROST_WARN = 0.4;
 /** Arrow inset from the field edge, px, and the visible part of the screen in NDC. */
 const ARROW_INSET = 48;
 const ON_SCREEN = 0.85;
-/** Camera frame from the cave: slightly from above, looking out and up the slope (docs/02-tech.md 7). */
-const SHOT_PITCH = 0.3;
-const SHOT_OUT = 0.62;
-const SHOT_UP = 0.78;
-/** Bounds of the camera during the frame: the cave AABB + 2 units towards the slope, clear of the walls. */
-const SHOT_BOUNDS_PAD = 2;
+/** The cave frame keeps this much over the camera radius off the cave walls. */
 const WALL_CLEARANCE = 0.2;
 /** The hero covers his head while the front is this close (docs/02-tech.md 8.3). */
 const COVER_DIST = 10;
@@ -59,8 +53,6 @@ export function createWaveView(d: WaveViewDeps): WaveView {
   const av = d.tuning.avalanche;
   const p = new Vector3();
   let shotCave = -1;
-  let shotReturn = -1;
-  let savedYaw = 0;
   let strongSec = 0;
   const view: WaveView & { banner: string | null; arrow: boolean; shot: boolean; veil: boolean } = {
     banner: null,
@@ -96,7 +88,9 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       d.hud.setFrost(frost);
       if (shake > 0) d.camera.shakeAmount = Math.max(d.camera.shakeAmount, Math.max(FAR_SHAKE_SHARE, shake) * av.shakeStrength);
 
-      // Arrow to the lit cave when it is off screen and the hero is not in it yet.
+      // Arrow to the lit cave from the first second of the warning until the hero is in it, steady (playtest M2: it
+      // came and went with the cave entering the view): at the field edge towards the cave when it is off screen,
+      // right above the cave mouth pointing down when it is on screen.
       const cave = sim.level.niches[ts.shelter];
       let arrow: { x: number; y: number; angle: number } | null = null;
       if (cave && (ts.phase === 'warn' || (running && ts.outcome === 'none')) && sim.shelterIndex() < 0) {
@@ -105,53 +99,52 @@ export function createWaveView(d: WaveViewDeps): WaveView {
         const behind = p.z > 1;
         let nx = behind ? -p.x : p.x;
         let ny = behind ? -p.y : p.y;
+        const f = d.field();
         if (behind || Math.abs(nx) > ON_SCREEN || Math.abs(ny) > ON_SCREEN) {
           const k = Math.max(Math.abs(nx), Math.abs(ny), 1e-3);
           nx = (nx / k) * ON_SCREEN;
           ny = (ny / k) * ON_SCREEN;
-          const f = d.field();
           const x = Math.min(f.width - ARROW_INSET, Math.max(ARROW_INSET, (nx * 0.5 + 0.5) * f.width));
           const y = Math.min(f.height - ARROW_INSET, Math.max(ARROW_INSET, (0.5 - ny * 0.5) * f.height));
           arrow = { x, y, angle: Math.atan2(-ny, nx) };
+        } else {
+          const x = (nx * 0.5 + 0.5) * f.width;
+          const y = Math.max(ARROW_INSET, (0.5 - ny * 0.5) * f.height - ARROW_INSET);
+          arrow = { x, y, angle: Math.PI / 2 };
         }
       }
       view.arrow = arrow !== null;
       d.hud.setCaveArrow(arrow);
 
-      // Camera frame on the wave from the cave: the front closer than shotTriggerDist (docs/02-tech.md 7).
+      // Wide cave frame (docs/02-tech.md 7; playtest M2): from the hero in the lit cave on warn until the front is
+      // shotTriggerDist past it, the camera stands high in the cave by the downhill wall and looks at the belt and out
+      // of the mouth up the slope, where the avalanche comes from. Turned by hand — the player's camera (not scripted).
       const inCave = sim.shelterIndex();
-      const wantShot = running && inCave >= 0 && Math.abs(dz) < av.shotTriggerDist && (ts.scripted || !d.manualCamera());
+      const wantShot =
+        inCave >= 0 && !sim.caught && (ts.phase === 'warn' || (running && dz > -av.shotTriggerDist)) && (ts.scripted || !d.manualCamera());
       if (wantShot) {
         const c = sim.level.niches[inCave]!;
-        const sign = c.side === 'left' ? -1 : 1;
-        if (shotCave < 0) savedYaw = d.frame.viewYaw;
-        shotCave = inCave;
-        shotReturn = -1;
-        d.camera.shot = { yaw: Math.atan2(-sign * SHOT_OUT, SHOT_UP), pitch: SHOT_PITCH, distance: av.shotDistance };
-        // The cave interior kept clear of its walls by the camera radius (shake included), open 2 units onto the slope.
-        const r = d.tuning.camera.collisionRadius + WALL_CLEARANCE;
-        const left = c.side === 'left';
-        d.camera.bounds = {
-          min: [left ? c.box.min[0] + r : c.box.min[0] - SHOT_BOUNDS_PAD, c.box.min[1] + r, c.box.min[2] + r],
-          max: [left ? c.box.max[0] + SHOT_BOUNDS_PAD : c.box.max[0] - r, c.box.max[1] - r, c.box.max[2] - r],
-        };
-      } else if (shotCave >= 0) {
-        // Back to the player's view in shotReturnSec.
-        shotCave = -1;
-        shotReturn = 0;
-        d.camera.bounds = null;
-      }
-      if (shotReturn >= 0 && d.camera.shot) {
-        shotReturn += frameDt;
-        const k = Math.min(1, shotReturn / av.shotReturnSec);
-        const s = d.camera.shot;
-        s.yaw += angleDiff(s.yaw, savedYaw) * k;
-        s.pitch += (d.frame.pitch - s.pitch) * k;
-        s.distance += (d.frame.distance - s.distance) * k;
-        if (k >= 1 || d.manualCamera()) {
-          d.camera.shot = null;
-          shotReturn = -1;
+        if (shotCave !== inCave) {
+          const sign = c.side === 'left' ? -1 : 1;
+          const r = d.tuning.camera.collisionRadius + WALL_CLEARANCE;
+          const mouth = sign * (sim.level.width / 2);
+          const depth = c.box.max[0] - c.box.min[0];
+          const at = (q: readonly [number, number, number], out: Vector3, clamp: boolean): Vector3 => {
+            out.set(mouth + sign * q[0] * depth, c.box.min[1] + q[1] * (c.box.max[1] - c.box.min[1]), c.box.min[2] + q[2] * (c.box.max[2] - c.box.min[2]));
+            if (clamp) {
+              out.x = Math.min(c.box.max[0] - r, Math.max(c.box.min[0] + r, out.x));
+              out.y = Math.min(c.box.max[1] - r, Math.max(c.box.min[1] + r, out.y));
+              out.z = Math.min(c.box.max[2] - r, Math.max(c.box.min[2] + r, out.z));
+            }
+            return out;
+          };
+          d.camera.fixed = { pos: at(av.caveShot.pos, new Vector3(), true), look: at(av.caveShot.look, new Vector3(), false), fov: av.caveShot.fov };
         }
+        shotCave = inCave;
+      } else if (shotCave >= 0) {
+        // Back to the player's view in shotReturnSec (the rig blends out).
+        shotCave = -1;
+        d.camera.fixed = null;
       }
       view.shot = shotCave >= 0;
       if (inCave >= 0 && running && Math.abs(dz) < COVER_DIST && !sim.caught) d.hero.pose = 'cover';

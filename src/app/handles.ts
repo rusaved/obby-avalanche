@@ -82,6 +82,8 @@ export interface GameHandles {
   botPath: Array<[number, number]> | null;
   /** Called after every simulation tick (e2e monitors). */
   onTick: ((dt: number) => void) | null;
+  /** Called after every rendered frame, once the camera has moved (e2e camera monitor). */
+  onFrame: (() => void) | null;
   /** Shoes and pets (M2-08) and the teaching layer: hints, arrows, egg (M2-08). */
   readonly meta: MetaView | null;
   readonly ftue: FtueView | null;

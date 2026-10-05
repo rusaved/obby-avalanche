@@ -34,7 +34,7 @@ test('collection counter ru: «Снежное яйцо: 2 из 5», «2/27» on 
   s = await testState(page);
   expect(s.pets).toEqual(['bunny', 'penguin']);
   expect(s.menuBadges['pets']).toBe('2/27');
-  await page.locator('[data-hud="menu-pets"]').dispatchEvent('pointerup');
+  await page.locator('[data-hud="menu-pets"]').dispatchEvent('pointerdown');
   await expect(page.locator('[data-role="pets-count"]')).toHaveText('Питомцы 2/27');
 });
 
