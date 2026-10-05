@@ -1,13 +1,14 @@
 /**
- * Meta of the first minute (docs/01-gdd.md 6.2, 6.4): the shoes button (shows from the first time coins reach the
- * next pair, one tap buys), pets from the free egg, the step multiplier they give to the simulation. Shoes reset and
- * the shop window arrive with M3-02; pets beyond the free egg with M3-03.
+ * Meta on the HUD (docs/01-gdd.md 6.2, 6.4, 7.1): the shoes button «Shoes ×N · price» at the bottom centre (shows the
+ * first time coins reach the next pair, then stays, grey while short; one tap buys), the reset of the shoes on a
+ * rebirth, pets from the free egg and the step multiplier they give to the simulation. The shop window — M3-09;
+ * pets beyond the free egg — M3-03. The shoe level and «the button was shown» live in the save.
  */
 import type { BalanceJson, PetsJson } from '../content/types.ts';
 import type { SaveData } from '../meta/save.ts';
 import type { Sim } from '../sim/world.ts';
 import type { Hud } from '../ui/hud.ts';
-import { gainMult, nextShoes, shoesPrice } from '../meta/shoes.ts';
+import { buyNextShoes, gainMult, nextShoes, SHOES_AFTER_REBIRTH, shoesPrice } from '../meta/shoes.ts';
 import { formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
 
@@ -19,7 +20,7 @@ export interface MetaViewDeps {
   hud: Hud;
   numSuffix(k: string): string;
   trackOnce(name: string, params?: Record<string, unknown>): void;
-  persist(): void;
+  persist(flush?: boolean): void;
 }
 
 export interface MetaView {
@@ -31,32 +32,36 @@ export interface MetaView {
   /** Called every frame: shows and refreshes the shoes button. */
   update(): void;
   buyShoes(): boolean;
+  /** Rebirth (M3-06): the starting pair again; the button stays on the HUD. */
+  resetShoes(): void;
   /** The free egg hatched `pet` (docs/01-gdd.md 6.2). */
   addPet(pet: string): void;
 }
 
 export function createMetaView(d: MetaViewDeps): MetaView {
   const tiers = d.balance.upgrade.tiers;
-  let shoeLevel = 0;
-  let shoesShown = false;
   const owned = (): string[] => (d.save.pets ??= []);
-  const view: MetaView & { shoeLevel: number; shoesShown: boolean } = {
+  const flags = (): Record<string, boolean> => (d.save.flags ??= {});
+  const view: MetaView = {
     get shoeLevel() {
-      return shoeLevel;
+      return d.save.shoes ?? 0;
     },
     get shoesShown() {
-      return shoesShown;
+      return flags()['shoesBtn'] ?? false;
     },
     apply() {
       const sim = d.getSim();
-      sim.progress.gainMult = gainMult(d.balance, d.pets, { tier: sim.tier, shoeLevel, pets: owned() });
+      sim.progress.gainMult = gainMult(d.balance, d.pets, { tier: sim.tier, shoeLevel: view.shoeLevel, pets: owned() });
     },
     update() {
       const sim = d.getSim();
-      const next = nextShoes(tiers, shoeLevel);
+      const next = nextShoes(tiers, view.shoeLevel);
       const price = next ? shoesPrice(next, sim.tier, d.balance.rebirth) : 0;
-      if (!shoesShown && next && sim.coins >= price) shoesShown = true;
-      if (!shoesShown) {
+      if (!view.shoesShown && next && sim.coins >= price) {
+        flags()['shoesBtn'] = true;
+        d.persist();
+      }
+      if (!view.shoesShown) {
         d.hud.setShoes(null);
         return;
       }
@@ -72,18 +77,24 @@ export function createMetaView(d: MetaViewDeps): MetaView {
     },
     buyShoes() {
       const sim = d.getSim();
-      const next = nextShoes(tiers, shoeLevel);
+      const wallet = { coins: sim.coins, level: view.shoeLevel };
+      const next = buyNextShoes(wallet, tiers, sim.tier, d.balance.rebirth);
       if (!next) return false;
-      const price = shoesPrice(next, sim.tier, d.balance.rebirth);
-      if (sim.coins < price) return false;
-      sim.coins -= price;
-      shoeLevel++;
+      sim.coins = wallet.coins;
+      d.save.shoes = wallet.level;
+      d.persist(true);
       view.apply();
       d.hud.setCoins(formatNumber(sim.coins, d.numSuffix));
       d.hud.toast(t('toast.newShoes', { name: t(`shoes.${next.id}`), m: formatNumber(next.mult, d.numSuffix) }));
       d.trackOnce('shoes_1');
       view.update();
       return true;
+    },
+    resetShoes() {
+      d.save.shoes = SHOES_AFTER_REBIRTH;
+      d.persist(true);
+      view.apply();
+      view.update();
     },
     addPet(pet) {
       owned().push(pet);

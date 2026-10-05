@@ -26,6 +26,8 @@ export interface SaveData {
   hints?: Record<string, number>;
   /** Pets of the player by id (the free egg «Mountain Gift» at M2-08; the collection grows at M3). */
   pets?: string[];
+  /** Shoe level: index in balance.upgrade.tiers, 0 = the starting pair; back to 0 on a rebirth (docs/01-gdd.md 7.1). */
+  shoes?: number;
 }
 
 export const SAVE_VERSION = 1;

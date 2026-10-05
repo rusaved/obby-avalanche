@@ -1,7 +1,6 @@
 /**
- * Shoes and the step multiplier of the meta (docs/01-gdd.md 7.1, 8.1; docs/01a-content.md 5): the next pair only,
- * price × wallScale[tier], one tap buys. The basic button arrives with the first minute (M2-08: «Runners ×2 · 30»
- * at 22–32 s); the full shop and the rebirth reset — M3-02. Pure TS.
+ * Shoes and the step multiplier of the meta (docs/01-gdd.md 7.1, 8.1; docs/01a-content.md 5): 16 pairs in order,
+ * the next one only, price × wallScale[tier], one tap buys, a rebirth puts the starting pair back. Pure TS.
  */
 import type { BalanceJson, PetsJson } from '../content/types.ts';
 import { gainMult as stepMults, scaled, type GainMults } from '../sim/economy.ts';
@@ -16,6 +15,29 @@ export function nextShoes(tiers: readonly ShoeTier[], level: number): ShoeTier |
 export function shoesPrice(tier: ShoeTier, rebirthTier: number, rebirth: BalanceJson['rebirth']): number {
   return scaled(tier.price, rebirthTier, rebirth);
 }
+
+/** Coins and the shoe level the purchase works on (SaveData and the simulation hold them). */
+export interface ShoeWallet {
+  coins: number;
+  level: number;
+}
+
+/**
+ * One tap buys the next pair (docs/01-gdd.md 7.1): coins − price × wallScale[n], level + 1. Short of coins or the
+ * best pair already on — nothing changes and null comes back.
+ */
+export function buyNextShoes(w: ShoeWallet, tiers: readonly ShoeTier[], rebirthTier: number, rebirth: BalanceJson['rebirth']): ShoeTier | null {
+  const next = nextShoes(tiers, w.level);
+  if (!next) return null;
+  const price = shoesPrice(next, rebirthTier, rebirth);
+  if (!(w.coins >= price)) return null;
+  w.coins -= price;
+  w.level += 1;
+  return next;
+}
+
+/** Shoe level after a rebirth: back to the starting pair (docs/01-gdd.md 7.1, 7.5). */
+export const SHOES_AFTER_REBIRTH = 0;
 
 /** Pet multiplier: 1 + the bonuses of the best `slots` pets (docs/01a-content.md 6). */
 export function petMult(owned: readonly string[], pets: PetsJson, slots: number): number {

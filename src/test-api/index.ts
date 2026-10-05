@@ -141,6 +141,8 @@ export interface TestApi {
   cameraInsideAvalanche(): boolean;
   /** Sets the stat (docs/02-tech.md 17.3); gates whose number it reaches open on the next tick. */
   setStat(n: number): void;
+  /** Sets the coin balance (M3-02: the shoes button shows the first time coins reach the next pair). */
+  setCoins(n: number): void;
   /** e2e bot: the hero walks these world points [x, z] in order, ignoring the camera; null stops the bot. */
   botPath(points: Array<[number, number]> | null): void;
   /** Points the bot has not reached yet. */
@@ -358,6 +360,9 @@ export function installTestApi(g: GameHandles): TestApi {
     giveBonus: () => g.sim?.giveBonus() ?? false,
     setStat(n) {
       if (g.sim) g.sim.progress.stat = n;
+    },
+    setCoins(n) {
+      if (g.sim) g.sim.coins = n;
     },
     botPath(points) {
       g.botPath = points ? points.map((p) => [p[0], p[1]] as [number, number]) : null;
