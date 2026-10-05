@@ -47,9 +47,10 @@ test('no window before 180 s of play; HUD buttons come by the schedule of 6.4 in
     expect(s.window).toBeNull();
     expect(s.menu).toEqual([]);
   }
-  const play = async (): Promise<number> => page.evaluate(() => window.__TEST__!.state().playSec);
+  // The delta is taken and run in one evaluate: between two round trips the game goes on in real time and, under CPU
+  // load, overshoots the 0.1 s margins below.
   const to = async (sec: number): Promise<void> => {
-    await page.evaluate((d) => window.__TEST__!.runSim(d), sec - (await play()));
+    await page.evaluate((target) => window.__TEST__!.runSim(target - window.__TEST__!.state().playSec), sec);
   };
   await to(ui.unlockMenusSec - 0.1);
   s = await testState(page);

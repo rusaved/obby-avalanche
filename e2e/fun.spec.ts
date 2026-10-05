@@ -80,14 +80,20 @@ test('fast pace: the slide runs × fun.slideMult and holds it fun.slideSec after
   await waitTicks(page, 10);
   const notes: number[] = [];
   const ratios: Array<{ on: number; left: number; r: number }> = [];
+  const slideEnd = slide.z + (slide.length ?? 16) / 2;
+  // Half speed: the boost after the slide lasts slideSec of game time, and a poll under CPU load spans several ticks.
+  await page.evaluate(() => window.__TEST__!.setTimeScale(0.5));
   await page.keyboard.down('KeyW');
-  for (let i = 0; i < 200; i++) {
+  for (let i = 0; i < 400; i++) {
     await waitTicks(page, 2);
     const s = await testState(page);
     if (s.hero!.onGround && s.hero!.speed > 1) ratios.push({ on: s.fun.onSlide, left: s.fun.slideLeft, r: s.hero!.speed / s.fun.runSpeed });
-    if (notes.at(-1) !== s.funFx.giftNote) notes.push(s.funFx.giftNote);
-    if (s.hero!.z > slide.z + (slide.length ?? 16) / 2 + 3) break;
+    // Notes of the gifts on the slide only (the next stretch has gifts of its own).
+    if (s.hero!.z <= slideEnd + 3 && notes.at(-1) !== s.funFx.giftNote) notes.push(s.funFx.giftNote);
+    // Past the slide: watch the boost until it is over (or the hero stands at the next closed gate).
+    if (s.hero!.z > slideEnd + 3 && (s.fun.slideLeft <= 0 || s.hero!.speed <= 1)) break;
   }
+  await page.evaluate(() => window.__TEST__!.setTimeScale(1));
   await page.keyboard.up('KeyW');
   const on = ratios.filter((x) => x.on >= 0).slice(-3);
   expect(on.length).toBeGreaterThan(0);
