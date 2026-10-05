@@ -3,7 +3,7 @@
  * rebirth never takes them), one trail and one aura on; each is a step multiplier (src/sim/economy.ts gainMult).
  * The save holds what is owned (`trails`, `auras`) and what is on (`trail`, `aura`). Pure TS.
  */
-import type { CosmeticItem } from '../content/types.ts';
+import type { CosmeticItem, SkinsJson } from '../content/types.ts';
 
 export type CosmeticKind = 'trail' | 'aura';
 
@@ -50,5 +50,64 @@ export function buyCosmetic(bag: CosmeticBag, kind: CosmeticKind, items: readonl
 export function equipCosmetic(bag: CosmeticBag, kind: CosmeticKind, id: string): boolean {
   if (!owned(bag, kind).includes(id)) return false;
   bag[kind] = id;
+  return true;
+}
+
+// Skins and wings (docs/01-gdd.md 7.4; docs/01a-content.md 8, M3-04b): looks only, never a number of the game.
+// Sources: the default one, trophies (bought in the wardrobe), a calendar day, a rebirth tier, the starter pack;
+// the last three are granted by their own features (M3-08, M3-06, the shop) through grantLook.
+
+export type LookKind = 'skin' | 'wings';
+export type LookItem = { id: string; unlock: SkinsJson['skins'][number]['unlock'] };
+
+/** The part of the save looks live in. */
+export interface LookBag {
+  trophies?: number;
+  skins?: string[];
+  skin?: string;
+  wings?: string[];
+  wing?: string;
+}
+
+const lookList = (kind: LookKind): 'skins' | 'wings' => (kind === 'skin' ? 'skins' : 'wings');
+
+/** Owned looks in the order of the data: the default ones and those in the save. */
+export function ownedLooks(bag: LookBag, kind: LookKind, items: readonly LookItem[]): string[] {
+  const have = bag[lookList(kind)] ?? [];
+  return items.filter((x) => x.unlock.kind === 'default' || have.includes(x.id)).map((x) => x.id);
+}
+
+/** Price in trophies, or null when the look comes from another source. */
+export function lookPrice(item: LookItem): number | null {
+  return item.unlock.kind === 'trophies' && typeof item.unlock.value === 'number' ? item.unlock.value : null;
+}
+
+/** Look on: the skin (null — the default of the data) or the wings (null — none). */
+export function lookOn(bag: LookBag, kind: LookKind): string | null {
+  return (kind === 'skin' ? bag.skin : bag.wing) ?? null;
+}
+
+/** Gives a look from any source (calendar, tier, starter pack); false when unknown or already owned. */
+export function grantLook(bag: LookBag, kind: LookKind, items: readonly LookItem[], id: string): boolean {
+  if (!items.some((x) => x.id === id) || ownedLooks(bag, kind, items).includes(id)) return false;
+  bag[lookList(kind)] = [...(bag[lookList(kind)] ?? []), id];
+  return true;
+}
+
+/** Buys a look for its trophies and puts it on; false — not for trophies, owned, unknown or short. */
+export function buyLook(bag: LookBag, kind: LookKind, items: readonly LookItem[], id: string): boolean {
+  const item = items.find((x) => x.id === id);
+  const price = item ? lookPrice(item) : null;
+  if (!item || price === null || ownedLooks(bag, kind, items).includes(id) || (bag.trophies ?? 0) < price) return false;
+  bag.trophies = (bag.trophies ?? 0) - price;
+  grantLook(bag, kind, items, id);
+  return equipLook(bag, kind, items, id);
+}
+
+/** Puts an owned look on. */
+export function equipLook(bag: LookBag, kind: LookKind, items: readonly LookItem[], id: string): boolean {
+  if (!ownedLooks(bag, kind, items).includes(id)) return false;
+  if (kind === 'skin') bag.skin = id;
+  else bag.wing = id;
   return true;
 }

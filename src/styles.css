@@ -244,4 +244,10 @@ canvas.fallback {
 .fig-armR { right: 0; top: calc(var(--u) * 2.4); width: calc(var(--u) * 1.5); height: calc(var(--u) * 3.4); }
 .fig-legL { left: calc(var(--u) * 1.5); top: calc(var(--u) * 5.8); width: calc(var(--u) * 1.5); height: calc(var(--u) * 3.6); }
 .fig-legR { left: calc(var(--u) * 3); top: calc(var(--u) * 5.8); width: calc(var(--u) * 1.5); height: calc(var(--u) * 3.6); }
+.fig-wingL, .fig-wingR { top: calc(var(--u) * 1.4); width: calc(var(--u) * 2.6); height: calc(var(--u) * 3.2); border-radius: calc(var(--u) * 0.5) calc(var(--u) * 0.5) 2px 2px; }
+.fig-wingL { left: calc(var(--u) * -2.2); transform: rotate(-18deg); }
+.fig-wingR { right: calc(var(--u) * -2.2); transform: rotate(18deg); }
+.card.locked .fig { opacity: 0.55; }
+.card-lock { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; font-size: 13px; font-weight: 800; color: #3a4a5c; }
+.card-lock svg { width: 18px; height: 18px; color: #3a4a5c; }
 @keyframes fig-turn { from { transform: rotateY(0); } to { transform: rotateY(360deg); } }

@@ -306,6 +306,8 @@ export interface SkinsJson {
     face: string;
     hat: string | null;
   }>;
+  /** Wings (docs/01-gdd.md 7.4): looks only; the accessory of the same id (attach «back») is drawn on the hero. */
+  wings?: Array<{ id: string; unlock: SkinsJson['skins'][number]['unlock'] }>;
 }
 
 export interface AccessoriesJson {

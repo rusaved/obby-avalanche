@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buyCosmetic, cosmeticMult, equipCosmetic, owned, wearing, type CosmeticBag } from '../../src/meta/cosmetics.ts';
+import { buyCosmetic, buyLook, cosmeticMult, equipCosmetic, equipLook, grantLook, lookOn, owned, ownedLooks, wearing, type CosmeticBag, type LookBag } from '../../src/meta/cosmetics.ts';
+import accessoriesJson from '../../content/avalanche/accessories.json' with { type: 'json' };
 import { createMetaView } from '../../src/app/meta-view.ts';
 import { createSave } from '../../src/meta/save.ts';
 import { createStepTracker } from '../../src/sim/steps.ts';
@@ -118,5 +119,82 @@ describe('trails and auras (M3-04)', () => {
       return runCycle(p, { profile: 'greedy', tier: 1, meta: m }).sec;
     };
     expect(run(pack)).toBeLessThan(run(base));
+  });
+});
+
+// M3-04b: skins and wings, looks only (docs/01-gdd.md 7.4; docs/01a-content.md 8).
+describe('skins and wings (M3-04b)', () => {
+  const skins = skinsJson as SkinsJson;
+  const skinList = skins.skins;
+  const wingList = skins.wings ?? [];
+  const src = (x: { unlock: { kind: string; value?: number | string } }): string => (x.unlock.value === undefined ? x.unlock.kind : `${x.unlock.kind}:${x.unlock.value}`);
+
+  it('12 skins and 8 wings with the sources of docs/01a-content.md 8, names in ru and en, wings drawn on the back', () => {
+    expect(skinList.map((x) => [x.id, src(x)])).toEqual([
+      ['tangerine', 'default'], ['skier', 'trophies:5'], ['snowboarder', 'trophies:10'], ['explorer', 'trophies:15'],
+      ['penguin_suit', 'daily:2'], ['snowball', 'trophies:20'], ['ice_knight', 'trophies:40'], ['aurora_skin', 'trophies:60'],
+      ['golden', 'iap:starter'], ['snow_ninja', 'tier:1'], ['ice_guard', 'tier:3'], ['stargazer', 'tier:5'],
+    ]);
+    expect(wingList.map((x) => [x.id, src(x)])).toEqual([
+      ['wings_snow', 'daily:7'], ['wings_ice', 'trophies:10'], ['wings_feather', 'trophies:20'], ['wings_moth', 'trophies:35'],
+      ['wings_rainbow', 'trophies:60'], ['wings_dragon', 'trophies:100'], ['wings_radiant', 'tier:7'], ['wings_comet', 'tier:10'],
+    ]);
+    const acc = (accessoriesJson as { accessories: Array<{ id: string; attach: string }> }).accessories;
+    for (const w of wingList) expect(acc.find((a) => a.id === w.id)?.attach, w.id).toBe('back');
+    for (const [kind, list] of [['skin', skinList], ['wings', wingList]] as const) {
+      for (const x of list) {
+        expect((ru as Record<string, string>)[`${kind}.${x.id}`], x.id).toBeTruthy();
+        expect((en as Record<string, string>)[`${kind}.${x.id}`], x.id).toBeTruthy();
+      }
+    }
+  });
+
+  it('bought for trophies: short — nothing; bought — owned and on; a tier, a day or the starter pack — never for trophies', () => {
+    const bag: LookBag = { trophies: 4 };
+    expect(ownedLooks(bag, 'skin', skinList)).toEqual(['tangerine']);
+    expect(buyLook(bag, 'skin', skinList, 'skier')).toBe(false); // 5 trophies, 4 on hand
+    expect(bag).toEqual({ trophies: 4 });
+    bag.trophies = 30;
+    expect(buyLook(bag, 'skin', skinList, 'skier')).toBe(true);
+    expect(bag.trophies).toBe(25);
+    expect(lookOn(bag, 'skin')).toBe('skier');
+    expect(buyLook(bag, 'skin', skinList, 'skier')).toBe(false); // owned
+    expect(buyLook(bag, 'wings', wingList, 'wings_ice')).toBe(true);
+    expect(bag.trophies).toBe(15);
+    expect(lookOn(bag, 'wings')).toBe('wings_ice');
+    expect(ownedLooks(bag, 'wings', wingList)).toEqual(['wings_ice']);
+    for (const id of ['snow_ninja', 'penguin_suit', 'golden']) expect(buyLook({ trophies: 1000 }, 'skin', skinList, id), id).toBe(false);
+    expect(buyLook({ trophies: 1000 }, 'wings', wingList, 'wings_comet')).toBe(false);
+    // Other sources come through grantLook (tier, calendar day, starter pack — M3-06, M3-08, the shop).
+    expect(equipLook(bag, 'skin', skinList, 'snow_ninja')).toBe(false);
+    expect(grantLook(bag, 'skin', skinList, 'snow_ninja')).toBe(true);
+    expect(grantLook(bag, 'skin', skinList, 'snow_ninja')).toBe(false);
+    expect(equipLook(bag, 'skin', skinList, 'snow_ninja')).toBe(true);
+    expect(equipLook(bag, 'skin', skinList, 'tangerine')).toBe(true); // the default one is always there
+    expect(ownedLooks(bag, 'skin', skinList)).toEqual(['tangerine', 'skier', 'snow_ninja']);
+  });
+
+  it('skins and wings change no number of the game; after a rebirth they stay', () => {
+    const save = createSave(0);
+    save.pets = ['bunny'];
+    save.shoes = 1;
+    save.trophies = 200;
+    const sim = { coins: 0, tier: 0, progress: { gainMult: 1 } } as unknown as Parameters<typeof createMetaView>[0] extends { getSim(): infer S } ? S : never;
+    const meta = createMetaView({ balance, pets, trails: { trails }, auras: { auras }, save, getSim: () => sim, hud: noHud, numSuffix: (k) => k, trackOnce: () => undefined, persist: () => undefined });
+    meta.apply();
+    const before = sim.progress.gainMult;
+    expect(buyLook(save, 'skin', skinList, 'aurora_skin')).toBe(true);
+    expect(buyLook(save, 'wings', wingList, 'wings_dragon')).toBe(true);
+    meta.apply();
+    expect(sim.progress.gainMult).toBe(before);
+    expect(save.trophies).toBe(40);
+    // Rebirth (M3-06 calls these): shoes back, tier + 1 — the looks stay with the player, on as they were.
+    meta.resetShoes();
+    (sim as { tier: number }).tier = 1;
+    meta.apply();
+    expect(sim.progress.gainMult).toBeCloseTo(balance.rebirth.stepMult * 1.2, 12);
+    expect(ownedLooks(save, 'skin', skinList)).toEqual(['tangerine', 'aurora_skin']);
+    expect(ownedLooks(save, 'wings', wingList)).toEqual(['wings_dragon']);
+    expect([save.skin, save.wing]).toEqual(['aurora_skin', 'wings_dragon']);
   });
 });

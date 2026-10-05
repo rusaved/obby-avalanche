@@ -139,5 +139,9 @@
   "shop.need": "{n} more",
   "wardrobe.title": "Wardrobe",
   "wardrobe.tab.skins": "Skins",
-  "wardrobe.count": "{a}/{b}"
+  "wardrobe.count": "{a}/{b}",
+  "wardrobe.tab.wings": "Wings",
+  "wardrobe.fromTier": "Tier {n}",
+  "wardrobe.fromDay": "Day {n}",
+  "wardrobe.fromStarter": "Starter Pack"
 }

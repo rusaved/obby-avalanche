@@ -86,6 +86,8 @@ export interface TestState {
   menuBadges: Record<string, string>;
   /** M3-04: the skin on the hero (characters), the trail and the aura on and drawn, the trophy plaque. */
   skin: string;
+  /** M3-04b: the wings on the hero (characters), null — none. */
+  wings: string | null;
   trail: string | null;
   aura: string | null;
   trophyPlaque: { shown: boolean; text: string };
@@ -349,6 +351,7 @@ export function installTestApi(g: GameHandles): TestApi {
           [...document.querySelectorAll<HTMLElement>('[data-role="menu"] [data-hud]')].map((e) => [(e.dataset['hud'] ?? '').replace(/^menu-/, ''), e.querySelector('.hud-menu-badge')?.textContent ?? '']),
         ),
         skin: g.hero?.skinId ?? '',
+        wings: g.hero?.wingsId ?? null,
         trail: g.save.trail ?? null,
         aura: g.save.aura ?? null,
         trophyPlaque: {

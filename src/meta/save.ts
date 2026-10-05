@@ -40,6 +40,10 @@ export interface SaveData {
   aura?: string;
   /** Skin on (skins.json id); absent or unknown — skins.json default (docs/01-gdd.md 7.4). */
   skin?: string;
+  /** Skins and wings owned beyond the default ones, and the wings on (M3-04b; looks only, a rebirth keeps them). */
+  skins?: string[];
+  wings?: string[];
+  wing?: string;
 }
 
 export const SAVE_VERSION = 1;

@@ -139,5 +139,9 @@
   "shop.need": "Ещё {n}",
   "wardrobe.title": "Гардероб",
   "wardrobe.tab.skins": "Скины",
-  "wardrobe.count": "{a}/{b}"
+  "wardrobe.count": "{a}/{b}",
+  "wardrobe.tab.wings": "Крылья",
+  "wardrobe.fromTier": "Ступень {n}",
+  "wardrobe.fromDay": "День {n}",
+  "wardrobe.fromStarter": "Стартовый набор"
 }

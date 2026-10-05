@@ -772,6 +772,7 @@ async function boot(): Promise<void> {
     trails,
     auras,
     skins,
+    accessories,
     save,
     hud,
     windows,
@@ -782,8 +783,12 @@ async function boot(): Promise<void> {
     setHeroSkin: (id) => {
       if (characters && heroChar) characters.setSkin(heroChar, id);
     },
+    setHeroWings: (id) => {
+      if (characters && heroChar) characters.setWings(heroChar, id);
+    },
   });
   if (heroChar.skinId !== cosmeticsView.skin) characters.setSkin(heroChar, cosmeticsView.skin);
+  characters.setWings(heroChar, cosmeticsView.wings);
   cosmeticsView.update();
   ftueView = createFtueView({
     balance,

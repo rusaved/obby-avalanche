@@ -1,18 +1,19 @@
 /**
  * Trails, auras and the wardrobe in the game (docs/01-gdd.md 7.3, 7.4, 6.4): the «Shop» window with the tabs
  * «Trails» and «Auras» (buy for trophies, equip), the trail and the aura on the hero, the «Wardrobe» window with the
- * default skin of skins.json on the hero, the trophy plaque. Purchases write the save at once; the step multiplier
+ * tabs «Skins» and «Wings» (M3-04b: for trophies, or locked with the source), the skin and wings on the hero, the
+ * trophy plaque. Purchases write the save at once; the step multiplier
  * goes into the simulation through `onChange` (meta-view). Shop and pets buttons from 180 s of play, the trophy
  * plaque and the wardrobe from the first summit (6.4); the full schedule with the glow — M3-09.
  */
-import type { AurasJson, BalanceJson, CosmeticItem, SkinsJson, TrailsJson } from '../content/types.ts';
+import type { AccessoriesJson, AurasJson, BalanceJson, CosmeticItem, SkinsJson, TrailsJson } from '../content/types.ts';
 import type { SaveData } from '../meta/save.ts';
 import type { Hud, MenuItem } from '../ui/hud.ts';
 import type { WindowFrame } from '../ui/window.ts';
 import type { CosmeticsVisual } from '../render/cosmetics.ts';
-import { buyCosmetic, equipCosmetic, owned, wearing, type CosmeticKind } from '../meta/cosmetics.ts';
+import { buyCosmetic, buyLook, equipCosmetic, equipLook, lookPrice, owned, ownedLooks, wearing, type CosmeticKind, type LookItem, type LookKind } from '../meta/cosmetics.ts';
 import { renderShopPanel, type ShopCard, type ShopTab } from '../ui/shop-panel.ts';
-import { renderWardrobePanel } from '../ui/wardrobe-panel.ts';
+import { renderWardrobePanel, type LookCard, type WardrobeTab, type WingsLook } from '../ui/wardrobe-panel.ts';
 import { formatMult, formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
 
@@ -21,6 +22,7 @@ export interface CosmeticsViewDeps {
   trails: TrailsJson;
   auras: AurasJson;
   skins: SkinsJson;
+  accessories: AccessoriesJson;
   save: SaveData;
   hud: Hud;
   windows: WindowFrame;
@@ -31,14 +33,18 @@ export interface CosmeticsViewDeps {
   onChange(): void;
   /** Puts skin `id` on the hero. */
   setHeroSkin(id: string): void;
+  /** Puts wings `id` on the hero's back, null — none (M3-04b). */
+  setHeroWings(id: string | null): void;
 }
 
 export interface CosmeticsView {
   /** Skin on: save.skin when skins.json has it, otherwise the default. */
   readonly skin: string;
+  /** Wings on: save.wing when owned, otherwise none (M3-04b). */
+  readonly wings: string | null;
   update(): void;
   openShop(tab?: ShopTab): void;
-  openWardrobe(): void;
+  openWardrobe(tab?: WardrobeTab): void;
   /** Buttons of the HUD column this view owns, when they are due. */
   menuItems(): { shop: MenuItem | null; wardrobe: MenuItem | null };
 }
@@ -85,31 +91,80 @@ export function createCosmeticsView(d: CosmeticsViewDeps): CosmeticsView {
     });
   };
 
+  // Wardrobe (docs/01-gdd.md 7.4, M3-04b): skins and wings, bought for trophies or locked with their source.
+  let wardrobeTab: WardrobeTab = 'skins';
+  const looks = (kind: LookKind): LookItem[] => (kind === 'skin' ? d.skins.skins : (d.skins.wings ?? []));
+  const lookKind = (x: WardrobeTab): LookKind => (x === 'skins' ? 'skin' : 'wings');
+  const wingsLook = (id: string | null): WingsLook | null => {
+    const parts = id ? d.accessories.accessories.find((x) => x.id === id)?.parts : undefined;
+    return parts && parts[0] ? { a: parts[0].color, b: (parts[1] ?? parts[0]).color } : null;
+  };
+  const source = (x: LookItem): string => {
+    const n = x.unlock.value ?? '';
+    if (x.unlock.kind === 'tier') return t('wardrobe.fromTier', { n });
+    if (x.unlock.kind === 'daily') return t('wardrobe.fromDay', { n });
+    return t('wardrobe.fromStarter');
+  };
   const renderWardrobe = (body: HTMLElement, head: HTMLElement): void => {
-    const current = d.skins.skins.find((x) => x.id === view.skin) ?? d.skins.skins[0]!;
+    const skinOf = (id: string) => (d.skins.skins.find((x) => x.id === id) ?? d.skins.skins[0]!).colors;
+    const kind = lookKind(wardrobeTab);
+    const have = ownedLooks(d.save, kind, looks(kind));
+    const on = kind === 'skin' ? view.skin : view.wings;
+    const trophies = d.save.trophies ?? 0;
+    const cards: LookCard[] = looks(kind).map((x) => {
+      const price = lookPrice(x);
+      const state: LookCard['state'] =
+        on === x.id ? 'on' : have.includes(x.id) ? 'owned' : price === null ? 'locked' : trophies >= price ? 'buy' : 'short';
+      return {
+        id: x.id,
+        name: t(`${kind}.${x.id}`),
+        skin: kind === 'skin' ? skinOf(x.id) : skinOf(view.skin),
+        wings: kind === 'skin' ? wingsLook(view.wings) : wingsLook(x.id),
+        state,
+        price: price === null ? undefined : formatNumber(price, d.numSuffix),
+        need: price === null ? undefined : t('shop.need', { n: formatNumber(Math.max(0, price - trophies), d.numSuffix) }),
+        source: price === null ? source(x) : undefined,
+      };
+    });
+    const count = (k: LookKind): string => t('wardrobe.count', { a: ownedLooks(d.save, k, looks(k)).length, b: looks(k).length });
     renderWardrobePanel(
       body,
       head,
       {
-        count: t('wardrobe.count', { a: d.skins.skins.filter((x) => x.unlock.kind === 'default' || x.id === view.skin).length, b: d.skins.skins.length }),
-        current: current.colors,
-        skins: d.skins.skins.filter((x) => x.unlock.kind === 'default' || x.id === view.skin).map((x) => ({ id: x.id, name: t(`skin.${x.id}`), colors: x.colors, on: x.id === view.skin })),
+        tab: wardrobeTab,
+        counts: { skins: count('skin'), wings: count('wings') },
+        trophies: formatNumber(trophies, d.numSuffix),
+        current: skinOf(view.skin),
+        currentWings: wingsLook(view.wings),
+        cards,
       },
       {
-        equip: (id) => {
-          d.save.skin = id;
-          d.setHeroSkin(id);
-          d.persist(true);
+        tab: (next) => {
+          wardrobeTab = next;
           d.windows.refresh();
         },
+        buy: (id) => void (buyLook(d.save, kind, looks(kind), id) && lookChanged(kind)),
+        equip: (id) => void (equipLook(d.save, kind, looks(kind), id) && lookChanged(kind)),
       },
     );
+  };
+  /** A look bought or put on: onto the hero, into the save at once; numbers of the game stay as they are. */
+  const lookChanged = (kind: LookKind): void => {
+    if (kind === 'skin') d.setHeroSkin(view.skin);
+    else d.setHeroWings(view.wings);
+    d.persist(true);
+    d.windows.refresh();
+    view.update();
   };
 
   const view: CosmeticsView = {
     get skin() {
       const id = d.save.skin;
       return id && d.skins.skins.some((x) => x.id === id) ? id : d.skins.default;
+    },
+    get wings() {
+      const id = d.save.wing;
+      return id && ownedLooks(d.save, 'wings', looks('wings')).includes(id) ? id : null;
     },
     update() {
       const trail = color('trail');
@@ -125,7 +180,8 @@ export function createCosmeticsView(d: CosmeticsViewDeps): CosmeticsView {
       if (next) tab = next;
       d.windows.open('shop', t('shop.title'), renderShop);
     },
-    openWardrobe() {
+    openWardrobe(next) {
+      if (next) wardrobeTab = next;
       d.windows.open('wardrobe', t('wardrobe.title'), renderWardrobe);
     },
     menuItems() {

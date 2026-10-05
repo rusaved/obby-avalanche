@@ -16,6 +16,251 @@
       },
       "face": "smile",
       "hat": "hat_pompom_red"
+    },
+    {
+      "id": "skier",
+      "unlock": {
+        "kind": "trophies",
+        "value": 5
+      },
+      "colors": {
+        "head": "#F6D3B3",
+        "torso": "#1E5BB8",
+        "armL": "#FFFFFF",
+        "armR": "#FFFFFF",
+        "legL": "#1E5BB8",
+        "legR": "#1E5BB8"
+      },
+      "face": "happy",
+      "hat": "hat_ski_goggles"
+    },
+    {
+      "id": "snowboarder",
+      "unlock": {
+        "kind": "trophies",
+        "value": 10
+      },
+      "colors": {
+        "head": "#E9C2A0",
+        "torso": "#9BE15D",
+        "armL": "#7CC63E",
+        "armR": "#7CC63E",
+        "legL": "#455A64",
+        "legR": "#455A64"
+      },
+      "face": "determined",
+      "hat": "hat_board_mask"
+    },
+    {
+      "id": "explorer",
+      "unlock": {
+        "kind": "trophies",
+        "value": 15
+      },
+      "colors": {
+        "head": "#F1C9A5",
+        "torso": "#D93A2B",
+        "armL": "#C23324",
+        "armR": "#C23324",
+        "legL": "#3E4A59",
+        "legR": "#3E4A59"
+      },
+      "face": "happy",
+      "hat": "hat_fur_hood"
+    },
+    {
+      "id": "penguin_suit",
+      "unlock": {
+        "kind": "daily",
+        "value": 2
+      },
+      "colors": {
+        "head": "#F6D3B3",
+        "torso": "#FFFFFF",
+        "armL": "#1F2430",
+        "armR": "#1F2430",
+        "legL": "#1F2430",
+        "legR": "#1F2430"
+      },
+      "face": "laugh",
+      "hat": "hat_penguin"
+    },
+    {
+      "id": "snowball",
+      "unlock": {
+        "kind": "trophies",
+        "value": 20
+      },
+      "colors": {
+        "head": "#FFFFFF",
+        "torso": "#F4F8FF",
+        "armL": "#E8F1FF",
+        "armR": "#E8F1FF",
+        "legL": "#E8F1FF",
+        "legR": "#E8F1FF"
+      },
+      "face": "wink",
+      "hat": "hat_snowball"
+    },
+    {
+      "id": "ice_knight",
+      "unlock": {
+        "kind": "trophies",
+        "value": 40
+      },
+      "colors": {
+        "head": "#F6D3B3",
+        "torso": "#8FD0FF",
+        "armL": "#6EC6FF",
+        "armR": "#6EC6FF",
+        "legL": "#4A90C8",
+        "legR": "#4A90C8"
+      },
+      "face": "determined",
+      "hat": "hat_knight_helm"
+    },
+    {
+      "id": "aurora_skin",
+      "unlock": {
+        "kind": "trophies",
+        "value": 60
+      },
+      "colors": {
+        "head": "#F1C9A5",
+        "torso": "#1B2A6B",
+        "armL": "#53E0A1",
+        "armR": "#53E0A1",
+        "legL": "#7B5CD6",
+        "legR": "#7B5CD6"
+      },
+      "face": "wow",
+      "hat": "hat_aurora"
+    },
+    {
+      "id": "golden",
+      "unlock": {
+        "kind": "iap",
+        "value": "starter"
+      },
+      "colors": {
+        "head": "#F6D3B3",
+        "torso": "#FFC83D",
+        "armL": "#F2B21B",
+        "armR": "#F2B21B",
+        "legL": "#FFFFFF",
+        "legR": "#FFFFFF"
+      },
+      "face": "happy",
+      "hat": "hat_pompom_white"
+    },
+    {
+      "id": "snow_ninja",
+      "unlock": {
+        "kind": "tier",
+        "value": 1
+      },
+      "colors": {
+        "head": "#F6D3B3",
+        "torso": "#F4F8FF",
+        "armL": "#FFFFFF",
+        "armR": "#FFFFFF",
+        "legL": "#E3EEF8",
+        "legR": "#E3EEF8"
+      },
+      "face": "determined",
+      "hat": "hat_headband"
+    },
+    {
+      "id": "ice_guard",
+      "unlock": {
+        "kind": "tier",
+        "value": 3
+      },
+      "colors": {
+        "head": "#F1C9A5",
+        "torso": "#B8D4EA",
+        "armL": "#8FB8D8",
+        "armR": "#8FB8D8",
+        "legL": "#5F7F9E",
+        "legR": "#5F7F9E"
+      },
+      "face": "neutral",
+      "hat": "hat_guard_crest"
+    },
+    {
+      "id": "stargazer",
+      "unlock": {
+        "kind": "tier",
+        "value": 5
+      },
+      "colors": {
+        "head": "#F6D3B3",
+        "torso": "#20286B",
+        "armL": "#2E3A8C",
+        "armR": "#2E3A8C",
+        "legL": "#151B4A",
+        "legR": "#151B4A"
+      },
+      "face": "wow",
+      "hat": "hat_star_cap"
+    }
+  ],
+  "wings": [
+    {
+      "id": "wings_snow",
+      "unlock": {
+        "kind": "daily",
+        "value": 7
+      }
+    },
+    {
+      "id": "wings_ice",
+      "unlock": {
+        "kind": "trophies",
+        "value": 10
+      }
+    },
+    {
+      "id": "wings_feather",
+      "unlock": {
+        "kind": "trophies",
+        "value": 20
+      }
+    },
+    {
+      "id": "wings_moth",
+      "unlock": {
+        "kind": "trophies",
+        "value": 35
+      }
+    },
+    {
+      "id": "wings_rainbow",
+      "unlock": {
+        "kind": "trophies",
+        "value": 60
+      }
+    },
+    {
+      "id": "wings_dragon",
+      "unlock": {
+        "kind": "trophies",
+        "value": 100
+      }
+    },
+    {
+      "id": "wings_radiant",
+      "unlock": {
+        "kind": "tier",
+        "value": 7
+      }
+    },
+    {
+      "id": "wings_comet",
+      "unlock": {
+        "kind": "tier",
+        "value": 10
+      }
     }
   ]
 }

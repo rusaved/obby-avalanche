@@ -323,6 +323,8 @@ const skinsSchema = v.object({
     ),
     v.minLength(1),
   ),
+  // Wings (docs/01-gdd.md 7.4, M3-04b): looks only, an accessory of the same id on the back.
+  wings: v.optional(v.array(v.object({ id: id, unlock: v.object({ kind: v.picklist(['default', 'trophies', 'daily', 'iap', 'tier']), value: v.optional(v.union([v.number(), v.string()])) }) }))),
 });
 
 const accessoriesSchema = v.object({
@@ -470,6 +472,23 @@ export function validatePack(files: PackFiles): ValidationResult {
     if (s.hat && !accIds.has(s.hat)) errors.push(`skins.json: skins[${i}].hat — unknown accessory "${s.hat}"`);
   }
   if (!skinIds.has(skins.default)) errors.push(`skins.json: default — unknown skin "${skins.default}"`);
+  // Skins and wings (M3-04b): a price in trophies is a number, a tier or a calendar day too; wings are back accessories;
+  // names skin.<id> and wings.<id> in both languages.
+  const backIds = new Set((accessories.accessories as Array<{ id: string; attach?: string }>).filter((a) => a.attach === 'back').map((a) => a.id));
+  const looks = [
+    ...(skins as SkinsJson).skins.map((x) => ({ key: `skin.${x.id}`, unlock: x.unlock, wings: false, id: x.id })),
+    ...((skins as SkinsJson).wings ?? []).map((x) => ({ key: `wings.${x.id}`, unlock: x.unlock, wings: true, id: x.id })),
+  ];
+  const wingIds = new Set<string>();
+  for (const l of looks) {
+    if (['trophies', 'daily', 'tier'].includes(l.unlock.kind) && typeof l.unlock.value !== 'number') errors.push(`skins.json: ${l.id} — unlock ${l.unlock.kind} needs a number value`);
+    if (l.wings) {
+      if (wingIds.has(l.id)) errors.push(`skins.json: wings ${l.id} — duplicate id`);
+      wingIds.add(l.id);
+      if (!backIds.has(l.id)) errors.push(`skins.json: wings ${l.id} — no back accessory of that id (accessories.json)`);
+    }
+    for (const [file, dict] of [['i18n/ru.json', ru], ['i18n/en.json', en]] as const) if (!dict[l.key]) errors.push(`${file}: ${l.key} — missing (skins.json)`);
+  }
 
   // Round numbers of the stat (docs/01-gdd.md 10.4, Q-023): a growing list from 1000 up, and the toast text in both languages.
   const milestones = (files['balance.json'] as { ui: { statMilestones: number[] } }).ui.statMilestones;

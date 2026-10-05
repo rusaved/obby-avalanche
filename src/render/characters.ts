@@ -36,6 +36,15 @@ const box = (b: { w: number; h: number; d: number }) => ({ w: b.w * K, h: b.h * 
 export const PART = { head: P.head * K, torso: box(P.torso), arm: box(P.arm), leg: box(P.leg), armGap: P.armGap * K, legGap: P.legGap * K, armTiltRad: P.armTiltRad };
 const FACE_CELL = 128;
 
+/** Wings (M3-04b): root of each half off the spine, angles of the swept-back pose at rest and open, flap amplitude. */
+const WING_ROOT_X = 0.3;
+const WING_REST = 0.25;
+const WING_IDLE = 0.06;
+const WING_OPEN = 0.35;
+const WING_FLAP = 0.35;
+const _wingRoot = new Matrix4();
+const _wingTurn = new Matrix4();
+
 /** In the snowball the figure shrinks and rises so the head pokes out of a 3-unit ball. */
 const BALL_SCALE = 0.55;
 const BALL_LIFT = 1.1;
@@ -56,6 +65,8 @@ export interface CharacterInstance {
   visible: boolean;
   skinId: string;
   hatId: string | null;
+  /** Wings on the back (accessories.json, attach «back»; M3-04b), flapping with the run and the jump. */
+  wingsId: string | null;
   /** Hands up over the head (the golden gift, docs/01-gdd.md 4.9); legs keep the pose. */
   carry: boolean;
 }
@@ -65,6 +76,8 @@ export interface Characters {
   drawCalls: number;
   create(skinId: string): CharacterInstance;
   setSkin(ch: CharacterInstance, skinId: string): void;
+  /** Wings on the back, null — none (M3-04b). */
+  setWings(ch: CharacterInstance, wingsId: string | null): void;
   /** Bots (docs/01-gdd.md 7.12): own colours per part, a hat accessory in its own colour, a face of the atlas. */
   paint(ch: CharacterInstance, look: { head: string; torso: string; arms: string; legs: string; hat: string | null; hatColor: string; face: string }): void;
   update(dt: number): void;
@@ -274,7 +287,10 @@ if (vObjNormal.z > 0.6) {
     cone: () => new ConeGeometry(0.5, 1, 14),
   };
   const shapesUsed = new Set(accessories.accessories.flatMap((a) => a.parts.map((p) => p.shape)));
-  const maxPartsPerShape = Math.max(1, ...accessories.accessories.map((a) => a.parts.length));
+  // Slots per character: the hat's parts first, the wings' parts after them (M3-04b).
+  const partsOf = (back: boolean): number => Math.max(0, ...accessories.accessories.filter((a) => (a.attach === 'back') === back).map((a) => a.parts.length));
+  const wingBase = Math.max(1, partsOf(false));
+  const maxPartsPerShape = wingBase + partsOf(true);
   for (const shape of shapesUsed) {
     const make = shapeGeo[shape];
     if (!make) continue;
@@ -319,6 +335,15 @@ if (vObjNormal.z > 0.6) {
       });
     }
   };
+  const applyWings = (ch: CharacterInstance): void => {
+    const wings = ch.wingsId ? accessoryById.get(ch.wingsId) : undefined;
+    wings?.parts.forEach((p, pi) => {
+      const mesh = shapeMeshes.get(p.shape);
+      if (!mesh) return;
+      mesh.setColorAt(ch.index * maxPartsPerShape + wingBase + pi, _color.set(p.color));
+      if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    });
+  };
 
   const writePart = (part: string, slot: number, local: Matrix4, world: Matrix4): void => {
     const mesh = meshes.get(part);
@@ -348,6 +373,7 @@ if (vObjNormal.z > 0.6) {
         visible: true,
         skinId,
         hatId: null,
+        wingsId: null,
         carry: false,
       };
       instances.push(ch);
@@ -357,6 +383,10 @@ if (vObjNormal.z > 0.6) {
     setSkin(ch, skinId) {
       ch.skinId = skinId;
       applySkin(ch);
+    },
+    setWings(ch, wingsId) {
+      ch.wingsId = wingsId && accessoryById.get(wingsId)?.attach === 'back' ? wingsId : null;
+      applyWings(ch);
     },
     paint(ch, look) {
       const set = (part: string, slot: number, hex: string): void => {
@@ -460,6 +490,7 @@ if (vObjNormal.z > 0.6) {
         _dummy.scale.set(1, 1, 1);
         _dummy.updateMatrix();
         writePart('torso', ch.index, _dummy.matrix, world);
+        const torsoMatrix = _dummy.matrix.clone();
 
         _dummy.position.set(0, headBase + PART.head / 2 + breathe * 1.5, 0);
         _dummy.rotation.set(bodyRot * 0.5, 0, 0);
@@ -510,6 +541,25 @@ if (vObjNormal.z > 0.6) {
             _dummy.updateMatrix();
             _mat.multiplyMatrices(world, headMatrix).multiply(_dummy.matrix);
             mesh.setMatrixAt(ch.index * maxPartsPerShape + pi, _mat);
+          });
+        }
+        // Wings follow the torso and flap: each half turns about its root at the back, harder in the run and the air.
+        const wings = ch.wingsId ? accessoryById.get(ch.wingsId) : undefined;
+        if (wings) {
+          const air = ch.pose === 'jump' || ch.pose === 'fall';
+          const flap = running || air ? WING_OPEN + WING_FLAP * Math.sin(ch.phase * (air ? 1.6 : 1)) : WING_REST + WING_IDLE * Math.sin(ch.phase);
+          wings.parts.forEach((p, pi) => {
+            const mesh = shapeMeshes.get(p.shape);
+            if (!mesh) return;
+            const side = p.pos[0] < 0 ? -1 : 1;
+            _wingRoot.makeTranslation(side * WING_ROOT_X, 0, p.pos[2]);
+            _wingTurn.makeRotationY(side * flap);
+            _dummy.position.set(p.pos[0] - side * WING_ROOT_X, p.pos[1], 0);
+            _dummy.rotation.set(0, 0, 0);
+            _dummy.scale.set(p.size[0], p.size[1], p.size[2]);
+            _dummy.updateMatrix();
+            _mat.multiplyMatrices(world, torsoMatrix).multiply(_wingRoot).multiply(_wingTurn).multiply(_dummy.matrix);
+            mesh.setMatrixAt(ch.index * maxPartsPerShape + wingBase + pi, _mat);
           });
         }
         void headMesh;

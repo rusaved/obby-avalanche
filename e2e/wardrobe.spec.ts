@@ -23,7 +23,7 @@ test('wardrobe opens with the default skin on the hero; trail and aura bought fo
   await expect(page.locator('[data-role="window"][data-window="wardrobe"]')).toBeVisible();
   await expect(page.locator('[data-role="wardrobe-hero"]')).toBeVisible();
   await expect(page.locator('[data-role="wardrobe-grid"] [data-skin="tangerine"]')).toHaveClass(/on/);
-  await expect(page.locator('[data-hud="wardrobe-tab-skins"]')).toHaveText('Скины 1/1');
+  await expect(page.locator('[data-hud="wardrobe-tab-skins"]')).toHaveText('Скины 1/12');
   s = await testState(page);
   expect(s.window).toBe('wardrobe');
   expect(s.pauseReasons).toContain('menu');
@@ -70,4 +70,67 @@ test('wardrobe opens with the default skin on the hero; trail and aura bought fo
   s = await testState(page);
   expect([s.trail, s.aura, s.skin, s.trophies.now]).toEqual(['trail_snow', 'aura_sparks', 'tangerine', 19]);
   expect(s.gainMult).toBeCloseTo(1.1 * 1.2, 9);
+});
+
+// M3-04b: skins and wings (docs/01-gdd.md 7.4): bought for trophies in the wardrobe, locked ones show their source,
+// the change is seen on the hero, numbers stay, everything survives F5.
+test('wardrobe: a skin and wings for trophies go onto the hero, locked cards show the source; F5 keeps them', async ({ page, openGame }) => {
+  test.setTimeout(120_000);
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await openGame();
+  await page.evaluate(() => {
+    window.__TEST__!.setTrophies(20);
+    window.__TEST__!.setPlaySec(181);
+  });
+  await waitTicks(page, 3);
+  const gain0 = (await testState(page)).gainMult;
+  await page.locator('[data-hud="menu-wardrobe"]').dispatchEvent('pointerdown');
+  await expect(page.locator('[data-hud="wardrobe-tab-skins"]')).toHaveText('Скины 1/12');
+  await expect(page.locator('[data-hud="wardrobe-tab-wings"]')).toHaveText('Крылья 0/8');
+  const grid = page.locator('[data-role="wardrobe-grid"]');
+  await expect(grid.locator('[data-skin="snow_ninja"] [data-role="look-source"]')).toHaveText('Ступень 1');
+  await expect(grid.locator('[data-skin="penguin_suit"] [data-role="look-source"]')).toHaveText('День 2');
+  await expect(grid.locator('[data-skin="golden"] [data-role="look-source"]')).toHaveText('Стартовый набор');
+  await expect(grid.locator('[data-skin="ice_knight"] [data-hud="wardrobe-item"]')).toHaveText('Ещё 20');
+  // Skier for 5 trophies: on the hero at once.
+  await grid.locator('[data-skin="skier"] [data-hud="wardrobe-item"]').click();
+  let s = await testState(page);
+  expect(s.skin).toBe('skier');
+  expect(s.trophies.now).toBe(15);
+  await expect(page.locator('[data-hud="wardrobe-tab-skins"]')).toHaveText('Скины 2/12');
+  await expect(grid.locator('[data-skin="skier"] [data-hud="wardrobe-item"]')).toHaveText('Надето');
+  await page.screenshot({ path: 'docs/evidence/M3/wardrobe_skins_1920x1080_ru.png' });
+  // Wings: ice wings for 10; comet wings locked behind tier 10.
+  await page.locator('[data-hud="wardrobe-tab-wings"]').click();
+  await expect(grid.locator('[data-wings="wings_comet"] [data-role="look-source"]')).toHaveText('Ступень 10');
+  await expect(grid.locator('[data-wings="wings_snow"] [data-role="look-source"]')).toHaveText('День 7');
+  await grid.locator('[data-wings="wings_ice"] [data-hud="wardrobe-item"]').click();
+  s = await testState(page);
+  expect(s.wings).toBe('wings_ice');
+  expect(s.trophies.now).toBe(5);
+  await expect(page.locator('[data-hud="wardrobe-tab-wings"]')).toHaveText('Крылья 1/8');
+  await page.screenshot({ path: 'docs/evidence/M3/wardrobe_wings_1920x1080_ru.png' });
+  // Back to the default skin and on again: the hero follows.
+  await page.locator('[data-hud="wardrobe-tab-skins"]').click();
+  await grid.locator('[data-skin="tangerine"] [data-hud="wardrobe-item"]').click();
+  expect((await testState(page)).skin).toBe('tangerine');
+  await grid.locator('[data-skin="skier"] [data-hud="wardrobe-item"]').click();
+  expect((await testState(page)).skin).toBe('skier');
+  await page.keyboard.press('Escape');
+  await waitTicks(page, 3);
+  // Looks only: the step is the same; the hero runs with the skin and wings, seen from behind and the side.
+  expect((await testState(page)).gainMult).toBe(gain0);
+  await page.evaluate(() => window.__TEST__!.botPath([[0, 120]]));
+  await waitTicks(page, 40);
+  await page.evaluate(() => window.__TEST__!.setCamera({ yaw: -0.5, pitch: 0.25, dist: 8 }));
+  await waitTicks(page, 15);
+  await page.screenshot({ path: 'docs/evidence/M3/skin_wings_1920x1080_ru.png' });
+  await page.evaluate(() => window.__TEST__!.botPath(null));
+
+  await page.reload();
+  await page.waitForFunction(() => window.__TEST__?.ready === true, undefined, { timeout: 60_000 });
+  await waitTicks(page, 3);
+  s = await testState(page);
+  expect([s.skin, s.wings, s.trophies.now]).toEqual(['skier', 'wings_ice', 5]);
+  expect(s.gainMult).toBe(gain0);
 });
