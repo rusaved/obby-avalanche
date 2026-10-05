@@ -53,7 +53,9 @@ test('rebirth window ru: locked until mountain 5, then rebirth to tier 1 — cam
   await expect(page.locator('[data-role="rebirth-reward"]')).toContainText('Снежный ниндзя');
   await expect(page.locator('[data-role="rebirth-gets"]')).toContainText('Больше кубков за каждую вершину');
   await expect(win).toContainText('Горы станут выше');
-  await expect(page.locator('[data-role="rebirth-hint"]')).toHaveText('Потрать монеты на яйца — монеты обнулятся');
+  await expect(page.locator('[data-role="rebirth-hint"]')).toContainText('Потрать монеты на яйца — монеты обнулятся');
+  // «To eggs» leads to the shop tab «Eggs» (M3-09).
+  await expect(page.locator('[data-hud="rebirth-eggs"]')).toHaveText('К яйцам');
   await expect(page.locator('[data-hud="rebirth-do"]')).toBeEnabled();
   // One screen: the window body does not scroll.
   expect(await page.locator('.win-body').evaluate((b) => b.scrollHeight <= b.clientHeight + 1)).toBe(true);

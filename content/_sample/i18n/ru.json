@@ -202,5 +202,20 @@
   "reward.coins": "Монеты",
   "reward.trophies": "Кубки",
   "reward.boost": "Буст ×2 на {n} мин",
-  "reward.bestEgg": "Лучшее яйцо"
+  "reward.bestEgg": "Лучшее яйцо",
+  "btn.next": "Дальше",
+  "btn.more": "Ещё",
+  "summit.title": "Гора {n} пройдена!",
+  "summit.chest": "Сундук: +{n}",
+  "summit.trophies": "Кубки: +{n}",
+  "summit.time": "Время: {time}",
+  "summit.next": "Дальше: {name}",
+  "summit.tomorrow": "Завтра в календаре: {name}",
+  "shop.tab.shoes": "Кроссовки",
+  "shop.tab.eggs": "Яйца",
+  "shop.tab.special": "Особое",
+  "shop.lockedWorld": "Откроется на горе {n}",
+  "shop.chances": "Шансы",
+  "shop.next": "Сначала: {name}",
+  "world.slope": "Лавовый склон"
 }

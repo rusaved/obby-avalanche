@@ -30,6 +30,8 @@ export const ICONS: Record<string, string> = {
   quests:
     '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2.5" fill="#fff" stroke="currentColor" stroke-width="1.8"/><path d="m7 8 1.5 1.5L11 7M7 14l1.5 1.5L11 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 8.5h4M13 14.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   gift: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="9" width="17" height="12" rx="2" fill="#fff" stroke="currentColor" stroke-width="1.8"/><rect x="2.5" y="6" width="19" height="4.5" rx="1.5" fill="#fff" stroke="currentColor" stroke-width="1.8"/><path d="M12 6v15" stroke="currentColor" stroke-width="2"/><path d="M12 6c-1-3-5-4-5-1.5S11 6 12 6zm0 0c1-3 5-4 5-1.5S13 6 12 6z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
+  /** «More» of the short HUD column (docs/01-gdd.md 10.1): three dots on a card. */
+  more: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="3" fill="#fff" stroke="currentColor" stroke-width="1.8"/><circle cx="8" cy="12" r="1.7" fill="currentColor"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/><circle cx="16" cy="12" r="1.7" fill="currentColor"/></svg>',
   trophy: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v5a5 5 0 0 1-10 0z" fill="#fff" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M7 5H4a3 3 0 0 0 3 4M17 5h3a3 3 0 0 1-3 4M12 13v4M8 21h8l-1-4H9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
 };
 

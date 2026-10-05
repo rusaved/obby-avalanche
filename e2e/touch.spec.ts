@@ -112,7 +112,7 @@ test.describe('touch', () => {
   test('stick held: a second finger presses the shoes and the shop buttons at once', async ({ page, openGame }) => {
     await openGame();
     const cdp = await page.context().newCDPSession(page);
-    await page.evaluate(() => window.__TEST__!.setPlaySec(181));
+    await page.evaluate(() => window.__TEST__!.setPlaySec(185));
     await page.evaluate(() => window.__TEST__!.setCoins(1000));
     await page.waitForFunction(() => window.__TEST__!.state().shoesButton.can, undefined, { timeout: 10_000 });
     // Finger 1: the stick, moving; the hero runs.

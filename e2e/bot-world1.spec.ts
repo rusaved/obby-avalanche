@@ -63,8 +63,9 @@ async function playMountain1(page: Page, untilWalls: number, realMs: number): Pr
   let walls = 0;
   while (Date.now() < deadline) {
     s = await testState(page);
+    // The portal opens «Mountain 1 cleared!» (M3-09): the mountain is done.
+    if (s.world !== 'slope' || s.window === 'summit') break;
     if (s.shoesButton.can) await page.locator('[data-hud="shoes"]').click();
-    if (s.world !== 'slope') break;
     const passed = s.gatesPassed.filter(Boolean).length;
     walls = Math.max(walls, passed);
     if (passed >= untilWalls) break;

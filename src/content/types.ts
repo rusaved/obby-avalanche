@@ -86,7 +86,7 @@ export interface BalanceJson {
   threat: { newbieWaves: { count: number; warnBonusSec: number }; resumeSec: number };
   niche: { graceDist: number; graceMoving: number };
   /** `statMilestones`: round numbers of the stat that flash the plaque once a load (docs/01-gdd.md 10.4, Q-023). */
-  ui: { unlockMenusSec: number; unlockTimeRewardsSec: number; statMilestones: number[] };
+  ui: { unlockMenusSec: number; unlockTimeRewardsSec: number; menuStepSec: number; statMilestones: number[] };
   ads: {
     rewardedMinPlaySec: number;
     standStillSec: number;

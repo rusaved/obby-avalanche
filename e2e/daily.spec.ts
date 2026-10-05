@@ -20,7 +20,7 @@ test('calendar: claim day 1, F5 keeps it, 19 h later still locked, 20 h later da
   const btn = page.locator('[data-hud="menu-daily"]');
   await expect(btn).toHaveCount(0);
   // The button comes at 3:00 of play with «!»; the window never opens by itself.
-  await page.evaluate(() => window.__TEST__!.setPlaySec(181));
+  await page.evaluate(() => window.__TEST__!.setPlaySec(185));
   await expect(btn).toBeVisible();
   await expect(btn.locator('.hud-menu-badge')).toHaveText('!');
   expect((await testState(page)).window).toBeNull();
@@ -99,7 +99,7 @@ test('calendar: claim day 1, F5 keeps it, 19 h later still locked, 20 h later da
 test('calendar on a phone 844×390: cards 4 + 3, «Claim» inside the screen', async ({ page, openGame }) => {
   await page.setViewportSize({ width: 844, height: 390 });
   await openGame('mock_device=mobile');
-  await page.evaluate(() => window.__TEST__!.setPlaySec(181));
+  await page.evaluate(() => window.__TEST__!.setPlaySec(185));
   await page.locator('[data-hud="menu-daily"]').dispatchEvent('pointerdown');
   const cards = page.locator('[data-role="daily-card"]');
   await expect(cards).toHaveCount(7);

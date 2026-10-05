@@ -12,7 +12,7 @@ test('wardrobe opens with the default skin on the hero; trail and aura bought fo
   // After the first summit (trophies) and 180 s of play: trophy plaque, Shop, Pets, Wardrobe, Rebirth (docs/01-gdd.md 6.4).
   await page.evaluate(() => {
     window.__TEST__!.setTrophies(30);
-    window.__TEST__!.setPlaySec(181);
+    window.__TEST__!.setPlaySec(185);
   });
   await waitTicks(page, 3);
   s = await testState(page);
@@ -34,6 +34,7 @@ test('wardrobe opens with the default skin on the hero; trail and aura bought fo
   // Shop: trail «Snow Trail» ×1.1 for 3 trophies, aura «Sparks» ×1.2 for 8.
   await page.locator('[data-hud="menu-shop"]').dispatchEvent('pointerdown');
   await expect(page.locator('[data-role="window"][data-window="shop"]')).toBeVisible();
+  await page.locator('[data-hud="shop-tab-trails"]').click();
   await expect(page.locator('[data-item="trail_comet"] [data-hud="shop-item"]')).toHaveText('Ещё 970');
   await page.locator('[data-item="trail_snow"] [data-hud="shop-item"]').click();
   s = await testState(page);
@@ -80,7 +81,7 @@ test('wardrobe: a skin and wings for trophies go onto the hero, locked cards sho
   await openGame();
   await page.evaluate(() => {
     window.__TEST__!.setTrophies(20);
-    window.__TEST__!.setPlaySec(181);
+    window.__TEST__!.setPlaySec(185);
   });
   await waitTicks(page, 3);
   const gain0 = (await testState(page)).gainMult;

@@ -30,7 +30,7 @@ export interface RebirthViewDeps {
   lookFigure(kind: LookKind, id: string): HTMLElement;
   /** «Rebirth» pressed in a ready window: the caller runs the rebirth (the window is already closed). */
   onRebirth(): void;
-  /** «To eggs»: where the player buys eggs from the window (the shop tab «Eggs», M3-09); absent — only the hint. */
+  /** «To eggs»: the shop tab «Eggs» (M3-09); absent — only the hint. */
   toEggs?: () => void;
 }
 
@@ -84,11 +84,12 @@ export function createRebirthView(d: RebirthViewDeps): RebirthView {
       return rebirthReady(d.save, d.balance);
     },
     openWindow() {
-      d.windows.open('rebirth', t('rebirth.title'), render);
+      d.windows.open('rebirth', t('rebirth.title'), render, { next: false });
     },
     openAllDone() {
       d.windows.open('allDone', t('allDone.title'), (body) =>
         renderAllDonePanel(body, { rebirth: () => view.openWindow(), stay: () => d.windows.close() }),
+        { next: false },
       );
     },
     summit(world) {

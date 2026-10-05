@@ -4,7 +4,7 @@ import type { Page } from '@playwright/test';
 /** Bunny of the teaching in the collection, then the first Snow Egg at the camp stand (seed 1: a Penguin comes out). */
 async function hatchFirstSnowEgg(page: Page): Promise<void> {
   await page.evaluate(() => {
-    window.__TEST__!.setPlaySec(181);
+    window.__TEST__!.setPlaySec(185);
     window.__TEST__!.givePet('bunny');
   });
   await waitTicks(page, 3);

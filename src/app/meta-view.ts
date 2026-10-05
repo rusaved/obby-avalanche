@@ -1,8 +1,8 @@
 /**
  * Meta on the HUD (docs/01-gdd.md 6.2, 6.4, 7.1): the shoes button «Shoes ×N · price» at the bottom centre (shows the
  * first time coins reach the next pair, then stays, grey while short; one tap buys), the reset of the shoes on a
- * rebirth, and the step multiplier of the meta for the simulation (shoes, the pets on — app/pets-view.ts). The shop
- * window — M3-09. The shoe level and «the button was shown» live in the save.
+ * rebirth, and the step multiplier of the meta for the simulation (shoes, the pets on — app/pets-view.ts); the cards
+ * of the shop tab «Sneakers» (M3-09). The shoe level and «the button was shown» live in the save.
  */
 import type { AurasJson, BalanceJson, PetsJson, TrailsJson } from '../content/types.ts';
 import type { SaveData } from '../meta/save.ts';
@@ -11,7 +11,8 @@ import type { Hud } from '../ui/hud.ts';
 import { buyNextShoes, gainMult, nextShoes, SHOES_AFTER_REBIRTH, shoesPrice } from '../meta/shoes.ts';
 import { equippedIds } from '../meta/pets.ts';
 import { cosmeticMult } from '../meta/cosmetics.ts';
-import { formatNumber } from '../ui/format.ts';
+import { formatMult, formatNumber } from '../ui/format.ts';
+import type { ShopCard } from '../ui/shop-panel.ts';
 import { t } from '../ui/i18n.ts';
 
 export interface MetaViewDeps {
@@ -28,6 +29,8 @@ export interface MetaViewDeps {
   persist(flush?: boolean): void;
   /** Shoes bought (the quest «Buy new sneakers», M3-08b). */
   onShoes?(): void;
+  /** Swatch colour of the sneaker cards in the shop (theme.json ui.stat). */
+  shoesColor?: string;
 }
 
 export interface MetaView {
@@ -41,6 +44,8 @@ export interface MetaView {
   buyShoes(): boolean;
   /** Rebirth (M3-06): the starting pair again; the button stays on the HUD. */
   resetShoes(): void;
+  /** Cards of the shop tab «Sneakers»: lower pairs owned, the pair on, the next one to buy, the rest locked in order. */
+  shopCards(): ShopCard[];
 }
 
 export function createMetaView(d: MetaViewDeps): MetaView {
@@ -101,6 +106,25 @@ export function createMetaView(d: MetaViewDeps): MetaView {
       d.onShoes?.();
       view.update();
       return true;
+    },
+    shopCards() {
+      const sim = d.getSim();
+      const level = view.shoeLevel;
+      return tiers.map((x, i): ShopCard => {
+        const price = shoesPrice(x, sim.tier, d.balance.rebirth);
+        const state: ShopCard['state'] = i < level ? 'done' : i === level ? 'on' : i > level + 1 ? 'locked' : sim.coins >= price ? 'buy' : 'short';
+        return {
+          id: x.id,
+          name: t(`shoes.${x.id}`),
+          mult: t('shop.perStep', { m: formatMult(x.mult, d.numSuffix) }),
+          price: formatNumber(price, d.numSuffix),
+          color: d.shoesColor ?? '#ffffff',
+          state,
+          need: t('shop.need', { n: formatNumber(Math.max(0, price - sim.coins), d.numSuffix) }),
+          coin: true,
+          lock: t('shop.next', { name: t(`shoes.${tiers[level + 1]?.id ?? x.id}`) }),
+        };
+      });
     },
     resetShoes() {
       d.save.shoes = SHOES_AFTER_REBIRTH;

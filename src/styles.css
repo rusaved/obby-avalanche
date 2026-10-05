@@ -313,3 +313,30 @@ canvas.fallback {
 .wh-name { font-size: 11px; font-weight: 800; text-align: center; line-height: 1.1; }
 .hud.touch ~ .win .tr-tile, .hud.short ~ .win .tr-tile { min-height: 80px; padding: 4px; gap: 2px; }
 .hud.touch ~ .win .wh-ring, .hud.short ~ .win .wh-ring { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+/* Window «next» (docs/03 GD-05; GDD-11): at the bottom, never a dead end; pause title on one line (LOC-04). */
+.win-foot { flex: none; display: flex; justify-content: center; padding-top: 8px; }
+.win-foot[hidden] { display: none; }
+.win-next { width: auto; min-width: 180px; margin-top: 0; padding: 0 24px; }
+.win-title.fit { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; }
+.hud.short ~ .win .win-foot { padding-top: 4px; }
+.pause-body { max-width: 520px; margin: 0 auto; }
+.pause-body .panel-sub { margin-top: 0; }
+/* A new HUD button shines once (docs/01-gdd.md 6.4). */
+.hud-menu-btn.glow { animation: menu-glow 1.4s ease-out 1; }
+@keyframes menu-glow { 0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.95); filter: brightness(1.5); } 100% { box-shadow: 0 0 0 14px rgba(255, 255, 255, 0); filter: none; } }
+/* «More» of the short column: every button with its caption. */
+.more-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.more-btn { display: flex; align-items: center; gap: 8px; min-height: 52px; justify-content: flex-start; background: #dde9f5; color: #1b2a3a; }
+.more-btn .hud-menu-icon { width: 28px; height: 28px; flex: none; }
+/* Shop: coin prices, egg chances, locks (docs/01-gdd.md 10.2). */
+.card-coin { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: #ffd34d; color: #1b2a3a; font-size: 12px; }
+.card-lines { display: flex; flex-direction: column; font-size: 11px; line-height: 1.25; opacity: 0.85; }
+.card.locked .card-swatch { opacity: 0.45; }
+.card.new-pet { max-width: 240px; margin: 4px auto; padding: 14px 10px; }
+.card.new-pet .card-pet { width: 72px; height: 72px; }
+/* «Mountain N cleared!» (docs/01-gdd.md 10.2). */
+.sm-box { display: flex; flex-direction: column; gap: 6px; max-width: 460px; margin: 4px auto; font-size: 16px; font-weight: 800; }
+.sm-row { display: flex; align-items: center; gap: 8px; min-height: 32px; }
+.sm-swatch { width: 26px; height: 26px; border-radius: 8px; border: 2px solid rgba(27, 42, 58, 0.25); flex: none; }
+.sm-box .rw-icon { width: 26px; height: 26px; }
+.sm-box .rw-icon svg { width: 24px; height: 24px; }

@@ -3,8 +3,8 @@
  * «Trails» and «Auras» (buy for trophies, equip), the trail and the aura on the hero, the «Wardrobe» window with the
  * tabs «Skins» and «Wings» (M3-04b: for trophies, or locked with the source), the skin and wings on the hero, the
  * trophy plaque. Purchases write the save at once; the step multiplier
- * goes into the simulation through `onChange` (meta-view). Shop and pets buttons from 180 s of play, the trophy
- * plaque and the wardrobe from the first summit (6.4); the full schedule with the glow — M3-09.
+ * goes into the simulation through `onChange` (meta-view). The shop also shows the tabs «Sneakers» (meta-view) and
+ * «Eggs» (pets-view) by `shopTabs` (M3-09); when the buttons and the trophy plaque come — meta/hud-schedule.ts.
  */
 import type { AccessoriesJson, AurasJson, BalanceJson, CosmeticItem, SkinsJson, TrailsJson } from '../content/types.ts';
 import type { SaveData } from '../meta/save.ts';
@@ -13,6 +13,14 @@ import type { WindowFrame } from '../ui/window.ts';
 import type { CosmeticsVisual } from '../render/cosmetics.ts';
 import { buyCosmetic, buyLook, equipCosmetic, equipLook, lookPrice, owned, ownedLooks, wearing, type CosmeticKind, type LookItem, type LookKind } from '../meta/cosmetics.ts';
 import { renderShopPanel, type ShopCard, type ShopTab } from '../ui/shop-panel.ts';
+
+/** A shop tab another view owns (sneakers, eggs): cards in coins and the purchase. */
+export interface ShopTabSource {
+  cards(): ShopCard[];
+  /** Coins now, formatted (the window head). */
+  balance(): string;
+  buy(id: string): void;
+}
 import { renderWardrobePanel, skinFigure, type LookCard, type WardrobeTab, type WingsLook } from '../ui/wardrobe-panel.ts';
 import { formatMult, formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
@@ -35,6 +43,10 @@ export interface CosmeticsViewDeps {
   setHeroSkin(id: string): void;
   /** Puts wings `id` on the hero's back, null — none (M3-04b). */
   setHeroWings(id: string | null): void;
+  /** Tabs «Sneakers» and «Eggs» of the shop (M3-09), first in the tab row. */
+  shopTabs?: Partial<Record<'shoes' | 'eggs', ShopTabSource>>;
+  /** The trophy plaque is due (docs/01-gdd.md 6.4: after the «Mountain cleared» window of the first summit). */
+  trophiesDue?(): boolean;
 }
 
 export interface CosmeticsView {
@@ -54,7 +66,8 @@ export interface CosmeticsView {
 }
 
 export function createCosmeticsView(d: CosmeticsViewDeps): CosmeticsView {
-  let tab: ShopTab = 'trails';
+  let tab: ShopTab = d.shopTabs?.shoes ? 'shoes' : 'trails';
+  const tabs = (): ShopTab[] => [...(['shoes', 'eggs'] as const).filter((x) => d.shopTabs?.[x]), 'trails', 'auras'];
   let shown = '';
   const items = (kind: CosmeticKind): CosmeticItem[] => (kind === 'trail' ? d.trails.trails : d.auras.auras);
   const kindOf = (x: ShopTab): CosmeticKind => (x === 'trails' ? 'trail' : 'aura');
@@ -72,6 +85,15 @@ export function createCosmeticsView(d: CosmeticsViewDeps): CosmeticsView {
   };
 
   const renderShop = (body: HTMLElement, head: HTMLElement): void => {
+    const toTab = (next: ShopTab): void => {
+      tab = next;
+      d.windows.refresh();
+    };
+    const source = tab === 'shoes' || tab === 'eggs' ? d.shopTabs?.[tab] : undefined;
+    if (source) {
+      renderShopPanel(body, head, { tab, tabs: tabs(), balance: source.balance(), coin: true, cards: source.cards() }, { tab: toTab, buy: (id) => source.buy(id), equip: () => undefined });
+      return;
+    }
     const kind = kindOf(tab);
     const have = owned(d.save, kind);
     const on = wearing(d.save, kind);
@@ -85,11 +107,8 @@ export function createCosmeticsView(d: CosmeticsViewDeps): CosmeticsView {
       state: on === x.id ? 'on' : have.includes(x.id) ? 'owned' : trophies >= x.price ? 'buy' : 'short',
       need: t('shop.need', { n: formatNumber(x.price - trophies, d.numSuffix) }),
     }));
-    renderShopPanel(body, head, { tab, trophies: formatNumber(trophies, d.numSuffix), cards }, {
-      tab: (next) => {
-        tab = next;
-        d.windows.refresh();
-      },
+    renderShopPanel(body, head, { tab, tabs: tabs(), balance: formatNumber(trophies, d.numSuffix), coin: false, cards }, {
+      tab: toTab,
       buy: (id) => void (buyCosmetic(d.save, kind, items(kind), id) && changed()),
       equip: (id) => void (equipCosmetic(d.save, kind, id) && changed()),
     });
@@ -178,7 +197,7 @@ export function createCosmeticsView(d: CosmeticsViewDeps): CosmeticsView {
         shown = key;
         d.visual.set(trail, aura);
       }
-      d.hud.setTrophies(summitDone() ? formatNumber(d.save.trophies ?? 0, d.numSuffix) : null);
+      d.hud.setTrophies(summitDone() && (d.trophiesDue?.() ?? true) ? formatNumber(d.save.trophies ?? 0, d.numSuffix) : null);
     },
     openShop(next) {
       if (next) tab = next;

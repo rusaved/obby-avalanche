@@ -70,6 +70,8 @@ test.describe('auto-run', () => {
     await page.reload();
     await page.waitForFunction(() => window.__TEST__?.ready === true, undefined, { timeout: 60_000 });
     expect((await testState(page)).autoRun).toBe(true);
+    // The pause is a window of the common frame (M3-09): its settings are on screen once it is open.
+    await page.locator('[data-hud="pause"]').dispatchEvent('pointerdown');
     expect(await page.locator('[data-hud="autorun"]').getAttribute('data-on')).toBe('true');
   });
 });

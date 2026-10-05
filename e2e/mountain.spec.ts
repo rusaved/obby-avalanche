@@ -11,8 +11,11 @@ test('summit of mountain 1: walking into the portal moves the hero to the camp o
   await waitTicks(page, 20);
   await page.screenshot({ path: 'docs/evidence/M2/summit_1920x1080_ru.png' });
   await page.evaluate(() => window.__TEST__!.setAutoRun(true));
-  await page.waitForFunction(() => window.__TEST__!.state().world === 'pass', undefined, { timeout: 60_000 });
+  // The portal opens «Mountain 1 cleared!» (M3-09); «Next» goes on to mountain 2.
+  await page.waitForFunction(() => window.__TEST__!.state().window === 'summit', undefined, { timeout: 60_000 });
   await page.evaluate(() => window.__TEST__!.setAutoRun(false));
+  await page.locator('[data-hud="win-next"]').click();
+  await page.waitForFunction(() => window.__TEST__!.state().world === 'pass', undefined, { timeout: 60_000 });
   s = await testState(page);
   expect(s.hero!.z).toBeLessThan(60);
   expect(s.gatesOpen).toHaveLength(12);

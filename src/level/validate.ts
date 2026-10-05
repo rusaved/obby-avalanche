@@ -160,7 +160,7 @@ const balanceSchema = v.object({
   caught: v.object({ rollSec: positive, maxSec: v.pipe(v.number(), v.maxValue(2)) }),
   threat: v.object({ newbieWaves: v.object({ count: v.pipe(v.number(), v.integer(), v.minValue(0)), warnBonusSec: nonNeg }), resumeSec: positive }),
   niche: v.object({ graceDist: nonNeg, graceMoving: nonNeg }),
-  ui: v.object({ unlockMenusSec: nonNeg, unlockTimeRewardsSec: nonNeg, statMilestones: v.array(v.number()) }),
+  ui: v.object({ unlockMenusSec: nonNeg, unlockTimeRewardsSec: nonNeg, menuStepSec: nonNeg, statMilestones: v.array(v.number()) }),
   ads: v.object({
     rewardedMinPlaySec: nonNeg,
     standStillSec: nonNeg,

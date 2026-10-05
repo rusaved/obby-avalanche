@@ -38,6 +38,8 @@ export interface DailyView {
   menuItem(): MenuItem | null;
   /** Name of a calendar card (index 0…6) for the claim number of the given circle. */
   cardName(index: number, circle: number): string;
+  /** The reward of the next game day while the first circle lasts («Tomorrow in the calendar», docs/01-gdd.md 10.2), else null. */
+  tomorrow(): { name: string; icon: string } | null;
 }
 
 export const REWARD_ICON: Record<Reward['kind'], string> = {
@@ -120,6 +122,12 @@ export function createDailyView(d: DailyViewDeps): DailyView {
     },
     openWindow() {
       d.windows.open('daily', t('daily.title'), render);
+    },
+    tomorrow() {
+      // Today's reward still waits: tomorrow brings the one after it.
+      const k = (d.save.daily?.n ?? 0) + (claimedToday(d.save) ? 0 : 1);
+      if (k >= days) return null;
+      return { name: view.cardName(k, 0), icon: REWARD_ICON[pick(k, 0).reward.kind] };
     },
     claim() {
       const c = circle();

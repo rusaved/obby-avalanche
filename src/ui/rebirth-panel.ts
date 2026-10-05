@@ -93,6 +93,7 @@ export function renderRebirthPanel(body: HTMLElement, head: HTMLElement, m: Rebi
   if (m.ready) go.addEventListener('click', () => a.rebirth());
   const later = el('button', 'card-btn alt', t('btn.later'));
   later.dataset['hud'] = 'rebirth-later';
+  later.dataset['next'] = '1';
   later.addEventListener('click', () => a.later());
   row.append(go, later);
   if (!m.ready) {
@@ -115,6 +116,7 @@ export function renderAllDonePanel(body: HTMLElement, a: { rebirth(): void; stay
   go.addEventListener('click', () => a.rebirth());
   const stay = el('button', 'card-btn alt', t('btn.stay'));
   stay.dataset['hud'] = 'alldone-stay';
+  stay.dataset['next'] = '1';
   stay.addEventListener('click', () => a.stay());
   row.append(go, stay);
   body.appendChild(row);

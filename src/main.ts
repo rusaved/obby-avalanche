@@ -13,6 +13,7 @@ import { fitField, type FieldRect } from './ui/fit.ts';
 import { createHud, type Hud, type MenuItem } from './ui/hud.ts';
 import { drawNoGraphics } from './ui/fallback.ts';
 import { mountLabel } from './ui/label.ts';
+import { icon } from './ui/icons.ts';
 import { createGameRenderer, createWebGL2Context, type GameRenderer } from './render/renderer.ts';
 import { createLevelMeshes, type LevelMeshes } from './render/level-mesh.ts';
 import { createCharacters, type CharacterInstance, type Characters } from './render/characters.ts';
@@ -28,7 +29,9 @@ import { createFtueView, type FtueView } from './app/ftue-view.ts';
 import { createMetaView, type MetaView } from './app/meta-view.ts';
 import { createPetsView, type PetsView } from './app/pets-view.ts';
 import { createRebirthView, type RebirthView } from './app/rebirth-view.ts';
-import { applyRebirth } from './meta/rebirth.ts';
+import { applyRebirth, summitsDone } from './meta/rebirth.ts';
+import { hudDue } from './meta/hud-schedule.ts';
+import { renderSummitPanel } from './ui/summit-panel.ts';
 import { createPetsVisual } from './render/pets.ts';
 import { createCosmeticsView, type CosmeticsView } from './app/cosmetics-view.ts';
 import { createCosmeticsVisual, type CosmeticsVisual } from './render/cosmetics.ts';
@@ -43,7 +46,7 @@ import { createQuality, type QualityLevel } from './render/quality.ts';
 import { buildLevel } from './level/builder.ts';
 import { createSim, controllerParams, type Sim } from './sim/world.ts';
 import { HERO_HEIGHT } from './sim/controller.ts';
-import { formatNumber, setNumberLocale } from './ui/format.ts';
+import { formatNumber, formatTimer, setNumberLocale } from './ui/format.ts';
 import { moveSpeed } from './sim/effects/moveSpeed.ts';
 import { InputManager } from './input/manager.ts';
 import { applyManualTurn, createControlFrame, onMoveStarted, toWorld } from './input/control-frame.ts';
@@ -53,7 +56,7 @@ import { createDailyView, type DailyView } from './app/daily-view.ts';
 import { createQuestsView, type QuestsView } from './app/quests-view.ts';
 import { createSave, type SaveData } from './meta/save.ts';
 import { addTrophies } from './meta/trophies.ts';
-import { summitTrophies } from './sim/economy.ts';
+import { scaled, summitTrophies } from './sim/economy.ts';
 import type { GameHandles, BootState } from './app/handles.ts';
 import type { TestApi } from './test-api/index.ts';
 import type { DebugPanel } from './debug/index.ts';
@@ -196,6 +199,22 @@ async function boot(): Promise<void> {
   let pendingPortal: number | null = null;
   /** Summit portal entered this tick: counted for the rebirth after the tick (M3-06). */
   let pendingSummit: number | null = null;
+  /** The «Mountain cleared» window of the portal entered this tick (docs/01-gdd.md 10.2): chest, trophies, time. */
+  let summitInfo: { from: number; chest: number; trophies: number; sec: number } | null = null;
+  /** Play second the hero came onto this mountain (the time in the «Mountain cleared» window). */
+  let worldSince = save.totalPlaySec ?? 0;
+  /**
+   * HUD schedule (docs/01-gdd.md 6.4; GDD-12): play second when the «Mountain cleared» window of the first summit
+   * closed — the summit group comes one by one from it; Infinity while that window is open; null — earlier summit.
+   */
+  let summitAt: number | null = null;
+  const hudDueNow = (): Set<string> =>
+    hudDue(balance.ui, {
+      playSec: save.totalPlaySec ?? 0,
+      summit: (save.trophiesTotal ?? 0) > 0 || (save.tier ?? 0) > 0,
+      summitAt,
+      payments: game.payments?.enabled ?? false,
+    });
   const frame = createControlFrame(tuning.camera.pitchDeg * DEG, tuning.camera.distance);
   const inputOpts = {
     stickRadiusFrac: tuning.input.stickRadiusFrac,
@@ -316,8 +335,17 @@ async function boot(): Promise<void> {
     // The switch happens after the tick, not inside the emitter (docs/06 step 21: mountain 1 done on tier 0).
     s.events.on('portal', ({ from, next }) => {
       if (from === 1 && s.tier === 0) track('gameTutorialComplete', { levelComplete: 'world_1' });
+      // The first summit: the trophy plaque and its buttons wait for the «Mountain cleared» window (6.4).
+      if ((save.trophiesTotal ?? 0) === 0 && s.tier === 0) summitAt = Infinity;
       // Trophies of the summit g × (1 + n) (docs/01-gdd.md 8.1): to spend and over all time (the leaderboard, 7.9).
-      addTrophies(save, summitTrophies(balance, from, s.tier));
+      const trophies = summitTrophies(balance, from, s.tier);
+      addTrophies(save, trophies);
+      // The summit chest (docs/01-gdd.md 5.2, 8.1): its coins × wallScale[n], shown in the window.
+      const chestAt = s.level.points.find((p) => p.type === 'chest');
+      const chest = scaled(Number(chestAt?.['coins'] ?? 0), s.tier, balance.rebirth);
+      s.coins += chest;
+      hud?.setCoins(formatNumber(s.coins, numSuffix));
+      summitInfo = { from, chest, trophies, sec: (save.totalPlaySec ?? 0) - worldSince };
       persist(true);
       pendingSummit = from;
       if (next !== null) pendingPortal = next;
@@ -404,10 +432,20 @@ async function boot(): Promise<void> {
       applyQualityNow();
     },
     toggleMenu(open) {
-      const want = open ?? !pause.has('menu');
-      pause.set_('menu', want);
-      hud?.setPaused(want);
-      if (want) track('menu_open');
+      // Pause and settings: a window of the common frame (docs/01-gdd.md 10.2), the game stands while it is open.
+      const want = open ?? windows?.current !== 'pause';
+      if (!windows || !hud) {
+        pause.set_('menu', want);
+        return;
+      }
+      if (want === (windows.current === 'pause')) return;
+      if (!want) {
+        windows.close();
+        return;
+      }
+      const panel = hud.pausePanel;
+      windows.open('pause', t('game.title'), (body) => body.appendChild(panel), { next: false, fitTitle: true });
+      track('menu_open');
     },
     teleport(x, y, z) {
       sim.teleport(x, y, z);
@@ -520,6 +558,7 @@ async function boot(): Promise<void> {
     g.world = world;
     melting.clear();
     pendingGain = null;
+    worldSince = save.totalPlaySec ?? 0;
     if (gr && levelMeshes) {
       gr.scene.remove(levelMeshes.group);
       levelMeshes.dispose();
@@ -531,6 +570,63 @@ async function boot(): Promise<void> {
     frame.controlYaw = 0;
     frame.viewYaw = 0;
     g.teleport(level.spawn[0], level.spawn[1] + 0.05, level.spawn[2]);
+  };
+
+  /**
+   * «Mountain N cleared!» after the portal (docs/01-gdd.md 10.2, 6.3): the game stands while it is open; «Next», the
+   * cross, Esc or the veil — on to mountain `next`; the first summit's buttons start coming then (6.4).
+   */
+  const openSummit = (next: number): boolean => {
+    const info = summitInfo;
+    summitInfo = null;
+    const to = content.worlds.worlds.find((w) => w.index === next);
+    if (!windows || !info || !to) return false;
+    const model = {
+      time: formatTimer(info.sec),
+      chest: formatNumber(info.chest, numSuffix),
+      trophies: formatNumber(info.trophies, numSuffix),
+      next: t(`world.${to.id}`),
+      nextColor: theme.materials['portal']?.color ?? theme.sky.top,
+      tomorrow: dailyView?.tomorrow() ?? null,
+    };
+    windows.open('summit', t('summit.title', { n: info.from }), (body) => renderSummitPanel(body, model), {
+      next: t('btn.next'),
+      onClose: () => {
+        if (summitAt === Infinity) summitAt = save.totalPlaySec ?? 0;
+        enterWorld(next);
+      },
+    });
+    return true;
+  };
+
+  /** A button of the HUD column (docs/01-gdd.md 10.1); «More» lists them all with captions on a short window. */
+  let menuShown: MenuItem[] = [];
+  const openMenuWindow = (id: string): void => {
+    if (id === 'pets') petsView?.openWindow();
+    else if (id === 'shop') cosmeticsView?.openShop();
+    else if (id === 'wardrobe') cosmeticsView?.openWardrobe();
+    else if (id === 'rebirth') rebirthView?.openWindow();
+    else if (id === 'daily') dailyView?.openWindow();
+    else if (id === 'quests') questsView?.openQuests();
+    else if (id === 'timeRewards') questsView?.openTime();
+    else if (id === 'more') {
+      windows?.open('more', t('btn.more'), (body) => {
+        const grid = document.createElement('div');
+        grid.className = 'more-grid';
+        for (const item of menuShown) {
+          const b = document.createElement('button');
+          b.className = 'card-btn more-btn';
+          b.dataset['hud'] = `more-${item.id}`;
+          const ic = document.createElement('span');
+          ic.className = 'hud-menu-icon';
+          ic.innerHTML = icon(item.icon);
+          b.append(ic, item.badge ? `${item.label} · ${item.badge}` : item.label);
+          b.addEventListener('click', () => openMenuWindow(item.id));
+          grid.appendChild(b);
+        }
+        body.appendChild(grid);
+      });
+    }
   };
 
   /**
@@ -597,7 +693,7 @@ async function boot(): Promise<void> {
     if (pendingPortal !== null) {
       const next = pendingPortal;
       pendingPortal = null;
-      enterWorld(next);
+      if (!openSummit(next)) enterWorld(next);
     }
     saveClimb();
     playSec += dt;
@@ -653,10 +749,14 @@ async function boot(): Promise<void> {
       cosmeticsVisual.group.visible = heroChar?.visible ?? false;
       cosmeticsVisual.update(renderPos, hero.onGround && (hero.speed > 1.5 || sim.onBelt), gameDt, playSec);
     }
-    // HUD column (docs/01-gdd.md 10.1): shop, pets, wardrobe — each when it is due (6.4).
+    // HUD column (docs/01-gdd.md 10.1): shop, pets, wardrobe … — each by the schedule of 6.4, never earlier.
     const cm = cosmeticsView?.menuItems();
     dailyView?.tick();
-    hud?.setMenu([cm?.shop, petsView?.menuItem(), cm?.wardrobe, dailyView?.menuItem(), questsView?.questsItem(), questsView?.timeItem(), rebirthView?.menuItem()].filter((x): x is MenuItem => !!x));
+    const due = hudDueNow();
+    menuShown = [cm?.shop, petsView?.menuItem(), cm?.wardrobe, dailyView?.menuItem(), questsView?.questsItem(), questsView?.timeItem(), rebirthView?.menuItem()].filter(
+      (x): x is MenuItem => !!x && due.has(x.id),
+    );
+    hud?.setMenu(menuShown);
     ftueView?.update(gameDt, playSec, renderPos);
     hudView?.update(playSec);
     if (cameraRig) {
@@ -800,15 +900,7 @@ async function boot(): Promise<void> {
     bonusColor: theme.bonus?.color,
     onShoes: () => void meta?.buyShoes(),
     onEgg: () => void petsView?.buyEgg(),
-    onMenu: (id) => {
-      if (id === 'pets') petsView?.openWindow();
-      else if (id === 'shop') cosmeticsView?.openShop();
-      else if (id === 'wardrobe') cosmeticsView?.openWardrobe();
-      else if (id === 'rebirth') rebirthView?.openWindow();
-      else if (id === 'daily') dailyView?.openWindow();
-      else if (id === 'quests') questsView?.openQuests();
-      else if (id === 'timeRewards') questsView?.openTime();
-    },
+    onMenu: (id) => openMenuWindow(id),
     trophyColor: theme.ui.trophies,
     okColor: theme.ui.ok,
     statColor: theme.ui.stat,
@@ -842,10 +934,10 @@ async function boot(): Promise<void> {
   });
   const ftueVisual = createFtueVisual(theme);
   gr.scene.add(ftueVisual.group);
-  meta = createMetaView({ balance, pets, trails, auras, save, getSim: () => sim, hud, numSuffix, trackOnce, persist, onShoes: () => questsView?.shoes() });
+  meta = createMetaView({ balance, pets, trails, auras, save, getSim: () => sim, hud, numSuffix, trackOnce, persist, onShoes: () => questsView?.shoes(), shoesColor: theme.ui.stat });
   meta.apply();
   // Windows (docs/01-gdd.md 10.2): one at a time, the game and the avalanche stand while it is open (pause `menu`).
-  windows = createWindowFrame(ui, { closeLabel: t('btn.close'), onChange: (id) => pause.set_('menu', id !== null) });
+  windows = createWindowFrame(ui, { closeLabel: t('btn.close'), okLabel: t('btn.ok'), onChange: (id) => pause.set_('menu', id !== null) });
   const petsVisual = createPetsVisual(theme);
   gr.scene.add(petsVisual.group);
   petsView = createPetsView({
@@ -867,6 +959,10 @@ async function boot(): Promise<void> {
     trackOnce,
     onChange: () => meta?.apply(),
     onHatch: () => questsView?.hatched(),
+    // The shop tab «Eggs» (M3-09): eggs of the mountains open on this tier (docs/01-gdd.md 7.2).
+    eggWorlds: Object.fromEntries(content.worlds.worlds.filter((w) => w.egg).map((w) => [w.egg!, w.index])),
+    openWorld: () => Math.max(sim.level.worldIndex, summitsDone(save) + 1),
+    toShop: () => cosmeticsView?.openShop('eggs'),
   });
   petsView.wire(sim);
   // Trails, auras and the wardrobe (docs/01-gdd.md 7.3, 7.4): the hero wears the skin of the save or the default one.
@@ -891,6 +987,24 @@ async function boot(): Promise<void> {
     setHeroWings: (id) => {
       if (characters && heroChar) characters.setWings(heroChar, id);
     },
+    shopTabs: {
+      shoes: {
+        cards: () => meta?.shopCards() ?? [],
+        balance: () => formatNumber(sim.coins, numSuffix),
+        buy: () => {
+          meta?.buyShoes();
+          windows?.refresh();
+        },
+      },
+      eggs: {
+        cards: () => petsView?.shopCards() ?? [],
+        balance: () => formatNumber(sim.coins, numSuffix),
+        buy: (id) => {
+          if (!petsView?.buyFromShop(id)) windows?.refresh();
+        },
+      },
+    },
+    trophiesDue: () => hudDueNow().has('trophies'),
   });
   if (heroChar.skinId !== cosmeticsView.skin) characters.setSkin(heroChar, cosmeticsView.skin);
   characters.setWings(heroChar, cosmeticsView.wings);
@@ -907,6 +1021,7 @@ async function boot(): Promise<void> {
     persist,
     lookFigure: (kind, id) => cosmeticsView!.lookFigure(kind, id),
     onRebirth: () => rebirth(),
+    toEggs: () => cosmeticsView?.openShop('eggs'),
   });
   // Calendar (docs/01-gdd.md 7.6): rewards by the data, the game day by server time; the window opens only by its button.
   const rewards = createRewards({

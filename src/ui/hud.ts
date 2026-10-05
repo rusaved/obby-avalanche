@@ -74,7 +74,6 @@ export interface ShoesButtonState {
 export interface Hud {
   root: HTMLElement;
   setTouchMode(touch: boolean): void;
-  setPaused(paused: boolean): void;
   setAutoRun(on: boolean): void;
   setQuality(level: 'auto' | 'low' | 'medium' | 'high'): void;
   updateStick(stick: StickState, fieldLeft: number, fieldTop: number): void;
@@ -117,19 +116,32 @@ export interface Hud {
   /** Goal under the bar: «Wall 2K» with «1.2K/2K» and a fill bar; `progress` null — text only («Wall open!»). */
   setGoal(text: string, progress: { text: string; frac: number } | null): void;
   setSound(on: boolean): void;
-  /** Right column under pause and sound (docs/01-gdd.md 10.1, 6.4): the buttons shown now, top to bottom. */
+  /** Right column under pause and sound (docs/01-gdd.md 10.1, 6.4): the buttons shown now, top to bottom; on a window
+   * lower than 420 px the ones that do not fit go into «More» (button id `more`, the caller opens their window). */
   setMenu(items: readonly MenuItem[]): void;
   /** The egg button over the stand the hero stands at; null hides it. */
   setEggButton(state: EggButtonState | null): void;
   /** Trophy plaque under the coins (docs/01-gdd.md 6.4: from the first summit); null hides it. */
   setTrophies(text: string | null): void;
   readonly jumpButton: HTMLButtonElement;
+  /** Body of the pause and settings window (the caller opens it in the window frame). */
+  readonly pausePanel: HTMLElement;
 }
 
 /** Hint plaque band: its top never above this share of the field (top HUD band; below the wave banner while it shows), its bottom never below this one. */
 const HINT_TOP_MIN = 0.24;
 const HINT_TOP_WAVE = 0.34;
 const HINT_BOTTOM_MAX = 0.78;
+
+/** Short window (docs/01-gdd.md 10.1): below this height the column is icons 44 px, 6 px apart, ending above 72% H. */
+const SHORT_H = 420;
+const SHORT_BTN = 44;
+const SHORT_GAP = 6;
+const MENU_EDGE = 8;
+const MENU_BOTTOM = 0.72;
+
+/** The click a browser sends after a tap comes within this many ms of the finger lifting. */
+const TAP_CLICK_MS = 800;
 
 /** How long the Speed plaque keeps its flash class (the CSS animation is shorter). */
 const STAT_FLASH_MS = 1200;
@@ -143,6 +155,22 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, te
   return e;
 }
 
+/**
+ * A tap that opens a window must not press what the window puts under the finger (its cross sits where the pause
+ * button was): the click the browser sends after the tap is dropped.
+ */
+function dropTapClick(): void {
+  const until = performance.now() + TAP_CLICK_MS;
+  const drop = (e: MouseEvent): void => {
+    window.removeEventListener('click', drop, true);
+    if (performance.now() > until) return;
+    e.stopPropagation();
+    e.preventDefault();
+  };
+  window.addEventListener('click', drop, true);
+  setTimeout(() => window.removeEventListener('click', drop, true), TAP_CLICK_MS);
+}
+
 /** HUD buttons fire on pointerdown of their own finger (playtest M2: with the stick held, a second finger never got
  * its pointerup); a keyboard click (detail 0) still presses them. */
 function onPress(b: HTMLElement, fn: () => void): void {
@@ -150,6 +178,7 @@ function onPress(b: HTMLElement, fn: () => void): void {
     if (ev.pointerType === 'mouse' && ev.button !== 0) return;
     ev.preventDefault();
     ev.stopPropagation();
+    if (ev.pointerType === 'touch' || ev.pointerType === 'pen') dropTapClick();
     fn();
   });
   b.addEventListener('click', (ev) => {
@@ -262,6 +291,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   root.appendChild(menu);
   let menuIds = '';
   const menuButtons = new Map<string, { badge: HTMLElement }>();
+  let menuAll: readonly MenuItem[] = [];
+  let menuSeen = false;
 
   // Egg button over a stand (docs/01-gdd.md 7.2): when the hero stands next to it.
   const eggBtn = el('button', 'hud-egg');
@@ -343,13 +374,11 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   });
   root.appendChild(shoes);
 
-  // Pause and settings panel (docs/01-gdd.md 10.2): title is the game title (LOC-04), never a dead end.
-  const dim = el('div', 'dim');
-  dim.dataset['role'] = 'pause';
-  const panel = el('div', 'panel');
-  const title = el('h1', 'panel-title', t('game.title'));
-  const sub = el('div', 'panel-sub', t('settings.title'));
-  panel.append(title, sub);
+  // Pause and settings (docs/01-gdd.md 10.2): the body of the «pause» window of the common frame; the frame title is
+  // the game title (LOC-04), «Pause» small under it; «Continue» is the window's «next» button.
+  const pausePanel = el('div', 'pause-body');
+  pausePanel.dataset['role'] = 'pause';
+  pausePanel.appendChild(el('div', 'panel-sub', t('settings.title')));
 
   const row = (label: string, control: HTMLElement): HTMLElement => {
     const r = el('div', 'row');
@@ -371,7 +400,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   };
   const autoRunToggle = toggle('autorun', false, (v) => opts.onAutoRun(v));
   const autoRow = row(`${t('settings.autorun')} · ${t('settings.autorunHint')}`, autoRunToggle);
-  panel.appendChild(autoRow);
+  pausePanel.appendChild(autoRow);
 
   const qualitySel = el('select', 'select');
   qualitySel.dataset['hud'] = 'quality';
@@ -382,21 +411,17 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     qualitySel.appendChild(o);
   }
   qualitySel.addEventListener('change', () => opts.onQuality(qualitySel.value as 'auto' | 'low' | 'medium' | 'high'));
-  panel.appendChild(row(t('settings.quality'), qualitySel));
+  pausePanel.appendChild(row(t('settings.quality'), qualitySel));
 
   const howto = el('div', 'howto');
   howto.append(el('p', '', t('howto.goal')), el('p', '', t('howto.pc')), el('p', '', t('howto.touch')));
-  panel.appendChild(howto);
+  pausePanel.appendChild(howto);
 
   const cont = el('button', 'btn-primary', t('btn.continue'));
   cont.dataset['hud'] = 'continue';
+  cont.dataset['next'] = '1';
   cont.addEventListener('click', () => opts.onContinue());
-  panel.appendChild(cont);
-  dim.appendChild(panel);
-  dim.addEventListener('pointerdown', (ev) => {
-    if (ev.target === dim) opts.onContinue();
-  });
-  root.appendChild(dim);
+  pausePanel.appendChild(cont);
 
   let touchMode = false;
   let fieldW = 1;
@@ -404,12 +429,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const hud: Hud = {
     root,
     jumpButton,
+    pausePanel,
     setTouchMode(touch) {
       touchMode = touch;
       root.classList.toggle('touch', touch);
-    },
-    setPaused(paused) {
-      dim.classList.toggle('open', paused);
     },
     setAutoRun(on) {
       autoRunToggle.dataset['on'] = String(on);
@@ -442,6 +465,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       soundBtn.style.marginRight = `${btn + (height < 420 ? 6 : 8)}px`;
       menu.style.top = `${8 + btn + (height < 420 ? 6 : 8)}px`;
       root.classList.toggle('short', height < 420);
+      hud.setMenu(menuAll);
       const r = Math.round(short * 0.12);
       stickBase.style.width = `${r * 2}px`;
       stickBase.style.height = `${r * 2}px`;
@@ -581,14 +605,28 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       soundBtn.dataset['on'] = String(on);
     },
     setMenu(items) {
+      menuAll = items;
+      // Short window (< 420 px): 3 icon buttons + «More» while they fit above 72% H, otherwise one less (10.1).
+      let shown: readonly MenuItem[] = items;
+      if (fieldH < SHORT_H) {
+        const top = MENU_EDGE + SHORT_BTN + SHORT_GAP;
+        const fit = Math.max(1, Math.floor((fieldH * MENU_BOTTOM - top + SHORT_GAP) / (SHORT_BTN + SHORT_GAP)));
+        if (items.length > fit) {
+          const more = items.slice(fit - 1);
+          const badge = more.some((i) => i.badge === '!') ? '!' : '';
+          shown = [...items.slice(0, fit - 1), { id: 'more', label: t('btn.more'), icon: 'more', badge }];
+        }
+      }
       // Rebuilt when a button comes or goes, or its caption or icon changes (the rebirth lock → «Rebirth», M3-06).
-      const ids = items.map((i) => `${i.id}:${i.label}:${i.icon}`).join(',');
+      const ids = shown.map((i) => `${i.id}:${i.label}:${i.icon}`).join(',');
       if (ids !== menuIds) {
         menuIds = ids;
         menu.replaceChildren();
+        const before = new Set(menuButtons.keys());
         menuButtons.clear();
-        for (const item of items) {
-          const b = el('button', 'hud-btn hud-menu-btn');
+        for (const item of shown) {
+          // A new button shines once (docs/01-gdd.md 6.4), never the ones already there at the start.
+          const b = el('button', menuSeen && !before.has(item.id) ? 'hud-btn hud-menu-btn glow' : 'hud-btn hud-menu-btn');
           b.dataset['hud'] = `menu-${item.id}`;
           b.setAttribute('aria-label', item.label);
           const ic = el('span', 'hud-menu-icon');
@@ -600,7 +638,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
           menuButtons.set(item.id, { badge });
         }
       }
-      for (const item of items) {
+      menuSeen = true;
+      for (const item of shown) {
         const badge = menuButtons.get(item.id)?.badge;
         if (badge && badge.textContent !== (item.badge ?? '')) badge.textContent = item.badge ?? '';
       }
