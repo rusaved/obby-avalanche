@@ -66,6 +66,7 @@
   },
   "boost": {
     "x2Sec": 180,
+    "x2Mult": 2,
     "statNowSec": 120
   },
   "caught": {
@@ -106,7 +107,8 @@
     "wheelCooldownSec": 600
   },
   "iap": {
-    "showAfterPlaySec": 300
+    "showAfterPlaySec": 300,
+    "vipMult": 2
   },
   "daily": {
     "resetHours": 20

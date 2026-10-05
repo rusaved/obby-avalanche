@@ -15,6 +15,7 @@
  */
 import type { BalanceJson, EggsJson, GameJson, PetsJson, Segment, TuningJson, World } from '../src/content/types.ts';
 import { moveSpeed } from '../src/sim/effects/moveSpeed.ts';
+import { scaled, stepGain } from '../src/sim/economy.ts';
 
 export type Profile = 'greedy' | 'goldSeeker' | 'lazy';
 
@@ -114,9 +115,7 @@ export function lcg(seed: number): () => number {
 
 /** `wallScale[n]`, after the table × `wallScaleGrowth` per tier (docs/01-gdd.md 8.4). */
 export function wallScale(balance: BalanceJson, n: number): number {
-  const t = balance.rebirth.wallScale;
-  if (n < t.length) return t[n]!;
-  return t[t.length - 1]! * balance.rebirth.wallScaleGrowth ** (n - t.length + 1);
+  return scaled(1, n, balance.rebirth);
 }
 
 /** `ease(p)` of docs/01-gdd.md 8.1: 1 on tier 0 and up to wall fromWall − 1, then down to toFactor at the last wall. */
@@ -144,7 +143,6 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
   const stepLen = balance.stepLength;
   const shoes = balance.upgrade.tiers;
   const Wn = wallScale(balance, n);
-  const step = balance.gainPerStep * balance.rebirth.stepMult ** n;
   const bonus = profile === 'goldSeeker' ? (pack.game.threat.bonus ?? null) : null;
   const petBonus = (id: string): number => pack.pets.pets.find((p) => p.id === id)?.bonus ?? 0;
   const freePet = petBonus(balance.ftue.freeEggPet);
@@ -282,7 +280,8 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
         z = to;
       };
       for (;;) {
-        const g = step * (shoes[shoe]?.mult ?? 1) * petMult();
+        // The step of the game (docs/01-gdd.md 8.1): the same formula module as the simulation.
+        const g = stepGain(balance, { tier: n, shoe: shoes[shoe]?.mult ?? 1, pets: petMult() });
         const v = vel(S);
         phT -= DT;
         if (phase === 'warn') warnAge += DT;

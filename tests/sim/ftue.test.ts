@@ -86,7 +86,7 @@ describe('first 60 seconds (M2-08)', () => {
         sim.coins -= shoesPrice(next, 0, bal.rebirth);
         shoeLevel++;
       }
-      sim.progress.gainMult = gainMult(bal.upgrade.tiers, shoeLevel, owned, pets, bal.pets.slots);
+      sim.progress.gainMult = gainMult(bal, pets, { shoeLevel, pets: owned });
       const h = sim.hero;
       const blocked = level.gates.some((g, gi) => !sim.gatesOpen[gi] && g.z - h.pos.z > 0 && g.z - h.pos.z < 2.5);
       standAtGate = blocked && h.speed < 1 && stage === 'up' ? standAtGate + DT : 0;

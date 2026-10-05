@@ -48,7 +48,8 @@ export function createMetaView(d: MetaViewDeps): MetaView {
       return shoesShown;
     },
     apply() {
-      d.getSim().progress.gainMult = gainMult(tiers, shoeLevel, owned(), d.pets, d.balance.pets.slots);
+      const sim = d.getSim();
+      sim.progress.gainMult = gainMult(d.balance, d.pets, { tier: sim.tier, shoeLevel, pets: owned() });
     },
     update() {
       const sim = d.getSim();

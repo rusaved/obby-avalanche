@@ -4,7 +4,7 @@
  * at 22–32 s); the full shop and the rebirth reset — M3-02. Pure TS.
  */
 import type { BalanceJson, PetsJson } from '../content/types.ts';
-import { wallScale } from '../sim/gates.ts';
+import { gainMult as stepMults, scaled, type GainMults } from '../sim/economy.ts';
 
 export type ShoeTier = BalanceJson['upgrade']['tiers'][number];
 
@@ -14,7 +14,7 @@ export function nextShoes(tiers: readonly ShoeTier[], level: number): ShoeTier |
 }
 
 export function shoesPrice(tier: ShoeTier, rebirthTier: number, rebirth: BalanceJson['rebirth']): number {
-  return tier.price * wallScale(rebirthTier, rebirth);
+  return scaled(tier.price, rebirthTier, rebirth);
 }
 
 /** Pet multiplier: 1 + the bonuses of the best `slots` pets (docs/01a-content.md 6). */
@@ -26,7 +26,14 @@ export function petMult(owned: readonly string[], pets: PetsJson, slots: number)
   return 1 + bonuses.reduce((a, b) => a + b, 0);
 }
 
-/** Step multiplier of the meta: shoes × pets (trails, auras, boosts join at M3–M4). */
-export function gainMult(tiers: readonly ShoeTier[], shoeLevel: number, owned: readonly string[], pets: PetsJson, slots: number): number {
-  return (tiers[shoeLevel]?.mult ?? 1) * petMult(owned, pets, slots);
+/** What the player has on: rebirth tier, shoe level, pets owned; trail, aura, boost and VIP when they arrive (M3-04, M4). */
+export interface MetaGain extends Omit<GainMults, 'shoe' | 'pets'> {
+  shoeLevel: number;
+  pets: readonly string[];
+}
+
+/** Step multiplier of the meta by docs/01-gdd.md 8.1 (src/sim/economy.ts): 3^n × shoes × pets × trail × aura × boost × vip. */
+export function gainMult(balance: BalanceJson, pets: PetsJson, m: MetaGain): number {
+  const { shoeLevel, pets: owned, ...rest } = m;
+  return stepMults(balance, { ...rest, shoe: balance.upgrade.tiers[shoeLevel]?.mult ?? 1, pets: petMult(owned, pets, balance.pets.slots) });
 }

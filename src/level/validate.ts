@@ -4,7 +4,8 @@
  * physics (M1) and cave fairness against warnSec (M2-03).
  */
 import * as v from 'valibot';
-import type { BotsJson, Curve, EggsJson, GameJson, Segment, SkinsJson, TuningJson, World, WorldsJson } from '../content/types.ts';
+import type { BalanceJson, BotsJson, Curve, EggsJson, GameJson, Segment, SkinsJson, TuningJson, World, WorldsJson } from '../content/types.ts';
+import { summitTrophies } from '../sim/economy.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 import { buildLevel } from './builder.ts';
 
@@ -130,7 +131,7 @@ const balanceSchema = v.object({
   gifts: v.object({ perZone: v.pipe(v.number(), v.integer(), v.minValue(1)), respawn: v.literal('onWaveGone') }),
   coins: v.object({ gatePass: positive, waveSurvived: positive, chest: positive }),
   pets: v.object({ slots: v.pipe(v.number(), v.integer()), inventory: v.pipe(v.number(), v.integer()) }),
-  boost: v.object({ x2Sec: positive, statNowSec: positive }),
+  boost: v.object({ x2Sec: positive, x2Mult: positive, statNowSec: positive }),
   caught: v.object({ rollSec: positive, maxSec: v.pipe(v.number(), v.maxValue(2)) }),
   threat: v.object({ newbieWaves: v.object({ count: v.pipe(v.number(), v.integer(), v.minValue(0)), warnBonusSec: nonNeg }) }),
   niche: v.object({ graceDist: nonNeg, graceMoving: nonNeg }),
@@ -148,7 +149,7 @@ const balanceSchema = v.object({
     skipFirstPortal: v.boolean(),
     wheelCooldownSec: nonNeg,
   }),
-  iap: v.object({ showAfterPlaySec: nonNeg }),
+  iap: v.object({ showAfterPlaySec: nonNeg, vipMult: positive }),
   daily: v.object({ resetHours: positive }),
   quests: v.object({ perDay: v.pipe(v.number(), v.integer()) }),
   review: v.object({ after: v.array(v.string()), minPlaySec: nonNeg }),
@@ -463,6 +464,17 @@ export function validatePack(files: PackFiles): ValidationResult {
     for (const [file, dict] of [['i18n/ru.json', ru], ['i18n/en.json', en]] as const) {
       if (!dict['toast.statMilestone']) errors.push(`${file}: toast.statMilestone — missing (balance.json has ui.statMilestones)`);
     }
+  }
+
+  // Trophies for a summit (docs/01-gdd.md 8.1): the formula of the data gives a whole positive number.
+  const trophies = files['balance.json'] as Pick<BalanceJson, 'trophies'>;
+  try {
+    for (const [world, tier] of [[1, 0], [5, 9]] as const) {
+      const n = summitTrophies(trophies, world, tier);
+      if (!Number.isInteger(n) || n < 1) errors.push(`balance.json: trophies.perSummit — ${n} for world ${world}, tier ${tier} (a whole number ≥ 1)`);
+    }
+  } catch (err) {
+    errors.push(`balance.json: trophies.perSummit — ${(err as Error).message}`);
   }
 
   // The free egg of the first minute hatches a pet from pets.json (docs/01-gdd.md 6.2); its rarity has a colour.

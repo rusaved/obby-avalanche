@@ -63,7 +63,8 @@ export interface BalanceJson {
   gifts: { perZone: number; respawn: 'onWaveGone' };
   coins: { gatePass: number; waveSurvived: number; chest: number };
   pets: { slots: number; inventory: number };
-  boost: { x2Sec: number; statNowSec: number };
+  /** `x2Mult`: the ×2 step boost (ad, rewards); `statNowSec`: treadmill seconds of «speed now» (docs/01-gdd.md 8.1). */
+  boost: { x2Sec: number; x2Mult: number; statNowSec: number };
   caught: { rollSec: number; maxSec: number };
   threat: { newbieWaves: { count: number; warnBonusSec: number } };
   niche: { graceDist: number; graceMoving: number };
@@ -82,7 +83,8 @@ export interface BalanceJson {
     skipFirstPortal: boolean;
     wheelCooldownSec: number;
   };
-  iap: { showAfterPlaySec: number };
+  /** `vipMult`: the step multiplier of the VIP purchase (docs/01-gdd.md 8.1, 9.3). */
+  iap: { showAfterPlaySec: number; vipMult: number };
   daily: { resetHours: number };
   quests: { perDay: number };
   review: { after: string[]; minPlaySec: number };

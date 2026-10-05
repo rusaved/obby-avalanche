@@ -10,7 +10,8 @@ import type { LevelData } from '../level/types.ts';
 import type { BalanceJson, Curve, TuningJson } from '../content/types.ts';
 import { moveSpeed } from './effects/moveSpeed.ts';
 import { createStepTracker, type StepGain, type StepTracker } from './steps.ts';
-import { gateIsOpen, gateRequirement, wallScale } from './gates.ts';
+import { gateIsOpen, gateRequirement } from './gates.ts';
+import { scaled } from './economy.ts';
 import { giftsFromLevel, touchesGift, type Gift } from './gifts.ts';
 import { createCollisionWorld, type CollisionWorld } from './collision.ts';
 import { beltAt, belts, shelterIndex } from './shelter.ts';
@@ -256,7 +257,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       sim.gifts.forEach((gift, index) => {
         if (gift.taken || Math.abs(gift.z - hero.pos.z) > 3 || !touchesGift(gift, hero.pos.x, hero.pos.y, hero.pos.z)) return;
         gift.taken = true;
-        const coins = gift.coins * wallScale(tier, opts.balance.rebirth);
+        const coins = scaled(gift.coins, tier, opts.balance.rebirth);
         sim.coins += coins;
         events.emit('giftTake', { tick: sim.tick, index, coins, zone: gift.zone, rarity: gift.rarity, total: sim.coins });
       });
@@ -297,7 +298,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       level.gates.forEach((gate, i) => {
         if (!gatesOpen[i] || sim.gatesPassed[i] || zBefore >= gate.z + GATE_PASS_DIST || hero.pos.z < gate.z + GATE_PASS_DIST) return;
         sim.gatesPassed[i] = true;
-        const coins = gate.rewardCoins * wallScale(tier, opts.balance.rebirth);
+        const coins = scaled(gate.rewardCoins, tier, opts.balance.rebirth);
         sim.coins += coins;
         events.emit('gatePass', { tick: sim.tick, index: i, wall: gate.index, coins, total: sim.coins });
       });
@@ -371,7 +372,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   // Golden gift (docs/01-gdd.md 4.9): worth mult gifts of the zone where it lay.
   const bonusCfg = opts.bonus?.cfg ?? null;
   const bonusRng = createRng(opts.bonus?.seed ?? 0);
-  const goldCoins = (b: BonusState): number => (bonusCfg?.mult ?? 0) * (zoneGift.get(b.zone) ?? 0) * wallScale(tier, opts.balance.rebirth);
+  const goldCoins = (b: BonusState): number => scaled((bonusCfg?.mult ?? 0) * (zoneGift.get(b.zone) ?? 0), tier, opts.balance.rebirth);
   const saveBonus = (where: 'cave' | 'portal' | 'gone', coins?: number): void => {
     const b = sim.bonus;
     sim.bonus = null;
@@ -393,7 +394,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         if (name === 'waveSurvived') {
           const p = payload as ThreatEvents['waveSurvived'];
           const zone = level.niches[p.niche]?.zone ?? 0;
-          let coins = (opts.balance.coins?.waveSurvived ?? 0) * (zoneGift.get(zone) ?? 0) * wallScale(tier, opts.balance.rebirth);
+          let coins = scaled((opts.balance.coins?.waveSurvived ?? 0) * (zoneGift.get(zone) ?? 0), tier, opts.balance.rebirth);
           // The golden gift brought into the cave: one toast with both rewards (docs/01-gdd.md 4.9).
           const gold = sim.bonus?.carried ? goldCoins(sim.bonus) : 0;
           coins += gold;
