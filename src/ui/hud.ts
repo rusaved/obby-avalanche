@@ -581,7 +581,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       soundBtn.dataset['on'] = String(on);
     },
     setMenu(items) {
-      const ids = items.map((i) => i.id).join(',');
+      // Rebuilt when a button comes or goes, or its caption or icon changes (the rebirth lock → «Rebirth», M3-06).
+      const ids = items.map((i) => `${i.id}:${i.label}:${i.icon}`).join(',');
       if (ids !== menuIds) {
         menuIds = ids;
         menu.replaceChildren();

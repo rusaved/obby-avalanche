@@ -44,6 +44,9 @@ export interface SaveData {
   skins?: string[];
   wings?: string[];
   wing?: string;
+  /** Rebirth tier n (docs/01-gdd.md 7.5): the step × stepMult^n for ever; summits done on this tier («Mountain {a}/5», M3-06). */
+  tier?: number;
+  summits?: number;
 }
 
 export const SAVE_VERSION = 1;

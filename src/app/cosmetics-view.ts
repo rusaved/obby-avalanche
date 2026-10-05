@@ -13,7 +13,7 @@ import type { WindowFrame } from '../ui/window.ts';
 import type { CosmeticsVisual } from '../render/cosmetics.ts';
 import { buyCosmetic, buyLook, equipCosmetic, equipLook, lookPrice, owned, ownedLooks, wearing, type CosmeticKind, type LookItem, type LookKind } from '../meta/cosmetics.ts';
 import { renderShopPanel, type ShopCard, type ShopTab } from '../ui/shop-panel.ts';
-import { renderWardrobePanel, type LookCard, type WardrobeTab, type WingsLook } from '../ui/wardrobe-panel.ts';
+import { renderWardrobePanel, skinFigure, type LookCard, type WardrobeTab, type WingsLook } from '../ui/wardrobe-panel.ts';
 import { formatMult, formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
 
@@ -47,6 +47,10 @@ export interface CosmeticsView {
   openWardrobe(tab?: WardrobeTab): void;
   /** Buttons of the HUD column this view owns, when they are due. */
   menuItems(): { shop: MenuItem | null; wardrobe: MenuItem | null };
+  /** A block figure of a look (a skin, or the skin on with these wings): the rebirth reward card (M3-06). */
+  lookFigure(kind: LookKind, id: string): HTMLElement;
+  /** Looks granted outside the wardrobe (a rebirth tier): the skin and wings of the save onto the hero. */
+  syncHero(): void;
 }
 
 export function createCosmeticsView(d: CosmeticsViewDeps): CosmeticsView {
@@ -105,8 +109,8 @@ export function createCosmeticsView(d: CosmeticsViewDeps): CosmeticsView {
     if (x.unlock.kind === 'daily') return t('wardrobe.fromDay', { n });
     return t('wardrobe.fromStarter');
   };
+  const skinOf = (id: string) => (d.skins.skins.find((x) => x.id === id) ?? d.skins.skins[0]!).colors;
   const renderWardrobe = (body: HTMLElement, head: HTMLElement): void => {
-    const skinOf = (id: string) => (d.skins.skins.find((x) => x.id === id) ?? d.skins.skins[0]!).colors;
     const kind = lookKind(wardrobeTab);
     const have = ownedLooks(d.save, kind, looks(kind));
     const on = kind === 'skin' ? view.skin : view.wings;
@@ -183,6 +187,13 @@ export function createCosmeticsView(d: CosmeticsViewDeps): CosmeticsView {
     openWardrobe(next) {
       if (next) wardrobeTab = next;
       d.windows.open('wardrobe', t('wardrobe.title'), renderWardrobe);
+    },
+    lookFigure(kind, id) {
+      return kind === 'skin' ? skinFigure(skinOf(id), false, wingsLook(view.wings)) : skinFigure(skinOf(view.skin), false, wingsLook(id));
+    },
+    syncHero() {
+      d.setHeroSkin(view.skin);
+      d.setHeroWings(view.wings);
     },
     menuItems() {
       const time = (d.save.totalPlaySec ?? 0) >= d.balance.ui.unlockMenusSec;

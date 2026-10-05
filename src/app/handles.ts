@@ -19,6 +19,7 @@ import type { MetaView } from './meta-view.ts';
 import type { FtueView } from './ftue-view.ts';
 import type { PetsView } from './pets-view.ts';
 import type { WindowFrame } from '../ui/window.ts';
+import type { RebirthView } from './rebirth-view.ts';
 import type { GameAudio } from '../audio/index.ts';
 import type { BotsView, HudMode } from './bots-view.ts';
 
@@ -69,6 +70,10 @@ export interface GameHandles {
   teleport(x: number, y: number, z: number): void;
   /** To the camp of mountain `index` as through a portal: the stat, coins and tier carry over (M3-05). */
   gotoWorld(index: number): void;
+  /** Runs the rebirth now when it is open (the «Rebirth» button of the window, M3-06). */
+  rebirth(): void;
+  /** The rebirth button and windows (M3-06). */
+  readonly rebirthView: RebirthView | null;
   renderOnce(): void;
   /** Eight characters in a row with the eight faces, camera on them (faces.png evidence). */
   showFaces(): void;

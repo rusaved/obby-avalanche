@@ -27,6 +27,8 @@ import { createFtueVisual } from './render/ftue.ts';
 import { createFtueView, type FtueView } from './app/ftue-view.ts';
 import { createMetaView, type MetaView } from './app/meta-view.ts';
 import { createPetsView, type PetsView } from './app/pets-view.ts';
+import { createRebirthView, type RebirthView } from './app/rebirth-view.ts';
+import { applyRebirth } from './meta/rebirth.ts';
 import { createPetsVisual } from './render/pets.ts';
 import { createCosmeticsView, type CosmeticsView } from './app/cosmetics-view.ts';
 import { createCosmeticsVisual, type CosmeticsVisual } from './render/cosmetics.ts';
@@ -156,10 +158,12 @@ async function boot(): Promise<void> {
   let loadWaves = 0;
   const bonusOptions = (w: World): { cfg: NonNullable<typeof game.threat.bonus>; seed: number; wavesBefore: number } | undefined =>
     game.threat.bonus ? { cfg: game.threat.bonus, seed: (seed + w.index * 104729) >>> 0, wavesBefore: loadWaves } : undefined;
-  let sim: Sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat: 0, tier: 0, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world) });
+  let sim: Sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat: 0, tier: save.tier ?? 0, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world) });
   let maxSpeed = sim.params.speed;
   const simEvents: GameHandles['simEvents'] = [];
   let pendingPortal: number | null = null;
+  /** Summit portal entered this tick: counted for the rebirth after the tick (M3-06). */
+  let pendingSummit: number | null = null;
   const frame = createControlFrame(tuning.camera.pitchDeg * DEG, tuning.camera.distance);
   const inputOpts = {
     stickRadiusFrac: tuning.input.stickRadiusFrac,
@@ -187,6 +191,7 @@ async function boot(): Promise<void> {
   let meta: MetaView | null = null;
   let petsView: PetsView | null = null;
   let cosmeticsView: CosmeticsView | null = null;
+  let rebirthView: RebirthView | null = null;
   let windows: WindowFrame | null = null;
   let hudView: HudView | null = null;
   let audio: GameAudio | null = null;
@@ -280,6 +285,7 @@ async function boot(): Promise<void> {
       // Trophies of the summit g × (1 + n) (docs/01-gdd.md 8.1): to spend and over all time (the leaderboard, 7.9).
       addTrophies(save, summitTrophies(balance, from, s.tier));
       persist(true);
+      pendingSummit = from;
       if (next !== null) pendingPortal = next;
     });
     ftueView?.wire(s);
@@ -374,6 +380,9 @@ async function boot(): Promise<void> {
     gotoWorld(index) {
       enterWorld(index);
     },
+    rebirth() {
+      rebirth();
+    },
     renderOnce() {
       renderFrame(1, 0);
     },
@@ -418,6 +427,9 @@ async function boot(): Promise<void> {
     get windows() {
       return windows;
     },
+    get rebirthView() {
+      return rebirthView;
+    },
     get audio() {
       return audio;
     },
@@ -447,14 +459,15 @@ async function boot(): Promise<void> {
    * Portal → mountain `index` (docs/01-gdd.md 5.2): new level, colliders and meshes; the stat and the tier carry
    * over, the hero stands at the spawn of the new camp. The «Mountain done» window arrives with the meta (M3).
    */
-  const enterWorld = (index: number): void => {
+  const enterWorld = (index: number, reset?: { stat: number; coins: number; tier: number }): void => {
     const next = content.worlds.worlds.find((w) => w.index === index);
     if (!next) return;
-    const stat = sim.progress.stat;
-    const coins = sim.coins;
+    const stat = reset?.stat ?? sim.progress.stat;
+    const coins = reset?.coins ?? sim.coins;
+    const tier = reset?.tier ?? sim.tier;
     world = next;
     level = buildLevel(world);
-    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier: sim.tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world) });
+    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world) });
     avalanche?.setLevel(level);
     wireSim(sim);
     g.sim = sim;
@@ -474,6 +487,27 @@ async function boot(): Promise<void> {
     frame.controlYaw = 0;
     frame.viewYaw = 0;
     g.teleport(level.spawn[0], level.spawn[1] + 0.05, level.spawn[2]);
+  };
+
+  /**
+   * Rebirth (docs/01-gdd.md 7.5; GDD-08): tier + 1 in the save (shoes back to the starting pair, the looks of the tier),
+   * the camp of mountain 1 with the stat and the coins at zero; pets, looks, trails, auras and trophies stay.
+   * The interstitial before it — M4 (docs/01-gdd.md 9.2).
+   */
+  const rebirth = (): void => {
+    if (!rebirthView?.ready) return;
+    const r = applyRebirth(save, balance, skins);
+    enterWorld(r.world, { stat: r.stat, coins: r.coins, tier: r.tier });
+    meta?.resetShoes();
+    cosmeticsView?.syncHero();
+    hud?.setCoins(formatNumber(r.coins, numSuffix));
+    hud?.toast(t('toast.tier', { n: r.tier }), 3, true);
+    const flash = document.createElement('div');
+    flash.className = 'fade-flash';
+    ui.appendChild(flash);
+    setTimeout(() => flash.remove(), 1000);
+    if (r.tier === 1) trackOnce('rebirth_1', { rebirth: r.tier });
+    persist(true);
   };
 
   // Simulation tick (1/60 s): input → control frame → hero.
@@ -511,6 +545,11 @@ async function boot(): Promise<void> {
     sim.step({ moveX: w.x, moveZ: w.z, jump: snap.jumpPressed, jumpHeld: snap.jumpHeld }, dt);
     curPos.copy(sim.hero.pos);
     maxSpeed = sim.params.speed;
+    if (pendingSummit !== null) {
+      const from = pendingSummit;
+      pendingSummit = null;
+      rebirthView?.summit(from);
+    }
     if (pendingPortal !== null) {
       const next = pendingPortal;
       pendingPortal = null;
@@ -562,7 +601,7 @@ async function boot(): Promise<void> {
     }
     // HUD column (docs/01-gdd.md 10.1): shop, pets, wardrobe — each when it is due (6.4).
     const cm = cosmeticsView?.menuItems();
-    hud?.setMenu([cm?.shop, petsView?.menuItem(), cm?.wardrobe].filter((x): x is MenuItem => !!x));
+    hud?.setMenu([cm?.shop, petsView?.menuItem(), cm?.wardrobe, rebirthView?.menuItem()].filter((x): x is MenuItem => !!x));
     ftueView?.update(gameDt, playSec, renderPos);
     hudView?.update(playSec);
     if (cameraRig) {
@@ -708,6 +747,7 @@ async function boot(): Promise<void> {
       if (id === 'pets') petsView?.openWindow();
       else if (id === 'shop') cosmeticsView?.openShop();
       else if (id === 'wardrobe') cosmeticsView?.openWardrobe();
+      else if (id === 'rebirth') rebirthView?.openWindow();
     },
     trophyColor: theme.ui.trophies,
     okColor: theme.ui.ok,
@@ -793,6 +833,19 @@ async function boot(): Promise<void> {
   if (heroChar.skinId !== cosmeticsView.skin) characters.setSkin(heroChar, cosmeticsView.skin);
   characters.setWings(heroChar, cosmeticsView.wings);
   cosmeticsView.update();
+  // Rebirth (docs/01-gdd.md 7.5): the button from the first summit, the window, «All mountains cleared!» at the last portal.
+  rebirthView = createRebirthView({
+    balance,
+    skins,
+    eggs,
+    save,
+    getSim: () => sim,
+    windows,
+    numSuffix,
+    persist,
+    lookFigure: (kind, id) => cosmeticsView!.lookFigure(kind, id),
+    onRebirth: () => rebirth(),
+  });
   ftueView = createFtueView({
     balance,
     pets,

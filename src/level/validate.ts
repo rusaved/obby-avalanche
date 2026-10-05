@@ -30,6 +30,14 @@ export const PACK_FILES = [
 ] as const;
 
 export type PackFile = (typeof PACK_FILES)[number];
+
+/** Texts of the rebirth screen, the «All mountains cleared!» screen and the tier toast (docs/01a-content.md 11.3, 11.5). */
+export const REBIRTH_KEYS = [
+  'btn.rebirth', 'rebirth.title', 'rebirth.toTier', 'rebirth.resets', 'rebirth.resetList', 'rebirth.keeps', 'rebirth.keepList',
+  'rebirth.gets', 'rebirth.step', 'rebirth.moreTrophies', 'rebirth.higher', 'rebirth.reward', 'rebirth.spendHint',
+  'rebirth.locked', 'rebirth.progress', 'allDone.title', 'allDone.text', 'btn.later', 'btn.stay', 'btn.doRebirth',
+  'btn.toEggs', 'toast.tier',
+] as const;
 export type PackFiles = Record<PackFile, unknown>;
 
 export interface ValidationResult {
@@ -508,6 +516,13 @@ export function validatePack(files: PackFiles): ValidationResult {
       if (!dict['toast.statMilestone']) errors.push(`${file}: toast.statMilestone — missing (balance.json has ui.statMilestones)`);
     }
   }
+
+  // Rebirth (docs/01-gdd.md 7.5, M3-06): «summitWorldN» names a mountain of worlds.json; the screen texts in both languages.
+  const unlock = (files['balance.json'] as Pick<BalanceJson, 'rebirth'>).rebirth.unlock;
+  const goal = /^summitWorld(\d+)$/.exec(unlock);
+  if (!goal || Number(goal[1]) < 1 || Number(goal[1]) > worlds.worlds.length) errors.push(`balance.json: rebirth.unlock — "${unlock}" is not summitWorldN of a mountain in worlds.json`);
+  for (const [file, dict] of [['i18n/ru.json', ru], ['i18n/en.json', en]] as const)
+    for (const key of REBIRTH_KEYS) if (!dict[key]) errors.push(`${file}: ${key} — missing (rebirth screen, docs/01-gdd.md 7.5)`);
 
   // Trophies for a summit (docs/01-gdd.md 8.1): the formula of the data gives a whole positive number.
   const trophies = files['balance.json'] as Pick<BalanceJson, 'trophies'>;

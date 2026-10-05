@@ -97,6 +97,10 @@ export interface TestState {
   /** Trophies to spend and over all time (M3-11: summits pay g × (1 + n), the leaderboard goes by the total). */
   trophies: { now: number; total: number };
   gainMult: number;
+  /** Rebirth (M3-06): tier, summits on this tier, rebirth open. */
+  tier: number;
+  summits: number;
+  rebirthReady: boolean;
   gatesPassed: boolean[];
   /** Round numbers of Speed (M2-13): the plaque has its flash class; sounds started so far; the audio context runs. */
   statFlash: boolean;
@@ -163,6 +167,8 @@ export interface TestApi {
   triggerWave(): void;
   /** To the camp of mountain `index` (1…5) as through a portal (M3-05: every mountain loads without errors). */
   gotoWorld(index: number): void;
+  /** Summits done on this tier, as after walking the portals of mountains 1…n (M3-06: the rebirth opens at the last). */
+  setSummits(n: number): void;
   /** The hero carries a golden gift now (threat.bonus in the data, on warn or run); false otherwise (docs/02-tech.md 17). */
   giveBonus(): boolean;
   /** Is the camera inside the snow body of the avalanche (docs/02-tech.md 7). */
@@ -365,6 +371,9 @@ export function installTestApi(g: GameHandles): TestApi {
         trophies: { now: g.save.trophies ?? 0, total: g.save.trophiesTotal ?? 0 },
         shoesButton: shoesButton(),
         gainMult: g.sim?.progress.gainMult ?? 1,
+        tier: g.sim?.tier ?? 0,
+        summits: g.save.summits ?? 0,
+        rebirthReady: g.rebirthView?.ready ?? false,
         gatesPassed: g.sim ? [...g.sim.gatesPassed] : [],
         statFlash: document.querySelector('[data-role="stat"]')?.classList.contains('flash') ?? false,
         sfx: [...(g.audio?.played ?? [])],
@@ -472,6 +481,9 @@ export function installTestApi(g: GameHandles): TestApi {
     },
     triggerWave: () => g.triggerWave(),
     gotoWorld: (index) => g.gotoWorld(index),
+    setSummits(n) {
+      g.save.summits = n;
+    },
     giveBonus: () => g.sim?.giveBonus() ?? false,
     setStat(n) {
       if (g.sim) g.sim.progress.stat = n;

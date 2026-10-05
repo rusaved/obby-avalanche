@@ -9,7 +9,7 @@ test('wardrobe opens with the default skin on the hero; trail and aura bought fo
   expect(s.skin).toBe('tangerine'); // skins.json default
   expect(s.trophyPlaque.shown).toBe(false);
   expect(s.menu).toEqual([]);
-  // After the first summit (trophies) and 180 s of play: trophy plaque, Shop, Pets, Wardrobe (docs/01-gdd.md 6.4).
+  // After the first summit (trophies) and 180 s of play: trophy plaque, Shop, Pets, Wardrobe, Rebirth (docs/01-gdd.md 6.4).
   await page.evaluate(() => {
     window.__TEST__!.setTrophies(30);
     window.__TEST__!.setPlaySec(181);
@@ -17,7 +17,7 @@ test('wardrobe opens with the default skin on the hero; trail and aura bought fo
   await waitTicks(page, 3);
   s = await testState(page);
   expect(s.trophyPlaque).toEqual({ shown: true, text: '30' });
-  expect(s.menu).toEqual(['shop', 'pets', 'wardrobe']);
+  expect(s.menu).toEqual(['shop', 'pets', 'wardrobe', 'rebirth']);
 
   await page.locator('[data-hud="menu-wardrobe"]').dispatchEvent('pointerdown');
   await expect(page.locator('[data-role="window"][data-window="wardrobe"]')).toBeVisible();
