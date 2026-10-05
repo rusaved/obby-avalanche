@@ -1,11 +1,11 @@
 check-release: release/avalanche-0.1.0.zip
-date: 2026-10-04T23:03:11.670Z
+date: 2026-10-05T00:34:37.917Z
 files: 14
   assets/ZzFX-C1HKDoVW.js  2.0 KB
-  assets/en-DAR4CVen.json  3.1 KB
-  assets/index-BhWBwrau.css  12.6 KB
-  assets/index-Dyrr7yEt.js  695.0 KB
-  assets/ru-BRJupZqY.json  4.1 KB
+  assets/en-BoLQr43N.json  5.0 KB
+  assets/index-Bf6mxB2Y.css  13.0 KB
+  assets/index-mYQ9isbM.js  713.0 KB
+  assets/ru-C8r1LXCV.json  6.7 KB
   assets/rubik-cyrillic-500-normal-BH_pkKR0.woff  9.7 KB
   assets/rubik-cyrillic-500-normal-Didq2w9O.woff2  7.7 KB
   assets/rubik-cyrillic-800-normal-DocVmW4N.woff  9.6 KB
@@ -18,7 +18,7 @@ files: 14
 
 PASS  1. index.html at the root, paths only [A-Za-z0-9._/-]
 PASS  2. unpacked ≤ 10 MB and JS gzip ≤ 800 KB
-        zip 315.0 KB, unpacked 837.5 KB, js gzip 180.4 KB
+        zip 323.7 KB, unpacked 860.6 KB, js gzip 187.1 KB
 PASS  3. no external addresses except /sdk.js and mc.yandex.ru (namespaces allowed)
 PASS  4. <script src="/sdk.js"> exactly once
         found 1
