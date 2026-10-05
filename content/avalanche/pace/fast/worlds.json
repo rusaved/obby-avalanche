@@ -269,7 +269,8 @@
           "y": 3,
           "zone": 1,
           "rarity": "common",
-          "wall": 1
+          "wall": 1,
+          "x": -4
         },
         {
           "type": "floor",
@@ -291,52 +292,26 @@
           "y": 6
         },
         {
-          "type": "gift",
-          "z": 89.28,
+          "type": "jumpPad",
+          "z": 87.2,
           "x": 0,
           "y": 3,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 97.458,
+          "x": 0,
+          "y": 17.947,
           "height": 0,
           "zone": 1,
           "rarity": "common",
           "coins": 5,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 93.68,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 5,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 98.08,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 5,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 102.48,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 5,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -405,8 +380,17 @@
           "y": 9
         },
         {
+          "type": "slide",
+          "z": 139.3,
+          "x": 0,
+          "y": 6,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
           "type": "gift",
-          "z": 133.28,
+          "z": 135.3,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -418,7 +402,7 @@
         },
         {
           "type": "gift",
-          "z": 137.68,
+          "z": 139.3,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -430,7 +414,7 @@
         },
         {
           "type": "gift",
-          "z": 142.08,
+          "z": 143.3,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -438,18 +422,6 @@
           "rarity": "uncommon",
           "coins": 6,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 146.48,
-          "x": 0,
-          "y": 6,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 6,
-          "n": 4,
           "path": true
         },
         {
@@ -597,7 +569,8 @@
           "y": 12,
           "zone": 2,
           "rarity": "uncommon",
-          "wall": 4
+          "wall": 4,
+          "x": -4
         },
         {
           "type": "floor",
@@ -619,52 +592,26 @@
           "y": 15
         },
         {
-          "type": "gift",
-          "z": 221.28,
+          "type": "jumpPad",
+          "z": 219.2,
           "x": 0,
           "y": 12,
+          "width": 4,
+          "length": 4,
+          "stretch": 5
+        },
+        {
+          "type": "gift",
+          "z": 230.623,
+          "x": 0,
+          "y": 26.947,
           "height": 0,
           "zone": 2,
           "rarity": "uncommon",
           "coins": 6,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 225.68,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 6,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 230.08,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 6,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 234.48,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 6,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -733,8 +680,17 @@
           "y": 18
         },
         {
+          "type": "slide",
+          "z": 271.3,
+          "x": 0,
+          "y": 15,
+          "width": 4,
+          "length": 16,
+          "stretch": 6
+        },
+        {
           "type": "gift",
-          "z": 265.28,
+          "z": 267.3,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -746,7 +702,7 @@
         },
         {
           "type": "gift",
-          "z": 269.68,
+          "z": 271.3,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -758,7 +714,7 @@
         },
         {
           "type": "gift",
-          "z": 274.08,
+          "z": 275.3,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -766,18 +722,6 @@
           "rarity": "rare",
           "coins": 7,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 278.48,
-          "x": 0,
-          "y": 15,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 7,
-          "n": 4,
           "path": true
         },
         {
@@ -932,7 +876,8 @@
           "y": 21,
           "zone": 4,
           "rarity": "epic",
-          "wall": 7
+          "wall": 7,
+          "x": -4
         },
         {
           "type": "floor",
@@ -954,52 +899,26 @@
           "y": 24
         },
         {
-          "type": "gift",
-          "z": 353.28,
+          "type": "jumpPad",
+          "z": 351.2,
           "x": 0,
           "y": 21,
+          "width": 4,
+          "length": 4,
+          "stretch": 8
+        },
+        {
+          "type": "gift",
+          "z": 363.778,
+          "x": 0,
+          "y": 35.947,
           "height": 0,
           "zone": 4,
           "rarity": "epic",
           "coins": 8,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 357.68,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 8,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 362.08,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 8,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 366.48,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 8,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -1068,8 +987,17 @@
           "y": 27
         },
         {
+          "type": "slide",
+          "z": 403.3,
+          "x": 0,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 9
+        },
+        {
           "type": "gift",
-          "z": 397.28,
+          "z": 399.3,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -1081,7 +1009,7 @@
         },
         {
           "type": "gift",
-          "z": 401.68,
+          "z": 403.3,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -1093,7 +1021,7 @@
         },
         {
           "type": "gift",
-          "z": 406.08,
+          "z": 407.3,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -1101,18 +1029,6 @@
           "rarity": "epic",
           "coins": 8,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 410.48,
-          "x": 0,
-          "y": 24,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 8,
-          "n": 4,
           "path": true
         },
         {
@@ -1267,7 +1183,8 @@
           "y": 30,
           "zone": 5,
           "rarity": "legendary",
-          "wall": 10
+          "wall": 10,
+          "x": -4
         },
         {
           "type": "floor",
@@ -1289,52 +1206,26 @@
           "y": 33
         },
         {
-          "type": "gift",
-          "z": 485.28,
+          "type": "jumpPad",
+          "z": 483.2,
           "x": 0,
           "y": 30,
+          "width": 4,
+          "length": 4,
+          "stretch": 11
+        },
+        {
+          "type": "gift",
+          "z": 497.002,
+          "x": 0,
+          "y": 44.947,
           "height": 0,
           "zone": 5,
           "rarity": "legendary",
           "coins": 9,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 489.68,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 9,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 494.08,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 9,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 498.48,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 9,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -1396,8 +1287,17 @@
           "y": 36
         },
         {
+          "type": "slide",
+          "z": 535.3,
+          "x": 0,
+          "y": 33,
+          "width": 4,
+          "length": 16,
+          "stretch": 12
+        },
+        {
           "type": "gift",
-          "z": 529.28,
+          "z": 531.3,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -1409,7 +1309,7 @@
         },
         {
           "type": "gift",
-          "z": 533.68,
+          "z": 535.3,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -1421,7 +1321,7 @@
         },
         {
           "type": "gift",
-          "z": 538.08,
+          "z": 539.3,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -1429,18 +1329,6 @@
           "rarity": "legendary",
           "coins": 9,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 542.48,
-          "x": 0,
-          "y": 33,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 9,
-          "n": 4,
           "path": true
         },
         {
@@ -1595,7 +1483,8 @@
           "y": 39,
           "zone": 6,
           "rarity": "mythic",
-          "wall": 13
+          "wall": 13,
+          "x": -4
         },
         {
           "type": "floor",
@@ -1617,52 +1506,26 @@
           "y": 42
         },
         {
-          "type": "gift",
-          "z": 617.28,
+          "type": "jumpPad",
+          "z": 615.2,
           "x": 0,
           "y": 39,
+          "width": 4,
+          "length": 4,
+          "stretch": 14
+        },
+        {
+          "type": "gift",
+          "z": 629.749,
+          "x": 0,
+          "y": 53.947,
           "height": 0,
           "zone": 6,
           "rarity": "mythic",
           "coins": 10,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 621.68,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 10,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 626.08,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 10,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 630.48,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 10,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -1724,8 +1587,17 @@
           "y": 45
         },
         {
+          "type": "slide",
+          "z": 667.3,
+          "x": 0,
+          "y": 42,
+          "width": 4,
+          "length": 16,
+          "stretch": 15
+        },
+        {
           "type": "gift",
-          "z": 661.28,
+          "z": 663.3,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -1737,7 +1609,7 @@
         },
         {
           "type": "gift",
-          "z": 665.68,
+          "z": 667.3,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -1749,7 +1621,7 @@
         },
         {
           "type": "gift",
-          "z": 670.08,
+          "z": 671.3,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -1757,18 +1629,6 @@
           "rarity": "mythic",
           "coins": 10,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 674.48,
-          "x": 0,
-          "y": 42,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 10,
-          "n": 4,
           "path": true
         },
         {
@@ -2118,7 +1978,8 @@
           "y": 3,
           "zone": 1,
           "rarity": "common",
-          "wall": 1
+          "wall": 1,
+          "x": -4
         },
         {
           "type": "floor",
@@ -2140,52 +2001,26 @@
           "y": 6
         },
         {
-          "type": "gift",
-          "z": 91.52,
+          "type": "jumpPad",
+          "z": 89.2,
           "x": 0,
           "y": 3,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 104.38,
+          "x": 0,
+          "y": 17.947,
           "height": 0,
           "zone": 1,
           "rarity": "common",
           "coins": 12,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 96.12,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 12,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 100.72,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 12,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 105.32,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 12,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -2254,8 +2089,17 @@
           "y": 9
         },
         {
+          "type": "slide",
+          "z": 144.2,
+          "x": 0,
+          "y": 6,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
           "type": "gift",
-          "z": 137.52,
+          "z": 140.2,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -2267,7 +2111,7 @@
         },
         {
           "type": "gift",
-          "z": 142.12,
+          "z": 144.2,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -2279,7 +2123,7 @@
         },
         {
           "type": "gift",
-          "z": 146.72,
+          "z": 148.2,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -2287,18 +2131,6 @@
           "rarity": "uncommon",
           "coins": 15,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 151.32,
-          "x": 0,
-          "y": 6,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 15,
-          "n": 4,
           "path": true
         },
         {
@@ -2446,7 +2278,8 @@
           "y": 12,
           "zone": 2,
           "rarity": "uncommon",
-          "wall": 4
+          "wall": 4,
+          "x": -4
         },
         {
           "type": "floor",
@@ -2468,52 +2301,26 @@
           "y": 15
         },
         {
-          "type": "gift",
-          "z": 229.52,
+          "type": "jumpPad",
+          "z": 227.2,
           "x": 0,
           "y": 12,
+          "width": 4,
+          "length": 4,
+          "stretch": 5
+        },
+        {
+          "type": "gift",
+          "z": 242.494,
+          "x": 0,
+          "y": 26.947,
           "height": 0,
           "zone": 2,
           "rarity": "uncommon",
           "coins": 15,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 234.12,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 15,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 238.72,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 15,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 243.32,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 15,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -2582,8 +2389,17 @@
           "y": 18
         },
         {
+          "type": "slide",
+          "z": 282.2,
+          "x": 0,
+          "y": 15,
+          "width": 4,
+          "length": 16,
+          "stretch": 6
+        },
+        {
           "type": "gift",
-          "z": 275.52,
+          "z": 278.2,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -2595,7 +2411,7 @@
         },
         {
           "type": "gift",
-          "z": 280.12,
+          "z": 282.2,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -2607,7 +2423,7 @@
         },
         {
           "type": "gift",
-          "z": 284.72,
+          "z": 286.2,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -2615,18 +2431,6 @@
           "rarity": "rare",
           "coins": 15,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 289.32,
-          "x": 0,
-          "y": 15,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 15,
-          "n": 4,
           "path": true
         },
         {
@@ -2774,7 +2578,8 @@
           "y": 21,
           "zone": 3,
           "rarity": "rare",
-          "wall": 7
+          "wall": 7,
+          "x": -4
         },
         {
           "type": "floor",
@@ -2796,52 +2601,26 @@
           "y": 24
         },
         {
-          "type": "gift",
-          "z": 367.52,
+          "type": "jumpPad",
+          "z": 365.2,
           "x": 0,
           "y": 21,
+          "width": 4,
+          "length": 4,
+          "stretch": 8
+        },
+        {
+          "type": "gift",
+          "z": 380.202,
+          "x": 0,
+          "y": 35.947,
           "height": 0,
           "zone": 3,
           "rarity": "rare",
           "coins": 15,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 372.12,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 15,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 376.72,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 15,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 381.32,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 15,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -2917,8 +2696,17 @@
           "y": 27
         },
         {
+          "type": "slide",
+          "z": 420.2,
+          "x": 0,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 9
+        },
+        {
           "type": "gift",
-          "z": 413.52,
+          "z": 416.2,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -2930,7 +2718,7 @@
         },
         {
           "type": "gift",
-          "z": 418.12,
+          "z": 420.2,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -2942,7 +2730,7 @@
         },
         {
           "type": "gift",
-          "z": 422.72,
+          "z": 424.2,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -2950,18 +2738,6 @@
           "rarity": "epic",
           "coins": 20,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 427.32,
-          "x": 0,
-          "y": 24,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 20,
-          "n": 4,
           "path": true
         },
         {
@@ -3116,7 +2892,8 @@
           "y": 30,
           "zone": 5,
           "rarity": "legendary",
-          "wall": 10
+          "wall": 10,
+          "x": -4
         },
         {
           "type": "floor",
@@ -3138,52 +2915,26 @@
           "y": 33
         },
         {
-          "type": "gift",
-          "z": 505.52,
+          "type": "jumpPad",
+          "z": 503.2,
           "x": 0,
           "y": 30,
+          "width": 4,
+          "length": 4,
+          "stretch": 11
+        },
+        {
+          "type": "gift",
+          "z": 518.437,
+          "x": 0,
+          "y": 44.947,
           "height": 0,
           "zone": 5,
           "rarity": "legendary",
           "coins": 25,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 510.12,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 25,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 514.72,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 25,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 519.32,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 25,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -3245,8 +2996,17 @@
           "y": 36
         },
         {
+          "type": "slide",
+          "z": 558.2,
+          "x": 0,
+          "y": 33,
+          "width": 4,
+          "length": 16,
+          "stretch": 12
+        },
+        {
           "type": "gift",
-          "z": 551.52,
+          "z": 554.2,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -3258,7 +3018,7 @@
         },
         {
           "type": "gift",
-          "z": 556.12,
+          "z": 558.2,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -3270,7 +3030,7 @@
         },
         {
           "type": "gift",
-          "z": 560.72,
+          "z": 562.2,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -3278,18 +3038,6 @@
           "rarity": "legendary",
           "coins": 25,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 565.32,
-          "x": 0,
-          "y": 33,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 25,
-          "n": 4,
           "path": true
         },
         {
@@ -3444,7 +3192,8 @@
           "y": 39,
           "zone": 6,
           "rarity": "mythic",
-          "wall": 13
+          "wall": 13,
+          "x": -4
         },
         {
           "type": "floor",
@@ -3466,52 +3215,26 @@
           "y": 42
         },
         {
-          "type": "gift",
-          "z": 643.52,
+          "type": "jumpPad",
+          "z": 641.2,
           "x": 0,
           "y": 39,
+          "width": 4,
+          "length": 4,
+          "stretch": 14
+        },
+        {
+          "type": "gift",
+          "z": 656.619,
+          "x": 0,
+          "y": 53.947,
           "height": 0,
           "zone": 6,
           "rarity": "mythic",
           "coins": 30,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 648.12,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 30,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 652.72,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 30,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 657.32,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 30,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -3573,8 +3296,17 @@
           "y": 45
         },
         {
+          "type": "slide",
+          "z": 696.2,
+          "x": 0,
+          "y": 42,
+          "width": 4,
+          "length": 16,
+          "stretch": 15
+        },
+        {
           "type": "gift",
-          "z": 689.52,
+          "z": 692.2,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -3586,7 +3318,7 @@
         },
         {
           "type": "gift",
-          "z": 694.12,
+          "z": 696.2,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -3598,7 +3330,7 @@
         },
         {
           "type": "gift",
-          "z": 698.72,
+          "z": 700.2,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -3606,18 +3338,6 @@
           "rarity": "mythic",
           "coins": 30,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 703.32,
-          "x": 0,
-          "y": 42,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 30,
-          "n": 4,
           "path": true
         },
         {
@@ -4074,7 +3794,8 @@
           "y": 3,
           "zone": 1,
           "rarity": "common",
-          "wall": 1
+          "wall": 1,
+          "x": -4
         },
         {
           "type": "floor",
@@ -4096,52 +3817,26 @@
           "y": 6
         },
         {
-          "type": "gift",
-          "z": 93.76,
+          "type": "jumpPad",
+          "z": 91.2,
           "x": 0,
           "y": 3,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 106.864,
+          "x": 0,
+          "y": 17.947,
           "height": 0,
           "zone": 1,
           "rarity": "common",
           "coins": 40,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 98.56,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 40,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 103.36,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 40,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 108.16,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 40,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -4210,8 +3905,17 @@
           "y": 9
         },
         {
+          "type": "slide",
+          "z": 148.8,
+          "x": 0,
+          "y": 6,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
           "type": "gift",
-          "z": 141.76,
+          "z": 144.8,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -4223,7 +3927,7 @@
         },
         {
           "type": "gift",
-          "z": 146.56,
+          "z": 148.8,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -4235,7 +3939,7 @@
         },
         {
           "type": "gift",
-          "z": 151.36,
+          "z": 152.8,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -4243,18 +3947,6 @@
           "rarity": "uncommon",
           "coins": 50,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 156.16,
-          "x": 0,
-          "y": 6,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 50,
-          "n": 4,
           "path": true
         },
         {
@@ -4402,7 +4094,8 @@
           "y": 12,
           "zone": 2,
           "rarity": "uncommon",
-          "wall": 4
+          "wall": 4,
+          "x": -4
         },
         {
           "type": "floor",
@@ -4424,52 +4117,26 @@
           "y": 15
         },
         {
-          "type": "gift",
-          "z": 237.76,
+          "type": "jumpPad",
+          "z": 235.2,
           "x": 0,
           "y": 12,
+          "width": 4,
+          "length": 4,
+          "stretch": 5
+        },
+        {
+          "type": "gift",
+          "z": 251.003,
+          "x": 0,
+          "y": 26.947,
           "height": 0,
           "zone": 2,
           "rarity": "uncommon",
           "coins": 50,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 242.56,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 50,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 247.36,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 50,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 252.16,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 50,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -4538,8 +4205,17 @@
           "y": 18
         },
         {
+          "type": "slide",
+          "z": 292.8,
+          "x": 0,
+          "y": 15,
+          "width": 4,
+          "length": 16,
+          "stretch": 6
+        },
+        {
           "type": "gift",
-          "z": 285.76,
+          "z": 288.8,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -4551,7 +4227,7 @@
         },
         {
           "type": "gift",
-          "z": 290.56,
+          "z": 292.8,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -4563,7 +4239,7 @@
         },
         {
           "type": "gift",
-          "z": 295.36,
+          "z": 296.8,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -4571,18 +4247,6 @@
           "rarity": "rare",
           "coins": 60,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 300.16,
-          "x": 0,
-          "y": 15,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 60,
-          "n": 4,
           "path": true
         },
         {
@@ -4730,7 +4394,8 @@
           "y": 21,
           "zone": 3,
           "rarity": "rare",
-          "wall": 7
+          "wall": 7,
+          "x": -4
         },
         {
           "type": "floor",
@@ -4752,52 +4417,26 @@
           "y": 24
         },
         {
-          "type": "gift",
-          "z": 381.76,
+          "type": "jumpPad",
+          "z": 379.2,
           "x": 0,
           "y": 21,
+          "width": 4,
+          "length": 4,
+          "stretch": 8
+        },
+        {
+          "type": "gift",
+          "z": 395.143,
+          "x": 0,
+          "y": 35.947,
           "height": 0,
           "zone": 3,
           "rarity": "rare",
           "coins": 60,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 386.56,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 60,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 391.36,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 60,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 396.16,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 60,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -4866,8 +4505,17 @@
           "y": 27
         },
         {
+          "type": "slide",
+          "z": 436.8,
+          "x": 0,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 9
+        },
+        {
           "type": "gift",
-          "z": 429.76,
+          "z": 432.8,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -4879,7 +4527,7 @@
         },
         {
           "type": "gift",
-          "z": 434.56,
+          "z": 436.8,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -4891,7 +4539,7 @@
         },
         {
           "type": "gift",
-          "z": 439.36,
+          "z": 440.8,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -4899,18 +4547,6 @@
           "rarity": "epic",
           "coins": 80,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 444.16,
-          "x": 0,
-          "y": 24,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 80,
-          "n": 4,
           "path": true
         },
         {
@@ -5065,7 +4701,8 @@
           "y": 30,
           "zone": 4,
           "rarity": "epic",
-          "wall": 10
+          "wall": 10,
+          "x": -4
         },
         {
           "type": "floor",
@@ -5087,52 +4724,26 @@
           "y": 33
         },
         {
-          "type": "gift",
-          "z": 525.76,
+          "type": "jumpPad",
+          "z": 523.2,
           "x": 0,
           "y": 30,
+          "width": 4,
+          "length": 4,
+          "stretch": 11
+        },
+        {
+          "type": "gift",
+          "z": 539.334,
+          "x": 0,
+          "y": 44.947,
           "height": 0,
           "zone": 4,
           "rarity": "epic",
           "coins": 80,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 530.56,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 80,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 535.36,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 80,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 540.16,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 80,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -5201,8 +4812,17 @@
           "y": 36
         },
         {
+          "type": "slide",
+          "z": 580.8,
+          "x": 0,
+          "y": 33,
+          "width": 4,
+          "length": 16,
+          "stretch": 12
+        },
+        {
           "type": "gift",
-          "z": 573.76,
+          "z": 576.8,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -5214,7 +4834,7 @@
         },
         {
           "type": "gift",
-          "z": 578.56,
+          "z": 580.8,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -5226,7 +4846,7 @@
         },
         {
           "type": "gift",
-          "z": 583.36,
+          "z": 584.8,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -5234,18 +4854,6 @@
           "rarity": "legendary",
           "coins": 80,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 588.16,
-          "x": 0,
-          "y": 33,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 80,
-          "n": 4,
           "path": true
         },
         {
@@ -5393,7 +5001,8 @@
           "y": 39,
           "zone": 5,
           "rarity": "legendary",
-          "wall": 13
+          "wall": 13,
+          "x": -4
         },
         {
           "type": "floor",
@@ -5415,52 +5024,26 @@
           "y": 42
         },
         {
-          "type": "gift",
-          "z": 669.76,
+          "type": "jumpPad",
+          "z": 667.2,
           "x": 0,
           "y": 39,
+          "width": 4,
+          "length": 4,
+          "stretch": 14
+        },
+        {
+          "type": "gift",
+          "z": 682.82,
+          "x": 0,
+          "y": 53.947,
           "height": 0,
           "zone": 5,
           "rarity": "legendary",
           "coins": 80,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 674.56,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 80,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 679.36,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 80,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 684.16,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 80,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -5529,8 +5112,17 @@
           "y": 45
         },
         {
+          "type": "slide",
+          "z": 724.8,
+          "x": 0,
+          "y": 42,
+          "width": 4,
+          "length": 16,
+          "stretch": 15
+        },
+        {
           "type": "gift",
-          "z": 717.76,
+          "z": 720.8,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -5542,7 +5134,7 @@
         },
         {
           "type": "gift",
-          "z": 722.56,
+          "z": 724.8,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -5554,7 +5146,7 @@
         },
         {
           "type": "gift",
-          "z": 727.36,
+          "z": 728.8,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -5562,18 +5154,6 @@
           "rarity": "mythic",
           "coins": 120,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 732.16,
-          "x": 0,
-          "y": 42,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 120,
-          "n": 4,
           "path": true
         },
         {
@@ -5721,7 +5301,8 @@
           "y": 48,
           "zone": 6,
           "rarity": "mythic",
-          "wall": 16
+          "wall": 16,
+          "x": -4
         },
         {
           "type": "floor",
@@ -5743,52 +5324,26 @@
           "y": 51
         },
         {
-          "type": "gift",
-          "z": 813.76,
+          "type": "jumpPad",
+          "z": 811.2,
           "x": 0,
           "y": 48,
+          "width": 4,
+          "length": 4,
+          "stretch": 17
+        },
+        {
+          "type": "gift",
+          "z": 827.051,
+          "x": 0,
+          "y": 62.947,
           "height": 0,
           "zone": 6,
           "rarity": "mythic",
           "coins": 120,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 818.56,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 120,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 823.36,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 120,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 828.16,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 120,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -6137,7 +5692,8 @@
           "y": 3,
           "zone": 1,
           "rarity": "common",
-          "wall": 1
+          "wall": 1,
+          "x": -4
         },
         {
           "type": "floor",
@@ -6159,52 +5715,26 @@
           "y": 6
         },
         {
-          "type": "gift",
-          "z": 96,
+          "type": "jumpPad",
+          "z": 93.2,
           "x": 0,
           "y": 3,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 109.933,
+          "x": 0,
+          "y": 17.947,
           "height": 0,
           "zone": 1,
           "rarity": "common",
           "coins": 150,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 101,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 150,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 106,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 150,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 111,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 150,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -6266,8 +5796,17 @@
           "y": 9
         },
         {
+          "type": "slide",
+          "z": 153,
+          "x": 0,
+          "y": 6,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
           "type": "gift",
-          "z": 146,
+          "z": 149,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -6279,7 +5818,7 @@
         },
         {
           "type": "gift",
-          "z": 151,
+          "z": 153,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -6291,7 +5830,7 @@
         },
         {
           "type": "gift",
-          "z": 156,
+          "z": 157,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -6299,18 +5838,6 @@
           "rarity": "common",
           "coins": 150,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 161,
-          "x": 0,
-          "y": 6,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 150,
-          "n": 4,
           "path": true
         },
         {
@@ -6465,7 +5992,8 @@
           "y": 12,
           "zone": 2,
           "rarity": "uncommon",
-          "wall": 4
+          "wall": 4,
+          "x": -4
         },
         {
           "type": "floor",
@@ -6487,52 +6015,26 @@
           "y": 15
         },
         {
-          "type": "gift",
-          "z": 246,
+          "type": "jumpPad",
+          "z": 243.2,
           "x": 0,
           "y": 12,
+          "width": 4,
+          "length": 4,
+          "stretch": 5
+        },
+        {
+          "type": "gift",
+          "z": 260.148,
+          "x": 0,
+          "y": 26.947,
           "height": 0,
           "zone": 2,
           "rarity": "uncommon",
           "coins": 200,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 251,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 200,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 256,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 200,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 261,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 200,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -6594,8 +6096,17 @@
           "y": 18
         },
         {
+          "type": "slide",
+          "z": 303,
+          "x": 0,
+          "y": 15,
+          "width": 4,
+          "length": 16,
+          "stretch": 6
+        },
+        {
           "type": "gift",
-          "z": 296,
+          "z": 299,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -6607,7 +6118,7 @@
         },
         {
           "type": "gift",
-          "z": 301,
+          "z": 303,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -6619,7 +6130,7 @@
         },
         {
           "type": "gift",
-          "z": 306,
+          "z": 307,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -6627,18 +6138,6 @@
           "rarity": "uncommon",
           "coins": 200,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 311,
-          "x": 0,
-          "y": 15,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 200,
-          "n": 4,
           "path": true
         },
         {
@@ -6793,7 +6292,8 @@
           "y": 21,
           "zone": 3,
           "rarity": "rare",
-          "wall": 7
+          "wall": 7,
+          "x": -4
         },
         {
           "type": "floor",
@@ -6815,52 +6315,26 @@
           "y": 24
         },
         {
-          "type": "gift",
-          "z": 396,
+          "type": "jumpPad",
+          "z": 393.2,
           "x": 0,
           "y": 21,
+          "width": 4,
+          "length": 4,
+          "stretch": 8
+        },
+        {
+          "type": "gift",
+          "z": 410.317,
+          "x": 0,
+          "y": 35.947,
           "height": 0,
           "zone": 3,
           "rarity": "rare",
           "coins": 250,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 401,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 250,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 406,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 250,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 411,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 250,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -6922,8 +6396,17 @@
           "y": 27
         },
         {
+          "type": "slide",
+          "z": 453,
+          "x": 0,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 9
+        },
+        {
           "type": "gift",
-          "z": 446,
+          "z": 449,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -6935,7 +6418,7 @@
         },
         {
           "type": "gift",
-          "z": 451,
+          "z": 453,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -6947,7 +6430,7 @@
         },
         {
           "type": "gift",
-          "z": 456,
+          "z": 457,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -6955,18 +6438,6 @@
           "rarity": "rare",
           "coins": 250,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 461,
-          "x": 0,
-          "y": 24,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 250,
-          "n": 4,
           "path": true
         },
         {
@@ -7128,7 +6599,8 @@
           "y": 30,
           "zone": 4,
           "rarity": "epic",
-          "wall": 10
+          "wall": 10,
+          "x": -4
         },
         {
           "type": "floor",
@@ -7150,52 +6622,26 @@
           "y": 33
         },
         {
-          "type": "gift",
-          "z": 546,
+          "type": "jumpPad",
+          "z": 543.2,
           "x": 0,
           "y": 30,
+          "width": 4,
+          "length": 4,
+          "stretch": 11
+        },
+        {
+          "type": "gift",
+          "z": 560.457,
+          "x": 0,
+          "y": 44.947,
           "height": 0,
           "zone": 4,
           "rarity": "epic",
           "coins": 300,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 551,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 300,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 556,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 300,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 561,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 300,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -7257,8 +6703,17 @@
           "y": 36
         },
         {
+          "type": "slide",
+          "z": 603,
+          "x": 0,
+          "y": 33,
+          "width": 4,
+          "length": 16,
+          "stretch": 12
+        },
+        {
           "type": "gift",
-          "z": 596,
+          "z": 599,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -7270,7 +6725,7 @@
         },
         {
           "type": "gift",
-          "z": 601,
+          "z": 603,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -7282,7 +6737,7 @@
         },
         {
           "type": "gift",
-          "z": 606,
+          "z": 607,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -7290,18 +6745,6 @@
           "rarity": "epic",
           "coins": 300,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 611,
-          "x": 0,
-          "y": 33,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 300,
-          "n": 4,
           "path": true
         },
         {
@@ -7456,7 +6899,8 @@
           "y": 39,
           "zone": 5,
           "rarity": "legendary",
-          "wall": 13
+          "wall": 13,
+          "x": -4
         },
         {
           "type": "floor",
@@ -7478,52 +6922,26 @@
           "y": 42
         },
         {
-          "type": "gift",
-          "z": 696,
+          "type": "jumpPad",
+          "z": 693.2,
           "x": 0,
           "y": 39,
+          "width": 4,
+          "length": 4,
+          "stretch": 14
+        },
+        {
+          "type": "gift",
+          "z": 709.75,
+          "x": 0,
+          "y": 53.947,
           "height": 0,
           "zone": 5,
           "rarity": "legendary",
           "coins": 400,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 701,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 400,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 706,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 400,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 711,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 400,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -7585,8 +7003,17 @@
           "y": 45
         },
         {
+          "type": "slide",
+          "z": 753,
+          "x": 0,
+          "y": 42,
+          "width": 4,
+          "length": 16,
+          "stretch": 15
+        },
+        {
           "type": "gift",
-          "z": 746,
+          "z": 749,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -7598,7 +7025,7 @@
         },
         {
           "type": "gift",
-          "z": 751,
+          "z": 753,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -7610,7 +7037,7 @@
         },
         {
           "type": "gift",
-          "z": 756,
+          "z": 757,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -7618,18 +7045,6 @@
           "rarity": "legendary",
           "coins": 400,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 761,
-          "x": 0,
-          "y": 42,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 400,
-          "n": 4,
           "path": true
         },
         {
@@ -7784,7 +7199,8 @@
           "y": 48,
           "zone": 6,
           "rarity": "mythic",
-          "wall": 16
+          "wall": 16,
+          "x": -4
         },
         {
           "type": "floor",
@@ -7806,52 +7222,26 @@
           "y": 51
         },
         {
-          "type": "gift",
-          "z": 846,
+          "type": "jumpPad",
+          "z": 843.2,
           "x": 0,
           "y": 48,
+          "width": 4,
+          "length": 4,
+          "stretch": 17
+        },
+        {
+          "type": "gift",
+          "z": 859.938,
+          "x": 0,
+          "y": 62.947,
           "height": 0,
           "zone": 6,
           "rarity": "mythic",
           "coins": 500,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 851,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 500,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 856,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 500,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 861,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 500,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -7913,8 +7303,17 @@
           "y": 54
         },
         {
+          "type": "slide",
+          "z": 903,
+          "x": 0,
+          "y": 51,
+          "width": 4,
+          "length": 16,
+          "stretch": 18
+        },
+        {
           "type": "gift",
-          "z": 896,
+          "z": 899,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -7926,7 +7325,7 @@
         },
         {
           "type": "gift",
-          "z": 901,
+          "z": 903,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -7938,7 +7337,7 @@
         },
         {
           "type": "gift",
-          "z": 906,
+          "z": 907,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -7946,18 +7345,6 @@
           "rarity": "mythic",
           "coins": 500,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 911,
-          "x": 0,
-          "y": 51,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 500,
-          "n": 4,
           "path": true
         },
         {
@@ -8307,7 +7694,8 @@
           "y": 3,
           "zone": 1,
           "rarity": "common",
-          "wall": 1
+          "wall": 1,
+          "x": -4
         },
         {
           "type": "floor",
@@ -8329,52 +7717,26 @@
           "y": 6
         },
         {
-          "type": "gift",
-          "z": 98.24,
+          "type": "jumpPad",
+          "z": 95.2,
           "x": 0,
           "y": 3,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 112.956,
+          "x": 0,
+          "y": 17.947,
           "height": 0,
           "zone": 1,
           "rarity": "common",
           "coins": 800,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 103.44,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 800,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 108.64,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 800,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 113.84,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 800,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -8436,8 +7798,17 @@
           "y": 9
         },
         {
+          "type": "slide",
+          "z": 157.2,
+          "x": 0,
+          "y": 6,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
           "type": "gift",
-          "z": 150.24,
+          "z": 153.2,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -8449,7 +7820,7 @@
         },
         {
           "type": "gift",
-          "z": 155.44,
+          "z": 157.2,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -8461,7 +7832,7 @@
         },
         {
           "type": "gift",
-          "z": 160.64,
+          "z": 161.2,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -8469,18 +7840,6 @@
           "rarity": "common",
           "coins": 800,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 165.84,
-          "x": 0,
-          "y": 6,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 800,
-          "n": 4,
           "path": true
         },
         {
@@ -8635,7 +7994,8 @@
           "y": 12,
           "zone": 2,
           "rarity": "uncommon",
-          "wall": 4
+          "wall": 4,
+          "x": -4
         },
         {
           "type": "floor",
@@ -8657,52 +8017,26 @@
           "y": 15
         },
         {
-          "type": "gift",
-          "z": 254.24,
+          "type": "jumpPad",
+          "z": 251.2,
           "x": 0,
           "y": 12,
+          "width": 4,
+          "length": 4,
+          "stretch": 5
+        },
+        {
+          "type": "gift",
+          "z": 269.085,
+          "x": 0,
+          "y": 26.947,
           "height": 0,
           "zone": 2,
           "rarity": "uncommon",
           "coins": 1000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 259.44,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 1000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 264.64,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 1000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 269.84,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 1000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -8764,8 +8098,17 @@
           "y": 18
         },
         {
+          "type": "slide",
+          "z": 313.2,
+          "x": 0,
+          "y": 15,
+          "width": 4,
+          "length": 16,
+          "stretch": 6
+        },
+        {
           "type": "gift",
-          "z": 306.24,
+          "z": 309.2,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -8777,7 +8120,7 @@
         },
         {
           "type": "gift",
-          "z": 311.44,
+          "z": 313.2,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -8789,7 +8132,7 @@
         },
         {
           "type": "gift",
-          "z": 316.64,
+          "z": 317.2,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -8797,18 +8140,6 @@
           "rarity": "uncommon",
           "coins": 1000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 321.84,
-          "x": 0,
-          "y": 15,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 1000,
-          "n": 4,
           "path": true
         },
         {
@@ -8963,7 +8294,8 @@
           "y": 21,
           "zone": 3,
           "rarity": "rare",
-          "wall": 7
+          "wall": 7,
+          "x": -4
         },
         {
           "type": "floor",
@@ -8985,52 +8317,26 @@
           "y": 24
         },
         {
-          "type": "gift",
-          "z": 410.24,
+          "type": "jumpPad",
+          "z": 407.2,
           "x": 0,
           "y": 21,
+          "width": 4,
+          "length": 4,
+          "stretch": 8
+        },
+        {
+          "type": "gift",
+          "z": 425.197,
+          "x": 0,
+          "y": 35.947,
           "height": 0,
           "zone": 3,
           "rarity": "rare",
           "coins": 1200,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 415.44,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 1200,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 420.64,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 1200,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 425.84,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 1200,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -9092,8 +8398,17 @@
           "y": 27
         },
         {
+          "type": "slide",
+          "z": 469.2,
+          "x": 0,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 9
+        },
+        {
           "type": "gift",
-          "z": 462.24,
+          "z": 465.2,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -9105,7 +8420,7 @@
         },
         {
           "type": "gift",
-          "z": 467.44,
+          "z": 469.2,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -9117,7 +8432,7 @@
         },
         {
           "type": "gift",
-          "z": 472.64,
+          "z": 473.2,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -9125,18 +8440,6 @@
           "rarity": "rare",
           "coins": 1200,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 477.84,
-          "x": 0,
-          "y": 24,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 1200,
-          "n": 4,
           "path": true
         },
         {
@@ -9291,7 +8594,8 @@
           "y": 30,
           "zone": 4,
           "rarity": "epic",
-          "wall": 10
+          "wall": 10,
+          "x": -4
         },
         {
           "type": "eggStand",
@@ -9320,52 +8624,26 @@
           "y": 33
         },
         {
-          "type": "gift",
-          "z": 566.24,
+          "type": "jumpPad",
+          "z": 563.2,
           "x": 0,
           "y": 30,
+          "width": 4,
+          "length": 4,
+          "stretch": 11
+        },
+        {
+          "type": "gift",
+          "z": 581.369,
+          "x": 0,
+          "y": 44.947,
           "height": 0,
           "zone": 4,
           "rarity": "epic",
           "coins": 2000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 571.44,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 2000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 576.64,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 2000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 581.84,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 2000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -9427,8 +8705,17 @@
           "y": 36
         },
         {
+          "type": "slide",
+          "z": 625.2,
+          "x": 0,
+          "y": 33,
+          "width": 4,
+          "length": 16,
+          "stretch": 12
+        },
+        {
           "type": "gift",
-          "z": 618.24,
+          "z": 621.2,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -9440,7 +8727,7 @@
         },
         {
           "type": "gift",
-          "z": 623.44,
+          "z": 625.2,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -9452,7 +8739,7 @@
         },
         {
           "type": "gift",
-          "z": 628.64,
+          "z": 629.2,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -9460,18 +8747,6 @@
           "rarity": "epic",
           "coins": 2000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 633.84,
-          "x": 0,
-          "y": 33,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 2000,
-          "n": 4,
           "path": true
         },
         {
@@ -9626,7 +8901,8 @@
           "y": 39,
           "zone": 5,
           "rarity": "legendary",
-          "wall": 13
+          "wall": 13,
+          "x": -4
         },
         {
           "type": "floor",
@@ -9648,52 +8924,26 @@
           "y": 42
         },
         {
-          "type": "gift",
-          "z": 722.24,
+          "type": "jumpPad",
+          "z": 719.2,
           "x": 0,
           "y": 39,
+          "width": 4,
+          "length": 4,
+          "stretch": 14
+        },
+        {
+          "type": "gift",
+          "z": 736.655,
+          "x": 0,
+          "y": 53.947,
           "height": 0,
           "zone": 5,
           "rarity": "legendary",
           "coins": 2500,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 727.44,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 2500,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 732.64,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 2500,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 737.84,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 2500,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -9755,8 +9005,17 @@
           "y": 45
         },
         {
+          "type": "slide",
+          "z": 781.2,
+          "x": 0,
+          "y": 42,
+          "width": 4,
+          "length": 16,
+          "stretch": 15
+        },
+        {
           "type": "gift",
-          "z": 774.24,
+          "z": 777.2,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -9768,7 +9027,7 @@
         },
         {
           "type": "gift",
-          "z": 779.44,
+          "z": 781.2,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -9780,7 +9039,7 @@
         },
         {
           "type": "gift",
-          "z": 784.64,
+          "z": 785.2,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -9788,18 +9047,6 @@
           "rarity": "legendary",
           "coins": 2500,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 789.84,
-          "x": 0,
-          "y": 42,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 2500,
-          "n": 4,
           "path": true
         },
         {
@@ -9954,7 +9201,8 @@
           "y": 48,
           "zone": 6,
           "rarity": "mythic",
-          "wall": 16
+          "wall": 16,
+          "x": -4
         },
         {
           "type": "floor",
@@ -9976,52 +9224,26 @@
           "y": 51
         },
         {
-          "type": "gift",
-          "z": 878.24,
+          "type": "jumpPad",
+          "z": 875.2,
           "x": 0,
           "y": 48,
+          "width": 4,
+          "length": 4,
+          "stretch": 17
+        },
+        {
+          "type": "gift",
+          "z": 892.806,
+          "x": 0,
+          "y": 62.947,
           "height": 0,
           "zone": 6,
           "rarity": "mythic",
           "coins": 3000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 883.44,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 3000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 888.64,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 3000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 893.84,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 3000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -10083,8 +9305,17 @@
           "y": 54
         },
         {
+          "type": "slide",
+          "z": 937.2,
+          "x": 0,
+          "y": 51,
+          "width": 4,
+          "length": 16,
+          "stretch": 18
+        },
+        {
           "type": "gift",
-          "z": 930.24,
+          "z": 933.2,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -10096,7 +9327,7 @@
         },
         {
           "type": "gift",
-          "z": 935.44,
+          "z": 937.2,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -10108,7 +9339,7 @@
         },
         {
           "type": "gift",
-          "z": 940.64,
+          "z": 941.2,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -10116,18 +9347,6 @@
           "rarity": "mythic",
           "coins": 3000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 945.84,
-          "x": 0,
-          "y": 51,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 3000,
-          "n": 4,
           "path": true
         },
         {
@@ -10584,7 +9803,8 @@
           "y": 3,
           "zone": 1,
           "rarity": "common",
-          "wall": 1
+          "wall": 1,
+          "x": -4
         },
         {
           "type": "floor",
@@ -10606,52 +9826,26 @@
           "y": 6
         },
         {
-          "type": "gift",
-          "z": 100.48,
+          "type": "jumpPad",
+          "z": 97.2,
           "x": 0,
           "y": 3,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 115.891,
+          "x": 0,
+          "y": 17.947,
           "height": 0,
           "zone": 1,
           "rarity": "common",
           "coins": 5000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 105.88,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 5000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 111.28,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 5000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 116.68,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 5000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -10713,8 +9907,17 @@
           "y": 9
         },
         {
+          "type": "slide",
+          "z": 161.4,
+          "x": 0,
+          "y": 6,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
           "type": "gift",
-          "z": 154.48,
+          "z": 157.4,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -10726,7 +9929,7 @@
         },
         {
           "type": "gift",
-          "z": 159.88,
+          "z": 161.4,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -10738,7 +9941,7 @@
         },
         {
           "type": "gift",
-          "z": 165.28,
+          "z": 165.4,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -10746,18 +9949,6 @@
           "rarity": "common",
           "coins": 5000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 170.68,
-          "x": 0,
-          "y": 6,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 5000,
-          "n": 4,
           "path": true
         },
         {
@@ -10912,7 +10103,8 @@
           "y": 12,
           "zone": 2,
           "rarity": "uncommon",
-          "wall": 4
+          "wall": 4,
+          "x": -4
         },
         {
           "type": "floor",
@@ -10934,52 +10126,26 @@
           "y": 15
         },
         {
-          "type": "gift",
-          "z": 262.48,
+          "type": "jumpPad",
+          "z": 259.2,
           "x": 0,
           "y": 12,
+          "width": 4,
+          "length": 4,
+          "stretch": 5
+        },
+        {
+          "type": "gift",
+          "z": 278.088,
+          "x": 0,
+          "y": 26.947,
           "height": 0,
           "zone": 2,
           "rarity": "uncommon",
           "coins": 6000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 267.88,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 6000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 273.28,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 6000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 278.68,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 6000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -11041,8 +10207,17 @@
           "y": 18
         },
         {
+          "type": "slide",
+          "z": 323.4,
+          "x": 0,
+          "y": 15,
+          "width": 4,
+          "length": 16,
+          "stretch": 6
+        },
+        {
           "type": "gift",
-          "z": 316.48,
+          "z": 319.4,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -11054,7 +10229,7 @@
         },
         {
           "type": "gift",
-          "z": 321.88,
+          "z": 323.4,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -11066,7 +10241,7 @@
         },
         {
           "type": "gift",
-          "z": 327.28,
+          "z": 327.4,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -11074,18 +10249,6 @@
           "rarity": "uncommon",
           "coins": 6000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 332.68,
-          "x": 0,
-          "y": 15,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 6000,
-          "n": 4,
           "path": true
         },
         {
@@ -11240,7 +10403,8 @@
           "y": 21,
           "zone": 3,
           "rarity": "rare",
-          "wall": 7
+          "wall": 7,
+          "x": -4
         },
         {
           "type": "floor",
@@ -11262,52 +10426,26 @@
           "y": 24
         },
         {
-          "type": "gift",
-          "z": 424.48,
+          "type": "jumpPad",
+          "z": 421.2,
           "x": 0,
           "y": 21,
+          "width": 4,
+          "length": 4,
+          "stretch": 8
+        },
+        {
+          "type": "gift",
+          "z": 440.247,
+          "x": 0,
+          "y": 35.947,
           "height": 0,
           "zone": 3,
           "rarity": "rare",
           "coins": 10000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 429.88,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 10000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 435.28,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 10000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 440.68,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 10000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -11369,8 +10507,17 @@
           "y": 27
         },
         {
+          "type": "slide",
+          "z": 485.4,
+          "x": 0,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 9
+        },
+        {
           "type": "gift",
-          "z": 478.48,
+          "z": 481.4,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -11382,7 +10529,7 @@
         },
         {
           "type": "gift",
-          "z": 483.88,
+          "z": 485.4,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -11394,7 +10541,7 @@
         },
         {
           "type": "gift",
-          "z": 489.28,
+          "z": 489.4,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -11402,18 +10549,6 @@
           "rarity": "rare",
           "coins": 10000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 494.68,
-          "x": 0,
-          "y": 24,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 10000,
-          "n": 4,
           "path": true
         },
         {
@@ -11568,7 +10703,8 @@
           "y": 30,
           "zone": 4,
           "rarity": "epic",
-          "wall": 10
+          "wall": 10,
+          "x": -4
         },
         {
           "type": "eggStand",
@@ -11597,52 +10733,26 @@
           "y": 33
         },
         {
-          "type": "gift",
-          "z": 586.48,
+          "type": "jumpPad",
+          "z": 583.2,
           "x": 0,
           "y": 30,
+          "width": 4,
+          "length": 4,
+          "stretch": 11
+        },
+        {
+          "type": "gift",
+          "z": 601.475,
+          "x": 0,
+          "y": 44.947,
           "height": 0,
           "zone": 4,
           "rarity": "epic",
           "coins": 15000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 591.88,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 15000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 597.28,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 15000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 602.68,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 15000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -11704,8 +10814,17 @@
           "y": 36
         },
         {
+          "type": "slide",
+          "z": 647.4,
+          "x": 0,
+          "y": 33,
+          "width": 4,
+          "length": 16,
+          "stretch": 12
+        },
+        {
           "type": "gift",
-          "z": 640.48,
+          "z": 643.4,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -11717,7 +10836,7 @@
         },
         {
           "type": "gift",
-          "z": 645.88,
+          "z": 647.4,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -11729,7 +10848,7 @@
         },
         {
           "type": "gift",
-          "z": 651.28,
+          "z": 651.4,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -11737,18 +10856,6 @@
           "rarity": "epic",
           "coins": 15000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 656.68,
-          "x": 0,
-          "y": 33,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 15000,
-          "n": 4,
           "path": true
         },
         {
@@ -11903,7 +11010,8 @@
           "y": 39,
           "zone": 5,
           "rarity": "legendary",
-          "wall": 13
+          "wall": 13,
+          "x": -4
         },
         {
           "type": "floor",
@@ -11925,52 +11033,26 @@
           "y": 42
         },
         {
-          "type": "gift",
-          "z": 748.48,
+          "type": "jumpPad",
+          "z": 745.2,
           "x": 0,
           "y": 39,
+          "width": 4,
+          "length": 4,
+          "stretch": 14
+        },
+        {
+          "type": "gift",
+          "z": 763.584,
+          "x": 0,
+          "y": 53.947,
           "height": 0,
           "zone": 5,
           "rarity": "legendary",
           "coins": 20000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 753.88,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 20000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 759.28,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 20000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 764.68,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 20000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -12032,8 +11114,17 @@
           "y": 45
         },
         {
+          "type": "slide",
+          "z": 809.4,
+          "x": 0,
+          "y": 42,
+          "width": 4,
+          "length": 16,
+          "stretch": 15
+        },
+        {
           "type": "gift",
-          "z": 802.48,
+          "z": 805.4,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -12045,7 +11136,7 @@
         },
         {
           "type": "gift",
-          "z": 807.88,
+          "z": 809.4,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -12057,7 +11148,7 @@
         },
         {
           "type": "gift",
-          "z": 813.28,
+          "z": 813.4,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -12065,18 +11156,6 @@
           "rarity": "legendary",
           "coins": 20000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 818.68,
-          "x": 0,
-          "y": 42,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 20000,
-          "n": 4,
           "path": true
         },
         {
@@ -12231,7 +11310,8 @@
           "y": 48,
           "zone": 6,
           "rarity": "mythic",
-          "wall": 16
+          "wall": 16,
+          "x": -4
         },
         {
           "type": "floor",
@@ -12253,52 +11333,26 @@
           "y": 51
         },
         {
-          "type": "gift",
-          "z": 910.48,
+          "type": "jumpPad",
+          "z": 907.2,
           "x": 0,
           "y": 48,
+          "width": 4,
+          "length": 4,
+          "stretch": 17
+        },
+        {
+          "type": "gift",
+          "z": 925.792,
+          "x": 0,
+          "y": 62.947,
           "height": 0,
           "zone": 6,
           "rarity": "mythic",
           "coins": 30000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 915.88,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 30000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 921.28,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 30000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 926.68,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 30000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -12360,8 +11414,17 @@
           "y": 54
         },
         {
+          "type": "slide",
+          "z": 971.4,
+          "x": 0,
+          "y": 51,
+          "width": 4,
+          "length": 16,
+          "stretch": 18
+        },
+        {
           "type": "gift",
-          "z": 964.48,
+          "z": 967.4,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -12373,7 +11436,7 @@
         },
         {
           "type": "gift",
-          "z": 969.88,
+          "z": 971.4,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -12385,7 +11448,7 @@
         },
         {
           "type": "gift",
-          "z": 975.28,
+          "z": 975.4,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -12393,18 +11456,6 @@
           "rarity": "mythic",
           "coins": 30000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 980.68,
-          "x": 0,
-          "y": 51,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 30000,
-          "n": 4,
           "path": true
         },
         {
@@ -12552,7 +11603,8 @@
           "y": 57,
           "zone": 6,
           "rarity": "mythic",
-          "wall": 19
+          "wall": 19,
+          "x": -4
         },
         {
           "type": "floor",
@@ -12574,52 +11626,26 @@
           "y": 60
         },
         {
-          "type": "gift",
-          "z": 1072.48,
+          "type": "jumpPad",
+          "z": 1069.2,
           "x": 0,
           "y": 57,
+          "width": 4,
+          "length": 4,
+          "stretch": 20
+        },
+        {
+          "type": "gift",
+          "z": 1087.977,
+          "x": 0,
+          "y": 71.947,
           "height": 0,
           "zone": 6,
           "rarity": "mythic",
           "coins": 30000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1077.88,
-          "x": 0,
-          "y": 57,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 30000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1083.28,
-          "x": 0,
-          "y": 57,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 30000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1088.68,
-          "x": 0,
-          "y": 57,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 30000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -12968,7 +11994,8 @@
           "y": 3,
           "zone": 1,
           "rarity": "common",
-          "wall": 1
+          "wall": 1,
+          "x": -4
         },
         {
           "type": "floor",
@@ -12990,52 +12017,26 @@
           "y": 6
         },
         {
-          "type": "gift",
-          "z": 102.72,
+          "type": "jumpPad",
+          "z": 99.2,
           "x": 0,
           "y": 3,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 119.023,
+          "x": 0,
+          "y": 17.947,
           "height": 0,
           "zone": 1,
           "rarity": "common",
           "coins": 40000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 108.32,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 40000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 113.92,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 40000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 119.52,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 40000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -13097,8 +12098,17 @@
           "y": 9
         },
         {
+          "type": "slide",
+          "z": 165.6,
+          "x": 0,
+          "y": 6,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
           "type": "gift",
-          "z": 158.72,
+          "z": 161.6,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -13110,7 +12120,7 @@
         },
         {
           "type": "gift",
-          "z": 164.32,
+          "z": 165.6,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -13122,7 +12132,7 @@
         },
         {
           "type": "gift",
-          "z": 169.92,
+          "z": 169.6,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -13130,18 +12140,6 @@
           "rarity": "common",
           "coins": 40000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 175.52,
-          "x": 0,
-          "y": 6,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 40000,
-          "n": 4,
           "path": true
         },
         {
@@ -13296,7 +12294,8 @@
           "y": 12,
           "zone": 2,
           "rarity": "uncommon",
-          "wall": 4
+          "wall": 4,
+          "x": -4
         },
         {
           "type": "floor",
@@ -13318,52 +12317,26 @@
           "y": 15
         },
         {
-          "type": "gift",
-          "z": 270.72,
+          "type": "jumpPad",
+          "z": 267.2,
           "x": 0,
           "y": 12,
+          "width": 4,
+          "length": 4,
+          "stretch": 5
+        },
+        {
+          "type": "gift",
+          "z": 287.159,
+          "x": 0,
+          "y": 26.947,
           "height": 0,
           "zone": 2,
           "rarity": "uncommon",
           "coins": 60000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 276.32,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 60000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 281.92,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 60000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 287.52,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 60000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -13425,8 +12398,17 @@
           "y": 18
         },
         {
+          "type": "slide",
+          "z": 333.6,
+          "x": 0,
+          "y": 15,
+          "width": 4,
+          "length": 16,
+          "stretch": 6
+        },
+        {
           "type": "gift",
-          "z": 326.72,
+          "z": 329.6,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -13438,7 +12420,7 @@
         },
         {
           "type": "gift",
-          "z": 332.32,
+          "z": 333.6,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -13450,7 +12432,7 @@
         },
         {
           "type": "gift",
-          "z": 337.92,
+          "z": 337.6,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -13458,18 +12440,6 @@
           "rarity": "uncommon",
           "coins": 60000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 343.52,
-          "x": 0,
-          "y": 15,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 60000,
-          "n": 4,
           "path": true
         },
         {
@@ -13624,7 +12594,8 @@
           "y": 21,
           "zone": 3,
           "rarity": "rare",
-          "wall": 7
+          "wall": 7,
+          "x": -4
         },
         {
           "type": "floor",
@@ -13646,52 +12617,26 @@
           "y": 24
         },
         {
-          "type": "gift",
-          "z": 438.72,
+          "type": "jumpPad",
+          "z": 435.2,
           "x": 0,
           "y": 21,
+          "width": 4,
+          "length": 4,
+          "stretch": 8
+        },
+        {
+          "type": "gift",
+          "z": 454.384,
+          "x": 0,
+          "y": 35.947,
           "height": 0,
           "zone": 3,
           "rarity": "rare",
           "coins": 100000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 444.32,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 100000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 449.92,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 100000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 455.52,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 100000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -13753,8 +12698,17 @@
           "y": 27
         },
         {
+          "type": "slide",
+          "z": 501.6,
+          "x": 0,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 9
+        },
+        {
           "type": "gift",
-          "z": 494.72,
+          "z": 497.6,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -13766,7 +12720,7 @@
         },
         {
           "type": "gift",
-          "z": 500.32,
+          "z": 501.6,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -13778,7 +12732,7 @@
         },
         {
           "type": "gift",
-          "z": 505.92,
+          "z": 505.6,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -13786,18 +12740,6 @@
           "rarity": "rare",
           "coins": 100000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 511.52,
-          "x": 0,
-          "y": 24,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 100000,
-          "n": 4,
           "path": true
         },
         {
@@ -13952,7 +12894,8 @@
           "y": 30,
           "zone": 4,
           "rarity": "epic",
-          "wall": 10
+          "wall": 10,
+          "x": -4
         },
         {
           "type": "floor",
@@ -13974,52 +12917,26 @@
           "y": 33
         },
         {
-          "type": "gift",
-          "z": 606.72,
+          "type": "jumpPad",
+          "z": 603.2,
           "x": 0,
           "y": 30,
+          "width": 4,
+          "length": 4,
+          "stretch": 11
+        },
+        {
+          "type": "gift",
+          "z": 622.569,
+          "x": 0,
+          "y": 44.947,
           "height": 0,
           "zone": 4,
           "rarity": "epic",
           "coins": 150000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 612.32,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 150000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 617.92,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 150000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 623.52,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 150000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -14088,8 +13005,17 @@
           "y": 36
         },
         {
+          "type": "slide",
+          "z": 669.6,
+          "x": 0,
+          "y": 33,
+          "width": 4,
+          "length": 16,
+          "stretch": 12
+        },
+        {
           "type": "gift",
-          "z": 662.72,
+          "z": 665.6,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -14101,7 +13027,7 @@
         },
         {
           "type": "gift",
-          "z": 668.32,
+          "z": 669.6,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -14113,7 +13039,7 @@
         },
         {
           "type": "gift",
-          "z": 673.92,
+          "z": 673.6,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -14121,18 +13047,6 @@
           "rarity": "epic",
           "coins": 150000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 679.52,
-          "x": 0,
-          "y": 33,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 150000,
-          "n": 4,
           "path": true
         },
         {
@@ -14280,7 +13194,8 @@
           "y": 39,
           "zone": 4,
           "rarity": "epic",
-          "wall": 13
+          "wall": 13,
+          "x": -4
         },
         {
           "type": "floor",
@@ -14302,52 +13217,26 @@
           "y": 42
         },
         {
-          "type": "gift",
-          "z": 774.72,
+          "type": "jumpPad",
+          "z": 771.2,
           "x": 0,
           "y": 39,
+          "width": 4,
+          "length": 4,
+          "stretch": 14
+        },
+        {
+          "type": "gift",
+          "z": 790.733,
+          "x": 0,
+          "y": 53.947,
           "height": 0,
           "zone": 4,
           "rarity": "epic",
           "coins": 150000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 780.32,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 150000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 785.92,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 150000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 791.52,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 150000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -14416,8 +13305,17 @@
           "y": 45
         },
         {
+          "type": "slide",
+          "z": 837.6,
+          "x": 0,
+          "y": 42,
+          "width": 4,
+          "length": 16,
+          "stretch": 15
+        },
+        {
           "type": "gift",
-          "z": 830.72,
+          "z": 833.6,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -14429,7 +13327,7 @@
         },
         {
           "type": "gift",
-          "z": 836.32,
+          "z": 837.6,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -14441,7 +13339,7 @@
         },
         {
           "type": "gift",
-          "z": 841.92,
+          "z": 841.6,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -14449,18 +13347,6 @@
           "rarity": "legendary",
           "coins": 200000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 847.52,
-          "x": 0,
-          "y": 42,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 200000,
-          "n": 4,
           "path": true
         },
         {
@@ -14608,7 +13494,8 @@
           "y": 48,
           "zone": 5,
           "rarity": "legendary",
-          "wall": 16
+          "wall": 16,
+          "x": -4
         },
         {
           "type": "floor",
@@ -14630,52 +13517,26 @@
           "y": 51
         },
         {
-          "type": "gift",
-          "z": 942.72,
+          "type": "jumpPad",
+          "z": 939.2,
           "x": 0,
           "y": 48,
+          "width": 4,
+          "length": 4,
+          "stretch": 17
+        },
+        {
+          "type": "gift",
+          "z": 958.938,
+          "x": 0,
+          "y": 62.947,
           "height": 0,
           "zone": 5,
           "rarity": "legendary",
           "coins": 200000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 948.32,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 200000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 953.92,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 200000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 959.52,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 200000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -14744,8 +13605,17 @@
           "y": 54
         },
         {
+          "type": "slide",
+          "z": 1005.6,
+          "x": 0,
+          "y": 51,
+          "width": 4,
+          "length": 16,
+          "stretch": 18
+        },
+        {
           "type": "gift",
-          "z": 998.72,
+          "z": 1001.6,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -14757,7 +13627,7 @@
         },
         {
           "type": "gift",
-          "z": 1004.32,
+          "z": 1005.6,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -14769,7 +13639,7 @@
         },
         {
           "type": "gift",
-          "z": 1009.92,
+          "z": 1009.6,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -14777,18 +13647,6 @@
           "rarity": "mythic",
           "coins": 300000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1015.52,
-          "x": 0,
-          "y": 51,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 300000,
-          "n": 4,
           "path": true
         },
         {
@@ -14936,7 +13794,8 @@
           "y": 57,
           "zone": 6,
           "rarity": "mythic",
-          "wall": 19
+          "wall": 19,
+          "x": -4
         },
         {
           "type": "floor",
@@ -14958,52 +13817,26 @@
           "y": 60
         },
         {
-          "type": "gift",
-          "z": 1110.72,
+          "type": "jumpPad",
+          "z": 1107.2,
           "x": 0,
           "y": 57,
+          "width": 4,
+          "length": 4,
+          "stretch": 20
+        },
+        {
+          "type": "gift",
+          "z": 1127.148,
+          "x": 0,
+          "y": 71.947,
           "height": 0,
           "zone": 6,
           "rarity": "mythic",
           "coins": 300000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1116.32,
-          "x": 0,
-          "y": 57,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 300000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1121.92,
-          "x": 0,
-          "y": 57,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 300000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1127.52,
-          "x": 0,
-          "y": 57,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 300000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -15065,8 +13898,17 @@
           "y": 63
         },
         {
+          "type": "slide",
+          "z": 1173.6,
+          "x": 0,
+          "y": 60,
+          "width": 4,
+          "length": 16,
+          "stretch": 21
+        },
+        {
           "type": "gift",
-          "z": 1166.72,
+          "z": 1169.6,
           "x": 0,
           "y": 60,
           "height": 0,
@@ -15078,7 +13920,7 @@
         },
         {
           "type": "gift",
-          "z": 1172.32,
+          "z": 1173.6,
           "x": 0,
           "y": 60,
           "height": 0,
@@ -15090,7 +13932,7 @@
         },
         {
           "type": "gift",
-          "z": 1177.92,
+          "z": 1177.6,
           "x": 0,
           "y": 60,
           "height": 0,
@@ -15098,18 +13940,6 @@
           "rarity": "mythic",
           "coins": 300000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1183.52,
-          "x": 0,
-          "y": 60,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 300000,
-          "n": 4,
           "path": true
         },
         {
@@ -15459,7 +14289,8 @@
           "y": 3,
           "zone": 1,
           "rarity": "common",
-          "wall": 1
+          "wall": 1,
+          "x": -4
         },
         {
           "type": "floor",
@@ -15481,52 +14312,26 @@
           "y": 6
         },
         {
-          "type": "gift",
-          "z": 104.96,
+          "type": "jumpPad",
+          "z": 101.2,
           "x": 0,
           "y": 3,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 121.313,
+          "x": 0,
+          "y": 17.947,
           "height": 0,
           "zone": 1,
           "rarity": "common",
           "coins": 500000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 110.76,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 500000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 116.56,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 500000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 122.36,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 500000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -15588,8 +14393,17 @@
           "y": 9
         },
         {
+          "type": "slide",
+          "z": 169.8,
+          "x": 0,
+          "y": 6,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
           "type": "gift",
-          "z": 162.96,
+          "z": 165.8,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -15601,7 +14415,7 @@
         },
         {
           "type": "gift",
-          "z": 168.76,
+          "z": 169.8,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -15613,7 +14427,7 @@
         },
         {
           "type": "gift",
-          "z": 174.56,
+          "z": 173.8,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -15621,18 +14435,6 @@
           "rarity": "common",
           "coins": 500000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 180.36,
-          "x": 0,
-          "y": 6,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 500000,
-          "n": 4,
           "path": true
         },
         {
@@ -15787,7 +14589,8 @@
           "y": 12,
           "zone": 2,
           "rarity": "uncommon",
-          "wall": 4
+          "wall": 4,
+          "x": -4
         },
         {
           "type": "floor",
@@ -15809,52 +14612,26 @@
           "y": 15
         },
         {
-          "type": "gift",
-          "z": 278.96,
+          "type": "jumpPad",
+          "z": 275.2,
           "x": 0,
           "y": 12,
+          "width": 4,
+          "length": 4,
+          "stretch": 5
+        },
+        {
+          "type": "gift",
+          "z": 295.418,
+          "x": 0,
+          "y": 26.947,
           "height": 0,
           "zone": 2,
           "rarity": "uncommon",
           "coins": 800000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 284.76,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 800000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 290.56,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 800000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 296.36,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 800000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -15916,8 +14693,17 @@
           "y": 18
         },
         {
+          "type": "slide",
+          "z": 343.8,
+          "x": 0,
+          "y": 15,
+          "width": 4,
+          "length": 16,
+          "stretch": 6
+        },
+        {
           "type": "gift",
-          "z": 336.96,
+          "z": 339.8,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -15929,7 +14715,7 @@
         },
         {
           "type": "gift",
-          "z": 342.76,
+          "z": 343.8,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -15941,7 +14727,7 @@
         },
         {
           "type": "gift",
-          "z": 348.56,
+          "z": 347.8,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -15949,18 +14735,6 @@
           "rarity": "uncommon",
           "coins": 800000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 354.36,
-          "x": 0,
-          "y": 15,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 800000,
-          "n": 4,
           "path": true
         },
         {
@@ -16115,7 +14889,8 @@
           "y": 21,
           "zone": 3,
           "rarity": "rare",
-          "wall": 7
+          "wall": 7,
+          "x": -4
         },
         {
           "type": "floor",
@@ -16137,52 +14912,26 @@
           "y": 24
         },
         {
-          "type": "gift",
-          "z": 452.96,
+          "type": "jumpPad",
+          "z": 449.2,
           "x": 0,
           "y": 21,
+          "width": 4,
+          "length": 4,
+          "stretch": 8
+        },
+        {
+          "type": "gift",
+          "z": 469.51,
+          "x": 0,
+          "y": 35.947,
           "height": 0,
           "zone": 3,
           "rarity": "rare",
           "coins": 1200000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 458.76,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 1200000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 464.56,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 1200000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 470.36,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 1200000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -16244,8 +14993,17 @@
           "y": 27
         },
         {
+          "type": "slide",
+          "z": 517.8,
+          "x": 0,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 9
+        },
+        {
           "type": "gift",
-          "z": 510.96,
+          "z": 513.8,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -16257,7 +15015,7 @@
         },
         {
           "type": "gift",
-          "z": 516.76,
+          "z": 517.8,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -16269,7 +15027,7 @@
         },
         {
           "type": "gift",
-          "z": 522.56,
+          "z": 521.8,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -16277,18 +15035,6 @@
           "rarity": "rare",
           "coins": 1200000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 528.36,
-          "x": 0,
-          "y": 24,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 1200000,
-          "n": 4,
           "path": true
         },
         {
@@ -16436,7 +15182,8 @@
           "y": 30,
           "zone": 3,
           "rarity": "rare",
-          "wall": 10
+          "wall": 10,
+          "x": -4
         },
         {
           "type": "floor",
@@ -16458,52 +15205,26 @@
           "y": 33
         },
         {
-          "type": "gift",
-          "z": 626.96,
+          "type": "jumpPad",
+          "z": 623.2,
           "x": 0,
           "y": 30,
+          "width": 4,
+          "length": 4,
+          "stretch": 11
+        },
+        {
+          "type": "gift",
+          "z": 643.667,
+          "x": 0,
+          "y": 44.947,
           "height": 0,
           "zone": 3,
           "rarity": "rare",
           "coins": 1200000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 632.76,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 1200000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 638.56,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 1200000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 644.36,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 1200000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -16579,8 +15300,17 @@
           "y": 36
         },
         {
+          "type": "slide",
+          "z": 691.8,
+          "x": 0,
+          "y": 33,
+          "width": 4,
+          "length": 16,
+          "stretch": 12
+        },
+        {
           "type": "gift",
-          "z": 684.96,
+          "z": 687.8,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -16592,7 +15322,7 @@
         },
         {
           "type": "gift",
-          "z": 690.76,
+          "z": 691.8,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -16604,7 +15334,7 @@
         },
         {
           "type": "gift",
-          "z": 696.56,
+          "z": 695.8,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -16612,18 +15342,6 @@
           "rarity": "epic",
           "coins": 2000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 702.36,
-          "x": 0,
-          "y": 33,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 2000000,
-          "n": 4,
           "path": true
         },
         {
@@ -16771,7 +15489,8 @@
           "y": 39,
           "zone": 4,
           "rarity": "epic",
-          "wall": 13
+          "wall": 13,
+          "x": -4
         },
         {
           "type": "floor",
@@ -16793,52 +15512,26 @@
           "y": 42
         },
         {
-          "type": "gift",
-          "z": 800.96,
+          "type": "jumpPad",
+          "z": 797.2,
           "x": 0,
           "y": 39,
+          "width": 4,
+          "length": 4,
+          "stretch": 14
+        },
+        {
+          "type": "gift",
+          "z": 817.874,
+          "x": 0,
+          "y": 53.947,
           "height": 0,
           "zone": 4,
           "rarity": "epic",
           "coins": 2000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 806.76,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 2000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 812.56,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 2000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 818.36,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 2000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -16907,8 +15600,17 @@
           "y": 45
         },
         {
+          "type": "slide",
+          "z": 865.8,
+          "x": 0,
+          "y": 42,
+          "width": 4,
+          "length": 16,
+          "stretch": 15
+        },
+        {
           "type": "gift",
-          "z": 858.96,
+          "z": 861.8,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -16920,7 +15622,7 @@
         },
         {
           "type": "gift",
-          "z": 864.76,
+          "z": 865.8,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -16932,7 +15634,7 @@
         },
         {
           "type": "gift",
-          "z": 870.56,
+          "z": 869.8,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -16940,18 +15642,6 @@
           "rarity": "legendary",
           "coins": 3000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 876.36,
-          "x": 0,
-          "y": 42,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 3000000,
-          "n": 4,
           "path": true
         },
         {
@@ -17099,7 +15789,8 @@
           "y": 48,
           "zone": 5,
           "rarity": "legendary",
-          "wall": 16
+          "wall": 16,
+          "x": -4
         },
         {
           "type": "floor",
@@ -17121,52 +15812,26 @@
           "y": 51
         },
         {
-          "type": "gift",
-          "z": 974.96,
+          "type": "jumpPad",
+          "z": 971.2,
           "x": 0,
           "y": 48,
+          "width": 4,
+          "length": 4,
+          "stretch": 17
+        },
+        {
+          "type": "gift",
+          "z": 991.205,
+          "x": 0,
+          "y": 62.947,
           "height": 0,
           "zone": 5,
           "rarity": "legendary",
           "coins": 3000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 980.76,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 3000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 986.56,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 3000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 992.36,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 3000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -17228,8 +15893,17 @@
           "y": 54
         },
         {
+          "type": "slide",
+          "z": 1039.8,
+          "x": 0,
+          "y": 51,
+          "width": 4,
+          "length": 16,
+          "stretch": 18
+        },
+        {
           "type": "gift",
-          "z": 1032.96,
+          "z": 1035.8,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -17241,7 +15915,7 @@
         },
         {
           "type": "gift",
-          "z": 1038.76,
+          "z": 1039.8,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -17253,7 +15927,7 @@
         },
         {
           "type": "gift",
-          "z": 1044.56,
+          "z": 1043.8,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -17261,18 +15935,6 @@
           "rarity": "legendary",
           "coins": 3000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1050.36,
-          "x": 0,
-          "y": 51,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 3000000,
-          "n": 4,
           "path": true
         },
         {
@@ -17427,7 +16089,8 @@
           "y": 57,
           "zone": 6,
           "rarity": "mythic",
-          "wall": 19
+          "wall": 19,
+          "x": -4
         },
         {
           "type": "floor",
@@ -17449,52 +16112,26 @@
           "y": 60
         },
         {
-          "type": "gift",
-          "z": 1148.96,
+          "type": "jumpPad",
+          "z": 1145.2,
           "x": 0,
           "y": 57,
+          "width": 4,
+          "length": 4,
+          "stretch": 20
+        },
+        {
+          "type": "gift",
+          "z": 1165.478,
+          "x": 0,
+          "y": 71.947,
           "height": 0,
           "zone": 6,
           "rarity": "mythic",
           "coins": 4000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1154.76,
-          "x": 0,
-          "y": 57,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 4000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1160.56,
-          "x": 0,
-          "y": 57,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 4000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1166.36,
-          "x": 0,
-          "y": 57,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 4000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -17556,8 +16193,17 @@
           "y": 63
         },
         {
+          "type": "slide",
+          "z": 1213.8,
+          "x": 0,
+          "y": 60,
+          "width": 4,
+          "length": 16,
+          "stretch": 21
+        },
+        {
           "type": "gift",
-          "z": 1206.96,
+          "z": 1209.8,
           "x": 0,
           "y": 60,
           "height": 0,
@@ -17569,7 +16215,7 @@
         },
         {
           "type": "gift",
-          "z": 1212.76,
+          "z": 1213.8,
           "x": 0,
           "y": 60,
           "height": 0,
@@ -17581,7 +16227,7 @@
         },
         {
           "type": "gift",
-          "z": 1218.56,
+          "z": 1217.8,
           "x": 0,
           "y": 60,
           "height": 0,
@@ -17589,18 +16235,6 @@
           "rarity": "mythic",
           "coins": 4000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1224.36,
-          "x": 0,
-          "y": 60,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 4000000,
-          "n": 4,
           "path": true
         },
         {
@@ -18057,7 +16691,8 @@
           "y": 3,
           "zone": 1,
           "rarity": "common",
-          "wall": 1
+          "wall": 1,
+          "x": -4
         },
         {
           "type": "floor",
@@ -18079,52 +16714,26 @@
           "y": 6
         },
         {
-          "type": "gift",
-          "z": 107.2,
+          "type": "jumpPad",
+          "z": 103.2,
           "x": 0,
           "y": 3,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 124.85,
+          "x": 0,
+          "y": 17.947,
           "height": 0,
           "zone": 1,
           "rarity": "common",
           "coins": 6000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 113.2,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 6000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 119.2,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 6000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 125.2,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 6000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -18186,8 +16795,17 @@
           "y": 9
         },
         {
+          "type": "slide",
+          "z": 174,
+          "x": 0,
+          "y": 6,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
           "type": "gift",
-          "z": 167.2,
+          "z": 170,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -18199,7 +16817,7 @@
         },
         {
           "type": "gift",
-          "z": 173.2,
+          "z": 174,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -18211,7 +16829,7 @@
         },
         {
           "type": "gift",
-          "z": 179.2,
+          "z": 178,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -18219,18 +16837,6 @@
           "rarity": "common",
           "coins": 6000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 185.2,
-          "x": 0,
-          "y": 6,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 6000000,
-          "n": 4,
           "path": true
         },
         {
@@ -18385,7 +16991,8 @@
           "y": 12,
           "zone": 2,
           "rarity": "uncommon",
-          "wall": 4
+          "wall": 4,
+          "x": -4
         },
         {
           "type": "floor",
@@ -18407,52 +17014,26 @@
           "y": 15
         },
         {
-          "type": "gift",
-          "z": 287.2,
+          "type": "jumpPad",
+          "z": 283.2,
           "x": 0,
           "y": 12,
+          "width": 4,
+          "length": 4,
+          "stretch": 5
+        },
+        {
+          "type": "gift",
+          "z": 304.011,
+          "x": 0,
+          "y": 26.947,
           "height": 0,
           "zone": 2,
           "rarity": "uncommon",
           "coins": 12000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 293.2,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 12000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 299.2,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 12000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 305.2,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 12000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -18514,8 +17095,17 @@
           "y": 18
         },
         {
+          "type": "slide",
+          "z": 354,
+          "x": 0,
+          "y": 15,
+          "width": 4,
+          "length": 16,
+          "stretch": 6
+        },
+        {
           "type": "gift",
-          "z": 347.2,
+          "z": 350,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -18527,7 +17117,7 @@
         },
         {
           "type": "gift",
-          "z": 353.2,
+          "z": 354,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -18539,7 +17129,7 @@
         },
         {
           "type": "gift",
-          "z": 359.2,
+          "z": 358,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -18547,18 +17137,6 @@
           "rarity": "uncommon",
           "coins": 12000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 365.2,
-          "x": 0,
-          "y": 15,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 12000000,
-          "n": 4,
           "path": true
         },
         {
@@ -18713,7 +17291,8 @@
           "y": 21,
           "zone": 3,
           "rarity": "rare",
-          "wall": 7
+          "wall": 7,
+          "x": -4
         },
         {
           "type": "floor",
@@ -18735,52 +17314,26 @@
           "y": 24
         },
         {
-          "type": "gift",
-          "z": 467.2,
+          "type": "jumpPad",
+          "z": 463.2,
           "x": 0,
           "y": 21,
+          "width": 4,
+          "length": 4,
+          "stretch": 8
+        },
+        {
+          "type": "gift",
+          "z": 484.235,
+          "x": 0,
+          "y": 35.947,
           "height": 0,
           "zone": 3,
           "rarity": "rare",
           "coins": 20000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 473.2,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 20000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 479.2,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 20000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 485.2,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 20000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -18842,8 +17395,17 @@
           "y": 27
         },
         {
+          "type": "slide",
+          "z": 534,
+          "x": 0,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 9
+        },
+        {
           "type": "gift",
-          "z": 527.2,
+          "z": 530,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -18855,7 +17417,7 @@
         },
         {
           "type": "gift",
-          "z": 533.2,
+          "z": 534,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -18867,7 +17429,7 @@
         },
         {
           "type": "gift",
-          "z": 539.2,
+          "z": 538,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -18875,18 +17437,6 @@
           "rarity": "rare",
           "coins": 20000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 545.2,
-          "x": 0,
-          "y": 24,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 20000000,
-          "n": 4,
           "path": true
         },
         {
@@ -19034,7 +17584,8 @@
           "y": 30,
           "zone": 3,
           "rarity": "rare",
-          "wall": 10
+          "wall": 10,
+          "x": -4
         },
         {
           "type": "floor",
@@ -19056,52 +17607,26 @@
           "y": 33
         },
         {
-          "type": "gift",
-          "z": 647.2,
+          "type": "jumpPad",
+          "z": 643.2,
           "x": 0,
           "y": 30,
+          "width": 4,
+          "length": 4,
+          "stretch": 11
+        },
+        {
+          "type": "gift",
+          "z": 664.471,
+          "x": 0,
+          "y": 44.947,
           "height": 0,
           "zone": 3,
           "rarity": "rare",
           "coins": 20000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 653.2,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 20000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 659.2,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 20000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 665.2,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 20000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -19170,8 +17695,17 @@
           "y": 36
         },
         {
+          "type": "slide",
+          "z": 714,
+          "x": 0,
+          "y": 33,
+          "width": 4,
+          "length": 16,
+          "stretch": 12
+        },
+        {
           "type": "gift",
-          "z": 707.2,
+          "z": 710,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -19183,7 +17717,7 @@
         },
         {
           "type": "gift",
-          "z": 713.2,
+          "z": 714,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -19195,7 +17729,7 @@
         },
         {
           "type": "gift",
-          "z": 719.2,
+          "z": 718,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -19203,18 +17737,6 @@
           "rarity": "epic",
           "coins": 30000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 725.2,
-          "x": 0,
-          "y": 33,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 30000000,
-          "n": 4,
           "path": true
         },
         {
@@ -19369,7 +17891,8 @@
           "y": 39,
           "zone": 4,
           "rarity": "epic",
-          "wall": 13
+          "wall": 13,
+          "x": -4
         },
         {
           "type": "floor",
@@ -19391,52 +17914,26 @@
           "y": 42
         },
         {
-          "type": "gift",
-          "z": 827.2,
+          "type": "jumpPad",
+          "z": 823.2,
           "x": 0,
           "y": 39,
+          "width": 4,
+          "length": 4,
+          "stretch": 14
+        },
+        {
+          "type": "gift",
+          "z": 844.68,
+          "x": 0,
+          "y": 53.947,
           "height": 0,
           "zone": 4,
           "rarity": "epic",
           "coins": 30000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 833.2,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 30000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 839.2,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 30000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 845.2,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 30000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -19498,8 +17995,17 @@
           "y": 45
         },
         {
+          "type": "slide",
+          "z": 894,
+          "x": 0,
+          "y": 42,
+          "width": 4,
+          "length": 16,
+          "stretch": 15
+        },
+        {
           "type": "gift",
-          "z": 887.2,
+          "z": 890,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -19511,7 +18017,7 @@
         },
         {
           "type": "gift",
-          "z": 893.2,
+          "z": 894,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -19523,7 +18029,7 @@
         },
         {
           "type": "gift",
-          "z": 899.2,
+          "z": 898,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -19531,18 +18037,6 @@
           "rarity": "epic",
           "coins": 30000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 905.2,
-          "x": 0,
-          "y": 42,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 30000000,
-          "n": 4,
           "path": true
         },
         {
@@ -19697,7 +18191,8 @@
           "y": 48,
           "zone": 5,
           "rarity": "legendary",
-          "wall": 16
+          "wall": 16,
+          "x": -4
         },
         {
           "type": "floor",
@@ -19719,52 +18214,26 @@
           "y": 51
         },
         {
-          "type": "gift",
-          "z": 1007.2,
+          "type": "jumpPad",
+          "z": 1003.2,
           "x": 0,
           "y": 48,
+          "width": 4,
+          "length": 4,
+          "stretch": 17
+        },
+        {
+          "type": "gift",
+          "z": 1024.892,
+          "x": 0,
+          "y": 62.947,
           "height": 0,
           "zone": 5,
           "rarity": "legendary",
           "coins": 50000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1013.2,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 50000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1019.2,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 50000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1025.2,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 50000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -19826,8 +18295,17 @@
           "y": 54
         },
         {
+          "type": "slide",
+          "z": 1074,
+          "x": 0,
+          "y": 51,
+          "width": 4,
+          "length": 16,
+          "stretch": 18
+        },
+        {
           "type": "gift",
-          "z": 1067.2,
+          "z": 1070,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -19839,7 +18317,7 @@
         },
         {
           "type": "gift",
-          "z": 1073.2,
+          "z": 1074,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -19851,7 +18329,7 @@
         },
         {
           "type": "gift",
-          "z": 1079.2,
+          "z": 1078,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -19859,18 +18337,6 @@
           "rarity": "legendary",
           "coins": 50000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1085.2,
-          "x": 0,
-          "y": 51,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 50000000,
-          "n": 4,
           "path": true
         },
         {
@@ -20025,7 +18491,8 @@
           "y": 57,
           "zone": 6,
           "rarity": "mythic",
-          "wall": 19
+          "wall": 19,
+          "x": -4
         },
         {
           "type": "floor",
@@ -20047,52 +18514,26 @@
           "y": 60
         },
         {
-          "type": "gift",
-          "z": 1187.2,
+          "type": "jumpPad",
+          "z": 1183.2,
           "x": 0,
           "y": 57,
+          "width": 4,
+          "length": 4,
+          "stretch": 20
+        },
+        {
+          "type": "gift",
+          "z": 1204.026,
+          "x": 0,
+          "y": 71.947,
           "height": 0,
           "zone": 6,
           "rarity": "mythic",
           "coins": 80000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1193.2,
-          "x": 0,
-          "y": 57,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 80000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1199.2,
-          "x": 0,
-          "y": 57,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 80000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1205.2,
-          "x": 0,
-          "y": 57,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 80000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -20154,8 +18595,17 @@
           "y": 63
         },
         {
+          "type": "slide",
+          "z": 1254,
+          "x": 0,
+          "y": 60,
+          "width": 4,
+          "length": 16,
+          "stretch": 21
+        },
+        {
           "type": "gift",
-          "z": 1247.2,
+          "z": 1250,
           "x": 0,
           "y": 60,
           "height": 0,
@@ -20167,7 +18617,7 @@
         },
         {
           "type": "gift",
-          "z": 1253.2,
+          "z": 1254,
           "x": 0,
           "y": 60,
           "height": 0,
@@ -20179,7 +18629,7 @@
         },
         {
           "type": "gift",
-          "z": 1259.2,
+          "z": 1258,
           "x": 0,
           "y": 60,
           "height": 0,
@@ -20187,18 +18637,6 @@
           "rarity": "mythic",
           "coins": 80000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1265.2,
-          "x": 0,
-          "y": 60,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 80000000,
-          "n": 4,
           "path": true
         },
         {
@@ -20346,7 +18784,8 @@
           "y": 66,
           "zone": 6,
           "rarity": "mythic",
-          "wall": 22
+          "wall": 22,
+          "x": -4
         },
         {
           "type": "floor",
@@ -20368,52 +18807,26 @@
           "y": 69
         },
         {
-          "type": "gift",
-          "z": 1367.2,
+          "type": "jumpPad",
+          "z": 1363.2,
           "x": 0,
           "y": 66,
+          "width": 4,
+          "length": 4,
+          "stretch": 23
+        },
+        {
+          "type": "gift",
+          "z": 1384.333,
+          "x": 0,
+          "y": 80.947,
           "height": 0,
           "zone": 6,
           "rarity": "mythic",
           "coins": 80000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1373.2,
-          "x": 0,
-          "y": 66,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 80000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1379.2,
-          "x": 0,
-          "y": 66,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 80000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1385.2,
-          "x": 0,
-          "y": 66,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 80000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -20762,7 +19175,8 @@
           "y": 3,
           "zone": 1,
           "rarity": "common",
-          "wall": 1
+          "wall": 1,
+          "x": -4
         },
         {
           "type": "floor",
@@ -20784,52 +19198,26 @@
           "y": 6
         },
         {
-          "type": "gift",
-          "z": 109.44,
+          "type": "jumpPad",
+          "z": 105.2,
           "x": 0,
           "y": 3,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 127.652,
+          "x": 0,
+          "y": 17.947,
           "height": 0,
           "zone": 1,
           "rarity": "common",
           "coins": 120000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 115.64,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 120000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 121.84,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 120000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 128.04,
-          "x": 0,
-          "y": 3,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 120000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -20891,8 +19279,17 @@
           "y": 9
         },
         {
+          "type": "slide",
+          "z": 178.2,
+          "x": 0,
+          "y": 6,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
           "type": "gift",
-          "z": 171.44,
+          "z": 174.2,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -20904,7 +19301,7 @@
         },
         {
           "type": "gift",
-          "z": 177.64,
+          "z": 178.2,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -20916,7 +19313,7 @@
         },
         {
           "type": "gift",
-          "z": 183.84,
+          "z": 182.2,
           "x": 0,
           "y": 6,
           "height": 0,
@@ -20924,18 +19321,6 @@
           "rarity": "common",
           "coins": 120000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 190.04,
-          "x": 0,
-          "y": 6,
-          "height": 0,
-          "zone": 1,
-          "rarity": "common",
-          "coins": 120000000,
-          "n": 4,
           "path": true
         },
         {
@@ -21090,7 +19475,8 @@
           "y": 12,
           "zone": 2,
           "rarity": "uncommon",
-          "wall": 4
+          "wall": 4,
+          "x": -4
         },
         {
           "type": "floor",
@@ -21112,52 +19498,26 @@
           "y": 15
         },
         {
-          "type": "gift",
-          "z": 295.44,
+          "type": "jumpPad",
+          "z": 291.2,
           "x": 0,
           "y": 12,
+          "width": 4,
+          "length": 4,
+          "stretch": 5
+        },
+        {
+          "type": "gift",
+          "z": 313.768,
+          "x": 0,
+          "y": 26.947,
           "height": 0,
           "zone": 2,
           "rarity": "uncommon",
           "coins": 250000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 301.64,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 250000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 307.84,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 250000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 314.04,
-          "x": 0,
-          "y": 12,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 250000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -21219,8 +19579,17 @@
           "y": 18
         },
         {
+          "type": "slide",
+          "z": 364.2,
+          "x": 0,
+          "y": 15,
+          "width": 4,
+          "length": 16,
+          "stretch": 6
+        },
+        {
           "type": "gift",
-          "z": 357.44,
+          "z": 360.2,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -21232,7 +19601,7 @@
         },
         {
           "type": "gift",
-          "z": 363.64,
+          "z": 364.2,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -21244,7 +19613,7 @@
         },
         {
           "type": "gift",
-          "z": 369.84,
+          "z": 368.2,
           "x": 0,
           "y": 15,
           "height": 0,
@@ -21252,18 +19621,6 @@
           "rarity": "uncommon",
           "coins": 250000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 376.04,
-          "x": 0,
-          "y": 15,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 250000000,
-          "n": 4,
           "path": true
         },
         {
@@ -21411,7 +19768,8 @@
           "y": 21,
           "zone": 2,
           "rarity": "uncommon",
-          "wall": 7
+          "wall": 7,
+          "x": -4
         },
         {
           "type": "floor",
@@ -21433,52 +19791,26 @@
           "y": 24
         },
         {
-          "type": "gift",
-          "z": 481.44,
+          "type": "jumpPad",
+          "z": 477.2,
           "x": 0,
           "y": 21,
+          "width": 4,
+          "length": 4,
+          "stretch": 8
+        },
+        {
+          "type": "gift",
+          "z": 498.774,
+          "x": 0,
+          "y": 35.947,
           "height": 0,
           "zone": 2,
           "rarity": "uncommon",
           "coins": 250000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 487.64,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 250000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 493.84,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 250000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 500.04,
-          "x": 0,
-          "y": 21,
-          "height": 0,
-          "zone": 2,
-          "rarity": "uncommon",
-          "coins": 250000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -21547,8 +19879,17 @@
           "y": 27
         },
         {
+          "type": "slide",
+          "z": 550.2,
+          "x": 0,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 9
+        },
+        {
           "type": "gift",
-          "z": 543.44,
+          "z": 546.2,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -21560,7 +19901,7 @@
         },
         {
           "type": "gift",
-          "z": 549.64,
+          "z": 550.2,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -21572,7 +19913,7 @@
         },
         {
           "type": "gift",
-          "z": 555.84,
+          "z": 554.2,
           "x": 0,
           "y": 24,
           "height": 0,
@@ -21580,18 +19921,6 @@
           "rarity": "rare",
           "coins": 400000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 562.04,
-          "x": 0,
-          "y": 24,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 400000000,
-          "n": 4,
           "path": true
         },
         {
@@ -21739,7 +20068,8 @@
           "y": 30,
           "zone": 3,
           "rarity": "rare",
-          "wall": 10
+          "wall": 10,
+          "x": -4
         },
         {
           "type": "floor",
@@ -21761,52 +20091,26 @@
           "y": 33
         },
         {
-          "type": "gift",
-          "z": 667.44,
+          "type": "jumpPad",
+          "z": 663.2,
           "x": 0,
           "y": 30,
+          "width": 4,
+          "length": 4,
+          "stretch": 11
+        },
+        {
+          "type": "gift",
+          "z": 684.922,
+          "x": 0,
+          "y": 44.947,
           "height": 0,
           "zone": 3,
           "rarity": "rare",
           "coins": 400000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 673.64,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 400000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 679.84,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 400000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 686.04,
-          "x": 0,
-          "y": 30,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 400000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -21868,8 +20172,17 @@
           "y": 36
         },
         {
+          "type": "slide",
+          "z": 736.2,
+          "x": 0,
+          "y": 33,
+          "width": 4,
+          "length": 16,
+          "stretch": 12
+        },
+        {
           "type": "gift",
-          "z": 729.44,
+          "z": 732.2,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -21881,7 +20194,7 @@
         },
         {
           "type": "gift",
-          "z": 735.64,
+          "z": 736.2,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -21893,7 +20206,7 @@
         },
         {
           "type": "gift",
-          "z": 741.84,
+          "z": 740.2,
           "x": 0,
           "y": 33,
           "height": 0,
@@ -21901,18 +20214,6 @@
           "rarity": "rare",
           "coins": 400000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 748.04,
-          "x": 0,
-          "y": 33,
-          "height": 0,
-          "zone": 3,
-          "rarity": "rare",
-          "coins": 400000000,
-          "n": 4,
           "path": true
         },
         {
@@ -22074,7 +20375,8 @@
           "y": 39,
           "zone": 4,
           "rarity": "epic",
-          "wall": 13
+          "wall": 13,
+          "x": -4
         },
         {
           "type": "floor",
@@ -22096,52 +20398,26 @@
           "y": 42
         },
         {
-          "type": "gift",
-          "z": 853.44,
+          "type": "jumpPad",
+          "z": 849.2,
           "x": 0,
           "y": 39,
+          "width": 4,
+          "length": 4,
+          "stretch": 14
+        },
+        {
+          "type": "gift",
+          "z": 871.081,
+          "x": 0,
+          "y": 53.947,
           "height": 0,
           "zone": 4,
           "rarity": "epic",
           "coins": 600000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 859.64,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 600000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 865.84,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 600000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 872.04,
-          "x": 0,
-          "y": 39,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 600000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -22203,8 +20479,17 @@
           "y": 45
         },
         {
+          "type": "slide",
+          "z": 922.2,
+          "x": 0,
+          "y": 42,
+          "width": 4,
+          "length": 16,
+          "stretch": 15
+        },
+        {
           "type": "gift",
-          "z": 915.44,
+          "z": 918.2,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -22216,7 +20501,7 @@
         },
         {
           "type": "gift",
-          "z": 921.64,
+          "z": 922.2,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -22228,7 +20513,7 @@
         },
         {
           "type": "gift",
-          "z": 927.84,
+          "z": 926.2,
           "x": 0,
           "y": 42,
           "height": 0,
@@ -22236,18 +20521,6 @@
           "rarity": "epic",
           "coins": 600000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 934.04,
-          "x": 0,
-          "y": 42,
-          "height": 0,
-          "zone": 4,
-          "rarity": "epic",
-          "coins": 600000000,
-          "n": 4,
           "path": true
         },
         {
@@ -22402,7 +20675,8 @@
           "y": 48,
           "zone": 5,
           "rarity": "legendary",
-          "wall": 16
+          "wall": 16,
+          "x": -4
         },
         {
           "type": "floor",
@@ -22424,52 +20698,26 @@
           "y": 51
         },
         {
-          "type": "gift",
-          "z": 1039.44,
+          "type": "jumpPad",
+          "z": 1035.2,
           "x": 0,
           "y": 48,
+          "width": 4,
+          "length": 4,
+          "stretch": 17
+        },
+        {
+          "type": "gift",
+          "z": 1057.24,
+          "x": 0,
+          "y": 62.947,
           "height": 0,
           "zone": 5,
           "rarity": "legendary",
           "coins": 1200000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1045.64,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 1200000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1051.84,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 1200000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1058.04,
-          "x": 0,
-          "y": 48,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 1200000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -22531,8 +20779,17 @@
           "y": 54
         },
         {
+          "type": "slide",
+          "z": 1108.2,
+          "x": 0,
+          "y": 51,
+          "width": 4,
+          "length": 16,
+          "stretch": 18
+        },
+        {
           "type": "gift",
-          "z": 1101.44,
+          "z": 1104.2,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -22544,7 +20801,7 @@
         },
         {
           "type": "gift",
-          "z": 1107.64,
+          "z": 1108.2,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -22556,7 +20813,7 @@
         },
         {
           "type": "gift",
-          "z": 1113.84,
+          "z": 1112.2,
           "x": 0,
           "y": 51,
           "height": 0,
@@ -22564,18 +20821,6 @@
           "rarity": "legendary",
           "coins": 1200000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1120.04,
-          "x": 0,
-          "y": 51,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 1200000000,
-          "n": 4,
           "path": true
         },
         {
@@ -22723,7 +20968,8 @@
           "y": 57,
           "zone": 5,
           "rarity": "legendary",
-          "wall": 19
+          "wall": 19,
+          "x": -4
         },
         {
           "type": "floor",
@@ -22745,52 +20991,26 @@
           "y": 60
         },
         {
-          "type": "gift",
-          "z": 1225.44,
+          "type": "jumpPad",
+          "z": 1221.2,
           "x": 0,
           "y": 57,
+          "width": 4,
+          "length": 4,
+          "stretch": 20
+        },
+        {
+          "type": "gift",
+          "z": 1243.469,
+          "x": 0,
+          "y": 71.947,
           "height": 0,
           "zone": 5,
           "rarity": "legendary",
           "coins": 1200000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1231.64,
-          "x": 0,
-          "y": 57,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 1200000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1237.84,
-          "x": 0,
-          "y": 57,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 1200000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1244.04,
-          "x": 0,
-          "y": 57,
-          "height": 0,
-          "zone": 5,
-          "rarity": "legendary",
-          "coins": 1200000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -22859,8 +21079,17 @@
           "y": 63
         },
         {
+          "type": "slide",
+          "z": 1294.2,
+          "x": 0,
+          "y": 60,
+          "width": 4,
+          "length": 16,
+          "stretch": 21
+        },
+        {
           "type": "gift",
-          "z": 1287.44,
+          "z": 1290.2,
           "x": 0,
           "y": 60,
           "height": 0,
@@ -22872,7 +21101,7 @@
         },
         {
           "type": "gift",
-          "z": 1293.64,
+          "z": 1294.2,
           "x": 0,
           "y": 60,
           "height": 0,
@@ -22884,7 +21113,7 @@
         },
         {
           "type": "gift",
-          "z": 1299.84,
+          "z": 1298.2,
           "x": 0,
           "y": 60,
           "height": 0,
@@ -22892,18 +21121,6 @@
           "rarity": "mythic",
           "coins": 2000000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1306.04,
-          "x": 0,
-          "y": 60,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 2000000000,
-          "n": 4,
           "path": true
         },
         {
@@ -23051,7 +21268,8 @@
           "y": 66,
           "zone": 6,
           "rarity": "mythic",
-          "wall": 22
+          "wall": 22,
+          "x": -4
         },
         {
           "type": "floor",
@@ -23073,52 +21291,26 @@
           "y": 69
         },
         {
-          "type": "gift",
-          "z": 1411.44,
+          "type": "jumpPad",
+          "z": 1407.2,
           "x": 0,
           "y": 66,
+          "width": 4,
+          "length": 4,
+          "stretch": 23
+        },
+        {
+          "type": "gift",
+          "z": 1429.682,
+          "x": 0,
+          "y": 80.947,
           "height": 0,
           "zone": 6,
           "rarity": "mythic",
           "coins": 2000000000,
           "n": 1,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1417.64,
-          "x": 0,
-          "y": 66,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 2000000000,
-          "n": 2,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1423.84,
-          "x": 0,
-          "y": 66,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 2000000000,
-          "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1430.04,
-          "x": 0,
-          "y": 66,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 2000000000,
-          "n": 4,
-          "path": true
+          "path": true,
+          "pad": true
         },
         {
           "type": "niche",
@@ -23180,8 +21372,17 @@
           "y": 72
         },
         {
+          "type": "slide",
+          "z": 1480.2,
+          "x": 0,
+          "y": 69,
+          "width": 4,
+          "length": 16,
+          "stretch": 24
+        },
+        {
           "type": "gift",
-          "z": 1473.44,
+          "z": 1476.2,
           "x": 0,
           "y": 69,
           "height": 0,
@@ -23193,7 +21394,7 @@
         },
         {
           "type": "gift",
-          "z": 1479.64,
+          "z": 1480.2,
           "x": 0,
           "y": 69,
           "height": 0,
@@ -23205,7 +21406,7 @@
         },
         {
           "type": "gift",
-          "z": 1485.84,
+          "z": 1484.2,
           "x": 0,
           "y": 69,
           "height": 0,
@@ -23213,18 +21414,6 @@
           "rarity": "mythic",
           "coins": 2000000000,
           "n": 3,
-          "path": true
-        },
-        {
-          "type": "gift",
-          "z": 1492.04,
-          "x": 0,
-          "y": 69,
-          "height": 0,
-          "zone": 6,
-          "rarity": "mythic",
-          "coins": 2000000000,
-          "n": 4,
           "path": true
         },
         {

@@ -200,7 +200,8 @@ export function buildLevel(world: World): LevelData {
         break;
       }
       case 'checkpoint':
-        checkpoints.push({ z: s.z, y, x: 0, wall: num(s, 'wall'), rarity: str(s, 'rarity', 'common') });
+        // The respawn point: on the axis, or beside a trampoline right behind the gate (layout gateSide, x of the flag).
+        checkpoints.push({ z: s.z, y, x: num(s, 'x'), wall: num(s, 'wall'), rarity: str(s, 'rarity', 'common') });
         break;
       case 'gift': {
         const h = num(s, 'height');
@@ -208,9 +209,18 @@ export function buildLevel(world: World): LevelData {
         if (h > 0) {
           boxes.push(box([x - LEDGE_SIZE / 2, y - 0.01, s.z - LEDGE_SIZE / 2], [x + LEDGE_SIZE / 2, y + h, s.z + LEDGE_SIZE / 2], 'ice', 'ledge'));
         }
-        points.push({ type: 'gift', x, y: y + h, z: s.z, zone: num(s, 'zone'), rarity: str(s, 'rarity'), coins: num(s, 'coins'), n: num(s, 'n') });
+        const gift: LevelPoint = { type: 'gift', x, y: y + h, z: s.z, zone: num(s, 'zone'), rarity: str(s, 'rarity'), coins: num(s, 'coins'), n: num(s, 'n') };
+        // On the path (taken on the run, a note higher each, docs/01-gdd.md 16.4); over a trampoline.
+        if (s['path'] === true) gift['path'] = true;
+        if (s['pad'] === true) gift['pad'] = true;
+        points.push(gift);
         break;
       }
+      case 'jumpPad':
+      case 'slide':
+        // Fun between the gates (docs/01-gdd.md 16.4): flat on the floor, not colliders; the sim reads their rectangles.
+        points.push({ type: s.type, x: num(s, 'x'), y, z: s.z, width: num(s, 'width'), length: num(s, 'length'), stretch: num(s, 'stretch') });
+        break;
       case 'treadmill':
         points.push({ type: 'treadmill', x: num(s, 'x'), y, z: s.z, mult: num(s, 'mult', 1) * mountainTreadmill, length: num(s, 'length', 10), width: num(s, 'width', 6), inNiche: false });
         break;

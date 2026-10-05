@@ -25,6 +25,7 @@ import { createRng } from '../core/rng.ts';
 import { inSafeZone } from './shelter.ts';
 import { PORTAL_HALF_WIDTH } from '../level/builder.ts';
 import { createHero, placeHero, stepHero, type ControllerParams, type HeroInput, type HeroState, NO_INPUT } from './controller.ts';
+import { createFun, funInput, resetFun, stepFun, type FunState } from './fun.ts';
 
 export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, Record<string, unknown> {
   /**
@@ -54,8 +55,12 @@ export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, Record<st
   eggHatch: { tick: number; pet: string };
   /** The stat crossed a round number of balance.ui.statMilestones for the first time in this load (M2-13, no analytics). */
   statMilestone: { tick: number; value: number };
-  /** A gift touched: `coins` added (zone gift × wallScale[tier]), `total` is the coin balance after it. */
-  giftTake: { tick: number; index: number; coins: number; zone: number; rarity: string; total: number };
+  /** A gift touched: `coins` added (zone gift × wallScale[tier]), `total` is the coin balance after it; `path` — a gift on the path. */
+  giftTake: { tick: number; index: number; coins: number; zone: number; rarity: string; total: number; path: boolean };
+  /** A trampoline threw the hero up (docs/01-gdd.md 16.4): `index` of `fun.pads`, where. */
+  padLaunch: { tick: number; index: number; x: number; y: number; z: number };
+  /** The hero got onto an ice slide (`index` of `fun.slides`). */
+  slideEnter: { tick: number; index: number };
   /** All gifts back in place (after every avalanche, docs/01-gdd.md 3.2). */
   giftsRespawn: { tick: number; count: number };
   /** «Snowed in!» is over: the ball popped in a cave below (`niche`) or in the camp (−1), controls are back. */
@@ -104,6 +109,8 @@ export interface Sim {
   giveBonus(): boolean;
   /** True once the hero has walked through the portal of this mountain (one `portal` event per sim). */
   portalEntered: boolean;
+  /** Trampolines and ice slides of the mountain: the flight and the boost now (docs/01-gdd.md 16.4). */
+  readonly fun: FunState;
   step(input: HeroInput, dt: number): void;
   teleport(x: number, y: number, z: number): void;
   respawn(): void;
@@ -216,6 +223,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     bots: null,
     bonus: null,
     caught: null,
+    fun: createFun(level),
     gifts: giftsFromLevel(level),
     coins: opts.coins ?? 0,
     respawnGifts() {
@@ -254,7 +262,11 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         return;
       }
       const zBefore = hero.pos.z;
-      stepHero(hero, input, dt, collision, params, level.killY);
+      stepHero(hero, funInput(sim.fun, input, params, tuning.fun), dt, collision, params, level.killY);
+      // Trampolines and slides (docs/01-gdd.md 16.4): a launch leaves the ground, so this tick counts no steps.
+      const fun = stepFun(sim.fun, hero, tuning.fun, dt);
+      if (fun.pad >= 0) events.emit('padLaunch', { tick: sim.tick, index: fun.pad, x: hero.pos.x, y: hero.pos.y, z: hero.pos.z });
+      if (fun.slide >= 0) events.emit('slideEnter', { tick: sim.tick, index: fun.slide });
       // Portal: the hero crosses the arch plane inside its opening (docs/01-gdd.md 5.2).
       if (portal && !sim.portalEntered && zBefore < portal.z && hero.pos.z >= portal.z && Math.abs(hero.pos.x - portal.x) <= PORTAL_HALF_WIDTH) {
         sim.portalEntered = true;
@@ -267,7 +279,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         gift.taken = true;
         const coins = scaled(gift.coins, tier, opts.balance.rebirth);
         sim.coins += coins;
-        events.emit('giftTake', { tick: sim.tick, index, coins, zone: gift.zone, rarity: gift.rarity, total: sim.coins });
+        events.emit('giftTake', { tick: sim.tick, index, coins, zone: gift.zone, rarity: gift.rarity, total: sim.coins, path: gift.path ?? false });
       });
       // Golden gift: a touch on warn or run and the hero carries it over his head.
       const bonus = sim.bonus;
@@ -335,6 +347,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     },
     teleport(x, y, z) {
       sim.caught = null;
+      resetFun(sim.fun);
       placeHero(hero, x, y, z);
       progress.resetCarry();
       prev.onGround = false;
@@ -368,6 +381,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       const target: [number, number, number] = c ? [c.x, c.y, c.z] : level.spawn;
       placeHero(hero, target[0], target[1] + 0.05, target[2]);
       hero.yaw = 0;
+      resetFun(sim.fun);
       progress.resetCarry();
       prev.onGround = false;
       sim.respawnTicksLeft = -1;
@@ -433,6 +447,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         caught: opts.balance.caught,
         avalanche: tuning.avalanche,
         graceDist,
+        fun: { cfg: tuning.fun, gravity: tuning.controller.gravity },
       })
     : null;
   const stretchSpeed = (z: number): number => {
@@ -475,6 +490,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     hero.onGround = true;
     if (c.t >= caughtTotalSec(c) - 1e-9) {
       sim.caught = null;
+      resetFun(sim.fun);
       placeHero(hero, c.to.x, c.to.y + 0.05, c.to.z);
       progress.resetCarry();
       prev.onGround = false;

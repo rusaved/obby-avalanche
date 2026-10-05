@@ -25,6 +25,7 @@ import type { BotsView, HudMode } from './bots-view.ts';
 import type { DailyView } from './daily-view.ts';
 import type { QuestsView } from './quests-view.ts';
 import type { WayView } from './way-view.ts';
+import type { FunView } from './fun-view.ts';
 import type { LevelMeshes } from '../render/level-mesh.ts';
 
 export interface BootState {
@@ -91,8 +92,9 @@ export interface GameHandles {
   readonly waveView: WaveView | null;
   /** Starts the next avalanche now (debug «Avalanche now», __TEST__.triggerWave). */
   triggerWave(): void;
-  /** e2e bot: world points [x, z] the hero walks to one after another (overrides the input); null — off. */
-  botPath: Array<[number, number]> | null;
+  /** e2e bot: world points [x, z] the hero walks to one after another (overrides the input), a third number — the reach
+   * of that point (0.6 by default); null — off. */
+  botPath: Array<[number, number, number?]> | null;
   /** Called after every simulation tick (e2e monitors). */
   onTick: ((dt: number) => void) | null;
   /** Called after every rendered frame, once the camera has moved (e2e camera monitor). */
@@ -102,6 +104,8 @@ export interface GameHandles {
   readonly ftue: FtueView | null;
   /** «Wrong way» arrow (docs/01-gdd.md 16.7). */
   readonly way: WayView | null;
+  /** Trampolines, slides, path gifts and the gate reward as seen and heard (docs/01-gdd.md 16.4, 16.5). */
+  readonly fun: FunView | null;
   /** Meshes of the mountain: gate signs and the cave back walls as drawn (e2e of PR-07, PR-08). */
   readonly levelMeshes: LevelMeshes | null;
   /** Eggs, pets and the «Pets» window (M3-03); the window frame (docs/01-gdd.md 10.2). */

@@ -1,16 +1,19 @@
 import { test, expect, testState, waitTicks } from './fixtures.ts';
 import type { Page } from '@playwright/test';
-import worldsJson from '../content/avalanche/worlds.json' with { type: 'json' };
+import { PACES, SHOT_PACE, paceWorlds, type Pace } from './pace-data.ts';
 
 // PR-06 (docs/01-gdd.md 16.7): no auto-turn of the camera to +Z (tuning camera.autoTurn = false), and the small
 // «wrong way» arrow by the hero towards the next closed gate while he runs down the slope on a calm mountain.
-const PACES = ['classic'] as const;
 const DEG = Math.PI / 180;
 
 type Seg = { type: string; z: number; y: number; side?: string; wall?: number; requires?: number };
-const segs = (worldsJson as unknown as { worlds: Array<{ width: number; segments: Seg[] }> }).worlds[0]!.segments;
-const gates = segs.filter((s) => s.type === 'gate').sort((a, b) => a.z - b.z);
-const niches = segs.filter((s) => s.type === 'niche').sort((a, b) => a.z - b.z);
+/** Mountain 1 of the pace: its gates and caves bottom up, and a stat that opens walls 1–2 and keeps wall 3 closed. */
+function mountain1(pace: Pace): { gates: Seg[]; niches: Seg[]; stat: number } {
+  const segs = paceWorlds<{ segments: Seg[] }>(pace)[0]!.segments;
+  const gates = segs.filter((s) => s.type === 'gate').sort((a, b) => a.z - b.z);
+  const niches = segs.filter((s) => s.type === 'niche').sort((a, b) => a.z - b.z);
+  return { gates, niches, stat: Math.min(50, gates[2]!.requires! - 1) };
+}
 
 const wrap = (a: number): number => Math.atan2(Math.sin(a), Math.cos(a));
 
@@ -52,9 +55,10 @@ async function arrowWhileRunning(page: Page, key: string, ticks: number): Promis
 }
 
 for (const pace of PACES) {
+  const { gates, niches, stat } = mountain1(pace);
   test(`camera without auto-turn (${pace}): turned down the slope, «forward» 5 s without the mouse — viewYaw stays within 2°`, async ({ page, openGame }) => {
-    await openGame();
-    await page.evaluate(() => window.__TEST__!.setStat(50));
+    await openGame('pace=' + pace);
+    await page.evaluate((v) => window.__TEST__!.setStat(v), stat);
     await page.evaluate((z) => window.__TEST__!.teleport(z, 0), gates[2]!.z - 10);
     await page.evaluate(() => window.__TEST__!.setCamera({ yaw: Math.PI }));
     await waitTicks(page, 5);
@@ -74,9 +78,9 @@ for (const pace of PACES) {
   test(`wrong-way arrow (${pace}): shows running down, points to the next closed gate, goes on stop and on the way up`, async ({ page, openGame }) => {
     test.setTimeout(120_000);
     await page.setViewportSize({ width: 1920, height: 1080 });
-    await openGame();
-    // Walls 1–2 open, wall 3 closed: the hero between them runs down towards the camp.
-    await page.evaluate(() => window.__TEST__!.setStat(50));
+    await openGame('pace=' + pace);
+    // Walls 1–2 open, wall 3 closed (classic 50, fast below wall 3): the hero between them runs down towards the camp.
+    await page.evaluate((v) => window.__TEST__!.setStat(v), stat);
     const gate = gates[2]!;
     await page.evaluate((z) => window.__TEST__!.teleport(z, 0), gate.z - 10);
     await waitTicks(page, 10);
@@ -103,7 +107,7 @@ for (const pace of PACES) {
     expect(box.text).toBe('');
     expect(box.color).toBe('rgb(255, 255, 255)');
     expect(box.bg).toMatch(/^rgba\(\d+, \d+, \d+, 0\.\d+\)$/);
-    await page.screenshot({ path: 'docs/evidence/proto/wrong_way_1920x1080_ru.png' });
+    if (pace === SHOT_PACE) await page.screenshot({ path: 'docs/evidence/proto/wrong_way_1920x1080_ru.png' });
 
     // 2. Stop: the arrow goes within 0.5 s.
     let t0 = (await testState(page)).ticks;
@@ -146,8 +150,8 @@ for (const pace of PACES) {
 
   test(`no wrong-way arrow (${pace}) on warn and run, in a cave, in the camp, in a snowball`, async ({ page, openGame }) => {
     test.setTimeout(180_000);
-    await openGame();
-    await page.evaluate(() => window.__TEST__!.setStat(50));
+    await openGame('pace=' + pace);
+    await page.evaluate((v) => window.__TEST__!.setStat(v), stat);
     const from = gates[2]!.z - 10;
     // In a cave: the length of cave 2 down its floor.
     const cave = niches[1]!;

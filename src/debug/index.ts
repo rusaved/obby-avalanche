@@ -1,5 +1,5 @@
 /**
- * ?debug=1 panel (docs/02-tech.md, section 15): lil-gui folders Controller, Camera, Render, Analytics, stats
+ * ?debug=1 panel (docs/02-tech.md, section 15): lil-gui folders Controller, Camera, Avalanche, Fun, HUD, Render, Analytics, stats
  * overlay, Export of tuning JSON. Only in dev, playtest, e2e and pages builds — the release never imports this
  * module (check-release rejects lil-gui). Values apply at once and are remembered on this device.
  */
@@ -67,6 +67,18 @@ const AVALANCHE_RANGES: Partial<Record<keyof TuningJson['avalanche'], Range>> = 
   shotDistance: [2, 14, 0.5],
   shotReturnSec: [0.2, 3, 0.1],
 };
+/** Fun between the gates and the gate reward (docs/01-gdd.md 16.4, 16.5; docs/01a-content.md 15.5). */
+const FUN_RANGES: Record<keyof TuningJson['fun'], Range> = {
+  padSpeed: [30, 100, 1],
+  padForward: [0, 30, 0.5],
+  slideMult: [1, 3, 0.05],
+  slideSec: [0, 5, 0.1],
+  giftStreakSec: [0.2, 5, 0.1],
+};
+const GATE_REWARD_RANGES: Partial<Record<keyof TuningJson['gateReward'], Range>> = {
+  streakSec: [2, 30, 0.5],
+  streakSteps: [1, 12, 1],
+};
 const THREAT_RANGES: Array<['intervalSec' | 'warnSec' | 'speed', Range]> = [
   ['intervalSec', [10, 120, 1]],
   ['warnSec', [2, 16, 0.5]],
@@ -80,10 +92,12 @@ export function mountDebug(g: GameHandles, host: HTMLElement, isMobile: boolean)
   if (saved?.camera) Object.assign(g.tuning.camera, saved.camera);
   if (saved?.avalanche) Object.assign(g.tuning.avalanche, saved.avalanche);
   if (saved?.hud) Object.assign(g.tuning.hud, saved.hud);
+  if (saved?.fun) Object.assign(g.tuning.fun, saved.fun);
+  if (saved?.gateReward) Object.assign(g.tuning.gateReward, saved.gateReward);
   g.applyTuning();
 
   const persist = (): void => {
-    store.setJSON('tuning', { controller: g.tuning.controller, camera: g.tuning.camera, avalanche: g.tuning.avalanche, hud: g.tuning.hud });
+    store.setJSON('tuning', { controller: g.tuning.controller, camera: g.tuning.camera, avalanche: g.tuning.avalanche, hud: g.tuning.hud, fun: g.tuning.fun, gateReward: g.tuning.gateReward });
     g.applyTuning();
   };
 
@@ -116,6 +130,17 @@ export function mountDebug(g: GameHandles, host: HTMLElement, isMobile: boolean)
   }
   avalanche.add({ now: () => g.triggerWave() }, 'now').name('Avalanche now');
   avalanche.close();
+
+  // Fun (docs/01-gdd.md 16.4): trampoline height and push, slide boost; the gate chime in a row (16.5). Live: the sim
+  // reads tuning.fun every tick (the gift over a trampoline stays where gen:worlds put it).
+  const funFolder = gui.addFolder('Fun');
+  for (const [key, range] of Object.entries(FUN_RANGES) as Array<[keyof TuningJson['fun'], Range]>) {
+    funFolder.add(g.tuning.fun, key, range[0], range[1], range[2]).onChange(persist);
+  }
+  for (const [key, range] of Object.entries(GATE_REWARD_RANGES) as Array<[keyof TuningJson['gateReward'], Range]>) {
+    funFolder.add(g.tuning.gateReward, key, range[0], range[1], range[2]).name(`gate ${key}`).onChange(persist);
+  }
+  funFolder.close();
 
   // HUD feel (Q-019): height of «+N» above the feet.
   const hudFolder = gui.addFolder('HUD');

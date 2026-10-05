@@ -1,5 +1,6 @@
 // `npm run gen:worlds`: content/<pack>/worlds-spec.json + balance.json → content/<pack>/worlds.json for every pack, and
 // the same for every pace folder content/<pack>/pace/<pace>/ with the pace balance (shared + patch, docs/01-gdd.md 16.1);
+// tuning.json of the pack places the gift over a trampoline by its arc (layout gateSide, docs/01-gdd.md 16.4);
 // then validate:content. Deterministic; worlds.json is committed and never edited by hand (docs/02-tech.md, section 3).
 import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -17,10 +18,10 @@ let changed = 0;
 const readJson = (file) => JSON.parse(readFileSync(file, 'utf8'));
 
 /** Writes (or checks) worlds.json of `dir` from its worlds-spec.json and the given balance. */
-function generate(name, dir, balance) {
+function generate(name, dir, balance, tuning) {
   const specFile = resolve(dir, 'worlds-spec.json');
   if (!existsSync(specFile)) return;
-  const text = stringifyWorlds(generateWorlds({ spec: readJson(specFile), balance }));
+  const text = stringifyWorlds(generateWorlds({ spec: readJson(specFile), balance, tuning }));
   const out = resolve(dir, 'worlds.json');
   const prev = existsSync(out) ? readFileSync(out, 'utf8') : '';
   if (prev !== text) {
@@ -41,11 +42,12 @@ for (const pack of readdirSync(contentDir, { withFileTypes: true })) {
   if (only.length && !only.includes(pack.name)) continue;
   const dir = resolve(contentDir, pack.name);
   const balance = readJson(resolve(dir, 'balance.json'));
-  generate(pack.name, dir, balance);
+  const tuning = readJson(resolve(dir, 'tuning.json'));
+  generate(pack.name, dir, balance, tuning);
   for (const pace of paceNames(dir)) {
     const paceDir = resolve(dir, 'pace', pace);
     const patchFile = resolve(paceDir, 'balance.json');
-    generate(`${pack.name}/pace/${pace}`, paceDir, existsSync(patchFile) ? mergePatch(balance, readJson(patchFile)) : balance);
+    generate(`${pack.name}/pace/${pace}`, paceDir, existsSync(patchFile) ? mergePatch(balance, readJson(patchFile)) : balance, tuning);
   }
 }
 if (check && changed) process.exit(1);

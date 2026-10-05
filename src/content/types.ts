@@ -243,6 +243,17 @@ export interface TuningJson {
     caughtPopSec: number;
     ballBounce: number;
   };
+  /**
+   * Fun between the gates (docs/01-gdd.md 16.4; docs/01a-content.md 15.5): the trampoline throws up at `padSpeed` and
+   * adds `padForward` along the track; on the ice slide the run is × `slideMult` and stays so `slideSec` after it;
+   * gifts on the path taken within `giftStreakSec` of each other ring a note higher each.
+   */
+  fun: { padSpeed: number; padForward: number; slideMult: number; slideSec: number; giftStreakSec: number };
+  /**
+   * Reward of every gate (docs/01-gdd.md 16.5): a fountain of `fountain` [min, max] coins into the coin plaque; gates
+   * coming within `streakSec` of each other ring a semitone higher each, up to `streakSteps` steps.
+   */
+  gateReward: { fountain: [number, number]; streakSec: number; streakSteps: number };
 }
 
 export type SegmentType =
@@ -262,7 +273,9 @@ export type SegmentType =
   | 'gift'
   | 'eggStand'
   | 'zoneArch'
-  | 'summit';
+  | 'summit'
+  | 'jumpPad'
+  | 'slide';
 
 export interface Segment {
   type: SegmentType;

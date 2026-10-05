@@ -23,14 +23,17 @@ const TIME_SCALE = 4;
 const CAMP = 40;
 /** «At the gate»: the stretch part from the lower edge of its cave (≤ 16 units below, docs/01-gdd.md 16.3) up to the gate. */
 const NEAR_GATE = 16;
+const GIFT_REACH = 1.5;
 const EVIDENCE = 'docs/evidence/proto';
 
-/** Cave i (beside gate i + 1): its mouth from below, then the lower half of the belt at the back wall. */
-const intoCave = (i: number): Array<[number, number]> => {
+/** Cave i (beside gate i + 1): its mouth from below, then the lower half of the belt at the back wall; the hero
+ * already beside the cave (a trampoline threw him up there) steps in where he is, never back down the slope. */
+const intoCave = (i: number, hz = -Infinity): Array<[number, number]> => {
   const c = caves[i]!;
+  const z = Math.min(c.z + 3, Math.max(c.z - 3, hz));
   return [
-    [c.side * 12, c.z - 3],
-    [c.side * 19, c.z - 2],
+    [c.side * 12, z],
+    [c.side * 19, z + 1],
   ];
 };
 
@@ -52,15 +55,24 @@ interface Run {
 async function playMountain1(page: Page, realMs: number): Promise<Run> {
   let plan = '';
   let target: [number, number] = [0, 0];
-  const setPlan = async (key: string, s: TestState, points: Array<[number, number]>): Promise<void> => {
+  const setPlan = async (key: string, s: TestState, points: Array<[number, number] | [number, number, number]>): Promise<void> => {
     const h = s.hero!;
     // Same plan: keep walking it, and once there stay (on the belt the hero runs in place by himself).
     if (key === plan && ((await page.evaluate(() => window.__TEST__!.botLeft())) > 0 || Math.hypot(target[0] - h.x, target[1] - h.z) < 2)) return;
     plan = key;
-    target = points[points.length - 1] ?? [h.x, h.z];
+    const last = points[points.length - 1];
+    target = last ? [last[0], last[1]] : [h.x, h.z];
     // Out of a cave first: to its mouth at the same z, then on.
     const out = Math.abs(h.x) > 12.5 && key !== `cave:${s.shelter}` && key !== 'egg';
-    await page.evaluate((p) => window.__TEST__!.botPath(p), out ? [[Math.sign(h.x) * 11, h.z] as [number, number], ...points] : points);
+    // The state is a few ticks old by now (×4, on a slide or in a flight that is metres): points the hero has run
+    // past since are dropped in the page, with his position of this moment (the last point always stays).
+    await page.evaluate((p) => {
+      const api = window.__TEST__!;
+      const hz = api.state().hero!.z;
+      let i = 0;
+      while (i < p.length - 1 && p[i]![1] < hz - 0.5) i++;
+      api.botPath(p.slice(i));
+    }, out ? [[Math.sign(h.x) * 11, h.z] as [number, number], ...points] : points);
   };
   const passSec: number[] = [];
   await page.evaluate(() => {
@@ -106,11 +118,17 @@ async function playMountain1(page: Page, realMs: number): Promise<Run> {
       standOffBelt += dt;
       if (standAt.length < 12) standAt.push(`t=${(s.ticks / 60).toFixed(2)} (${h.x.toFixed(1)},${h.z.toFixed(1)}) ${plan} dt=${dt.toFixed(2)}`);
     }
-    if (s.shoesButton.can) await page.locator('[data-hud="shoes"]').click();
     walls = Math.max(walls, s.gatesPassed.filter(Boolean).length);
+    // The click takes real time while the game runs ×4: the plan comes from a fresh state on the next pass, not from
+    // this one (a stale state sent the bot back for path gifts already behind him).
+    if (s.shoesButton.can) {
+      await page.locator('[data-hud="shoes"]').click();
+      continue;
+    }
     if (s.caught) continue;
-    // The free egg beside the belt of the cave of the scripted wave (docs/01-gdd.md 6.2, 16.6): touch it from inside.
-    if (s.egg && s.egg.phase === 'idle' && s.inShelter && s.shelter === caves.findIndex((c) => Math.abs(c.z - s.egg!.z) < 6)) {
+    // The free egg beside the belt of the cave of the scripted wave (docs/01-gdd.md 6.2, 16.6): touch it from inside,
+    // once it is there (it comes with «Phew, made it!», PR-08).
+    if (s.egg && s.egg.phase === 'idle' && s.egg.shown && s.inShelter && s.shelter === caves.findIndex((c) => Math.abs(c.z - s.egg!.z) < 6)) {
       await setPlan('egg', s, [[s.egg.x, s.egg.z]]);
       continue;
     }
@@ -120,18 +138,20 @@ async function playMountain1(page: Page, realMs: number): Promise<Run> {
     }
     // A warning: the cave of this stretch, beside the closed gate; past its exit with the gate open — on to the next one.
     if (waveOn && !(s.gatesOpen[k] && h.z > caves[k]!.top - 1)) {
-      await setPlan(`cave:${k}`, s, intoCave(k));
+      await setPlan(`cave:${k}`, s, intoCave(k, h.z));
       continue;
     }
     // Gifts of the path of stretch i straight ahead (they stand on the axis), then the belt beside its gate.
-    const stretchPath = (i: number): Array<[number, number]> => {
+    const stretchPath = (i: number): Array<[number, number] | [number, number, number]> => {
       const from = i === 0 ? CAMP : gates[i - 1]!;
       const ahead = s.gifts
         .map((g, gi) => ({ g, gi }))
         .filter(({ g, gi }) => !s.giftsTaken[gi] && g.z > Math.max(from, h.z - 1) && g.z < gates[i]! && Math.abs(g.x) < 1)
         .sort((a, b) => a.g.z - b.g.z)
-        .map(({ g }) => [g.x, g.z] as [number, number]);
-      return [...ahead, ...intoCave(i)];
+        // A gift is taken within 1.8 of its middle: its point is reached within GIFT_REACH (a fast turn onto the
+        // path from a cave, a slide or a trampoline flight may pass it a little aside; never back for it).
+        .map(({ g }) => [g.x, g.z, GIFT_REACH] as [number, number, number]);
+      return [...ahead, ...intoCave(i, ahead.length ? -Infinity : h.z)];
     };
     // Open gate: through it and straight on along the next stretch (no stop while the next plan comes).
     if (s.gatesOpen[k]) {

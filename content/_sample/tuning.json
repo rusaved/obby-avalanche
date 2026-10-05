@@ -67,5 +67,7 @@
     "zoomStep": 2,
     "jumpButtonFrac": 0.18
   },
-  "hud": { "gainHeight": 0.6, "gainSide": 0.05 }
+  "hud": { "gainHeight": 0.6, "gainSide": 0.05 },
+  "fun": { "padSpeed": 62, "padForward": 8, "slideMult": 1.6, "slideSec": 1.5, "giftStreakSec": 1.5 },
+  "gateReward": { "fountain": [8, 12], "streakSec": 10, "streakSteps": 6 }
 }

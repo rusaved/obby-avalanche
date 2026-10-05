@@ -1,21 +1,24 @@
 import { test, expect, testState, waitTicks } from './fixtures.ts';
 import type { Page } from '@playwright/test';
-import worldsJson from '../content/avalanche/worlds.json' with { type: 'json' };
-import balance from '../content/avalanche/balance.json' with { type: 'json' };
+import { PACES, SHOT_PACE, paceBalance, paceWorlds, type Pace } from './pace-data.ts';
 import ru from '../content/avalanche/i18n/ru.json' with { type: 'json' };
 
 // PR-08 (docs/evidence/M3/playtest.md; docs/01-gdd.md 16.6, 16.7): the avalanche banner on a contrast plaque above the
 // gate signs, the free egg only after «Phew, made it!», hint.stuck after 3 s with an arrow to the belt below the gate.
-const PACES = ['classic'] as const;
 const DEG = Math.PI / 180;
 const wrap = (a: number): number => Math.atan2(Math.sin(a), Math.cos(a));
 
 type Seg = { type: string; z: number; y: number; side?: string; depth?: number };
-const world = (worldsJson as unknown as { worlds: Array<{ width: number; segments: Seg[] }> }).worlds[0]!;
-const gates = world.segments.filter((s) => s.type === 'gate').sort((a, b) => a.z - b.z);
-const niches = world.segments.filter((s) => s.type === 'niche').sort((a, b) => a.z - b.z);
-/** Belt of a cave: flush with its back wall, 3 units wide (src/level/builder.ts). */
-const beltX = (n: Seg): number => (n.side === 'right' ? 1 : -1) * (world.width / 2 + 3 + (n.depth ?? 4) - 1.5);
+/** Mountain 1 of the pace: gates and caves bottom up, and the belt of a cave (flush with its back wall, 3 units wide,
+ * src/level/builder.ts). */
+function mountain1(pace: Pace): { gates: Seg[]; niches: Seg[]; beltX: (n: Seg) => number } {
+  const world = paceWorlds<{ width: number; segments: Seg[] }>(pace)[0]!;
+  return {
+    gates: world.segments.filter((s) => s.type === 'gate').sort((a, b) => a.z - b.z),
+    niches: world.segments.filter((s) => s.type === 'niche').sort((a, b) => a.z - b.z),
+    beltX: (n) => (n.side === 'right' ? 1 : -1) * (world.width / 2 + 3 + (n.depth ?? 4) - 1.5),
+  };
+}
 
 /** WCAG contrast of a CSS colour over a CSS background composited on `under` (worst case: white snow). */
 function contrast(fg: string, bg: string, under: [number, number, number]): number {
@@ -35,7 +38,7 @@ function contrast(fg: string, bg: string, under: [number, number, number]): numb
 }
 
 /** Every gate sign on screen now: its box in field px and whether it is hidden. */
-async function signRects(page: Page): Promise<Array<{ i: number; hidden: boolean; r: { x0: number; y0: number; x1: number; y1: number } | null }>> {
+async function signRects(page: Page, count: number): Promise<Array<{ i: number; hidden: boolean; r: { x0: number; y0: number; x1: number; y1: number } | null }>> {
   return page.evaluate((n) => {
     const api = window.__TEST__!;
     const out = [];
@@ -54,7 +57,7 @@ async function signRects(page: Page): Promise<Array<{ i: number; hidden: boolean
       out.push({ i, hidden: b.hidden, r });
     }
     return out;
-  }, gates.length);
+  }, count);
 }
 
 async function bannerBox(page: Page): Promise<{ x0: number; y0: number; x1: number; y1: number; color: string; bg: string }> {
@@ -67,14 +70,16 @@ async function bannerBox(page: Page): Promise<{ x0: number; y0: number; x1: numb
 }
 
 for (const pace of PACES) {
+  const balance = paceBalance(pace);
+  const { gates, niches, beltX } = mountain1(pace);
   test(`avalanche banner (${pace}): contrast plaque, no visible gate sign under it on warn`, async ({ page, openGame }) => {
     test.setTimeout(120_000);
     await page.setViewportSize({ width: 1920, height: 1080 });
-    await openGame();
+    await openGame('pace=' + pace);
     // Right under closed wall 3 (playtest M3: «Avalanche in 9» printed on the huge red sign).
     await page.evaluate((z) => window.__TEST__!.teleport(z, 0), gates[2]!.z - 3);
     await waitTicks(page, 20);
-    const before = (await signRects(page))[2]!;
+    const before = (await signRects(page, gates.length))[2]!;
     expect(before.hidden).toBe(false);
     await page.evaluate(() => window.__TEST__!.triggerWave());
     let hiddenSeen = 0;
@@ -84,7 +89,7 @@ for (const pace of PACES) {
       const s = await testState(page);
       if (s.wave!.phase !== 'warn') break;
       const b = await bannerBox(page);
-      for (const sign of await signRects(page)) {
+      for (const sign of await signRects(page, gates.length)) {
         if (sign.hidden) {
           hiddenSeen++;
           continue;
@@ -94,7 +99,7 @@ for (const pace of PACES) {
         expect(meet, `sign ${sign.i} ${JSON.stringify(sign.r)} under the banner ${JSON.stringify(b)}`).toBe(false);
       }
       expect(contrast(b.color, b.bg, [255, 255, 255]), `${b.color} on ${b.bg}`).toBeGreaterThanOrEqual(4.5);
-      if (checks++ === 5) await page.screenshot({ path: 'docs/evidence/proto/banner_1920x1080_ru.png' });
+      if (checks++ === 5 && pace === SHOT_PACE) await page.screenshot({ path: 'docs/evidence/proto/banner_1920x1080_ru.png' });
     }
     expect(checks).toBeGreaterThan(10);
     // The scenario is real: the sign of wall 3 would be under the banner and was hidden for it.
@@ -104,13 +109,13 @@ for (const pace of PACES) {
     await page.waitForFunction(() => window.__TEST__!.state().wave!.phase === 'idle', undefined, { timeout: 60_000 });
     await page.evaluate(() => window.__TEST__!.setTimeScale(1));
     await waitTicks(page, 3);
-    expect((await signRects(page)).every((x) => !x.hidden)).toBe(true);
+    expect((await signRects(page, gates.length)).every((x) => !x.hidden)).toBe(true);
   });
 
   test(`free egg (${pace}): not there and not taken before «Phew, made it!» of the scripted wave, then shown and taken`, async ({ page, openGame }) => {
     test.setTimeout(180_000);
     await page.setViewportSize({ width: 1920, height: 1080 });
-    await openGame();
+    await openGame('pace=' + pace);
     let s = await testState(page);
     expect(s.egg).toMatchObject({ phase: 'idle', shown: false, visible: false });
     const egg = s.egg!;
@@ -145,7 +150,7 @@ for (const pace of PACES) {
     expect(touchedOnWarn && phew).toBe(true);
     // The toast lasts 2 s of real time: the shot soon after, with the sparks of the egg flying out.
     await waitTicks(page, 10);
-    await page.screenshot({ path: 'docs/evidence/proto/egg_after_phew_1920x1080_ru.png' });
+    if (pace === SHOT_PACE) await page.screenshot({ path: 'docs/evidence/proto/egg_after_phew_1920x1080_ru.png' });
     expect(s.egg).toMatchObject({ phase: 'idle', shown: true, visible: true });
     // Now a touch takes it: it hatches, the pet joins.
     await page.evaluate(([x, y, z]) => window.__TEST__!.teleport(z, x, y), [egg.x, egg.y + 0.05, egg.z] as const);
@@ -156,7 +161,7 @@ for (const pace of PACES) {
 
   test(`hint.stuck (${pace}): after ${balance.hints.stuckSec} s at a closed gate, with an arrow to the belt of the cave below it`, async ({ page, openGame }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
-    await openGame();
+    await openGame('pace=' + pace);
     const gate = gates[2]!;
     await page.evaluate((z) => window.__TEST__!.teleport(z, 0), gate.z - 3);
     await waitTicks(page, Math.round((balance.hints.stuckSec - 0.5) * 60));
@@ -187,6 +192,6 @@ for (const pace of PACES) {
       [beltX(cave), cave.y + 1, cave.z] as const,
     );
     expect(Math.abs(wrap(s.hintArrow! - want)), `arrow ${s.hintArrow} vs belt ${want.toFixed(2)}`).toBeLessThanOrEqual(30 * DEG);
-    await page.screenshot({ path: 'docs/evidence/proto/stuck_hint_1920x1080_ru.png' });
+    if (pace === SHOT_PACE) await page.screenshot({ path: 'docs/evidence/proto/stuck_hint_1920x1080_ru.png' });
   });
 }

@@ -132,6 +132,12 @@ canvas.fallback {
 .hud-sound svg { width: 60%; height: 60%; }
 .hud-coins { position: relative; display: flex; align-items: center; gap: 8px; min-width: 96px; height: 36px; box-sizing: border-box; padding: 0 12px 0 6px; border-radius: 12px; background: rgba(0, 0, 0, 0.32); font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; pointer-events: none; transform: translateX(calc(-100% - 24px)); opacity: 0; transition: transform 0.35s ease-out, opacity 0.35s ease-out; }
 .hud-coins.shown { transform: translateX(0); opacity: 1; }
+.hud-coins.shown.pulse { animation: coin-pulse 0.4s ease-out; }
+@keyframes coin-pulse { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.hud-coin-gain { position: absolute; left: calc(100% + 6px); top: 10%; white-space: nowrap; opacity: 0; font-size: 20px; font-weight: 800; color: var(--coins); text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35); pointer-events: none; }
+.hud-coin-gain.show { animation: stat-gain 0.9s ease-out forwards; }
+.hud-fly-coin { position: absolute; left: 0; top: 0; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; background: var(--coins); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.3); pointer-events: none; will-change: transform; display: none; }
+.hud-fly-coin.on { display: block; }
 .hud-coin-icon { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--coins); color: #fff; font-size: 16px; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2); }
 .hud-gain { position: absolute; left: 0; top: 0; transform: translate(-50%, -100%); opacity: 0; pointer-events: none; font-size: 22px; font-weight: 800; color: #fff; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35), 0 0 8px rgba(0, 0, 0, 0.25); white-space: nowrap; }
 .hud-gain.show { animation: gain-pop 0.7s ease-out forwards; }

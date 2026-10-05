@@ -99,6 +99,10 @@ export interface Hud {
   popGain(text: string, x: number, y: number): void;
   /** Coin plaque (docs/01-gdd.md 6.4, 10.1): hidden until the first coin, then slides in from the left and stays. */
   setCoins(text: string): void;
+  /** «+N» by the coin plaque and its pulse (docs/01-gdd.md 16.5: the coins of a gate arrive). */
+  popCoinGain(text: string): void;
+  /** Centre of the coin icon in field px: where the coins of a gate fly (docs/01-gdd.md 16.5). */
+  coinTarget(): { x: number; y: number };
   /** «Avalanche in N» at the top centre on a dark plaque (docs/01-gdd.md 4.8, 16.7); null hides it. */
   setWaveBanner(text: string | null): void;
   /** The banner box in field px while it shows, null otherwise (gate signs under it hide, docs/01-gdd.md 16.7). */
@@ -296,7 +300,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   coins.style.setProperty('--coins', opts.coinColor);
   const coinIcon = el('span', 'hud-coin-icon', '\u2744');
   const coinValue = el('span', 'hud-coin-value', '0');
-  coins.append(coinIcon, coinValue);
+  const coinGain = el('span', 'hud-coin-gain');
+  coinGain.dataset['role'] = 'coin-gain';
+  coins.append(coinIcon, coinValue, coinGain);
   left.appendChild(coins);
   const trophies = el('div', 'hud-trophies');
   trophies.dataset['role'] = 'trophies';
@@ -588,6 +594,19 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     setCoins(text) {
       if (coinValue.textContent !== text) coinValue.textContent = text;
       coins.classList.add('shown');
+    },
+    popCoinGain(text) {
+      coinGain.textContent = text;
+      coinGain.classList.remove('show');
+      coins.classList.remove('pulse');
+      void coinGain.offsetWidth;
+      coinGain.classList.add('show');
+      coins.classList.add('pulse');
+    },
+    coinTarget() {
+      const b = coinIcon.getBoundingClientRect();
+      const r = root.getBoundingClientRect();
+      return { x: b.left + b.width / 2 - r.left, y: b.top + b.height / 2 - r.top };
     },
     setStat(value, perStep) {
       if (statValue.textContent !== value) statValue.textContent = value;

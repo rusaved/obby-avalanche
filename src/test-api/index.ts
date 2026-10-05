@@ -80,6 +80,16 @@ export interface TestState {
   hintArrow: number | null;
   /** «Wrong way» arrow by the hero: up, its screen angle and centre in field px (PR-06). */
   wrongWay: { shown: boolean; angle: number; x: number; y: number };
+  /**
+   * Fun between the gates (PR-04): in a trampoline flight, launches of this mountain and how high the feet rose over the
+   * plate in the last flight, the slide under the feet (−1 off),
+   * the boost seconds left, the run speed of the stat now; what is seen and heard of it and of the gate reward (PR-05,
+   * app/fun-view.ts).
+   */
+  fun: { padFlight: boolean; launches: number; top: number; onSlide: number; slideLeft: number; runSpeed: number };
+  funFx: { fountains: number; coinsFlying: number; confetti: number; gateNote: number; chimes: number; puffs: number; trail: number; puffAlive: number; giftNote: number; slides: number };
+  /** «+N» by the coin plaque: its text and whether it is playing. */
+  coinGain: { text: string; shown: boolean };
   pets: string[];
   /** M3-03: ids of the pets on, pets drawn next to the hero, the egg button over a stand, the egg being hatched. */
   petsOn: string[];
@@ -212,7 +222,7 @@ export interface TestApi {
   /** A pet joins the player as from the free egg of the first minute (M3-13: «Bunny from the teaching»). */
   givePet(id: string): void;
   /** e2e bot: the hero walks these world points [x, z] in order, ignoring the camera; null stops the bot. */
-  botPath(points: Array<[number, number]> | null): void;
+  botPath(points: Array<[number, number] | [number, number, number]> | null): void;
   /** Points the bot has not reached yet. */
   botLeft(): number;
   /** Longest stand (game seconds) right below a closed gate since the page opened (GDD-01). */
@@ -398,6 +408,14 @@ export function installTestApi(g: GameHandles): TestApi {
           : null,
         hintArrow: g.ftue?.hintArrow ?? null,
         wrongWay: { shown: g.way?.shown ?? false, angle: g.way?.angle ?? 0, x: g.way?.x ?? 0, y: g.way?.y ?? 0 },
+        fun: g.sim
+          ? { padFlight: g.sim.fun.padFlight, launches: g.sim.fun.launches, top: g.sim.fun.top, onSlide: g.sim.fun.onSlide, slideLeft: g.sim.fun.slideLeft, runSpeed: g.sim.params.speed }
+          : { padFlight: false, launches: 0, top: 0, onSlide: -1, slideLeft: 0, runSpeed: 0 },
+        funFx: g.fun?.state ?? { fountains: 0, coinsFlying: 0, confetti: 0, gateNote: 0, chimes: 0, puffs: 0, trail: 0, puffAlive: 0, giftNote: 0, slides: 0 },
+        coinGain: {
+          text: document.querySelector('[data-role="coin-gain"]')?.textContent ?? '',
+          shown: document.querySelector('[data-role="coin-gain"]')?.classList.contains('show') ?? false,
+        },
         pets: [...(g.save.pets ?? [])],
         petsOn: g.pets?.equippedIds ?? [],
         petsShown: g.pets?.shownPets ?? 0,
@@ -594,7 +612,7 @@ export function installTestApi(g: GameHandles): TestApi {
       g.pets?.hatched(id, null, true);
     },
     botPath(points) {
-      g.botPath = points ? points.map((p) => [p[0], p[1]] as [number, number]) : null;
+      g.botPath = points ? points.map((p) => [p[0], p[1], p[2]] as [number, number, number?]) : null;
     },
     botLeft: () => g.botPath?.length ?? 0,
     gateStandMax: () => standMax,

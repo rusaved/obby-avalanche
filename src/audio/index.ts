@@ -1,7 +1,8 @@
 /**
  * Sound (docs/02-tech.md 10), minimal for M2: one AudioContext started by the first gesture of the player
  * (pointerdown, keydown), master → sfx gain, ZzFX buffers built once from sfx.json on our context, any pause
- * reason suspends the context at once. Music, separate volumes and the rest of the events — M5-04.
+ * reason suspends the context at once; a sound can play some semitones higher and later (a rising note, a chime).
+ * Music, separate volumes and the rest of the events — M5-04.
  */
 import type { SfxJson } from '../content/types.ts';
 
@@ -14,7 +15,8 @@ interface ZzfxModule {
 }
 
 export interface GameAudio {
-  play(name: string): void;
+  /** `semitones` above the sound as made (a rising note, docs/01-gdd.md 16.4, 16.5); `delaySec` — later (a chime of notes). */
+  play(name: string, semitones?: number, delaySec?: number): void;
   setEnabled(on: boolean): void;
   /** The context runs (after the first gesture and while nothing pauses the game). */
   readonly running: boolean;
@@ -81,7 +83,7 @@ export function createAudio(opts: {
     setEnabled(on) {
       enabled = on;
     },
-    play(name) {
+    play(name, semitones = 0, delaySec = 0) {
       const buf = buffers.get(name);
       if (!ctx || !sfxGain || !buf || !enabled || opts.paused()) return;
       const now = performance.now();
@@ -91,8 +93,9 @@ export function createAudio(opts: {
       recent.set(name, times);
       const src = ctx.createBufferSource();
       src.buffer = buf;
+      if (semitones !== 0) src.playbackRate.value = Math.pow(2, semitones / 12);
       src.connect(sfxGain);
-      src.start();
+      src.start(ctx.currentTime + Math.max(0, delaySec));
       played.push(name);
       if (played.length > 200) played.splice(0, played.length - 200);
     },

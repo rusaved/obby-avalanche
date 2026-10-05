@@ -1,13 +1,11 @@
 import { test, expect, testState, waitTicks } from './fixtures.ts';
 import type { Page } from '@playwright/test';
-import worldsJson from '../content/avalanche/worlds.json' with { type: 'json' };
 import tuning from '../content/avalanche/tuning.json' with { type: 'json' };
-import balance from '../content/avalanche/balance.json' with { type: 'json' };
+import { PACES, SHOT_PACE, paceBalance, paceWorlds, type Pace } from './pace-data.ts';
 
 // PR-07 (docs/01-gdd.md 16.7; playtest M3, item 2): the avalanche from the cave is a wide frame from the back wall.
 // The hero on the belt: on warn and run the camera is not in the level, ≥ 3 units from him, he is whole in the frame and
 // at most 30% of its height, the cave mouth is in the frame; after the wave the camera is back in shotReturnSec.
-const PACES = ['classic'] as const;
 /** The hero as a box over his feet (characters ≈ 5 units with the hat, arms out). */
 const HERO_H = 5.1;
 const HERO_HALF = 0.9;
@@ -18,8 +16,8 @@ const BELT_HALF = 1.5;
 type Seg = { type: string; z: number; y: number; side?: string; length?: number; depth?: number };
 type Cave = { side: number; z: number; y: number; z0: number; z1: number; mouthX: number; beltX: number };
 
-function caves(): Cave[] {
-  const w = (worldsJson as unknown as { worlds: Array<{ width: number; segments: Seg[] }> }).worlds[0]!;
+function caves(pace: Pace): Cave[] {
+  const w = paceWorlds<{ width: number; segments: Seg[] }>(pace)[0]!;
   return w.segments
     .filter((s) => s.type === 'niche')
     .sort((a, b) => a.z - b.z)
@@ -118,12 +116,13 @@ async function watchWave(page: Page, cave: Cave, label: string, shotPath: string
 }
 
 for (const pace of PACES) {
+  const balance = paceBalance(pace);
   for (const [width, height] of [[1920, 1080], [1280, 720]] as const) {
     test(`cave frame on the avalanche (${pace}, ${width}x${height}): scripted and normal wave, hero on the belt`, async ({ page, openGame }) => {
       test.setTimeout(300_000);
       await page.setViewportSize({ width, height });
-      await openGame();
-      const list = caves();
+      await openGame('pace=' + pace);
+      const list = caves(pace);
       // 1. The scripted first wave in its cave (docs/01-gdd.md 4.6).
       const scripted = list[balance.ftue.scriptedWaveWall - 1]!;
       await page.evaluate(([x, y, z]) => window.__TEST__!.teleport(z, x, y), [scripted.beltX, scripted.y + 0.05, scripted.z] as const);
@@ -143,7 +142,7 @@ for (const pace of PACES) {
       await page.evaluate(() => window.__TEST__!.triggerWave());
       await waitTicks(page, 3);
       expect((await testState(page)).wave).toMatchObject({ phase: 'warn', scripted: false, shelter: 2 });
-      await watchWave(page, cave, `${pace} normal`, `docs/evidence/proto/cave_shot_${width}x${height}_ru.png`);
+      await watchWave(page, cave, `${pace} normal`, pace === SHOT_PACE ? `docs/evidence/proto/cave_shot_${width}x${height}_ru.png` : null);
     });
   }
 }

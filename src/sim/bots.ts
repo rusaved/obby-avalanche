@@ -4,10 +4,11 @@
  * in the cave 10–30 s, up again; on warn most of them run to the nearest cave with a free place (two per cave), the
  * rest dawdle and roll into the cave below as a snowball. Bots never take gifts and never pass a wall closed for the
  * hero. A bot left far below the hero goes to the camp and comes back at his flag with a new name.
- * Kinematic: no collisions, feet on the track floor, lanes clear of obstacles. Pure TS, no DOM.
+ * Kinematic: no collisions, feet on the track floor, lanes clear of obstacles. A trampoline on his way throws him up
+ * along the arc of tuning fun.padSpeed, an ice slide speeds him × fun.slideMult (docs/01-gdd.md 16.4). Pure TS, no DOM.
  */
 import type { BalanceJson, BotsJson, TuningJson } from '../content/types.ts';
-import type { LevelData, LevelNiche } from '../level/types.ts';
+import type { LevelData, LevelNiche, LevelPoint } from '../level/types.ts';
 import { NICHE_BELT_WIDTH } from '../level/builder.ts';
 import { createRng, type Rng } from '../core/rng.ts';
 import { caughtPosition, caughtTotalSec, createCaught, type CaughtState } from './caught.ts';
@@ -47,6 +48,9 @@ export interface Bot {
   ball: CaughtState | null;
   /** Number of the last wave the front already went over this bot. */
   wave: number;
+  /** Seconds since a trampoline threw him up (−1 on the floor) and of the slide boost left. */
+  hop: number;
+  slide: number;
 }
 
 export interface BotContext {
@@ -67,6 +71,8 @@ export interface BotsOptions {
   caught?: BalanceJson['caught'] | undefined;
   avalanche?: Pick<TuningJson['avalanche'], 'caughtFormSec' | 'caughtPopSec' | 'ballBounce'>;
   graceDist: number;
+  /** Trampolines and slides on the way (docs/01-gdd.md 16.4); absent — the bots walk over them. */
+  fun?: { cfg: Pick<TuningJson['fun'], 'padSpeed' | 'slideMult' | 'slideSec'>; gravity: number } | undefined;
 }
 
 export interface BotCrowd {
@@ -203,6 +209,8 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       path: [],
       ball: null,
       wave: 0,
+      hop: -1,
+      slide: 0,
     };
     if (!inCamp) bot.x = bot.lane;
     bot.y = level.floorYAt(bot.z);
@@ -306,8 +314,13 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
   };
 
   const ballPos = { x: 0, y: 0, z: 0 };
+  const fun = opts.fun;
+  const pads = fun ? level.points.filter((p) => p.type === 'jumpPad') : [];
+  const slides = fun ? level.points.filter((p) => p.type === 'slide') : [];
+  const on = (p: LevelPoint, x: number, z: number): boolean => Math.abs(x - p.x) <= (p['width'] as number) / 2 && Math.abs(z - p.z) <= (p['length'] as number) / 2;
   const move = (b: Bot, dt: number, speed: number): void => {
-    let left = speed * dt;
+    b.slide = slides.some((p) => on(p, b.x, b.z)) ? (fun?.cfg.slideSec ?? 0) : Math.max(0, b.slide - dt);
+    let left = speed * dt * (b.slide > 0 ? (fun?.cfg.slideMult ?? 1) : 1);
     b.moving = false;
     while (left > 0 && b.path.length > 0) {
       const [tx, tz] = b.path[0]!;
@@ -329,6 +342,13 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       left -= d;
     }
     b.y = level.floorYAt(b.z);
+    if (!fun) return;
+    if (b.hop >= 0) {
+      b.hop += dt;
+      const h = fun.cfg.padSpeed * b.hop - 0.5 * fun.gravity * b.hop * b.hop;
+      if (h > 0) b.y += h;
+      else b.hop = -1;
+    } else if (b.moving && pads.some((p) => on(p, b.x, b.z))) b.hop = 0;
   };
 
   const crowd: BotCrowd = {
@@ -377,6 +397,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
               b.x = b.lane;
               b.z = Math.min(ctx.flagZ, firstStop(ctx.flagZ, ctx.gatesOpen) - 1);
               b.y = level.floorYAt(b.z);
+              b.hop = -1;
               b.wave = waveNo;
               goUp(b, ctx.gatesOpen);
             }
@@ -456,6 +477,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
             b.moving = false;
             if (c.t >= caughtTotalSec(c) - 1e-9) {
               b.ball = null;
+              b.hop = -1;
               b.x = c.to.x;
               b.y = c.to.y;
               b.z = c.to.z;

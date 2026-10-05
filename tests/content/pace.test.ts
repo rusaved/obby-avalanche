@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { CLASSIC_PACE, choosePace, mergePatch, paceOfPath } from '../../src/content/pace.ts';
-import { GATE_SIDE, generateWorlds, stringifyWorlds, zoneOfStretch } from '../../src/level/generate.ts';
+import { GATE_SIDE, generateWorlds, stretchFun, stringifyWorlds, zoneOfStretch } from '../../src/level/generate.ts';
 import { PACK_FILES, validatePack, type PackFiles } from '../../src/level/validate.ts';
 import { gateRequirement } from '../../src/sim/gates.ts';
-import type { BalanceJson, Segment, WorldsJson, WorldsSpecJson } from '../../src/content/types.ts';
+import type { BalanceJson, Segment, TuningJson, WorldsJson, WorldsSpecJson } from '../../src/content/types.ts';
 
 // PR-01, PR-02: the pace flag and the mountains of the fast pace (docs/01-gdd.md 16.1–16.3; docs/01a-content.md 15).
 const root = resolve(__dirname, '../..');
@@ -67,7 +67,7 @@ describe('pace flag (PR-01)', () => {
   it('gen:worlds of every pace is deterministic and matches the committed worlds.json; validate:content passes it', () => {
     for (const pace of paceNames('avalanche')) {
       const files = pacePack('avalanche', pace);
-      const input = { spec: files['worlds-spec.json'] as WorldsSpecJson, balance: files['balance.json'] as BalanceJson };
+      const input = { spec: files['worlds-spec.json'] as WorldsSpecJson, balance: files['balance.json'] as BalanceJson, tuning: files['tuning.json'] as TuningJson };
       const text = stringifyWorlds(generateWorlds(input));
       expect(stringifyWorlds(generateWorlds(input))).toBe(text);
       expect(readFileSync(resolve(root, 'content/avalanche/pace', pace, 'worlds.json'), 'utf8')).toBe(text);
@@ -100,7 +100,7 @@ describe('mountains of the fast pace (PR-02)', () => {
     for (const s of first.slice(1)) expect(s >= 10 && s <= 12).toBe(true);
   });
 
-  it('layout gateSide: the cave right beside every gate, sides by turn, 4 gifts on the path, rise 3, six zones ⌈6i/n⌉, egg stands', () => {
+  it('layout gateSide: the cave right beside every gate, sides by turn, the fun by turn (PR-04), rise 3, six zones ⌈6i/n⌉, egg stands', () => {
     let last = 0;
     for (const w of worlds) {
       const n = w.wallCount;
@@ -124,14 +124,34 @@ describe('mountains of the fast pace (PR-02)', () => {
         last = num(g, 'requires');
         const z0 = g.z - w.stretch;
         const gifts = w.segments.filter((s) => s.type === 'gift' && s.z > z0 && s.z < g.z);
-        expect(gifts).toHaveLength(4);
+        // Fun by turn (docs/01-gdd.md 16.4): i mod 3 = 1 — 4 gifts on the path, 2 — a trampoline and its gift up in the
+        // air, 0 — an ice slide with 3 gifts on it; every gift on the axis, on the path, in 0–45% of the stretch.
+        const fun = stretchFun(i);
+        expect(fun).toBe((['slide', 'giftPath', 'jumpPad'] as const)[i % 3]);
+        const pads = w.segments.filter((s) => s.type === 'jumpPad' && s.z > z0 && s.z < g.z);
+        const slides = w.segments.filter((s) => s.type === 'slide' && s.z > z0 && s.z < g.z);
+        expect(gifts).toHaveLength(fun === 'giftPath' ? 4 : fun === 'jumpPad' ? 1 : 3);
+        expect(pads).toHaveLength(fun === 'jumpPad' ? 1 : 0);
+        expect(slides).toHaveLength(fun === 'slide' ? 1 : 0);
         for (const x of gifts) {
           expect(x['path']).toBe(true);
           expect(x['x']).toBe(0);
           expect(x['height']).toBe(0);
-          expect((x.z - z0) / w.stretch).toBeGreaterThanOrEqual(0.1);
+          expect(x['y']).toBe(fun === 'jumpPad' ? num(g, 'y') - 3 + 14.947 : num(g, 'y') - 3);
+          expect((x.z - z0) / w.stretch).toBeGreaterThanOrEqual(fun === 'giftPath' ? 0.1 : 0.05);
           expect((x.z - z0) / w.stretch).toBeLessThanOrEqual(0.45);
           expect(x['coins']).toBe(w.zones[num(g, 'zone') - 1]!.gift);
+        }
+        for (const p of pads) {
+          expect([num(p, 'width'), num(p, 'length'), num(p, 'x')]).toEqual([4, 4, 0]);
+          expect(p.z - 2 - z0).toBeCloseTo(GATE_SIDE.padRear, 6);
+          expect(gifts[0]!['pad']).toBe(true);
+          expect(gifts[0]!.z).toBeGreaterThan(p.z);
+        }
+        for (const p of slides) {
+          expect([num(p, 'width'), num(p, 'length'), num(p, 'x')]).toEqual([4, 16, 0]);
+          expect(p.z + 8).toBeLessThanOrEqual(z0 + 0.45 * w.stretch);
+          for (const x of gifts) expect(Math.abs(x.z - p.z)).toBeLessThan(8);
         }
         const ramp = w.segments.find((s) => s.type === 'ramp' && s.z > z0 && s.z < g.z)!;
         expect(num(ramp, 'rise')).toBe(3);
@@ -171,6 +191,18 @@ describe('mountains of the fast pace (PR-02)', () => {
     cave.z -= 5;
     const res = validatePack(broken, { paces: ['fast'] });
     expect(res.errors.some((e) => e.includes('gate 3 — cave exit 8 units below the gate'))).toBe(true);
+  });
+
+  it('validate:content checks the trampolines by the tuning numbers: a gift within a plain jump, an arc past the gate (PR-04)', () => {
+    const low = JSON.parse(JSON.stringify(files)) as PackFiles;
+    const gift = (low['worlds.json'] as WorldsJson).worlds[0]!.segments.find((s) => s.type === 'gift' && s['pad'] === true)!;
+    gift['y'] = num(gift, 'y') - 4;
+    const errs = validatePack(low, { paces: ['fast'] }).errors;
+    expect(errs.some((e) => e.includes('trampoline') && e.includes('within a plain jump'))).toBe(true);
+    const far = JSON.parse(JSON.stringify(files)) as PackFiles;
+    (far['tuning.json'] as TuningJson).fun.padForward = 40;
+    expect(validatePack(far, { paces: ['fast'] }).errors.some((e) => e.includes('trampoline') && e.includes('past gate'))).toBe(true);
+    expect(validatePack(files, { paces: ['fast'] }).errors).toEqual([]);
   });
 
   it('lateEase counts walls through the pace: wall 118 of 195 eases on tier 1, the defaults stay 12 a mountain and 60', () => {

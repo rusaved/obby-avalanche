@@ -8,7 +8,10 @@ import type { AurasJson, BalanceJson, BotsJson, Curve, EggsJson, TrailsJson, Gam
 import { summitTrophies } from '../sim/economy.ts';
 import { LEADERBOARD_SCORES } from '../meta/trophies.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
-import { buildLevel } from './builder.ts';
+import { buildLevel, GATE_THICKNESS } from './builder.ts';
+import { PAD_SIZE, TICK, apexOf, padArc, padGiftBand } from './pad-arc.ts';
+import { GIFT_HALF, GIFT_HEIGHT, touchesGift } from '../sim/gifts.ts';
+import { HERO_HEIGHT, HERO_RADIUS } from '../sim/controller.ts';
 import { GATE_SIDE, zoneOfStretch } from './generate.ts';
 import { CLASSIC_PACE } from '../content/pace.ts';
 
@@ -57,7 +60,7 @@ const curve = v.object({ base: positive, k: nonNeg, max: positive });
 export const STAT_EFFECTS = ['moveSpeed', 'jumpPower', 'gateOnly'] as const;
 export const SEGMENT_TYPES = [
   'floor', 'wall', 'gate', 'niche', 'gap', 'ramp', 'steps', 'treadmill', 'checkpoint', 'coins', 'chest',
-  'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit',
+  'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit', 'jumpPad', 'slide',
 ] as const;
 /** Mountain layouts of the generator (docs/01-gdd.md 5.2, 16.3). */
 export const WORLD_LAYOUTS = ['classic', 'gateSide'] as const;
@@ -290,6 +293,12 @@ const tuningSchema = v.object({
     caughtFormSec: nonNeg,
     caughtPopSec: nonNeg,
     ballBounce: nonNeg,
+  }),
+  fun: v.object({ padSpeed: positive, padForward: nonNeg, slideMult: v.pipe(v.number(), v.minValue(1)), slideSec: nonNeg, giftStreakSec: nonNeg }),
+  gateReward: v.object({
+    fountain: v.pipe(v.tuple([v.pipe(v.number(), v.integer(), v.minValue(1)), v.pipe(v.number(), v.integer(), v.minValue(1))]), v.check((r) => r[0] <= r[1], 'expected [min, max]')),
+    streakSec: positive,
+    streakSteps: v.pipe(v.number(), v.integer(), v.minValue(1)),
   }),
 });
 
@@ -668,6 +677,7 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
     const speedAt = (stat: number): number => (game.stat.effect === 'moveSpeed' ? moveSpeed(stat, curve) : tuning.controller.baseSpeed);
     errors.push(...validateFairness(worlds, speedAt));
     if (game.threat.bonus) errors.push(...validateGoldFairness(worlds, speedAt, game.threat.bonus.distMax));
+    errors.push(...validateFun(worlds, tuning, speedAt));
   }
   // The count of 01a against the generated mountains (M3-05): after fairness, so a broken number still gets its seconds named.
   errors.push(...validateContentCount(worlds, files['worlds-spec.json'] as WorldsSpecJson, (files['balance.json'] as BalanceJson).gifts.perZone));
@@ -1035,4 +1045,77 @@ export function validateGoldFairness(worlds: WorldsJson, speedAt: (stat: number)
       (r) =>
         `game.json: threat.bonus — golden gift fairness on ${r.world}, cave of stretch ${r.stretch}: cave → ${distMax} units → cave takes ${r.sec.toFixed(2)} s, above ${GOLD_FAIRNESS_SHARE} × (warnSec + spawnAhead / speed) = ${r.limitSec.toFixed(2)} s`,
     );
+}
+
+/**
+ * Fun between the gates (docs/01-gdd.md 16.4; docs/02-tech.md 5.4), by the numbers of tuning.json the game flies by:
+ * the trampoline arc at the minimum speed of its stretch (the stat that opened the gate below) stays on the track,
+ * lands before the next gate and never meets a cave; its gift is out of reach of a plain jump from the floor under it
+ * and in the arc, with 20% to spare both ways (src/level/pad-arc.ts); an ice slide lies flat inside its stretch, short
+ * of its cave. Take-off anywhere in the first tick on the plate.
+ */
+export function validateFun(worlds: WorldsJson, tuning: TuningJson, speedAt: (stat: number) => number): string[] {
+  const errors: string[] = [];
+  const [lo, hi] = padGiftBand(tuning);
+  for (const [wi, w] of worlds.worlds.entries()) {
+    const at = `worlds.json: worlds[${wi}] (${w.id})`;
+    const pads = w.segments.filter((s) => s.type === 'jumpPad');
+    const slides = w.segments.filter((s) => s.type === 'slide');
+    if (pads.length === 0 && slides.length === 0) continue;
+    const level = buildLevel(w);
+    const gates = [...level.gates].sort((a, b) => a.z - b.z);
+    const camp = w.safeZones[0]?.[1] ?? 0;
+    const stretchOf = (z: number): number => gates.filter((g) => g.z <= z).length + 1;
+    const caveBoxes = level.boxes.filter((b) => b.kind.startsWith('niche'));
+    for (const p of pads) {
+      const i = stretchOf(p.z);
+      const where = `${at}: trampoline at z=${p.z} (stretch ${i})`;
+      const next = gates[i - 1];
+      const x = num(p, 'x');
+      const y = num(p, 'y');
+      const half = num(p, 'length') / 2;
+      if (!next) {
+        errors.push(`${where} — no gate above it`);
+        continue;
+      }
+      if (Math.abs(x) + PAD_SIZE / 2 > w.width / 2) errors.push(`${where} — off the track`);
+      const speed = speedAt(i === 1 ? 0 : (gates[i - 2]?.requires ?? 0));
+      const gateFront = next.z - GATE_THICKNESS / 2;
+      // Take-off on the first tick the feet are on the plate: right at its lower edge or one tick of run into it.
+      for (const rear of [p.z - half, p.z - half + speed * TICK]) {
+        const arc = padArc(rear, y, speed, tuning, level.floorYAt, w.length);
+        if (arc.landZ + HERO_RADIUS > gateFront) errors.push(`${where} — at ${speed.toFixed(1)} units/s it lands at z=${arc.landZ.toFixed(1)}, past gate ${i} (z=${next.z})`);
+        if (arc.landZ > w.length - 1) errors.push(`${where} — lands past the end of the track`);
+        const inCave = arc.points.some((q) => caveBoxes.some((b) => x + HERO_RADIUS > b.min[0] && x - HERO_RADIUS < b.max[0] && q.y + HERO_HEIGHT > b.min[1] && q.y < b.max[1] && q.z + HERO_RADIUS > b.min[2] && q.z - HERO_RADIUS < b.max[2]));
+        if (inCave) errors.push(`${where} — the arc meets a cave`);
+        const gifts = level.points.filter((g) => g.type === 'gift' && g['pad'] === true && g.z > p.z && g.z < next.z);
+        if (gifts.length === 0) errors.push(`${where} — no gift over it (pad: true)`);
+        for (const g of gifts) {
+          const gift = { x: g.x, y: g.y, z: g.z, zone: 0, rarity: '', coins: 0, taken: false };
+          if (!arc.points.some((q) => touchesGift(gift, x, q.y, q.z))) errors.push(`${where} — its arc at ${speed.toFixed(1)} units/s misses the gift at z=${g.z}`);
+        }
+      }
+      for (const g of level.points.filter((q) => q.type === 'gift' && q['pad'] === true && q.z > p.z && q.z < next.z)) {
+        const rise = g.y - y;
+        if (rise < lo - 1e-6 || rise > hi + 1e-6) errors.push(`${where} — its gift ${rise.toFixed(2)} above the plate, outside ${lo.toFixed(2)}–${hi.toFixed(2)} (20% both ways of a jump ${apexOf(tuning.controller.jumpSpeed, tuning).toFixed(2)} and the trampoline ${apexOf(tuning.fun.padSpeed, tuning).toFixed(2)})`);
+        let floor = -Infinity;
+        for (let dz = -(GIFT_HALF + HERO_RADIUS); dz <= GIFT_HALF + HERO_RADIUS + 1e-9; dz += 0.25) floor = Math.max(floor, level.floorYAt(g.z + dz));
+        if (g.y - floor - HERO_HEIGHT < 1.2 * apexOf(tuning.controller.jumpSpeed, tuning) - 1e-6) errors.push(`${where} — its gift at z=${g.z} is within a plain jump from the floor under it`);
+        if (g.y + GIFT_HEIGHT <= y) errors.push(`${where} — its gift is under the plate`);
+      }
+    }
+    for (const s of slides) {
+      const i = stretchOf(s.z);
+      const where = `${at}: ice slide at z=${s.z} (stretch ${i})`;
+      const z0 = s.z - num(s, 'length') / 2;
+      const z1 = s.z + num(s, 'length') / 2;
+      const below = i === 1 ? camp : (gates[i - 2]?.z ?? camp);
+      const cave = level.niches.find((n) => n.stretch === i);
+      if (z0 <= below || z1 >= (gates[i - 1]?.z ?? w.length)) errors.push(`${where} — not inside its stretch`);
+      if (cave && z1 > cave.box.min[2]) errors.push(`${where} — runs past the lower edge of its cave`);
+      if (Math.abs(level.floorYAt(z0) - num(s, 'y')) > 0.01 || Math.abs(level.floorYAt(z1) - num(s, 'y')) > 0.01) errors.push(`${where} — not on flat floor`);
+      if (Math.abs(num(s, 'x')) + num(s, 'width') / 2 > w.width / 2) errors.push(`${where} — off the track`);
+    }
+  }
+  return errors;
 }

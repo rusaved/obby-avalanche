@@ -28,6 +28,8 @@ import { createWaveView, type WaveView } from './app/wave-view.ts';
 import { createFtueVisual } from './render/ftue.ts';
 import { createFtueView, type FtueView } from './app/ftue-view.ts';
 import { createWayView, type WayView } from './app/way-view.ts';
+import { createFunView, type FunView } from './app/fun-view.ts';
+import { createFx, type FxParticles } from './render/fx.ts';
 import { guardBannerSigns } from './app/banner-signs.ts';
 import { createMetaView, type MetaView } from './app/meta-view.ts';
 import { createPetsView, type PetsView } from './app/pets-view.ts';
@@ -252,6 +254,8 @@ async function boot(): Promise<void> {
   let waveView: WaveView | null = null;
   let ftueView: FtueView | null = null;
   let wayView: WayView | null = null;
+  let funView: FunView | null = null;
+  let fx: FxParticles | null = null;
   let meta: MetaView | null = null;
   let petsView: PetsView | null = null;
   let cosmeticsView: CosmeticsView | null = null;
@@ -370,6 +374,7 @@ async function boot(): Promise<void> {
       if (next !== null) pendingPortal = next;
     });
     ftueView?.wire(s);
+    funView?.wire(s);
     hudView?.wire(s);
     questsView?.wire(s);
     petsView?.wire(s);
@@ -519,6 +524,9 @@ async function boot(): Promise<void> {
     get way() {
       return wayView;
     },
+    get fun() {
+      return funView;
+    },
     get levelMeshes() {
       return levelMeshes;
     },
@@ -559,6 +567,7 @@ async function boot(): Promise<void> {
     if (characters) characters.group.traverse((o) => void (o.castShadow = quality.params.shadowMap > 0));
     levelMeshes?.chunks.forEach((c) => void (c.receiveShadow = quality.params.shadowMap > 0));
     avalanche?.setParticles(quality.params.particles);
+    fx?.setShare(quality.params.particles);
     if (sim.bots) sim.bots.limit = Math.min(sim.bots.list.length, bots.count[quality.level]);
   };
 
@@ -690,10 +699,19 @@ async function boot(): Promise<void> {
       moveY = 1;
     }
     const w = toWorld(moveX, moveY, frame.controlYaw);
-    // e2e bot (build:e2e only): walks the given points in world space, ignoring the camera.
+    // e2e bot (build:e2e only): walks the given points in world space, ignoring the camera. A point counts as reached
+    // when the last tick's move passed within its reach (0.6 or its own; on a slide or in a flight a tick is ~1 unit).
     if (g.botPath) {
       const bp = g.botPath;
-      while (bp.length > 0 && Math.hypot(bp[0]![0] - sim.hero.pos.x, bp[0]![1] - sim.hero.pos.z) < 0.6) bp.shift();
+      const reached = (p: [number, number, number?]): boolean => {
+        const ax = prevPos.x;
+        const az = prevPos.z;
+        const dx = sim.hero.pos.x - ax;
+        const dz = sim.hero.pos.z - az;
+        const k = dx * dx + dz * dz > 1e-9 ? Math.max(0, Math.min(1, ((p[0] - ax) * dx + (p[1] - az) * dz) / (dx * dx + dz * dz))) : 1;
+        return Math.hypot(p[0] - (ax + dx * k), p[1] - (az + dz * k)) < (p[2] ?? 0.6);
+      };
+      while (bp.length > 0 && reached(bp[0]!)) bp.shift();
       const target = bp[0];
       if (target) {
         const dx = target[0] - sim.hero.pos.x;
@@ -794,6 +812,7 @@ async function boot(): Promise<void> {
     }
     botsView?.update(alpha, playSec);
     wayView?.update(renderPos);
+    funView?.update(gameDt, playSec, renderPos);
     g.onFrame?.();
     characters?.update(frameDt);
     if (levelMeshes) {
@@ -964,6 +983,12 @@ async function boot(): Promise<void> {
     hideCaveParts: (niche, parts) => levelMeshes?.setCaveCut(niche, parts),
   });
   wayView = createWayView({ balance, getSim: () => sim, hud, camera: cameraRig, field: () => field });
+  // Fun between the gates and the reward of every gate (docs/01-gdd.md 16.4, 16.5): sounds, particles, the fountain.
+  fx = createFx();
+  fx.setShare(quality.params.particles);
+  gr.scene.add(fx.points);
+  funView = createFunView({ tuning, theme, hud, camera: cameraRig, fx, audio: () => audio, meshes: () => levelMeshes, field: () => field, numSuffix });
+  funView.wire(sim);
   const ftueVisual = createFtueVisual(theme);
   gr.scene.add(ftueVisual.group);
   meta = createMetaView({ balance, pets, trails, auras, save, getSim: () => sim, hud, numSuffix, trackOnce, persist, onShoes: () => questsView?.shoes(), shoesColor: theme.ui.stat });

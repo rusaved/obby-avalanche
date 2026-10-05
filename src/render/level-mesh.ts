@@ -3,6 +3,7 @@
  * (one Lambert material), gates and gifts as InstancedMeshes, gate numbers from the digit atlas. Grey/flat at M1,
  * themed details at M5. The back walls and roofs of the caves are one InstancedMesh of their own: the wide frame of an
  * avalanche (PR-07) looks into its cave from above the back wall, the roof (or the back wall) is not drawn meanwhile.
+ * Trampolines and ice slides (PR-04) are one InstancedMesh more.
  */
 import {
   BoxGeometry,
@@ -32,6 +33,14 @@ export const CHUNK_LENGTH = 120;
 const SIGN_TEXT = 2.2;
 const SIGN_MIN_WIDTH = 6;
 const SIGN_PAD = 2;
+/** Fun parts (docs/01-gdd.md 16.4): plate and ribbon thickness, the pattern bars, chevrons a slide, the plate's spring. */
+const PAD_THICK = 0.25;
+const SLIDE_THICK = 0.1;
+const MARK_THICK = 0.04;
+const MARK_WIDTH = 0.22;
+const CHEVRONS = 4;
+const PAD_SPRING_SEC = 0.45;
+const PAD_SPRING_LIFT = 0.9;
 
 export interface LevelMeshes {
   group: Group;
@@ -55,6 +64,11 @@ export interface LevelMeshes {
   cutBoxes(): Array<{ min: readonly number[]; max: readonly number[] }>;
   /** Gifts of the mountain in `level.points` order (M2-04). */
   gifts: InstancedMesh;
+  /** Trampolines and ice slides (docs/01-gdd.md 16.4): one InstancedMesh; a launched plate (`fun.pads` order) springs up. */
+  fun: InstancedMesh;
+  pressPad(index: number, timeSec: number): void;
+  /** Every frame: the springing plates. */
+  update(timeSec: number): void;
   setGiftShown(index: number, shown: boolean): void;
   giftShown(index: number): boolean;
   cullByDistance(z: number, far: number): void;
@@ -306,6 +320,65 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   group.add(gifts);
   const giftShown = giftPoints.map(() => true);
 
+  // Fun (docs/01-gdd.md 16.4): the trampoline — an ice plate with a spring pattern of two square rings and a dot; the
+  // ice slide — a ribbon with chevrons up the track. Unit boxes with the face shading baked, colour and turn per instance.
+  type FunPart = { x: number; y: number; z: number; w: number; h: number; d: number; turn: number; color: string; pad: number };
+  const funParts: FunPart[] = [];
+  const mat = (key: string): string => theme.materials[key]?.color ?? '#cccccc';
+  level.points
+    .filter((p) => p.type === 'jumpPad')
+    .forEach((p, pad) => {
+      const size = (p['width'] as number | undefined) ?? 4;
+      funParts.push({ x: p.x, y: p.y + PAD_THICK / 2, z: p.z, w: size, h: PAD_THICK, d: size, turn: 0, color: mat('jumpPad'), pad });
+      const top = p.y + PAD_THICK + MARK_THICK / 2;
+      for (const ring of [0.75, 0.42]) {
+        const r = (size / 2) * ring;
+        funParts.push({ x: p.x, y: top, z: p.z - r, w: 2 * r + MARK_WIDTH, h: MARK_THICK, d: MARK_WIDTH, turn: 0, color: mat('jumpPadMark'), pad });
+        funParts.push({ x: p.x, y: top, z: p.z + r, w: 2 * r + MARK_WIDTH, h: MARK_THICK, d: MARK_WIDTH, turn: 0, color: mat('jumpPadMark'), pad });
+        funParts.push({ x: p.x - r, y: top, z: p.z, w: MARK_WIDTH, h: MARK_THICK, d: 2 * r, turn: 0, color: mat('jumpPadMark'), pad });
+        funParts.push({ x: p.x + r, y: top, z: p.z, w: MARK_WIDTH, h: MARK_THICK, d: 2 * r, turn: 0, color: mat('jumpPadMark'), pad });
+      }
+      funParts.push({ x: p.x, y: top, z: p.z, w: MARK_WIDTH * 2, h: MARK_THICK, d: MARK_WIDTH * 2, turn: 0, color: mat('jumpPadMark'), pad });
+    });
+  for (const p of level.points.filter((q) => q.type === 'slide')) {
+    const w = (p['width'] as number | undefined) ?? 4;
+    const len = (p['length'] as number | undefined) ?? 16;
+    funParts.push({ x: p.x, y: p.y + SLIDE_THICK / 2, z: p.z, w, h: SLIDE_THICK, d: len, turn: 0, color: mat('slide'), pad: -1 });
+    // Chevrons «^» pointing up the track (+Z): two bars at ±45° meeting on the axis.
+    const arm = w * 0.32;
+    for (let k = 0; k < CHEVRONS; k++) {
+      const cz = p.z - len / 2 + ((k + 0.5) * len) / CHEVRONS;
+      for (const side of [-1, 1]) {
+        funParts.push({ x: p.x + (side * arm) / 2, y: p.y + SLIDE_THICK + MARK_THICK / 2, z: cz - arm / 2, w: MARK_WIDTH * 1.6, h: MARK_THICK, d: arm * Math.SQRT2, turn: (-side * Math.PI) / 4, color: mat('slideMark'), pad: -1 });
+      }
+    }
+  }
+  const funGeo = new BoxGeometry(1, 1, 1).toNonIndexed();
+  colorGeometry(funGeo, new Color(1, 1, 1));
+  const fun = new InstancedMesh(funGeo, material, Math.max(1, funParts.length));
+  fun.count = funParts.length;
+  fun.name = 'fun';
+  const funColor = new Color();
+  const placeFun = (i: number, lift: number): void => {
+    const f = funParts[i]!;
+    dummy.position.set(f.x, f.y + lift, f.z);
+    dummy.rotation.set(0, f.turn, 0);
+    dummy.scale.set(f.w, f.h, f.d);
+    dummy.updateMatrix();
+    fun.setMatrixAt(i, dummy.matrix);
+  };
+  funParts.forEach((f, i) => {
+    placeFun(i, 0);
+    fun.setColorAt(i, funColor.set(f.color));
+  });
+  fun.instanceMatrix.needsUpdate = true;
+  if (fun.instanceColor) fun.instanceColor.needsUpdate = true;
+  fun.computeBoundingSphere();
+  // A mountain without fun (classic) draws nothing for it.
+  fun.visible = funParts.length > 0;
+  group.add(fun);
+  const pressedAt = new Map<number, number>();
+
   return {
     group,
     chunks,
@@ -326,6 +399,22 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       placeGift(index, shown);
     },
     giftShown: (index) => giftShown[index] ?? false,
+    fun,
+    pressPad(index, timeSec) {
+      pressedAt.set(index, timeSec);
+    },
+    update(timeSec) {
+      for (const [pad, at] of pressedAt) {
+        // The plate springs up and settles (a damped half wave over PAD_SPRING_SEC).
+        const k = Math.min(1, (timeSec - at) / PAD_SPRING_SEC);
+        const lift = PAD_SPRING_LIFT * Math.sin(Math.PI * k) * (1 - k);
+        funParts.forEach((f, i) => {
+          if (f.pad === pad) placeFun(i, lift);
+        });
+        fun.instanceMatrix.needsUpdate = true;
+        if (k >= 1) pressedAt.delete(pad);
+      }
+    },
     gateSign(index) {
       const st = signState[index];
       return st ? { text: st.text, open: st.open } : { text: '', open: false };
@@ -381,6 +470,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       backGeo.dispose();
       giftGeo.dispose();
       giftMat.dispose();
+      funGeo.dispose();
       digits.dispose();
     },
   };

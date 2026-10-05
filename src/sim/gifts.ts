@@ -19,6 +19,8 @@ export interface Gift {
   /** Coins of the zone on tier 0 (docs/01a-content.md 4). */
   coins: number;
   taken: boolean;
+  /** On the path (docs/01-gdd.md 16.4): taken on the run, a note higher each; absent — false. */
+  path?: boolean;
 }
 
 /** Gifts in the order of `level.points` (the renderer uses the same order for its instances). */
@@ -33,6 +35,7 @@ export function giftsFromLevel(level: LevelData): Gift[] {
       rarity: typeof p['rarity'] === 'string' ? (p['rarity'] as string) : 'common',
       coins: typeof p['coins'] === 'number' ? (p['coins'] as number) : 0,
       taken: false,
+      path: p['path'] === true,
     }));
 }
 

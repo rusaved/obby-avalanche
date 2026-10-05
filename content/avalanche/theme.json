@@ -39,7 +39,13 @@
     "arrow": { "color": "#FFFFFF" },
     "eggStand": { "color": "#9ED8FF" },
     "giftEgg": { "color": "#FFFFFF", "emissive": "#7FD8FF" },
-    "petEye": { "color": "#1B2A3A" }
+    "petEye": { "color": "#1B2A3A" },
+    "jumpPad": { "color": "#46B8FF" },
+    "jumpPadMark": { "color": "#FFE066" },
+    "slide": { "color": "#7FD0FF" },
+    "slideMark": { "color": "#FFFFFF" },
+    "snowPuff": { "color": "#CFEAFF" },
+    "slideTrail": { "color": "#B5E0FF" }
   },
   "rarity": {
     "common": "#EEF3F8",
