@@ -182,6 +182,8 @@
     "stuckSec": 10,
     "stuckDist": 12,
     "stuckMax": 3,
+    "wrongWaySec": 2,
+    "wrongWayDist": 8,
     "portalIdleSec": 10,
     "portalMax": 3
   },

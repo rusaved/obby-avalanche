@@ -137,8 +137,9 @@ export interface SimOptions {
   stat?: number;
   /** Step multiplier of the meta (shoes × pets, docs/01-gdd.md 8.1): set by the meta layer, 1 by default. */
   gainMult?: number;
-  /** The free egg of the first minute: placed beside the belt of cave `wall`; omitted once the player has it. */
-  giftEgg?: { wall: number; pet: string; hatchSec: number } | undefined;
+  /** The free egg of the first minute: placed beside the belt of cave `wall`; omitted once the player has it; `shown`
+   * false — not there until the app shows it after the scripted wave (docs/01-gdd.md 16.6). */
+  giftEgg?: { wall: number; pet: string; hatchSec: number; shown?: boolean } | undefined;
   /** Bots (docs/01-gdd.md 7.12): bots.json, how many for the quality level and the seed; caught and avalanche come from here. */
   bots?: Pick<BotsOptions, 'cfg' | 'count' | 'seed'> | undefined;
   /** Golden gift (docs/01-gdd.md 4.9): game.json threat.bonus, the seed, normal waves of this load before this mountain. */
@@ -202,7 +203,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     gatesOpen,
     gatesPassed: level.gates.map(() => false),
     milestones: createMilestones(opts.balance.ui?.statMilestones ?? [], opts.stat ?? 0),
-    giftEgg: opts.giftEgg ? createGiftEgg(level, opts.giftEgg.wall, opts.giftEgg.pet, opts.giftEgg.hatchSec) : null,
+    giftEgg: opts.giftEgg ? createGiftEgg(level, opts.giftEgg.wall, opts.giftEgg.pet, opts.giftEgg.hatchSec, opts.giftEgg.shown ?? true) : null,
     tier,
     tick: 0,
     checkpoint: -1,

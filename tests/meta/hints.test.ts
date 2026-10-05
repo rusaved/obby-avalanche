@@ -73,7 +73,7 @@ describe('hint plaques (M2-08)', () => {
     expect(counts['wave.cave']).toBe(3);
   });
 
-  it('«Caves keep you safe» 3 s after the first catch, once; treadmill until the belt; stuck after 10 s at a closed wall; jump until the jump', () => {
+  it('«Caves keep you safe» 3 s after the first catch, once; treadmill until the belt; stuck after hints.stuckSec at a closed wall; jump until the jump', () => {
     const counts: Record<string, number> = { 'hint.move': 3 };
     const h = createHints(timing, counts);
     const clock = { t: 200 };

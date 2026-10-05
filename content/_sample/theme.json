@@ -115,7 +115,10 @@
     "trophies": "#A45CFF",
     "ok": "#4CD964",
     "no": "#FF4D4D",
-    "statIcon": "iceBolt"
+    "statIcon": "iceBolt",
+    "plaque": "#2B1A10",
+    "plaqueAlpha": 0.78,
+    "plaqueText": "#FFFFFF"
   },
   "threat": {
     "front": [

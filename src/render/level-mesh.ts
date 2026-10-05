@@ -1,7 +1,8 @@
 /**
  * Level meshes (docs/02-tech.md 9.1): static boxes and ramps merged per 120-unit chunk with baked vertex colours
  * (one Lambert material), gates and gifts as InstancedMeshes, gate numbers from the digit atlas. Grey/flat at M1,
- * themed details at M5.
+ * themed details at M5. The back walls and roofs of the caves are one InstancedMesh of their own: the wide frame of an
+ * avalanche (PR-07) looks into its cave from above the back wall, the roof (or the back wall) is not drawn meanwhile.
  */
 import {
   BoxGeometry,
@@ -44,6 +45,14 @@ export interface LevelMeshes {
   setGateSign(index: number, text: string, open: boolean): void;
   /** What a sign currently shows (test API). */
   gateSign(index: number): { text: string; open: boolean };
+  /** The sign plaque of a gate as a box (centre, size; world units) and hiding it (docs/01-gdd.md 16.7: the avalanche
+   * banner is never under a sign — a sign under the banner is not drawn while the banner shows). */
+  signBox(index: number): { center: [number, number, number]; size: [number, number, number] };
+  setSignHidden(index: number, hidden: boolean): void;
+  signHidden(index: number): boolean;
+  /** These parts of cave `niche` are not drawn (−1 or no parts — all drawn); the boxes of the hidden ones (test API). */
+  setCaveCut(niche: number, parts: readonly CavePart[]): void;
+  cutBoxes(): Array<{ min: readonly number[]; max: readonly number[] }>;
   /** Gifts of the mountain in `level.points` order (M2-04). */
   gifts: InstancedMesh;
   setGiftShown(index: number, shown: boolean): void;
@@ -51,6 +60,9 @@ export interface LevelMeshes {
   cullByDistance(z: number, far: number): void;
   dispose(): void;
 }
+
+/** Parts of a cave the wide avalanche frame can look through (src/level/builder.ts: the far wall and the roof). */
+export type CavePart = 'back' | 'roof';
 
 function materialColor(theme: ThemeJson, key: string): Color {
   const m = theme.materials[key];
@@ -115,7 +127,23 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   const chunkCount = Math.ceil(level.length / CHUNK_LENGTH);
   const buckets: BufferGeometry[][] = Array.from({ length: chunkCount }, () => []);
   const bucketOf = (z: number): BufferGeometry[] => buckets[Math.min(chunkCount - 1, Math.max(0, Math.floor(z / CHUNK_LENGTH)))] as BufferGeometry[];
-  for (const b of level.boxes) bucketOf((b.min[2] + b.max[2]) / 2).push(boxGeometry(b, theme));
+  // The back wall of a cave is a cave wall outside the cave box on its far side, the roof lies over it (src/level/builder.ts).
+  const partOf = (b: LevelBox): { niche: number; part: CavePart } | null => {
+    if (b.kind !== 'nicheWall' && b.kind !== 'nicheRoof') return null;
+    const niche = level.niches.findIndex(
+      (n) =>
+        b.min[2] < n.box.max[2] &&
+        b.max[2] > n.box.min[2] &&
+        (b.kind === 'nicheRoof' ? b.min[0] < n.box.max[0] && b.max[0] > n.box.min[0] : n.side === 'left' ? b.max[0] <= n.box.min[0] + 1e-6 : b.min[0] >= n.box.max[0] - 1e-6),
+    );
+    return niche >= 0 ? { niche, part: b.kind === 'nicheRoof' ? 'roof' : 'back' } : null;
+  };
+  const cutParts: Array<{ niche: number; part: CavePart; box: LevelBox }> = [];
+  for (const b of level.boxes) {
+    const cut = partOf(b);
+    if (cut) cutParts.push({ ...cut, box: b });
+    else bucketOf((b.min[2] + b.max[2]) / 2).push(boxGeometry(b, theme));
+  }
   for (const r of level.ramps) bucketOf((r.z0 + r.z1) / 2).push(rampGeometry(r, theme));
   // Checkpoint flags and simple decor as boxes (grey slope at M1).
   for (const c of level.checkpoints) {
@@ -169,6 +197,32 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     chunks.push(mesh);
   });
 
+  // Cave back walls and roofs: unit boxes with the face shading baked, the material colour per instance.
+  const backGeo = new BoxGeometry(1, 1, 1).toNonIndexed();
+  colorGeometry(backGeo, new Color(1, 1, 1));
+  const backMesh = new InstancedMesh(backGeo, material, Math.max(1, cutParts.length));
+  backMesh.count = cutParts.length;
+  backMesh.name = 'cave-cut-parts';
+  const backDummy = new Object3D();
+  const placeBack = (i: number, shown: boolean): void => {
+    const w = cutParts[i];
+    if (!w) return;
+    const b = w.box;
+    backDummy.position.set((b.min[0] + b.max[0]) / 2, (b.min[1] + b.max[1]) / 2, (b.min[2] + b.max[2]) / 2);
+    backDummy.scale.set(b.max[0] - b.min[0], b.max[1] - b.min[1], b.max[2] - b.min[2]).multiplyScalar(shown ? 1 : 1e-4);
+    backDummy.updateMatrix();
+    backMesh.setMatrixAt(i, backDummy.matrix);
+    backMesh.instanceMatrix.needsUpdate = true;
+  };
+  cutParts.forEach((w, i) => {
+    placeBack(i, true);
+    backMesh.setColorAt(i, materialColor(theme, w.box.material));
+  });
+  if (backMesh.instanceColor) backMesh.instanceColor.needsUpdate = true;
+  backMesh.computeBoundingSphere();
+  group.add(backMesh);
+  const cutHidden = cutParts.map(() => false);
+
   // Gates: one InstancedMesh of unit boxes scaled to each slab; signs as a second instanced quad set.
   const gateGeo = new BoxGeometry(1, 1, 1);
   const gateMat = new MeshLambertMaterial({ color: materialColor(theme, 'gateClosed') });
@@ -192,7 +246,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   group.add(gates, signs);
 
   const digits = createDigitLabels(level.gates.length * 10 + 8);
-  const signState = level.gates.map((g) => ({ text: formatNumber(g.requires, suffix), open: false }));
+  const signState = level.gates.map((g) => ({ text: formatNumber(g.requires, suffix), open: false, hidden: false }));
   const signColor = new Color();
   const signOpenColor = materialColor(theme, 'gateSignOpen');
   const signClosedColor = materialColor(theme, 'gateSign');
@@ -201,6 +255,15 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     const st = signState[i];
     if (!g || !st) return;
     const d = g.box.max[2] - g.box.min[2];
+    if (st.hidden) {
+      digits.clear(i);
+      dummy.position.set(0, g.y + g.signHeight, g.z - d / 2 - 0.3);
+      dummy.scale.setScalar(1e-4);
+      dummy.updateMatrix();
+      signs.setMatrixAt(i, dummy.matrix);
+      signs.instanceMatrix.needsUpdate = true;
+      return;
+    }
     digits.setLabel(i, st.text, 0, g.y + g.signHeight, g.z - d / 2 - 0.52, SIGN_TEXT, '#ffffff');
     // The plaque fits the text it shows now, «4,2K/12K» included (playtest M2: the text ran past it).
     dummy.position.set(0, g.y + g.signHeight, g.z - d / 2 - 0.3);
@@ -265,8 +328,31 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     giftShown: (index) => giftShown[index] ?? false,
     gateSign(index) {
       const st = signState[index];
-      return st ? { ...st } : { text: '', open: false };
+      return st ? { text: st.text, open: st.open } : { text: '', open: false };
     },
+    signBox(index) {
+      const g = level.gates[index];
+      const st = signState[index];
+      if (!g || !st) return { center: [0, 0, 0], size: [0, 0, 0] };
+      const d = g.box.max[2] - g.box.min[2];
+      return { center: [0, g.y + g.signHeight, g.z - d / 2 - 0.3], size: [Math.max(SIGN_MIN_WIDTH, digits.measure(st.text, SIGN_TEXT) + SIGN_PAD), 3, 0.4] };
+    },
+    setSignHidden(index, hidden) {
+      const st = signState[index];
+      if (!st || st.hidden === hidden) return;
+      st.hidden = hidden;
+      applySign(index);
+    },
+    signHidden: (index) => signState[index]?.hidden ?? false,
+    setCaveCut(niche, parts) {
+      cutParts.forEach((w, i) => {
+        const hide = w.niche === niche && parts.includes(w.part);
+        if (hide === cutHidden[i]) return;
+        cutHidden[i] = hide;
+        placeBack(i, !hide);
+      });
+    },
+    cutBoxes: () => cutParts.filter((_, i) => cutHidden[i]).map((w) => ({ min: w.box.min, max: w.box.max })),
     setGateOpen(index, openness) {
       const g = level.gates[index];
       if (!g) return;
@@ -292,6 +378,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       gateMat.dispose();
       signGeo.dispose();
       signMat.dispose();
+      backGeo.dispose();
       giftGeo.dispose();
       giftMat.dispose();
       digits.dispose();

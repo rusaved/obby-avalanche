@@ -10,9 +10,11 @@ import type { Sim } from '../sim/world.ts';
 import type { CameraRig } from '../render/camera.ts';
 import type { CharacterInstance } from '../render/characters.ts';
 import type { AvalancheVisual } from '../render/threat/avalanche.ts';
+import type { CavePart } from '../render/level-mesh.ts';
 import type { Hud } from '../ui/hud.ts';
 import type { ControlFrame } from '../input/control-frame.ts';
 import { t } from '../ui/i18n.ts';
+import { NICHE_WALL } from '../level/builder.ts';
 
 /** Shake amplitude share while the front is far (0.05 of 0.3 units, docs/01-gdd.md 4.8) and the longest strong burst. */
 const FAR_SHAKE_SHARE = 0.17;
@@ -38,6 +40,8 @@ export interface WaveViewDeps {
   field(): { width: number; height: number };
   /** Player turned the camera by hand right now or in the last 0.5 s (docs/02-tech.md 7). */
   manualCamera(): boolean;
+  /** These parts of this cave are not drawn while the frame looks through them (−1 — all drawn; PR-07). */
+  hideCaveParts(niche: number, parts: readonly CavePart[]): void;
 }
 
 export interface WaveView {
@@ -53,6 +57,12 @@ export function createWaveView(d: WaveViewDeps): WaveView {
   const av = d.tuning.avalanche;
   const p = new Vector3();
   let shotCave = -1;
+  /** The cave of the last wide frame: its parts stay hidden while the camera blends back. */
+  let wallCave = -1;
+  // The frame point behind the back wall (pos[0] > 1) or over the roof (pos[1] > 1): that part is not drawn.
+  const cutParts: CavePart[] = [];
+  if (av.caveShot.pos[0] > 1) cutParts.push('back');
+  if (av.caveShot.pos[1] > 1) cutParts.push('roof');
   let strongSec = 0;
   const view: WaveView & { banner: string | null; arrow: boolean; shot: boolean; veil: boolean } = {
     banner: null,
@@ -116,9 +126,12 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       view.arrow = arrow !== null;
       d.hud.setCaveArrow(arrow);
 
-      // Wide cave frame (docs/02-tech.md 7; playtest M2): from the hero in the lit cave on warn until the front is
-      // shotTriggerDist past it, the camera stands high in the cave by the downhill wall and looks at the belt and out
-      // of the mouth up the slope, where the avalanche comes from. Turned by hand — the player's camera (not scripted).
+      // Wide cave frame (docs/02-tech.md 7; docs/01-gdd.md 16.7, playtest M3): from the hero in the lit cave on warn
+      // until the front is shotTriggerDist past it, the camera stands high on the downhill side by the back wall and
+      // looks out of the mouth at the slope, where the avalanche comes from. The cave is too low for the whole hero on
+      // the belt at ≤ 30% of the frame, so the camera stands over the roof line (caveShot.pos[1] > 1) and the roof is
+      // not drawn meanwhile (behind the back wall with pos[0] > 1 — that wall; docs/допущения.md). Turned by hand —
+      // the player's camera (not scripted).
       const inCave = sim.shelterIndex();
       const wantShot =
         inCave >= 0 && !sim.caught && (ts.phase === 'warn' || (running && dz > -av.shotTriggerDist)) && (ts.scripted || !d.manualCamera());
@@ -129,10 +142,15 @@ export function createWaveView(d: WaveViewDeps): WaveView {
           const r = d.tuning.camera.collisionRadius + WALL_CLEARANCE;
           const mouth = sign * (sim.level.width / 2);
           const depth = c.box.max[0] - c.box.min[0];
+          // Behind the back wall or over the roof: at least the camera radius off its outer face.
+          const back = sign < 0 ? c.box.min[0] - NICHE_WALL - r : c.box.max[0] + NICHE_WALL + r;
+          const roof = c.box.max[1] + NICHE_WALL + r;
           const at = (q: readonly [number, number, number], out: Vector3, clamp: boolean): Vector3 => {
             out.set(mouth + sign * q[0] * depth, c.box.min[1] + q[1] * (c.box.max[1] - c.box.min[1]), c.box.min[2] + q[2] * (c.box.max[2] - c.box.min[2]));
-            if (clamp) {
-              out.x = Math.min(c.box.max[0] - r, Math.max(c.box.min[0] + r, out.x));
+            if (clamp && q[1] > 1) out.y = Math.max(roof, out.y);
+            else if (clamp) {
+              if (q[0] > 1) out.x = sign < 0 ? Math.min(back, out.x) : Math.max(back, out.x);
+              else out.x = Math.min(c.box.max[0] - r, Math.max(c.box.min[0] + r, out.x));
               out.y = Math.min(c.box.max[1] - r, Math.max(c.box.min[1] + r, out.y));
               out.z = Math.min(c.box.max[2] - r, Math.max(c.box.min[2] + r, out.z));
             }
@@ -141,12 +159,15 @@ export function createWaveView(d: WaveViewDeps): WaveView {
           d.camera.fixed = { pos: at(av.caveShot.pos, new Vector3(), true), look: at(av.caveShot.look, new Vector3(), false), fov: av.caveShot.fov };
         }
         shotCave = inCave;
+        wallCave = cutParts.length > 0 ? inCave : -1;
       } else if (shotCave >= 0) {
-        // Back to the player's view in shotReturnSec (the rig blends out).
+        // Back to the player's view in shotReturnSec (the rig blends out, or cuts when the way is through a wall).
         shotCave = -1;
         d.camera.fixed = null;
       }
       view.shot = shotCave >= 0;
+      if (shotCave < 0 && d.camera.fixedBlend <= 0) wallCave = -1;
+      d.hideCaveParts(wallCave, cutParts);
       if (inCave >= 0 && running && Math.abs(dz) < COVER_DIST && !sim.caught) d.hero.pose = 'cover';
 
       // Inside the snow body: the body is hidden by the visual, the HUD shows a soft white veil.

@@ -24,6 +24,8 @@ import type { GameAudio } from '../audio/index.ts';
 import type { BotsView, HudMode } from './bots-view.ts';
 import type { DailyView } from './daily-view.ts';
 import type { QuestsView } from './quests-view.ts';
+import type { WayView } from './way-view.ts';
+import type { LevelMeshes } from '../render/level-mesh.ts';
 
 export interface BootState {
   firstFrameAt: number | null;
@@ -98,6 +100,10 @@ export interface GameHandles {
   /** Shoes and pets (M2-08) and the teaching layer: hints, arrows, egg (M2-08). */
   readonly meta: MetaView | null;
   readonly ftue: FtueView | null;
+  /** «Wrong way» arrow (docs/01-gdd.md 16.7). */
+  readonly way: WayView | null;
+  /** Meshes of the mountain: gate signs and the cave back walls as drawn (e2e of PR-07, PR-08). */
+  readonly levelMeshes: LevelMeshes | null;
   /** Eggs, pets and the «Pets» window (M3-03); the window frame (docs/01-gdd.md 10.2). */
   readonly pets: PetsView | null;
   readonly windows: WindowFrame | null;
