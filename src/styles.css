@@ -194,6 +194,8 @@ canvas.fallback {
 .hud-egg { position: absolute; left: 0; top: 0; display: none; min-height: 48px; padding: 0 16px; border: 2px solid rgba(27, 42, 58, 0.6); border-radius: 12px; background: #9aa7b4; color: #fff; font: 800 18px/1 var(--font); white-space: nowrap; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
 .hud-egg.shown { display: flex; align-items: center; }
 .hud-egg.can { background: var(--ok); }
+/* One message near the hero at a time: the egg button steps aside while a toast is up (after a hatch). */
+.hud.toasting .hud-egg { visibility: hidden; }
 .hud-toast { display: flex; flex-direction: column; align-items: center; }
 .hud-toast-sub { font-size: 0.6em; }
 .hud-toast-sub:empty { display: none; }

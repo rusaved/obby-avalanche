@@ -112,5 +112,7 @@
   "pets.empty": "Buy an egg in the shop or at the camp",
   "toast.noSpace": "No room for pets",
   "hud.eggBuy": "{egg} · {price}",
-  "egg.snow": "Snow Egg"
+  "egg.snow": "Snow Egg",
+  "toast.hatchCount": "{egg}: {k} of {n}",
+  "btn.petsCount": "{k}/{total}"
 }

@@ -115,3 +115,12 @@ export function addPet(bag: PetBag, pets: PetsJson, b: Pick<BalanceJson['pets'],
   bag.petsOn = on;
   return { index, on: false };
 }
+
+/**
+ * Collection counter (docs/01-gdd.md 7.2, Q-024): how many different kinds of `ids` the inventory has. Counts kinds,
+ * not pets: a second Penguin changes nothing, a released pet counts down only when no pet of its kind is left.
+ */
+export function collected(list: readonly string[] | undefined, ids: readonly string[]): number {
+  const have = new Set(list ?? []);
+  return new Set(ids.filter((id) => have.has(id))).size;
+}

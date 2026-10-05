@@ -80,6 +80,9 @@ export interface TestState {
   /** The open window (docs/01-gdd.md 10.2) and the buttons of the HUD column, top to bottom. */
   window: string | null;
   menu: string[];
+  /** Counters on the HUD column buttons by id («pets» → «2/27», M3-13) and the second line of the toast. */
+  menuBadges: Record<string, string>;
+  toastSub: string;
   shoeLevel: number;
   shoesButton: { shown: boolean; text: string; can: boolean };
   /** Trophies to spend and over all time (M3-11: summits pay g × (1 + n), the leaderboard goes by the total). */
@@ -276,6 +279,10 @@ export function installTestApi(g: GameHandles): TestApi {
         hatching: g.pets?.hatching ?? null,
         window: g.windows?.current ?? null,
         menu: [...document.querySelectorAll<HTMLElement>('[data-role="menu"] [data-hud]')].map((e) => (e.dataset['hud'] ?? '').replace(/^menu-/, '')),
+        menuBadges: Object.fromEntries(
+          [...document.querySelectorAll<HTMLElement>('[data-role="menu"] [data-hud]')].map((e) => [(e.dataset['hud'] ?? '').replace(/^menu-/, ''), e.querySelector('.hud-menu-badge')?.textContent ?? '']),
+        ),
+        toastSub: document.querySelector('[data-role="toast"].shown [data-role="toast-sub"]')?.textContent ?? '',
         shoeLevel: g.meta?.shoeLevel ?? 0,
         trophies: { now: g.save.trophies ?? 0, total: g.save.trophiesTotal ?? 0 },
         shoesButton: shoesButton(),

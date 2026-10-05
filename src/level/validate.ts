@@ -494,6 +494,10 @@ export function validatePack(files: PackFiles): ValidationResult {
     if (Math.abs(sum - 1) > 1e-9) errors.push(`eggs.json: eggs[${i}].pool — chances sum to ${sum}, expected 1`);
   }
   for (const w of worlds.worlds) if (!eggs.eggs.some((e) => e.id === w.egg)) errors.push(`worlds.json: worlds[${w.index - 1}].egg — unknown egg "${w.egg}" (eggs.json)`);
+  // Collection counter (docs/01-gdd.md 7.2, Q-024, M3-13): the hatch toast and the «Pets» button texts, egg names.
+  for (const [file, dict] of [['i18n/ru.json', ru], ['i18n/en.json', en]] as const) {
+    for (const key of ['toast.hatchCount', 'btn.petsCount', ...eggs.eggs.map((e) => `egg.${e.id}`)]) if (!dict[key]) errors.push(`${file}: ${key} — missing (eggs.json, docs/01-gdd.md 7.2)`);
+  }
 
   // Bots (docs/01-gdd.md 7.12; docs/03, 4.3): names are i18n keys with texts in both languages, character names
   // without digits, enough of them for every bot on a mountain to have its own; a palette without the hero's look.

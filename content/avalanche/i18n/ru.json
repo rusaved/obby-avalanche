@@ -173,5 +173,7 @@
   "pets.new": "Новый питомец!",
   "pets.empty": "Купи яйцо в магазине или в лагере",
   "toast.noSpace": "Нет места для питомцев",
-  "hud.eggBuy": "{egg} · {price}"
+  "hud.eggBuy": "{egg} · {price}",
+  "toast.hatchCount": "{egg}: {k} из {n}",
+  "btn.petsCount": "{k}/{total}"
 }

@@ -3,6 +3,8 @@
  * (camp and the flag past wall 6), price × wallScale[n], one tap buys; the egg wobbles 1 s, the pet jumps out with
  * a toast (no window); new pets go on by meta/pets.ts; up to 3 pets hop next to the hero; the «Pets» window with
  * slots, the grid, «Equip best», equip, unequip and release. The free egg of the first minute lands here too.
+ * Collection counter (M3-13, Q-024): «Snow Egg: 2 of 5» under the hatch toast, «2/27» on the «Pets» button and
+ * «Pets 2/27» in the window — kinds of pets, n and total from eggs.json and pets.json.
  * The inventory lives in the save (save.pets, save.petsOn); purchases write at once.
  */
 import { Vector3 } from 'three';
@@ -14,7 +16,7 @@ import type { CameraRig } from '../render/camera.ts';
 import type { PetsVisual } from '../render/pets.ts';
 import type { WindowFrame } from '../ui/window.ts';
 import type { Rng } from '../core/rng.ts';
-import { addPet, eggPrice, equipBest, equipPet, equipped, equippedIds, petsOnMult, releasePet, rollEgg, unequipPet, type Egg } from '../meta/pets.ts';
+import { addPet, collected, eggPrice, equipBest, equipPet, equipped, equippedIds, petsOnMult, releasePet, rollEgg, unequipPet, type Egg } from '../meta/pets.ts';
 import { renderPetsPanel, type PetCard } from '../ui/pets-panel.ts';
 import { formatMult, formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
@@ -49,8 +51,8 @@ export interface PetsViewDeps {
 export interface PetsView {
   wire(sim: Sim): void;
   update(gameDt: number, timeSec: number, hero: Vector3, heroYaw: number, running: boolean): void;
-  /** A pet came out of an egg (`from` — where it jumps out); `gift` — the free egg of the first minute. */
-  hatched(pet: string, from: Vector3 | null, gift?: boolean): void;
+  /** A pet came out of egg `egg` (`from` — where it jumps out); `gift` — the free egg of the first minute. */
+  hatched(pet: string, from: Vector3 | null, gift?: boolean, egg?: Egg): void;
   /** The egg button pressed: buys the egg of the stand (or opens the window when there is no room). */
   buyEgg(): boolean;
   openWindow(): void;
@@ -82,6 +84,9 @@ export function createPetsView(d: PetsViewDeps): PetsView {
   const petDef = (id: string): PetsJson['pets'][number] | undefined => d.pets.pets.find((x) => x.id === id);
   const full = (): boolean => (d.save.pets ?? []).length >= d.balance.pets.inventory;
   const pct = (bonus: number): number => Math.round(bonus * 100);
+  const allIds = d.pets.pets.map((x) => x.id);
+  /** «2/27»: kinds of pets the player has of all pets.json. */
+  const collection = (): { k: number; total: number } => ({ k: collected(d.save.pets, allIds), total: allIds.length });
 
   /** The pets next to the hero follow the pets on; returns the slot of inventory index `index`. */
   const syncLooks = (): void => {
@@ -116,7 +121,7 @@ export function createPetsView(d: PetsViewDeps): PetsView {
     };
     const cards = list.map((_, i) => card(i)).sort((a, b) => (petDef(list[b.index]!)?.bonus ?? 0) - (petDef(list[a.index]!)?.bonus ?? 0) || a.index - b.index);
     return {
-      count: t('pets.count', { a: list.length, b: d.balance.pets.inventory }),
+      count: t('pets.count', { a: collection().k, b: collection().total }),
       slots: t('pets.slots', { a: on.length }),
       total: t('pets.total', { m: formatMult(petsOnMult(d.save, d.pets, slots), d.numSuffix) }),
       on: on.map(card),
@@ -175,7 +180,7 @@ export function createPetsView(d: PetsViewDeps): PetsView {
           const st = stands[hatch.stand];
           const pet = hatch.pet;
           hatch = null;
-          view.hatched(pet, st ? new Vector3(st.x, st.y + 1.8, st.z) : null);
+          view.hatched(pet, st ? new Vector3(st.x, st.y + 1.8, st.z) : null, false, st?.egg);
         }
       }
       // The stand the hero stands at (docs/01-gdd.md 7.2: «when the hero is near and stands»).
@@ -203,7 +208,7 @@ export function createPetsView(d: PetsViewDeps): PetsView {
       }
       d.visual.update(hero, heroYaw, running, gameDt, timeSec, hatch ? { stand: hatch.stand, k: Math.min(1, hatch.t / d.balance.ftue.eggHatchSec) } : null);
     },
-    hatched(pet, from, gift = false) {
+    hatched(pet, from, gift = false, egg) {
       const res = addPet(d.save, d.pets, d.balance.pets, pet);
       if (!res) return;
       if (gift) (d.save.flags ??= {})['giftEgg'] = true;
@@ -213,7 +218,10 @@ export function createPetsView(d: PetsViewDeps): PetsView {
         if (slot >= 0) d.visual.jumpOut(slot, from);
       }
       d.onChange();
-      d.hud.toast(t('toast.newPet', { n: pct(petDef(pet)?.bonus ?? 0) }));
+      // Under the toast: «Snow Egg: 2 of 5» — kinds of this egg's pets the player has (M3-13).
+      const pool = egg?.pool.map((x) => x.pet) ?? [];
+      const count = egg ? t('toast.hatchCount', { egg: t(`egg.${egg.id}`), k: collected(d.save.pets, pool), n: pool.length }) : undefined;
+      d.hud.toast(t('toast.newPet', { n: pct(petDef(pet)?.bonus ?? 0) }), count ? 3 : 2, false, count);
       d.trackOnce('egg_1');
       d.persist(true);
       d.windows.refresh();
@@ -239,7 +247,8 @@ export function createPetsView(d: PetsViewDeps): PetsView {
     },
     menuItem() {
       if ((d.save.totalPlaySec ?? 0) < d.balance.ui.unlockMenusSec) return null;
-      return { id: 'pets', label: t('btn.pets'), icon: 'pets' };
+      const c = collection();
+      return { id: 'pets', label: t('btn.pets'), icon: 'pets', badge: t('btn.petsCount', { k: c.k, total: c.total }) };
     },
   };
   return view;

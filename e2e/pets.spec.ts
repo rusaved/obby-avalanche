@@ -69,7 +69,7 @@ test('eggs and pets: buy at the camp stand, hatch in 1 s, 3 pets on next to the 
   const ticks = s.ticks;
   await page.waitForTimeout(400);
   expect((await testState(page)).ticks).toBe(ticks);
-  await expect(page.locator('[data-role="pets-count"]')).toHaveText('Питомцы 4/30');
+  await expect(page.locator('[data-role="pets-count"]')).toHaveText('Питомцы 2/27');
   await expect(page.locator('[data-role="pets-grid"] .card')).toHaveCount(4);
   // The 4th pet cannot go on while 3 are on.
   const off = page.locator('[data-role="pets-grid"] .card:not(.on) [data-hud="pet-equip"]');
