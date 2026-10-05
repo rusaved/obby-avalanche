@@ -49,3 +49,12 @@ export function formatMult(n: number, suffix: (key: string) => string = (k) => k
   const scale = Math.pow(10, 3 - intDigits);
   return nf.format(Math.floor(n * scale * (1 + EPS)) / scale);
 }
+
+/** Timer of docs/01-gdd.md 10.4: «2:41», over an hour «1:05:00». */
+export function formatTimer(sec: number): string {
+  const s = Math.max(0, Math.ceil(sec));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const ss = String(s % 60).padStart(2, '0');
+  return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
+}

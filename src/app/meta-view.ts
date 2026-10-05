@@ -59,6 +59,7 @@ export function createMetaView(d: MetaViewDeps): MetaView {
         pets: equippedIds(d.save, d.pets, d.balance.pets.slots),
         trail: cosmeticMult(d.save, 'trail', d.trails?.trails ?? []),
         aura: cosmeticMult(d.save, 'aura', d.auras?.auras ?? []),
+        boost: (d.save.boostSec ?? 0) > 0,
       });
     },
     update() {

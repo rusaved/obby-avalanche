@@ -112,7 +112,16 @@
     "vipMult": 2
   },
   "daily": {
-    "resetHours": 20
+    "resetHours": 20,
+    "days": [
+      { "kind": "coins", "gifts": 30 },
+      { "kind": "trophies", "n": 15 },
+      { "kind": "boost", "min": 10 },
+      { "kind": "trophies", "n": 5 },
+      { "kind": "egg", "id": "snow" },
+      { "kind": "trophies", "n": 10 },
+      { "kind": "pet", "id": "bunny" }
+    ]
   },
   "quests": {
     "perDay": 3

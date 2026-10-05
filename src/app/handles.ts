@@ -22,6 +22,7 @@ import type { WindowFrame } from '../ui/window.ts';
 import type { RebirthView } from './rebirth-view.ts';
 import type { GameAudio } from '../audio/index.ts';
 import type { BotsView, HudMode } from './bots-view.ts';
+import type { DailyView } from './daily-view.ts';
 
 export interface BootState {
   firstFrameAt: number | null;
@@ -64,6 +65,8 @@ export interface GameHandles {
   framesPresented: number;
   framesRendered: number;
   applyTuning(): void;
+  /** The save changed: mirror now, cloud by the queue (`flush` — at once within the bucket). */
+  persist(flush?: boolean): void;
   setAutoRun(on: boolean): void;
   setQualitySetting(level: QualityLevel | 'auto'): void;
   toggleMenu(open?: boolean): void;
@@ -103,5 +106,7 @@ export interface GameHandles {
   readonly botsView: BotsView | null;
   /** HUD mode (docs/04-packaging.md 11.2): `shots` and `promo` hide the bot names (the rest of the modes — M5/M6). */
   readonly hudMode: HudMode;
+  /** The calendar (M3-08). */
+  readonly daily: DailyView | null;
   setHudMode(mode: HudMode): void;
 }

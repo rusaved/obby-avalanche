@@ -45,6 +45,22 @@ export interface Curve {
   max: number;
 }
 
+/**
+ * A reward of the calendar, quests, time rewards and the wheel (docs/01a-content.md 10): coins as `gifts` gifts of the
+ * player's zone × wallScale[n], trophies, the ×2 step boost for `min` minutes, an egg hatched at once (`best` — the best
+ * egg of an open mountain), a look, a pet (with wings on day 7).
+ */
+export type Reward =
+  | { kind: 'coins'; gifts: number }
+  | { kind: 'trophies'; n: number }
+  | { kind: 'boost'; min: number }
+  | { kind: 'egg'; id: string }
+  | { kind: 'skin'; id: string }
+  | { kind: 'wings'; id: string }
+  | { kind: 'pet'; id: string; wings?: string };
+
+export type DailyReward = Reward & { alt?: Reward };
+
 export interface BalanceJson {
   stepLength: number;
   gainPerStep: number;
@@ -86,7 +102,8 @@ export interface BalanceJson {
   };
   /** `vipMult`: the step multiplier of the VIP purchase (docs/01-gdd.md 8.1, 9.3). */
   iap: { showAfterPlaySec: number; vipMult: number };
-  daily: { resetHours: number };
+  /** The 7-day calendar (docs/01-gdd.md 7.6, docs/01a-content.md 10): one reward a day, `alt` after the first circle when owned. */
+  daily: { resetHours: number; days: DailyReward[] };
   quests: { perDay: number };
   review: { after: string[]; minPlaySec: number };
   ftue: {

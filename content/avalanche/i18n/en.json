@@ -244,5 +244,22 @@
   "btn.stay": "Stay",
   "btn.doRebirth": "Rebirth",
   "btn.toEggs": "To eggs",
-  "toast.tier": "Tier {n}! Steps ×3"
+  "toast.tier": "Tier {n}! Steps ×3",
+  "daily.title": "Calendar",
+  "daily.day": "Day {n}",
+  "daily.next": "Next reward in {time}",
+  "daily.soon": "in {time}",
+  "daily.r1": "Coins",
+  "daily.r2": "Penguin Suit skin",
+  "daily.r3": "×2 per step for 10 min",
+  "daily.r4": "5 trophies",
+  "daily.r5": "Ice Egg",
+  "daily.r6": "10 trophies",
+  "daily.r7": "Reindeer and wings",
+  "daily.r2alt": "15 trophies",
+  "daily.r7alt": "25 trophies",
+  "btn.claim": "Claim",
+  "toast.reward": "Reward received",
+  "toast.tomorrow": "Tomorrow: {name}",
+  "toast.boostOn": "×2 per step!"
 }

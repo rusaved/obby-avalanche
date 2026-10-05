@@ -48,6 +48,8 @@ import { moveSpeed } from './sim/effects/moveSpeed.ts';
 import { InputManager } from './input/manager.ts';
 import { applyManualTurn, createControlFrame, onMoveStarted, toWorld } from './input/control-frame.ts';
 import type { InputSnapshot } from './input/types.ts';
+import { createRewards } from './app/rewards.ts';
+import { createDailyView, type DailyView } from './app/daily-view.ts';
 import { createSave, type SaveData } from './meta/save.ts';
 import { addTrophies } from './meta/trophies.ts';
 import { summitTrophies } from './sim/economy.ts';
@@ -221,6 +223,7 @@ async function boot(): Promise<void> {
   let petsView: PetsView | null = null;
   let cosmeticsView: CosmeticsView | null = null;
   let rebirthView: RebirthView | null = null;
+  let dailyView: DailyView | null = null;
   let windows: WindowFrame | null = null;
   let hudView: HudView | null = null;
   let audio: GameAudio | null = null;
@@ -365,6 +368,9 @@ async function boot(): Promise<void> {
     gpuLoad,
     framesPresented: 0,
     framesRendered: 0,
+    persist(flush) {
+      persist(flush);
+    },
     applyTuning() {
       Object.assign(sim.speedCurve, speedCurve());
       maxSpeed = moveSpeed(sim.progress.stat, sim.speedCurve);
@@ -467,6 +473,9 @@ async function boot(): Promise<void> {
     },
     get hudMode() {
       return hudMode;
+    },
+    get daily() {
+      return dailyView;
     },
     setHudMode(mode) {
       hudMode = mode;
@@ -586,6 +595,14 @@ async function boot(): Promise<void> {
     }
     saveClimb();
     playSec += dt;
+    // The ×2 step boost runs on play seconds (stands on pause, survives F5; docs/01-gdd.md 9.1).
+    if ((save.boostSec ?? 0) > 0) {
+      save.boostSec = Math.max(0, save.boostSec! - dt);
+      if (save.boostSec === 0) {
+        meta?.apply();
+        persist();
+      }
+    }
     // Play time of the player (docs/01-gdd.md 6.1): survives F5, written every few seconds of play.
     save.totalPlaySec = (save.totalPlaySec ?? 0) + dt;
     if (playSec - playPersistAt >= PLAY_PERSIST_SEC) {
@@ -631,7 +648,8 @@ async function boot(): Promise<void> {
     }
     // HUD column (docs/01-gdd.md 10.1): shop, pets, wardrobe — each when it is due (6.4).
     const cm = cosmeticsView?.menuItems();
-    hud?.setMenu([cm?.shop, petsView?.menuItem(), cm?.wardrobe, rebirthView?.menuItem()].filter((x): x is MenuItem => !!x));
+    dailyView?.tick();
+    hud?.setMenu([cm?.shop, petsView?.menuItem(), cm?.wardrobe, dailyView?.menuItem(), rebirthView?.menuItem()].filter((x): x is MenuItem => !!x));
     ftueView?.update(gameDt, playSec, renderPos);
     hudView?.update(playSec);
     if (cameraRig) {
@@ -780,6 +798,7 @@ async function boot(): Promise<void> {
       else if (id === 'shop') cosmeticsView?.openShop();
       else if (id === 'wardrobe') cosmeticsView?.openWardrobe();
       else if (id === 'rebirth') rebirthView?.openWindow();
+      else if (id === 'daily') dailyView?.openWindow();
     },
     trophyColor: theme.ui.trophies,
     okColor: theme.ui.ok,
@@ -879,6 +898,23 @@ async function boot(): Promise<void> {
     lookFigure: (kind, id) => cosmeticsView!.lookFigure(kind, id),
     onRebirth: () => rebirth(),
   });
+  // Calendar (docs/01-gdd.md 7.6): rewards by the data, the game day by server time; the window opens only by its button.
+  const rewards = createRewards({
+    balance,
+    eggs,
+    skins,
+    worlds: content.worlds.worlds,
+    save,
+    getSim: () => sim,
+    hud,
+    pets: () => petsView,
+    rng: createRng((seed ^ 0x6c8e9cf5) >>> 0),
+    numSuffix,
+    onLook: () => cosmeticsView?.syncHero(),
+    onBoost: () => meta?.apply(),
+  });
+  dailyView = createDailyView({ balance, save, hud, windows, rewards, now: () => platform.serverTime(), track, persist });
+  dailyView.tick(true);
   ftueView = createFtueView({
     balance,
     pets,

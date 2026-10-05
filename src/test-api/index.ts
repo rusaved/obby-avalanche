@@ -102,6 +102,11 @@ export interface TestState {
   summits: number;
   rebirthReady: boolean;
   gatesPassed: boolean[];
+  /** Calendar (M3-08): claims in all, today's reward waits, seconds to the next game day, its start; the ×2 boost
+   * seconds left and the ad views counted toward the egg (states of the save, the ads themselves — M4). */
+  daily: { n: number; canClaim: boolean; nextSec: number; dayStart: number; last: number };
+  boostSec: number;
+  adEgg: number;
   /** Round numbers of Speed (M2-13): the plaque has its flash class; sounds started so far; the audio context runs. */
   statFlash: boolean;
   sfx: string[];
@@ -179,6 +184,9 @@ export interface TestApi {
   setCoins(n: number): void;
   /** Sets the play time of the player (save.totalPlaySec): the HUD buttons due by time (docs/01-gdd.md 6.4). */
   setPlaySec(sec: number): void;
+  /** The ×2 boost for `sec` seconds of play and the ad views toward the egg, as an ad would give them (M3-08; ads — M4). */
+  setBoost(sec: number): void;
+  setAdEgg(k: number): void;
   /** Sets the trophies to spend and over all time (M3-04: a summit done, trails and auras to buy). */
   setTrophies(n: number): void;
   /** A pet joins the player as from the free egg of the first minute (M3-13: «Bunny from the teaching»). */
@@ -375,6 +383,15 @@ export function installTestApi(g: GameHandles): TestApi {
         summits: g.save.summits ?? 0,
         rebirthReady: g.rebirthView?.ready ?? false,
         gatesPassed: g.sim ? [...g.sim.gatesPassed] : [],
+        daily: {
+          n: g.save.daily?.n ?? 0,
+          canClaim: g.daily?.canClaim ?? false,
+          nextSec: g.daily?.nextSec ?? 0,
+          dayStart: g.save.daily?.dayStart ?? 0,
+          last: g.save.daily?.last ?? 0,
+        },
+        boostSec: g.save.boostSec ?? 0,
+        adEgg: g.save.adEgg ?? 0,
         statFlash: document.querySelector('[data-role="stat"]')?.classList.contains('flash') ?? false,
         sfx: [...(g.audio?.played ?? [])],
         audioRunning: g.audio?.running ?? false,
@@ -493,6 +510,15 @@ export function installTestApi(g: GameHandles): TestApi {
     },
     setPlaySec(sec) {
       g.save.totalPlaySec = sec;
+    },
+    setBoost(sec) {
+      g.save.boostSec = sec;
+      g.meta?.apply();
+      g.persist(true);
+    },
+    setAdEgg(k) {
+      g.save.adEgg = k;
+      g.persist(true);
     },
     setTrophies(n) {
       g.save.trophies = n;

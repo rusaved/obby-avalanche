@@ -272,3 +272,19 @@ canvas.fallback {
 .hud.touch ~ .win .rb-list, .hud.short ~ .win .rb-list { font-size: 12px; }
 .fade-flash { position: absolute; inset: 0; background: #fff; pointer-events: none; animation: fade-flash 0.9s ease-out forwards; }
 @keyframes fade-flash { 0% { opacity: 0; } 35% { opacity: 1; } 100% { opacity: 0; } }
+/* Calendar, quests, time rewards (docs/01-gdd.md 7.6–7.8, M3-08). */
+.dl-cards { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; padding: 8px 4px; }
+.hud.touch ~ .win .dl-cards, .hud.short ~ .win .dl-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.dl-card { min-height: 112px; justify-content: center; }
+.dl-card.today { transform: scale(1.08); border-color: #ffb800; box-shadow: 0 0 14px 3px rgba(255, 184, 0, 0.7); z-index: 1; }
+.dl-card.future { opacity: 0.8; }
+.dl-mark { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; color: #3a4a5c; }
+.dl-mark svg { width: 20px; height: 20px; }
+.rw-icon { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; font-size: 26px; line-height: 1; color: #3a1a66; }
+.rw-icon svg { width: 34px; height: 34px; }
+.dl-foot { justify-content: center; }
+.dl-next { font-size: 15px; font-weight: 800; }
+.hud.touch ~ .win .dl-card, .hud.short ~ .win .dl-card { min-height: 78px; padding: 4px; gap: 2px; }
+.hud.touch ~ .win .dl-card.today, .hud.short ~ .win .dl-card.today { transform: scale(1.04); }
+.hud.touch ~ .win .rw-icon, .hud.short ~ .win .rw-icon { width: 28px; height: 28px; font-size: 22px; }
+.hud.touch ~ .win .rw-icon svg, .hud.short ~ .win .rw-icon svg { width: 26px; height: 26px; }

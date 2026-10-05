@@ -23,6 +23,13 @@ export const ICONS: Record<string, string> = {
   wardrobe: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3 3 6l2 5 2-1v11h10V10l2 1 2-5-5-3c-.5 1.6-2 2.6-4 2.6S8.5 4.6 8 3z" fill="#fff" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
   /** Lock on a wardrobe card whose look comes from a tier, a calendar day or the starter pack (M3-04b). */
   lock: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10.5" rx="2" fill="#fff" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="15.5" r="1.5" fill="currentColor"/></svg>',
+  /** Calendar (docs/01-gdd.md 7.6), a tick on a claimed card, quests (7.7), time rewards: a gift (7.8). */
+  calendar:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2.5" fill="#fff" stroke="currentColor" stroke-width="1.8"/><path d="M3 10h18" stroke="currentColor" stroke-width="1.8"/><path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="7" y="13" width="4" height="4" rx="1" fill="currentColor"/></svg>',
+  check: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#4cd964"/><path d="m7 12.5 3.2 3.2L17 9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  quests:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2.5" fill="#fff" stroke="currentColor" stroke-width="1.8"/><path d="m7 8 1.5 1.5L11 7M7 14l1.5 1.5L11 13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 8.5h4M13 14.5h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  gift: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="9" width="17" height="12" rx="2" fill="#fff" stroke="currentColor" stroke-width="1.8"/><rect x="2.5" y="6" width="19" height="4.5" rx="1.5" fill="#fff" stroke="currentColor" stroke-width="1.8"/><path d="M12 6v15" stroke="currentColor" stroke-width="2"/><path d="M12 6c-1-3-5-4-5-1.5S11 6 12 6zm0 0c1-3 5-4 5-1.5S13 6 12 6z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
   trophy: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v5a5 5 0 0 1-10 0z" fill="#fff" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M7 5H4a3 3 0 0 0 3 4M17 5h3a3 3 0 0 1-3 4M12 13v4M8 21h8l-1-4H9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
 };
 

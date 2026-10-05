@@ -164,5 +164,20 @@
   "btn.stay": "Остаться",
   "btn.doRebirth": "Переродиться",
   "btn.toEggs": "К яйцам",
-  "toast.tier": "Ступень {n}! Шаг ×3"
+  "toast.tier": "Ступень {n}! Шаг ×3",
+  "daily.title": "Календарь",
+  "daily.day": "День {n}",
+  "daily.next": "Следующая награда через {time}",
+  "daily.soon": "через {time}",
+  "daily.r1": "Монеты",
+  "daily.r2": "15 кубков",
+  "daily.r3": "Буст ×2 за шаг на 10 мин",
+  "daily.r4": "5 кубков",
+  "daily.r5": "Снежное яйцо",
+  "daily.r6": "10 кубков",
+  "daily.r7": "Зайка",
+  "btn.claim": "Забрать",
+  "toast.reward": "Награда получена",
+  "toast.tomorrow": "Завтра: {name}",
+  "toast.boostOn": "×2 за шаг!"
 }

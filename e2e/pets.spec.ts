@@ -60,7 +60,7 @@ test('eggs and pets: buy at the camp stand, hatch in 1 s, 3 pets on next to the 
   // The «Pets» button shows from 180 s of play (docs/01-gdd.md 6.4) and opens the window; the game stands.
   await page.evaluate(() => window.__TEST__!.setPlaySec(181));
   await waitTicks(page, 3);
-  expect((await testState(page)).menu).toEqual(['shop', 'pets']);
+  expect((await testState(page)).menu).toEqual(['shop', 'pets', 'daily']);
   await page.locator('[data-hud="menu-pets"]').dispatchEvent('pointerdown');
   await expect(page.locator('[data-role="window"][data-window="pets"]')).toBeVisible();
   s = await testState(page);

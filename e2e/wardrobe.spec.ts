@@ -17,7 +17,7 @@ test('wardrobe opens with the default skin on the hero; trail and aura bought fo
   await waitTicks(page, 3);
   s = await testState(page);
   expect(s.trophyPlaque).toEqual({ shown: true, text: '30' });
-  expect(s.menu).toEqual(['shop', 'pets', 'wardrobe', 'rebirth']);
+  expect(s.menu).toEqual(['shop', 'pets', 'wardrobe', 'daily', 'rebirth']);
 
   await page.locator('[data-hud="menu-wardrobe"]').dispatchEvent('pointerdown');
   await expect(page.locator('[data-role="window"][data-window="wardrobe"]')).toBeVisible();

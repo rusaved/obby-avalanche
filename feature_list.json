@@ -373,7 +373,7 @@
     "milestone": "M3",
     "description": "Календарь на 7 дней по docs/01-gdd.md, 7.6 (GDD-10)",
     "acceptance": "e2e: календарь, прогресс яйца за рекламу и буст ×2 переживают F5 и смену суток мока (?mock_time_offset); награда календаря забирается раз в сутки по правилу 20 ч",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

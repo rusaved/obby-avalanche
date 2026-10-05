@@ -4,7 +4,7 @@
  * physics (M1) and cave fairness against warnSec (M2-03).
  */
 import * as v from 'valibot';
-import type { AurasJson, BalanceJson, BotsJson, Curve, EggsJson, TrailsJson, GameJson, Segment, SkinsJson, TuningJson, World, WorldsJson, WorldsSpecJson } from '../content/types.ts';
+import type { AurasJson, BalanceJson, BotsJson, Curve, EggsJson, TrailsJson, GameJson, Reward, Segment, SkinsJson, TuningJson, World, WorldsJson, WorldsSpecJson } from '../content/types.ts';
 import { summitTrophies } from '../sim/economy.ts';
 import { LEADERBOARD_SCORES } from '../meta/trophies.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
@@ -122,6 +122,17 @@ const themeSchema = v.object({
   bonus: v.optional(v.object({ color: hex })),
 });
 
+const rewardSchema = v.variant('kind', [
+  v.object({ kind: v.literal('coins'), gifts: positive }),
+  v.object({ kind: v.literal('trophies'), n: positive }),
+  v.object({ kind: v.literal('boost'), min: positive }),
+  v.object({ kind: v.literal('egg'), id: v.string() }),
+  v.object({ kind: v.literal('skin'), id: v.string() }),
+  v.object({ kind: v.literal('wings'), id: v.string() }),
+  v.object({ kind: v.literal('pet'), id: v.string(), wings: v.optional(v.string()) }),
+]);
+const dailyRewardSchema = v.intersect([rewardSchema, v.object({ alt: v.optional(rewardSchema) })]);
+
 const balanceSchema = v.object({
   stepLength: positive,
   gainPerStep: positive,
@@ -162,7 +173,7 @@ const balanceSchema = v.object({
     wheelCooldownSec: nonNeg,
   }),
   iap: v.object({ showAfterPlaySec: nonNeg, vipMult: positive }),
-  daily: v.object({ resetHours: positive }),
+  daily: v.object({ resetHours: positive, days: v.pipe(v.array(dailyRewardSchema), v.length(7)) }),
   quests: v.object({ perDay: v.pipe(v.number(), v.integer()) }),
   review: v.object({ after: v.array(v.string()), minPlaySec: nonNeg }),
   ftue: v.object({
@@ -550,6 +561,30 @@ export function validatePack(files: PackFiles): ValidationResult {
     if (Math.abs(sum - 1) > 1e-9) errors.push(`eggs.json: eggs[${i}].pool — chances sum to ${sum}, expected 1`);
   }
   for (const w of worlds.worlds) if (!eggs.eggs.some((e) => e.id === w.egg)) errors.push(`worlds.json: worlds[${w.index - 1}].egg — unknown egg "${w.egg}" (eggs.json)`);
+  // Rewards of the calendar, quests, time rewards and the wheel (docs/01a-content.md 10): every id exists in its file;
+  // the calendar cards have their texts daily.r<N> (and daily.r<N>alt for a day with `alt`) in both languages.
+  const bal = files['balance.json'] as BalanceJson;
+  const skinData = files['skins.json'] as SkinsJson;
+  const rewardIds: Record<string, Set<string>> = {
+    egg: new Set([...eggs.eggs.map((e) => e.id), 'best']),
+    skin: new Set(skinData.skins.map((x) => x.id)),
+    wings: new Set((skinData.wings ?? []).map((x) => x.id)),
+    pet: petIds,
+  };
+  const checkReward = (where: string, r: Reward): void => {
+    if ('id' in r && !rewardIds[r.kind]?.has(r.id)) errors.push(`balance.json: ${where} — unknown ${r.kind} "${r.id}"`);
+    if (r.kind === 'pet' && r.wings && !rewardIds['wings']!.has(r.wings)) errors.push(`balance.json: ${where} — unknown wings "${r.wings}"`);
+  };
+  bal.daily.days.forEach((day, i) => {
+    checkReward(`daily.days[${i}]`, day);
+    if (day.alt) checkReward(`daily.days[${i}].alt`, day.alt);
+    for (const key of [`daily.r${i + 1}`, ...(day.alt ? [`daily.r${i + 1}alt`] : [])]) {
+      for (const [file, dict] of [['i18n/ru.json', ru], ['i18n/en.json', en]] as const) if (!dict[key]) errors.push(`${file}: ${key} — missing (balance.json daily.days)`);
+    }
+  });
+  for (const key of ['daily.title', 'daily.day', 'daily.next', 'daily.soon', 'btn.daily', 'btn.claim', 'toast.reward', 'toast.tomorrow', 'toast.boostOn']) {
+    for (const [file, dict] of [['i18n/ru.json', ru], ['i18n/en.json', en]] as const) if (!dict[key]) errors.push(`${file}: ${key} — missing (calendar, docs/01-gdd.md 7.6)`);
+  }
   // Trails and auras (docs/01a-content.md 7): unique ids, names in both languages (keys trail.<id>, aura.<id>).
   const cosmetics = [
     ...(files['trails.json'] as TrailsJson).trails.map((x) => ({ file: 'trails.json', key: `trail.${x.id}`, id: x.id })),
