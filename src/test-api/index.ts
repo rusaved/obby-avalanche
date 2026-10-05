@@ -74,6 +74,8 @@ export interface TestState {
   pets: string[];
   shoeLevel: number;
   shoesButton: { shown: boolean; text: string; can: boolean };
+  /** Trophies to spend and over all time (M3-11: summits pay g × (1 + n), the leaderboard goes by the total). */
+  trophies: { now: number; total: number };
   gainMult: number;
   gatesPassed: boolean[];
   /** Round numbers of Speed (M2-13): the plaque has its flash class; sounds started so far; the audio context runs. */
@@ -257,6 +259,7 @@ export function installTestApi(g: GameHandles): TestApi {
         egg: g.sim?.giftEgg ? { phase: g.sim.giftEgg.phase, x: g.sim.giftEgg.x, y: g.sim.giftEgg.y, z: g.sim.giftEgg.z } : null,
         pets: [...(g.save.pets ?? [])],
         shoeLevel: g.meta?.shoeLevel ?? 0,
+        trophies: { now: g.save.trophies ?? 0, total: g.save.trophiesTotal ?? 0 },
         shoesButton: shoesButton(),
         gainMult: g.sim?.progress.gainMult ?? 1,
         gatesPassed: g.sim ? [...g.sim.gatesPassed] : [],

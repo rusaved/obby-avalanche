@@ -146,7 +146,7 @@ test.describe('core HUD', () => {
     });
   }
 
-  test('en: texts from en.json, number format with a point («1.2K»), ru with a comma', async ({ page, openGame }) => {
+  test('en: texts from en.json, number format with a point («1.23K»), ru with a comma', async ({ page, openGame }) => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     await openGame('mock_lang=en');
     await page.evaluate(() => window.__TEST__!.setStat(1234));
@@ -156,16 +156,16 @@ test.describe('core HUD', () => {
       mountain: document.querySelector('.hud-mountain-label')?.textContent,
       goal: document.querySelector('.hud-goal-text')?.textContent,
     }));
-    expect(texts.value).toBe('1.2K');
+    expect(texts.value).toBe('1.23K');
     expect(texts.mountain).toBe(fill(en['hud.mountain']!, { a: 1, b: 3 }));
     expect(texts.goal).toBe(en['hud.goal.open']);
     await waitTicks(page, 130);
     expect(await page.evaluate(() => document.querySelector('.hud-goal-text')?.textContent)).toBe(fill(en['hud.goal.wall']!, { n: '2K' }));
-    expect(await page.evaluate(() => document.querySelector('.hud-goal-num')?.textContent)).toBe('1.2K/2K');
+    expect(await page.evaluate(() => document.querySelector('.hud-goal-num')?.textContent)).toBe('1.23K/2K');
     await openGame('mock_lang=ru');
     await page.evaluate(() => window.__TEST__!.setStat(1234));
     await waitTicks(page, 5);
     texts = await page.evaluate(() => ({ value: document.querySelector('.hud-stat-value')?.textContent, mountain: '', goal: '' }));
-    expect(texts.value).toBe('1,2K');
+    expect(texts.value).toBe('1,23K');
   });
 });

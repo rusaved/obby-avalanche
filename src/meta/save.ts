@@ -28,6 +28,9 @@ export interface SaveData {
   pets?: string[];
   /** Shoe level: index in balance.upgrade.tiers, 0 = the starting pair; back to 0 on a rebirth (docs/01-gdd.md 7.1). */
   shoes?: number;
+  /** Trophies to spend (trails, auras) and trophies earned over all time — the leaderboard score (docs/01-gdd.md 7.9). */
+  trophies?: number;
+  trophiesTotal?: number;
 }
 
 export const SAVE_VERSION = 1;

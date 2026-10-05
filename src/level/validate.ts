@@ -6,6 +6,7 @@
 import * as v from 'valibot';
 import type { BalanceJson, BotsJson, Curve, EggsJson, GameJson, Segment, SkinsJson, TuningJson, World, WorldsJson } from '../content/types.ts';
 import { summitTrophies } from '../sim/economy.ts';
+import { LEADERBOARD_SCORES } from '../meta/trophies.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 import { buildLevel } from './builder.ts';
 
@@ -68,7 +69,8 @@ const gameSchema = v.object({
       v.object({ kind: v.literal('goldGift'), fromWave: v.pipe(v.number(), v.integer(), v.minValue(1)), mult: positive, distMin: nonNeg, distMax: positive }),
     ),
   }),
-  leaderboard: v.nullable(v.object({ name: v.string(), score: v.string() })),
+  // The leaderboard scores by a whole counter of the save (trophies over all time), never by the stat (docs/01-gdd.md 7.9, 8.4).
+  leaderboard: v.nullable(v.object({ name: v.string(), score: v.picklist(LEADERBOARD_SCORES) })),
   metrikaCounterId: v.pipe(v.number(), v.integer(), v.minValue(0)),
   mobileOrientation: v.picklist(['landscape', 'portrait']),
   payments: v.object({ enabled: v.boolean() }),

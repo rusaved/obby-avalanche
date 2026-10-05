@@ -409,7 +409,7 @@
     "milestone": "M3",
     "description": "Большие числа: суффиксы K, M, B, T, Qa … до Dc из i18n, Intl.NumberFormat, кубки за всё время < 2^53",
     "acceptance": "Vitest: 1 234 → «1,23K» в ru и «1.23K» в en (3 значащие цифры, docs/01-gdd.md, 10.4), числа на каждой границе суффикса до Dc форматируются верно; Скорость на ступени 9 конечна и < 1e30; таблица рекордов идёт по кубкам",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

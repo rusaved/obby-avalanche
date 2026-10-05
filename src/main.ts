@@ -42,6 +42,8 @@ import { InputManager } from './input/manager.ts';
 import { applyManualTurn, createControlFrame, onMoveStarted, toWorld } from './input/control-frame.ts';
 import type { InputSnapshot } from './input/types.ts';
 import { createSave, type SaveData } from './meta/save.ts';
+import { addTrophies } from './meta/trophies.ts';
+import { summitTrophies } from './sim/economy.ts';
 import type { GameHandles, BootState } from './app/handles.ts';
 import type { TestApi } from './test-api/index.ts';
 import type { DebugPanel } from './debug/index.ts';
@@ -267,6 +269,9 @@ async function boot(): Promise<void> {
     // The switch happens after the tick, not inside the emitter (docs/06 step 21: mountain 1 done on tier 0).
     s.events.on('portal', ({ from, next }) => {
       if (from === 1 && s.tier === 0) track('gameTutorialComplete', { levelComplete: 'world_1' });
+      // Trophies of the summit g × (1 + n) (docs/01-gdd.md 8.1): to spend and over all time (the leaderboard, 7.9).
+      addTrophies(save, summitTrophies(balance, from, s.tier));
+      persist(true);
       if (next !== null) pendingPortal = next;
     });
     ftueView?.wire(s);

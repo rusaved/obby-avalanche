@@ -1,33 +1,42 @@
 /**
- * Number display (docs/01-gdd.md 10.4): 999 → "999", 1200 → "1.2K" (ru "1,2K"), suffix letters come from i18n keys
+ * Number display (docs/01-gdd.md 10.4): 999 → "999", 1234 → "1.23K" (ru "1,23K"), suffix letters come from i18n keys
  * num.K … num.Dc, the decimal separator from Intl.NumberFormat of the interface language.
  */
-let decimalSep = '.';
+/** Formatter of the interface language: up to 2 fraction digits, no grouping (the suffix carries the size). */
+let nf = makeFormat('en');
 
-/** Picks the decimal separator of `lang` (ru → ",", en → "."). */
-export function setNumberLocale(lang: string): void {
+function makeFormat(lang: string): Intl.NumberFormat {
   try {
-    decimalSep = new Intl.NumberFormat(lang).formatToParts(1.5).find((p) => p.type === 'decimal')?.value ?? '.';
+    return new Intl.NumberFormat(lang, { maximumFractionDigits: 2, useGrouping: false });
   } catch {
-    decimalSep = '.';
+    return new Intl.NumberFormat('en', { maximumFractionDigits: 2, useGrouping: false });
   }
+}
+
+/** Picks the number format of `lang` (ru → "1,23K", en → "1.23K"). */
+export function setNumberLocale(lang: string): void {
+  nf = makeFormat(lang);
 }
 
 export const SUFFIX_KEYS = ['K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc'] as const;
 
+/** Float slack: 1e33 / 1000^11 may land a hair under 1, the display must still read «1Dc». */
+const EPS = 1e-12;
+
+/**
+ * 999 → "999"; from 1000 on — 3 significant digits, cut down (never rounded up: 1999 is «1.99K», so a price or a
+ * requirement never looks reached before it is) and a suffix K … Dc; past Dc the number before Dc grows.
+ */
 export function formatNumber(n: number, suffix: (key: string) => string = (k) => k): string {
   if (!Number.isFinite(n)) return '0';
-  const neg = n < 0;
-  let v = Math.abs(n);
-  if (v < 1000) return (neg ? '-' : '') + String(Math.floor(v));
-  let i = -1;
-  while (v >= 1000 && i < SUFFIX_KEYS.length - 1) {
-    v /= 1000;
-    i++;
-  }
-  const digits = v < 10 ? 1 : v < 100 ? 1 : 0;
-  let s = v.toFixed(digits);
-  if (s.endsWith('.0')) s = s.slice(0, -2);
-  if (digits === 1 && s.includes('.') && v >= 100) s = String(Math.floor(v));
-  return (neg ? '-' : '') + s.replace('.', decimalSep) + suffix(SUFFIX_KEYS[i] as string);
+  const sign = n < 0 ? '-' : '';
+  const v = Math.abs(n);
+  if (v < 1000) return sign + String(Math.floor(v));
+  let group = 0;
+  while (group < SUFFIX_KEYS.length && v >= Math.pow(1000, group + 1) * (1 - EPS)) group++;
+  const m = v / Math.pow(1000, group);
+  const intDigits = m >= 100 * (1 - EPS) ? 3 : m >= 10 * (1 - EPS) ? 2 : 1;
+  const scale = Math.pow(10, Math.max(0, 3 - intDigits));
+  const cut = Math.floor(m * scale * (1 + EPS)) / scale;
+  return sign + nf.format(cut) + suffix(SUFFIX_KEYS[group - 1] as string);
 }
