@@ -8,7 +8,7 @@ import type { Page } from '@playwright/test';
 const H = 3_600_000;
 
 async function reloadAt(page: Page, offsetMs: number): Promise<void> {
-  await page.goto(`/?mock_time_offset=${offsetMs}`);
+  await page.goto(`/?pace=classic&mock_time_offset=${offsetMs}`);
   await waitReady(page);
   await waitTicks(page, 2);
 }

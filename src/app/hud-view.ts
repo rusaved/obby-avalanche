@@ -67,11 +67,11 @@ export function createHudView(d: HudViewDeps): HudView {
         lastPopAt = timeSec;
       }
 
-      // Mountain bar: k/12 = open walls; the avalanche mark at the crack on warn and at the front while it runs.
+      // Mountain bar: k/n = open walls of the mountain; the avalanche mark at the crack on warn and at the front while it runs.
       const open = sim.gatesOpen.filter(Boolean).length;
       const ts = sim.threat?.state;
       const wave = ts?.phase === 'warn' ? ts.spawnZ / len : ts?.phase === 'run' ? Math.max(0, ts.frontZ) / len : null;
-      d.hud.updateMountain(t('hud.mountain', { a: level.worldIndex, b: open }), sim.hero.pos.z / len, wave, ts?.phase === 'warn' ? ts.shelter : -1);
+      d.hud.updateMountain(t('hud.mountain', { a: level.worldIndex, b: open, c: level.gates.length }), sim.hero.pos.z / len, wave, ts?.phase === 'warn' ? ts.shelter : -1);
 
       // Goal: the next closed wall with the count, «Wall open!» for 2 s, then the summit and the portal.
       const next = sim.gatesOpen.findIndex((o) => !o);

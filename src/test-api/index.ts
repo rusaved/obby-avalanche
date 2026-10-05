@@ -6,7 +6,7 @@ import type { RenderInfo } from '../render/renderer.ts';
 import type { GameHandles, SimEventRecord } from '../app/handles.ts';
 import { analyticsEvents, onTrack } from '../analytics/index.ts';
 import type { QualityLevel } from '../render/quality.ts';
-import { content } from '../content/index.ts';
+import { content, pace } from '../content/index.ts';
 import { Ray, Vector3 } from 'three';
 import type { LevelData } from '../level/types.ts';
 
@@ -16,6 +16,8 @@ export interface TestState {
   platform: 'yandex' | 'null';
   lang: string;
   pack: string;
+  /** Pace of this run (docs/01-gdd.md 16.1): classic or a folder of content/<pack>/pace/. */
+  pace: string;
   world: string;
   controllable: boolean;
   pauseReasons: string[];
@@ -318,6 +320,7 @@ export function installTestApi(g: GameHandles): TestApi {
         platform: g.platform.kind,
         lang: g.lang,
         pack: g.packId,
+        pace,
         world: g.world.id,
         controllable: g.boot.controllable,
         pauseReasons: g.pause.reasons,

@@ -1,6 +1,7 @@
 import './styles.css';
 import { Vector3 } from 'three';
-import { content, i18nUrls } from './content/index.ts';
+import { content, i18nUrls, pace } from './content/index.ts';
+import { CLASSIC_PACE } from './content/pace.ts';
 import { configureAnalytics, track } from './analytics/index.ts';
 import { createPlatform } from './platform/index.ts';
 import { createStorage } from './platform/storage.ts';
@@ -85,7 +86,9 @@ async function boot(): Promise<void> {
   const events: string[] = [];
   const bootState: BootState = { firstFrameAt: null, readyAt: null, controllable: false, glRenderer: '' };
 
-  const platform = await createPlatform({ packId: game.id, leaderboardName: game.leaderboard?.name ?? '', track });
+  // Each pace keeps its own progress (docs/01-gdd.md 16.1): classic in the old place, other paces in their slot.
+  const saveSlot = pace === CLASSIC_PACE ? undefined : pace;
+  const platform = await createPlatform({ packId: game.id, saveSlot, leaderboardName: game.leaderboard?.name ?? '', track });
   platform.onPause(() => pause.add('sdk'));
   platform.onResume(() => pause.remove('sdk'));
   track('sdk_ready', { platform: platform.kind, lang: platform.lang, device: platform.device });
@@ -163,6 +166,11 @@ async function boot(): Promise<void> {
       : undefined;
   // Bots (docs/01-gdd.md 7.12): count by the quality level, deterministic by the seed and the mountain.
   const botOptions = (w: World): { cfg: typeof bots; count: number; seed: number } => ({ cfg: bots, count: bots.count[quality.level], seed: (seed + w.index * 7919) >>> 0 });
+  // Through number of a wall for lateEase (docs/01-gdd.md 8.1): walls of the mountains before, all walls of the pace.
+  const wallsOf = (w: World): { before: number; total: number } => ({
+    before: content.worlds.worlds.filter((x) => x.index < w.index).reduce((a, x) => a + x.wallCount, 0),
+    total: content.worlds.worlds.reduce((a, x) => a + x.wallCount, 0),
+  });
   // Golden gift (docs/01-gdd.md 4.9): only with game.json threat.bonus; «from the 2nd normal wave of the load» counts
   // the waves of every mountain since the page opened.
   let loadWaves = 0;
@@ -179,6 +187,7 @@ async function boot(): Promise<void> {
     bots: botOptions(world),
     bonus: bonusOptions(world),
     resume: { frontierWall: save.frontierWall ?? 0 },
+    walls: wallsOf(world),
   });
   /** The climb into the save (docs/01-gdd.md 7.10): stat, best stat, coins, mountain, farthest wall passed. */
   const frontierOf = (s: Sim): number => s.level.gates.reduce((m, g, i) => (s.gatesPassed[i] ? Math.max(m, g.index) : m), 0);
@@ -549,7 +558,7 @@ async function boot(): Promise<void> {
     const tier = reset?.tier ?? sim.tier;
     world = next;
     level = buildLevel(world);
-    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world) });
+    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world), walls: wallsOf(world) });
     avalanche?.setLevel(level);
     wireSim(sim);
     g.sim = sim;
@@ -960,7 +969,8 @@ async function boot(): Promise<void> {
     onChange: () => meta?.apply(),
     onHatch: () => questsView?.hatched(),
     // The shop tab «Eggs» (M3-09): eggs of the mountains open on this tier (docs/01-gdd.md 7.2).
-    eggWorlds: Object.fromEntries(content.worlds.worlds.filter((w) => w.egg).map((w) => [w.egg!, w.index])),
+    // An egg opens on the first mountain that has it (the fast pace has one egg per two mountains, docs/01-gdd.md 16.3).
+    eggWorlds: Object.fromEntries([...content.worlds.worlds].reverse().filter((w) => w.egg).map((w) => [w.egg!, w.index])),
     openWorld: () => Math.max(sim.level.worldIndex, summitsDone(save) + 1),
     toShop: () => cosmeticsView?.openShop('eggs'),
   });

@@ -10,7 +10,8 @@ type Options = {
 
 type Fixtures = {
   errors: string[];
-  /** Opens the game with query params (string "a=1&b=2") and waits for window.__TEST__.ready. */
+  /** Opens the game with query params (string "a=1&b=2") and waits for window.__TEST__.ready. Without `pace` in the
+   * query the classic pace (docs/01-gdd.md 16.1): specs of the fast pace pass `pace=fast` themselves. */
   openGame: (query?: string) => Promise<void>;
   requests: string[];
 };
@@ -50,6 +51,7 @@ export const test = base.extend<Options & Fixtures>({
     await use(async (query = '') => {
       const params = new URLSearchParams(query);
       if (isMobile && !params.has('mock_device')) params.set('mock_device', 'mobile');
+      if (!params.has('pace')) params.set('pace', 'classic');
       const qs = params.toString();
       await page.goto(qs ? `/?${qs}` : '/');
       await waitReady(page);

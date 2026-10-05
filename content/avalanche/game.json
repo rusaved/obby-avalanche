@@ -1,6 +1,7 @@
 {
   "id": "avalanche",
   "schema": 1,
+  "pace": "fast",
   "stat": { "key": "speed", "effect": "moveSpeed" },
   "threat": {
     "kind": "wave",

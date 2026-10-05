@@ -17,6 +17,8 @@ export interface GameJson {
   payments: { enabled: boolean };
   ads: { interstitial: string[]; rewarded: string[] };
   flags?: Record<string, { path: string; min?: number; max?: number; values?: string[] }>;
+  /** Pace by default (docs/01-gdd.md 16.1): "classic" or a folder of content/<pack>/pace/; absent — classic. */
+  pace?: string;
 }
 
 export interface ThemeJson {
@@ -126,6 +128,8 @@ export interface BalanceJson {
   };
   /** Hint plaque timings (docs/01-gdd.md 6.5). */
   hints: HintsTiming;
+  /** Targets of `sim:balance --fit` for a pace (docs/01-gdd.md 16.8); the game never reads them. */
+  sim?: { mountainMin: number[]; gateCurve: number };
 }
 
 export interface HintsTiming {
@@ -292,7 +296,13 @@ export interface World {
   zones: WorldZone[];
   segments: Segment[];
   treadmillMult: number;
+  /** Mountain layout of the generator (docs/01-gdd.md 16.3); absent — the classic one of 5.2. */
+  layout?: WorldLayout;
+  /** Theme of the mountain look (sky, decor; M5) when it differs from the id (docs/01-gdd.md 16.3). */
+  look?: string;
 }
+
+export type WorldLayout = 'classic' | 'gateSide';
 
 export interface WorldsJson {
   schema: number;
@@ -309,8 +319,12 @@ export interface WorldsSpecJson {
   /** `firstIntervalSec` — mountain 1 and any mountain without its own; `laterFirstIntervalSec` — [min, max] of mountains 2+ (Q-022). */
   threat: { spawnAhead: number; firstIntervalSec: number; laterFirstIntervalSec?: [number, number]; from: 'aboveHero' | 'end' | 'start'; firstWaveScripted: boolean };
   rarities: string[];
+  /** Layout of every mountain (docs/01-gdd.md 16.3): absent or "classic" — 5.2, "gateSide" — the cave beside each gate. */
+  layout?: WorldLayout;
   mountains: Array<{
     id: string;
+    /** Theme of the mountain look (M5), see World.look. */
+    look?: string;
     stretch: number;
     intervalSec: number;
     /** First avalanche after a load or the portal (docs/01-gdd.md 4.1; M3-12); absent — threat.firstIntervalSec. */

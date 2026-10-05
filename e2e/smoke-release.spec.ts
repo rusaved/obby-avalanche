@@ -18,3 +18,14 @@ test('release build: ready() exactly once, first frame drawn, zero console error
   const hasTest = await page.evaluate(() => typeof (window as unknown as { __TEST__?: unknown }).__TEST__);
   expect(hasTest).toBe('undefined');
 });
+
+// PR-01 (docs/01-gdd.md 16.1): the release never reads ?pace= — it plays game.json `pace` (fast), so the save goes to
+// the fast slot of the mirror and the classic key stays empty.
+test('release build ignores ?pace=classic: the save lands in the slot of the game.json pace', async ({ page }) => {
+  await page.goto('/?pace=classic');
+  await page.waitForFunction(() => window.__YA_MOCK__?.calls.some((c) => c.name === 'LoadingAPI.ready'), undefined, { timeout: 60_000 });
+  await page.waitForFunction(() => Object.keys(localStorage).some((k) => /:save(\.|$)/.test(k)), undefined, { timeout: 30_000 });
+  const keys = await page.evaluate(() => Object.keys(localStorage).filter((k) => /:save(\.|$)/.test(k)));
+  expect(keys.some((k) => k.endsWith(':save.fast'))).toBe(true);
+  expect(keys.some((k) => k.endsWith(':save'))).toBe(false);
+});

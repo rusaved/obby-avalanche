@@ -1,6 +1,7 @@
 import type { SaveData } from '../meta/save.ts';
 import { parseSave } from '../meta/save.ts';
 import { createStorage, type KeyValueStore } from './storage.ts';
+import { mirrorKey } from './pace-save.ts';
 import { mapLang, type DeviceType, type Lang, type LeaderEntry, type Platform, type PlatformOptions } from './types.ts';
 
 /**
@@ -54,12 +55,12 @@ export class NullPlatform implements Platform {
   }
 
   async loadSave(): Promise<SaveData | null> {
-    return parseSave(this.store.getJSON('save'));
+    return parseSave(this.store.getJSON(mirrorKey(this.opts.saveSlot)));
   }
 
   markDirty(data: SaveData): void {
     // No cloud outside Yandex: the mirror is the save, written at once (docs/02-tech.md 11.6).
-    this.store.setJSON('save', data);
+    this.store.setJSON(mirrorKey(this.opts.saveSlot), data);
   }
 
   async flushNow(): Promise<void> {

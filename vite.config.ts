@@ -17,7 +17,8 @@ function buildLabel(): string {
   const features = readJson<Array<{ milestone: string; passes: boolean; deferred: boolean }>>(
     resolve(root, 'feature_list.json'),
   );
-  const order = ['M0', 'M1', 'M2', 'M3', 'M4', 'M5', 'M6'];
+  // PR — the pace prototype between M3 and M4 (docs/01-gdd.md 16.9).
+  const order = ['M0', 'M1', 'M2', 'M3', 'PR', 'M4', 'M5', 'M6'];
   let done = 'M0';
   for (const m of order) {
     const list = features.filter((f) => f.milestone === m);

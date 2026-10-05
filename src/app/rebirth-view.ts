@@ -58,7 +58,7 @@ export function createRebirthView(d: RebirthViewDeps): RebirthView {
       {
         tier: t('rebirth.toTier', { n: p.tier }),
         ready: view.ready,
-        locked: `${t('rebirth.locked')} · ${t('rebirth.progress', { a: summitsDone(d.save) })}`,
+        locked: `${t('rebirth.locked', { n: goal })} · ${t('rebirth.progress', { a: summitsDone(d.save), b: goal })}`,
         step: t('rebirth.step', { a: formatMult(p.stepNow, d.numSuffix), b: formatMult(p.stepNext, d.numSuffix) }),
         rewards: p.rewards.map((r) => ({ name: t(`${r.kind}.${r.id}`), figure: d.lookFigure(r.kind, r.id) })),
         spendHint: sim.coins >= cheapest,
@@ -101,7 +101,7 @@ export function createRebirthView(d: RebirthViewDeps): RebirthView {
       if (!shown()) return null;
       return view.ready
         ? { id: 'rebirth', label: t('btn.rebirth'), icon: 'rebirth' }
-        : { id: 'rebirth', label: t('rebirth.progress', { a: summitsDone(d.save) }), icon: 'lock' };
+        : { id: 'rebirth', label: t('rebirth.progress', { a: summitsDone(d.save), b: goal }), icon: 'lock' };
     },
   };
   return view;

@@ -3,7 +3,7 @@
  * applied to the tables of docs/01a-content.md 2–4 that live in content/<pack>/worlds-spec.json.
  * Pure and deterministic: same input → same JSON byte for byte. worlds.json is never edited by hand.
  */
-import type { Segment, World, WorldZone, WorldsJson, WorldsSpecJson } from '../content/types.ts';
+import type { Segment, World, WorldLayout, WorldZone, WorldsJson, WorldsSpecJson } from '../content/types.ts';
 
 export const GENERATOR_VERSION = 'gen-worlds/1';
 
@@ -47,6 +47,40 @@ export const LAYOUT = {
   eggStandStretch: 7,
 } as const;
 
+/**
+ * Layout `gateSide` (docs/01-gdd.md 16.3), fractions of a stretch and units: the flag in 0–8%, the fun of the stretch in
+ * 10–45% (gifts on the path for now), the rise of 3 units in 45–65%, the cave right beside the gate — its upper edge
+ * `nicheExit` below the gate (2–6), its lower edge within 16 of it — and the gate at 100%. Six zones a mountain.
+ */
+export const GATE_SIDE = {
+  checkpoint: 0.04,
+  pathGifts: [0.12, 0.22, 0.32, 0.42],
+  rampStart: 0.45,
+  rampEnd: 0.65,
+  rise: 3,
+  nicheExit: 3,
+  nicheLength: 10,
+  nicheDepth: 4,
+  decor: 0.8,
+  zones: 6,
+} as const;
+
+/**
+ * Fun of stretch i by turn (docs/01-gdd.md 16.4): i mod 3 = 1 — gifts on the path, 2 — trampoline, 0 — ice slide.
+ * Trampolines and slides come with their segment types (PR-04); until then those stretches get the gift path too.
+ */
+const FUN_BY_TURN = ['slide', 'giftPath', 'jumpPad'] as const;
+const FUN_READY: readonly string[] = ['giftPath'];
+function stretchFun(i: number): (typeof FUN_BY_TURN)[number] {
+  const fun = FUN_BY_TURN[i % 3] ?? 'giftPath';
+  return FUN_READY.includes(fun) ? fun : 'giftPath';
+}
+
+/** Gift zone of stretch i of n (docs/01-gdd.md 5.2, 16.3): classic — two stretches a zone, ⌈i/2⌉; gateSide — ⌈6i/n⌉. */
+export function zoneOfStretch(i: number, n: number, layout: WorldLayout | undefined): number {
+  return layout === 'gateSide' ? Math.ceil((GATE_SIDE.zones * i) / n) : Math.ceil(i / 2);
+}
+
 export interface GenerateInput {
   spec: WorldsSpecJson;
   balance: { coins: { gatePass: number; chest: number } };
@@ -57,14 +91,16 @@ export function generateWorlds({ spec, balance }: GenerateInput): WorldsJson {
   return { schema: 1, generator: GENERATOR_VERSION, worlds };
 }
 
+type SpecMountain = WorldsSpecJson['mountains'][number];
+
 function generateWorld(spec: WorldsSpecJson, balance: GenerateInput['balance'], index: number): World {
   const m = spec.mountains[index - 1];
   if (!m) throw new Error(`generateWorld: no mountain ${index}`);
+  if (spec.layout === 'gateSide') return generateGateSideWorld(spec, balance, index, m);
   const d = m.stretch;
   const n = m.walls.length;
   const camp = spec.campLength;
   const zSummit = camp + n * d;
-  const length = zSummit + spec.summitLength;
   const zoneCount = Math.ceil(n / 2);
   const zones: WorldZone[] = [];
   for (let k = 1; k <= zoneCount; k++) {
@@ -81,16 +117,7 @@ function generateWorld(spec: WorldsSpecJson, balance: GenerateInput['balance'], 
   const seg: Segment[] = [];
   let y = 0;
 
-  // Camp (docs/01-gdd.md 5.2): spawn at spawnZ facing up the slope, treadmill of cave 1, egg stand, arrows, decor.
-  seg.push({ type: 'floor', z: 0, length: camp, y: 0 });
-  seg.push({ type: 'treadmill', z: spec.spawnZ - 10, x: -8, y: 0, length: 10, width: 6, mult: m.campTreadmill ?? firstWall.treadmill });
-  seg.push({ type: 'eggStand', z: 30, x: 8, y: 0, egg: m.egg });
-  seg.push({ type: 'decor', z: 6, x: -11, y: 0, kind: 'tent' });
-  seg.push({ type: 'decor', z: 12, x: 11, y: 0, kind: 'tent' });
-  seg.push({ type: 'decor', z: 34, x: -12, y: 0, kind: 'tree' });
-  seg.push({ type: 'decor', z: 36, x: 12, y: 0, kind: 'tree' });
-  seg.push({ type: 'decor', z: 8, x: 4, y: 0, kind: 'snowman' });
-  for (let a = 0; a < 3; a++) seg.push({ type: 'decor', z: 26 + a * 4, x: 0, y: 0, kind: 'arrow' });
+  pushCamp(seg, spec, m, firstWall.treadmill);
 
   for (let i = 1; i <= n; i++) {
     const wall = m.walls[i - 1] as { requires: number; treadmill: number };
@@ -147,24 +174,57 @@ function generateWorld(spec: WorldsSpecJson, balance: GenerateInput['balance'], 
     y = yTop;
   }
 
-  // Summit (docs/01-gdd.md 5.2): chest, portal, treadmill ×1.5 of cave 12 rounded up along the series, safe zone.
+  pushSummit(seg, spec, balance, index, zSummit, y, n, zones, lastWall.treadmill);
+  return worldOf(spec, m, index, zSummit, zones, seg);
+}
+
+/** Camp (docs/01-gdd.md 5.2): spawn at spawnZ facing up the slope, treadmill of cave 1, egg stand, arrows, decor. */
+function pushCamp(seg: Segment[], spec: WorldsSpecJson, m: SpecMountain, firstTreadmill: number): void {
+  const camp = spec.campLength;
+  seg.push({ type: 'floor', z: 0, length: camp, y: 0 });
+  seg.push({ type: 'treadmill', z: spec.spawnZ - 10, x: -8, y: 0, length: 10, width: 6, mult: m.campTreadmill ?? firstTreadmill });
+  seg.push({ type: 'eggStand', z: 30, x: 8, y: 0, egg: m.egg });
+  seg.push({ type: 'decor', z: 6, x: -11, y: 0, kind: 'tent' });
+  seg.push({ type: 'decor', z: 12, x: 11, y: 0, kind: 'tent' });
+  seg.push({ type: 'decor', z: 34, x: -12, y: 0, kind: 'tree' });
+  seg.push({ type: 'decor', z: 36, x: 12, y: 0, kind: 'tree' });
+  seg.push({ type: 'decor', z: 8, x: 4, y: 0, kind: 'snowman' });
+  for (let a = 0; a < 3; a++) seg.push({ type: 'decor', z: 26 + a * 4, x: 0, y: 0, kind: 'arrow' });
+}
+
+/** Summit (docs/01-gdd.md 5.2): chest, portal, treadmill ×1.5 of the last cave rounded up along the series, safe zone. */
+function pushSummit(
+  seg: Segment[],
+  spec: WorldsSpecJson,
+  balance: GenerateInput['balance'],
+  index: number,
+  zSummit: number,
+  y: number,
+  n: number,
+  zones: WorldZone[],
+  lastTreadmill: number,
+): void {
   const lastZone = zones[zones.length - 1] as WorldZone;
   seg.push({ type: 'floor', z: zSummit, length: spec.summitLength, y });
   seg.push({ type: 'summit', z: zSummit, y, wall: n });
   seg.push({ type: 'checkpoint', z: zSummit + 3, y, zone: lastZone.k, rarity: lastZone.rarity, wall: n });
-  seg.push({ type: 'treadmill', z: zSummit + 12, x: -8, y, length: 10, width: 6, mult: ceilToSeries(1.5 * lastWall.treadmill) });
+  seg.push({ type: 'treadmill', z: zSummit + 12, x: -8, y, length: 10, width: 6, mult: ceilToSeries(1.5 * lastTreadmill) });
   seg.push({ type: 'chest', z: zSummit + 30, x: 0, y, coins: balance.coins.chest * lastZone.gift });
   seg.push({ type: 'portal', z: zSummit + 50, x: 0, y, next: index + 1 <= spec.mountains.length ? index + 1 : null });
+}
 
-  return {
+function worldOf(spec: WorldsSpecJson, m: SpecMountain, index: number, zSummit: number, zones: WorldZone[], seg: Segment[]): World {
+  const camp = spec.campLength;
+  const length = zSummit + spec.summitLength;
+  const world: World = {
     id: m.id,
     index,
     length,
     width: spec.width,
     spawnZ: spec.spawnZ,
     egg: m.egg,
-    stretch: d,
-    wallCount: n,
+    stretch: m.stretch,
+    wallCount: m.walls.length,
     safeZones: [
       [0, camp],
       [zSummit, length],
@@ -183,6 +243,92 @@ function generateWorld(spec: WorldsSpecJson, balance: GenerateInput['balance'], 
     segments: seg,
     treadmillMult: 1,
   };
+  if (spec.layout === 'gateSide') world.layout = 'gateSide';
+  if (m.look !== undefined) world.look = m.look;
+  return world;
+}
+
+/**
+ * Mountain of the layout `gateSide` (docs/01-gdd.md 16.3; GATE_SIDE): camp and summit as in 5.2; stretch i of n —
+ * flag, fun of the stretch, rise, the cave with the treadmill of gate i right beside it (odd stretches left, even
+ * right), gate i. Six zones: stretch i is in zone ⌈6i/n⌉. Egg stands: the camp and the stretch behind gate ⌈n/2⌉.
+ */
+function generateGateSideWorld(spec: WorldsSpecJson, balance: GenerateInput['balance'], index: number, m: SpecMountain): World {
+  const L = GATE_SIDE;
+  const d = m.stretch;
+  const n = m.walls.length;
+  const camp = spec.campLength;
+  const zSummit = camp + n * d;
+  if (n < L.zones) throw new Error(`${m.id}: layout gateSide needs at least ${L.zones} gates`);
+  const zones: WorldZone[] = [];
+  for (let k = 1; k <= L.zones; k++) {
+    const rarity = spec.rarities[k - 1];
+    const gift = m.gifts[k - 1];
+    if (rarity === undefined || gift === undefined) throw new Error(`${m.id}: zone ${k} has no rarity or gift value`);
+    const first = Math.floor(((k - 1) * n) / L.zones) + 1;
+    const last = Math.floor((k * n) / L.zones);
+    zones.push({ k, rarity, gift, zStart: camp + (first - 1) * d, zEnd: Math.min(camp + last * d, zSummit) });
+  }
+  const zoneOf = (i: number): WorldZone => zones[zoneOfStretch(i, n, 'gateSide') - 1] as WorldZone;
+  const firstWall = m.walls[0];
+  const lastWall = m.walls[n - 1];
+  if (!firstWall || !lastWall) throw new Error(`${m.id}: needs at least one wall`);
+  const eggStretch = Math.ceil(n / 2) + 1;
+
+  const seg: Segment[] = [];
+  let y = 0;
+  pushCamp(seg, spec, m, firstWall.treadmill);
+
+  for (let i = 1; i <= n; i++) {
+    const wall = m.walls[i - 1] as { requires: number; treadmill: number };
+    const z0 = camp + (i - 1) * d;
+    const zGate = z0 + d;
+    const zone = zoneOf(i);
+    if (i === 1 || zoneOf(i - 1).k !== zone.k) seg.push({ type: 'zoneArch', z: z0, y, zone: zone.k, rarity: zone.rarity });
+    if (i >= 2) seg.push({ type: 'checkpoint', z: round3(z0 + L.checkpoint * d), y, zone: zone.k, rarity: zone.rarity, wall: i - 1 });
+    if (i === eggStretch) seg.push({ type: 'eggStand', z: round3(z0 + L.checkpoint * d + 4), x: 8, y, egg: m.egg });
+
+    const zRamp = round3(z0 + L.rampStart * d);
+    const zTop = round3(z0 + L.rampEnd * d);
+    seg.push({ type: 'floor', z: z0, length: round3(zRamp - z0), y });
+    seg.push({ type: 'ramp', z: zRamp, length: round3(zTop - zRamp), y, rise: L.rise });
+    const yTop = y + L.rise;
+    seg.push({ type: 'floor', z: zTop, length: round3(zGate - zTop), y: yTop });
+
+    if (stretchFun(i) === 'giftPath') {
+      L.pathGifts.forEach((f, g) => {
+        seg.push({ type: 'gift', z: round3(z0 + f * d), x: 0, y, height: 0, zone: zone.k, rarity: zone.rarity, coins: zone.gift, n: g + 1, path: true });
+      });
+    }
+    seg.push({
+      type: 'niche',
+      z: round3(zGate - L.nicheExit - L.nicheLength / 2),
+      y: yTop,
+      side: i % 2 === 1 ? 'left' : 'right',
+      length: L.nicheLength,
+      depth: L.nicheDepth,
+      treadmill: wall.treadmill,
+      zone: zone.k,
+      stretch: i,
+    });
+    seg.push({ type: 'decor', z: round3(z0 + L.decor * d), x: i % 2 === 1 ? 12 : -12, y: yTop, kind: 'tree' });
+    seg.push({
+      type: 'gate',
+      z: zGate,
+      y: yTop,
+      requires: wall.requires,
+      reward: { coins: balance.coins.gatePass * zone.gift },
+      height: LAYOUT.gateHeight,
+      signHeight: LAYOUT.gateSignHeight,
+      wall: i,
+      zone: zone.k,
+      rarity: zone.rarity,
+    });
+    y = yTop;
+  }
+
+  pushSummit(seg, spec, balance, index, zSummit, y, n, zones, lastWall.treadmill);
+  return worldOf(spec, m, index, zSummit, zones, seg);
 }
 
 /** Stable JSON: 2 spaces, trailing newline; key order is the insertion order above. */

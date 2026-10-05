@@ -4,6 +4,7 @@ import { newerSave, parseSave } from '../meta/save.ts';
 import { log } from '../core/log.ts';
 import { createStorage, type KeyValueStore } from './storage.ts';
 import { SaveQueue } from './save-queue.ts';
+import { joinCloud, mirrorKey, splitCloud } from './pace-save.ts';
 import { mapLang, type DeviceType, type Lang, type LeaderEntry, type Platform, type PlatformOptions } from './types.ts';
 
 /** How long YaGames.init() may take before the `sdk_init_slow` event (docs/02-tech.md 11.2); init itself is never cut. */
@@ -36,17 +37,21 @@ export class YandexPlatform implements Platform {
   private pauseCbs: Array<() => void> = [];
   private resumeCbs: Array<() => void> = [];
   /** Cloud writes (11.6): debounce, token bucket and retries on the platform clock. */
-  readonly cloud = new SaveQueue<SaveData>({
+  readonly cloud = new SaveQueue<Record<string, unknown>>({
     now: () => this.serverTime(),
     write: (data) => {
       if (!this.player) return Promise.resolve();
-      return this.player.setData(data as unknown as Record<string, unknown>, true).catch((err: unknown) => {
+      return this.player.setData(data, true).catch((err: unknown) => {
         log.warn('setData failed, kept locally', err);
         throw err;
       });
     },
   });
   private reviewAsked = false;
+  /** Cloud data of the other paces as loaded: every write carries it untouched (src/platform/pace-save.ts). A pace
+   * slot writes to the cloud only after its getData came back, so a failed read never wipes the classic save there. */
+  private cloudRest: Record<string, unknown> = {};
+  private cloudRead = false;
 
   constructor(
     private readonly opts: PlatformOptions,
@@ -216,19 +221,22 @@ export class YandexPlatform implements Platform {
     let cloud: SaveData | null = null;
     if (this.player) {
       try {
-        cloud = parseSave(await this.player.getData());
+        const split = splitCloud(await this.player.getData(), this.opts.saveSlot);
+        this.cloudRest = split.rest;
+        this.cloudRead = true;
+        cloud = parseSave(split.mine);
       } catch (err) {
         log.warn('getData failed', err);
       }
     }
     // Broken data in one source → the other one; both broken → a new player (11.6, SAV-05).
-    return newerSave(cloud, parseSave(this.store.getJSON('save')));
+    return newerSave(cloud, parseSave(this.store.getJSON(mirrorKey(this.opts.saveSlot))));
   }
 
   markDirty(data: SaveData, opts?: { flush?: boolean }): void {
     // Every change goes to the mirror at once: F5 right after an action loses nothing (11.6, SAV-01).
-    this.store.setJSON('save', data);
-    if (this.player) this.cloud.push(data, opts?.flush ?? false);
+    this.store.setJSON(mirrorKey(this.opts.saveSlot), data);
+    if (this.player && (this.cloudRead || !this.opts.saveSlot)) this.cloud.push(joinCloud(this.cloudRest, data, this.opts.saveSlot), opts?.flush ?? false);
   }
 
   async flushNow(): Promise<void> {

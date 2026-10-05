@@ -10,7 +10,7 @@ import type { LevelData } from '../level/types.ts';
 import type { BalanceJson, Curve, TuningJson } from '../content/types.ts';
 import { moveSpeed } from './effects/moveSpeed.ts';
 import { createStepTracker, type StepGain, type StepTracker } from './steps.ts';
-import { gateIsOpen, gateRequirement } from './gates.ts';
+import { gateIsOpen, gateRequirement, type WallCount } from './gates.ts';
 import { scaled } from './economy.ts';
 import { giftsFromLevel, touchesGift, type Gift } from './gifts.ts';
 import { createCollisionWorld, type CollisionWorld } from './collision.ts';
@@ -148,6 +148,8 @@ export interface SimOptions {
    * every wall the stat reaches stands open from the start, the hero stands at the flag behind `frontierWall`.
    */
   resume?: { frontierWall: number } | undefined;
+  /** Walls before this mountain and in all (worlds.json): the through number of lateEase; absent — 12 a mountain, 60. */
+  walls?: WallCount | undefined;
 }
 
 export const RESPAWN_FADE_TICKS = 18;
@@ -338,7 +340,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     },
     gateRequirement(index) {
       const gate = level.gates[index];
-      return gate ? gateRequirement(gate.requires, level.worldIndex, gate.index, tier, opts.balance.rebirth) : Infinity;
+      return gate ? gateRequirement(gate.requires, level.worldIndex, gate.index, tier, opts.balance.rebirth, opts.walls) : Infinity;
     },
     treadmillAt() {
       const belt = beltAt(beltList, hero.pos.x, hero.pos.y, hero.pos.z);

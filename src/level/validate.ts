@@ -9,6 +9,8 @@ import { summitTrophies } from '../sim/economy.ts';
 import { LEADERBOARD_SCORES } from '../meta/trophies.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 import { buildLevel } from './builder.ts';
+import { GATE_SIDE, zoneOfStretch } from './generate.ts';
+import { CLASSIC_PACE } from '../content/pace.ts';
 
 export const PACK_FILES = [
   'game.json',
@@ -57,6 +59,8 @@ export const SEGMENT_TYPES = [
   'floor', 'wall', 'gate', 'niche', 'gap', 'ramp', 'steps', 'treadmill', 'checkpoint', 'coins', 'chest',
   'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit',
 ] as const;
+/** Mountain layouts of the generator (docs/01-gdd.md 5.2, 16.3). */
+export const WORLD_LAYOUTS = ['classic', 'gateSide'] as const;
 /** docs/02-tech.md 5.3: in game 1 every fx field has exactly one known value. */
 export const FX_VALUES = {
   caught: ['ball'],
@@ -91,6 +95,7 @@ const gameSchema = v.object({
       v.object({ path: v.string(), min: v.optional(v.number()), max: v.optional(v.number()), values: v.optional(v.array(v.string())) }),
     ),
   ),
+  pace: v.optional(id),
 });
 
 const themeSchema = v.object({
@@ -210,6 +215,8 @@ const balanceSchema = v.object({
     portalIdleSec: positive,
     portalMax: v.pipe(v.number(), v.integer(), v.minValue(0)),
   }),
+  // Targets of sim:balance --fit for a pace (docs/01-gdd.md 16.8): the game never reads them.
+  sim: v.optional(v.object({ mountainMin: v.pipe(v.array(positive), v.minLength(1)), gateCurve: positive })),
 });
 
 const tuningSchema = v.object({
@@ -308,6 +315,8 @@ const worldSchema = v.object({
   zones: v.pipe(v.array(v.object({ k: v.pipe(v.number(), v.integer()), rarity: id, gift: positive, zStart: nonNeg, zEnd: nonNeg })), v.minLength(1)),
   segments: v.pipe(v.array(segmentSchema), v.minLength(1)),
   treadmillMult: positive,
+  layout: v.optional(v.picklist(WORLD_LAYOUTS)),
+  look: v.optional(id),
 });
 
 const worldsSchema = v.object({ schema: v.literal(1), generator: v.string(), worlds: v.pipe(v.array(worldSchema), v.minLength(1)) });
@@ -326,10 +335,12 @@ const specSchema = v.object({
     firstWaveScripted: v.boolean(),
   }),
   rarities: v.pipe(v.array(id), v.minLength(1)),
+  layout: v.optional(v.picklist(WORLD_LAYOUTS)),
   mountains: v.pipe(
     v.array(
       v.object({
         id: id,
+        look: v.optional(id),
         stretch: positive,
         intervalSec: positive,
         firstIntervalSec: v.optional(positive),
@@ -467,7 +478,8 @@ export function validateTuning(data: unknown): ValidationResult {
   return { ok: errors.length === 0, errors };
 }
 
-export function validatePack(files: PackFiles): ValidationResult {
+/** `paces`: the folders of content/<pack>/pace/ (docs/01-gdd.md 16.1); given, game.json `pace` must name classic or one of them. */
+export function validatePack(files: PackFiles, opts: { paces?: readonly string[] } = {}): ValidationResult {
   const errors: string[] = [];
   for (const file of PACK_FILES) {
     if (files[file] === undefined) errors.push(`${file}: file is missing`);
@@ -487,6 +499,8 @@ export function validatePack(files: PackFiles): ValidationResult {
   // Stat effect ↔ its curve (docs/01a-content.md 14.2).
   if (game.stat.effect === 'jumpPower' && !balance.jumpCurve) errors.push('balance.json: jumpCurve — required for stat.effect "jumpPower"');
   if (game.threat.bonus && !theme.bonus) errors.push('theme.json: bonus — required when game.json has threat.bonus');
+  if (opts.paces && game.pace !== undefined && game.pace !== CLASSIC_PACE && !opts.paces.includes(game.pace))
+    errors.push(`game.json: pace — "${game.pace}" is neither "${CLASSIC_PACE}" nor a folder of pace/ (${opts.paces.join(', ') || 'none'})`);
 
   // i18n parity: same keys, same placeholders (docs/02-tech.md 5.4).
   const ruKeys = Object.keys(ru).sort();
@@ -721,8 +735,9 @@ export function validateWorlds(worlds: WorldsJson, rarityColors: Record<string, 
       const req = num(g, 'requires');
       if (!(req > lastRequires)) errors.push(`${at}: gate ${gi + 1} — requires ${req} must grow (previous ${lastRequires})`);
       lastRequires = req;
-      const zone = Math.ceil((gi + 1) / 2);
+      const zone = zoneOfStretch(gi + 1, w.wallCount, w.layout);
       if (!w.zones.some((z) => z.k === zone)) errors.push(`${at}: gate ${gi + 1} — zone ${zone} is not described`);
+      if (w.layout === 'gateSide' && num(g, 'zone') !== zone) errors.push(`${at}: gate ${gi + 1} — zone ${num(g, 'zone')}, expected ${zone} (⌈6i/n⌉, docs/01-gdd.md 16.3)`);
     }
     // One cave with a treadmill in every stretch (docs/01-gdd.md 5.2), caves between consecutive gates.
     const camp = w.safeZones[0]?.[1] ?? 0;
@@ -741,7 +756,30 @@ export function validateWorlds(worlds: WorldsJson, rarityColors: Record<string, 
     if (!w.segments.some((s) => s.type === 'chest')) errors.push(`${at}: segments — no chest`);
     if (!w.segments.some((s) => s.type === 'treadmill' && s.z < camp)) errors.push(`${at}: segments — no treadmill in the camp`);
     if (!w.segments.some((s) => s.type === 'eggStand' && s.z < camp)) errors.push(`${at}: segments — no egg stand in the camp`);
+    if (w.layout === 'gateSide') errors.push(...validateGateSide(w, at));
   }
+  return errors;
+}
+
+/** Layout gateSide (docs/01-gdd.md 16.3): the cave of every gate i is right beside it — exit 2–6 units below the gate, lower edge within 16. */
+export const GATE_SIDE_EXIT: [number, number] = [2, 6];
+export const GATE_SIDE_REACH = 16;
+
+function validateGateSide(w: World, at: string): string[] {
+  const errors: string[] = [];
+  const gates = w.segments.filter((s) => s.type === 'gate').sort((a, b) => a.z - b.z);
+  const niches = w.segments.filter((s) => s.type === 'niche');
+  gates.forEach((g, gi) => {
+    const cave = niches.find((n) => num(n, 'stretch') === gi + 1);
+    if (!cave) {
+      errors.push(`${at}: gate ${gi + 1} — no cave with a treadmill beside it (layout gateSide)`);
+      return;
+    }
+    const exit = g.z - (cave.z + num(cave, 'length') / 2);
+    const reach = g.z - (cave.z - num(cave, 'length') / 2);
+    if (exit < GATE_SIDE_EXIT[0] || exit > GATE_SIDE_EXIT[1]) errors.push(`${at}: gate ${gi + 1} — cave exit ${exit} units below the gate, expected ${GATE_SIDE_EXIT[0]}–${GATE_SIDE_EXIT[1]} (docs/01-gdd.md 16.3)`);
+    if (reach > GATE_SIDE_REACH) errors.push(`${at}: gate ${gi + 1} — lower edge of the cave ${reach} units below the gate, above ${GATE_SIDE_REACH} (docs/01-gdd.md 16.3)`);
+  });
   return errors;
 }
 
@@ -770,14 +808,21 @@ export function validateContentCount(worlds: WorldsJson, spec: WorldsSpecJson, p
       if (g && num(g, 'requires') !== wall.requires) errors.push(`${at}: wall ${i + 1} — requires ${num(g, 'requires')}, worlds-spec.json has ${wall.requires}`);
       if (n && num(n, 'treadmill') !== wall.treadmill) errors.push(`${at}: cave ${i + 1} — treadmill ×${num(n, 'treadmill')}, worlds-spec.json has ×${wall.treadmill}`);
     }
-    const zoneCount = Math.ceil(m.walls.length / 2);
-    if (w.zones.length !== zoneCount) errors.push(`${at}: zones — ${w.zones.length}, expected ${zoneCount} (two stretches each)`);
+    const gateSide = spec.layout === 'gateSide';
+    const zoneCount = gateSide ? GATE_SIDE.zones : Math.ceil(m.walls.length / 2);
+    if (w.zones.length !== zoneCount) errors.push(`${at}: zones — ${w.zones.length}, expected ${zoneCount} (${gateSide ? 'six a mountain, docs/01-gdd.md 16.3' : 'two stretches each'})`);
     const gifts = w.segments.filter((s) => s.type === 'gift');
     for (const zone of w.zones) {
-      // A zone is two stretches; the last one of an odd count has one, and half the places (docs/01a-content.md 4).
-      const want = (perZone * Math.min(2, m.walls.length - 2 * (zone.k - 1))) / 2;
       const inZone = gifts.filter((s) => num(s, 'zone') === zone.k);
-      if (inZone.length !== want) errors.push(`${at}: zone ${zone.k} — ${inZone.length} gift places, expected ${want} (balance.json gifts.perZone ${perZone})`);
+      if (gateSide) {
+        // Six zones of ⌈6i/n⌉ (docs/01-gdd.md 16.3): every stretch of the zone has its fun with gifts (16.4).
+        const stretches = m.walls.filter((_, i) => zoneOfStretch(i + 1, m.walls.length, 'gateSide') === zone.k).length;
+        if (inZone.length < stretches) errors.push(`${at}: zone ${zone.k} — ${inZone.length} gift places for ${stretches} stretches`);
+      } else {
+        // A zone is two stretches; the last one of an odd count has one, and half the places (docs/01a-content.md 4).
+        const want = (perZone * Math.min(2, m.walls.length - 2 * (zone.k - 1))) / 2;
+        if (inZone.length !== want) errors.push(`${at}: zone ${zone.k} — ${inZone.length} gift places, expected ${want} (balance.json gifts.perZone ${perZone})`);
+      }
       if (inZone.some((s) => num(s, 'coins') !== m.gifts[zone.k - 1])) errors.push(`${at}: zone ${zone.k} — gift coins differ from worlds-spec.json (${m.gifts[zone.k - 1]})`);
     }
     for (const key of ['intervalSec', 'warnSec', 'speed'] as const)

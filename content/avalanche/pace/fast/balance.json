@@ -1,0 +1,6 @@
+{
+  "coins": { "gatePass": 1 },
+  "ftue": { "scriptedWaveWall": 7 },
+  "rebirth": { "unlock": "summitWorld10", "lateEase": { "fromWall": 118 } },
+  "sim": { "mountainMin": [1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4, 4.8], "gateCurve": 1.3 }
+}

@@ -105,7 +105,7 @@ test.describe('core HUD', () => {
       expect(texts).toEqual({
         value: '0',
         per: fill(ru['hud.perStep']!, { n: 1 }),
-        mountain: fill(ru['hud.mountain']!, { a: 1, b: 0 }),
+        mountain: fill(ru['hud.mountain']!, { a: 1, b: 0, c: 12 }),
         goal: fill(ru['hud.goal.wall']!, { n: 20 }),
         goalNum: '0/20',
       });
@@ -138,7 +138,7 @@ test.describe('core HUD', () => {
         blink: document.querySelectorAll('.hud-mcave.blink').length,
         wave: document.querySelector('.hud-mountain-wave.shown') !== null,
       }));
-      expect(after.mountain).toBe(fill(ru['hud.mountain']!, { a: 1, b: 3 }));
+      expect(after.mountain).toBe(fill(ru['hud.mountain']!, { a: 1, b: 3, c: 12 }));
       expect(after.goal).toBe(fill(ru['hud.goal.wall']!, { n: '2K' }));
       expect(after.blink).toBe(1);
       expect(after.wave).toBe(true);
@@ -157,7 +157,7 @@ test.describe('core HUD', () => {
       goal: document.querySelector('.hud-goal-text')?.textContent,
     }));
     expect(texts.value).toBe('1.23K');
-    expect(texts.mountain).toBe(fill(en['hud.mountain']!, { a: 1, b: 3 }));
+    expect(texts.mountain).toBe(fill(en['hud.mountain']!, { a: 1, b: 3, c: 12 }));
     expect(texts.goal).toBe(en['hud.goal.open']);
     await waitTicks(page, 130);
     expect(await page.evaluate(() => document.querySelector('.hud-goal-text')?.textContent)).toBe(fill(en['hud.goal.wall']!, { n: '2K' }));

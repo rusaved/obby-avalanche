@@ -4,7 +4,7 @@
   "hud.perStep": "+{n} per step",
   "hud.coins": "Coins",
   "hud.trophies": "Trophies",
-  "hud.mountain": "Mountain {a} · {b}/12",
+  "hud.mountain": "Mountain {a} · {b}/{c}",
   "hud.goal.wall": "Wall {n}",
   "hud.goal.open": "Wall open!",
   "hud.goal.summit": "To the summit!",
@@ -236,8 +236,8 @@
   "rebirth.higher": "Mountains get higher",
   "rebirth.reward": "Tier reward",
   "rebirth.spendHint": "Spend coins on eggs before they reset",
-  "rebirth.locked": "Reach the top of mountain 5",
-  "rebirth.progress": "Mountain {a}/5",
+  "rebirth.locked": "Reach the top of mountain {n}",
+  "rebirth.progress": "Mountain {a}/{b}",
   "allDone.title": "All mountains cleared!",
   "allDone.text": "Rebirth to make every step ×3, or stay on the summit",
   "btn.later": "Later",
@@ -303,5 +303,10 @@
   "world.pass": "Ice Pass",
   "world.canyon": "Frost Canyon",
   "world.blizzard": "Blizzard Peak",
-  "world.aurora": "Aurora Summit"
+  "world.aurora": "Aurora Summit",
+  "world.pines": "Pine Hill",
+  "world.falls": "Frozen Falls",
+  "world.crystal": "Crystal Canyon",
+  "world.clouds": "Cloud Peak",
+  "world.stars": "Starry Summit"
 }

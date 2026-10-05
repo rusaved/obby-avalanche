@@ -37,6 +37,8 @@ export interface Platform {
 export interface PlatformOptions {
   /** Pack id: prefix of every localStorage key (docs/02-tech.md 4.4). */
   packId: string;
+  /** Save of a pace other than classic (docs/01-gdd.md 16.1; src/platform/pace-save.ts); absent — the classic save. */
+  saveSlot?: string | undefined;
   /** Leaderboard name in the Yandex console; empty → leaderboard calls are no-ops. */
   leaderboardName: string;
   track: (name: string, params?: Record<string, unknown>) => void;
