@@ -21,7 +21,10 @@
  * intervalSec and the unrounded treadmill curve of the reference (the data keep the rounded one, docs/01a-content.md 3).
  * With it the port repeats the reference wall by wall (column «Бот модели» of docs/01a-content.md 3).
  * `fit` — the inverse run of the reference for `sim:balance --fit`: a wall without a number opens at its target second and
- * gets the stat of the bot × `FIT_SHARE`, rounded to the «nice» row (docs/01-gdd.md 8.5).
+ * gets the stat of the bot × `FIT_SHARE`, rounded to the «nice» row (docs/01-gdd.md 8.5) or the row of the pace.
+ * Gifts on the path (`path: true`, docs/01-gdd.md 16.4, 16.8: the path, the slide, over the trampoline) are taken on the
+ * run with no time lost, each once as the hero walks over it, again only after a wave is gone and the hero passes it
+ * again; a mountain with no other gifts makes no detours for gifts. The slide and the trampoline cost no time here.
  */
 import type { AurasJson, BalanceJson, EggsJson, GameJson, PetsJson, Reward, Segment, TrailsJson, TuningJson, World } from '../src/content/types.ts';
 import { moveSpeed } from '../src/sim/effects/moveSpeed.ts';
@@ -102,7 +105,7 @@ export interface CycleOpts {
   /** The assumptions of balance-model.pl instead of the game ones (see the header). */
   reference?: boolean;
   /** Inverse run (sim:balance --fit): walls after `keep` get their number at `targetSec[p − 1]` (second of the mountain). */
-  fit?: { keep: number; targetSec: number[] };
+  fit?: { keep: number; targetSec: number[]; round?: Rounding };
   /** `wallScale[n]` to try instead of the table (the bisection of sim:balance --fit). */
   wallScale?: number;
 }
@@ -166,6 +169,33 @@ export function up(x: number): number {
   const e = 10 ** Math.floor(Math.log10(x));
   for (const s of NICE) if (s * e > x * 1.0001) return s * e;
   return 10 * e;
+}
+
+/** Rounding of the fitted requirements: the nearest number of a row and the next one above (strictly greater). */
+export interface Rounding {
+  near: (x: number) => number;
+  up: (x: number) => number;
+}
+
+/** The «nice» row of the reference (docs/01-gdd.md 8.5). */
+export const NICE_ROUNDING: Rounding = { near: nice, up };
+
+/**
+ * `digits` significant digits (pace fast, docs/01-gdd.md 16.8: the nice row steps ×1.2–1.33, coarser than the ×1.11 a gate
+ * of 195): below 10 — the nearest integer, as `nice`; `up` — the next number of the row above x.
+ */
+export function sigRounding(digits: number): Rounding {
+  const unit = (x: number): number => (x < 10 ? 1 : 10 ** (Math.floor(Math.log10(x)) - digits + 1));
+  const fix = (x: number): number => Number(x.toPrecision(15));
+  return {
+    near: (x) => fix(Math.floor(x / unit(x) + 0.5) * unit(x)),
+    up: (x) => {
+      const u = unit(x);
+      let y = fix((Math.floor(x / u + 1e-9) + 1) * u);
+      if (y <= x) y = fix(y + unit(y));
+      return y;
+    },
+  };
 }
 
 /** `wallScale[n]`, after the table × `wallScaleGrowth` per tier (docs/01-gdd.md 8.4). */
@@ -286,9 +316,23 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
     const lastGateZ = gates[gates.length - 1]?.z ?? world.length;
     const zEnd = lastGateZ + TO_PORTAL;
     const before = wallsPerMountain.slice(0, w - 1).reduce((a, b) => a + b, 0);
-    const giftsAll = world.segments.filter((s) => s.type === 'gift');
+    const giftsAll = world.segments.filter((s) => s.type === 'gift' && s['path'] !== true);
     const groundShare = giftsAll.length ? giftsAll.filter((s) => num(s, 'height') === 0).length / giftsAll.length : 1;
-    const giftsPerZone = lazy ? Math.round(balance.gifts.perZone * groundShare) : balance.gifts.perZone;
+    // Only gifts off the path cost a detour of GIFT_SEC (classic: perZone after every wave); a mountain of path gifts has none.
+    const perZone = giftsAll.length ? balance.gifts.perZone : 0;
+    const giftsPerZone = lazy ? Math.round(perZone * groundShare) : perZone;
+    // Gifts on the path, bottom up: taken while the hero walks over them, back after a wave is gone (gifts.respawn).
+    const pathGifts = world.segments
+      .filter((s) => s.type === 'gift' && s['path'] === true)
+      .map((s) => ({ z: s.z, coins: num(s, 'coins'), taken: false }))
+      .sort((a, b) => a.z - b.z);
+    const takePath = (from: number, to: number): void => {
+      for (const pg of pathGifts) {
+        if (pg.z <= from || pg.z > to || pg.taken) continue;
+        pg.taken = true;
+        C += pg.coins * Wn;
+      }
+    };
     const scripted = n === 0 && w === 1 && th.firstWaveScripted;
     const tw0 = T;
     let z = world.spawnZ;
@@ -351,6 +395,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
         T += d / v;
         S += (d / stepLen) * g;
         phT -= d / v;
+        takePath(z, to);
         z = to;
       };
       for (;;) {
@@ -391,6 +436,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
             phase = 'idle';
             phT = th.intervalSec;
             giftsLeft = giftsPerZone;
+            for (const pg of pathGifts) pg.taken = false;
             if (caughtThisWave === 0 || isScriptedWave) C += balance.coins.waveSurvived * gift;
             if (carrying && bonus && caughtThisWave === 0) {
               C += bonus.mult * gift;
@@ -411,6 +457,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
           S += (dist / stepLen) * g;
           T += Math.max(MIN_RUN_SEC, dist / v);
           exposedMove(gz + PAST_WALL);
+          takePath(z, gz + PAST_WALL);
           z = gz + PAST_WALL;
           C += reward;
           break;
@@ -477,9 +524,10 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
       }
       if (fit) {
         // The reference: gate = nice(stat / W × 0.97), and strictly above the previous one.
-        let x = fitAt !== null ? nice((S / Wn) * FIT_SHARE) : num(gate, 'requires');
+        const round = fit.round ?? NICE_ROUNDING;
+        let x = fitAt !== null ? round.near((S / Wn) * FIT_SHARE) : num(gate, 'requires');
         const prev = fitted[p - 2];
-        if (fitAt !== null && prev !== undefined && x <= prev) x = up(prev);
+        if (fitAt !== null && prev !== undefined && x <= prev) x = round.up(prev);
         fitted[p - 1] = x;
       }
       walls.push({ mountain: w, wall: i, p, sec: T - tw0, total: T, took: T - lastWallT, stat: S, shoe, petMult: petMult(), coins: C });
@@ -592,6 +640,8 @@ export interface FitTargets {
   targetSec: number[];
   /** Target cycle minutes of tiers 1…N. */
   cycleMin: number[];
+  /** Rounding of the fitted walls (default: the «nice» row of the reference). */
+  round?: Rounding;
 }
 
 /**
@@ -604,7 +654,21 @@ export function referenceTargets(wallsPerMountain: number[]): FitTargets | null 
   const mountainSec = [330, 360, 390, 420, 450];
   if (wallsPerMountain.length !== mountainSec.length || wallsPerMountain.some((k) => k !== m1.length)) return null;
   const targetSec = wallsPerMountain.flatMap((k, w) => Array.from({ length: k }, (_, i) => (w === 0 ? m1[i]! : (mountainSec[w]! * (i + 1)) / 12.4)));
-  return { keep: 3, targetSec, cycleMin: [22, 21, 20, 20, 19, 19, 18, 18, 18] };
+  return { keep: 3, targetSec, cycleMin: CYCLE_MIN };
+}
+
+/** Cycle minutes of tiers 1…9 the reference aims at (docs/01a-content.md 9), the same for every pace. */
+export const CYCLE_MIN = [22, 21, 20, 20, 19, 19, 18, 18, 18];
+
+/**
+ * Targets of a pace (docs/01-gdd.md 16.8, balance.json → `sim` of the pace patch): gate i of n of mountain m opens at
+ * second T_m · 60 · (i / n)^gateCurve of the mountain; walls 1…`keep` of mountain 1 stay; the walls are rounded to
+ * `roundDigits` significant digits (the nice row when absent); tiers 1…9 aim at the cycles of the reference.
+ */
+export function paceTargets(sim: NonNullable<BalanceJson['sim']>, wallsPerMountain: number[]): FitTargets | null {
+  if (sim.mountainMin.length !== wallsPerMountain.length) return null;
+  const targetSec = wallsPerMountain.flatMap((k, m) => Array.from({ length: k }, (_, i) => sim.mountainMin[m]! * 60 * ((i + 1) / k) ** sim.gateCurve));
+  return { keep: sim.keep ?? 0, targetSec, cycleMin: CYCLE_MIN, ...(sim.roundDigits ? { round: sigRounding(sim.roundDigits) } : {}) };
 }
 
 export interface FitResult {
@@ -622,9 +686,9 @@ export interface FitResult {
  * `cycleMin` minutes, rounded to the nice row and strictly growing. Prices, multipliers and gifts are not touched.
  */
 export function fitBalance(pack: ModelPack, t: FitTargets, reference = false): FitResult {
-  const { keep, targetSec, cycleMin } = t;
+  const { keep, targetSec, cycleMin, round } = t;
   const tiers = cycleMin.length;
-  const inv = runCycle(pack, { profile: 'greedy', fit: { keep, targetSec }, reference });
+  const inv = runCycle(pack, { profile: 'greedy', fit: { keep, targetSec, ...(round ? { round } : {}) }, reference });
   const walls = inv.fitted;
   const fitted = withWalls(pack, walls);
   const r0 = runCycle(fitted, { profile: 'greedy', reference });

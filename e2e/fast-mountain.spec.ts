@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { test, expect, testState, waitTicks } from './fixtures.ts';
+import { test, expect, mockCalls, testState, waitTicks } from './fixtures.ts';
 import type { TestState } from '../src/test-api/index.ts';
 import fastWorlds from '../content/avalanche/pace/fast/worlds.json' with { type: 'json' };
 
@@ -52,7 +52,8 @@ interface Run {
   standAt: string[];
 }
 
-async function playMountain1(page: Page, realMs: number): Promise<Run> {
+/** `onState` — called with every fresh state of the run (PR-03 watches windows and takes its screenshot there). */
+async function playMountain1(page: Page, realMs: number, onState?: (s: TestState) => Promise<void>): Promise<Run> {
   let plan = '';
   let target: [number, number] = [0, 0];
   const setPlan = async (key: string, s: TestState, points: Array<[number, number] | [number, number, number]>): Promise<void> => {
@@ -101,6 +102,7 @@ async function playMountain1(page: Page, realMs: number): Promise<Run> {
   while (Date.now() < deadline) {
     s = await testState(page);
     if (s.world !== 'slope' || s.window === 'summit') break;
+    if (onState) await onState(s);
     const dt = (s.ticks - lastTick) / 60;
     lastTick = s.ticks;
     const h = s.hero!;
@@ -192,6 +194,57 @@ test('fast pace: the bot plays mountain 1 to the portal within 120 s of game tim
   expect(r.maxDown).toBeLessThanOrEqual(3);
   expect(r.standOffBelt).toBeLessThanOrEqual(1);
   expect(r.gateStandMax).toBeLessThanOrEqual(0.5);
+});
+
+// PR-03: the first 2 minutes of the fast pace (docs/01-gdd.md 16.6) on a fresh save with the same bot (straight up, the
+// belt only at a closed gate): the funnel events of docs/06 on play time, the scripted wave in the cave of gate 7, the
+// egg after «Phew, made it!»; up to 180 s of play no window but «Mountain 1 cleared!» of the summit (16.6) and no
+// interstitial (GDD-02 on fast).
+test('fast pace, first 2 minutes: gate_1 ≤ 8 s, gate_3 ≤ 20 s, the scripted wave in a cave ≤ 50 s, egg after it, gate 8 ≤ 75 s, summit ≤ 120 s; no window or interstitial before 180 s', async ({ page, openGame }) => {
+  test.setTimeout(300_000);
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await openGame('pace=fast&seed=7');
+  let s = await testState(page);
+  expect(s.pace).toBe('fast');
+  expect(s.playSec).toBeLessThan(2);
+  const windows: string[] = [];
+  let shot = false;
+  const r = await playMountain1(page, 240_000, async (st) => {
+    if (st.window && st.window !== 'summit') windows.push(`${st.window} at ${st.playSec.toFixed(1)} s`);
+    // The scripted wave at the cave of gate 7: «Avalanche in N», the arrow, the cave a step aside of the gate.
+    if (!shot && st.wave?.phase === 'warn' && st.wave.scripted) {
+      shot = true;
+      await page.evaluate(() => window.__TEST__!.setTimeScale(1));
+      mkdirSync(EVIDENCE, { recursive: true });
+      await page.screenshot({ path: `${EVIDENCE}/ftue_fast_1920x1080_ru.png` });
+      await page.evaluate((k) => window.__TEST__!.setTimeScale(k), TIME_SCALE);
+    }
+  });
+  const ev = await page.evaluate(() => window.__TEST__!.analyticsPlay());
+  const first = (name: string): number => ev.find((e) => e.name === name)?.playSec ?? Infinity;
+  const funnel = ['gate_1', 'shoes_1', 'gate_3', 'first_wave_survived', 'egg_1', 'treadmill_first'];
+  console.log(`ftue-fast: ${funnel.map((n) => `${n} ${first(n).toFixed(1)} s`).join(', ')}; gate 8 ${r.passSec[7]} s; summit ${r.sec.toFixed(1)} s; gates ${JSON.stringify(r.passSec)}`);
+  expect(shot).toBe(true);
+  expect(first('gate_1')).toBeLessThanOrEqual(8);
+  expect(first('gate_3')).toBeLessThanOrEqual(20);
+  expect(ev.filter((e) => e.name === 'first_wave_survived').map((e) => e.params)).toEqual([{ inShelter: true }]);
+  expect(first('first_wave_survived')).toBeLessThanOrEqual(50);
+  expect(first('egg_1')).toBeGreaterThan(first('first_wave_survived'));
+  expect(first('treadmill_first')).toBeLessThan(Infinity);
+  expect(r.passSec[7]!).toBeLessThanOrEqual(75);
+  expect(r.portal).toBe(true);
+  expect(r.sec).toBeLessThanOrEqual(120);
+  // «Next» on the summit window, then game time up to 180 s of play on mountain 2: nothing opens by itself.
+  await page.locator('[data-role="window"] [data-next]:visible').first().click();
+  await expect.poll(async () => (await testState(page)).world).toBe(worlds[1]!.id);
+  for (s = await testState(page); s.playSec < 179.9; s = await testState(page)) {
+    await page.evaluate((sec) => window.__TEST__!.runSim(sec), Math.min(20, 179.9 - s.playSec));
+    if (s.window) windows.push(`${s.window} at ${s.playSec.toFixed(1)} s`);
+  }
+  s = await testState(page);
+  if (s.window) windows.push(`${s.window} at ${s.playSec.toFixed(1)} s`);
+  expect(windows).toEqual([]);
+  expect(await mockCalls(page, 'adv.showFullscreenAdv')).toBe(0);
 });
 
 test('fast pace: every one of the 10 mountains loads by teleport (camp, middle, summit), draw calls within 60; screenshots', async ({ page, openGame }) => {

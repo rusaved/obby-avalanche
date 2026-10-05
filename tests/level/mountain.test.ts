@@ -117,9 +117,9 @@ describe('mountains 1–5 (M3-05)', () => {
   const of = (w: (typeof worlds.worlds)[number], type: string) => w.segments.filter((s) => s.type === type).sort((a, b) => a.z - b.z);
   // `sim:balance --fit` (docs/01-gdd.md 8.5) moves walls: 01a 3 keeps the game data and the reference beside it (Q-027);
   // every move is in docs/evidence/balance-fit.json.
-  type FitRun = { pack: string; aborted?: string; walls: Array<{ p: number; from: number; to: number }> };
+  type FitRun = { pack: string; pace?: string; aborted?: string; walls: Array<{ p: number; from: number; to: number }> };
   const fitLog = resolve(root, 'docs/evidence/balance-fit.json');
-  const fits = (existsSync(fitLog) ? (JSON.parse(readFileSync(fitLog, 'utf8')) as FitRun[]) : []).filter((r) => r.pack === 'avalanche' && !r.aborted);
+  const fits = (existsSync(fitLog) ? (JSON.parse(readFileSync(fitLog, 'utf8')) as FitRun[]) : []).filter((r) => r.pack === 'avalanche' && !r.pace && !r.aborted);
   const fittedWall = new Map<number, { from: number; to: number }>();
   for (const d of fits.flatMap((r) => r.walls)) fittedWall.set(d.p, { from: fittedWall.get(d.p)?.from ?? d.from, to: d.to });
 

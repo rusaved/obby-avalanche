@@ -221,7 +221,14 @@ const balanceSchema = v.object({
     portalMax: v.pipe(v.number(), v.integer(), v.minValue(0)),
   }),
   // Targets of sim:balance --fit for a pace (docs/01-gdd.md 16.8): the game never reads them.
-  sim: v.optional(v.object({ mountainMin: v.pipe(v.array(positive), v.minLength(1)), gateCurve: positive })),
+  sim: v.optional(
+    v.object({
+      mountainMin: v.pipe(v.array(positive), v.minLength(1)),
+      gateCurve: positive,
+      keep: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
+      roundDigits: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+    }),
+  ),
 });
 
 const tuningSchema = v.object({

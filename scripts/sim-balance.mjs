@@ -6,16 +6,39 @@
 // `--fit` (docs/01-gdd.md 8.5): walls 4…60 and wallScale[1…9] by the procedure of the reference on the pack, written to
 // worlds-spec.json and balance.json (then gen:worlds); not more than FIT_LIMIT runs per milestone, every run with its
 // diff in docs/evidence/balance-fit.json and in balance.txt. `--fit --dry` only prints what a fit would change.
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+// Paces (docs/01-gdd.md 16.8): without `--pace=` every pace of the pack runs (classic and the folders content/<pack>/pace/*),
+// exit 0 — all of them green. Classic — the 10 checks of 8.5, the reference and the gold seeker, docs/evidence/balance.txt;
+// another pace — the checks F1–F10 of 16.8 on its worlds.json and the balance.json patch, docs/evidence/balance-<pace>.txt.
+// `--fit --pace=fast` — the targets of the pace patch (`sim`: mountainMin, gateCurve, keep, roundDigits).
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { cosmeticMults, fitBalance, referenceTargets, runCycle, wallScale, withWalls } from './balance-model.ts';
+import { cosmeticMults, fitBalance, paceTargets, referenceTargets, runCycle, wallScale, withWalls } from './balance-model.ts';
+import { CLASSIC_PACE, mergePatch } from '../src/content/pace.ts';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
 const packName = args.find((a) => a.startsWith('--pack='))?.slice(7) ?? 'avalanche';
-const out = resolve(root, 'docs/evidence/balance.txt');
+const paceArg = args.find((a) => a.startsWith('--pace='))?.slice(7);
+const paceRoot = resolve(root, 'content', packName, 'pace');
+const paces = [CLASSIC_PACE, ...(existsSync(paceRoot) ? readdirSync(paceRoot).filter((d) => existsSync(resolve(paceRoot, d, 'worlds.json'))).sort() : [])];
+if (!paceArg && !args.includes('--fit')) {
+  // Every pace in its own process, one after the other; exit 0 — every pace green.
+  let code = 0;
+  for (const p of paces) {
+    const r = spawnSync(process.execPath, [fileURLToPath(import.meta.url), ...args, `--pace=${p}`], { stdio: 'inherit' });
+    if (r.status !== 0) code = r.status ?? 1;
+  }
+  process.exit(code);
+}
+const pace = paceArg ?? CLASSIC_PACE;
+if (!paces.includes(pace)) {
+  console.error(`sim:balance: the pack ${packName} has no pace «${pace}» (${paces.join(', ')})`);
+  process.exit(2);
+}
+const classic = pace === CLASSIC_PACE;
+const out = resolve(root, classic ? 'docs/evidence/balance.txt' : `docs/evidence/balance-${pace}.txt`);
 const fitLog = resolve(root, 'docs/evidence/balance-fit.json');
 const FIT_LIMIT = 2;
 const SPAM_SEEDS = 20;
@@ -23,23 +46,33 @@ const TIERS = 9;
 
 const t0 = performance.now();
 const packDir = resolve(root, 'content', packName);
+// The data of the pace: worlds-spec.json, worlds.json and the balance.json patch of content/<pack>/pace/<pace>/.
+const paceDir = classic ? packDir : resolve(paceRoot, pace);
 const readPack = () => {
   const read = (f) => JSON.parse(readFileSync(resolve(packDir, f), 'utf8'));
+  const balance = classic ? read('balance.json') : mergePatch(read('balance.json'), JSON.parse(readFileSync(resolve(paceDir, 'balance.json'), 'utf8')));
   return {
     game: read('game.json'),
-    balance: read('balance.json'),
+    balance,
     tuning: read('tuning.json'),
     pets: read('pets.json'),
     eggs: read('eggs.json'),
     trails: read('trails.json'),
     auras: read('auras.json'),
-    worlds: read('worlds.json').worlds,
+    worlds: JSON.parse(readFileSync(resolve(paceDir, 'worlds.json'), 'utf8')).worlds,
   };
 };
 let pack = readPack();
 const wallsOf = (p) =>
   [...p.worlds].sort((a, b) => a.index - b.index).flatMap((w) => w.segments.filter((s) => s.type === 'gate').sort((a, b) => a.z - b.z).map((g) => g.requires));
 const wallsPerMountain = [...pack.worlds].sort((a, b) => a.index - b.index).map((w) => w.segments.filter((s) => s.type === 'gate').length);
+// Walls of classic, gates of a pace (docs/01-gdd.md 16): one, «of one», many, «of many».
+const W = classic ? { one: 'стена', gen: 'стены', many: 'стены', manyGen: 'стен' } : { one: 'ворота', gen: 'ворот', many: 'ворота', manyGen: 'ворот' };
+const where = (p) => {
+  let m = 0;
+  while (m < wallsPerMountain.length - 1 && p > wallsPerMountain[m]) p -= wallsPerMountain[m++];
+  return `гора ${m + 1}, ${W.one} ${p}`;
+};
 
 const SUF = ['', 'K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc'];
 function fmt(x) {
@@ -62,7 +95,7 @@ const median = (xs) => {
 // docs/01a-content.md: the reference columns of section 3 (wall p → requirement, second of the reference bot) and of
 // section 9 (wallScale, cycle), found by the column title — the tables also carry the game data after --fit (Q-027).
 function referenceTables() {
-  if (packName !== 'avalanche') return null;
+  if (packName !== 'avalanche' || !classic) return null;
   const md = readFileSync(resolve(root, 'docs/01a-content.md'), 'utf8');
   const section = (h) => md.slice(md.indexOf(`\n## ${h}.`), md.indexOf('\n## ', md.indexOf(`\n## ${h}.`) + 4));
   const MULT = { '': 1, K: 1e3, M: 1e6, B: 1e9, T: 1e12, Qa: 1e15 };
@@ -113,9 +146,13 @@ function currentMilestone() {
   return (Array.isArray(list) ? list : list.features ?? []).find((f) => !f.passes && !f.deferred)?.milestone ?? 'M?';
 }
 function runFit(dry) {
-  const targets = referenceTargets(wallsPerMountain);
+  const targets = classic ? referenceTargets(wallsPerMountain) : pack.balance.sim ? paceTargets(pack.balance.sim, wallsPerMountain) : null;
   if (!targets) {
-    console.error(`sim:balance --fit: the pack ${packName} has no targets of the reference model (5 mountains × 12 walls)`);
+    console.error(
+      classic
+        ? `sim:balance --fit: the pack ${packName} has no targets of the reference model (5 mountains × 12 walls)`
+        : `sim:balance --fit: the pace ${pace} has no targets (balance.json → sim.mountainMin, one per mountain, and gateCurve)`,
+    );
     process.exit(2);
   }
   const log = existsSync(fitLog) ? JSON.parse(readFileSync(fitLog, 'utf8')) : [];
@@ -130,9 +167,9 @@ function runFit(dry) {
   const f = fitBalance(pack, targets);
   const walls = f.walls.map((to, i) => ({ p: i + 1, from: before[i], to })).filter((d) => d.from !== d.to);
   const scale = f.wallScale.map((to, n) => ({ n, from: scaleBefore[n], to })).filter((d) => d.from !== d.to);
-  const run = { date: new Date().toISOString().slice(0, 10), milestone, pack: packName, walls, wallScale: scale, cycleMin: f.cycleMin.map((m) => Number(m.toFixed(1))) };
-  console.log(`sim:balance --fit${dry ? ' --dry' : ''}: стен изменено ${walls.length}, wallScale — ${scale.length}`);
-  for (const d of walls) console.log(`  стена ${d.p}: ${fmt(d.from)} → ${fmt(d.to)}`);
+  const run = { date: new Date().toISOString().slice(0, 10), milestone, pack: packName, ...(classic ? {} : { pace }), walls, wallScale: scale, cycleMin: f.cycleMin.map((m) => Number(m.toFixed(1))) };
+  console.log(`sim:balance --fit${dry ? ' --dry' : ''}${classic ? '' : ` --pace=${pace}`}: ${classic ? 'стен' : 'ворот'} изменено ${walls.length}, wallScale — ${scale.length}`);
+  for (const d of walls) console.log(`  ${W.one} ${d.p} (${where(d.p)}): ${fmt(d.from)} → ${fmt(d.to)}`);
   for (const d of scale) console.log(`  wallScale[${d.n}]: ${fmt(d.from)} → ${fmt(d.to)}`);
   console.log(`  циклы ступеней 0–${TIERS}, мин: ${run.cycleMin.join(' / ')}`);
   const growing = (xs) => xs.every((x, i) => i === 0 || x > xs[i - 1]);
@@ -142,15 +179,20 @@ function runFit(dry) {
   }
   if (dry) process.exit(0);
   // worlds-spec.json: the «requires» of the walls in order of mountains (the file keeps its formatting).
-  const specFile = resolve(packDir, 'worlds-spec.json');
+  const specFile = resolve(paceDir, 'worlds-spec.json');
   let k = 0;
   const spec = readFileSync(specFile, 'utf8').replace(/"requires": [\d.e+]+/g, () => `"requires": ${f.walls[k++]}`);
   if (k !== f.walls.length) throw new Error(`worlds-spec.json: ${k} walls, the fit has ${f.walls.length}`);
-  const balFile = resolve(packDir, 'balance.json');
-  const worldsFile = resolve(packDir, 'worlds.json');
+  const balFile = resolve(paceDir, 'balance.json');
+  const worldsFile = resolve(paceDir, 'worlds.json');
   const old = [specFile, balFile, worldsFile].map((f) => [f, readFileSync(f, 'utf8')]);
   writeFileSync(specFile, spec);
-  writeFileSync(balFile, readFileSync(balFile, 'utf8').replace(/"wallScale": \[[^\]]*\]/, `"wallScale": [${f.wallScale.join(', ')}]`));
+  const bal = readFileSync(balFile, 'utf8');
+  const scaleJson = `"wallScale": [${f.wallScale.join(', ')}]`;
+  // The patch of a pace may have no wallScale yet: it goes into its «rebirth».
+  const balOut = /"wallScale": \[[^\]]*\]/.test(bal) ? bal.replace(/"wallScale": \[[^\]]*\]/, scaleJson) : bal.replace(/"rebirth": \{/, `"rebirth": { ${scaleJson},`);
+  if (balOut === bal) throw new Error(`${balFile}: no place for wallScale (rebirth)`);
+  writeFileSync(balFile, balOut);
   const gen = spawnSync(process.execPath, [resolve(root, 'scripts/gen-worlds.mjs'), packName], { stdio: 'inherit' });
   if (gen.status !== 0) {
     for (const [file, text] of old) writeFileSync(file, text);
@@ -175,26 +217,28 @@ const spamMed = { sec: median(spam.map((r) => r.sec)), mountains: wallsPerMounta
 const ref = referenceTables();
 
 const checks = [];
-const check = (id, title, ok, detail) => checks.push({ id, title, status: ok ? 'PASS' : 'FAIL', detail });
+const check = (id, title, ok, detail) => checks.push({ id: classic ? id : `F${id}`, title, status: ok ? 'PASS' : 'FAIL', detail });
 const ratioOk = (ms) => ms.every((m, i) => i === 0 || m >= 0.8 * ms[i - 1]);
 const worstRatio = (ms) => Math.min(...ms.slice(1).map((m, i) => m / ms[i]));
 
-// 1. Greedy, tier 0: walls 1 / 3 / 6 of mountain 1 ≤ 10 / 30 / 150 s.
+// Thresholds: classic — docs/01-gdd.md 8.5, checks 1–10; another pace — 16.8, checks F1–F10 (the same checks, its numbers).
+const LIM = classic
+  ? { early: [[1, 10], [3, 30], [6, 150]], m1: [4.5, 5.5], longest: 75, mean: null, shoeMountains: 3, shoeGap: 200, share: 0.3, lazyM1: 8, deadEnd: 600 }
+  : { early: [[1, 5], [3, 12], [5, 25]], m1: [1.0, 1.5], longest: 30, mean: [3, 10], shoeMountains: 5, shoeGap: 150, share: 0.2, lazyM1: 3, deadEnd: 120 };
+const ru = (x) => x.toFixed(1).replace('.', ',');
+const lastWall = wallsPerMountain.reduce((a, b) => a + b, 0);
+// 1. Greedy, tier 0: walls 1 / 3 / 6 of mountain 1 ≤ 10 / 30 / 150 s (fast: gates 1 / 3 / 5 ≤ 5 / 12 / 25 s).
 {
-  const lim = [
-    [1, 10],
-    [3, 30],
-    [6, 150],
-  ];
+  const lim = LIM.early;
   const got = lim.map(([w, l]) => [w, l, greedy.walls.find((r) => r.mountain === 1 && r.wall === w)?.sec ?? Infinity]);
-  check(1, 'жадный, ступень 0: стены 1 / 3 / 6 горы 1 ≤ 10 / 30 / 150 с', got.every(([, l, s]) => s <= l), got.map(([w, l, s]) => `стена ${w} — ${s.toFixed(0)} с (≤ ${l})`).join(', '));
+  check(1, `жадный, ступень 0: ${W.many} ${lim.map(([w]) => w).join(' / ')} горы 1 ≤ ${lim.map(([, l]) => l).join(' / ')} с`, got.every(([, l, s]) => s <= l), got.map(([w, l, s]) => `${W.one} ${w} — ${s.toFixed(0)} с (≤ ${l})`).join(', '));
 }
-// 2. Greedy, tier 0: mountain 1 in 4.5–5.5 min.
+// 2. Greedy, tier 0: mountain 1 in 4.5–5.5 min (fast: 1.0–1.5).
 {
   const m = (greedy.mountains[0] ?? Infinity) / 60;
-  check(2, 'жадный, ступень 0: гора 1 — 4,5–5,5 мин', m >= 4.5 && m <= 5.5, `${m.toFixed(2)} мин`);
+  check(2, `жадный, ступень 0: гора 1 — ${ru(LIM.m1[0])}–${ru(LIM.m1[1])} мин`, m >= LIM.m1[0] && m <= LIM.m1[1], `${m.toFixed(2)} мин`);
 }
-// 3. Greedy, tier 0: mountains 1–5 in 28–34 min; every profile: mountain k ≥ 0.8 × mountain k−1 (egg spammer: medians of 20 seeds).
+// 3. Greedy, tier 0: every mountain in 28–34 min; every profile: mountain k ≥ 0.8 × mountain k−1 (egg spammer: medians of 20 seeds).
 const profiles = [
   ['жадный', greedy.mountains],
   ['ленивый', lazy.mountains],
@@ -205,42 +249,56 @@ const profiles = [
 {
   const m = greedy.sec / 60;
   const ok = m >= 28 && m <= 34 && profiles.every(([, ms]) => ratioOk(ms));
-  check(3, 'ступень 0: жадный, горы 1–5 — 28–34 мин; каждый профиль: гора k ≥ 0,8 × гора k−1', ok, `жадный ${m.toFixed(1)} мин; худшее отношение соседних гор: ${profiles.map(([n, ms]) => `${n} ${worstRatio(ms).toFixed(2)}`).join(', ')}`);
+  check(3, `ступень 0: жадный, горы 1–${wallsPerMountain.length} — 28–34 мин; каждый профиль: гора k ≥ 0,8 × гора k−1`, ok, `жадный ${m.toFixed(1)} мин; худшее отношение соседних гор: ${profiles.map(([n, ms]) => `${n} ${worstRatio(ms).toFixed(2)}`).join(', ')}`);
 }
-// 4. Greedy, tier 0: the longest wall ≤ 75 s.
+// 4. Greedy, tier 0: the longest wall ≤ 75 s (fast: the longest gate ≤ 30 s, the mean of mountains 1–3 ≤ 10 s).
 {
   const longest = greedy.walls.reduce((a, r) => (r.took > a.took ? r : a), greedy.walls[0]);
-  check(4, 'жадный, ступень 0: самая долгая стена ≤ 75 с', Number.isFinite(greedy.sec) && longest.took <= 75, `стена ${longest.mountain}-${longest.wall} — ${longest.took.toFixed(0)} с (все ${greedy.walls.length} стен ступени 0)`);
+  const early = LIM.mean ? greedy.walls.filter((r) => r.mountain <= LIM.mean[0]) : [];
+  const mean = early.length ? early.reduce((a, r) => a + r.took, 0) / early.length : 0;
+  const ok = Number.isFinite(greedy.sec) && longest.took <= LIM.longest && (!LIM.mean || mean <= LIM.mean[1]);
+  check(
+    4,
+    LIM.mean ? `жадный, ступень 0: самые долгие ворота ≤ ${LIM.longest} с; среднее на горах 1–${LIM.mean[0]} ≤ ${LIM.mean[1]} с` : `жадный, ступень 0: самая долгая стена ≤ ${LIM.longest} с`,
+    ok,
+    `${W.one} ${longest.mountain}-${longest.wall} — ${longest.took.toFixed(0)} с (все ${greedy.walls.length} ${W.manyGen} ступени 0)${LIM.mean ? `; среднее на горах 1–${LIM.mean[0]} — ${mean.toFixed(1)} с` : ''}`,
+  );
 }
-// 5. Greedy, tier 0: between shoe purchases on mountains 1–3 ≤ 200 s.
+// 5. Greedy, tier 0: between shoe purchases on mountains 1–3 ≤ 200 s (fast: mountains 1–5 ≤ 150 s).
 {
-  const end3 = greedy.walls.filter((r) => r.mountain <= 3).at(-1)?.total ?? 0;
-  const buys = [0, ...greedy.shoeBuys.filter((t) => t <= end3)];
+  const endAt = greedy.walls.filter((r) => r.mountain <= LIM.shoeMountains).at(-1)?.total ?? 0;
+  const buys = [0, ...greedy.shoeBuys.filter((t) => t <= endAt)];
   const gaps = buys.slice(1).map((t, i) => t - buys[i]);
   const gap = Math.max(...gaps);
-  check(5, 'жадный, ступень 0: между покупками кроссовок на горах 1–3 ≤ 200 с', gap <= 200, `самый долгий промежуток ${gap.toFixed(0)} с (покупок ${gaps.length})`);
+  check(5, `жадный, ступень 0: между покупками кроссовок на горах 1–${LIM.shoeMountains} ≤ ${LIM.shoeGap} с`, gap <= LIM.shoeGap, `самый долгий промежуток ${gap.toFixed(0)} с (покупок ${gaps.length})`);
 }
-// 6. Greedy, tiers 1–9: every cycle 17–23 min; tiers 0–9 in 180–230 min; no mountain longer than 30% of its cycle.
+// 6. Greedy, tiers 1–9: every cycle 17–23 min; tiers 0–9 in 180–230 min; no mountain longer than 30% of its cycle (fast: 20%).
 const total = tiers.reduce((a, r) => a + r.sec, 0) / 60;
 {
   const cyc = tiers.slice(1).map((r) => r.sec / 60);
   const share = Math.max(...tiers.slice(1).flatMap((r) => r.mountains.map((m) => m / r.sec)));
-  const ok = cyc.every((c) => c >= 17 && c <= 23) && total >= 180 && total <= 230 && share <= 0.3;
-  check(6, 'жадный, ступени 1–9: цикл 17–23 мин, сумма 0–9 — 180–230 мин, гора ≤ 30% цикла', ok, `циклы ${cyc.map((c) => c.toFixed(1)).join(' / ')}; сумма ${total.toFixed(0)} мин; самая долгая гора — ${(share * 100).toFixed(0)}% цикла`);
+  const ok = cyc.every((c) => c >= 17 && c <= 23) && total >= 180 && total <= 230 && share <= LIM.share;
+  check(6, `жадный, ступени 1–9: цикл 17–23 мин, сумма 0–9 — 180–230 мин, гора ≤ ${Math.round(LIM.share * 100)}% цикла`, ok, `циклы ${cyc.map((c) => c.toFixed(1)).join(' / ')}; сумма ${total.toFixed(0)} мин; самая долгая гора — ${(share * 100).toFixed(0)}% цикла`);
 }
-// 7. Lazy, tier 0: mountain 1 ≤ 8 min; caught ≤ 40% of waves; never twice in one wave.
+// 7. Lazy, tier 0: mountain 1 ≤ 8 min (fast: 3); caught ≤ 40% of waves; never twice in one wave.
 {
   const m = (lazy1.mountains[0] ?? Infinity) / 60;
   const share = lazy1.normalWaves ? lazy1.caught / lazy1.normalWaves : 0;
-  const ok = m <= 8 && share <= 0.4 && lazy1.doubleCaught === 0;
-  check(7, 'ленивый, ступень 0: гора 1 ≤ 8 мин; поймала ≤ 40% лавин; дважды за лавину — ни разу', ok, `${m.toFixed(2)} мин; поймала ${lazy1.caught} из ${lazy1.normalWaves} обычных лавин (${(share * 100).toFixed(0)}%), проигнорировал ${lazy1.ignoredWaves}; дважды за лавину — ${lazy1.doubleCaught}`);
+  const ok = m <= LIM.lazyM1 && share <= 0.4 && lazy1.doubleCaught === 0;
+  check(7, `ленивый, ступень 0: гора 1 ≤ ${LIM.lazyM1} мин; поймала ≤ 40% лавин; дважды за лавину — ни разу`, ok, `${m.toFixed(2)} мин; поймала ${lazy1.caught} из ${lazy1.normalWaves} обычных лавин (${(share * 100).toFixed(0)}%), проигнорировал ${lazy1.ignoredWaves}; дважды за лавину — ${lazy1.doubleCaught}`);
 }
-// 8. Every profile: no action that needs an ad (the model has none: rewards without «▶ Реклама», no purchases); no dead end.
+// 8. Every profile: no action that needs an ad (the model has none: rewards without «▶ Реклама», no purchases); no dead end
+// (a wall longer than 10 min; fast: a gate longer than 2 min).
 {
   const all = [...tiers, lazy, active, ...spam, ...(gold ? [gold] : [])];
   const worst = Math.max(...all.flatMap((r) => r.walls.map((w) => w.took)));
-  const ok = all.every((r) => Number.isFinite(r.sec) && r.walls.length === wallsPerMountain.reduce((a, b) => a + b, 0)) && worst <= 600;
-  check(8, 'все профили: без рекламы, без «тупиков» (стена > 10 мин)', ok, `${all.length} прогонов (жадный на ступенях 0–${TIERS}, ленивый, активный день, спамер × ${SPAM_SEEDS}${gold ? ', золотоискатель' : ''}) без действий за рекламу; самая долгая стена ${worst.toFixed(0)} с`);
+  const ok = all.every((r) => Number.isFinite(r.sec) && r.walls.length === lastWall) && worst <= LIM.deadEnd;
+  check(
+    8,
+    classic ? 'все профили: без рекламы, без «тупиков» (стена > 10 мин)' : `все профили: без рекламы, ни одних ворот дольше ${LIM.deadEnd / 60} мин`,
+    ok,
+    `${all.length} прогонов (жадный на ступенях 0–${TIERS}, ленивый, активный день, спамер × ${SPAM_SEEDS}${gold ? ', золотоискатель' : ''}) без действий за рекламу; ${classic ? 'самая долгая стена' : 'самые долгие ворота'} ${worst.toFixed(0)} с`,
+  );
 }
 // 9. Tables: walls strictly grow inside every tier (with lateEase), wallScale strictly grows, shoe prices grow, egg chances sum to 1.
 {
@@ -249,7 +307,7 @@ const total = tiers.reduce((a, r) => a + r.sec, 0) / 60;
   const last = base.length;
   for (let n = 0; n <= TIERS; n++) {
     const req = base.map((w, i) => w * wallScale(pack.balance, n) * (n >= 1 && i + 1 >= pack.balance.rebirth.lateEase.fromWall ? 1 - ((1 - pack.balance.rebirth.lateEase.toFactor) * (i + 2 - pack.balance.rebirth.lateEase.fromWall)) / (last - pack.balance.rebirth.lateEase.fromWall + 1) : 1));
-    for (let i = 1; i < req.length; i++) if (!(req[i] > req[i - 1])) bad.push(`ступень ${n}: стена ${i + 1} не больше стены ${i}`);
+    for (let i = 1; i < req.length; i++) if (!(req[i] > req[i - 1])) bad.push(`ступень ${n}: ${W.one} ${i + 1} не больше ${W.gen} ${i}`);
   }
   const ws = pack.balance.rebirth.wallScale;
   for (let i = 1; i < ws.length; i++) if (!(ws[i] > ws[i - 1])) bad.push(`wallScale[${i}] не больше wallScale[${i - 1}]`);
@@ -259,13 +317,13 @@ const total = tiers.reduce((a, r) => a + r.sec, 0) / 60;
     const sum = e.pool.reduce((a, s) => a + s.chance, 0);
     if (Math.abs(sum - 1) > 1e-9) bad.push(`яйцо ${e.id}: шансы в сумме ${sum}`);
   }
-  check(9, 'таблицы: стены растут, wallScale растёт, цены кроссовок растут, шансы яиц = 1', bad.length === 0, bad.length ? bad.slice(0, 5).join('; ') : `стены ступеней 0–${TIERS} (с lateEase), wallScale ${ws.length}, кроссовки ${shoes.length}, яйца ${pack.eggs.eggs.length} — ок`);
+  check(9, `таблицы: ${W.many} растут, wallScale растёт, цены кроссовок растут, шансы яиц = 1`, bad.length === 0, bad.length ? bad.slice(0, 5).join('; ') : `${W.many} ступеней 0–${TIERS} (с lateEase), wallScale ${ws.length}, кроссовки ${shoes.length}, яйца ${pack.eggs.eggs.length} — ок`);
 }
 // 10. Numbers: the stat on tier 9 is finite and < 1e30; trophies of all time < 2^53.
 {
   const stat = Math.max(...tiers[TIERS].walls.map((w) => w.stat));
   const trophies = tiers.reduce((a, r) => a + r.trophiesGot, 0);
-  check(10, 'числа: Скорость на ступени 9 < 1e30, кубки за всё время < 2^53', Number.isFinite(stat) && stat < 1e30 && trophies < 2 ** 53, `Скорость у стены 60 ступени ${TIERS} — ${fmt(stat)} (${stat.toExponential(2)}); кубков за ступени 0–${TIERS} — ${trophies}`);
+  check(10, 'числа: Скорость на ступени 9 < 1e30, кубки за всё время < 2^53', Number.isFinite(stat) && stat < 1e30 && trophies < 2 ** 53, `Скорость у ${W.gen} ${lastWall} ступени ${TIERS} — ${fmt(stat)} (${stat.toExponential(2)}); кубков за ступени 0–${TIERS} — ${trophies}`);
 }
 
 // ---------- M3-10: the port repeats the reference; the gold seeker thresholds ----------
@@ -291,7 +349,7 @@ if (ref) {
     detail: `в допуске ${within} из ${ref.sec.length} стен (наибольшее отклонение ${(fidelity.worst * 100).toFixed(1)}%${firstOut >= 0 ? `, первая вне — стена ${firstOut + 1}` : ''}); обратный расчёт дал столбец «Эталон» — ${wallsSame} из ${ref.walls.length}; циклы ступеней 0–${TIERS} по разделу 9 ±10% — ${cycOk ? 'да' : 'нет'} (${cyc.map(([a]) => a.toFixed(1)).join(' / ')})`,
   });
 }
-if (gold) {
+if (gold && classic) {
   const m1 = gold.mountains[0] / 60;
   const m = gold.sec / 60;
   gates.push({ title: 'золотоискатель: гора 1 ступени 0 ≥ 4,0 мин (M2-12), ступень 0 ≥ 24 мин (M3-10)', ok: m1 >= 4 && m >= 24, detail: `гора 1 — ${m1.toFixed(1)} мин, ступень 0 — ${m.toFixed(1)} мин; золотых подарков ${gold.goldTaken}` });
@@ -300,15 +358,17 @@ if (gold) {
 // ---------- report ----------
 const lines = [];
 const L = (s = '') => lines.push(s);
-L(`sim:balance — модель экономики docs/01-gdd.md 8.5 (порт docs/references/balance-model.pl), пакет ${packName}`);
+L(`sim:balance — модель экономики docs/01-gdd.md 8.5 (порт docs/references/balance-model.pl), пакет ${packName}${classic ? '' : `, темп ${pace} (01-gdd 16.8: worlds.json и заплатка balance.json из pace/${pace}/)`}`);
 L(`Профили: жадный (ступени 0–${TIERS}), ленивый, активный день, спамер яиц (${SPAM_SEEDS} зёрен)${gold ? ', золотоискатель' : ''}; без рекламы и покупок, зерно 12345 (генератор эталона)`);
 L();
-L('Проверки 8.5:');
-for (const c of checks) L(` ${String(c.id).padStart(2)}. [${c.status}] ${c.title} — ${c.detail}`);
+L(classic ? 'Проверки 8.5:' : `Проверки 16.8 (темп ${pace}):`);
+for (const c of checks) L(` ${String(c.id).padStart(classic ? 2 : 3)}. [${c.status}] ${c.title} — ${c.detail}`);
 L();
-L('Требования M3-10 (не входят в 10 проверок):');
-for (const g of gates) L(`  - [${g.ok ? 'PASS' : 'FAIL'}] ${g.title} — ${g.detail}`);
-L();
+if (classic) {
+  L('Требования M3-10 (не входят в 10 проверок):');
+  for (const g of gates) L(`  - [${g.ok ? 'PASS' : 'FAIL'}] ${g.title} — ${g.detail}`);
+  L();
+}
 L('Итог по горам, ступень 0 (мин):');
 const petsOf = (r) => (1 + r.meta.pets.slice(0, pack.balance.pets.slots).reduce((a, b) => a + b, 0)).toFixed(2);
 const sumLine = (name, r) => ` ${name.padEnd(16)} ${min(r.sec).padStart(5)} мин — горы ${r.mountains.map(min).join(' / ')}; обычных лавин ${r.normalWaves}, поймала ${r.caught}, яиц ${r.eggsBought}, питомцы ×${petsOf(r)}`;
@@ -319,7 +379,7 @@ L(` ${'спамер яиц'.padEnd(16)} ${min(spamMed.sec).padStart(5)} мин �
 if (gold) L(sumLine('золотоискатель', gold) + `; золотых подарков ${gold.goldTaken}`);
 L();
 L('Итог по ступеням, жадный (мин):');
-L(' ступень  wallScale  шаг      цикл   всего  горы                          питомцы  трейл  аура  Скорость у стены 60   (питомцы, трейл и аура — к концу цикла)');
+L(` ступень  wallScale  шаг      цикл   всего  горы                          питомцы  трейл  аура  Скорость у ${W.gen} ${lastWall}   (питомцы, трейл и аура — к концу цикла)`);
 let acc = 0;
 tiers.forEach((r, n) => {
   acc += r.sec;
@@ -335,36 +395,39 @@ if (ref) {
 }
 const table = (name, r) => {
   L();
-  L(`Таблица «стена → секунда, Скорость, кроссовки, питомцы, монеты» — ${name}, ступень 0:`);
-  L(' стена   с горы  с цикла  за стену  Скорость  кроссовки        питомцы  монеты   01a, с  откл.');
+  L(`Таблица «${W.one} → секунда, Скорость, кроссовки, питомцы, монеты» — ${name}, ступень 0:`);
+  L(classic ? ' стена   с горы  с цикла  за стену  Скорость  кроссовки        питомцы  монеты   01a, с  откл.' : ' ворота  с горы  с цикла  за ворота Скорость  кроссовки        питомцы  монеты');
   for (const w of r.walls) {
     const s = ref?.sec[w.p - 1];
     const shoe = pack.balance.upgrade.tiers[w.shoe];
     const d = s ? `${Math.round(((w.sec - s) / s) * 100) || 0}%` : '';
-    L(
-      ` ${`${w.mountain}-${String(w.wall).padStart(2, '0')}`.padEnd(6)} ${w.sec.toFixed(0).padStart(6)}  ${w.total.toFixed(0).padStart(7)}  ${w.took.toFixed(0).padStart(8)}  ${fmt(w.stat).padStart(8)}  ${`L${w.shoe} ×${fmt(shoe?.mult ?? 1)}`.padEnd(15)}  ×${w.petMult.toFixed(2).padEnd(6)}  ${fmt(w.coins).padStart(6)}  ${String(s ?? '').padStart(6)}  ${d.padStart(5)}`,
-    );
+    const row = ` ${`${w.mountain}-${String(w.wall).padStart(2, '0')}`.padEnd(6)} ${w.sec.toFixed(0).padStart(6)}  ${w.total.toFixed(0).padStart(7)}  ${w.took.toFixed(0).padStart(8)}  ${fmt(w.stat).padStart(8)}  ${`L${w.shoe} ×${fmt(shoe?.mult ?? 1)}`.padEnd(15)}  ×${w.petMult.toFixed(2).padEnd(6)}  ${fmt(w.coins).padStart(6)}  ${String(s ?? '').padStart(6)}  ${d.padStart(5)}`;
+    L(classic ? row : row.trimEnd());
   }
 };
 table('жадный', greedy);
 table('ленивый', lazy);
 if (existsSync(fitLog)) {
-  const log = JSON.parse(readFileSync(fitLog, 'utf8')).filter((r) => r.pack === packName);
+  const log = JSON.parse(readFileSync(fitLog, 'utf8')).filter((r) => r.pack === packName && (r.pace ?? CLASSIC_PACE) === pace);
   L();
-  L(`Подгонка sim:balance --fit (docs/01-gdd.md 8.5; не больше ${FIT_LIMIT} запусков на веху; 01a 3 и 9 переписываются под данные, эталон — в своих столбцах, Q-027):`);
+  L(
+    classic
+      ? `Подгонка sim:balance --fit (docs/01-gdd.md 8.5; не больше ${FIT_LIMIT} запусков на веху; 01a 3 и 9 переписываются под данные, эталон — в своих столбцах, Q-027):`
+      : `Подгонка sim:balance --fit --pace=${pace} (docs/01-gdd.md 16.8; не больше ${FIT_LIMIT} запусков на веху; итоговые числа ворот — таблица выше, 01a 15):`,
+  );
   for (const r of log) {
     if (r.aborted) {
       L(` ${r.date}, ${r.milestone}: запуск прерван (${r.aborted}); данные не изменились`);
       continue;
     }
-    L(` ${r.date}, ${r.milestone}: стен изменено ${r.walls.length}, wallScale — ${r.wallScale.length}; циклы ступеней 0–${TIERS} после подгонки: ${r.cycleMin.join(' / ')} мин`);
-    for (const d of r.walls) L(`   стена ${d.p} (гора ${Math.ceil(d.p / 12)}, стена ${((d.p - 1) % 12) + 1}): ${fmt(d.from)} → ${fmt(d.to)}`);
+    L(` ${r.date}, ${r.milestone}: ${classic ? 'стен' : 'ворот'} изменено ${r.walls.length}, wallScale — ${r.wallScale.length}; циклы ступеней 0–${TIERS} после подгонки: ${r.cycleMin.join(' / ')} мин`);
+    for (const d of r.walls) L(`   ${W.one} ${d.p} (${where(d.p)}): ${fmt(d.from)} → ${fmt(d.to)}`);
     for (const d of r.wallScale) L(`   wallScale[${d.n}]: ${fmt(d.from)} → ${fmt(d.to)}`);
   }
 }
 const failed = [...checks.filter((c) => c.status === 'FAIL').map((c) => `проверка ${c.id}`), ...gates.filter((g) => !g.ok).map((g) => g.title.split(':')[0])];
 L();
-L(`Итог: ${checks.filter((c) => c.status === 'PASS').length} PASS, ${checks.filter((c) => c.status === 'FAIL').length} FAIL из 10; требования M3-10 — ${gates.filter((g) => g.ok).length} из ${gates.length}; ${((performance.now() - t0) / 1000).toFixed(2)} с`);
+L(`Итог: ${checks.filter((c) => c.status === 'PASS').length} PASS, ${checks.filter((c) => c.status === 'FAIL').length} FAIL из 10${classic ? `; требования M3-10 — ${gates.filter((g) => g.ok).length} из ${gates.length}` : ''}; ${((performance.now() - t0) / 1000).toFixed(2)} с`);
 
 const text = lines.join('\n') + '\n';
 if (packName === 'avalanche') {
@@ -373,6 +436,6 @@ if (packName === 'avalanche') {
 }
 process.stdout.write(text);
 if (failed.length) {
-  console.error(`sim:balance: FAIL — ${failed.join(', ')}`);
+  console.error(`sim:balance${classic ? '' : ` (${pace})`}: FAIL — ${failed.join(', ')}`);
   process.exit(1);
 }

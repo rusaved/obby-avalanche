@@ -60,8 +60,9 @@ describe('pace flag (PR-01)', () => {
     expect(fast.ftue).toEqual({ ...shared.ftue, scriptedWaveWall: 7 });
     expect(fast.rebirth.unlock).toBe('summitWorld10');
     expect(fast.rebirth.lateEase).toEqual({ ...shared.rebirth.lateEase, fromWall: 118 });
-    expect(fast.rebirth.wallScale).toEqual(shared.rebirth.wallScale);
-    expect(fast.sim).toEqual({ mountainMin: [1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4, 4.8], gateCurve: 1.3 });
+    // wallScale of the pace — the output of sim:balance --fit --pace=fast (01a 15.4), its own row of 10 tiers.
+    expect(fast.rebirth.wallScale).toHaveLength(shared.rebirth.wallScale.length);
+    expect(fast.sim).toEqual({ mountainMin: [1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4, 4.8], gateCurve: 1.3, keep: 1, roundDigits: 2 });
   });
 
   it('gen:worlds of every pace is deterministic and matches the committed worlds.json; validate:content passes it', () => {
@@ -181,7 +182,8 @@ describe('mountains of the fast pace (PR-02)', () => {
         expect((g['reward'] as { coins: number }).coins).toBe(w.zones[num(g, 'zone') - 1]!.gift);
       }
     }
-    expect(spec.mountains[0]!.walls.map((x) => x.requires).slice(0, 6)).toEqual([10, 15, 25, 40, 60, 100]);
+    // Gate 1 of mountain 1 stays (balance.json sim.keep = 1); the others — sim:balance --fit --pace=fast (balance-fast.txt).
+    expect(spec.mountains[0]!.walls[0]!.requires).toBe(10);
   });
 
   it('a broken cave (exit 8 units below the gate) fails validate:content', () => {

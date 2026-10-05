@@ -130,8 +130,12 @@ export interface BalanceJson {
   };
   /** Hint plaque timings (docs/01-gdd.md 6.5). */
   hints: HintsTiming;
-  /** Targets of `sim:balance --fit` for a pace (docs/01-gdd.md 16.8); the game never reads them. */
-  sim?: { mountainMin: number[]; gateCurve: number };
+  /**
+   * Targets of `sim:balance --fit` for a pace (docs/01-gdd.md 16.8); the game never reads them. `keep` — walls of
+   * mountain 1 the fit leaves as they are (default 0); `roundDigits` — significant digits of a fitted wall (default:
+   * the nice row of 8.5).
+   */
+  sim?: { mountainMin: number[]; gateCurve: number; keep?: number; roundDigits?: number };
 }
 
 export interface HintsTiming {
