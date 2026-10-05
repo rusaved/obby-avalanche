@@ -1,8 +1,8 @@
 
 Running 1 test using 1 worker
 
-setData calls: 86, max in 5 minutes: 33, last mountain: blizzard
-  ✓  1 [desktop] › e2e/save.spec.ts:142:1 › @full bot plays 15 minutes of game time: no 5-minute window of the mock log has more than 100 setData (≤ 86) (24.7s)
+setData calls: 87, max in 5 minutes: 35, last mountain: blizzard
+  ✓  1 [desktop] › e2e/save.spec.ts:142:1 › @full bot plays 15 minutes of game time: no 5-minute window of the mock log has more than 100 setData (≤ 86) (25.1s)
 
-  1 passed (27.7s)
+  1 passed (28.6s)
 EXIT=0
