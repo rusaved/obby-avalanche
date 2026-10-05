@@ -245,3 +245,48 @@ describe('avalanche in the simulation (M2-06)', () => {
     expect(sim.gifts.every((g) => !g.taken)).toBe(true);
   });
 });
+
+// M3-12: first avalanche of mountains 2–5 after 10–12 s (Q-022; docs/01-gdd.md 4.1), mountain 1 after 30 s.
+describe('first avalanche per mountain (M3-12)', () => {
+  const RUN = { moveX: 0, moveZ: 1, jump: false, jumpHeld: false };
+  const curve = { ...bal.speedCurve, base: tun.controller.baseSpeed, max: tun.controller.maxSpeed };
+  /** A mountain as main.ts loads it (after a load or through the portal); ticks until the warning starts. */
+  const ticksToWarn = (index: number): { ticks: number; expected: number } => {
+    const w = worlds.worlds[index - 1]!;
+    const sim = createSim(buildLevel(w), tun, {
+      balance: bal,
+      speedCurve: curve,
+      stat: 0,
+      threat: { threat: { ...w.threat }, balance: bal, avalanche: tun.avalanche, scriptedPending: false, normalWavesDone: 99 },
+    });
+    let ticks = 0;
+    while (sim.threat!.state.phase === 'idle' && ticks < 60 * 120) {
+      sim.step(NO_INPUT, DT);
+      ticks++;
+    }
+    return { ticks, expected: w.threat.firstIntervalSec / DT };
+  };
+
+  it('worlds.json: mountain 1 — 30 s, mountains 2–5 — 12 / 11.5 / 11 / 10.5 s, each its own', () => {
+    expect(worlds.worlds.map((w) => w.threat.firstIntervalSec)).toEqual([30, 12, 11.5, 11, 10.5]);
+  });
+
+  it('after the load on mountain 1 the warning starts after 30 s; after the portal on mountains 2–5 — after their firstIntervalSec (±1 tick)', () => {
+    const one = ticksToWarn(1);
+    expect(one.expected).toBeCloseTo(30 * 60, 6);
+    expect(Math.abs(one.ticks - one.expected)).toBeLessThanOrEqual(1);
+    // The portal of mountain 1 leads to mountain 2; the new mountain's sim starts its clock at the camp.
+    const level1 = buildLevel(worlds.worlds[0]!);
+    const portal = level1.points.find((p) => p.type === 'portal')!;
+    const s1 = createSim(level1, tun, { balance: bal, speedCurve: curve, stat: 200_000 });
+    let next: number | null = null;
+    s1.events.on('portal', (e) => void (next = e.next));
+    s1.teleport(0, level1.floorYAt(portal.z - 15) + 0.05, portal.z - 15);
+    for (let i = 0; i < 240 && next === null; i++) s1.step(RUN, DT);
+    expect(next).toBe(2);
+    for (let index = 2; index <= 5; index++) {
+      const r = ticksToWarn(index);
+      expect(Math.abs(r.ticks - r.expected), `mountain ${index}`).toBeLessThanOrEqual(1);
+    }
+  });
+});

@@ -171,7 +171,7 @@ function generateWorld(spec: WorldsSpecJson, balance: GenerateInput['balance'], 
     ],
     threat: {
       intervalSec: m.intervalSec,
-      firstIntervalSec: spec.threat.firstIntervalSec,
+      firstIntervalSec: m.firstIntervalSec ?? spec.threat.firstIntervalSec,
       warnSec: m.warnSec,
       speed: m.speed,
       from: spec.threat.from,

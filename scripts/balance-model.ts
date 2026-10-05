@@ -13,7 +13,8 @@
  *   snowball rolls `caught.maxSec` to the cave below and nothing is lost (4.5).
  * Trails and auras (M3-04): at the end of every cycle the bot spends trophies like `spendTrophies` of the reference —
  * the next trail when it can pay and it is not dearer than the next aura, otherwise the next aura; both go into
- * the step through stepGain. Not here yet (M3-10): the «active day» and «egg spammer» profiles.
+ * the step through stepGain. The first wave of a mountain comes after its firstIntervalSec, as in the game (Q-022);
+ * the reference starts every mountain with intervalSec. Not here yet (M3-10): the «active day» and «egg spammer» profiles.
  */
 import type { AurasJson, BalanceJson, EggsJson, GameJson, PetsJson, Segment, TrailsJson, TuningJson, World } from '../src/content/types.ts';
 import { moveSpeed } from '../src/sim/effects/moveSpeed.ts';
@@ -232,7 +233,8 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
     const tw0 = T;
     let z = world.spawnZ;
     let phase: 'idle' | 'warn' | 'run' = 'idle';
-    let phT = th.intervalSec;
+    // First wave of a mountain after the load or the portal: its own firstIntervalSec (Q-022, M3-12); the reference uses I.
+    let phT = th.firstIntervalSec;
     let front = 0;
     let giftsLeft = giftsPerZone;
     let carrying = false;

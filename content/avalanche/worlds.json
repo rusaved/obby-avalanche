@@ -1369,7 +1369,7 @@
       ],
       "threat": {
         "intervalSec": 48,
-        "firstIntervalSec": 30,
+        "firstIntervalSec": 12,
         "warnSec": 8,
         "speed": 48,
         "from": "aboveHero",
@@ -2715,7 +2715,7 @@
       ],
       "threat": {
         "intervalSec": 45,
-        "firstIntervalSec": 30,
+        "firstIntervalSec": 11.5,
         "warnSec": 7,
         "speed": 52,
         "from": "aboveHero",
@@ -4061,7 +4061,7 @@
       ],
       "threat": {
         "intervalSec": 42,
-        "firstIntervalSec": 30,
+        "firstIntervalSec": 11,
         "warnSec": 7,
         "speed": 56,
         "from": "aboveHero",
@@ -5407,7 +5407,7 @@
       ],
       "threat": {
         "intervalSec": 40,
-        "firstIntervalSec": 30,
+        "firstIntervalSec": 10.5,
         "warnSec": 6,
         "speed": 60,
         "from": "aboveHero",

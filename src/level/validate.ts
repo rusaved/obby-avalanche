@@ -289,7 +289,13 @@ const specSchema = v.object({
   summitLength: positive,
   width: positive,
   spawnZ: nonNeg,
-  threat: v.object({ spawnAhead: positive, firstIntervalSec: positive, from: v.picklist(['aboveHero', 'end', 'start']), firstWaveScripted: v.boolean() }),
+  threat: v.object({
+    spawnAhead: positive,
+    firstIntervalSec: positive,
+    laterFirstIntervalSec: v.optional(v.tuple([positive, positive])),
+    from: v.picklist(['aboveHero', 'end', 'start']),
+    firstWaveScripted: v.boolean(),
+  }),
   rarities: v.pipe(v.array(id), v.minLength(1)),
   mountains: v.pipe(
     v.array(
@@ -297,6 +303,7 @@ const specSchema = v.object({
         id: id,
         stretch: positive,
         intervalSec: positive,
+        firstIntervalSec: v.optional(positive),
         warnSec: positive,
         speed: positive,
         egg: id,
@@ -702,9 +709,35 @@ export function validateContentCount(worlds: WorldsJson, spec: WorldsSpecJson, p
     }
     for (const key of ['intervalSec', 'warnSec', 'speed'] as const)
       if (w.threat[key] !== m[key]) errors.push(`${at}: threat.${key} — ${w.threat[key]}, worlds-spec.json has ${m[key]}`);
+    const first = m.firstIntervalSec ?? spec.threat.firstIntervalSec;
+    if (w.threat.firstIntervalSec !== first) errors.push(`${at}: threat.firstIntervalSec — ${w.threat.firstIntervalSec}, worlds-spec.json has ${first}`);
     const portal = w.segments.find((s) => s.type === 'portal');
     const next = mi + 1 < spec.mountains.length ? mi + 2 : null;
     if (portal && (portal['next'] ?? null) !== next) errors.push(`${at}: portal — leads to ${String(portal['next'])}, expected ${String(next)}`);
+  }
+  errors.push(...validateFirstIntervals(worlds, spec));
+  return errors;
+}
+
+/**
+ * First avalanche of a mountain (docs/01-gdd.md 4.1; Q-022, M3-12): mountain 1 — worlds-spec.json threat.firstIntervalSec
+ * (the teaching mountain waits); mountains 2+ — inside threat.laterFirstIntervalSec, each its own value.
+ */
+export function validateFirstIntervals(worlds: WorldsJson, spec: WorldsSpecJson): string[] {
+  const errors: string[] = [];
+  const [w1, ...later] = worlds.worlds;
+  if (w1 && w1.threat.firstIntervalSec !== spec.threat.firstIntervalSec)
+    errors.push(`worlds.json: worlds[0] (${w1.id}): threat.firstIntervalSec — ${w1.threat.firstIntervalSec}, mountain 1 needs ${spec.threat.firstIntervalSec} (worlds-spec.json threat.firstIntervalSec)`);
+  const range = spec.threat.laterFirstIntervalSec;
+  if (!range) return errors;
+  const seen = new Map<number, string>();
+  for (const w of later) {
+    const at = `worlds.json: worlds[${w.index - 1}] (${w.id}): threat.firstIntervalSec`;
+    const sec = w.threat.firstIntervalSec;
+    if (sec < range[0] || sec > range[1]) errors.push(`${at} — ${sec} outside ${range[0]}–${range[1]} s (worlds-spec.json threat.laterFirstIntervalSec)`);
+    const twin = seen.get(sec);
+    if (twin) errors.push(`${at} — ${sec} s, the same as ${twin} (each mountain its own value)`);
+    seen.set(sec, w.id);
   }
   return errors;
 }

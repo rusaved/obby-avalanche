@@ -177,3 +177,34 @@ describe('mountains 1–5 (M3-05)', () => {
     expect(errors).toContain('worlds.json: worlds[2] (canyon): wall 5 — requires 6500000, worlds-spec.json has 6000000');
   });
 });
+
+// M3-12: validate:content holds the first avalanche of every mountain (Q-022).
+describe('firstIntervalSec per mountain (M3-12)', () => {
+  const load = (): PackFiles => {
+    const files = {} as Partial<PackFiles>;
+    for (const f of PACK_FILES) files[f] = JSON.parse(readFileSync(resolve(root, 'content/avalanche', f), 'utf8'));
+    return files as PackFiles;
+  };
+
+  it('mountain 1 — 30 s, mountains 2–5 — inside 10–12 s and all different; gen:worlds is deterministic', async () => {
+    expect(worlds.worlds.map((w) => w.threat.firstIntervalSec)).toEqual([30, 12, 11.5, 11, 10.5]);
+    expect(validatePack(load()).errors).toEqual([]);
+    const { generateWorlds, stringifyWorlds } = await import('../../src/level/generate.ts');
+    const spec = read('worlds-spec.json') as Parameters<typeof generateWorlds>[0]['spec'];
+    const a = stringifyWorlds(generateWorlds({ spec, balance }));
+    expect(stringifyWorlds(generateWorlds({ spec, balance }))).toBe(a);
+    expect(a).toBe(readFileSync(resolve(root, 'content/avalanche/worlds.json'), 'utf8'));
+  });
+
+  it('a value outside 10–12, two equal values or mountain 1 off 30 fail validate:content', () => {
+    const files = load();
+    const ws = (files['worlds.json'] as WorldsJson).worlds;
+    ws[0]!.threat.firstIntervalSec = 12;
+    ws[2]!.threat.firstIntervalSec = 13;
+    ws[4]!.threat.firstIntervalSec = 11;
+    const errors = validatePack(files).errors;
+    expect(errors).toContain('worlds.json: worlds[0] (slope): threat.firstIntervalSec — 12, mountain 1 needs 30 (worlds-spec.json threat.firstIntervalSec)');
+    expect(errors).toContain('worlds.json: worlds[2] (canyon): threat.firstIntervalSec — 13 outside 10–12 s (worlds-spec.json threat.laterFirstIntervalSec)');
+    expect(errors).toContain('worlds.json: worlds[4] (aurora): threat.firstIntervalSec — 11 s, the same as blizzard (each mountain its own value)');
+  });
+});

@@ -280,12 +280,15 @@ export interface WorldsSpecJson {
   summitLength: number;
   width: number;
   spawnZ: number;
-  threat: { spawnAhead: number; firstIntervalSec: number; from: 'aboveHero' | 'end' | 'start'; firstWaveScripted: boolean };
+  /** `firstIntervalSec` — mountain 1 and any mountain without its own; `laterFirstIntervalSec` — [min, max] of mountains 2+ (Q-022). */
+  threat: { spawnAhead: number; firstIntervalSec: number; laterFirstIntervalSec?: [number, number]; from: 'aboveHero' | 'end' | 'start'; firstWaveScripted: boolean };
   rarities: string[];
   mountains: Array<{
     id: string;
     stretch: number;
     intervalSec: number;
+    /** First avalanche after a load or the portal (docs/01-gdd.md 4.1; M3-12); absent — threat.firstIntervalSec. */
+    firstIntervalSec?: number;
     warnSec: number;
     speed: number;
     egg: string;

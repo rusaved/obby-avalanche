@@ -418,7 +418,7 @@
     "milestone": "M3",
     "description": "Первая лавина гор 2–5 через 10–12 с после загрузки или портала (решение продюсера 04.10, QUESTIONS Q-022; docs/01-gdd.md, 4.1; docs/01a-content.md, раздел 2): firstIntervalSec у каждой горы в worlds-spec.json — гора 1 30, горы 2–5 12 / 11,5 / 11 / 10,5; worlds.json генерирует npm run gen:worlds",
     "acceptance": "validate:content: в worlds.json у гор 2–5 threat.firstIntervalSec в диапазоне 10–12 с и все четыре значения различны, у горы 1 = 30; честность пещер (docs/02-tech.md, 5.4) проходит на всех 5 горах; npm run gen:worlds детерминирован; Vitest (sim): после портала на гору 2 фаза warn начинается через firstIntervalSec горы 2 (±1 тик), после загрузки на горе 1 — через 30 с",
-    "passes": false,
+    "passes": true,
     "priority": "P1",
     "deferred": false
   },
