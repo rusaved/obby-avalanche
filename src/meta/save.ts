@@ -33,6 +33,13 @@ export interface SaveData {
   /** Trophies to spend (trails, auras) and trophies earned over all time — the leaderboard score (docs/01-gdd.md 7.9). */
   trophies?: number;
   trophiesTotal?: number;
+  /** Trails and auras owned (for trophies, forever) and the one of each on (docs/01-gdd.md 7.3; src/meta/cosmetics.ts). */
+  trails?: string[];
+  trail?: string;
+  auras?: string[];
+  aura?: string;
+  /** Skin on (skins.json id); absent or unknown — skins.json default (docs/01-gdd.md 7.4). */
+  skin?: string;
 }
 
 export const SAVE_VERSION = 1;

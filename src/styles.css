@@ -232,3 +232,17 @@ canvas.fallback {
 .slots { display: flex; gap: 8px; }
 .slot { width: 56px; height: 56px; border-radius: 12px; border: 2px dashed rgba(27, 42, 58, 0.35); display: flex; align-items: center; justify-content: center; }
 .hud.touch ~ .win .win-panel, .hud.short ~ .win .win-panel { width: 100%; height: 100%; max-height: 100%; border-radius: 0; }
+/* Wardrobe (docs/01-gdd.md 7.4): the hero large and slowly turning, block figures on the cards. */
+.wardrobe { display: flex; gap: 12px; align-items: flex-start; }
+.wardrobe .win-grid { flex: 1; }
+.wardrobe-stage { flex: none; width: 150px; height: 210px; display: flex; align-items: center; justify-content: center; border-radius: 14px; background: linear-gradient(#dff1ff, #f4f9ff); perspective: 400px; }
+.fig { position: relative; width: 36px; height: 58px; --u: 6px; }
+.fig.big { width: 96px; height: 156px; --u: 16px; animation: fig-turn 6s linear infinite; transform-style: preserve-3d; }
+.fig > span { position: absolute; border-radius: 2px; box-shadow: inset 0 0 0 1px rgba(27, 42, 58, 0.25); }
+.fig-head { left: calc(var(--u) * 1.5); top: 0; width: calc(var(--u) * 3); height: calc(var(--u) * 2.4); }
+.fig-torso { left: calc(var(--u) * 1.5); top: calc(var(--u) * 2.4); width: calc(var(--u) * 3); height: calc(var(--u) * 3.4); }
+.fig-armL { left: 0; top: calc(var(--u) * 2.4); width: calc(var(--u) * 1.5); height: calc(var(--u) * 3.4); }
+.fig-armR { right: 0; top: calc(var(--u) * 2.4); width: calc(var(--u) * 1.5); height: calc(var(--u) * 3.4); }
+.fig-legL { left: calc(var(--u) * 1.5); top: calc(var(--u) * 5.8); width: calc(var(--u) * 1.5); height: calc(var(--u) * 3.6); }
+.fig-legR { left: calc(var(--u) * 3); top: calc(var(--u) * 5.8); width: calc(var(--u) * 1.5); height: calc(var(--u) * 3.6); }
+@keyframes fig-turn { from { transform: rotateY(0); } to { transform: rotateY(360deg); } }

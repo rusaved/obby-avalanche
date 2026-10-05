@@ -11,9 +11,11 @@
  * - lazy — reacts 1.5 s later (to the warning and to an open wall), ignores 30% of the waves, does not take gifts on
  *   ledges; only this profile can be caught: the front sweeps it outside a cave or it runs into the front, then the
  *   snowball rolls `caught.maxSec` to the cave below and nothing is lost (4.5).
- * Not here yet (M3-10): the «active day» and «egg spammer» profiles, trails and auras (no data until M3-04).
+ * Trails and auras (M3-04): at the end of every cycle the bot spends trophies like `spendTrophies` of the reference —
+ * the next trail when it can pay and it is not dearer than the next aura, otherwise the next aura; both go into
+ * the step through stepGain. Not here yet (M3-10): the «active day» and «egg spammer» profiles.
  */
-import type { BalanceJson, EggsJson, GameJson, PetsJson, Segment, TuningJson, World } from '../src/content/types.ts';
+import type { AurasJson, BalanceJson, EggsJson, GameJson, PetsJson, Segment, TrailsJson, TuningJson, World } from '../src/content/types.ts';
 import { moveSpeed } from '../src/sim/effects/moveSpeed.ts';
 import { scaled, stepGain } from '../src/sim/economy.ts';
 
@@ -25,13 +27,19 @@ export interface ModelPack {
   tuning: TuningJson;
   pets: PetsJson;
   eggs: EggsJson;
+  /** Trails and auras for trophies (M3-04); absent — the bot has none (×1). */
+  trails?: TrailsJson;
+  auras?: AurasJson;
   worlds: World[];
 }
 
-/** What stays between cycles (the reference: %meta): pet bonuses, trophies. */
+/** What stays between cycles (the reference: %meta): pet bonuses, trophies, how many trails and auras are bought. */
 export interface ModelMeta {
   pets: number[];
   trophies: number;
+  /** Bought from the cheapest up: 0 — none, k — the k-th by price is on (the reference: $meta{trail}, $meta{aura}). */
+  trail: number;
+  aura: number;
 }
 
 export interface WallRow {
@@ -126,7 +134,7 @@ export function ease(balance: BalanceJson, n: number, p: number, lastWall: numbe
 }
 
 export function newMeta(): ModelMeta {
-  return { pets: [], trophies: 0 };
+  return { pets: [], trophies: 0, trail: 0, aura: 0 };
 }
 
 export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
@@ -135,6 +143,8 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
   const n = opts.tier ?? 0;
   const worlds = [...pack.worlds].sort((a, b) => a.index - b.index).slice(0, opts.mountains ?? pack.worlds.length);
   const meta = opts.meta ?? newMeta();
+  // Trail and aura stay the same through the cycle: the reference spends trophies only at its end.
+  const { trail: trailMult, aura: auraMult } = cosmeticMults(pack, meta);
   const rnd = lcg(opts.seed ?? SEED);
   const lazyRnd = lcg(LAZY_SEED);
   const lazy = profile === 'lazy';
@@ -281,7 +291,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
       };
       for (;;) {
         // The step of the game (docs/01-gdd.md 8.1): the same formula module as the simulation.
-        const g = stepGain(balance, { tier: n, shoe: shoes[shoe]?.mult ?? 1, pets: petMult() });
+        const g = stepGain(balance, { tier: n, shoe: shoes[shoe]?.mult ?? 1, pets: petMult(), trail: trailMult, aura: auraMult });
         const v = vel(S);
         phT -= DT;
         if (phase === 'warn') warnAge += DT;
@@ -394,7 +404,38 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
     }
     mountains.push(T - tw0);
   }
+  spendTrophies(pack, meta);
   return { sec: T, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, goldTaken, coins: C, meta };
+}
+
+/** Trails and auras by price, cheapest first (the reference: @trails, @auras without the [1, 0] «none»). */
+function byPrice<T extends { price: number }>(list: readonly T[] | undefined): T[] {
+  return [...(list ?? [])].sort((a, b) => a.price - b.price);
+}
+
+/** Multipliers of the trail and the aura the bot has on (×1 for none). */
+export function cosmeticMults(pack: ModelPack, meta: ModelMeta): { trail: number; aura: number } {
+  return { trail: byPrice(pack.trails?.trails)[meta.trail - 1]?.mult ?? 1, aura: byPrice(pack.auras?.auras)[meta.aura - 1]?.mult ?? 1 };
+}
+
+/** `spendTrophies` of the reference: buy the next trail if affordable and not dearer than the next aura, else the next aura. */
+export function spendTrophies(pack: ModelPack, meta: ModelMeta): void {
+  const trails = byPrice(pack.trails?.trails);
+  const auras = byPrice(pack.auras?.auras);
+  for (let bought = true; bought; ) {
+    bought = false;
+    const nt = trails[meta.trail];
+    const na = auras[meta.aura];
+    if (nt && meta.trophies >= nt.price && (!na || nt.price <= na.price)) {
+      meta.trophies -= nt.price;
+      meta.trail++;
+      bought = true;
+    } else if (na && meta.trophies >= na.price) {
+      meta.trophies -= na.price;
+      meta.aura++;
+      bought = true;
+    }
+  }
 }
 
 export interface MountainRun {

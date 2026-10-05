@@ -4,7 +4,7 @@
  * physics (M1) and cave fairness against warnSec (M2-03).
  */
 import * as v from 'valibot';
-import type { BalanceJson, BotsJson, Curve, EggsJson, GameJson, Segment, SkinsJson, TuningJson, World, WorldsJson } from '../content/types.ts';
+import type { AurasJson, BalanceJson, BotsJson, Curve, EggsJson, TrailsJson, GameJson, Segment, SkinsJson, TuningJson, World, WorldsJson } from '../content/types.ts';
 import { summitTrophies } from '../sim/economy.ts';
 import { LEADERBOARD_SCORES } from '../meta/trophies.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
@@ -21,6 +21,8 @@ export const PACK_FILES = [
   'accessories.json',
   'pets.json',
   'eggs.json',
+  'trails.json',
+  'auras.json',
   'sfx.json',
   'bots.json',
   'i18n/ru.json',
@@ -348,6 +350,11 @@ const eggsSchema = v.object({
   ),
 });
 
+/** trails.json, auras.json (docs/01a-content.md 7): step multiplier ≥ 1, price in trophies, colour. */
+const cosmetic = v.object({ id: id, mult: v.pipe(v.number(), v.minValue(1)), price: v.pipe(v.number(), v.integer(), v.minValue(1)), color: hex });
+const trailsSchema = v.object({ trails: v.array(cosmetic) });
+const aurasSchema = v.object({ auras: v.array(cosmetic) });
+
 /** ZzFX takes up to 21 numbers (docs/02-tech.md 10). */
 const sfxSchema = v.record(name, v.pipe(v.array(v.number()), v.minLength(1), v.maxLength(21)));
 
@@ -391,6 +398,8 @@ const SCHEMAS: Record<PackFile, v.GenericSchema> = {
   'accessories.json': accessoriesSchema,
   'pets.json': petsSchema,
   'eggs.json': eggsSchema,
+  'trails.json': trailsSchema,
+  'auras.json': aurasSchema,
   'sfx.json': sfxSchema,
   'bots.json': botsSchema,
   'i18n/ru.json': i18nSchema,
@@ -494,6 +503,17 @@ export function validatePack(files: PackFiles): ValidationResult {
     if (Math.abs(sum - 1) > 1e-9) errors.push(`eggs.json: eggs[${i}].pool — chances sum to ${sum}, expected 1`);
   }
   for (const w of worlds.worlds) if (!eggs.eggs.some((e) => e.id === w.egg)) errors.push(`worlds.json: worlds[${w.index - 1}].egg — unknown egg "${w.egg}" (eggs.json)`);
+  // Trails and auras (docs/01a-content.md 7): unique ids, names in both languages (keys trail.<id>, aura.<id>).
+  const cosmetics = [
+    ...(files['trails.json'] as TrailsJson).trails.map((x) => ({ file: 'trails.json', key: `trail.${x.id}`, id: x.id })),
+    ...(files['auras.json'] as AurasJson).auras.map((x) => ({ file: 'auras.json', key: `aura.${x.id}`, id: x.id })),
+  ];
+  const seen = new Set<string>();
+  for (const c of cosmetics) {
+    if (seen.has(c.id)) errors.push(`${c.file}: ${c.id} — duplicate id`);
+    seen.add(c.id);
+    for (const [file, dict] of [['i18n/ru.json', ru], ['i18n/en.json', en]] as const) if (!dict[c.key]) errors.push(`${file}: ${c.key} — missing (${c.file})`);
+  }
   // Collection counter (docs/01-gdd.md 7.2, Q-024, M3-13): the hatch toast and the «Pets» button texts, egg names.
   for (const [file, dict] of [['i18n/ru.json', ru], ['i18n/en.json', en]] as const) {
     for (const key of ['toast.hatchCount', 'btn.petsCount', ...eggs.eggs.map((e) => `egg.${e.id}`)]) if (!dict[key]) errors.push(`${file}: ${key} — missing (eggs.json, docs/01-gdd.md 7.2)`);

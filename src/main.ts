@@ -28,6 +28,8 @@ import { createFtueView, type FtueView } from './app/ftue-view.ts';
 import { createMetaView, type MetaView } from './app/meta-view.ts';
 import { createPetsView, type PetsView } from './app/pets-view.ts';
 import { createPetsVisual } from './render/pets.ts';
+import { createCosmeticsView, type CosmeticsView } from './app/cosmetics-view.ts';
+import { createCosmeticsVisual, type CosmeticsVisual } from './render/cosmetics.ts';
 import { createWindowFrame, type WindowFrame } from './ui/window.ts';
 import { createHudView, type HudView } from './app/hud-view.ts';
 import { createBotsView, type BotsView, type HudMode } from './app/bots-view.ts';
@@ -65,7 +67,7 @@ const PLAY_PERSIST_SEC = 5;
  * LoadingAPI.ready() exactly once → GameplayAPI.start() when nothing pauses the game.
  */
 async function boot(): Promise<void> {
-  const { game, theme, tuning, balance, skins, accessories, pets, eggs, sfx, bots } = content;
+  const { game, theme, tuning, balance, skins, accessories, pets, eggs, trails, auras, sfx, bots } = content;
   const params = new URLSearchParams(location.search);
   // Address parameters exist only in dev, playtest, e2e and pages builds (docs/02-tech.md 9.3).
   const debugParams = __DEBUG_TOOLS__ ? params : new URLSearchParams();
@@ -184,11 +186,13 @@ async function boot(): Promise<void> {
   let ftueView: FtueView | null = null;
   let meta: MetaView | null = null;
   let petsView: PetsView | null = null;
+  let cosmeticsView: CosmeticsView | null = null;
   let windows: WindowFrame | null = null;
   let hudView: HudView | null = null;
   let audio: GameAudio | null = null;
   let botsView: BotsView | null = null;
   let bonusVisual: BonusVisual | null = null;
+  let cosmeticsVisual: CosmeticsVisual | null = null;
   let hudMode: HudMode = 'normal';
   let field: FieldRect = { width: 1, height: 1, left: 0, top: 0 };
   let lastSnap: InputSnapshot | null = null;
@@ -547,7 +551,14 @@ async function boot(): Promise<void> {
     lastRenderTicks = loop.ticks;
     meta?.update();
     petsView?.update(gameDt, playSec, renderPos, hero.yaw, hero.speed > 1.5 || sim.onBelt);
-    hud?.setMenu([petsView?.menuItem()].filter((x): x is MenuItem => !!x));
+    cosmeticsView?.update();
+    if (cosmeticsVisual) {
+      cosmeticsVisual.group.visible = heroChar?.visible ?? false;
+      cosmeticsVisual.update(renderPos, hero.onGround && (hero.speed > 1.5 || sim.onBelt), gameDt, playSec);
+    }
+    // HUD column (docs/01-gdd.md 10.1): shop, pets, wardrobe — each when it is due (6.4).
+    const cm = cosmeticsView?.menuItems();
+    hud?.setMenu([cm?.shop, petsView?.menuItem(), cm?.wardrobe].filter((x): x is MenuItem => !!x));
     ftueView?.update(gameDt, playSec, renderPos);
     hudView?.update(playSec);
     if (cameraRig) {
@@ -689,6 +700,8 @@ async function boot(): Promise<void> {
     onEgg: () => void petsView?.buyEgg(),
     onMenu: (id) => {
       if (id === 'pets') petsView?.openWindow();
+      else if (id === 'shop') cosmeticsView?.openShop();
+      else if (id === 'wardrobe') cosmeticsView?.openWardrobe();
     },
     trophyColor: theme.ui.trophies,
     okColor: theme.ui.ok,
@@ -722,7 +735,7 @@ async function boot(): Promise<void> {
   });
   const ftueVisual = createFtueVisual(theme);
   gr.scene.add(ftueVisual.group);
-  meta = createMetaView({ balance, pets, save, getSim: () => sim, hud, numSuffix, trackOnce, persist });
+  meta = createMetaView({ balance, pets, trails, auras, save, getSim: () => sim, hud, numSuffix, trackOnce, persist });
   meta.apply();
   // Windows (docs/01-gdd.md 10.2): one at a time, the game and the avalanche stand while it is open (pause `menu`).
   windows = createWindowFrame(ui, { closeLabel: t('btn.close'), onChange: (id) => pause.set_('menu', id !== null) });
@@ -748,6 +761,27 @@ async function boot(): Promise<void> {
     onChange: () => meta?.apply(),
   });
   petsView.wire(sim);
+  // Trails, auras and the wardrobe (docs/01-gdd.md 7.3, 7.4): the hero wears the skin of the save or the default one.
+  cosmeticsVisual = createCosmeticsVisual();
+  gr.scene.add(cosmeticsVisual.group);
+  cosmeticsView = createCosmeticsView({
+    balance,
+    trails,
+    auras,
+    skins,
+    save,
+    hud,
+    windows,
+    visual: cosmeticsVisual,
+    numSuffix,
+    persist,
+    onChange: () => meta?.apply(),
+    setHeroSkin: (id) => {
+      if (characters && heroChar) characters.setSkin(heroChar, id);
+    },
+  });
+  if (heroChar.skinId !== cosmeticsView.skin) characters.setSkin(heroChar, cosmeticsView.skin);
+  cosmeticsView.update();
   ftueView = createFtueView({
     balance,
     pets,

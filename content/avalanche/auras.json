@@ -1,0 +1,40 @@
+{
+  "auras": [
+    {
+      "id": "aura_sparks",
+      "mult": 1.2,
+      "price": 8,
+      "color": "#FFE680"
+    },
+    {
+      "id": "aura_snowflakes",
+      "mult": 1.5,
+      "price": 30,
+      "color": "#E8F6FF"
+    },
+    {
+      "id": "aura_whirl",
+      "mult": 2,
+      "price": 80,
+      "color": "#8FD3FF"
+    },
+    {
+      "id": "aura_lightning",
+      "mult": 3,
+      "price": 200,
+      "color": "#FFF36B"
+    },
+    {
+      "id": "aura_northern",
+      "mult": 4,
+      "price": 450,
+      "color": "#5CFFB0"
+    },
+    {
+      "id": "aura_ice_crown",
+      "mult": 6,
+      "price": 1000,
+      "color": "#B8E9FF"
+    }
+  ]
+}

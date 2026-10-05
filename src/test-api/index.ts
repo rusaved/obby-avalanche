@@ -82,6 +82,11 @@ export interface TestState {
   menu: string[];
   /** Counters on the HUD column buttons by id («pets» → «2/27», M3-13) and the second line of the toast. */
   menuBadges: Record<string, string>;
+  /** M3-04: the skin on the hero (characters), the trail and the aura on and drawn, the trophy plaque. */
+  skin: string;
+  trail: string | null;
+  aura: string | null;
+  trophyPlaque: { shown: boolean; text: string };
   toastSub: string;
   shoeLevel: number;
   shoesButton: { shown: boolean; text: string; can: boolean };
@@ -158,6 +163,8 @@ export interface TestApi {
   setCoins(n: number): void;
   /** Sets the play time of the player (save.totalPlaySec): the HUD buttons due by time (docs/01-gdd.md 6.4). */
   setPlaySec(sec: number): void;
+  /** Sets the trophies to spend and over all time (M3-04: a summit done, trails and auras to buy). */
+  setTrophies(n: number): void;
   /** A pet joins the player as from the free egg of the first minute (M3-13: «Bunny from the teaching»). */
   givePet(id: string): void;
   /** e2e bot: the hero walks these world points [x, z] in order, ignoring the camera; null stops the bot. */
@@ -282,6 +289,13 @@ export function installTestApi(g: GameHandles): TestApi {
         menuBadges: Object.fromEntries(
           [...document.querySelectorAll<HTMLElement>('[data-role="menu"] [data-hud]')].map((e) => [(e.dataset['hud'] ?? '').replace(/^menu-/, ''), e.querySelector('.hud-menu-badge')?.textContent ?? '']),
         ),
+        skin: g.hero?.skinId ?? '',
+        trail: g.save.trail ?? null,
+        aura: g.save.aura ?? null,
+        trophyPlaque: {
+          shown: document.querySelector('[data-role="trophies"]')?.classList.contains('shown') ?? false,
+          text: document.querySelector('[data-role="trophies"] .hud-trophy-value')?.textContent ?? '',
+        },
         toastSub: document.querySelector('[data-role="toast"].shown [data-role="toast-sub"]')?.textContent ?? '',
         shoeLevel: g.meta?.shoeLevel ?? 0,
         trophies: { now: g.save.trophies ?? 0, total: g.save.trophiesTotal ?? 0 },
@@ -394,6 +408,10 @@ export function installTestApi(g: GameHandles): TestApi {
     },
     setPlaySec(sec) {
       g.save.totalPlaySec = sec;
+    },
+    setTrophies(n) {
+      g.save.trophies = n;
+      g.save.trophiesTotal = Math.max(n, g.save.trophiesTotal ?? 0);
     },
     givePet(id) {
       g.pets?.hatched(id, null, true);

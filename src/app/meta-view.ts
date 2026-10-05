@@ -4,18 +4,22 @@
  * rebirth, and the step multiplier of the meta for the simulation (shoes, the pets on — app/pets-view.ts). The shop
  * window — M3-09. The shoe level and «the button was shown» live in the save.
  */
-import type { BalanceJson, PetsJson } from '../content/types.ts';
+import type { AurasJson, BalanceJson, PetsJson, TrailsJson } from '../content/types.ts';
 import type { SaveData } from '../meta/save.ts';
 import type { Sim } from '../sim/world.ts';
 import type { Hud } from '../ui/hud.ts';
 import { buyNextShoes, gainMult, nextShoes, SHOES_AFTER_REBIRTH, shoesPrice } from '../meta/shoes.ts';
 import { equippedIds } from '../meta/pets.ts';
+import { cosmeticMult } from '../meta/cosmetics.ts';
 import { formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
 
 export interface MetaViewDeps {
   balance: BalanceJson;
   pets: PetsJson;
+  /** Trails and auras (M3-04); absent — ×1. */
+  trails?: TrailsJson;
+  auras?: AurasJson;
   save: SaveData;
   getSim(): Sim;
   hud: Hud;
@@ -49,7 +53,13 @@ export function createMetaView(d: MetaViewDeps): MetaView {
     },
     apply() {
       const sim = d.getSim();
-      sim.progress.gainMult = gainMult(d.balance, d.pets, { tier: sim.tier, shoeLevel: view.shoeLevel, pets: equippedIds(d.save, d.pets, d.balance.pets.slots) });
+      sim.progress.gainMult = gainMult(d.balance, d.pets, {
+        tier: sim.tier,
+        shoeLevel: view.shoeLevel,
+        pets: equippedIds(d.save, d.pets, d.balance.pets.slots),
+        trail: cosmeticMult(d.save, 'trail', d.trails?.trails ?? []),
+        aura: cosmeticMult(d.save, 'aura', d.auras?.auras ?? []),
+      });
     },
     update() {
       const sim = d.getSim();

@@ -48,7 +48,7 @@ export function petMult(owned: readonly string[], pets: PetsJson, slots: number)
   return 1 + bonuses.reduce((a, b) => a + b, 0);
 }
 
-/** What the player has on: rebirth tier, shoe level, pets owned; trail, aura, boost and VIP when they arrive (M3-04, M4). */
+/** What the player has on: rebirth tier, shoe level, the pets on, trail and aura multipliers; boost and VIP — M4. */
 export interface MetaGain extends Omit<GainMults, 'shoe' | 'pets'> {
   shoeLevel: number;
   pets: readonly string[];

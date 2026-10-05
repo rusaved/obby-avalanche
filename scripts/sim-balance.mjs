@@ -25,6 +25,8 @@ const pack = {
   tuning: read('tuning.json'),
   pets: read('pets.json'),
   eggs: read('eggs.json'),
+  trails: read('trails.json'),
+  auras: read('auras.json'),
   worlds: read('worlds.json').worlds,
 };
 

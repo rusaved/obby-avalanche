@@ -1,0 +1,52 @@
+{
+  "trails": [
+    {
+      "id": "trail_snow",
+      "mult": 1.1,
+      "price": 3,
+      "color": "#A8DFFF"
+    },
+    {
+      "id": "trail_ice",
+      "mult": 1.25,
+      "price": 10,
+      "color": "#5CC8FF"
+    },
+    {
+      "id": "trail_mint",
+      "mult": 1.5,
+      "price": 25,
+      "color": "#7DF2C4"
+    },
+    {
+      "id": "trail_rainbow",
+      "mult": 2,
+      "price": 60,
+      "color": "#FF7AD9"
+    },
+    {
+      "id": "trail_fire",
+      "mult": 2.5,
+      "price": 120,
+      "color": "#FF8A2B"
+    },
+    {
+      "id": "trail_star",
+      "mult": 3,
+      "price": 250,
+      "color": "#FFE14D"
+    },
+    {
+      "id": "trail_aurora",
+      "mult": 4,
+      "price": 500,
+      "color": "#6CFFB8"
+    },
+    {
+      "id": "trail_comet",
+      "mult": 5,
+      "price": 1000,
+      "color": "#B98CFF"
+    }
+  ]
+}

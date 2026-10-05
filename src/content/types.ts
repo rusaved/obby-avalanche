@@ -314,6 +314,20 @@ export interface EggsJson {
   eggs: Array<{ id: string; price: number; pool: Array<{ pet: string; chance: number }> }>;
 }
 
+/** trails.json and auras.json (docs/01a-content.md 7): step multiplier, price in trophies, colour of the trail or the glow. */
+export interface CosmeticItem {
+  id: string;
+  mult: number;
+  price: number;
+  color: string;
+}
+export interface TrailsJson {
+  trails: CosmeticItem[];
+}
+export interface AurasJson {
+  auras: CosmeticItem[];
+}
+
 /**
  * bots.json (docs/01a-content.md 12; docs/01-gdd.md 7.12): how many bots per quality level, name keys of i18n,
  * colours of their parts, speed factor and treadmill seconds as [min, max] ranges, the share that hides on warn.
@@ -349,6 +363,8 @@ export interface ContentPack {
   accessories: AccessoriesJson;
   pets: PetsJson;
   eggs: EggsJson;
+  trails: TrailsJson;
+  auras: AurasJson;
   sfx: SfxJson;
   bots: BotsJson;
 }
