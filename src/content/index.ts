@@ -10,6 +10,7 @@ import worlds from '@content/worlds.json';
 import skins from '@content/skins.json';
 import accessories from '@content/accessories.json';
 import pets from '@content/pets.json';
+import eggs from '@content/eggs.json';
 import sfx from '@content/sfx.json';
 import bots from '@content/bots.json';
 import ruUrl from '@content/i18n/ru.json?url';
@@ -25,6 +26,7 @@ export const content: ContentPack = {
   skins: skins as unknown as ContentPack['skins'],
   accessories: accessories as unknown as ContentPack['accessories'],
   pets: pets as unknown as ContentPack['pets'],
+  eggs: eggs as unknown as ContentPack['eggs'],
   sfx: sfx as unknown as ContentPack['sfx'],
   bots: bots as unknown as ContentPack['bots'],
 };

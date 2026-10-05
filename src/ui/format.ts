@@ -40,3 +40,12 @@ export function formatNumber(n: number, suffix: (key: string) => string = (k) =>
   const cut = Math.floor(m * scale * (1 + EPS)) / scale;
   return sign + nf.format(cut) + suffix(SUFFIX_KEYS[group - 1] as string);
 }
+
+/** A multiplier (×1.1, ×1.65, ×12.5): 3 significant digits below 1000 too, cut down; from 1000 on as formatNumber. */
+export function formatMult(n: number, suffix: (key: string) => string = (k) => k): string {
+  if (!Number.isFinite(n) || n < 0) return '0';
+  if (n >= 1000) return formatNumber(n, suffix);
+  const intDigits = n >= 100 * (1 - EPS) ? 3 : n >= 10 * (1 - EPS) ? 2 : 1;
+  const scale = Math.pow(10, 3 - intDigits);
+  return nf.format(Math.floor(n * scale * (1 + EPS)) / scale);
+}

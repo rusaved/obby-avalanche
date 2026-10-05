@@ -15,6 +15,11 @@ export const ICONS: Record<string, string> = {
   flag: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22V3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M6 4h12l-3 4 3 4H6z" fill="#fff" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>',
   /** Avalanche mark on the mountain bar while it runs. */
   wave: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 18c3-7 6-11 10-11s5 4 10 1c-1 6-5 10-10 10H2z" fill="#fff" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+  /** HUD column (docs/01-gdd.md 10.1): shop bag, pet paw, wardrobe shirt; the trophy of the trophy plaque and prices. */
+  shop: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 13H6z" fill="#fff" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 10V6a3 3 0 0 1 6 0v4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  pets: '<svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="16" rx="5" ry="4.2" fill="#fff" stroke="currentColor" stroke-width="1.6"/><circle cx="5.5" cy="10" r="2.2" fill="#fff" stroke="currentColor" stroke-width="1.6"/><circle cx="9.5" cy="6" r="2.2" fill="#fff" stroke="currentColor" stroke-width="1.6"/><circle cx="14.5" cy="6" r="2.2" fill="#fff" stroke="currentColor" stroke-width="1.6"/><circle cx="18.5" cy="10" r="2.2" fill="#fff" stroke="currentColor" stroke-width="1.6"/></svg>',
+  wardrobe: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3 3 6l2 5 2-1v11h10V10l2 1 2-5-5-3c-.5 1.6-2 2.6-4 2.6S8.5 4.6 8 3z" fill="#fff" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
+  trophy: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10v5a5 5 0 0 1-10 0z" fill="#fff" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M7 5H4a3 3 0 0 0 3 4M17 5h3a3 3 0 0 1-3 4M12 13v4M8 21h8l-1-4H9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>',
 };
 
 export function icon(id: string): string {

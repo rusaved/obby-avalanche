@@ -1,7 +1,7 @@
 /**
  * Teaching in the world (docs/01-gdd.md 6.1, 6.2, 6.5): hint plaques above the hero (one at a time), white arrows
- * on the snow to the cave entrance on the warning, the free egg «Mountain Gift» with a hand over it, the pet that
- * jumps out of it. Reads the simulation, never changes it; the hints controller lives in meta/hints.ts.
+ * on the snow to the cave entrance on the warning, the free egg «Mountain Gift» with a hand over it (the pet that
+ * jumps out of it — app/pets-view.ts). Reads the simulation, never changes it; the hints controller lives in meta/hints.ts.
  */
 import { Vector3 } from 'three';
 import type { BalanceJson, PetsJson } from '../content/types.ts';
@@ -39,8 +39,6 @@ export interface FtueView {
   /** Subscribes to a new simulation (start and every portal). */
   wire(sim: Sim): void;
   update(frameDt: number, timeSec: number, heroRender: Vector3): void;
-  /** The pet jumped out of the egg at `from` (or is already with the player at the start: no `from`). */
-  showPet(pet: string, from?: Vector3): void;
   readonly hint: HintId | null;
   readonly hints: Hints;
   readonly arrows: boolean;
@@ -78,10 +76,6 @@ export function createFtueView(d: FtueViewDeps): FtueView {
       const i = sim.gifts.findIndex((g) => g.y > sim.level.floorYAt(g.z) + 1);
       const g = sim.gifts[i];
       ledge = g ? { x: g.x, y: g.y, z: g.z, index: i } : null;
-    },
-    showPet(pet, at) {
-      const def = d.pets.pets.find((x) => x.id === pet);
-      d.visual.setPet(def ? { color: def.color, accent: def.accent } : null, at);
     },
     update(frameDt, timeSec, heroRender) {
       const sim = d.getSim();
@@ -154,7 +148,6 @@ export function createFtueView(d: FtueViewDeps): FtueView {
       const handAt = egg && egg.phase === 'idle' && sim.shelterIndex() === egg.niche ? project(egg.x, egg.y + HAND_ABOVE, egg.z) : null;
       d.hud.setHand(handAt);
       view.hand = handAt !== null;
-      d.visual.updatePet(heroRender, hero.yaw, hero.speed > MOVING_SPEED || sim.onBelt, frameDt, timeSec);
     },
   };
   return view;

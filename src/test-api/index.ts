@@ -72,6 +72,14 @@ export interface TestState {
   hand: boolean;
   egg: { phase: string; x: number; y: number; z: number } | null;
   pets: string[];
+  /** M3-03: ids of the pets on, pets drawn next to the hero, the egg button over a stand, the egg being hatched. */
+  petsOn: string[];
+  petsShown: number;
+  eggButton: { shown: boolean; text: string; can: boolean; egg: string | null };
+  hatching: { egg: string; t: number } | null;
+  /** The open window (docs/01-gdd.md 10.2) and the buttons of the HUD column, top to bottom. */
+  window: string | null;
+  menu: string[];
   shoeLevel: number;
   shoesButton: { shown: boolean; text: string; can: boolean };
   /** Trophies to spend and over all time (M3-11: summits pay g × (1 + n), the leaderboard goes by the total). */
@@ -145,6 +153,10 @@ export interface TestApi {
   setStat(n: number): void;
   /** Sets the coin balance (M3-02: the shoes button shows the first time coins reach the next pair). */
   setCoins(n: number): void;
+  /** Sets the play time of the player (save.totalPlaySec): the HUD buttons due by time (docs/01-gdd.md 6.4). */
+  setPlaySec(sec: number): void;
+  /** A pet joins the player as from the free egg of the first minute (M3-13: «Bunny from the teaching»). */
+  givePet(id: string): void;
   /** e2e bot: the hero walks these world points [x, z] in order, ignoring the camera; null stops the bot. */
   botPath(points: Array<[number, number]> | null): void;
   /** Points the bot has not reached yet. */
@@ -258,6 +270,12 @@ export function installTestApi(g: GameHandles): TestApi {
         hand: g.ftue?.hand ?? false,
         egg: g.sim?.giftEgg ? { phase: g.sim.giftEgg.phase, x: g.sim.giftEgg.x, y: g.sim.giftEgg.y, z: g.sim.giftEgg.z } : null,
         pets: [...(g.save.pets ?? [])],
+        petsOn: g.pets?.equippedIds ?? [],
+        petsShown: g.pets?.shownPets ?? 0,
+        eggButton: { ...(g.pets?.eggButton ?? { shown: false, text: '', can: false, egg: null }) },
+        hatching: g.pets?.hatching ?? null,
+        window: g.windows?.current ?? null,
+        menu: [...document.querySelectorAll<HTMLElement>('[data-role="menu"] [data-hud]')].map((e) => (e.dataset['hud'] ?? '').replace(/^menu-/, '')),
         shoeLevel: g.meta?.shoeLevel ?? 0,
         trophies: { now: g.save.trophies ?? 0, total: g.save.trophiesTotal ?? 0 },
         shoesButton: shoesButton(),
@@ -366,6 +384,12 @@ export function installTestApi(g: GameHandles): TestApi {
     },
     setCoins(n) {
       if (g.sim) g.sim.coins = n;
+    },
+    setPlaySec(sec) {
+      g.save.totalPlaySec = sec;
+    },
+    givePet(id) {
+      g.pets?.hatched(id, null, true);
     },
     botPath(points) {
       g.botPath = points ? points.map((p) => [p[0], p[1]] as [number, number]) : null;

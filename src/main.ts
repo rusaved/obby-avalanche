@@ -10,7 +10,7 @@ import { log } from './core/log.ts';
 import { createRng, seedFrom } from './core/rng.ts';
 import { loadDictionary, setDictionary, t } from './ui/i18n.ts';
 import { fitField, type FieldRect } from './ui/fit.ts';
-import { createHud, type Hud } from './ui/hud.ts';
+import { createHud, type Hud, type MenuItem } from './ui/hud.ts';
 import { drawNoGraphics } from './ui/fallback.ts';
 import { mountLabel } from './ui/label.ts';
 import { createGameRenderer, createWebGL2Context, type GameRenderer } from './render/renderer.ts';
@@ -26,6 +26,9 @@ import { createWaveView, type WaveView } from './app/wave-view.ts';
 import { createFtueVisual } from './render/ftue.ts';
 import { createFtueView, type FtueView } from './app/ftue-view.ts';
 import { createMetaView, type MetaView } from './app/meta-view.ts';
+import { createPetsView, type PetsView } from './app/pets-view.ts';
+import { createPetsVisual } from './render/pets.ts';
+import { createWindowFrame, type WindowFrame } from './ui/window.ts';
 import { createHudView, type HudView } from './app/hud-view.ts';
 import { createBotsView, type BotsView, type HudMode } from './app/bots-view.ts';
 import { faceDataUrl } from './render/characters.ts';
@@ -62,7 +65,7 @@ const PLAY_PERSIST_SEC = 5;
  * LoadingAPI.ready() exactly once → GameplayAPI.start() when nothing pauses the game.
  */
 async function boot(): Promise<void> {
-  const { game, theme, tuning, balance, skins, accessories, pets, sfx, bots } = content;
+  const { game, theme, tuning, balance, skins, accessories, pets, eggs, sfx, bots } = content;
   const params = new URLSearchParams(location.search);
   // Address parameters exist only in dev, playtest, e2e and pages builds (docs/02-tech.md 9.3).
   const debugParams = __DEBUG_TOOLS__ ? params : new URLSearchParams();
@@ -180,6 +183,8 @@ async function boot(): Promise<void> {
   let waveView: WaveView | null = null;
   let ftueView: FtueView | null = null;
   let meta: MetaView | null = null;
+  let petsView: PetsView | null = null;
+  let windows: WindowFrame | null = null;
   let hudView: HudView | null = null;
   let audio: GameAudio | null = null;
   let botsView: BotsView | null = null;
@@ -213,9 +218,8 @@ async function boot(): Promise<void> {
     s.events.on('gatePass', ({ total }) => hud?.setCoins(formatNumber(total, numSuffix)));
     // The free egg hatched (docs/01-gdd.md 6.2): the pet jumps out, +20% per step, egg_1 (docs/06 step 11).
     s.events.on('eggHatch', ({ pet }) => {
-      meta?.addPet(pet);
       const egg = s.giftEgg;
-      ftueView?.showPet(pet, egg ? new Vector3(egg.x, egg.y + 1, egg.z) : undefined);
+      petsView?.hatched(pet, egg ? new Vector3(egg.x, egg.y + 1, egg.z) : null, true);
     });
     // Round number of Speed (M2-13, Q-023): flash, bounce, chime, toast; no analytics.
     s.events.on('statMilestone', ({ value }) => {
@@ -276,6 +280,7 @@ async function boot(): Promise<void> {
     });
     ftueView?.wire(s);
     hudView?.wire(s);
+    petsView?.wire(s);
   };
   wireSim(sim);
   const numSuffix = (k: string): string => t(`num.${k}`);
@@ -399,6 +404,12 @@ async function boot(): Promise<void> {
     get ftue() {
       return ftueView;
     },
+    get pets() {
+      return petsView;
+    },
+    get windows() {
+      return windows;
+    },
     get audio() {
       return audio;
     },
@@ -510,7 +521,11 @@ async function boot(): Promise<void> {
 
   const renderFrame = (alpha: number, frameDt: number): void => {
     if (!gr) return;
-    if (input.consumePause()) g.toggleMenu();
+    // Esc closes the open window first (docs/01-gdd.md 10.2), otherwise it toggles the pause.
+    if (input.consumePause()) {
+      if (windows?.current) windows.close();
+      else g.toggleMenu();
+    }
     const hero = sim.hero;
     renderPos.copy(prevPos).lerp(curPos, alpha);
     if (heroChar) {
@@ -531,6 +546,8 @@ async function boot(): Promise<void> {
     const gameDt = (loop.ticks - lastRenderTicks) * loop.step;
     lastRenderTicks = loop.ticks;
     meta?.update();
+    petsView?.update(gameDt, playSec, renderPos, hero.yaw, hero.speed > 1.5 || sim.onBelt);
+    hud?.setMenu([petsView?.menuItem()].filter((x): x is MenuItem => !!x));
     ftueView?.update(gameDt, playSec, renderPos);
     hudView?.update(playSec);
     if (cameraRig) {
@@ -669,6 +686,11 @@ async function boot(): Promise<void> {
     threatColor: theme.threat.front[1],
     bonusColor: theme.bonus?.color,
     onShoes: () => void meta?.buyShoes(),
+    onEgg: () => void petsView?.buyEgg(),
+    onMenu: (id) => {
+      if (id === 'pets') petsView?.openWindow();
+    },
+    trophyColor: theme.ui.trophies,
     okColor: theme.ui.ok,
     statColor: theme.ui.stat,
     statIcon: theme.ui.statIcon,
@@ -702,6 +724,30 @@ async function boot(): Promise<void> {
   gr.scene.add(ftueVisual.group);
   meta = createMetaView({ balance, pets, save, getSim: () => sim, hud, numSuffix, trackOnce, persist });
   meta.apply();
+  // Windows (docs/01-gdd.md 10.2): one at a time, the game and the avalanche stand while it is open (pause `menu`).
+  windows = createWindowFrame(ui, { closeLabel: t('btn.close'), onChange: (id) => pause.set_('menu', id !== null) });
+  const petsVisual = createPetsVisual(theme);
+  gr.scene.add(petsVisual.group);
+  petsView = createPetsView({
+    balance,
+    pets,
+    eggs,
+    theme,
+    save,
+    getSim: () => sim,
+    hud,
+    windows,
+    visual: petsVisual,
+    camera: cameraRig,
+    field: () => field,
+    // Egg rolls: their own stream of the seed (docs/02-tech.md 4.2), so other draws do not move them.
+    rng: createRng((seed ^ 0x2545f491) >>> 0),
+    numSuffix,
+    persist,
+    trackOnce,
+    onChange: () => meta?.apply(),
+  });
+  petsView.wire(sim);
   ftueView = createFtueView({
     balance,
     pets,
@@ -726,7 +772,6 @@ async function boot(): Promise<void> {
     numSuffix,
   });
   hudView.wire(sim);
-  for (const pet of save.pets ?? []) ftueView.showPet(pet);
   hud.setAutoRun(save.settings.autoRun);
   hud.setQuality(save.settings.quality);
   hud.setTouchMode(mobile);

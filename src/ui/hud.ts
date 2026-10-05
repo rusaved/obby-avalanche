@@ -31,6 +31,28 @@ export interface HudOptions {
   statIcon: string;
   /** Sound button pressed: the caller flips the setting and calls setSound. */
   onSound: () => void;
+  /** A button of the right column pressed (docs/01-gdd.md 10.1: shop, pets, wardrobe …), by its id. */
+  onMenu: (id: string) => void;
+  /** The egg button over a stand pressed (docs/01-gdd.md 7.2). */
+  onEgg: () => void;
+  /** Trophy plaque colour (theme.json ui.trophies). */
+  trophyColor: string;
+}
+
+/** A button of the right column: id, caption under the icon, icon id, optional counter on it («2/27»). */
+export interface MenuItem {
+  id: string;
+  label: string;
+  icon: string;
+  badge?: string;
+}
+
+/** The egg button over a stand: «Snow Egg · 500», enough coins, its bottom centre in field px. */
+export interface EggButtonState {
+  text: string;
+  can: boolean;
+  x: number;
+  y: number;
 }
 
 /** Mountain bar (docs/01-gdd.md 10.1): positions along the mountain are 0–1 from the camp to the summit. */
@@ -77,8 +99,9 @@ export interface Hud {
   setFrost(level: number): void;
   /** Arrow at the field edge towards the lit cave when it is off screen (x, y in px, angle in rad); null hides it. */
   setCaveArrow(arrow: { x: number; y: number; angle: number } | null): void;
-  /** Short toast in the middle («Phew, made it! +15», «Snowed in!»); `gold` — the bigger golden one (docs/01-gdd.md 4.9). */
-  toast(text: string, sec?: number, gold?: boolean): void;
+  /** Short toast in the middle («Phew, made it! +15», «Snowed in!»); `gold` — the bigger golden one (docs/01-gdd.md 4.9);
+   * `sub` — a smaller second line (the collection counter of a hatch, M3-13). */
+  toast(text: string, sec?: number, gold?: boolean, sub?: string): void;
   /** Soft white veil when the camera is inside the snow body (docs/02-tech.md 7). */
   setVeil(on: boolean): void;
   /** Speed plaque: the number and «+N per step» under it (docs/01-gdd.md 10.1). */
@@ -94,6 +117,12 @@ export interface Hud {
   /** Goal under the bar: «Wall 2K» with «1.2K/2K» and a fill bar; `progress` null — text only («Wall open!»). */
   setGoal(text: string, progress: { text: string; frac: number } | null): void;
   setSound(on: boolean): void;
+  /** Right column under pause and sound (docs/01-gdd.md 10.1, 6.4): the buttons shown now, top to bottom. */
+  setMenu(items: readonly MenuItem[]): void;
+  /** The egg button over the stand the hero stands at; null hides it. */
+  setEggButton(state: EggButtonState | null): void;
+  /** Trophy plaque under the coins (docs/01-gdd.md 6.4: from the first summit); null hides it. */
+  setTrophies(text: string | null): void;
   readonly jumpButton: HTMLButtonElement;
 }
 
@@ -207,6 +236,32 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const coinValue = el('span', 'hud-coin-value', '0');
   coins.append(coinIcon, coinValue);
   left.appendChild(coins);
+  const trophies = el('div', 'hud-trophies');
+  trophies.dataset['role'] = 'trophies';
+  trophies.setAttribute('aria-label', t('hud.trophies'));
+  trophies.style.setProperty('--trophies', opts.trophyColor);
+  const trophyIcon = el('span', 'hud-trophy-icon');
+  trophyIcon.innerHTML = icon('trophy');
+  const trophyValue = el('span', 'hud-trophy-value', '0');
+  trophies.append(trophyIcon, trophyValue);
+  left.appendChild(trophies);
+
+  // Right column (docs/01-gdd.md 10.1): shop, pets, wardrobe … under pause and sound, icon with a caption.
+  const menu = el('div', 'hud-menu');
+  menu.dataset['role'] = 'menu';
+  root.appendChild(menu);
+  let menuIds = '';
+  const menuButtons = new Map<string, { badge: HTMLElement }>();
+
+  // Egg button over a stand (docs/01-gdd.md 7.2): when the hero stands next to it.
+  const eggBtn = el('button', 'hud-egg');
+  eggBtn.dataset['hud'] = 'egg';
+  eggBtn.style.setProperty('--ok', opts.okColor);
+  eggBtn.addEventListener('pointerup', (ev) => {
+    ev.preventDefault();
+    opts.onEgg();
+  });
+  root.appendChild(eggBtn);
 
   // Avalanche (docs/01-gdd.md 4.8): banner, frost frame, arrow to the cave, toast, veil. Never red (docs/03, 3.2).
   root.style.setProperty('--threat', opts.threatColor);
@@ -222,6 +277,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   arrow.dataset['role'] = 'cave-arrow';
   const toastEl = el('div', 'hud-toast');
   toastEl.dataset['role'] = 'toast';
+  const toastMain = el('span', 'hud-toast-main');
+  const toastSub = el('span', 'hud-toast-sub');
+  toastSub.dataset['role'] = 'toast-sub';
+  toastEl.append(toastMain, toastSub);
   root.append(frost, veil, banner, arrow, toastEl);
   let toastTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -353,6 +412,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
         b.style.height = `${btn}px`;
       }
       soundBtn.style.marginRight = `${btn + (height < 420 ? 6 : 8)}px`;
+      menu.style.top = `${8 + btn + (height < 420 ? 6 : 8)}px`;
       root.classList.toggle('short', height < 420);
       const r = Math.round(short * 0.12);
       stickBase.style.width = `${r * 2}px`;
@@ -397,8 +457,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       arrow.classList.toggle('shown', a !== null);
       if (a) arrow.style.transform = `translate(${Math.round(a.x)}px, ${Math.round(a.y)}px) translate(-50%, -50%) rotate(${a.angle.toFixed(3)}rad)`;
     },
-    toast(text, sec = 2, gold = false) {
-      toastEl.textContent = text;
+    toast(text, sec = 2, gold = false, sub) {
+      toastMain.textContent = text;
+      toastSub.textContent = sub ?? '';
       toastEl.classList.toggle('gold', gold);
       toastEl.classList.remove('shown');
       void toastEl.offsetWidth;
@@ -481,6 +542,44 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     setSound(on) {
       soundBtn.innerHTML = icon(on ? 'soundOn' : 'soundOff');
       soundBtn.dataset['on'] = String(on);
+    },
+    setMenu(items) {
+      const ids = items.map((i) => i.id).join(',');
+      if (ids !== menuIds) {
+        menuIds = ids;
+        menu.replaceChildren();
+        menuButtons.clear();
+        for (const item of items) {
+          const b = el('button', 'hud-btn hud-menu-btn');
+          b.dataset['hud'] = `menu-${item.id}`;
+          b.setAttribute('aria-label', item.label);
+          const ic = el('span', 'hud-menu-icon');
+          ic.innerHTML = icon(item.icon);
+          const badge = el('span', 'hud-menu-badge');
+          b.append(ic, el('span', 'hud-menu-label', item.label), badge);
+          b.addEventListener('pointerup', (ev) => {
+            ev.preventDefault();
+            opts.onMenu(item.id);
+          });
+          menu.appendChild(b);
+          menuButtons.set(item.id, { badge });
+        }
+      }
+      for (const item of items) {
+        const badge = menuButtons.get(item.id)?.badge;
+        if (badge && badge.textContent !== (item.badge ?? '')) badge.textContent = item.badge ?? '';
+      }
+    },
+    setEggButton(state) {
+      eggBtn.classList.toggle('shown', state !== null);
+      if (!state) return;
+      if (eggBtn.textContent !== state.text) eggBtn.textContent = state.text;
+      eggBtn.classList.toggle('can', state.can);
+      eggBtn.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
+    },
+    setTrophies(text) {
+      trophies.classList.toggle('shown', text !== null);
+      if (text !== null && trophyValue.textContent !== text) trophyValue.textContent = text;
     },
     popGain(text, x, y) {
       const node = gainPool[gainNext % gainPool.length]!;

@@ -173,3 +173,60 @@ canvas.fallback {
 /* Bot names (docs/01-gdd.md 7.12): small grey over the head, thin dark outline, moved only by transform. */
 .bot-labels { position: absolute; inset: 0; overflow: hidden; }
 .bot-label { position: absolute; left: 0; top: 0; opacity: 0; font-weight: 500; line-height: 1; color: #c9d1da; white-space: nowrap; text-shadow: -1px -1px 0 #1b2a3a, 1px -1px 0 #1b2a3a, -1px 1px 0 #1b2a3a, 1px 1px 0 #1b2a3a; will-change: transform, opacity; }
+
+/* Trophy plaque under the coins (docs/01-gdd.md 10.1: purple, from the first summit). */
+.hud-trophies { display: none; align-items: center; gap: 8px; min-width: 80px; height: 32px; box-sizing: border-box; padding: 0 12px 0 6px; border-radius: 12px; background: rgba(0, 0, 0, 0.32); font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; pointer-events: none; }
+.hud-trophies.shown { display: flex; }
+.hud-trophy-icon { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 2px; box-sizing: border-box; border-radius: 50%; background: var(--trophies); color: #3a1a66; }
+.hud-trophy-icon svg { width: 100%; height: 100%; }
+/* Right column under pause and sound (docs/01-gdd.md 10.1): 48 px buttons with an 11–12 px caption. */
+.hud-menu { position: absolute; right: calc(8px + env(safe-area-inset-right)); top: 64px; display: flex; flex-direction: column; align-items: center; gap: 8px; pointer-events: none; }
+.hud-menu-btn { position: relative; width: 56px; height: 56px; border-radius: 14px; flex-direction: column; gap: 1px; padding: 2px 0 0; color: #1b2a3a; pointer-events: auto; }
+.hud-menu-icon { width: 30px; height: 30px; }
+.hud-menu-icon svg { width: 100%; height: 100%; display: block; }
+.hud-menu-label { font-size: 11px; font-weight: 800; line-height: 1; white-space: nowrap; }
+.hud-menu-badge { position: absolute; right: -6px; top: -6px; padding: 1px 5px; border-radius: 8px; background: #1b2a3a; color: #fff; font-size: 11px; font-weight: 800; line-height: 15px; font-variant-numeric: tabular-nums; }
+.hud-menu-badge:empty { display: none; }
+.hud.short .hud-menu { gap: 6px; }
+.hud.short .hud-menu-btn { width: 44px; height: 44px; border-radius: 12px; }
+.hud.short .hud-menu-label { display: none; }
+/* Egg button over a stand (docs/01-gdd.md 7.2): grey while coins are short, green when enough. */
+.hud-egg { position: absolute; left: 0; top: 0; display: none; min-height: 48px; padding: 0 16px; border: 2px solid rgba(27, 42, 58, 0.6); border-radius: 12px; background: #9aa7b4; color: #fff; font: 800 18px/1 var(--font); white-space: nowrap; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
+.hud-egg.shown { display: flex; align-items: center; }
+.hud-egg.can { background: var(--ok); }
+.hud-toast { display: flex; flex-direction: column; align-items: center; }
+.hud-toast-sub { font-size: 0.6em; }
+.hud-toast-sub:empty { display: none; }
+
+/* Windows (docs/01-gdd.md 10.2): cross 48 px at the top right, only the card grid scrolls. */
+.win-panel { width: min(94%, 760px); max-height: 92%; display: flex; flex-direction: column; overflow: hidden; padding: 10px 12px 12px; box-sizing: border-box; }
+.win-top { display: flex; align-items: center; gap: 10px; min-height: 48px; }
+.win-title { flex: none; }
+.win-head { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 10px; font-size: 14px; font-weight: 800; flex-wrap: wrap; }
+.win-close { flex: none; width: 48px; height: 48px; border: 0; border-radius: 12px; background: #dde9f5; color: #1b2a3a; font: 800 22px/1 var(--font); cursor: pointer; }
+.win-body { overflow: auto; min-height: 0; }
+.win-tabs { display: flex; gap: 8px; margin: 6px 0; }
+.win-tab { min-height: 44px; padding: 0 16px; border: 0; border-radius: 10px; background: #dde9f5; color: #1b2a3a; font: 800 14px var(--font); cursor: pointer; }
+.win-tab.on { background: #3ba4ff; color: #fff; }
+.win-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 0 8px; font-size: 14px; font-weight: 800; }
+.win-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+.card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 6px; border-radius: 12px; border: 3px solid var(--rim, #c8d6e5); background: #fff; text-align: center; }
+.card.on { box-shadow: 0 0 0 3px #4cd964 inset; }
+.card-name { font-size: 13px; font-weight: 800; line-height: 1.1; }
+.card-big { font-size: 20px; font-weight: 800; }
+.card-sub { font-size: 12px; opacity: 0.8; }
+.card-swatch { width: 52px; height: 52px; border-radius: 10px; border: 2px solid rgba(27, 42, 58, 0.25); }
+.card-pet { position: relative; width: 52px; height: 52px; border-radius: 8px; border: 2px solid rgba(27, 42, 58, 0.35); }
+.card-pet::before, .card-pet::after { content: ''; position: absolute; top: 18px; width: 7px; height: 9px; border-radius: 2px; background: #1b2a3a; }
+.card-pet::before { left: 13px; }
+.card-pet::after { right: 13px; }
+.card-pet-nose { position: absolute; left: 50%; bottom: 12px; width: 12px; height: 7px; margin-left: -6px; border-radius: 2px; }
+.card-btns { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+.card-btn { min-height: 44px; min-width: 48px; padding: 0 10px; border: 0; border-radius: 10px; background: #3ba4ff; color: #fff; font: 800 13px var(--font); cursor: pointer; }
+.card-btn.alt { background: #dde9f5; color: #1b2a3a; }
+.card-btn.off { background: #9aa7b4; cursor: default; }
+.card-price { display: inline-flex; align-items: center; gap: 4px; }
+.card-price svg { width: 16px; height: 16px; color: #3a1a66; }
+.slots { display: flex; gap: 8px; }
+.slot { width: 56px; height: 56px; border-radius: 12px; border: 2px dashed rgba(27, 42, 58, 0.35); display: flex; align-items: center; justify-content: center; }
+.hud.touch ~ .win .win-panel, .hud.short ~ .win .win-panel { width: 100%; height: 100%; max-height: 100%; border-radius: 0; }

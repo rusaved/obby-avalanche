@@ -1,14 +1,15 @@
 /**
  * Meta on the HUD (docs/01-gdd.md 6.2, 6.4, 7.1): the shoes button «Shoes ×N · price» at the bottom centre (shows the
  * first time coins reach the next pair, then stays, grey while short; one tap buys), the reset of the shoes on a
- * rebirth, pets from the free egg and the step multiplier they give to the simulation. The shop window — M3-09;
- * pets beyond the free egg — M3-03. The shoe level and «the button was shown» live in the save.
+ * rebirth, and the step multiplier of the meta for the simulation (shoes, the pets on — app/pets-view.ts). The shop
+ * window — M3-09. The shoe level and «the button was shown» live in the save.
  */
 import type { BalanceJson, PetsJson } from '../content/types.ts';
 import type { SaveData } from '../meta/save.ts';
 import type { Sim } from '../sim/world.ts';
 import type { Hud } from '../ui/hud.ts';
 import { buyNextShoes, gainMult, nextShoes, SHOES_AFTER_REBIRTH, shoesPrice } from '../meta/shoes.ts';
+import { equippedIds } from '../meta/pets.ts';
 import { formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
 
@@ -27,20 +28,17 @@ export interface MetaView {
   /** Shoe level (0 = the starting pair), the shoes button is on screen. */
   readonly shoeLevel: number;
   readonly shoesShown: boolean;
-  /** Pushes the meta multiplier into the simulation (after a purchase, a pet, a new mountain). */
+  /** Pushes the meta multiplier into the simulation (after a purchase, a pet on or off, a new mountain). */
   apply(): void;
   /** Called every frame: shows and refreshes the shoes button. */
   update(): void;
   buyShoes(): boolean;
   /** Rebirth (M3-06): the starting pair again; the button stays on the HUD. */
   resetShoes(): void;
-  /** The free egg hatched `pet` (docs/01-gdd.md 6.2). */
-  addPet(pet: string): void;
 }
 
 export function createMetaView(d: MetaViewDeps): MetaView {
   const tiers = d.balance.upgrade.tiers;
-  const owned = (): string[] => (d.save.pets ??= []);
   const flags = (): Record<string, boolean> => (d.save.flags ??= {});
   const view: MetaView = {
     get shoeLevel() {
@@ -51,7 +49,7 @@ export function createMetaView(d: MetaViewDeps): MetaView {
     },
     apply() {
       const sim = d.getSim();
-      sim.progress.gainMult = gainMult(d.balance, d.pets, { tier: sim.tier, shoeLevel: view.shoeLevel, pets: owned() });
+      sim.progress.gainMult = gainMult(d.balance, d.pets, { tier: sim.tier, shoeLevel: view.shoeLevel, pets: equippedIds(d.save, d.pets, d.balance.pets.slots) });
     },
     update() {
       const sim = d.getSim();
@@ -95,15 +93,6 @@ export function createMetaView(d: MetaViewDeps): MetaView {
       d.persist(true);
       view.apply();
       view.update();
-    },
-    addPet(pet) {
-      owned().push(pet);
-      (d.save.flags ??= {})['giftEgg'] = true;
-      view.apply();
-      const bonus = d.pets.pets.find((p) => p.id === pet)?.bonus ?? 0;
-      d.hud.toast(t('toast.newPet', { n: Math.round(bonus * 100) }));
-      d.trackOnce('egg_1');
-      d.persist();
     },
   };
   return view;

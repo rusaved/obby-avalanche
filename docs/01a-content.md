@@ -400,6 +400,7 @@
 | `hud.goal.rebirth` | Переродись! | Time to rebirth! |
 | `hud.shoesBtn` | Кроссовки ×{m} · {price} | Sneakers ×{m} · {price} |
 | `hud.shoesMax` | Лучшие кроссовки | Best sneakers |
+| `hud.eggBuy` | {egg} · {price} | {egg} · {price} |
 | `hud.boost` | ×2 {time} | ×2 {time} |
 | `hud.tier` | Ступень {n} | Tier {n} |
 | `hud.more` | Ещё | More |

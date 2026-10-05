@@ -304,7 +304,7 @@ export interface AccessoriesJson {
   }>;
 }
 
-/** pets.json (docs/01a-content.md 6): bonus is the step bonus (0.2 = +20%); the full list arrives with M3-03. */
+/** pets.json (docs/01a-content.md 6): bonus is the step bonus (0.2 = +20%). */
 export interface PetsJson {
   pets: Array<{ id: string; rarity: string; bonus: number; color: string; accent: string }>;
 }
@@ -348,6 +348,7 @@ export interface ContentPack {
   skins: SkinsJson;
   accessories: AccessoriesJson;
   pets: PetsJson;
+  eggs: EggsJson;
   sfx: SfxJson;
   bots: BotsJson;
 }
