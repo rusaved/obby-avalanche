@@ -44,6 +44,9 @@ export interface HintFrame {
   onBelt: boolean;
   /** Standing below a closed gate outside a cave. */
   nearClosedGate: boolean;
+  /** On the way from the gate of hint.stuck down to the cave below it, that gate still closed (docs/01-gdd.md 6.5:
+   * the plaque goes on entering the cave, not on the first step; PR-12). */
+  stuckWay: boolean;
   /** On the summit, and whether he moves towards the portal. */
   onSummit: boolean;
   towardsPortal: boolean;
@@ -94,7 +97,7 @@ const RULES: Rule[] = [
     id: 'hint.stuck',
     max: (t) => t.stuckMax,
     show: (_, s) => s.stuckSec >= s.t.stuckSec,
-    hide: (f) => f.inShelter || !f.nearClosedGate,
+    hide: (f) => f.inShelter || !(f.nearClosedGate || f.stuckWay),
   },
   {
     id: 'hint.treadmill',

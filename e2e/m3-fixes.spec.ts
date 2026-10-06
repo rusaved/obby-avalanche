@@ -195,3 +195,42 @@ for (const pace of PACES) {
     if (pace === SHOT_PACE) await page.screenshot({ path: 'docs/evidence/proto/stuck_hint_1920x1080_ru.png' });
   });
 }
+
+// PR-12 (playtest of the prototype, fix 2; docs/01-gdd.md 6.5): in the fast pace hint.stuck comes at every closed gate
+// (hints.stuckMax of the pace patch), holds with its arrow on the way down to the cave and goes on entering it.
+test('hint.stuck (fast): at every closed gate, more than 3 times a session; holds on the way to the cave, off on entering it', async ({ page, openGame }) => {
+  test.setTimeout(180_000);
+  const balance = paceBalance('fast');
+  const { gates, niches, beltX } = mountain1('fast');
+  await openGame('pace=fast');
+  // Gates 1–5: below the zone of the scripted wave at the cave of gate 7.
+  let shows = 0;
+  for (let i = 0; i < 5; i++) {
+    const gate = gates[i]!;
+    const cave = niches.filter((c) => c.z < gate.z).at(-1)!;
+    await page.evaluate(() => window.__TEST__!.setStat(0));
+    await page.evaluate((z) => window.__TEST__!.teleport(z, 0), gate.z - 2);
+    await waitTicks(page, Math.round((balance.hints.stuckSec + 0.5) * 60));
+    let s = await testState(page);
+    expect(s.gatesOpen[i]).toBe(false);
+    expect(s.hint, `gate ${i + 1}: after ${balance.hints.stuckSec} s`).toBe('hint.stuck');
+    shows++;
+    // Down to the cave beside it: the plaque and its arrow stay until the hero is in the cave, then go.
+    const side = cave.side === 'right' ? 1 : -1;
+    await page.evaluate(([x, z, bx]) => window.__TEST__!.botPath([[x, z], [bx, z]]), [side * 12, cave.z + 2, beltX(cave)] as const);
+    let polls = 0;
+    for (;;) {
+      s = await testState(page);
+      if (s.inShelter) break;
+      expect(s.hint, `gate ${i + 1}: on the way at (${s.hero!.x.toFixed(1)}, ${s.hero!.z.toFixed(1)})`).toBe('hint.stuck');
+      expect(s.hintArrow, `gate ${i + 1}: arrow on the way`).not.toBeNull();
+      polls++;
+      await waitTicks(page, 2);
+    }
+    expect(polls, `gate ${i + 1}: polls on the way`).toBeGreaterThan(2);
+    await waitTicks(page, 3);
+    expect((await testState(page)).hint, `gate ${i + 1}: in the cave`).not.toBe('hint.stuck');
+    await page.evaluate(() => window.__TEST__!.botPath(null));
+  }
+  expect(shows).toBeGreaterThan(3);
+});

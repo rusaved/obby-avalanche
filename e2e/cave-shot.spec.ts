@@ -110,7 +110,14 @@ async function watchWave(page: Page, cave: Cave, label: string, shotPath: string
   expect(st.inside, st.bad.join('\n')).toBe(0);
   expect(st.heroHidden, st.bad.join('\n')).toBe(0);
   expect(st.heroBlocked, st.bad.join('\n')).toBe(0);
-  // Back to the player's camera in shotReturnSec.
+  // Still on the belt after the wave: the same frame holds (PR-11); off the belt — back to the player's camera in shotReturnSec.
+  const after = await testState(page);
+  if (after.onBelt) {
+    expect(after.waveHud.beltShot, `${label}: belt frame after the wave`).toBe(true);
+    await page.evaluate(([x, z]) => window.__TEST__!.botPath([[x, z]]), [cave.mouthX + cave.side * 2, after.hero!.z] as const);
+    await page.waitForFunction(() => !window.__TEST__!.state().onBelt, undefined, { timeout: 30_000 });
+    await page.evaluate(() => window.__TEST__!.botPath(null));
+  }
   await waitTicks(page, Math.ceil(tuning.avalanche.shotReturnSec * 60) + 2);
   expect((await testState(page)).cameraFixedBlend, `${label}: camera back`).toBe(0);
 }

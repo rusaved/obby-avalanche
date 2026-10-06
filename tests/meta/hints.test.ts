@@ -22,6 +22,7 @@ const idle: HintFrame = {
   treadmillCave: false,
   onBelt: false,
   nearClosedGate: false,
+  stuckWay: false,
   onSummit: false,
   towardsPortal: false,
 };
@@ -88,7 +89,11 @@ describe('hint plaques (M2-08)', () => {
 
     expect(run(h, { nearClosedGate: true }, timing.stuckSec - 0.5, clock)).toBeNull();
     expect(run(h, { nearClosedGate: true }, 1, clock)).toBe('hint.stuck');
-    expect(run(h, { nearClosedGate: true, inShelter: true }, 0.2, clock)).toBeNull();
+    // PR-12: it holds on the way down to the cave (past stuckDist of the gate too) and goes on entering it.
+    expect(run(h, { stuckWay: true, moving: true }, 1, clock)).toBe('hint.stuck');
+    expect(run(h, { stuckWay: true, moving: true, inShelter: true }, 0.2, clock)).toBeNull();
+    expect(run(h, { nearClosedGate: true }, timing.stuckSec + 0.5, clock)).toBe('hint.stuck');
+    expect(run(h, { moving: true }, 0.2, clock)).toBeNull();
 
     expect(run(h, { nearLedge: true, moving: true }, 0.5, clock)).toBe('hint.jumpPc');
     expect(h.update({ ...idle, playSec: 300, nearLedge: true, jumped: true }, DT)).toBeNull();

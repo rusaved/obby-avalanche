@@ -62,6 +62,8 @@ const _from = new Vector3();
 const CHEST = 1.5;
 /** Steps of the sweep from the hero's head to the lead point. */
 const PIVOT_STEPS = 8;
+/** A camera this much past hideDistance from the hero's chest is still too close to keep the velocity lead. */
+const LEAD_MARGIN = 0.5;
 
 function smooth01(k: number): number {
   return k * k * (3 - 2 * k);
@@ -106,7 +108,6 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
     for (let i = 1; i < n; i++) if (blocked(_tmp.copy(a).lerp(b, i / n), c.collisionRadius * 0.5, collision)) return true;
     return false;
   };
-  let wasFixed = false;
 
   const rig: CameraRig = {
     camera,
@@ -223,6 +224,19 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       else rig.currentDistance = Math.min(allowed, Math.max(rig.currentDistance + c.retreatSpeed * dt, Math.min(allowed, c.minDistance)));
 
       _desired.copy(pivot).addScaledVector(_dir, rig.currentDistance);
+      // The lead ahead of a fast hero never brings the camera back onto him (prototype playtest, item 2: running into a
+      // cave the lead point is deep in it, its walls cut the room behind that point to about the lead): no lead then,
+      // when that puts the camera farther from him (pressed into a wall the lead point may be the better one).
+      if (collision && _desired.distanceTo(heroChest) < c.hideDistance + LEAD_MARGIN && pivot.distanceToSquared(_head) > 1e-4 && !blocked(_head, c.collisionRadius, collision)) {
+        _from.copy(pivot);
+        pivot.copy(_head);
+        const d = Math.min(rig.currentDistance, freeDistance(yaw, usePitch, wantDist, collision));
+        _tmp.copy(pivot).addScaledVector(_dir, d);
+        if (_tmp.distanceTo(heroChest) > _desired.distanceTo(heroChest)) {
+          rig.currentDistance = d;
+          _desired.copy(_tmp);
+        } else pivot.copy(_from);
+      }
       _look.copy(pivot);
       // Fixed frame (the cave during an avalanche): blend in and out over shotReturnSec.
       if (rig.fixed) {
@@ -232,12 +246,10 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       }
       const kRate = dt > 0 ? dt / Math.max(1e-3, tuning.avalanche.shotReturnSec) : 1;
       // A frame outside the cave (over its roof, PR-07) is reached by a cut, not through the walls: in and out when the straight
-      // way between the player's camera and the frame goes through the level (the camera is never inside it).
-      if (collision && (rig.fixed !== null) !== wasFixed && (rig.fixed ? fixedK === 0 : fixedK > 0)) {
-        _from.copy(_desired).lerp(fixedPos, smooth01(fixedK));
-        if (pathBlocked(_from, rig.fixed ? fixedPos : _desired, collision)) fixedK = rig.fixed ? 1 : 0;
-      }
-      wasFixed = rig.fixed !== null;
+      // way between the player's camera and the frame goes through the level (the camera is never inside it). Checked on
+      // every frame of the blend: the player's camera moves meanwhile (the hero runs into the cave, PR-11), and a blended
+      // point deep in a thick roof touches none of its faces.
+      if (collision && (rig.fixed ? fixedK < 1 : fixedK > 0) && pathBlocked(_desired, fixedPos, collision)) fixedK = rig.fixed ? 1 : 0;
       fixedK = rig.fixed ? Math.min(1, fixedK + kRate) : Math.max(0, fixedK - kRate);
       // The hero is far from the frame (moved to another cave): no blend through the level, the player's view at once.
       if (!rig.fixed && fixedPos.distanceTo(pivot) > c.zoomMax + c.distance) fixedK = 0;

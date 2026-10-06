@@ -62,6 +62,16 @@ export function createFtueView(d: FtueViewDeps): FtueView {
   let waveId = 0;
   let ledge: { x: number; y: number; z: number; index: number } | null = null;
   const scriptedCave = d.balance.ftue.scriptedWaveWall - 1;
+  /** The gate of hint.stuck on screen (−1 — none): its cave gets the arrows until the hero is in it. */
+  let stuckGate = -1;
+  /** The nearest cave below a gate at `z` (−1 — none). */
+  const caveBelow = (sim: Sim, z: number): number => {
+    let best = -1;
+    sim.level.niches.forEach((n, i) => {
+      if (n.z < z && (best < 0 || n.z > sim.level.niches[best]!.z)) best = i;
+    });
+    return best;
+  };
 
   const project = (x: number, y: number, z: number): { x: number; y: number } | null => {
     p.set(x, y, z).project(d.camera.camera);
@@ -100,15 +110,18 @@ export function createFtueView(d: FtueViewDeps): FtueView {
       const warn = ts?.phase === 'warn';
       const active = ts !== undefined && (warn || (ts.phase === 'run' && ts.outcome === 'none'));
       // Closed gate ahead within stuckDist (docs/01-gdd.md 6.5, hint.stuck).
-      let nearClosedGate = false;
-      let stuckGateZ = Infinity;
+      let nearGate = -1;
       sim.level.gates.forEach((g, i) => {
         const dz = g.z - hero.pos.z;
-        if (!sim.gatesOpen[i] && dz > 0 && dz < d.balance.hints.stuckDist) {
-          nearClosedGate = true;
-          stuckGateZ = Math.min(stuckGateZ, g.z);
-        }
+        if (!sim.gatesOpen[i] && dz > 0 && dz < d.balance.hints.stuckDist && (nearGate < 0 || g.z < sim.level.gates[nearGate]!.z)) nearGate = i;
       });
+      const nearClosedGate = nearGate >= 0;
+      // hint.stuck holds on the way from its gate down to the cave below it (6.5: off on entering the cave): that gate
+      // still closed and the hero within stuckDist of the stretch from the lower edge of the cave up to the gate.
+      const sg = stuckGate >= 0 ? sim.level.gates[stuckGate] : undefined;
+      const sc = sg ? sim.level.niches[caveBelow(sim, sg.z)] : undefined;
+      const stuckWay =
+        sg !== undefined && !sim.gatesOpen[stuckGate] && hero.pos.z <= sg.z && hero.pos.z >= Math.min(sg.z, sc ? sc.box.min[2] : sg.z) - d.balance.hints.stuckDist;
       const summitZone = sim.level.safeZones[sim.level.safeZones.length - 1];
       const onSummit = sim.level.safeZones.length > 1 && summitZone !== undefined && hero.pos.z >= summitZone[0];
       const portal = sim.level.points.find((x) => x.type === 'portal');
@@ -132,20 +145,19 @@ export function createFtueView(d: FtueViewDeps): FtueView {
         treadmillCave: firstWaveDone && sim.level.worldIndex === 1 && sim.shelterIndex() === scriptedCave,
         onBelt: sim.onBelt,
         nearClosedGate: nearClosedGate && !inShelter,
+        stuckWay,
         onSummit,
         towardsPortal,
       };
       jumped = false;
       caughtNow = false;
       const id = hints.update(frame, frameDt);
+      // The gate it showed at (it shows only near a closed gate), kept while it is up.
+      if (id !== 'hint.stuck') stuckGate = -1;
+      else if (view.hint !== 'hint.stuck' || stuckGate < 0) stuckGate = nearGate;
       view.hint = id;
       // hint.stuck: the belt of the nearest cave below that gate (docs/01-gdd.md 16.6).
-      let stuckCave = -1;
-      if (id === 'hint.stuck') {
-        sim.level.niches.forEach((n, i) => {
-          if (n.z < stuckGateZ && (stuckCave < 0 || n.z > sim.level.niches[stuckCave]!.z)) stuckCave = i;
-        });
-      }
+      const stuckCave = id === 'hint.stuck' && stuckGate >= 0 ? caveBelow(sim, sim.level.gates[stuckGate]!.z) : -1;
       const belt = stuckCave >= 0 ? sim.level.points.find((x) => x.type === 'treadmill' && x['niche'] === stuckCave) : undefined;
       chest.set(heroRender.x, heroRender.y + HERO_HEIGHT / 2, heroRender.z);
       view.hintArrow = belt ? screenAngle(d.camera.camera, chest, to.set(belt.x, belt.y + 1, belt.z), d.field()) : null;

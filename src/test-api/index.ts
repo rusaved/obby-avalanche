@@ -9,6 +9,7 @@ import type { QualityLevel } from '../render/quality.ts';
 import { content, pace } from '../content/index.ts';
 import { Ray, Vector3 } from 'three';
 import type { LevelData } from '../level/types.ts';
+import { segmentMeetsBox } from '../app/banner-signs.ts';
 
 export type { BootState as TestBootState } from '../app/handles.ts';
 
@@ -55,7 +56,7 @@ export interface TestState {
     normalWaves: number;
     normalWavesDone: number;
   } | null;
-  waveHud: { banner: string | null; arrow: boolean; shot: boolean; veil: boolean; toast: string };
+  waveHud: { banner: string | null; arrow: boolean; shot: boolean; beltShot: boolean; veil: boolean; toast: string };
   /** «Snowed in!» clip (M2-07): seconds since the catch, total length, target cave (−1 camp); null when not caught. */
   caught: { t: number; total: number; niche: number } | null;
   /** Bots out on the mountain (M2-10): name key, label as shown (text '' when hidden), mode, cave, position. */
@@ -180,8 +181,9 @@ export interface TestApi {
   /** Gate sign plaque as a world box and whether it is hidden now (PR-08: never under the avalanche banner). */
   signBox(index: number): { center: [number, number, number]; size: [number, number, number]; hidden: boolean };
   /** Per rendered frame since the last reset (playtest M2): camera inside a collider (solid box, closed gate, ramp —
-   * with the near plane), hero hidden by the camera while he should be seen, hero behind level geometry; first bad frames. */
-  cameraStats(): { frames: number; inside: number; heroHidden: number; heroBlocked: number; bad: string[] };
+   * with the near plane), hero hidden by the camera while he should be seen, hero behind level geometry, a drawn gate
+   * sign between the camera and the hero or around the camera (PR-11); first bad frames. */
+  cameraStats(): { frames: number; inside: number; heroHidden: number; heroBlocked: number; signBlocked: number; bad: string[] };
   resetCameraStats(): void;
   forceSlowFrames(sec: number): boolean;
   setQuality(level: QualityLevel | 'auto'): void;
@@ -261,6 +263,8 @@ const STAND_SPEED = 1;
 const NEAR = 0.1;
 /** Hero chest height for the line of sight. */
 const CHEST = 1.5;
+/** Gate signs this near the hero along the track are checked for the line of sight. */
+const SIGN_RANGE = 40;
 
 /** Is the point inside a solid box, a closed gate or a ramp of the level (grown by `pad`). */
 function insideLevel(level: LevelData, gatesOpen: readonly boolean[], p: Vector3, pad: number): string | null {
@@ -294,7 +298,7 @@ export function installTestApi(g: GameHandles): TestApi {
       for (const b of sim.bots?.list ?? []) if (b.mode !== 'away' && b.mode !== 'off') overClosed = Math.max(overClosed, b.z - gate.z);
     });
   };
-  const cam = { frames: 0, inside: 0, heroHidden: 0, heroBlocked: 0, bad: [] as string[] };
+  const cam = { frames: 0, inside: 0, heroHidden: 0, heroBlocked: 0, signBlocked: 0, bad: [] as string[] };
   const ray = new Ray();
   const chest = new Vector3();
   g.onFrame = () => {
@@ -313,6 +317,19 @@ export function installTestApi(g: GameHandles): TestApi {
       note(`inside ${inside}`);
     }
     if (sim.caught || sim.respawnTicksLeft >= 0) return;
+    // A drawn gate sign on the line camera → hero chest or around the camera (PR-11: the sign is not drawn then).
+    const meshes = g.levelMeshes;
+    if (meshes) {
+      chest.set(h.x, h.y + CHEST, h.z);
+      for (let i = 0; i < sim.level.gates.length; i++) {
+        if (meshes.signHidden(i) || Math.abs(sim.level.gates[i]!.z - h.z) > SIGN_RANGE) continue;
+        const b = meshes.signBox(i);
+        if (segmentMeetsBox(p, chest, b.center, b.size, 0)) {
+          cam.signBlocked++;
+          note(`sign ${i + 1} in the way`);
+        }
+      }
+    }
     if (!g.hero.visible) {
       cam.heroHidden++;
       note('hero hidden');
@@ -383,6 +400,7 @@ export function installTestApi(g: GameHandles): TestApi {
           banner: g.waveView?.banner ?? null,
           arrow: g.waveView?.arrow ?? false,
           shot: g.waveView?.shot ?? false,
+          beltShot: g.waveView?.beltShot ?? false,
           veil: g.waveView?.veil ?? false,
           toast: document.querySelector('[data-role="toast"].shown')?.textContent ?? '',
         },
@@ -557,6 +575,7 @@ export function installTestApi(g: GameHandles): TestApi {
       cam.inside = 0;
       cam.heroHidden = 0;
       cam.heroBlocked = 0;
+      cam.signBlocked = 0;
       cam.bad = [];
     },
     forceSlowFrames: (sec) => g.quality.forceSlow(sec),

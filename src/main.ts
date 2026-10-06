@@ -816,11 +816,15 @@ async function boot(): Promise<void> {
         { manualCamera: lastSnap?.manualCamera ?? false, moveX: lastSnap?.moveX ?? 0, moveY: lastSnap?.moveY ?? 0, autoRun: input.autoRun },
         sim.collision,
       );
+      // Hidden by this frame's camera: a cut into or out of a fixed frame moves it many units at once (PR-11).
+      if (heroChar) {
+        heroChar.visible = !cameraRig.heroHidden && sim.respawnTicksLeft < 0;
+        if (cosmeticsVisual) cosmeticsVisual.group.visible = heroChar.visible;
+      }
     }
     botsView?.update(alpha, playSec);
     wayView?.update(renderPos);
     funView?.update(gameDt, playSec, renderPos);
-    g.onFrame?.();
     characters?.update(frameDt);
     if (levelMeshes) {
       for (const [index, startedAt] of melting) {
@@ -834,8 +838,10 @@ async function boot(): Promise<void> {
         const open = sim.gatesOpen[i] ?? false;
         levelMeshes!.setGateSign(i, open ? req : `${statText}/${req}`, open);
       });
-      if (hud && cameraRig) guardBannerSigns(hud, levelMeshes, level, cameraRig.camera, field);
+      if (hud && cameraRig) guardBannerSigns(hud, levelMeshes, level, cameraRig.camera, field, renderPos);
     }
+    // Test hooks see the frame as it is drawn: camera, hero and the signs hidden for it (PR-11).
+    g.onFrame?.();
     gr.follow(renderPos);
     levelMeshes?.cullByDistance(renderPos.z, quality.params.fogFar);
     if (hud) {

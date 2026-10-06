@@ -3,6 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { test, expect, mockCalls, testState, waitTicks } from './fixtures.ts';
 import type { TestState } from '../src/test-api/index.ts';
 import fastWorlds from '../content/avalanche/pace/fast/worlds.json' with { type: 'json' };
+import { paceBalance } from './pace-data.ts';
 
 // PR-02: mountains of the fast pace (docs/01-gdd.md 16.2–16.3): the physical bot (controller and collisions in the
 // browser) plays mountain 1 on game time — up the middle through the gifts on the path, at a closed gate one step aside
@@ -18,12 +19,15 @@ const caves = world.segments
   .sort((a, b) => a.z - b.z)
   .map((s) => ({ z: s.z, side: s.side === 'right' ? 1 : -1, top: s.z + (s.length ?? 0) / 2 }));
 const portal = world.segments.find((s) => s.type === 'portal')!;
+const balance = paceBalance('fast');
 const TIME_SCALE = 4;
 /** The camp (a safe zone): the hero starts there standing. */
 const CAMP = 40;
 /** «At the gate»: the stretch part from the lower edge of its cave (≤ 16 units below, docs/01-gdd.md 16.3) up to the gate. */
 const NEAR_GATE = 16;
 const GIFT_REACH = 1.5;
+/** The straight bot (PR-12) walks up to this far below a closed gate. */
+const AT_GATE = 1.5;
 const EVIDENCE = 'docs/evidence/proto';
 
 /** Cave i (beside gate i + 1): its mouth from below, then the lower half of the belt at the back wall; the hero
@@ -50,10 +54,19 @@ interface Run {
   portal: boolean;
   /** Where the hero stood off the belt below a closed gate (for the log). */
   standAt: string[];
+  /** The first step on a belt: gates passed by then, the cave, play seconds (PR-12: in the cave of gate 7). */
+  firstBelt: { passed: number; shelter: number; playSec: number } | null;
+  /** Farthest off the axis of the track before gate 6 is passed (PR-12: straight up through gates 1–6), and where. */
+  axisMax6: number;
+  axisAt: string;
+  /** The stat as the hero came up to each gate (within AT_GATE + 1 below it), and whether it was open by then. */
+  arrive: string[];
 }
 
-/** `onState` — called with every fresh state of the run (PR-03 watches windows and takes its screenshot there). */
-async function playMountain1(page: Page, realMs: number, onState?: (s: TestState) => Promise<void>): Promise<Run> {
+/** `onState` — called with every fresh state of the run (PR-03 watches windows and takes its screenshot there).
+ * `straight` (PR-12): up the middle to a closed gate, and onto the belt of its cave only once standing at it;
+ * `stopAfter` — the run ends once that many gates are passed. */
+async function playMountain1(page: Page, realMs: number, onState?: (s: TestState) => Promise<void>, opts: { straight?: boolean; stopAfter?: number } = {}): Promise<Run> {
   let plan = '';
   let target: [number, number] = [0, 0];
   const setPlan = async (key: string, s: TestState, points: Array<[number, number] | [number, number, number]>): Promise<void> => {
@@ -78,14 +91,19 @@ async function playMountain1(page: Page, realMs: number, onState?: (s: TestState
   const passSec: number[] = [];
   await page.evaluate(() => {
     const list = window.__TEST__!.simEvents;
-    const w = window as unknown as { __fast: { pass: number[]; counts: Record<string, number> } };
-    w.__fast = { pass: [], counts: {} };
+    const w = window as unknown as { __fast: { pass: number[]; counts: Record<string, number>; belt: Run['firstBelt'] } };
+    w.__fast = { pass: [], counts: {}, belt: null };
     const push = list.push.bind(list);
     list.push = (...items) => {
       for (const it of items) {
         if (it['world'] !== 1) continue;
         w.__fast.counts[it.name] = (w.__fast.counts[it.name] ?? 0) + 1;
         if (it.name === 'gatePass') w.__fast.pass.push(it.tick);
+        // The first step on a belt, at that very tick (treadmill_first comes with it, src/main.ts).
+        if (it.name === 'gain' && it['belt'] === true && !w.__fast.belt) {
+          const st = window.__TEST__!.state();
+          w.__fast.belt = { passed: w.__fast.pass.length, shelter: st.shelter, playSec: st.playSec };
+        }
       }
       return push(...items);
     };
@@ -99,9 +117,12 @@ async function playMountain1(page: Page, realMs: number, onState?: (s: TestState
   let standOffBelt = 0;
   let lastTick = s.ticks;
   const standAt: string[] = [];
+  let axisMax6 = 0;
+  let axisAt = '';
+  const arrive: string[] = [];
   while (Date.now() < deadline) {
     s = await testState(page);
-    if (s.world !== 'slope' || s.window === 'summit') break;
+    if (s.world !== 'slope' || s.window === 'summit' || (opts.stopAfter !== undefined && walls >= opts.stopAfter)) break;
     if (onState) await onState(s);
     const dt = (s.ticks - lastTick) / 60;
     lastTick = s.ticks;
@@ -121,6 +142,11 @@ async function playMountain1(page: Page, realMs: number, onState?: (s: TestState
       if (standAt.length < 12) standAt.push(`t=${(s.ticks / 60).toFixed(2)} (${h.x.toFixed(1)},${h.z.toFixed(1)}) ${plan} dt=${dt.toFixed(2)}`);
     }
     walls = Math.max(walls, s.gatesPassed.filter(Boolean).length);
+    if (k >= 0 && arrive[k] === undefined && gates[k]! - h.z < AT_GATE + 1) arrive[k] = `${s.stat}${s.gatesOpen[k] ? '' : ' closed'}`;
+    if (walls < 6 && Math.abs(h.x) > axisMax6) {
+      axisMax6 = Math.abs(h.x);
+      axisAt = `(${h.x.toFixed(1)},${h.y.toFixed(1)},${h.z.toFixed(1)}) ${plan} t=${s.playSec.toFixed(1)} wave ${wave?.phase} fun ${JSON.stringify(s.fun)}`;
+    }
     // The click takes real time while the game runs ×4: the plan comes from a fresh state on the next pass, not from
     // this one (a stale state sent the bot back for path gifts already behind him).
     if (s.shoesButton.can) {
@@ -153,19 +179,24 @@ async function playMountain1(page: Page, realMs: number, onState?: (s: TestState
         // A gift is taken within 1.8 of its middle: its point is reached within GIFT_REACH (a fast turn onto the
         // path from a cave, a slide or a trampoline flight may pass it a little aside; never back for it).
         .map(({ g }) => [g.x, g.z, GIFT_REACH] as [number, number, number]);
-      return [...ahead, ...intoCave(i, ahead.length ? -Infinity : h.z)];
+      return [...ahead, ...(opts.straight ? [[0, gates[i]! - AT_GATE] as [number, number]] : intoCave(i, ahead.length ? -Infinity : h.z))];
     };
     // Open gate: through it and straight on along the next stretch (no stop while the next plan comes).
     if (s.gatesOpen[k]) {
       await setPlan(`gate:${k}`, s, [[0, gates[k]! + 5], ...(k + 1 < gates.length ? stretchPath(k + 1) : [[portal.x ?? 0, portal.z + 4] as [number, number]])]);
       continue;
     }
-    await setPlan(`cave:${k}`, s, stretchPath(k));
+    // Straight: on up to the gate; standing at it closed — into the cave beside it.
+    if (opts.straight && gates[k]! - h.z > AT_GATE + 1) {
+      await setPlan(`up:${k}`, s, stretchPath(k));
+      continue;
+    }
+    await setPlan(`cave:${k}`, s, opts.straight ? intoCave(k, h.z) : stretchPath(k));
   }
   await page.evaluate(() => window.__TEST__!.setTimeScale(1));
   s = await testState(page);
   const portalTick = await page.evaluate(() => window.__TEST__!.simEvents.find((e) => e.name === 'portal' && e['world'] === 1)?.tick);
-  const fast = await page.evaluate(() => (window as unknown as { __fast: { pass: number[]; counts: Record<string, number> } }).__fast);
+  const fast = await page.evaluate(() => (window as unknown as { __fast: { pass: number[]; counts: Record<string, number>; belt: Run['firstBelt'] } }).__fast);
   passSec.push(...fast.pass.map((t) => Math.round((t / 60) * 10) / 10));
   return {
     sec: (portalTick ?? s.ticks) / 60,
@@ -179,6 +210,10 @@ async function playMountain1(page: Page, realMs: number, onState?: (s: TestState
     caught: fast.counts['waveCaught'] ?? 0,
     portal: portalTick !== undefined,
     standAt,
+    firstBelt: fast.belt,
+    axisMax6,
+    axisAt,
+    arrive,
   };
 }
 
@@ -247,6 +282,25 @@ test('fast pace, first 2 minutes: gate_1 ≤ 8 s, gate_3 ≤ 20 s, the scripted 
   expect(windows).toEqual([]);
   expect(s.playSec).toBeGreaterThanOrEqual(179.9);
   expect(await mockCalls(page, 'adv.showFullscreenAdv')).toBe(0);
+});
+
+// PR-12 (playtest of the prototype, item 5 and fix 2; docs/01-gdd.md 16.2, 16.6): a fresh save, the bot straight up
+// the middle through the gifts on the path (onto a belt only once it stands at a closed gate), the shoes as soon as
+// the coins are there: gates 1–6 open on the way, no step on a belt before them; the first belt and treadmill_first —
+// in the cave of gate 7, where the scripted wave sends the hero.
+test('fast pace, gates 1–6 on the way: the straight bot passes them without a belt; the first belt and treadmill_first are in the cave of gate 7', async ({ page, openGame }) => {
+  test.setTimeout(240_000);
+  await openGame('pace=fast&seed=7');
+  const r = await playMountain1(page, 180_000, undefined, { straight: true, stopAfter: 8 });
+  const ev = await page.evaluate(() => window.__TEST__!.analyticsPlay());
+  const first = (name: string): number => ev.find((e) => e.name === name)?.playSec ?? Infinity;
+  console.log(
+    `fast-gates: gates ${JSON.stringify(r.passSec)}; shoes_1 ${first('shoes_1').toFixed(1)} s, treadmill_first ${first('treadmill_first').toFixed(1)} s; first belt ${JSON.stringify(r.firstBelt)}; off the axis before gate 6 ${r.axisMax6.toFixed(1)} at ${r.axisAt}; stat at the gates ${JSON.stringify(r.arrive)}`,
+  );
+  const cave7 = balance.ftue.scriptedWaveWall - 1;
+  expect(r.walls).toBeGreaterThanOrEqual(8);
+  expect(r.firstBelt).toMatchObject({ passed: cave7, shelter: cave7 });
+  expect(Math.abs(first('treadmill_first') - r.firstBelt!.playSec)).toBeLessThan(0.1);
 });
 
 test('fast pace: every one of the 10 mountains loads by teleport (camp, middle, summit), draw calls within 60; screenshots', async ({ page, openGame }) => {

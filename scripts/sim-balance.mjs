@@ -191,7 +191,8 @@ function runFit(dry) {
   const scaleJson = `"wallScale": [${f.wallScale.join(', ')}]`;
   // The patch of a pace may have no wallScale yet: it goes into its «rebirth».
   const balOut = /"wallScale": \[[^\]]*\]/.test(bal) ? bal.replace(/"wallScale": \[[^\]]*\]/, scaleJson) : bal.replace(/"rebirth": \{/, `"rebirth": { ${scaleJson},`);
-  if (balOut === bal) throw new Error(`${balFile}: no place for wallScale (rebirth)`);
+  // Unchanged wallScale gives the same text: only a patch with neither wallScale nor «rebirth» has no place for it.
+  if (!/"wallScale": \[[^\]]*\]/.test(bal) && !/"rebirth": \{/.test(bal)) throw new Error(`${balFile}: no place for wallScale (rebirth)`);
   writeFileSync(balFile, balOut);
   const gen = spawnSync(process.execPath, [resolve(root, 'scripts/gen-worlds.mjs'), packName], { stdio: 'inherit' });
   if (gen.status !== 0) {

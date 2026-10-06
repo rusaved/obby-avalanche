@@ -50,6 +50,8 @@ export interface WaveView {
   readonly banner: string | null;
   readonly arrow: boolean;
   readonly shot: boolean;
+  /** The same wide frame on the belt of a cave outside an avalanche (PR-11). */
+  readonly beltShot: boolean;
   readonly veil: boolean;
 }
 
@@ -64,10 +66,13 @@ export function createWaveView(d: WaveViewDeps): WaveView {
   if (av.caveShot.pos[0] > 1) cutParts.push('back');
   if (av.caveShot.pos[1] > 1) cutParts.push('roof');
   let strongSec = 0;
-  const view: WaveView & { banner: string | null; arrow: boolean; shot: boolean; veil: boolean } = {
+  /** The player turned the camera by hand on this stay on the belt: his camera until the hero leaves the belt (PR-11). */
+  let beltManual = false;
+  const view: WaveView & { banner: string | null; arrow: boolean; shot: boolean; beltShot: boolean; veil: boolean } = {
     banner: null,
     arrow: false,
     shot: false,
+    beltShot: false,
     veil: false,
     update(frameDt, timeSec) {
       const sim = d.getSim();
@@ -132,9 +137,18 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       // the belt at ≤ 30% of the frame, so the camera stands over the roof line (caveShot.pos[1] > 1) and the roof is
       // not drawn meanwhile (behind the back wall with pos[0] > 1 — that wall; docs/допущения.md). Turned by hand —
       // the player's camera (not scripted).
+      // The same frame on the belt of a cave outside an avalanche (PR-11; playtest of the prototype, item 2: on every
+      // belt the camera flew into the hero): on the belt or in a jump over it; turned by hand — the player's camera
+      // until the hero leaves the belt.
       const inCave = sim.shelterIndex();
-      const wantShot =
+      const waveShot =
         inCave >= 0 && !sim.caught && (ts.phase === 'warn' || (running && dz > -av.shotTriggerDist)) && (ts.scripted || !d.manualCamera());
+      const belt = inCave >= 0 && !sim.caught && (sim.onBelt || (shotCave === inCave && !sim.hero.onGround));
+      // Turned on the belt: the camera input of the last frame, not a turn just before stepping on it.
+      if (!belt) beltManual = false;
+      else if (d.camera.sinceManual === 0) beltManual = true;
+      const beltShot = !waveShot && belt && !beltManual;
+      const wantShot = waveShot || beltShot;
       if (wantShot) {
         const c = sim.level.niches[inCave]!;
         if (shotCave !== inCave) {
@@ -165,7 +179,8 @@ export function createWaveView(d: WaveViewDeps): WaveView {
         shotCave = -1;
         d.camera.fixed = null;
       }
-      view.shot = shotCave >= 0;
+      view.shot = shotCave >= 0 && waveShot;
+      view.beltShot = shotCave >= 0 && beltShot;
       if (shotCave < 0 && d.camera.fixedBlend <= 0) wallCave = -1;
       d.hideCaveParts(wallCave, cutParts);
       if (inCave >= 0 && running && Math.abs(dz) < COVER_DIST && !sim.caught) d.hero.pose = 'cover';

@@ -335,7 +335,7 @@
           "type": "gate",
           "z": 128,
           "y": 6,
-          "requires": 34,
+          "requires": 20,
           "reward": {
             "coins": 5
           },
@@ -446,7 +446,7 @@
           "type": "gate",
           "z": 172,
           "y": 9,
-          "requires": 110,
+          "requires": 40,
           "reward": {
             "coins": 6
           },
@@ -553,7 +553,7 @@
           "type": "gate",
           "z": 216,
           "y": 12,
-          "requires": 260,
+          "requires": 60,
           "reward": {
             "coins": 6
           },
@@ -602,7 +602,7 @@
         },
         {
           "type": "gift",
-          "z": 232.263,
+          "z": 230.975,
           "x": 0,
           "y": 26.947,
           "height": 0,
@@ -635,7 +635,7 @@
           "type": "gate",
           "z": 260,
           "y": 15,
-          "requires": 420,
+          "requires": 80,
           "reward": {
             "coins": 6
           },
@@ -746,7 +746,7 @@
           "type": "gate",
           "z": 304,
           "y": 18,
-          "requires": 670,
+          "requires": 100,
           "reward": {
             "coins": 7
           },
@@ -853,7 +853,7 @@
           "type": "gate",
           "z": 348,
           "y": 21,
-          "requires": 1400,
+          "requires": 1200,
           "reward": {
             "coins": 7
           },
@@ -909,7 +909,7 @@
         },
         {
           "type": "gift",
-          "z": 365.752,
+          "z": 365.616,
           "x": 0,
           "y": 35.947,
           "height": 0,
@@ -942,7 +942,7 @@
           "type": "gate",
           "z": 392,
           "y": 24,
-          "requires": 1500,
+          "requires": 1600,
           "reward": {
             "coins": 8
           },
@@ -1053,7 +1053,7 @@
           "type": "gate",
           "z": 436,
           "y": 27,
-          "requires": 1700,
+          "requires": 2000,
           "reward": {
             "coins": 8
           },
@@ -1160,7 +1160,7 @@
           "type": "gate",
           "z": 480,
           "y": 30,
-          "requires": 2400,
+          "requires": 2700,
           "reward": {
             "coins": 8
           },
@@ -1216,7 +1216,7 @@
         },
         {
           "type": "gift",
-          "z": 497.559,
+          "z": 497.659,
           "x": 0,
           "y": 44.947,
           "height": 0,
@@ -1249,7 +1249,7 @@
           "type": "gate",
           "z": 524,
           "y": 33,
-          "requires": 3400,
+          "requires": 3600,
           "reward": {
             "coins": 9
           },
@@ -1353,7 +1353,7 @@
           "type": "gate",
           "z": 568,
           "y": 36,
-          "requires": 4400,
+          "requires": 4700,
           "reward": {
             "coins": 9
           },
@@ -1467,7 +1467,7 @@
           "type": "gate",
           "z": 612,
           "y": 39,
-          "requires": 5500,
+          "requires": 5800,
           "reward": {
             "coins": 10
           },
@@ -1516,7 +1516,7 @@
         },
         {
           "type": "gift",
-          "z": 629.565,
+          "z": 629.609,
           "x": 0,
           "y": 53.947,
           "height": 0,
@@ -1549,7 +1549,7 @@
           "type": "gate",
           "z": 656,
           "y": 42,
-          "requires": 6900,
+          "requires": 7200,
           "reward": {
             "coins": 10
           },
@@ -1653,7 +1653,7 @@
           "type": "gate",
           "z": 700,
           "y": 45,
-          "requires": 8400,
+          "requires": 8700,
           "reward": {
             "coins": 10
           },
@@ -1962,7 +1962,7 @@
           "type": "gate",
           "z": 86,
           "y": 3,
-          "requires": 8700,
+          "requires": 9000,
           "reward": {
             "coins": 12
           },
@@ -2011,7 +2011,7 @@
         },
         {
           "type": "gift",
-          "z": 104.655,
+          "z": 104.684,
           "x": 0,
           "y": 17.947,
           "height": 0,
@@ -2044,7 +2044,7 @@
           "type": "gate",
           "z": 132,
           "y": 6,
-          "requires": 9300,
+          "requires": 9700,
           "reward": {
             "coins": 12
           },
@@ -2155,7 +2155,7 @@
           "type": "gate",
           "z": 178,
           "y": 9,
-          "requires": 10000,
+          "requires": 11000,
           "reward": {
             "coins": 15
           },
@@ -2869,7 +2869,7 @@
           "type": "gate",
           "z": 500,
           "y": 30,
-          "requires": 26000,
+          "requires": 27000,
           "reward": {
             "coins": 20
           },
@@ -2925,7 +2925,7 @@
         },
         {
           "type": "gift",
-          "z": 518.08,
+          "z": 518.11,
           "x": 0,
           "y": 44.947,
           "height": 0,
@@ -3469,7 +3469,7 @@
           "type": "gate",
           "z": 776,
           "y": 48,
-          "requires": 65000,
+          "requires": 66000,
           "reward": {
             "coins": 30
           },
@@ -3860,7 +3860,7 @@
           "type": "gate",
           "z": 136,
           "y": 6,
-          "requires": 70000,
+          "requires": 71000,
           "reward": {
             "coins": 40
           },

@@ -58,11 +58,12 @@ describe('pace flag (PR-01)', () => {
     const fast = mergePatch(shared, json('avalanche', 'pace', 'fast', 'balance.json'));
     expect(fast.coins).toEqual({ ...shared.coins, gatePass: 1 });
     expect(fast.ftue).toEqual({ ...shared.ftue, scriptedWaveWall: 7 });
+    expect(fast.hints).toEqual({ ...shared.hints, stuckMax: 99 });
     expect(fast.rebirth.unlock).toBe('summitWorld10');
     expect(fast.rebirth.lateEase).toEqual({ ...shared.rebirth.lateEase, fromWall: 118 });
     // wallScale of the pace — the output of sim:balance --fit --pace=fast (01a 15.4), its own row of 10 tiers.
     expect(fast.rebirth.wallScale).toHaveLength(shared.rebirth.wallScale.length);
-    expect(fast.sim).toEqual({ mountainMin: [1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4, 4.8], gateCurve: 1.3, keep: 1, roundDigits: 2 });
+    expect(fast.sim).toEqual({ mountainMin: [1.2, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 4.4, 4.8], gateCurve: 1.3, keep: 6, roundDigits: 2 });
   });
 
   it('gen:worlds of every pace is deterministic and matches the committed worlds.json; validate:content passes it', () => {
