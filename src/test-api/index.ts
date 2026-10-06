@@ -181,9 +181,10 @@ export interface TestApi {
   /** Gate sign plaque as a world box and whether it is hidden now (PR-08: never under the avalanche banner). */
   signBox(index: number): { center: [number, number, number]; size: [number, number, number]; hidden: boolean };
   /** Per rendered frame since the last reset (playtest M2): camera inside a collider (solid box, closed gate, ramp —
-   * with the near plane), hero hidden by the camera while he should be seen, hero behind level geometry, a drawn gate
-   * sign between the camera and the hero or around the camera (PR-11); first bad frames. */
-  cameraStats(): { frames: number; inside: number; heroHidden: number; heroBlocked: number; signBlocked: number; bad: string[] };
+   * with the near plane), hero hidden by the camera while he should be seen, camera closer than 2.5 units to the hero's
+   * body from chest to head (PR-13), hero behind level geometry, a drawn gate sign between the camera and the hero or
+   * around the camera (PR-11); first bad frames. */
+  cameraStats(): { frames: number; inside: number; heroHidden: number; heroNear: number; heroBlocked: number; signBlocked: number; bad: string[] };
   resetCameraStats(): void;
   forceSlowFrames(sec: number): boolean;
   setQuality(level: QualityLevel | 'auto'): void;
@@ -263,6 +264,10 @@ const STAND_SPEED = 1;
 const NEAR = 0.1;
 /** Hero chest height for the line of sight. */
 const CHEST = 1.5;
+/** Head centre over the feet and the closest the camera may come to the body from chest to head (PR-13, playtest of the
+ * prototype 2: out of a belt the camera sat in the hero's hat while he stayed drawn, 4–5 units off his chest). */
+const HEAD = 4.4;
+const NEAR_HERO = 2.5;
 /** Gate signs this near the hero along the track are checked for the line of sight. */
 const SIGN_RANGE = 40;
 
@@ -298,7 +303,7 @@ export function installTestApi(g: GameHandles): TestApi {
       for (const b of sim.bots?.list ?? []) if (b.mode !== 'away' && b.mode !== 'off') overClosed = Math.max(overClosed, b.z - gate.z);
     });
   };
-  const cam = { frames: 0, inside: 0, heroHidden: 0, heroBlocked: 0, signBlocked: 0, bad: [] as string[] };
+  const cam = { frames: 0, inside: 0, heroHidden: 0, heroNear: 0, heroBlocked: 0, signBlocked: 0, bad: [] as string[] };
   const ray = new Ray();
   const chest = new Vector3();
   g.onFrame = () => {
@@ -329,6 +334,12 @@ export function installTestApi(g: GameHandles): TestApi {
           note(`sign ${i + 1} in the way`);
         }
       }
+    }
+    // The camera in the hero's head or hat: by the distance to his body axis, drawn or not (PR-13).
+    const nearY = Math.min(h.y + HEAD, Math.max(h.y + CHEST, p.y));
+    if (Math.hypot(p.x - h.x, p.y - nearY, p.z - h.z) < NEAR_HERO) {
+      cam.heroNear++;
+      note('camera at the hero');
     }
     if (!g.hero.visible) {
       cam.heroHidden++;
@@ -574,6 +585,7 @@ export function installTestApi(g: GameHandles): TestApi {
       cam.frames = 0;
       cam.inside = 0;
       cam.heroHidden = 0;
+      cam.heroNear = 0;
       cam.heroBlocked = 0;
       cam.signBlocked = 0;
       cam.bad = [];

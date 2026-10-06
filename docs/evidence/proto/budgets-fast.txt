@@ -1,7 +1,7 @@
-fast pace, quality high, 960x540, 2026-10-06T00:11:06.135Z; max draw calls 34
-mountain 1 (slope) z=20: draw calls 28, triangles 64710
-mountain 1 (slope) z=395: draw calls 34, triangles 64840
-mountain 1 (slope) z=730: draw calls 34, triangles 64336
+fast pace, quality high, 960x540, 2026-10-06T02:36:21.837Z; max draw calls 34
+mountain 1 (slope) z=20: draw calls 29, triangles 65358
+mountain 1 (slope) z=395: draw calls 33, triangles 64288
+mountain 1 (slope) z=730: draw calls 32, triangles 62716
 mountain 2 (pines) z=20: draw calls 29, triangles 65422
 mountain 2 (pines) z=457: draw calls 34, triangles 64952
 mountain 2 (pines) z=806: draw calls 31, triangles 62588

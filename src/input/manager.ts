@@ -35,7 +35,8 @@ export class InputManager {
   private yawDelta = 0;
   private pitchDelta = 0;
   private zoomDelta = 0;
-  private mouseDown = false;
+  /** The camera was turned by a drag since the last snapshot (PR-13: a finger resting on the camera zone is not a turn). */
+  private turnEdge = false;
   private pinchDist: number | null = null;
   private field: HTMLElement | null = null;
   private readonly cleanups: Array<() => void> = [];
@@ -100,7 +101,7 @@ export class InputManager {
     this.yawDelta = 0;
     this.pitchDelta = 0;
     this.zoomDelta = 0;
-    this.mouseDown = false;
+    this.turnEdge = false;
     this.pinchDist = null;
     this.virtualStick = null;
   }
@@ -168,7 +169,7 @@ export class InputManager {
       camPitchDelta: this.pitchDelta,
       zoomDelta: this.zoomDelta,
       pausePressed: false,
-      manualCamera: this.mouseDown || Array.from(this.pointers.values()).some((p) => p.kind === 'camera' || p.kind === 'tap'),
+      manualCamera: this.turnEdge,
       moveStarted: this.moveStartEdge,
       touchActive: this.touchActive,
     };
@@ -177,6 +178,7 @@ export class InputManager {
     this.yawDelta = 0;
     this.pitchDelta = 0;
     this.zoomDelta = 0;
+    this.turnEdge = false;
     return snap;
   }
 
@@ -221,7 +223,6 @@ export class InputManager {
     if (ev.pointerType === 'mouse') {
       if (ev.button !== 0 && ev.button !== 2) return;
       this.touchActive = false;
-      this.mouseDown = true;
       this.pointers.set(ev.pointerId, { id: ev.pointerId, kind: 'camera', startX: ev.clientX, startY: ev.clientY, lastX: ev.clientX, lastY: ev.clientY, startTime: this.eventTime(ev), moved: 0 });
       try {
         this.field?.setPointerCapture(ev.pointerId);
@@ -305,6 +306,9 @@ export class InputManager {
     const degPerPx = (ev.pointerType === 'mouse' ? this.opts.mouseDegPerPx : this.opts.touchDegPerPx) * this.opts.sensitivity;
     this.yawDelta -= (dx * degPerPx * Math.PI) / 180;
     this.pitchDelta += (dy * degPerPx * Math.PI) / 180;
+    // A turn by hand once the drag is past the tap distance: a finger or a held button that rests still is not one
+    // (PR-13, playtest of the prototype 2: a thumb left on the camera zone held off the wide frame on the belt).
+    if ((dx !== 0 || dy !== 0) && p.moved >= this.opts.tapMovePx) this.turnEdge = true;
   }
 
   private onPointerUp(ev: PointerEvent): void {
@@ -319,7 +323,6 @@ export class InputManager {
       const dt = this.eventTime(ev) - p.startTime;
       if (dt < this.opts.tapMaxMs && p.moved < this.opts.tapMovePx) this.jumpEdge = true;
     }
-    if (ev.pointerType === 'mouse') this.mouseDown = false;
     if (Array.from(this.pointers.values()).filter((t) => t.kind !== 'stick').length < 2) this.pinchDist = null;
   }
 
@@ -332,7 +335,6 @@ export class InputManager {
       this.stick.dx = 0;
       this.stick.dy = 0;
     }
-    if (ev.pointerType === 'mouse') this.mouseDown = false;
     this.pinchDist = null;
   }
 

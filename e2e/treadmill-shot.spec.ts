@@ -115,6 +115,7 @@ for (const pace of PACES) {
     expect(st.frames).toBeGreaterThan(20);
     expect(st.inside, st.bad.join('\n')).toBe(0);
     expect(st.heroHidden, st.bad.join('\n')).toBe(0);
+    expect(st.heroNear, st.bad.join('\n')).toBe(0);
     expect(st.heroBlocked, st.bad.join('\n')).toBe(0);
 
     // A turn by the mouse: the player's camera, and it stays his while the hero is on the belt.

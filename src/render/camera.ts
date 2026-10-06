@@ -9,7 +9,7 @@
 import { PerspectiveCamera, Sphere, Vector3 } from 'three';
 import type { TuningJson } from '../content/types.ts';
 import type { CollisionWorld } from '../sim/collision.ts';
-import { angleDiff, type ControlFrame } from '../input/control-frame.ts';
+import { angleDiff, wrapAngle, type ControlFrame } from '../input/control-frame.ts';
 
 export interface CameraTarget {
   pos: Vector3;
@@ -62,8 +62,12 @@ const _from = new Vector3();
 const CHEST = 1.5;
 /** Steps of the sweep from the hero's head to the lead point. */
 const PIVOT_STEPS = 8;
-/** A camera this much past hideDistance from the hero's chest is still too close to keep the velocity lead. */
+/** A camera this much past hideDistance from the hero's body is still too close to keep the velocity lead. */
 const LEAD_MARGIN = 0.5;
+/** Head centre of a character over its feet: legs and torso 1.9 each, head 1.24 (src/render/characters.ts PART). */
+const HEAD = 4.4;
+/** A turn by hand this recent when the fixed frame ends keeps the player's yaw (docs/02-tech.md 7: «a turn in the last 0.5 s»). */
+const MANUAL_RECENT_SEC = 0.5;
 
 function smooth01(k: number): number {
   return k * k * (3 - 2 * k);
@@ -77,6 +81,7 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
   camera.updateProjectionMatrix();
   const pivot = new Vector3();
   const heroChest = new Vector3();
+  const heroHead = new Vector3();
   let fov = c.fov;
   let shakeT = 0;
   /** Extra pitch over the wall right behind the hero (rad), and the blend into the fixed frame (0…1). */
@@ -86,6 +91,16 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
   const fixedPos = new Vector3();
   const fixedLook = new Vector3();
   let fixedFov = c.fov;
+  /** PR-13: the player's yaw before the fixed frame, and the way back to it after the frame (0…1, 1 — done). */
+  let backYaw: number | null = null;
+  let wasFixed = false;
+  let retFrom = 0;
+  let retK = 1;
+  /** Distance from a point to the hero's body axis, chest to head (the camera keeps hideDistance off it; PR-13). */
+  const bodyDistance = (p: Vector3): number => {
+    const y = Math.min(heroHead.y, Math.max(heroChest.y, p.y));
+    return Math.hypot(p.x - heroChest.x, p.y - y, p.z - heroChest.z);
+  };
   const blocked = (p: Vector3, r: number, collision: CollisionWorld): boolean => {
     _probe.center.copy(p);
     _probe.radius = r;
@@ -151,12 +166,18 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       // Follow with critical damping and lead by velocity.
       _tmp.copy(target.pos);
       _tmp.y += c.height;
-      _tmp.x += target.vel.x * c.leadSec;
-      _tmp.z += target.vel.z * c.leadSec;
+      // The lead never takes the camera past the hero (PR-13: out of a cave the camera distance grows back at retreatSpeed,
+      // and at 55 units/s a lead longer than it put the camera ahead of the hero; at the next closed gate he ran into it).
+      const reach = Math.max(0, rig.currentDistance * Math.cos(frame.pitch) - c.hideDistance - LEAD_MARGIN);
+      const lead = Math.hypot(target.vel.x, target.vel.z) * c.leadSec;
+      const leadK = lead > reach ? reach / lead : 1;
+      _tmp.x += target.vel.x * c.leadSec * leadK;
+      _tmp.z += target.vel.z * c.leadSec * leadK;
       const k = dt > 0 ? 1 - Math.exp(-c.damping * dt) : 1;
       pivot.lerp(_tmp, k);
       if (collision) lastCollision = collision;
       heroChest.copy(target.pos).y += CHEST;
+      heroHead.copy(target.pos).y += HEAD;
       // The pivot never leads into a wall: swept from the hero's head towards it, stopped before the first hit.
       _head.copy(target.pos).y += c.height;
       if (collision && !blocked(_head, c.collisionRadius, collision)) {
@@ -167,6 +188,33 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
           ok = i;
         }
         if (ok < PIVOT_STEPS) pivot.copy(_head).addScaledVector(_seg, ok / PIVOT_STEPS);
+      }
+
+      // After the fixed frame the view comes back to the player's yaw from before it in shotReturnSec (PR-13, playtest of the
+      // prototype 2: it stayed 70° to the side, out of the cave, and «forward» led across the slope). The frame's yaw is
+      // the start; a movement frame taken from the shot (move started in it) turns back with the view. A turn by hand in
+      // the last moments of the frame or on the way back is the player's: no way back then. Not the auto-turn (16.7).
+      if (rig.fixed && !wasFixed) {
+        if (backYaw === null) backYaw = frame.viewYaw;
+        retK = 1;
+      } else if (!rig.fixed && wasFixed) {
+        if (backYaw !== null && rig.sinceManual >= MANUAL_RECENT_SEC) {
+          retFrom = frame.viewYaw;
+          retK = 0;
+        } else backYaw = null;
+      }
+      wasFixed = rig.fixed !== null;
+      if (!rig.fixed && backYaw !== null) {
+        if (input.manualCamera) {
+          backYaw = null;
+          retK = 1;
+        } else if (dt > 0) {
+          const follow = Math.abs(angleDiff(frame.controlYaw, frame.viewYaw)) < 1e-4;
+          retK = Math.min(1, retK + dt / Math.max(1e-3, tuning.avalanche.shotReturnSec));
+          frame.viewYaw = wrapAngle(retFrom + angleDiff(retFrom, backYaw) * smooth01(retK));
+          if (follow) frame.controlYaw = frame.viewYaw;
+          if (retK >= 1) backYaw = null;
+        }
       }
 
       // Auto-turn towards the track axis +Z (docs/02-tech.md 7), never during manual control or autorun; off unless
@@ -226,13 +274,14 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       _desired.copy(pivot).addScaledVector(_dir, rig.currentDistance);
       // The lead ahead of a fast hero never brings the camera back onto him (prototype playtest, item 2: running into a
       // cave the lead point is deep in it, its walls cut the room behind that point to about the lead): no lead then,
-      // when that puts the camera farther from him (pressed into a wall the lead point may be the better one).
-      if (collision && _desired.distanceTo(heroChest) < c.hideDistance + LEAD_MARGIN && pivot.distanceToSquared(_head) > 1e-4 && !blocked(_head, c.collisionRadius, collision)) {
+      // when that puts the camera farther from him (pressed into a wall the lead point may be the better one). Measured
+      // to his body from chest to head (playtest 2: out of a cave the raised camera sat in his hat, 4–5 units off the chest).
+      if (collision && bodyDistance(_desired) < c.hideDistance + LEAD_MARGIN && pivot.distanceToSquared(_head) > 1e-4 && !blocked(_head, c.collisionRadius, collision)) {
         _from.copy(pivot);
         pivot.copy(_head);
         const d = Math.min(rig.currentDistance, freeDistance(yaw, usePitch, wantDist, collision));
         _tmp.copy(pivot).addScaledVector(_dir, d);
-        if (_tmp.distanceTo(heroChest) > _desired.distanceTo(heroChest)) {
+        if (bodyDistance(_tmp) > bodyDistance(_desired)) {
           rig.currentDistance = d;
           _desired.copy(_tmp);
         } else pivot.copy(_from);
@@ -253,6 +302,8 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       fixedK = rig.fixed ? Math.min(1, fixedK + kRate) : Math.max(0, fixedK - kRate);
       // The hero is far from the frame (moved to another cave): no blend through the level, the player's view at once.
       if (!rig.fixed && fixedPos.distanceTo(pivot) > c.zoomMax + c.distance) fixedK = 0;
+      // Nor through the hero (PR-13): a blended point closer than hideDistance to his body — a cut to where the blend goes.
+      if (fixedK > 0 && fixedK < 1 && bodyDistance(_tmp.copy(_desired).lerp(fixedPos, smooth01(fixedK))) < c.hideDistance) fixedK = rig.fixed ? 1 : 0;
       if (fixedK > 0) {
         const kk = smooth01(fixedK);
         _tmp.copy(_desired).lerp(fixedPos, kk);

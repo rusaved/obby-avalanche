@@ -109,6 +109,7 @@ async function watchWave(page: Page, cave: Cave, label: string, shotPath: string
   const st = await page.evaluate(() => window.__TEST__!.cameraStats());
   expect(st.inside, st.bad.join('\n')).toBe(0);
   expect(st.heroHidden, st.bad.join('\n')).toBe(0);
+  expect(st.heroNear, st.bad.join('\n')).toBe(0);
   expect(st.heroBlocked, st.bad.join('\n')).toBe(0);
   // Still on the belt after the wave: the same frame holds (PR-11); off the belt — back to the player's camera in shotReturnSec.
   const after = await testState(page);

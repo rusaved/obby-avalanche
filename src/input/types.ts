@@ -11,7 +11,8 @@ export interface InputSnapshot {
   /** Zoom change this frame, units. */
   zoomDelta: number;
   pausePressed: boolean;
-  /** A finger or a mouse button is on the camera zone right now. */
+  /** The camera was turned by hand in this tick: a drag on the camera zone (finger or mouse) past the tap distance.
+   * A finger or a button resting on the zone is not a turn (PR-13). */
   manualCamera: boolean;
   /** Movement began this frame (stick touched, first move key): controlYaw snaps to viewYaw. */
   moveStarted: boolean;

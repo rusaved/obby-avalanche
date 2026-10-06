@@ -271,6 +271,8 @@ async function boot(): Promise<void> {
   let hudMode: HudMode = 'normal';
   let field: FieldRect = { width: 1, height: 1, left: 0, top: 0 };
   let lastSnap: InputSnapshot | null = null;
+  /** The camera was turned by hand in a tick since the last rendered frame (a turn is an edge of one tick; PR-13). */
+  let turnedByHand = false;
   let pendingGain: number | null = null;
   let lastGainPopAt = -1;
   // Gates melt into an arch over GATE_MELT_SEC; funnel events gate_N for mountain 1 on tier 0 (docs/06, steps 5–15).
@@ -696,6 +698,7 @@ async function boot(): Promise<void> {
     const t0 = performance.now();
     const snap = input.consume();
     lastSnap = snap;
+    if (snap.manualCamera) turnedByHand = true;
     if (snap.moveStarted) onMoveStarted(frame);
     applyManualTurn(frame, snap.camYawDelta, snap.camPitchDelta, tuning.camera.pitchMinDeg * DEG, tuning.camera.pitchMaxDeg * DEG);
     if (snap.zoomDelta !== 0) frame.distance = Math.min(tuning.camera.zoomMax, Math.max(tuning.camera.zoomMin, frame.distance + snap.zoomDelta));
@@ -813,9 +816,10 @@ async function boot(): Promise<void> {
       cameraRig.update(
         frameDt,
         { pos: renderPos, vel: hero.vel, speed: hero.speed, maxSpeed },
-        { manualCamera: lastSnap?.manualCamera ?? false, moveX: lastSnap?.moveX ?? 0, moveY: lastSnap?.moveY ?? 0, autoRun: input.autoRun },
+        { manualCamera: turnedByHand, moveX: lastSnap?.moveX ?? 0, moveY: lastSnap?.moveY ?? 0, autoRun: input.autoRun },
         sim.collision,
       );
+      turnedByHand = false;
       // Hidden by this frame's camera: a cut into or out of a fixed frame moves it many units at once (PR-11).
       if (heroChar) {
         heroChar.visible = !cameraRig.heroHidden && sim.respawnTicksLeft < 0;
@@ -992,7 +996,7 @@ async function boot(): Promise<void> {
     hero: heroChar,
     visual: avalanche,
     field: () => field,
-    manualCamera: () => (lastSnap?.manualCamera ?? false) || (cameraRig?.sinceManual ?? 99) < 0.5,
+    manualCamera: () => turnedByHand || (cameraRig?.sinceManual ?? 99) < 0.5,
     hideCaveParts: (niche, parts) => levelMeshes?.setCaveCut(niche, parts),
   });
   wayView = createWayView({ balance, getSim: () => sim, hud, camera: cameraRig, field: () => field });
