@@ -21,3 +21,4 @@ art/promo/*/video/frames/
 dist-pages/
 art/studio/*/
 .claude/worktrees/
+.claude/producer-rules.md

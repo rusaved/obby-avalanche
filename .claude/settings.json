@@ -29,6 +29,16 @@
             "timeout": 600
           }
         ]
+      },
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ \"$CLAUDE_CODE_REMOTE\" = \"true\" ] || exit 0; if [ -f /opt/claude-cloud/rules.md ]; then cat /opt/claude-cloud/rules.md; else echo 'Правила общения с продюсером не найдены в облачном окружении (/opt/claude-cloud/rules.md): действуй по CLAUDE.md, раздел «Как писать продюсеру».'; fi; exit 0",
+            "timeout": 10
+          }
+        ]
       }
     ]
   }
