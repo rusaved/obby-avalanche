@@ -67,6 +67,10 @@ export interface WallRow {
   shoe: number;
   petMult: number;
   coins: number;
+  /** The wall is the giant of the mountain (docs/01-gdd.md 17.5: the race is the last check of an open mountain). */
+  boss: boolean;
+  /** Seconds of the final open run from the shelter to the wall (for the giant — the race itself). */
+  runSec: number;
 }
 
 export interface CycleRun {
@@ -83,6 +87,10 @@ export interface CycleRun {
   caught: number;
   /** Waves with more than one catch (the game rules out a second one, docs/01-gdd.md 4.5). */
   doubleCaught: number;
+  /** Cycle second of every catch (lazy): «Накрыло» in the first minutes, docs/01-gdd.md 17.8. */
+  caughtAt: number[];
+  /** Eggs bought by the summit of every mountain (index = mountain − 1), docs/01-gdd.md 17.8 (check F11). */
+  eggsAt: number[];
   goldTaken: number;
   coins: number;
   meta: ModelMeta;
@@ -304,12 +312,18 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
   const walls: WallRow[] = [];
   const shoeBuys: number[] = [];
   const mountains: number[] = [];
+  const caughtAt: number[] = [];
+  const eggsAt: number[] = [];
 
   for (let wi = 0; wi < worlds.length; wi++) {
     const world = worlds[wi]!;
     const w = world.index;
     const th = world.threat;
     const campTop = th.safeZoneZ[1];
+    // Open slope (docs/01-gdd.md 17.4): the front never starts above `spawnMaxZ` (the start line of the giant), so the
+    // hero above it is safe — the race is the only check of that stretch.
+    const spawnMaxRaw = (th as unknown as Record<string, unknown>)['spawnMaxZ'];
+    const spawnMaxZ = typeof spawnMaxRaw === 'number' ? spawnMaxRaw : null;
     const gates = world.segments.filter((s) => s.type === 'gate').sort((a, b) => a.z - b.z);
     const niches = world.segments.filter((s) => s.type === 'niche');
     const zoneGift = (k: number): number => world.zones.find((zz) => zz.k === k)?.gift ?? 0;
@@ -352,16 +366,29 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
       const p = before + i;
       const gate = gates[i - 1]!;
       const gz = gate.z;
-      const cave = niches.find((nn) => num(nn, 'stretch') === i);
-      const shelter = cave ? cave.z : gz;
-      const caveBelow = niches.find((nn) => num(nn, 'stretch') === i - 1)?.z ?? campTop;
-      const tread = reference ? refTread(p) : (cave ? num(cave, 'treadmill') : 1) * (world.treadmillMult ?? 1);
+      // Shelters of the stretch: one cave in classic and fast, several on the open slope (docs/01-gdd.md 17.4). On
+      // `warn` the bot runs to the nearest one at or above it; it saves up on the treadmill of the last one before the
+      // wall (the grotto under the ridge, the start line of the giant). The snowball rolls to the nearest one below.
+      const stretchNiches = niches.filter((nn) => num(nn, 'stretch') === i).sort((a, b) => a.z - b.z);
+      const grotto = stretchNiches[stretchNiches.length - 1]?.z ?? gz;
+      const shelterAt = (from: number): number => stretchNiches.find((nn) => nn.z >= from)?.z ?? grotto;
+      const treadAt = (at: number): number => {
+        if (reference) return refTread(p);
+        const nn = stretchNiches.find((x) => x.z === at);
+        return (nn ? num(nn, 'treadmill') : 1) * (world.treadmillMult ?? 1);
+      };
+      const caveBelowOf = (from: number): number => niches.filter((nn) => nn.z < from).reduce((a, nn) => Math.max(a, nn.z), campTop);
       const gift = zoneGift(num(gate, 'zone')) * Wn;
+      // Open slope (docs/01-gdd.md 17.3): every step on the slope of a zone gives × its `stepMult` (1 when absent — classic
+      // and fast); the treadmill multiplier replaces it, as in the game.
+      const zmRaw = (world.zones.find((zz) => zz.k === num(gate, 'zone')) as unknown as Record<string, unknown> | undefined)?.['stepMult'];
+      const zm = typeof zmRaw === 'number' ? zmRaw : 1;
       // Fit: a wall after `keep` has no number; it opens at its target second of the mountain (the reference: 'inverse').
       const fitAt = fit && p > fit.keep ? tw0 + (fit.targetSec[p - 1] ?? 0) : null;
       const req = fitAt !== null ? Infinity : num(gate, 'requires') * Wn * ease(balance, n, p, lastWall);
       const reward = ((gate['reward'] as { coins?: number } | undefined)?.coins ?? 0) * Wn;
       let readySince = -1;
+      let runSec = 0;
       if (scripted && i === scriptedWall) {
         phase = 'warn';
         phT = balance.ftue.warnSec;
@@ -372,7 +399,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
         phase = 'idle';
         phT = SCRIPTED_IDLE;
       }
-      const sheltered = (): boolean => z === shelter || z <= campTop || z >= lastGateZ;
+      const sheltered = (): boolean => stretchNiches.some((nn) => nn.z === z) || z <= campTop || z >= lastGateZ || (spawnMaxZ !== null && z >= spawnMaxZ);
       // Lazy only: the hero moves on the slope from z to `to` while the front runs down — ran into it?
       const exposedMove = (to: number): void => {
         if (lazy && !isScriptedWave && phase === 'run' && z < front && to >= front) catchHero();
@@ -384,8 +411,9 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
           return;
         }
         caught++;
+        caughtAt.push(T);
         T += balance.caught.maxSec;
-        z = caveBelow;
+        z = caveBelowOf(z);
       };
       const walkTo = (to: number, v: number, g: number): void => {
         if (z >= to) return;
@@ -393,7 +421,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
         if (z >= to) return;
         const d = to - z;
         T += d / v;
-        S += (d / stepLen) * g;
+        S += (d / stepLen) * g * zm;
         phT -= d / v;
         takePath(z, to);
         z = to;
@@ -417,16 +445,17 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
           if (bonus && normalWaves >= bonus.fromWave) {
             const d = 2 * GOLD_AVG;
             T += d / v;
-            S += (d / stepLen) * g;
+            S += (d / stepLen) * g * zm;
             phT -= d / v;
             carrying = true;
           }
         } else if (phase === 'warn' && phT <= 0) {
           phase = 'run';
-          front = Math.min(z + th.spawnAhead, zEnd);
+          front = Math.min(z + th.spawnAhead, spawnMaxZ ?? zEnd);
         }
         const reacting = !lazy || (!ignoring && warnAge >= LAZY_REACT_SEC);
-        const hiding = (phase === 'warn' && reacting) || (phase === 'run' && front > z && (!lazy || !ignoring));
+        const safeAbove = spawnMaxZ !== null && z >= spawnMaxZ;
+        const hiding = !safeAbove && ((phase === 'warn' && reacting) || (phase === 'run' && front > z && (!lazy || !ignoring)));
         if (phase === 'run') {
           const was = front;
           front -= th.speed * DT;
@@ -449,30 +478,32 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
         if (S >= req && readySince < 0) readySince = T;
         const ready = fitAt !== null ? T >= fitAt : S >= req && (!lazy || T - readySince >= LAZY_REACT_SEC);
         if (hiding) {
-          walkTo(shelter, v, g);
-          S += (v / stepLen) * g * tread * DT;
-          z = shelter;
+          const s = shelterAt(z);
+          walkTo(s, v, g);
+          S += (v / stepLen) * g * treadAt(s) * DT;
+          z = s;
         } else if (ready) {
           const dist = gz - z;
-          S += (dist / stepLen) * g;
-          T += Math.max(MIN_RUN_SEC, dist / v);
+          runSec = Math.max(MIN_RUN_SEC, dist / v);
+          S += (dist / stepLen) * g * zm;
+          T += runSec;
           exposedMove(gz + PAST_WALL);
           takePath(z, gz + PAST_WALL);
           z = gz + PAST_WALL;
           C += reward;
           break;
         } else if (giftsLeft > 0 && !(scripted && i < scriptedWall && T < SCRIPTED_GIFT_WAIT)) {
-          S += ((v * GIFT_SEC) / stepLen) * g;
+          S += ((v * GIFT_SEC) / stepLen) * g * zm;
           T += GIFT_SEC;
           giftsLeft--;
           C += gift;
           phT -= GIFT_SEC - DT;
-          walkTo(shelter, v, g);
+          walkTo(grotto, v, g);
           continue;
         } else {
-          walkTo(shelter, v, g);
-          S += (v / stepLen) * g * tread * DT;
-          z = shelter;
+          walkTo(grotto, v, g);
+          S += (v / stepLen) * g * treadAt(grotto) * DT;
+          z = grotto;
         }
         T += DT;
         // Active day: rewards of the day as their second of play comes (coins are k × the gift of the hero's zone).
@@ -514,7 +545,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
           }
         }
         if (T > LIMIT_SEC) {
-          return { sec: Infinity, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, goldTaken, coins: C, meta, trophiesGot, seedOut: rnd.state(), fitted };
+          return { sec: Infinity, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, caughtAt, eggsAt, goldTaken, coins: C, meta, trophiesGot, seedOut: rnd.state(), fitted };
         }
       }
       // The free egg of the first minute hatches after wall 3 of the reference (docs/01-gdd.md 6.2).
@@ -530,7 +561,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
         if (fitAt !== null && prev !== undefined && x <= prev) x = round.up(prev);
         fitted[p - 1] = x;
       }
-      walls.push({ mountain: w, wall: i, p, sec: T - tw0, total: T, took: T - lastWallT, stat: S, shoe, petMult: petMult(), coins: C });
+      walls.push({ mountain: w, wall: i, p, sec: T - tw0, total: T, took: T - lastWallT, stat: S, shoe, petMult: petMult(), coins: C, boss: gate['boss'] === true, runSec });
       lastWallT = T;
     }
     T += TO_PORTAL / vel(S);
@@ -547,9 +578,10 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
       }
     }
     mountains.push(T - tw0);
+    eggsAt.push(eggsBought);
   }
   spendTrophies(pack, meta);
-  return { sec: T, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, goldTaken, coins: C, meta, trophiesGot, seedOut: rnd.state(), fitted };
+  return { sec: T, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, caughtAt, eggsAt, goldTaken, coins: C, meta, trophiesGot, seedOut: rnd.state(), fitted };
 }
 
 /**
@@ -707,8 +739,11 @@ export function fitBalance(pack: ModelPack, t: FitTargets, reference = false): F
       if (r.sec / 60 < cycleMin[n - 1]!) lo = mid;
       else hi = mid;
     }
-    let W = nice(Math.exp(lo));
-    if (W <= scale[n - 1]!) W = up(scale[n - 1]!);
+    // wallScale is rounded like the walls of the pace (the nice row of the reference; a pace with few walls needs the
+    // finer row of its `roundDigits`, otherwise one step of the row moves a cycle by minutes).
+    const rounding = round ?? NICE_ROUNDING;
+    let W = rounding.near(Math.exp(lo));
+    if (W <= scale[n - 1]!) W = rounding.up(scale[n - 1]!);
     const r = runCycle(fitted, { profile: 'greedy', tier: n, meta: copy(), seed, wallScale: W, reference });
     scale.push(W);
     cycle.push(r.sec / 60);
