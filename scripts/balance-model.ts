@@ -67,9 +67,9 @@ export interface WallRow {
   shoe: number;
   petMult: number;
   coins: number;
-  /** The wall is the giant of the mountain (docs/01-gdd.md 17.5: the race is the last check of an open mountain). */
+  /** The wall is the giant of the mountain (docs/01-gdd.md 17.6: his zone is the last check of an open mountain). */
   boss: boolean;
-  /** Seconds of the final open run from the shelter to the wall (for the giant — the race itself). */
+  /** Seconds of the final open run from the shelter to the wall (for the giant — the run through his zone). */
   runSec: number;
 }
 

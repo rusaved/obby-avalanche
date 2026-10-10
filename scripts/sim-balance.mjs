@@ -402,9 +402,9 @@ if (lazy.caughtAt.length) L(` ленивый: «Накрыло» на секун
 if (greedy.eggsAt.some((n) => n > 0)) L(` жадный: яиц к вершине горы 1…${greedy.eggsAt.length} — ${greedy.eggsAt.join(' / ')}`);
 L(` жадный: кроссовки куплены на секундах цикла ${greedy.shoeBuys.map((t) => t.toFixed(0)).join(', ')}`);
 {
-  // The giant (docs/01-gdd.md 17.5): the race is the last check of an open mountain; the bot meets him on the horizon from the camp.
+  // The giant (docs/01-gdd.md 17.6): his zone is the last check of an open mountain; the bot sees him on the horizon from the camp.
   const races = greedy.walls.filter((w) => w.boss);
-  if (races.length) L(` великан: ${races.slice(0, 3).map((w) => `гора ${w.mountain} — старт гонки на ${(w.sec - w.runSec).toFixed(0)} с горы (${min(w.total - w.runSec)} мин цикла), гонка ${w.runSec.toFixed(1)} с, Скорость ${fmt(w.stat)}`).join('; ')}`);
+  if (races.length) L(` великан: ${races.slice(0, 3).map((w) => `гора ${w.mountain} — вход в зону на ${(w.sec - w.runSec).toFixed(0)} с горы (${min(w.total - w.runSec)} мин цикла), пробег зоны ${w.runSec.toFixed(1)} с, Скорость ${fmt(w.stat)}`).join('; ')}`);
 }
 L();
 L('Итог по ступеням, жадный (мин):');
