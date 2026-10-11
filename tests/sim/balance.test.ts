@@ -6,6 +6,9 @@ import tuning from '../../content/avalanche/tuning.json' with { type: 'json' };
 import pets from '../../content/avalanche/pets.json' with { type: 'json' };
 import eggs from '../../content/avalanche/eggs.json' with { type: 'json' };
 import worldsJson from '../../content/avalanche/worlds.json' with { type: 'json' };
+import openBalance from '../../content/avalanche/pace/open/balance.json' with { type: 'json' };
+import openWorlds from '../../content/avalanche/pace/open/worlds.json' with { type: 'json' };
+import { mergePatch } from '../../src/content/pace.ts';
 import type { BalanceJson, EggsJson, GameJson, PetsJson, TuningJson, WorldsJson } from '../../src/content/types.ts';
 
 const pack: ModelPack = {
@@ -56,5 +59,26 @@ describe('balance model (M2-11)', () => {
     // (12345 × 1103515245 + 12345) mod 2^31 = 1406932606
     expect(rnd()).toBeCloseTo(1406932606 / 2147483648, 12);
     expect(lcg(1)()).toBeCloseTo(((1103515245 + 12345) % 2147483648) / 2147483648, 12);
+  });
+});
+
+// PS-12: the open pace on its data (docs/01-gdd.md 17.12; docs/01a-content.md 16.2): mountain 1 and its giant.
+const openPack: ModelPack = { ...pack, balance: mergePatch(balance as BalanceJson, openBalance), worlds: (openWorlds as unknown as WorldsJson).worlds };
+
+describe('balance model, pace open (PS-12)', () => {
+  it('greedy, tier 0: mountain 1 in 1.6–2.2 min, its giant the last check — the run through his zone ≤ 10 s', () => {
+    const r = runCycle(openPack, { profile: 'greedy', mountains: 1 });
+    expect(r.mountains[0]! / 60).toBeGreaterThanOrEqual(1.6);
+    expect(r.mountains[0]! / 60).toBeLessThanOrEqual(2.2);
+    const m1 = r.walls.filter((w) => w.mountain === 1);
+    expect(m1[m1.length - 1]!.boss).toBe(true);
+    expect(m1[m1.length - 1]!.runSec).toBeLessThanOrEqual(10);
+    expect(r.caught).toBe(0);
+  });
+
+  it('lazy, tier 0: mountain 1 ≤ 3.5 min, never caught twice by one wave', () => {
+    const lazy = runCycle(openPack, { profile: 'lazy', mountains: 1 });
+    expect(lazy.mountains[0]! / 60).toBeLessThanOrEqual(3.5);
+    expect(lazy.doubleCaught).toBe(0);
   });
 });

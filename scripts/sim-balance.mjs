@@ -10,7 +10,7 @@
 // exit 0 — all of them green. Classic — the 10 checks of 8.5, the reference and the gold seeker, docs/evidence/balance.txt;
 // another pace — the checks F1–F10 of 16.8 on its worlds.json and the balance.json patch, docs/evidence/balance-<pace>.txt.
 // `--fit --pace=fast` — the targets of the pace patch (`sim`: mountainMin, gateCurve, keep, roundDigits).
-// `--pace-dir=<folder>` — a draft pace outside content/<pack>/pace/ (docs/01-gdd.md 17.8: content/<pack>/pace-draft/<pace>/):
+// `--pace-dir=<folder>` — a draft pace outside content/<pack>/pace/ (as content/<pack>/pace-draft/<pace>/ was before PS-12):
 // the same checks on its worlds.json and balance.json patch, thresholds from `sim.checks` of the patch, F11 from
 // `sim.eggsByMountain`; `--fit` writes its worlds-spec.json and balance.json but neither counts in balance-fit.json nor
 // runs gen:worlds (a draft regenerates its worlds.json itself).

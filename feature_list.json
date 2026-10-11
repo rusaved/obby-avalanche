@@ -652,7 +652,7 @@
     "milestone": "PS",
     "description": "Баланс темпа open (docs/01-gdd.md 17.12; docs/01a-content.md 16.2, 16.6): черновик content/avalanche/pace-draft/open переезжает в pace/open (черновик удаляется), worlds.json — gen:worlds, пороги F1–F11 из sim.checks, слова sim.words, F11 eggsByMountain, подгонка --fit --pace=open ≤ 2 раз на веху, таблицы 01a 16.2 переписаны под данные; sim:balance без параметров гоняет все темпы — код 0",
     "acceptance": "npm run sim:balance: classic 10 PASS и сверка с эталоном 60 из 60, fast F1–F10 PASS, open F1–F11 PASS (гора 1 1,6–2,2 мин, ступень 0 28–34 мин, циклы 17–23, кроссовки ≤ 150 с, яиц к вершине горы 5 ≥ 3 и горы 10 ≥ 10), отчёты docs/evidence/balance*.txt; цифры classic и fast не изменились против docs/evidence/proto/; папки pace-draft/ нет; tests/sim/balance.test.ts дополнен прогоном open (гора 1, великан горы 1 — пробег зоны ≤ 10 с, ленивый без двойной поимки)",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
