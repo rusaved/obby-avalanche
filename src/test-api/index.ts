@@ -152,6 +152,8 @@ export interface TestState {
   cameraViewBlend: number;
   /** «▶ Ad: …» buttons on the HUD now (place ids, docs/01-gdd.md 9.1) and the one waiting for its ad. */
   adButtons: string[];
+  /** Record flag of the open slope (docs/01-gdd.md 17.7): the highest point of this life on the mountain, null — none. */
+  record: { x: number; y: number; z: number } | null;
   /** How far each gate has melted on screen (0 — whole, 1 — gone; a ridge melts all its passages at once). */
   gateMelt: number[];
   adBusy: string | null;
@@ -515,6 +517,7 @@ export function installTestApi(g: GameHandles): TestApi {
         cameraFixedBlend: cam?.fixedBlend ?? 0,
         cameraViewBlend: cam?.viewBlend ?? 0,
         adButtons: [...(g.ads?.shown ?? [])],
+        record: g.sim?.record ? { ...g.sim.record } : null,
         gateMelt: g.sim ? g.sim.level.gates.map((_, i) => g.levelMeshes?.gateOpenness(i) ?? 0) : [],
         adBusy: g.ads?.busy ?? null,
         autoRun: g.input.autoRun,

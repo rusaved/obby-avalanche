@@ -104,7 +104,11 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
   const { threat, balance, avalanche } = opts;
   const campTop = threat.safeZoneZ[1];
   const lastGateZ = level.gates.reduce((m, g) => Math.max(m, g.z), campTop + avalanche.spawnMinFromCamp);
-  const scriptedCave = level.niches[balance.ftue.scriptedWaveWall - 1] ?? null;
+  // Open slope (docs/01-gdd.md 17.5): the front never starts above the line of the giant's zone; above it the hero is safe.
+  const spawnMax = threat.spawnMaxZ ?? Infinity;
+  // The scripted wave comes at the first shelter of stretch `scriptedWaveWall` (the cave of that stretch in classic and
+  // fast; the first grotto of section 2 on the open slope, 17.8).
+  const scriptedCave = level.niches.find((n) => n.stretch === balance.ftue.scriptedWaveWall) ?? null;
   const state: ThreatState = {
     phase: 'idle',
     timer: opts.firstSec ?? threat.firstIntervalSec,
@@ -137,7 +141,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
     } else {
       const newbie = balance.threat.newbieWaves;
       state.warnSec = threat.warnSec + (state.normalWavesDone < newbie.count ? newbie.warnBonusSec : 0);
-      state.spawnZ = Math.min(lastGateZ, Math.max(campTop + avalanche.spawnMinFromCamp, hero.z + threat.spawnAhead));
+      state.spawnZ = Math.min(lastGateZ, spawnMax, Math.max(campTop + avalanche.spawnMinFromCamp, hero.z + threat.spawnAhead));
       state.normalWaves++;
       state.normalWavesDone++;
       state.shelter = nearestShelter(level, gatesOpen, hero.x, hero.z);
@@ -157,7 +161,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
 
   /** The front reached the hero: decide survived / caught / safe (docs/01-gdd.md 4.3–4.5). */
   const resolve = (hero: ThreatHero, tick: number): void => {
-    if (inSafeZone(level, hero.z)) {
+    if (inSafeZone(level, hero.z) || hero.z >= spawnMax) {
       state.outcome = 'safe';
       return;
     }

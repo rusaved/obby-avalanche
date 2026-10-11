@@ -23,6 +23,7 @@ import { createGameRenderer, createWebGL2Context, type GameRenderer } from './re
 import { createLevelMeshes, type LevelMeshes } from './render/level-mesh.ts';
 import { createCharacters, type CharacterInstance, type Characters } from './render/characters.ts';
 import { createBlobShadow } from './render/blob.ts';
+import { createRecordFlag } from './render/record-flag.ts';
 import { createSnowball } from './render/threat/snowball.ts';
 import { createBonusVisual, type BonusVisual } from './render/threat/bonus.ts';
 import { BONUS_HEIGHT } from './sim/bonus.ts';
@@ -186,6 +187,12 @@ async function boot(): Promise<void> {
   let loadWaves = 0;
   const bonusOptions = (w: World): { cfg: NonNullable<typeof game.threat.bonus>; seed: number; wavesBefore: number } | undefined =>
     game.threat.bonus ? { cfg: game.threat.bonus, seed: (seed + w.index * 104729) >>> 0, wavesBefore: loadWaves } : undefined;
+  // Record flag of the open slope (docs/01-gdd.md 17.7): the one of the save when it is on this mountain.
+  const recordOf = (w: World): { x: number; y: number; z: number } | null | undefined => {
+    if (w.layout !== 'openSlope') return undefined;
+    const r = save.record;
+    return r && r.world === w.index && Number.isFinite(r.z) ? { x: r.x, y: r.y, z: r.z } : null;
+  };
   let sim: Sim = createSim(level, tuning, {
     balance,
     speedCurve: speedCurve(),
@@ -197,6 +204,7 @@ async function boot(): Promise<void> {
     bots: botOptions(world),
     bonus: bonusOptions(world),
     resume: { frontierWall: save.frontierWall ?? 0 },
+    record: recordOf(world),
     walls: wallsOf(world),
   });
   /** The climb into the save (docs/01-gdd.md 7.10): stat, best stat, coins, mountain, farthest wall passed. */
@@ -207,6 +215,9 @@ async function boot(): Promise<void> {
     save.coins = sim.coins;
     save.world = sim.level.worldIndex;
     save.frontierWall = frontierOf(sim);
+    const r = sim.record;
+    if (r) save.record = { world: sim.level.worldIndex, x: r.x, y: r.y, z: r.z };
+    else delete save.record;
   }
   /** Every change of the climb goes to the mirror at once; a new wall or mountain also to the cloud (SAV-01). */
   const saveClimb = (): void => {
@@ -314,6 +325,8 @@ async function boot(): Promise<void> {
       petsView?.hatched(pet, egg ? new Vector3(egg.x, egg.y + 1, egg.z) : null, true);
     });
     // Round number of Speed (M2-13, Q-023): flash, bounce, chime, toast; no analytics.
+    // Back above the record flag after «Snowed in!» or the giant (docs/01-gdd.md 17.7): «New height!».
+    s.events.on('recordUp', () => hud?.toast(t('toast.recordUp')));
     s.events.on('statMilestone', ({ value }) => {
       hud?.flashStat();
       hud?.toast(t('toast.statMilestone', { n: formatNumber(value, numSuffix) }));
@@ -409,6 +422,9 @@ async function boot(): Promise<void> {
   let playPersistAt = 0;
   let lastRenderTicks = 0;
   const blob = createBlobShadow();
+  // Record flag of the open slope (docs/01-gdd.md 17.7) in the colour of the hero's jacket.
+  const heroLook = skins.skins.find((x) => x.id === skins.default);
+  const recordFlag = createRecordFlag(heroLook?.colors.torso ?? theme.materials['flag']?.color ?? '#ffffff', theme.materials['pole']?.color ?? '#ffffff');
   const snowball = createSnowball(theme.threat.body);
 
   const g: GameHandles = {
@@ -606,7 +622,7 @@ async function boot(): Promise<void> {
     const tier = reset?.tier ?? sim.tier;
     world = next;
     level = buildLevel(world);
-    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world), walls: wallsOf(world) });
+    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world), walls: wallsOf(world), record: world.layout === 'openSlope' ? null : undefined });
     avalanche?.setLevel(level);
     wireSim(sim);
     g.sim = sim;
@@ -805,6 +821,7 @@ async function boot(): Promise<void> {
       heroChar.visible = !(cameraRig?.heroHidden ?? false) && sim.respawnTicksLeft < 0;
     }
     blob.update(renderPos, sim.collision);
+    recordFlag.update(sim.record, renderPos.z);
     bonusVisual?.update(sim.bonus, renderPos, playSec);
     waveView?.update(frameDt, playSec);
     const gameDt = (loop.ticks - lastRenderTicks) * loop.step;
@@ -955,6 +972,7 @@ async function boot(): Promise<void> {
   g.characters = characters;
   g.hero = heroChar;
   gr.scene.add(blob.mesh);
+  gr.scene.add(recordFlag.mesh);
   gr.scene.add(snowball.mesh);
   if (game.threat.bonus && theme.bonus) {
     bonusVisual = createBonusVisual(theme.bonus.color);

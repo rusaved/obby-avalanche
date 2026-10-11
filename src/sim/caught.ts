@@ -34,10 +34,15 @@ export interface CaughtState {
   popSec: number;
 }
 
-/** Nearest cave below the hero (its z under his), or the camp spawn when there is none. */
-export function caughtTarget(level: LevelData, z: number): { niche: number; x: number; y: number; z: number } {
+/**
+ * Nearest cave below the hero (its z under his), or the camp spawn when there is none. On a fork of the open slope
+ * (docs/01-gdd.md 17.5) only a grotto of the hero's lane: the ball never rolls through the cliff; a ledge on a cliff top
+ * is no place to roll to.
+ */
+export function caughtTarget(level: LevelData, z: number, x = 0): { niche: number; x: number; y: number; z: number } {
   let best = -1;
   level.niches.forEach((n, i) => {
+    if (n.kind === 'ledge' || (n.lane !== undefined && (n.side === 'left') !== x < 0)) return;
     if (n.z < z && (best < 0 || n.z > level.niches[best]!.z)) best = i;
   });
   const n = level.niches[best];
@@ -52,7 +57,7 @@ export function createCaught(
   caught: BalanceJson['caught'],
   avalanche: Pick<TuningJson['avalanche'], 'caughtFormSec' | 'caughtPopSec'>,
 ): CaughtState {
-  const target = caughtTarget(level, from.z);
+  const target = caughtTarget(level, from.z, from.x);
   const formSec = Math.min(avalanche.caughtFormSec, caught.maxSec);
   const rollSec = Math.min(caught.rollSec, caught.maxSec - formSec);
   const popSec = Math.max(0, Math.min(avalanche.caughtPopSec, caught.maxSec - formSec - rollSec));

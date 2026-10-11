@@ -178,7 +178,9 @@ export function createFtueView(d: FtueViewDeps): FtueView {
         const pict = id === 'hint.move' ? (d.touch() ? 'stick' : 'keys') : null;
         // The wave hints win over a toast (a zone announcement must not hide «To the cave!»).
         // At a ridge of the open slope the same hint says «run or treadmill» (docs/01-gdd.md 17.3).
-        const key = id === 'hint.stuck' && sim.level.gates[stuckGate]?.kind === 'ridge' ? 'hint.stuckRidge' : id;
+        const open = sim.level.sections.length > 0;
+        const key =
+          id === 'hint.stuck' && sim.level.gates[stuckGate]?.kind === 'ridge' ? 'hint.stuckRidge' : id === 'hint.caught' && open ? 'toast.shelterGrotto' : id;
         d.hud.setHint({ text: t(key), pict, x: head.x, y: head.y - PLAQUE_ABOVE * f.height, urgent: id === 'wave.cave' || id === 'hint.gold', arrow: view.hintArrow });
       } else d.hud.setHint(null);
 

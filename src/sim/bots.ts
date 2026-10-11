@@ -263,7 +263,8 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
   /** The cave in front of the wall the bot stands at (its stretch), with a free place, or −1. */
   const treadmillCave = (b: Bot): { cave: number; spot: number } | null => {
     const stretch = stretchOf(b.z) + 1;
-    const cave = level.niches.findIndex((n) => n.stretch === stretch);
+    // A grotto of the open slope has no belt (docs/01-gdd.md 17.5): the one with the belt is under the ridge.
+    const cave = level.niches.findIndex((n) => n.stretch === stretch && n.treadmill > 0);
     if (cave < 0) return null;
     const taken = occupied(cave, b);
     for (let s = 0; s < CAVE_SPOTS; s++) if (!taken.includes(s)) return { cave, spot: s };

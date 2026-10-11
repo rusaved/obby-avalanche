@@ -70,6 +70,8 @@ export interface SaveData {
   timeRw?: { day: number; sec: number; got: number[] };
   /** Lucky wheel (7.13): the game day of the last free spin. */
   wheel?: { day: number };
+  /** Record flag of the open slope (docs/01-gdd.md 17.7): the highest point of this life on mountain `world`. */
+  record?: { world: number; x: number; y: number; z: number };
 }
 
 export const SAVE_VERSION = 2;
@@ -107,7 +109,7 @@ export function migrate(raw: Record<string, unknown>): Record<string, unknown> |
 
 const NUMBER_KEYS = ['sessions', 'wavesNormal', 'totalPlaySec', 'shoes', 'trophies', 'trophiesTotal', 'tier', 'summits', 'stat', 'bestStat', 'coins', 'world', 'frontierWall', 'boostSec', 'adEgg'] as const;
 const ARRAY_KEYS = ['pets', 'petsOn', 'trails', 'auras', 'skins', 'wings'] as const;
-const OBJECT_KEYS = ['flags', 'hints', 'daily', 'quests', 'timeRw', 'wheel'] as const;
+const OBJECT_KEYS = ['flags', 'hints', 'daily', 'quests', 'timeRw', 'wheel', 'record'] as const;
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
 
 /**

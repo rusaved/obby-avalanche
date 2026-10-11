@@ -71,6 +71,8 @@ export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, Record<st
   caughtEnd: { tick: number; sec: number; niche: number; x: number; y: number; z: number };
   /** The hero walked through the summit portal (docs/01-gdd.md 5.2): `next` is the next mountain index, null after the last. */
   portal: { tick: number; from: number; next: number | null };
+  /** Open slope (docs/01-gdd.md 17.7): back up past the record flag after being sent below it — «New height!». */
+  recordUp: { tick: number; z: number };
 }
 
 export interface Sim {
@@ -115,6 +117,9 @@ export interface Sim {
   portalEntered: boolean;
   /** Trampolines and ice slides of the mountain: the flight and the boost now (docs/01-gdd.md 16.4). */
   readonly fun: FunState;
+  /** Record flag of the open slope (docs/01-gdd.md 17.7): the highest point on the ground of this life on the mountain;
+   * null — none yet, or no record flag in this pace. */
+  record: { x: number; y: number; z: number } | null;
   step(input: HeroInput, dt: number): void;
   teleport(x: number, y: number, z: number): void;
   respawn(): void;
@@ -164,7 +169,12 @@ export interface SimOptions {
   resume?: { frontierWall: number } | undefined;
   /** Walls before this mountain and in all (worlds.json): the through number of lateEase; absent — 12 a mountain, 60. */
   walls?: WallCount | undefined;
+  /** Record flag (open slope, docs/01-gdd.md 17.7): the one of the save on this mountain or null; absent — no record flag. */
+  record?: { x: number; y: number; z: number } | null | undefined;
 }
+
+/** The record flag shows, and passing it again says «New height!», once the hero is this far below it. */
+export const RECORD_RETURN = 20;
 
 export const RESPAWN_FADE_TICKS = 18;
 /** The hero is past a gate when his centre is this far beyond its plane. */
@@ -207,6 +217,9 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   const beltList = belts(level);
   const heroView = { x: 0, y: 0, z: 0, vx: 0, vz: 0 };
   const graceDist = opts.balance.niche?.graceDist ?? 0;
+  const recordOn = opts.record !== undefined;
+  /** The hero is (or was since the last record) more than RECORD_RETURN below the record flag. */
+  let recordBelow = !!opts.record;
 
   const sim: Sim = {
     hero,
@@ -231,6 +244,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     bonus: null,
     caught: null,
     fun: createFun(level),
+    record: opts.record ? { ...opts.record } : null,
     gifts: giftsFromLevel(level),
     coins: opts.coins ?? 0,
     respawnGifts() {
@@ -338,6 +352,19 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       }
       if (hero.jumpedThisTick) events.emit('jump', { tick: sim.tick });
       if (hero.landedThisTick) events.emit('land', { tick: sim.tick, airTime: hero.airTime });
+      // Record flag (docs/01-gdd.md 17.7): follows the highest point on the ground off the camp and the summit; sent below
+      // it (snowed in, caught), the hero passing it again hears «New height!».
+      if (recordOn && hero.onGround && !sim.caught && !inSafeZone(level, hero.pos.z)) {
+        const r = sim.record;
+        if (!r) sim.record = { x: hero.pos.x, y: hero.pos.y, z: hero.pos.z };
+        else if (hero.pos.z > r.z) {
+          if (recordBelow) events.emit('recordUp', { tick: sim.tick, z: hero.pos.z });
+          recordBelow = false;
+          r.x = hero.pos.x;
+          r.y = hero.pos.y;
+          r.z = hero.pos.z;
+        } else if (r.z - hero.pos.z > RECORD_RETURN) recordBelow = true;
+      }
       // Checkpoints: the flag behind the last wall passed (highest z reached on the ground).
       for (let i = level.checkpoints.length - 1; i > sim.checkpoint; i--) {
         const c = level.checkpoints[i];
