@@ -471,7 +471,7 @@ export interface OpenShapes {
   /** Grottos of the slope this long along it from mountain `fromWorld` (docs/01-gdd.md 18.8 item 3: 8 → 10; mountain 1 stays as built). */
   grotto?: { width: number; fromWorld: number };
   chasm: { width: number; depth: number; giftsAir: number; giftsBottom: number; ramp: number; padBefore: number; widthByWorld?: Record<string, number> };
-  throat: { width: number; length: number; slideMult: number; fieldGifts: number; fieldGrotto: number; height: number; funnel: number; lengthByWorld?: Record<string, number> };
+  throat: { width: number; length: number; slideMult: number; holdSec?: number; fieldGifts: number; fieldGrotto: number; height: number; funnel: number; lengthByWorld?: Record<string, number> };
   tunnel: { width: number; height: number; length: number; openGifts: number; lengthByWorld?: Record<string, number> };
   hump: { rise: number; slideLength: number; top: number; flight: number; giftsAir: number; landing: number; flightByWorld?: Record<string, number> };
 }

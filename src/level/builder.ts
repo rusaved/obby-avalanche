@@ -356,7 +356,7 @@ export function buildLevel(world: World): LevelData {
         // Fun between the gates (docs/01-gdd.md 16.4): flat on the floor, not colliders; the sim reads their rectangles.
         const fun: LevelPoint = { type: s.type, x: num(s, 'x'), y, z: s.z, width: num(s, 'width'), length: num(s, 'length'), stretch: num(s, 'stretch') };
         // Elements of the open slope (docs/01-gdd.md 18.3): a plate's own push, a slide's own boost and rise, the element.
-        for (const k of ['forward', 'slide', 'rise', 'mult', 'shape'] as const) if (s[k] !== undefined) fun[k] = s[k];
+        for (const k of ['forward', 'slide', 'rise', 'mult', 'hold', 'shape'] as const) if (s[k] !== undefined) fun[k] = s[k];
         points.push(fun);
         break;
       }

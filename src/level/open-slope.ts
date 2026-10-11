@@ -73,8 +73,9 @@ export const OPEN_SLOPE = {
   crevasse: { slideAt: 2, from: 26, width: 5, depth: 2, bottom: 2.5, padBefore: 5 },
   /** From mountain 2 (17.5): an ice cliff on the bold lane (|x| 18–26), a winding way up, the ledge shelter on top. */
   cliff: { x0: 18, x1: 26, ramp: 14, top: 8, height: 9, gap: 8 },
-  /** One grotto with a chest a mountain, past the bold lane of section 2 or 3: 10 × the gift of its section. */
-  chest: { sections: [2, 3], length: 8, depth: 4, gifts: 10, after: 6 },
+  /** One grotto with a chest a mountain, past the bold lane of the first fork of sections 2–4 with room for it (RG: the
+   * elements take sections 2–3 on some mountains): 10 × the gift of its section. */
+  chest: { sections: [2, 3, 4], length: 8, depth: 4, gifts: 10, after: 6 },
 } as const;
 
 type Spec = OpenSpecJson;

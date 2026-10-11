@@ -151,13 +151,14 @@ test('the ridge view and the giant’s shot come back behind the hero within 1.5
   await page.evaluate(() => window.__TEST__!.setAutoRun(false));
 });
 
-test('640×360: both lanes of the fork of section 2 of mountain 2 are in the frame from its start', async ({ page, openGame }) => {
+// RG: section 2 of mountain 2 is the chasm now (docs/01a-content.md 17.1); the first plain fork of section 2 is on mountain 4.
+test('640×360: both lanes of the fork of section 2 of mountain 4 are in the frame from its start', async ({ page, openGame }) => {
   test.setTimeout(120_000);
   await page.setViewportSize({ width: 640, height: 360 });
   await openGame('pace=open');
-  await page.evaluate(() => window.__TEST__!.gotoWorld(2));
+  await page.evaluate(() => window.__TEST__!.gotoWorld(4));
   await waitTicks(page, 20);
-  const fork = worlds[1]!.segments.find((s) => s.type === 'fork' && s.section === 2)!;
+  const fork = worlds[3]!.segments.find((s) => s.type === 'fork' && s.section === 2)!;
   await page.evaluate(([z]) => {
     window.__TEST__!.setStat(1e6);
     window.__TEST__!.teleport(z);

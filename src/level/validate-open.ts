@@ -313,6 +313,8 @@ export function validateOpenFun(worlds: WorldsJson, tuning: TuningJson, speedAt:
     const level = buildLevel(w);
     const gates = sorted(w, 'gate');
     const caveBoxes = level.boxes.filter((b) => b.kind.startsWith('niche'));
+    // Nothing tall in a flight (docs/01-gdd.md 18.3: «not into a cliff»): fork cliffs, ledges, throat and tunnel walls.
+    const tall = level.boxes.filter((b) => b.solid && ['cliff', 'ledgeCliff', 'throatWall', 'tunnelWall', 'tunnelRoof'].includes(b.kind));
     const half = w.width / 2;
     for (const p of w.segments.filter((s) => s.type === 'jumpPad')) {
       const below = gates.filter((g) => g.z <= p.z);
@@ -357,8 +359,10 @@ export function validateOpenFun(worlds: WorldsJson, tuning: TuningJson, speedAt:
       for (const v of [vmin, tuning.controller.maxSpeed]) {
         const arc = fly(v);
         if (arc.landZ + HERO_RADIUS > next.z - GATE_THICKNESS / 2) errors.push(`${where} — at ${v.toFixed(1)} units/s it lands at z=${arc.landZ.toFixed(1)}, past the ridge at z=${next.z}`);
-        const hits = arc.points.some((q) => caveBoxes.some((b) => x + HERO_RADIUS > b.min[0] && x - HERO_RADIUS < b.max[0] && q.y + HERO_HEIGHT > b.min[1] && q.y < b.max[1] && q.z + HERO_RADIUS > b.min[2] && q.z - HERO_RADIUS < b.max[2]));
-        if (hits) errors.push(`${where} — its arc at ${v.toFixed(1)} units/s meets a grotto`);
+        const meets = (list: typeof caveBoxes): boolean =>
+          arc.points.some((q) => list.some((b) => x + HERO_RADIUS > b.min[0] && x - HERO_RADIUS < b.max[0] && q.y + HERO_HEIGHT > b.min[1] && q.y < b.max[1] && q.z + HERO_RADIUS > b.min[2] && q.z - HERO_RADIUS < b.max[2]));
+        if (meets(caveBoxes)) errors.push(`${where} — its arc at ${v.toFixed(1)} units/s meets a grotto`);
+        if (meets(tall)) errors.push(`${where} — its arc at ${v.toFixed(1)} units/s meets a cliff or a wall`);
       }
     }
     // A throat (docs/01a-content.md 17.2): from its entry along its slide and on to the field grotto at the minimum speed

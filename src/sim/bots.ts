@@ -381,7 +381,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
   const move = (b: Bot, dt: number, speed: number): void => {
     const sl = slides.find((p) => on(p, b.x, b.z));
     if (sl) b.slideK = typeof sl['mult'] === 'number' ? (sl['mult'] as number) : (fun?.cfg.slideMult ?? 1);
-    b.slide = sl ? (fun?.cfg.slideSec ?? 0) : Math.max(0, b.slide - dt);
+    b.slide = sl ? Math.max(dt, typeof sl['hold'] === 'number' ? (sl['hold'] as number) : (fun?.cfg.slideSec ?? 0)) : Math.max(0, b.slide - dt);
     let left = speed * dt * (b.slide > 0 ? b.slideK : 1);
     b.moving = false;
     while (left > 0 && b.path.length > 0) {

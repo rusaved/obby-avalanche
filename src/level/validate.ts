@@ -440,7 +440,7 @@ const openSpecSchema = v.object({
     v.object({
       grotto: v.optional(v.object({ width: positive, fromWorld: positive })),
       chasm: v.object({ width: positive, depth: positive, giftsAir: nonNeg, giftsBottom: nonNeg, ramp: positive, padBefore: positive, widthByWorld: v.optional(v.record(v.string(), positive)) }),
-      throat: v.object({ width: positive, length: positive, slideMult: positive, fieldGifts: positive, fieldGrotto: positive, height: positive, funnel: nonNeg, lengthByWorld: v.optional(v.record(v.string(), positive)) }),
+      throat: v.object({ width: positive, length: positive, slideMult: positive, holdSec: v.optional(nonNeg), fieldGifts: positive, fieldGrotto: positive, height: positive, funnel: nonNeg, lengthByWorld: v.optional(v.record(v.string(), positive)) }),
       tunnel: v.object({ width: positive, height: positive, length: positive, openGifts: positive, lengthByWorld: v.optional(v.record(v.string(), positive)) }),
       hump: v.object({ rise: positive, slideLength: positive, top: positive, flight: positive, giftsAir: nonNeg, landing: positive, flightByWorld: v.optional(v.record(v.string(), positive)) }),
     }),

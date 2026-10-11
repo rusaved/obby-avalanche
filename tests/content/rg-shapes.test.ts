@@ -95,6 +95,45 @@ describe('character of the mountains in the data (RG-01)', () => {
     for (const r of openFairnessReport(worlds, (st) => moveSpeed(st, curve))) expect(r.worstSec * 2, r.world).toBeLessThanOrEqual(r.limitSec);
   });
 
+  it('RG-09: on a section with three or four elements each starts in its slot 5–25 / 25–40 / 40–75%, none overlaps the one below', () => {
+    let big = 0;
+    for (const w of worlds.worlds.slice(7)) {
+      for (const zone of w.zones.slice(0, -1)) {
+        const L = zone.zEnd - zone.zStart;
+        const at = (z: number): number => (z - zone.zStart) / L;
+        const mark = (t: string): Segment | undefined => w.segments.find((s) => s.type === t && s['section'] === zone.k);
+        const els = ['throat', 'chasm', 'tunnel', 'hump'].map(mark).filter((s): s is Segment => s !== undefined);
+        if (els.length < 3) continue;
+        big++;
+        const th = mark('throat');
+        const ch = mark('chasm');
+        const lane = [mark('tunnel'), mark('hump')].filter((s): s is Segment => s !== undefined);
+        if (th) expect(at(th.z) >= SLOTS.throat[0] && at(th.z) <= SLOTS.throat[1], `${w.id} ${zone.k} throat`).toBe(true);
+        if (ch) expect(at(ch.z) >= SLOTS.chasm[0] && at(ch.z) <= SLOTS.chasm[1], `${w.id} ${zone.k} chasm`).toBe(true);
+        for (const e of lane) expect(at(e.z) >= SLOTS.fork[0] && at(e.z) <= SLOTS.fork[1], `${w.id} ${zone.k} ${e.type}`).toBe(true);
+        const end = (s: Segment): number => s.z + (s['length'] as number);
+        if (th && ch) expect(ch.z).toBeGreaterThan(end(th));
+        for (const e of lane) expect(e.z).toBeGreaterThan(Math.max(th ? end(th) : 0, ch ? end(ch) : 0));
+      }
+    }
+    expect(big).toBe(5);
+  });
+
+  it('RG-09: one new element a mountain at most (2 chasm, 3 throat, 6 tunnel, 8 hump); 9 and 10 bring none; sizes grow', () => {
+    const seen = new Set<string>();
+    const fresh: Record<number, string[]> = {};
+    for (const w of worlds.worlds) {
+      const kinds = [...new Set(w.segments.filter((s) => ['chasm', 'throat', 'tunnel', 'hump'].includes(s.type)).map((s) => s.type))];
+      fresh[w.index] = kinds.filter((k) => !seen.has(k));
+      for (const k of kinds) seen.add(k);
+    }
+    expect(fresh).toEqual({ 1: [], 2: ['chasm'], 3: ['throat'], 4: [], 5: [], 6: ['tunnel'], 7: [], 8: ['hump'], 9: [], 10: [] });
+    const size = (wi: number, t: string): number => worlds.worlds[wi]!.segments.find((s) => s.type === t)!['length'] as number;
+    expect([size(1, 'chasm'), size(4, 'chasm'), size(8, 'chasm'), size(9, 'chasm')]).toEqual([10, 12, 14, 14]);
+    expect([size(2, 'throat'), size(4, 'throat'), size(8, 'throat'), size(9, 'throat')]).toEqual([60, 80, 100, 100]);
+    expect([size(5, 'tunnel'), size(6, 'tunnel'), size(9, 'tunnel')]).toEqual([80, 110, 140]);
+  });
+
   it('every part of an element carries its kind (`shape`), and no grotto stands in a throat or a chasm', () => {
     for (const w of worlds.worlds) {
       const holes = w.segments.filter((s) => s.type === 'throat' || s.type === 'chasm').map((s): [number, number] => [s.z, s.z + (s['length'] as number)]);

@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { buildLevel } from '../../src/level/builder.ts';
 import { mergePatch } from '../../src/content/pace.ts';
-import { validateOpenShapes } from '../../src/level/validate-open.ts';
+import { validateOpenFun, validateOpenShapes } from '../../src/level/validate-open.ts';
 import { createSim } from '../../src/sim/world.ts';
 import { moveSpeed } from '../../src/sim/effects/moveSpeed.ts';
 import type { BalanceJson, BotsJson, OpenSpecJson, TuningJson, WorldsJson } from '../../src/content/types.ts';
@@ -128,6 +128,14 @@ describe('chasm and trampoline (RG-02)', () => {
     expect(a!.z).toBeGreaterThan(chasm.z1);
     expect(b!.z).toBeGreaterThan(chasm.z1);
     expect(b!.y).toBeCloseTo(level.floorAt(b!.x, b!.z), 3);
+  });
+
+  it('validator: a trampoline whose arc at the ceiling of the run meets a cliff is an error (RG-09: the fork right past a chasm)', () => {
+    const speedAt = (st: number): number => moveSpeed(st, curve);
+    expect(validateOpenFun(worlds, tuning, speedAt)).toEqual([]);
+    const bad = JSON.parse(JSON.stringify(worlds)) as WorldsJson;
+    bad.worlds[1]!.segments.push({ type: 'fork', z: chasm.z1 + 20, length: 30, x: 0, y: chasm.y, width: 8, height: 10, bold: 'left', section: 99 });
+    expect(validateOpenFun(bad, tuning, speedAt).some((e) => e.includes('(pines)') && e.includes('meets a cliff or a wall'))).toBe(true);
   });
 
   it('validator: a chasm without a trampoline on one of the lanes is an error', () => {

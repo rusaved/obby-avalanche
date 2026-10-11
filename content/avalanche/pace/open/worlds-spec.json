@@ -57,6 +57,7 @@
    "width": 20,
    "length": 80,
    "slideMult": 1.6,
+   "holdSec": 0,
    "fieldGifts": 1.5,
    "fieldGrotto": 20,
    "height": 10,

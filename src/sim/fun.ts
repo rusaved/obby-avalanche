@@ -1,6 +1,6 @@
 // What: Fun between the gates: a trampoline throws the hero up (padSpeed, padForward until landing), an ice slide speeds his run (slideMult, held slideSec).
 // Called by: sim/world.ts only (createFun, funInput, stepFun, resetFun)
-// Keep: Pure TS, no DOM; reads tuning.fun every tick (?debug=1 sliders apply at once), so no cached copies; no steps count in the air, on the slide they count by path; a plate's own `forward` and a slide's own `mult` override tuning.
+// Keep: Pure TS, no DOM; reads tuning.fun every tick (?debug=1 sliders apply at once), so no cached copies; no steps count in the air, on the slide they count by path; a plate's own `forward`, a slide's own `mult` and `hold` override tuning.
 
 /**
  * Fun between the gates in the simulation (docs/01-gdd.md 16.4): a step onto a trampoline throws the hero up at
@@ -18,6 +18,8 @@ import type { ControllerParams, HeroInput, HeroState } from './controller.ts';
 const PAD_MOVE_SPEED = 1;
 /** Feet this close above a plate or a slide stand on it. */
 const ON_TOP = 1;
+/** On a slide the boost is on this tick even when the slide holds none after it. */
+const HOLD_MIN = 1e-3;
 
 export interface FunState {
   readonly pads: LevelPoint[];
@@ -99,7 +101,8 @@ export function stepFun(f: FunState, hero: HeroState, fun: TuningJson['fun'], dt
   const slide = hero.onGround ? f.slides.findIndex((p) => under(p, x, y, z)) : -1;
   if (slide >= 0) {
     if (f.onSlide !== slide) out.slide = slide;
-    f.slideLeft = fun.slideSec;
+    // A slide's own `hold` (a throat: none, docs/01a-content.md 17.2) — the boost ends where its ice ends.
+    f.slideLeft = Math.max(HOLD_MIN, numOr(f.slides[slide]!, 'hold', fun.slideSec));
     f.slideMult = numOr(f.slides[slide]!, 'mult', fun.slideMult);
   } else f.slideLeft = Math.max(0, f.slideLeft - dt);
   f.onSlide = slide;

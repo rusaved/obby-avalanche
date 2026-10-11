@@ -2325,8 +2325,8 @@
         },
         {
           "type": "fork",
-          "z": 646,
-          "length": 92.8,
+          "z": 664.5,
+          "length": 83,
           "x": 0,
           "y": 16,
           "width": 8,
@@ -2412,7 +2412,7 @@
         },
         {
           "type": "slide",
-          "z": 656,
+          "z": 674.5,
           "x": -16,
           "y": 16,
           "width": 4,
@@ -2421,7 +2421,7 @@
         },
         {
           "type": "gap",
-          "z": 673,
+          "z": 690.5,
           "length": 5,
           "x0": -28,
           "x1": -4,
@@ -2431,7 +2431,7 @@
         },
         {
           "type": "jumpPad",
-          "z": 668,
+          "z": 685.5,
           "x": -16,
           "y": 16,
           "width": 4,
@@ -2440,7 +2440,7 @@
         },
         {
           "type": "gift",
-          "z": 674.25,
+          "z": 691.75,
           "x": -16,
           "y": 14,
           "height": 0,
@@ -2452,7 +2452,7 @@
         },
         {
           "type": "cliff",
-          "z": 686,
+          "z": 703.5,
           "length": 14,
           "top": 8,
           "height": 9,
@@ -2465,7 +2465,7 @@
         },
         {
           "type": "gift",
-          "z": 704,
+          "z": 721.5,
           "x": -22,
           "y": 25,
           "height": 0,
@@ -2474,18 +2474,6 @@
           "coins": 100,
           "n": 0,
           "detour": true
-        },
-        {
-          "type": "chestGrotto",
-          "z": 748.8,
-          "y": 16,
-          "side": "left",
-          "length": 8,
-          "depth": 4,
-          "coins": 500,
-          "zone": 3,
-          "rarity": "epic",
-          "stretch": 3
         },
         {
           "type": "floor",
@@ -2537,12 +2525,12 @@
         {
           "type": "floor",
           "z": 612.5,
-          "length": 60.5,
+          "length": 78,
           "y": 16
         },
         {
           "type": "floor",
-          "z": 673,
+          "z": 690.5,
           "length": 5,
           "y": 16,
           "x0": -4,
@@ -2550,7 +2538,7 @@
         },
         {
           "type": "floor",
-          "z": 673,
+          "z": 690.5,
           "length": 2.5,
           "y": 14,
           "x0": -28,
@@ -2558,7 +2546,7 @@
         },
         {
           "type": "ramp",
-          "z": 675.5,
+          "z": 693,
           "length": 2.5,
           "y": 14,
           "rise": 2,
@@ -2567,8 +2555,8 @@
         },
         {
           "type": "floor",
-          "z": 678,
-          "length": 84,
+          "z": 695.5,
+          "length": 66.5,
           "y": 16
         },
         {
@@ -2737,28 +2725,14 @@
         {
           "type": "gift",
           "z": 663.136,
-          "x": 16,
+          "x": 0,
           "y": 16,
           "height": 0,
           "zone": 3,
           "rarity": "epic",
           "coins": 50,
           "n": 6,
-          "path": true,
-          "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 663.136,
-          "x": -16,
-          "y": 16,
-          "height": 0,
-          "zone": 3,
-          "rarity": "epic",
-          "coins": 100,
-          "n": 6,
-          "path": true,
-          "lane": "bold"
+          "path": true
         },
         {
           "type": "gift",
@@ -2772,19 +2746,6 @@
           "n": 7,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 686.864,
-          "x": -16,
-          "y": 16,
-          "height": 0,
-          "zone": 3,
-          "rarity": "epic",
-          "coins": 100,
-          "n": 7,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",
@@ -3107,6 +3068,18 @@
           "coins": 120,
           "n": 0,
           "detour": true
+        },
+        {
+          "type": "chestGrotto",
+          "z": 958,
+          "y": 24,
+          "side": "right",
+          "length": 8,
+          "depth": 4,
+          "coins": 600,
+          "zone": 4,
+          "rarity": "legendary",
+          "stretch": 4
         },
         {
           "type": "floor",
@@ -4343,6 +4316,7 @@
           "width": 20,
           "length": 60,
           "mult": 1.6,
+          "hold": 0,
           "stretch": 2,
           "shape": "throat"
         },
@@ -4747,6 +4721,7 @@
           "width": 20,
           "length": 60,
           "mult": 1.6,
+          "hold": 0,
           "stretch": 3,
           "shape": "throat"
         },
@@ -5140,6 +5115,7 @@
           "width": 20,
           "length": 60,
           "mult": 1.6,
+          "hold": 0,
           "stretch": 4,
           "shape": "throat"
         },
@@ -6687,7 +6663,7 @@
         },
         {
           "type": "fork",
-          "z": 790,
+          "z": 799.5,
           "length": 112,
           "x": 0,
           "y": 16,
@@ -6738,13 +6714,27 @@
           "type": "niche",
           "z": 902.5,
           "y": 16,
+          "side": "left",
+          "kind": "grotto",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 0,
+          "zone": 3,
+          "stretch": 3,
+          "lane": "bold"
+        },
+        {
+          "type": "niche",
+          "z": 902.5,
+          "y": 16,
           "side": "right",
           "kind": "grotto",
           "length": 10,
           "depth": 4,
           "treadmill": 0,
           "zone": 3,
-          "stretch": 3
+          "stretch": 3,
+          "lane": "calm"
         },
         {
           "type": "niche",
@@ -6760,7 +6750,7 @@
         },
         {
           "type": "slide",
-          "z": 800,
+          "z": 809.5,
           "x": -16,
           "y": 16,
           "width": 4,
@@ -6769,7 +6759,7 @@
         },
         {
           "type": "gap",
-          "z": 823,
+          "z": 825.5,
           "length": 5,
           "x0": -28,
           "x1": -4,
@@ -6779,7 +6769,7 @@
         },
         {
           "type": "jumpPad",
-          "z": 818,
+          "z": 820.5,
           "x": -16,
           "y": 16,
           "width": 4,
@@ -6788,7 +6778,7 @@
         },
         {
           "type": "gift",
-          "z": 824.25,
+          "z": 826.75,
           "x": -16,
           "y": 14,
           "height": 0,
@@ -6800,7 +6790,7 @@
         },
         {
           "type": "cliff",
-          "z": 836,
+          "z": 838.5,
           "length": 14,
           "top": 8,
           "height": 9,
@@ -6813,7 +6803,7 @@
         },
         {
           "type": "gift",
-          "z": 854,
+          "z": 856.5,
           "x": -22,
           "y": 25,
           "height": 0,
@@ -6873,12 +6863,12 @@
         {
           "type": "floor",
           "z": 749.5,
-          "length": 73.5,
+          "length": 76,
           "y": 16
         },
         {
           "type": "floor",
-          "z": 823,
+          "z": 825.5,
           "length": 5,
           "y": 16,
           "x0": -4,
@@ -6886,7 +6876,7 @@
         },
         {
           "type": "floor",
-          "z": 823,
+          "z": 825.5,
           "length": 2.5,
           "y": 14,
           "x0": -28,
@@ -6894,7 +6884,7 @@
         },
         {
           "type": "ramp",
-          "z": 825.5,
+          "z": 828,
           "length": 2.5,
           "y": 14,
           "rise": 2,
@@ -6903,8 +6893,8 @@
         },
         {
           "type": "floor",
-          "z": 828,
-          "length": 102,
+          "z": 830.5,
+          "length": 99.5,
           "y": 16
         },
         {
@@ -7523,6 +7513,7 @@
           "width": 20,
           "length": 80,
           "mult": 1.6,
+          "hold": 0,
           "stretch": 4,
           "shape": "throat"
         },
@@ -8737,6 +8728,7 @@
           "width": 20,
           "length": 80,
           "mult": 1.6,
+          "hold": 0,
           "stretch": 2,
           "shape": "throat"
         },
@@ -9656,6 +9648,7 @@
           "width": 20,
           "length": 80,
           "mult": 1.6,
+          "hold": 0,
           "stretch": 4,
           "shape": "throat"
         },
@@ -11091,7 +11084,7 @@
         },
         {
           "type": "fork",
-          "z": 934,
+          "z": 934.5,
           "length": 120,
           "x": 0,
           "y": 16,
@@ -11319,7 +11312,7 @@
         },
         {
           "type": "tunnel",
-          "z": 944,
+          "z": 944.5,
           "length": 80,
           "y": 16,
           "side": "right",
@@ -11694,6 +11687,7 @@
           "width": 20,
           "length": 80,
           "mult": 1.6,
+          "hold": 0,
           "stretch": 4,
           "shape": "throat"
         },
@@ -13324,6 +13318,7 @@
           "width": 20,
           "length": 80,
           "mult": 1.6,
+          "hold": 0,
           "stretch": 3,
           "shape": "throat"
         },
@@ -15987,6 +15982,7 @@
           "width": 20,
           "length": 80,
           "mult": 1.6,
+          "hold": 0,
           "stretch": 4,
           "shape": "throat"
         },
@@ -17111,7 +17107,7 @@
         },
         {
           "type": "fork",
-          "z": 668,
+          "z": 677.5,
           "length": 120,
           "x": 0,
           "y": 8,
@@ -17158,7 +17154,7 @@
         },
         {
           "type": "niche",
-          "z": 666.669,
+          "z": 669.044,
           "y": 8,
           "side": "right",
           "kind": "grotto",
@@ -17170,7 +17166,7 @@
         },
         {
           "type": "niche",
-          "z": 723.837,
+          "z": 728.587,
           "y": 8,
           "side": "left",
           "kind": "grotto",
@@ -17183,7 +17179,7 @@
         },
         {
           "type": "niche",
-          "z": 781.006,
+          "z": 788.131,
           "y": 8,
           "side": "left",
           "kind": "grotto",
@@ -17196,7 +17192,7 @@
         },
         {
           "type": "niche",
-          "z": 781.006,
+          "z": 788.131,
           "y": 8,
           "side": "right",
           "kind": "grotto",
@@ -17209,7 +17205,7 @@
         },
         {
           "type": "niche",
-          "z": 838.174,
+          "z": 847.674,
           "y": 8,
           "side": "right",
           "kind": "grotto",
@@ -17221,7 +17217,7 @@
         },
         {
           "type": "niche",
-          "z": 889.087,
+          "z": 893.837,
           "y": 12,
           "side": "left",
           "kind": "grotto",
@@ -17245,7 +17241,7 @@
         },
         {
           "type": "chestGrotto",
-          "z": 798,
+          "z": 807.5,
           "y": 8,
           "side": "right",
           "length": 8,
@@ -17326,6 +17322,7 @@
           "width": 20,
           "length": 100,
           "mult": 1.6,
+          "hold": 0,
           "stretch": 2,
           "shape": "throat"
         },
@@ -17434,7 +17431,7 @@
         },
         {
           "type": "hump",
-          "z": 674,
+          "z": 683.5,
           "length": 46,
           "y": 8,
           "rise": 10,
@@ -17442,15 +17439,15 @@
           "x0": 4,
           "x1": 28,
           "land": [
-            812.174,
-            813.5
+            821.674,
+            823
           ],
-          "landEnd": 832.174,
+          "landEnd": 841.674,
           "section": 2
         },
         {
           "type": "ramp",
-          "z": 674,
+          "z": 683.5,
           "length": 40,
           "y": 8,
           "rise": 10,
@@ -17461,7 +17458,7 @@
         },
         {
           "type": "floor",
-          "z": 714,
+          "z": 723.5,
           "length": 6,
           "y": 18,
           "x0": 4,
@@ -17472,7 +17469,7 @@
         },
         {
           "type": "slide",
-          "z": 694,
+          "z": 703.5,
           "x": 16,
           "y": 8,
           "width": 24,
@@ -17483,7 +17480,7 @@
         },
         {
           "type": "jumpPad",
-          "z": 717,
+          "z": 726.5,
           "x": 16,
           "y": 18,
           "width": 24,
@@ -17495,7 +17492,7 @@
         },
         {
           "type": "gift",
-          "z": 730.079,
+          "z": 739.579,
           "x": 16,
           "y": 25.313,
           "height": 0,
@@ -17508,7 +17505,7 @@
         },
         {
           "type": "gift",
-          "z": 743.482,
+          "z": 752.982,
           "x": 16,
           "y": 29.246,
           "height": 0,
@@ -17521,7 +17518,7 @@
         },
         {
           "type": "gift",
-          "z": 756.885,
+          "z": 766.385,
           "x": 16,
           "y": 30.513,
           "height": 0,
@@ -17534,7 +17531,7 @@
         },
         {
           "type": "gift",
-          "z": 771.964,
+          "z": 781.464,
           "x": 16,
           "y": 28.75,
           "height": 0,
@@ -17547,7 +17544,7 @@
         },
         {
           "type": "gift",
-          "z": 785.368,
+          "z": 794.868,
           "x": 16,
           "y": 24.35,
           "height": 0,
@@ -17560,7 +17557,7 @@
         },
         {
           "type": "gift",
-          "z": 798.771,
+          "z": 808.271,
           "x": 16,
           "y": 17.283,
           "height": 0,
@@ -17648,7 +17645,7 @@
           "type": "gift",
           "z": 695.773,
           "x": 16,
-          "y": 13.443,
+          "y": 11.068,
           "height": 0,
           "zone": 2,
           "rarity": "rare",
@@ -18586,6 +18583,7 @@
           "width": 20,
           "length": 100,
           "mult": 1.6,
+          "hold": 0,
           "stretch": 4,
           "shape": "throat"
         },
@@ -20024,6 +20022,7 @@
           "width": 20,
           "length": 100,
           "mult": 1.6,
+          "hold": 0,
           "stretch": 2,
           "shape": "throat"
         },
@@ -20612,6 +20611,7 @@
           "width": 20,
           "length": 100,
           "mult": 1.6,
+          "hold": 0,
           "stretch": 3,
           "shape": "throat"
         },
@@ -21330,6 +21330,7 @@
           "width": 20,
           "length": 100,
           "mult": 1.6,
+          "hold": 0,
           "stretch": 4,
           "shape": "throat"
         },

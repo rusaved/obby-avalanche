@@ -28,6 +28,8 @@ const CHASM_BOTTOM_MIN = 3;
 const FORK_TUNNEL_MARGIN = 10;
 const FORK_HUMP_BEFORE = 6;
 const FORK_HUMP_AFTER = 10;
+/** The fork past a chasm starts this far beyond where its middle trampoline lands at the ceiling of the run. */
+const CHASM_LAND_CLEAR = 6;
 
 const round3 = (x: number): number => Math.round(x * 1000) / 1000;
 
@@ -83,7 +85,10 @@ export function planSection(p: PlanInput): SectionPlan {
     const W = sizeOf(S.chasm.width, S.chasm.widthByWorld, p.index);
     const z0 = round3(Math.max(p.z0 + SLOTS.chasm[0] * p.L, after, plan.throat ? plan.throat.z1 + S.chasm.padBefore + PAD_SIZE : -Infinity));
     plan.chasm = { z0, z1: round3(z0 + W), depth: S.chasm.depth };
-    after = plan.chasm.z1 + p.grotto / 2 + 1;
+    // Nothing tall right past it: the middle trampoline at the ceiling of the run lands before the fork cliff.
+    const rear = z0 - S.chasm.padBefore - PAD_SIZE / 2;
+    const landMax = padArc(rear, p.y, p.tuning.controller.maxSpeed, p.tuning, () => p.y).landZ;
+    after = Math.max(plan.chasm.z1 + p.grotto / 2 + 1, landMax + CHASM_LAND_CLEAR);
   }
   const tunnel = has('tunnel');
   const hump = has('hump');
@@ -207,7 +212,7 @@ export function pushShapes(seg: Segment[], c: ShapeContext): void {
     seg.push({ type: 'throat', z: th.z0, length: round3(th.z1 - th.z0), y, width: th.width, funnel: th.funnel, height: th.height, section: j });
     // The ice slide the whole width of the throat (docs/01-gdd.md 18.3): ×slideMult of the throat.
     const len = round3(th.z1 - th.z0);
-    seg.push({ type: 'slide', z: round3(th.z0 + len / 2), x: 0, y, width: th.width, length: len, mult: c.shapes.throat.slideMult, stretch: j, shape: 'throat' });
+    seg.push({ type: 'slide', z: round3(th.z0 + len / 2), x: 0, y, width: th.width, length: len, mult: c.shapes.throat.slideMult, hold: c.shapes.throat.holdSec ?? 0, stretch: j, shape: 'throat' });
   }
   const ch = plan.chasm;
   if (ch) {
