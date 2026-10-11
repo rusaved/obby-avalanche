@@ -74,6 +74,9 @@ export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, BossEvent
   portal: { tick: number; from: number; next: number | null };
   /** Open slope (docs/01-gdd.md 17.7): back up past the record flag after being sent below it — «New height!». */
   recordUp: { tick: number; z: number };
+  /** Elements of the slope (docs/01-gdd.md 18.3): down on the bottom of a chasm, into a tunnel — each time he gets there. */
+  chasmDown: { tick: number; section: number };
+  tunnelEnter: { tick: number; section: number };
 }
 
 export interface Sim {
@@ -241,6 +244,11 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   const recordOn = opts.record !== undefined;
   /** The hero is (or was since the last record) more than RECORD_RETURN below the record flag. */
   let recordBelow = !!opts.record;
+  // Elements of the slope (docs/01-gdd.md 18.3): where the hero is now, for «down into a chasm» and «into a tunnel».
+  const chasms = (level.shapes ?? []).filter((c) => c.kind === 'chasm');
+  const tunnels = level.niches.flatMap((n, i) => (n.kind === 'tunnel' ? [i] : []));
+  let inChasm = false;
+  let inTunnel = false;
 
   const sim: Sim = {
     hero,
@@ -397,6 +405,18 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
           r.y = hero.pos.y;
           r.z = hero.pos.z;
         } else if (r.z - hero.pos.z > RECORD_RETURN) recordBelow = true;
+      }
+      // Down on the bottom of a chasm, into a tunnel (docs/01-gdd.md 18.3): an event each time he gets there.
+      if (hero.onGround) {
+        const ch = chasms.find((c) => hero.pos.z >= c.z0 && hero.pos.z <= c.z1 && hero.pos.y < c.y - 1);
+        if (ch && !inChasm) events.emit('chasmDown', { tick: sim.tick, section: ch.section });
+        inChasm = ch !== undefined;
+      }
+      if (tunnels.length) {
+        const at = sim.shelterIndex();
+        const t = tunnels.includes(at);
+        if (t && !inTunnel) events.emit('tunnelEnter', { tick: sim.tick, section: level.niches[at]!.stretch });
+        inTunnel = t;
       }
       // Checkpoints: the flag behind the last wall passed (highest z reached on the ground).
       for (let i = level.checkpoints.length - 1; i > sim.checkpoint; i--) {

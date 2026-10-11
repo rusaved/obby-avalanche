@@ -328,5 +328,15 @@
   "ad.continueHere": "▶ Ad: continue from here",
   "toast.noReward": "No reward this time",
   "toast.adUnavailable": "Video is unavailable right now",
-  "summit.progress": "Mountain {a} · ridge {b}/{c}"
+  "summit.progress": "Mountain {a} · ridge {b}/{c}",
+  "event.snowball": "Snowball!",
+  "event.snowballHit": "Hit by a snowball!",
+  "event.blizzard": "Blizzard! steps ×2",
+  "event.blizzardOver": "Blizzard is over",
+  "helper.hit": "Snowball!",
+  "boss.nameNorthPair": "Northern Giants",
+  "boss.signPair": "Two giants: Speed ~{n}",
+  "hud.slow": "×{n}",
+  "toast.tunnel": "The tunnel shelters you",
+  "toast.chasm": "Gifts below and a ramp back up"
 }

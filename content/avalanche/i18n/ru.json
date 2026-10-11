@@ -328,5 +328,15 @@
   "ad.continueHere": "▶ Реклама: продолжить отсюда",
   "toast.noReward": "Награда не получена",
   "toast.adUnavailable": "Видео сейчас недоступно",
-  "summit.progress": "Гора {a} · рубеж {b}/{c}"
+  "summit.progress": "Гора {a} · рубеж {b}/{c}",
+  "event.snowball": "Шар!",
+  "event.snowballHit": "Сбил шар!",
+  "event.blizzard": "Буран! шаг ×2",
+  "event.blizzardOver": "Буран прошёл",
+  "helper.hit": "Снежок!",
+  "boss.nameNorthPair": "Северные великаны",
+  "boss.signPair": "Два великана: Скорость ~{n}",
+  "hud.slow": "×{n}",
+  "toast.tunnel": "Тоннель укрывает от лавины",
+  "toast.chasm": "Внизу подарки и горка наверх"
 }

@@ -23,6 +23,7 @@ export const SLOTS = {
 /** Units: the throat starts past the flag; steps down into a chasm; room before and after a tunnel on its fork. */
 const THROAT_PAST_FLAG = 4;
 export const CHASM_STEP = 1;
+const CHASM_STEPS = 3;
 const CHASM_BOTTOM_MIN = 3;
 const FORK_TUNNEL_MARGIN = 10;
 const FORK_HUMP_BEFORE = 6;
@@ -157,23 +158,30 @@ export interface ShapeContext {
   tuning: Pick<TuningJson, 'controller' | 'fun'>;
 }
 
-/** The ground of a chasm across the whole slope (docs/01-gdd.md 18.3): steps down, its flat bottom, a ramp up its far wall. */
-export function pushChasmFloor(seg: Segment[], ch: NonNullable<SectionPlan['chasm']>, y: number, shapes: OpenShapes): void {
+/**
+ * The ground of a chasm (docs/01-gdd.md 18.3): steps down its near wall — low enough to walk back up them (stepUp), so a
+ * hero on the bottom reaches a grotto behind it — a flat bottom, a ramp up the far wall (`ramp` long at most, 45° at most).
+ */
+export function chasmLayout(ch: NonNullable<SectionPlan['chasm']>, shapes: OpenShapes): { steps: number; rise: number; bottom: number; ramp: number } {
   const W = ch.z1 - ch.z0;
-  const steps = Math.round(ch.depth / CHASM_STEP) - 1;
-  const ramp = round3(Math.min(shapes.chasm.ramp, W - steps * CHASM_STEP - CHASM_BOTTOM_MIN));
-  for (let k = 0; k < steps; k++) seg.push({ type: 'floor', z: round3(ch.z0 + k * CHASM_STEP), length: CHASM_STEP, y: round3(y - (k + 1) * CHASM_STEP), shape: 'chasm' });
+  const rise = ch.depth / (CHASM_STEPS + 1);
+  const ramp = round3(Math.max(ch.depth, Math.min(shapes.chasm.ramp, W - CHASM_STEPS * CHASM_STEP - CHASM_BOTTOM_MIN)));
+  return { steps: CHASM_STEPS, rise, bottom: round3(W - CHASM_STEPS * CHASM_STEP - ramp), ramp };
+}
+
+export function pushChasmFloor(seg: Segment[], ch: NonNullable<SectionPlan['chasm']>, y: number, shapes: OpenShapes): void {
+  const { steps, rise, ramp } = chasmLayout(ch, shapes);
+  // Ice, not snow: the crack reads from afar (docs/01-gdd.md 5.3 colour language).
+  for (let k = 0; k < steps; k++) seg.push({ type: 'floor', z: round3(ch.z0 + k * CHASM_STEP), length: CHASM_STEP, y: round3(y - (k + 1) * rise), material: 'ice', shape: 'chasm' });
   const b0 = round3(ch.z0 + steps * CHASM_STEP);
-  seg.push({ type: 'floor', z: b0, length: round3(ch.z1 - ramp - b0), y: round3(y - ch.depth), shape: 'chasm' });
-  seg.push({ type: 'ramp', z: round3(ch.z1 - ramp), length: ramp, y: round3(y - ch.depth), rise: ch.depth, shape: 'chasm' });
+  seg.push({ type: 'floor', z: b0, length: round3(ch.z1 - ramp - b0), y: round3(y - ch.depth), material: 'ice', shape: 'chasm' });
+  seg.push({ type: 'ramp', z: round3(ch.z1 - ramp), length: ramp, y: round3(y - ch.depth), rise: ch.depth, material: 'ice', shape: 'chasm' });
 }
 
 /** Height of the ground at z inside a chasm (the centre of the slope), as pushChasmFloor lays it. */
 export function chasmFloorY(ch: NonNullable<SectionPlan['chasm']>, z: number, y: number, shapes: OpenShapes): number {
-  const W = ch.z1 - ch.z0;
-  const steps = Math.round(ch.depth / CHASM_STEP) - 1;
-  const ramp = Math.min(shapes.chasm.ramp, W - steps * CHASM_STEP - CHASM_BOTTOM_MIN);
-  if (z < ch.z0 + steps * CHASM_STEP) return y - (Math.floor((z - ch.z0) / CHASM_STEP) + 1) * CHASM_STEP;
+  const { steps, rise, ramp } = chasmLayout(ch, shapes);
+  if (z < ch.z0 + steps * CHASM_STEP) return y - (Math.floor((z - ch.z0) / CHASM_STEP) + 1) * rise;
   if (z < ch.z1 - ramp) return y - ch.depth;
   return y - ch.depth + (ch.depth * (z - (ch.z1 - ramp))) / ramp;
 }
@@ -218,8 +226,9 @@ export function pushShapes(seg: Segment[], c: ShapeContext): void {
     }
     const sb = c.bold === 'left' ? -1 : 1;
     const bottomX = [-9, 9, sb * 24];
-    const steps = Math.round(ch.depth / CHASM_STEP) - 1;
-    const zb = ch.z0 + steps * CHASM_STEP + 1.5;
+    // On the bottom by the foot of the ramp: where a hero running off the edge comes down (and takes the one in his lane).
+    const lay = chasmLayout(ch, c.shapes);
+    const zb = ch.z1 - lay.ramp - 1;
     for (let k = 0; k < c.shapes.chasm.giftsBottom; k++) seg.push(gift(zb, bottomX[k % bottomX.length]!, y - ch.depth, { bottom: true }));
   }
   const sb = c.bold === 'left' ? -1 : 1;

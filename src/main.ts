@@ -310,7 +310,7 @@ async function boot(): Promise<void> {
   const melting = new Map<number, number>();
   const wireSim = (s: Sim): void => {
     const recorded = ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'gatePass', 'portal', 'giftTake', 'giftsRespawn', 'eggTouch', 'eggHatch', 'statMilestone'] as const;
-    const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'caughtEnd', 'waveDusted', 'waveGone', 'waveEnd', 'bonusSpawn', 'bonusTake', 'bonusSaved', 'bonusLost', 'bossEnter', 'bossPassed', 'bossCaught', 'recordUp'] as const;
+    const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'caughtEnd', 'waveDusted', 'waveGone', 'waveEnd', 'bonusSpawn', 'bonusTake', 'bonusSaved', 'bonusLost', 'bossEnter', 'bossPassed', 'bossCaught', 'recordUp', 'chasmDown', 'tunnelEnter'] as const;
     for (const name of [...recorded, ...waves]) {
       s.events.on(name, (payload) => {
         simEvents.push({ name, world: s.level.worldIndex, ...(payload as Record<string, unknown>), tick: s.tick });
@@ -344,6 +344,16 @@ async function boot(): Promise<void> {
       hud?.toast(t('toast.recordUp'));
       track('record_up');
     });
+    // Elements of the slope (docs/01a-content.md 17.6): a toast once a save at the first chasm bottom and the first tunnel.
+    const toastOnce = (key: string): void => {
+      const flags = (save.flags ??= {});
+      if (flags[key]) return;
+      flags[key] = true;
+      hud?.toast(t(key));
+      persist();
+    };
+    s.events.on('chasmDown', () => toastOnce('toast.chasm'));
+    s.events.on('tunnelEnter', () => toastOnce('toast.tunnel'));
     // The giant (docs/01-gdd.md 17.6): into his zone, past him, caught — a toast each; nothing is lost on a catch.
     // Funnel (docs/06 8.2): the first giant — into his zone and past him once a player, every catch.
     const firstGiant = (): boolean => s.level.worldIndex === 1 && s.tier === 0;

@@ -55,6 +55,8 @@ export interface Bot {
   /** Seconds since a trampoline threw him up (−1 on the floor) and of the slide boost left. */
   hop: number;
   slide: number;
+  /** Feet height where the trampoline threw him (the flight is counted from it, over a chasm too). */
+  hopY: number;
 }
 
 export interface BotContext {
@@ -215,6 +217,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       wave: 0,
       hop: -1,
       slide: 0,
+      hopY: 0,
     };
     if (!inCamp) bot.x = bot.lane;
     bot.y = level.floorYAt(bot.z);
@@ -346,14 +349,21 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       if (k < 1) break;
       left -= d;
     }
-    b.y = level.floorYAt(b.z);
+    // Feet on the ground where he is (open slope: down into a chasm, up a hump, docs/01-gdd.md 18.3); off the track
+    // (in a cave) — the floor of the track centre at that z.
+    const ground = level.floorAt(b.x, b.z);
+    const floor = Number.isFinite(ground) ? ground : level.floorYAt(b.z);
+    b.y = floor;
     if (!fun) return;
     if (b.hop >= 0) {
       b.hop += dt;
-      const h = fun.cfg.padSpeed * b.hop - 0.5 * fun.gravity * b.hop * b.hop;
-      if (h > 0) b.y += h;
+      const h = b.hopY + fun.cfg.padSpeed * b.hop - 0.5 * fun.gravity * b.hop * b.hop;
+      if (h > floor) b.y = h;
       else b.hop = -1;
-    } else if (b.moving && pads.some((p) => on(p, b.x, b.z))) b.hop = 0;
+    } else if (b.moving && Math.cos(b.yaw) > 0 && pads.some((p) => on(p, b.x, b.z) && Math.abs(p.y - floor) < 1)) {
+      b.hop = 0;
+      b.hopY = floor;
+    }
   };
 
   const crowd: BotCrowd = {

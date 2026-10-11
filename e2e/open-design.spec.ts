@@ -18,7 +18,8 @@ async function pastScriptedWave(page: Page): Promise<void> {
   await page.evaluate(() => window.__TEST__!.setTimeScale(1));
 }
 
-test('the bot takes the bold lane of section 2 on mountain 2: over the crevasse, past the cliff, up to ridge 2; screenshots', async ({ page, openGame }) => {
+// RG: section 2 of mountain 2 is the chasm now (docs/01a-content.md 17.1); its fork of 17.7 is in section 3.
+test('the bot takes the bold lane of section 3 on mountain 2: over the crevasse, past the cliff, up to ridge 3; screenshots', async ({ page, openGame }) => {
   test.setTimeout(180_000);
   mkdirSync(EVIDENCE, { recursive: true });
   await openGame('pace=open&quality=high');
@@ -26,9 +27,9 @@ test('the bot takes the bold lane of section 2 on mountain 2: over the crevasse,
   await page.evaluate(() => window.__TEST__!.gotoWorld(2));
   await waitTicks(page, 20);
   const w = worlds[1]!;
-  const fork = w.segments.find((s) => s.type === 'fork' && s.section === 2)!;
+  const fork = w.segments.find((s) => s.type === 'fork' && s.section === 3)!;
   const gap = w.segments.find((s) => s.type === 'gap' && s.z > fork.z && s.z < fork.z + fork.length!)!;
-  const ridge2 = w.segments.filter((s) => s.type === 'gate' && s.kind === 'ridge')[1]!.z;
+  const ridge2 = w.segments.filter((s) => s.type === 'gate' && s.kind === 'ridge')[2]!.z;
   const sx = fork.bold === 'left' ? -1 : 1;
   const xb = sx * 16;
   // The ridges of the mountain open by the stat: the run is about the lane.
@@ -39,7 +40,7 @@ test('the bot takes the bold lane of section 2 on mountain 2: over the crevasse,
   await shot1080(page, `${EVIDENCE}/fork_1920x1080_ru.png`, 30);
   await page.evaluate(([x, z]) => window.__TEST__!.teleport(z, x), [xb, gap.z - 14] as const);
   await shot1080(page, `${EVIDENCE}/crevasse_1920x1080_ru.png`, 30);
-  // The run: from below the slide, along the bold lane to the end of the fork, then to ridge 2.
+  // The run: from below the slide, along the bold lane to the end of the fork, then to ridge 3.
   await page.evaluate(([x, z]) => window.__TEST__!.teleport(z, x), [xb, fork.z - 2] as const);
   await waitTicks(page, 5);
   await page.evaluate(
@@ -58,7 +59,7 @@ test('the bot takes the bold lane of section 2 on mountain 2: over the crevasse,
   }
   const s = await testState(page);
   expect(s.hero!.z).toBeGreaterThan(ridge2);
-  expect(s.gatesPassed[1]).toBe(true);
+  expect(s.gatesPassed[2]).toBe(true);
   // Over the crevasse by the trampoline, or down into it and out by its slope: either way on.
   expect(launched || minY < 0).toBe(true);
 });

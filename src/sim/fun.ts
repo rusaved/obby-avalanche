@@ -13,7 +13,8 @@ import type { TuningJson } from '../content/types.ts';
 import type { LevelData, LevelPoint } from '../level/types.ts';
 import type { ControllerParams, HeroInput, HeroState } from './controller.ts';
 
-/** The hero moving faster than this steps onto a trampoline (standing on one after a respawn does nothing). */
+/** The hero running up the slope (+Z) faster than this steps onto a trampoline: standing on one after a respawn does
+ * nothing, nor running back down over it to a grotto behind (RG-02: from the bottom of a chasm, docs/01-gdd.md 18.3). */
 const PAD_MOVE_SPEED = 1;
 /** Feet this close above a plate or a slide stand on it. */
 const ON_TOP = 1;
@@ -69,7 +70,7 @@ export function stepFun(f: FunState, hero: HeroState, fun: TuningJson['fun'], dt
   if (f.padFlight) f.top = Math.max(f.top, y - f.launchY);
   if (hero.onGround) {
     f.padFlight = false;
-    const pad = hero.speed > PAD_MOVE_SPEED ? f.pads.findIndex((p) => under(p, x, y, z)) : -1;
+    const pad = hero.vel.z > PAD_MOVE_SPEED ? f.pads.findIndex((p) => under(p, x, y, z)) : -1;
     if (pad >= 0) {
       hero.vel.y = fun.padSpeed;
       hero.vel.z += fun.padForward;
