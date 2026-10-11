@@ -1020,7 +1020,7 @@
 | `events.blizzard.durationSec` / `speedMult` / `stepMult` | 12 / 0,7 / 2 | все на участке ×0,7, шаг героя ×2 (Q-041: 1 — без компенсации) |
 | `events.blizzard.fogMult` / `snowMult` | 0,5 / 3 | туман ближе вдвое, снега втрое |
 | `theme.json.events.snowball.trail` / `ball` | цвет следа (голубой лёд), цвет шара (снег) | — |
-| `theme.json.events.blizzard.fog` / `snow` | цвет тумана и снега бурана | — |
+| `theme.json.events.blizzard.fog` / `snow` / `glow` | цвет тумана и снега бурана, тёплые маяки над укрытиями участка | — |
 | `sfx.json`: `event_snowball_warn`, `event_snowball_hit`, `event_blizzard` | ZzFX: гул, глухой удар, ветер | 10.3 |
 
 Ожидаемая цена событий на ступени 0 (для модели 18.11): шар — 0,25 × (1 + 2 × 0,4) = 0,45 с на участок; буран — 12 с × (0,7 × 2 − 1) = +8,4 «шаго-секунд» на участок при шансе 0,2, то есть буран в среднем чуть выгоден.

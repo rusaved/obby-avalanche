@@ -724,7 +724,7 @@
     "milestone": "RG",
     "description": "Событие «Буран» с горы 7 (docs/01-gdd.md 18.4; docs/01a-content.md 17.3): по тем же правилам розыгрыша, что шар (events.ts): на участке durationSec все (герой и боты) × speedMult 0,7, шаг героя × stepMult 2, туман ближе (fogMult), снег гуще (snowMult), вой ветра, укрытия светят ярче; тост event.blizzard, по окончании event.blizzardOver; сирена обрывает буран; в бурану нельзя проиграть; событие event_blizzard в каталоге docs/06",
     "acceptance": "Vitest: на участке бурана скорость героя и ботов ×0,7 и шаг ×2 ровно durationSec, вне участка — нет; warn обрывает буран ≤ 1 тик; буран не стартует на warn/run, в зоне великана, раньше minGapSec; stepMult 1 — чистое замедление (переключатель Q-041); e2e (open, гора 7 с ?mock_event=blizzard): туман и частицы меняются и возвращаются, плашка «+N за шаг» показывает удвоение, draw calls в бурану ≤ 42; тест docs/06: event_blizzard в каталоге; скриншот docs/evidence/rg/blizzard_1920x1080_ru.png",
-    "passes": false,
+    "passes": true,
     "priority": "P1",
     "deferred": false
   },

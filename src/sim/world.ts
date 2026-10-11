@@ -373,7 +373,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
           sim.slowDown(tb.slow, tb.slowSec);
         }
       }
-      params.speed = moveSpeed(progress.stat, speedCurve) * (sim.slow?.mult ?? 1);
+      params.speed = runSpeed();
       stepHero(hero, funInput(sim.fun, tb ? NO_INPUT : input, params, tuning.fun), dt, collision, params, level.killY);
       // Trampolines and slides (docs/01-gdd.md 16.4): a launch leaves the ground, so this tick counts no steps.
       const fun = stepFun(sim.fun, hero, tuning.fun, dt);
@@ -408,9 +408,10 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         const dz = hero.pos.z - prev.z;
         const path = belt ? params.speed * dt : Math.hypot(dx, dz);
         // A belt gives its own multiplier (the one of its section on the open slope, never the product, 17.4).
-        const mult = belt ? (typeof belt['mult'] === 'number' ? (belt['mult'] as number) : 1) : sim.sectionMult();
+        // The blizzard (docs/01-gdd.md 18.4): every step on its section × stepMult, a belt keeps its own.
+        const mult = belt ? (typeof belt['mult'] === 'number' ? (belt['mult'] as number) : 1) : sim.sectionMult() * (rare?.stepMultAt(hero.pos.z) ?? 1);
         for (const gain of progress.advance(path, mult)) events.emit('gain', { ...gain, tick: sim.tick, belt: belt !== null });
-        params.speed = moveSpeed(progress.stat, speedCurve) * (sim.slow?.mult ?? 1);
+        params.speed = runSpeed();
       } else if (!hero.onGround) progress.resetCarry();
       // A round number of the stat (docs/01-gdd.md 10.4): one event with the biggest value crossed.
       const milestone = sim.milestones.check(progress.stat);
@@ -535,6 +536,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       events.emit('respawn', { tick: sim.tick, z: target[2], checkpoint: sim.checkpoint });
     },
   };
+  // The run speed of the stat × the «slowed» status (docs/01-gdd.md 18.5) × the blizzard where the hero is (18.4).
+  const runSpeed = (): number => moveSpeed(progress.stat, speedCurve) * (sim.slow?.mult ?? 1) * (rare?.speedMultAt(hero.pos.z) ?? 1);
   // The avalanche emits through the sim bus; «Phew, made it!» pays coins first (docs/01-gdd.md 4.4).
   const zoneGift = new Map<number, number>();
   for (const gift of sim.gifts) if (!zoneGift.has(gift.zone)) zoneGift.set(gift.zone, gift.coins);
@@ -604,7 +607,14 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     });
     return moveSpeed(below < 0 ? 0 : sim.gateRequirement(below), speedCurve);
   };
-  const botCtx: BotContext = { hero: { x: 0, z: 0 }, flagZ: level.spawn[2], gatesOpen, threat: threat ? threat.state : null, speedAt: stretchSpeed };
+  const botCtx: BotContext = {
+    hero: { x: 0, z: 0 },
+    flagZ: level.spawn[2],
+    gatesOpen,
+    threat: threat ? threat.state : null,
+    speedAt: stretchSpeed,
+    slowAt: (z) => rare?.speedMultAt(z) ?? 1,
+  };
   (sim as { bots: BotCrowd | null }).bots = bots;
 
   // Rare events (docs/01-gdd.md 18.4): only a mountain with sections (the open slope) has them; nothing is ever lost.

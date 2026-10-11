@@ -20,6 +20,8 @@ const EVENTS: Array<{ names: string[]; times: 'player' | 'always'; code: RegExp 
   { names: ['helper_hit'], times: 'always', code: /[^e]track\('helper_hit'/ },
   // RG-05: the rolling snowball of the rare events.
   { names: ['event_snowball'], times: 'always', code: /[^e]track\('event_snowball'/ },
+  // RG-07: the blizzard.
+  { names: ['event_blizzard'], times: 'always', code: /[^e]track\('event_blizzard'/ },
 ];
 
 describe('events of the open slope (PS-13)', () => {

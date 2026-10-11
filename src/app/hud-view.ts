@@ -90,7 +90,9 @@ export function createHudView(d: HudViewDeps): HudView {
       const stat = sim.progress.stat;
       // Open slope: «×1.2 this section» by «+N per step» (docs/01-gdd.md 17.4); classic and fast have no sections.
       const section = level.sections.length > 0 ? t('hud.sectionMult', { n: formatMult(sim.sectionMult(), d.numSuffix) }) : null;
-      d.hud.setStat(fmt(stat), t('hud.perStep', { n: fmt(d.balance.gainPerStep * sim.progress.gainMult) }), section);
+      // The blizzard doubles every step on its section (docs/01-gdd.md 18.4): the plaque shows it.
+      const perStep = d.balance.gainPerStep * sim.progress.gainMult * (sim.rare?.stepMultAt(sim.hero.pos.z) ?? 1);
+      d.hud.setStat(fmt(stat), t('hud.perStep', { n: fmt(perStep) }), section);
       d.hud.setSlow(sim.slow ? t('hud.slow', { n: formatMult(sim.slow.mult, d.numSuffix) }) : null);
       if (pendingPop !== null && timeSec - lastPopAt >= STAT_POP_MIN_SEC) {
         d.hud.popStatGain(`+${fmt(pendingPop)}`);

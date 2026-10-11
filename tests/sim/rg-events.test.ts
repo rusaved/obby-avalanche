@@ -5,17 +5,19 @@ import { buildLevel } from '../../src/level/builder.ts';
 import { mergePatch } from '../../src/content/pace.ts';
 import { createEvents, type EventEvents, type EventsContext } from '../../src/sim/events.ts';
 import { createSim, type Sim } from '../../src/sim/world.ts';
-import type { BalanceJson, GameJson, TuningJson, WorldsJson } from '../../src/content/types.ts';
+import { moveSpeed } from '../../src/sim/effects/moveSpeed.ts';
+import type { BalanceJson, BotsJson, GameJson, TuningJson, WorldsJson } from '../../src/content/types.ts';
 import type { LevelData } from '../../src/level/types.ts';
 import type { HeroInput } from '../../src/sim/controller.ts';
 
-// RG-05: the rare event «Snowball!» (docs/01-gdd.md 18.4; docs/01a-content.md 17.3).
+// RG-05: the rare event «Snowball!», RG-07: the blizzard (docs/01-gdd.md 18.4; docs/01a-content.md 17.3).
 const root = resolve(__dirname, '../..');
 const read = <T>(f: string): T => JSON.parse(readFileSync(resolve(root, 'content/avalanche', f), 'utf8')) as T;
 const balance = mergePatch(read<BalanceJson>('balance.json'), read('pace/open/balance.json'));
 const tuning = mergePatch(read<TuningJson>('tuning.json'), read('pace/open/tuning.json'));
 const game = read<GameJson>('game.json');
 const worlds = read<WorldsJson>('pace/open/worlds.json');
+const botsCfg = read<BotsJson>('bots.json');
 const cfg = game.events!;
 const sb = cfg.snowball!;
 const curve = { ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed };
@@ -24,11 +26,12 @@ const STAND: HeroInput = { moveX: 0, moveZ: 0, jump: false, jumpHeld: false };
 const level5 = buildLevel(worlds.worlds[4]!);
 const [, , s3, s4] = level5.sections;
 const closed = level5.gates.map(() => false);
-const RUN = 30;
+const RUN_SPEED = 30;
+const RUN: HeroInput = { moveX: 0, moveZ: 1, jump: false, jumpHeld: false };
 
-const ctx = (z: number, o: Partial<EventsContext> = {}): EventsContext => ({ tick: 0, hero: { x: 0, y: level5.floorAt(0, z), z, sheltered: false }, run: RUN, phase: 'idle', bots: [], ...o });
+const ctx = (z: number, o: Partial<EventsContext> = {}): EventsContext => ({ tick: 0, hero: { x: 0, y: level5.floorAt(0, z), z, sheltered: false }, run: RUN_SPEED, phase: 'idle', bots: [], ...o });
 
-function events(level: LevelData, seed: number, force?: 'snowball', c = cfg): { ev: ReturnType<typeof createEvents>; log: Array<{ name: keyof EventEvents; p: unknown }> } {
+function events(level: LevelData, seed: number, force?: 'snowball' | 'blizzard', c = cfg): { ev: ReturnType<typeof createEvents>; log: Array<{ name: keyof EventEvents; p: unknown }> } {
   const log: Array<{ name: keyof EventEvents; p: unknown }> = [];
   const ev = createEvents(level, c, seed, closed, (name, p) => log.push({ name, p }), force);
   return { ev, log };
@@ -105,7 +108,7 @@ describe('«Snowball!» (RG-05)', () => {
     expect(log.map((e) => e.name)).toEqual(['eventStart']);
     // The meeting in aheadSec at the run speed: the ball starts (v + speedMult × v) × aheadSec above the hero.
     const s = ev.state.snowball!;
-    expect(s.z0 - (throat.z1 + 3)).toBeCloseTo(RUN * (1 + sb.speedMult) * sb.aheadSec, 6);
+    expect(s.z0 - (throat.z1 + 3)).toBeCloseTo(RUN_SPEED * (1 + sb.speedMult) * sb.aheadSec, 6);
   });
 
   it('the hero off the trail is missed; on it — the tumble, then ×0.6 for 2 s; Speed, coins and the record flag stay', () => {
@@ -161,5 +164,127 @@ describe('«Snowball!» (RG-05)', () => {
     const hits = b.log.filter((e) => e.name === 'snowballBotHit').map((e) => (e.p as EventEvents['snowballBotHit']).bot);
     expect(hits).toEqual([0]);
     expect(b.log.some((e) => e.name === 'snowballHit')).toBe(false);
+  });
+});
+
+// RG-07: the blizzard (docs/01-gdd.md 18.4; docs/01a-content.md 17.3; Q-041).
+describe('the blizzard (RG-07)', () => {
+  const bl = cfg.blizzard!;
+  const level7 = buildLevel(worlds.worlds[6]!);
+  const t2 = level7.sections[1]!;
+  const at = t2.z0 + 10;
+  const v = (stat: number): number => moveSpeed(stat, curve);
+  const sim7 = (force?: 'blizzard', bots?: boolean): Sim =>
+    createSim(level7, tuning, {
+      balance,
+      speedCurve: curve,
+      stat: 1000,
+      ...(force ? { events: { cfg, seed: 3, force } } : {}),
+      ...(bots ? { bots: { cfg: botsCfg, count: 1, seed: 5 } } : {}),
+    });
+  const intoBlizzard = (s: Sim): void => {
+    s.teleport(0, s.level.floorYAt(at), at);
+    for (let i = 0; i < 60 * cfg.delaySec + 2 && !s.rare?.state.blizzard; i++) s.step(STAND, DT);
+    expect(s.rare?.state.blizzard).not.toBeNull();
+  };
+
+  it('on its section the hero runs × speedMult and steps × stepMult for exactly durationSec; off it — as before', () => {
+    const s = sim7('blizzard');
+    intoBlizzard(s);
+    let ticks = 0;
+    for (let i = 0; i < 60 * (bl.durationSec + 2); i++) {
+      s.step(STAND, DT);
+      if (Math.abs(s.params.speed - v(1000) * bl.speedMult) < 1e-6) ticks++;
+    }
+    expect(Math.abs(ticks - 60 * bl.durationSec)).toBeLessThanOrEqual(1);
+    expect(s.params.speed).toBeCloseTo(v(1000), 6);
+    // Off its section during it: nothing.
+    const o = sim7('blizzard');
+    intoBlizzard(o);
+    o.teleport(0, o.level.floorYAt(t2.z1 + 20), t2.z1 + 20);
+    o.step(STAND, DT);
+    expect(o.rare!.state.blizzard).not.toBeNull();
+    expect(o.params.speed).toBeCloseTo(v(1000), 6);
+    expect(o.rare!.stepMultAt(o.hero.pos.z)).toBe(1);
+    // Steps × 2 at × 0.7 the speed: a second of the run gives about 1.4 of the plain one.
+    const gain = (s2: Sim): number => {
+      const before = s2.progress.stat;
+      for (let i = 0; i < 60; i++) s2.step(RUN, DT);
+      return s2.progress.stat - before;
+    };
+    const plain = sim7();
+    plain.teleport(0, plain.level.floorYAt(at), at);
+    const g0 = gain(plain);
+    const b = sim7('blizzard');
+    intoBlizzard(b);
+    b.teleport(0, b.level.floorYAt(at), at);
+    expect(gain(b) / g0).toBeCloseTo(bl.speedMult * bl.stepMult, 1);
+  });
+
+  it('bots on its section run × speedMult too', () => {
+    const run = (force?: 'blizzard'): number => {
+      const s = sim7(force, true);
+      if (force) intoBlizzard(s);
+      const bot = s.bots!.list[0]!;
+      Object.assign(bot, { mode: 'up', x: bot.lane, z: at + 5, path: [[bot.lane, at + 200]] });
+      const z0 = bot.z;
+      for (let i = 0; i < 30; i++) s.step(STAND, DT);
+      return bot.z - z0;
+    };
+    expect(run('blizzard') / run()).toBeCloseTo(bl.speedMult, 1);
+  });
+
+  it('the siren ends it within a tick; never on warn or run, in a giant zone, before minGapSec; one draw on the entry', () => {
+    const { ev, log } = events(level7, 1, 'blizzard');
+    ev.step(DT, ctx(at));
+    ev.step(cfg.delaySec, ctx(at));
+    expect(ev.state.blizzard).not.toBeNull();
+    ev.step(DT, ctx(at, { phase: 'warn' }));
+    expect(ev.state.blizzard).toBeNull();
+    expect(log.at(-1)).toMatchObject({ name: 'eventEnd', p: { id: 'blizzard', why: 'warn' } });
+    const starts = (level: LevelData, o: Partial<EventsContext> = {}): number => {
+      const e = events(level, 1, 'blizzard');
+      e.ev.step(DT, ctx(at, o));
+      e.ev.step(cfg.delaySec, ctx(at, o));
+      return e.log.filter((x) => x.name === 'eventStart').length;
+    };
+    expect(starts(level7)).toBe(1);
+    expect(starts(level7, { phase: 'warn' })).toBe(0);
+    expect(starts(level7, { phase: 'run' })).toBe(0);
+    expect(starts({ ...level7, bosses: [{ ...level7.bosses[0]!, zone: [t2.z0, t2.z0 + 60] }] })).toBe(0);
+    expect(starts(level5)).toBe(0);
+    const only = { ...cfg, snowball: { ...sb, chance: 0 }, blizzard: { ...bl, chance: 1 } };
+    const g = events(level7, 1, undefined, only);
+    const n = (): number => g.log.filter((e) => e.name === 'eventStart').length;
+    g.ev.step(DT, ctx(at));
+    g.ev.step(cfg.delaySec, ctx(at));
+    g.ev.step(cfg.minGapSec - 10, ctx(100));
+    g.ev.step(DT, ctx(at));
+    g.ev.step(cfg.delaySec, ctx(at));
+    expect(n()).toBe(1);
+    g.ev.step(10, ctx(100));
+    g.ev.step(DT, ctx(at));
+    g.ev.step(cfg.delaySec, ctx(at));
+    expect(n()).toBe(2);
+    // One draw: on 400 entries of mountain 7 the blizzard takes about its chance.
+    const e7 = events(level7, 9);
+    let blizzards = 0;
+    for (let i = 0; i < 400; i++) {
+      e7.ev.step(cfg.minGapSec + 1, ctx(100));
+      const k = e7.log.length;
+      e7.ev.step(DT, ctx(at));
+      e7.ev.step(cfg.delaySec, ctx(at));
+      blizzards += e7.log.slice(k).filter((e) => e.name === 'eventStart' && (e.p as EventEvents['eventStart']).id === 'blizzard').length;
+    }
+    expect(Math.abs(blizzards / 400 - bl.chance)).toBeLessThanOrEqual(0.05);
+  });
+
+  it('stepMult 1 (Q-041): a plain slowdown', () => {
+    const plain = { ...cfg, blizzard: { ...bl, stepMult: 1 } };
+    const { ev } = events(level7, 1, 'blizzard', plain);
+    ev.step(DT, ctx(at));
+    ev.step(cfg.delaySec, ctx(at));
+    expect(ev.speedMultAt(at)).toBe(bl.speedMult);
+    expect(ev.stepMultAt(at)).toBe(1);
   });
 });

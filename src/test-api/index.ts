@@ -169,6 +169,8 @@ export interface TestState {
   /** The rolling snowball (docs/01-gdd.md 18.4): its trail and the ball now, the trail drawn; the hero's tumble. */
   snowball: { x: number; z0: number; z1: number; z: number; trail: boolean } | null;
   tumble: number | null;
+  /** The blizzard (docs/01-gdd.md 18.4): its section and seconds left; how far it has come on screen, snow and glows drawn, the fog's end. */
+  blizzard: { on: boolean; z0: number; z1: number; left: number; k: number; snow: number; glows: number; fogFar: number };
   touchMode: boolean;
   stickActive: boolean;
   quality: { level: QualityLevel; dpr: number; locked: boolean };
@@ -563,6 +565,11 @@ export function installTestApi(g: GameHandles): TestApi {
           return b ? { x: b.x, z0: b.z0, z1: b.z1, z: b.z, trail: g.eventsView?.trailShown ?? false } : null;
         })(),
         tumble: g.sim?.tumble ? g.sim.tumble.t : null,
+        blizzard: (() => {
+          const b = g.sim?.rare?.state.blizzard;
+          const v = g.eventsView?.blizzard ?? { k: 0, snow: 0, glows: 0, fogFar: 0 };
+          return { on: !!b, z0: b?.z0 ?? 0, z1: b?.z1 ?? 0, left: b?.left ?? 0, ...v };
+        })(),
         touchMode: g.input.touchActive,
         stickActive: g.input.stick.active,
         quality: { level: g.quality.level, dpr: g.quality.dpr, locked: g.quality.locked },

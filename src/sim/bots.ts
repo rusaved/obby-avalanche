@@ -80,6 +80,8 @@ export interface BotContext {
   speedAt(z: number): number;
   /** Zones of giants (docs/01-gdd.md 18.5): active until the hero has passed it, the giant's speed; absent — none. */
   giants?: ReadonlyArray<{ zone: readonly [number, number]; active: boolean; speed: number }>;
+  /** The blizzard (docs/01-gdd.md 18.4): run speed × this at z; absent — 1. */
+  slowAt?(z: number): number;
 }
 
 export interface BotsOptions {
@@ -195,6 +197,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
   const stats = { hid: 0, dawdled: 0, caught: 0 };
   /** Zones of giants still guarded (the hero has not passed them), from the last context (docs/01-gdd.md 18.5). */
   let guarded: ReadonlyArray<{ zone: readonly [number, number]; active: boolean; speed: number }> = [];
+  let weather: (z: number) => number = () => 1;
   let dawdleDebt = 0;
   let waveNo = 0;
   let lastPhase: string = 'idle';
@@ -408,7 +411,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
     const sl = slides.find((p) => on(p, b.x, b.z));
     if (sl) b.slideK = typeof sl['mult'] === 'number' ? (sl['mult'] as number) : (fun?.cfg.slideMult ?? 1);
     b.slide = sl ? Math.max(dt, typeof sl['hold'] === 'number' ? (sl['hold'] as number) : (fun?.cfg.slideSec ?? 0)) : Math.max(0, b.slide - dt);
-    let left = speed * dt * (b.slide > 0 ? b.slideK : 1) * (b.slowLeft > 0 ? b.slowK : 1);
+    let left = speed * dt * (b.slide > 0 ? b.slideK : 1) * (b.slowLeft > 0 ? b.slowK : 1) * weather(b.z);
     b.moving = false;
     while (left > 0 && b.path.length > 0) {
       const [tx, tz] = b.path[0]!;
@@ -501,6 +504,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
     },
     step(dt, ctx) {
       guarded = ctx.giants ?? [];
+      weather = ctx.slowAt ?? (() => 1);
       const phase = ctx.threat?.phase ?? 'idle';
       if (phase === 'warn' && lastPhase !== 'warn') onWarn(ctx);
       const heroStretch = stretchOf(ctx.hero.z);

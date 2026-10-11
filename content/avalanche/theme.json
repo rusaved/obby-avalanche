@@ -80,5 +80,5 @@
     "face": "happy",
     "silhouette": "#BAC5CC", "helper": { "height": 7, "snowball": "#FFFFFF" }
   },
-  "events": { "snowball": { "trail": "#7FC8F8", "ball": "#F4FAFF" } }
+  "events": { "snowball": { "trail": "#7FC8F8", "ball": "#F4FAFF" }, "blizzard": { "fog": "#DCE8F2", "snow": "#FFFFFF", "glow": "#FFC94D" } }
 }

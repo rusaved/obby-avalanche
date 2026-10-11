@@ -7,19 +7,21 @@ import ru from '../content/avalanche/i18n/ru.json' with { type: 'json' };
 // RG-05 and RG-07: the rare events (docs/01-gdd.md 18.4). ?mock_event=snowball starts the snowball on every section entry
 // its rules allow. Mountain 5, into section 3: the trail shows with the ball and it meets the standing hero no sooner
 // than 3 s later — a hit: «Hit by a snowball!» and «×0,6»; again with a step aside: missed, the ball goes by;
-// event_snowball each time.
+// event_snowball each time. ?mock_event=blizzard on mountain 7: the fog nearer and the snow while the hero is in its
+// section, «+2 per step» on the plaque, at most 42 draw calls; it ends by itself and the fog comes back.
 type OpenWorld = { zones: Array<{ k: number; zStart: number }> };
 const w5 = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds[4]!;
+const w7 = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds[6]!;
 const s3 = w5.zones.find((z) => z.k === 3)!.zStart;
 const EVIDENCE = 'docs/evidence/rg';
 
-async function toMountain5(page: Page): Promise<void> {
+async function toMountain(page: Page, index: number): Promise<void> {
   await page.evaluate(() => window.__TEST__!.setPlaySec(400));
   await page.evaluate(() => window.__TEST__!.setTimeScale(8));
   await page.evaluate(() => window.__TEST__!.triggerWave());
   await page.waitForFunction(() => window.__TEST__!.state().wave?.scriptedPending === false && window.__TEST__!.state().wave?.phase === 'idle', undefined, { timeout: 60_000 });
   await page.evaluate(() => window.__TEST__!.setTimeScale(1));
-  await page.evaluate(() => window.__TEST__!.gotoWorld(5));
+  await page.evaluate((i) => window.__TEST__!.gotoWorld(i), index);
   await waitTicks(page, 20);
   // The ridges stay closed: the ball never starts in section 2 below the ridge of section 3.
   await page.evaluate(() => {
@@ -35,7 +37,7 @@ test('mountain 5: the trail at once, the ball meets the standing hero ≥ 3 s la
   test.setTimeout(150_000);
   mkdirSync(EVIDENCE, { recursive: true });
   await openGame('pace=open&quality=high&mock_event=snowball');
-  await toMountain5(page);
+  await toMountain(page, 5);
   // Well above the closed ridge: the camera behind the hero clears its ice.
   await page.evaluate((z) => window.__TEST__!.teleport(z, 0), s3 + 45);
   // delaySec after the entry: the toast of the section's gifts first.
@@ -82,4 +84,53 @@ test('mountain 5: the trail at once, the ball meets the standing hero ≥ 3 s la
   expect(ev2[1]!.why).toBe('past');
   const tracked = (await page.evaluate(() => window.__TEST__!.analytics().filter((e) => e.name === 'event_snowball').length)) as number;
   expect(tracked).toBe(2);
+});
+
+test('mountain 7: the blizzard — fog nearer, snow, «+2 per step», ≤ 42 draw calls; it ends and the fog comes back; screenshot', async ({ page, openGame }) => {
+  test.setTimeout(150_000);
+  mkdirSync(EVIDENCE, { recursive: true });
+  await openGame('pace=open&quality=high&mock_event=blizzard');
+  await toMountain(page, 7);
+  // «+N per step» on the plaque: its number.
+  const per = async (): Promise<number> => Number(((await page.evaluate(() => document.querySelector('.hud-stat-per')?.textContent ?? '')).match(/[\d,.]+/) ?? ['NaN'])[0].replace(',', '.'));
+  await page.evaluate((z) => window.__TEST__!.teleport(z, 0), w7.zones.find((z) => z.k === 2)!.zStart + 45);
+  await waitTicks(page, 10);
+  const before = (await testState(page)).blizzard;
+  expect(before.on).toBe(false);
+  const step = await per();
+  expect(step).toBeGreaterThan(0);
+  const toasts: string[] = [];
+  const seen = async (): Promise<void> => {
+    const t = (await testState(page)).waveHud.toast;
+    if (t && !toasts.includes(t)) toasts.push(t);
+  };
+  for (let k = 0; k < 200 && (await testState(page)).blizzard.k < 1; k++) {
+    await seen();
+    await waitTicks(page, 3);
+  }
+  const s = (await testState(page)).blizzard;
+  expect(s.on).toBe(true);
+  expect(s.fogFar).toBeLessThan(before.fogFar * 0.6);
+  expect(s.snow).toBeGreaterThan(0);
+  expect(await per()).toBeCloseTo(step * 2, 6);
+  const info = (await page.evaluate(() => window.__TEST__!.renderInfo()))!;
+  expect(info.calls, 'draw calls in the blizzard').toBeLessThanOrEqual(42);
+  await shot1080(page, `${EVIDENCE}/blizzard_1920x1080_ru.png`, 1);
+  // To its end: the toast, the fog and the snow back as they were.
+  await page.evaluate(() => window.__TEST__!.setTimeScale(4));
+  for (let k = 0; k < 400; k++) {
+    await seen();
+    const b = (await testState(page)).blizzard;
+    if (!b.on && b.k === 0) break;
+    await waitTicks(page, 4);
+  }
+  await page.evaluate(() => window.__TEST__!.setTimeScale(1));
+  const after = (await testState(page)).blizzard;
+  expect(after.on).toBe(false);
+  expect(after.snow).toBe(0);
+  expect(after.fogFar).toBeCloseTo(before.fogFar, 3);
+  expect(await per()).toBeCloseTo(step, 6);
+  expect(toasts).toContain(ru['event.blizzard']);
+  expect(toasts).toContain(ru['event.blizzardOver']);
+  expect((await page.evaluate(() => window.__TEST__!.analytics().filter((e) => e.name === 'event_blizzard').length)) as number).toBe(1);
 });

@@ -207,7 +207,8 @@ async function boot(): Promise<void> {
     return r && r.world === w.index && Number.isFinite(r.z) ? { x: r.x, y: r.y, z: r.z } : null;
   };
   // Rare events of the open slope (docs/01-gdd.md 18.4): rolled by the seed and the mountain; ?mock_event= forces one.
-  const mockEvent = __DEBUG_TOOLS__ && debugParams.get('mock_event') === 'snowball' ? 'snowball' : undefined;
+  const mockParam = __DEBUG_TOOLS__ ? debugParams.get('mock_event') : null;
+  const mockEvent = mockParam === 'snowball' || mockParam === 'blizzard' ? mockParam : undefined;
   const eventsOptions = (w: World): { cfg: NonNullable<typeof game.events>; seed: number; force: typeof mockEvent } | undefined =>
     game.events ? { cfg: game.events, seed: (seed + w.index * 15485863) >>> 0, force: mockEvent } : undefined;
   let sim: Sim = createSim(level, tuning, {
@@ -385,11 +386,20 @@ async function boot(): Promise<void> {
     // A helper's snowball (docs/01-gdd.md 18.5): its whistle in the air; a hit — «Snowball!» and the badge on the plaque.
     s.events.on('helperThrow', () => audio?.play('helper_throw'));
     // Rare events (docs/01-gdd.md 18.4): «Snowball!» with its rumble and the trail; a hit — «Hit by a snowball!» and ×0,6.
+    // The blizzard: «Blizzard! steps ×2» with the wind, «Blizzard is over» when it ends by itself (the siren has its banner).
     s.events.on('eventStart', ({ id }) => {
-      if (id !== 'snowball') return;
-      hud?.toast(t('event.snowball'));
-      audio?.play('event_snowball_warn');
-      track('event_snowball', { world: s.level.worldIndex });
+      if (id === 'snowball') {
+        hud?.toast(t('event.snowball'));
+        audio?.play('event_snowball_warn');
+        track('event_snowball', { world: s.level.worldIndex });
+      } else {
+        hud?.toast(t('event.blizzard'));
+        audio?.play('event_blizzard');
+        track('event_blizzard', { world: s.level.worldIndex });
+      }
+    });
+    s.events.on('eventEnd', ({ id, why }) => {
+      if (id === 'blizzard' && why === 'over') hud?.toast(t('event.blizzardOver'));
     });
     s.events.on('snowballHit', () => {
       hud?.toast(t('event.snowballHit'));
@@ -965,7 +975,7 @@ async function boot(): Promise<void> {
     }
     botsView?.update(alpha, playSec);
     bossView?.update(sim);
-    eventsView?.update(sim);
+    eventsView?.update(sim, frameDt);
     wayView?.update(renderPos);
     adsView?.update(frameDt, save.totalPlaySec ?? 0);
     funView?.update(gameDt, playSec, renderPos);
@@ -1067,7 +1077,7 @@ async function boot(): Promise<void> {
   // The giant of the open slope and his silhouette (docs/01-gdd.md 17.6).
   bossView = createBossView({ theme, characters, scene: gr.scene, camera: () => cameraRig?.camera ?? null, numSuffix: (k) => t(`num.${k}`), skinId: skins.default });
   bossView.wire(sim);
-  eventsView = createEventsView({ theme, scene: gr.scene });
+  eventsView = createEventsView({ theme, scene: gr.scene, camera: () => cameraRig?.camera ?? null, snowflakes: () => quality.params.snowflakes });
   botsView = createBotsView({
     cfg: bots,
     characters,

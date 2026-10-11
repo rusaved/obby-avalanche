@@ -123,6 +123,17 @@ const gameSchema = v.object({
           slowSec: nonNeg,
         }),
       ),
+      blizzard: v.optional(
+        v.object({
+          fromWorld: v.pipe(v.number(), v.integer(), v.minValue(1)),
+          chance: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
+          durationSec: positive,
+          speedMult: v.pipe(v.number(), v.minValue(0.1), v.maxValue(1)),
+          stepMult: v.pipe(v.number(), v.minValue(1)),
+          fogMult: v.pipe(v.number(), v.minValue(0.1), v.maxValue(1)),
+          snowMult: v.pipe(v.number(), v.minValue(1), v.maxValue(4)),
+        }),
+      ),
     }),
   ),
 });
@@ -163,7 +174,7 @@ const themeSchema = v.object({
       helper: v.optional(v.object({ height: positive, snowball: hex })),
     }),
   ),
-  events: v.optional(v.object({ snowball: v.optional(v.object({ trail: hex, ball: hex })) })),
+  events: v.optional(v.object({ snowball: v.optional(v.object({ trail: hex, ball: hex })), blizzard: v.optional(v.object({ fog: hex, snow: hex, glow: hex })) })),
 });
 
 /** Quest kinds the game counts (docs/01a-content.md 10); a new one needs its counter in src/app/quests-view.ts. */

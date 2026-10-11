@@ -51,6 +51,7 @@
 | великан поймал бота | `boss_bot_caught`, параметр `world` | шина `bossBotCaught`: хлопок по боту в зоне (`01` 18.5, веха RG) | always | игрок видит поимки других до своего входа |
 | попал снежок помощника | `helper_hit`, параметр `world` | шина `helperHit`: снежок помощника великана задел героя (`01` 18.5) | always | проход зоны со Скоростью совета не падает (F12) |
 | покатился шар | `event_snowball`, параметр `world` | шина `eventStart` с `id: snowball`: на участке 2–4 с горы 5 по полосе героя покатился шар (`01` 18.4) | always | около четверти участков 2–4; возврат на день 2 у сессий с шаром не ниже, чем без него |
+| начался буран | `event_blizzard`, параметр `world` | шина `eventStart` с `id: blizzard`: на участке 2–4 с горы 7 буран — все ×0,7, шаг героя ×2 (`01` 18.4) | always | около пятой части участков 2–4 гор 7–10; возврат на день 2 у сессий с бураном не ниже, чем без него |
 
 Имена `gameReady`, `gameTutorialStart`, `gameTutorialComplete` и `params.levelComplete` — стандартные из документации Яндекса, остальные — наши.
 
@@ -111,9 +112,9 @@ ym(counterId, 'reachGoal', name, {
    - воронка (25): `load_start`, `gameReady`, `startup_ad_start`, `startup_ad_end`, `first_input`, `gameTutorialStart`, `gate_1`, `gate_2`, `shoes_1`, `gate_3`, `first_wave_survived`, `treadmill_first`, `egg_1`, `session_60s`, `gate_4`, `rewarded_shown`, `wave_real_1`, `gate_6`, `session_180s`, `daily_claim`, `gate_9`, `session_300s`, `gameTutorialComplete`, `session_600s`, `rebirth_1`;
    - техника (1): `sdk_init_slow`;
    - реклама (11): `gameRewardedRequest`, `gameRewardedOpen`, `gameRewardedEarned`, `gameRewardedClose`, `gameRewardedError`, `ad_resume_ok`, `gameFullscreenRequest`, `gameFullscreenOpen`, `gameFullscreenClose`, `gameFullscreenError`, `quit_after_inter`;
-   - простор (10, темп `open`): `ridge_1`, `ridge_2`, `ridge_3`, `boss_enter`, `boss_passed`, `boss_caught`, `record_up`, `boss_bot_caught`, `helper_hit`, `event_snowball`;
+   - простор (11, темп `open`): `ridge_1`, `ridge_2`, `ridge_3`, `boss_enter`, `boss_passed`, `boss_caught`, `record_up`, `boss_bot_caught`, `helper_hit`, `event_snowball`, `event_blizzard`;
    - покупки (4, только если они включены): `gameOfferView`, `gamePurchaseStart`, `gamePurchaseSuccess`, `gamePurchaseError`;
-   - итого 47 целей, с покупками 51.
+   - итого 48 целей, с покупками 52.
 4. Отчёты «Воронка»: «Отчёты» → «Создать отчёт» → «Воронка», условие шага — «Достижение JS-цели», окно 30 минут, сегмент — только новые посетители. В воронке Метрики не больше 10 шагов, и шаги засчитываются по порядку: если шаг 3 случился раньше шага 2, игрок из воронки выпадает. Поэтому отчётов три, и в каждом только шаги, порядок которых держит сама игра:
    - «Первая минута»: `load_start` → `gameReady` → `first_input` → `gameTutorialStart` → `gate_1` → `gate_2` → `gate_3` → `first_wave_survived` → `treadmill_first` → `gate_4`;
    - «Гора 1»: `gate_4` → `gate_6` → `gate_9` → `gameTutorialComplete`;

@@ -46,12 +46,25 @@ export interface SnowballEvent {
   slowSec: number;
 }
 
+/** The blizzard (docs/01-gdd.md 18.4): everyone in its section × speedMult for durationSec, the hero's steps × stepMult
+ * (1 — a plain slowdown, Q-041); the fog nearer × fogMult, the snow thicker × snowMult. */
+export interface BlizzardEvent {
+  fromWorld: number;
+  chance: number;
+  durationSec: number;
+  speedMult: number;
+  stepMult: number;
+  fogMult: number;
+  snowMult: number;
+}
+
 export interface GameEvents {
   minGapSec: number;
   /** Not before this long after entering the section: the toast of its gifts goes first. */
   delaySec: number;
   sections: [number, number];
   snowball?: SnowballEvent;
+  blizzard?: BlizzardEvent;
 }
 
 export interface ThemeJson {
@@ -77,8 +90,8 @@ export interface ThemeJson {
   /** The giant (docs/01a-content.md 16.4): height, colours of the parts and the hat, the face, the horizon silhouette. */
   /** `helper` (docs/01a-content.md 17.4): the giant's helpers — their height, the colour of their snowball. */
   boss?: { height: number; colors: { head: string; torso: string; arms: string; legs: string; hat: string }; face: string; silhouette: string; helper?: { height: number; snowball: string } };
-  /** Rare events (docs/01a-content.md 17.3): the colours of the snowball's trail and of the ball. */
-  events?: { snowball?: { trail: string; ball: string } };
+  /** Rare events (docs/01a-content.md 17.3): the colours of the snowball's trail and of the ball, of the blizzard's fog, snow and the glow over the shelters. */
+  events?: { snowball?: { trail: string; ball: string }; blizzard?: { fog: string; snow: string; glow: string } };
 }
 
 export interface Curve {
