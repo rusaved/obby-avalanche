@@ -58,6 +58,7 @@ describe('gate requirement and openness (docs/01-gdd.md 3.3, 8.1; M2-02)', () =>
       safeZones: [],
       floorYAt: () => 0,
       floorAt: () => 0,
+      sections: [],
     };
     const s = createSim(level, tuning as TuningJson, { balance: bal, speedCurve: bal.speedCurve });
     for (let i = 0; i < 30; i++) s.step(NO_INPUT, DT);

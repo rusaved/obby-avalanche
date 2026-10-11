@@ -128,3 +128,31 @@ test('no «▶ Ad: open the wall» at any ridge; «▶ Ad: +N speed» in the rid
   expect(s.stat).toBeGreaterThan(before);
   expect(s.adButtons).not.toContain('stat_now');
 });
+
+// PS-05: the section multiplier (docs/01-gdd.md 17.4): past ridge 1 every step of the run gives ×1.2 with the same shoes
+// and pets, and the Speed plaque shows «×1,2 this section».
+test('section multiplier: past ridge 1 a step gives ×1.2 with the same shoes and pets; the plaque shows ×1,2', async ({ page, openGame }) => {
+  test.setTimeout(120_000);
+  mkdirSync(EVIDENCE, { recursive: true });
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await openGame('pace=open');
+  await waitTicks(page, 10);
+  await expect(page.locator('[data-role="section-mult"]')).toHaveText('×1 за участок');
+  await page.evaluate((k) => window.__TEST__!.setTimeScale(k), TIME_SCALE);
+  await walk(page, [[0, flag1.z + 2], [-16, flag1.z + 40]]);
+  await page.waitForFunction((z) => window.__TEST__!.state().hero!.z >= z, flag1.z + 38, { timeout: 60_000 });
+  await page.evaluate(() => window.__TEST__!.setTimeScale(1));
+  const s = await testState(page);
+  const events = await page.evaluate(() => window.__TEST__!.simEvents);
+  const pass = events.find((e) => e.name === 'gatePass' && e['index'] === 0)!;
+  const gains = events.filter((e) => e.name === 'gain' && e['belt'] === false);
+  const before = gains.filter((e) => e.tick < pass.tick - 30).map((e) => e['amount'] as number);
+  const after = gains.filter((e) => e.tick > pass.tick + 10).map((e) => e['amount'] as number);
+  expect(before.length).toBeGreaterThan(5);
+  expect(after.length).toBeGreaterThan(5);
+  expect(s.shoeLevel).toBe(0);
+  for (const a of before) expect(a).toBeCloseTo(1, 9);
+  for (const a of after) expect(a).toBeCloseTo(1.2, 9);
+  await expect(page.locator('[data-role="section-mult"]')).toHaveText('×1,2 за участок');
+  await page.locator('[data-role="stat"]').screenshot({ path: `${EVIDENCE}/hud_section_mult_1920x1080_ru.png` });
+});

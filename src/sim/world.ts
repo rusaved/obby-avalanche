@@ -120,6 +120,8 @@ export interface Sim {
   respawn(): void;
   /** Treadmill multiplier of the belt the hero stands on, 1 on plain ground (docs/02-tech.md 5.3). */
   treadmillAt(): number;
+  /** Step multiplier of the section the hero is on (open slope, docs/01-gdd.md 17.4); 1 in the camp and elsewhere. */
+  sectionMult(): number;
   /** The hero stands on a treadmill belt: he runs in place by himself, steps count at run speed (M2-05). */
   onBelt: boolean;
   /** Index of the cave sheltering the hero (cave volume + niche.graceDist past the entrance), −1 outside. */
@@ -300,7 +302,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         const dx = hero.pos.x - prev.x;
         const dz = hero.pos.z - prev.z;
         const path = belt ? params.speed * dt : Math.hypot(dx, dz);
-        const mult = belt && typeof belt['mult'] === 'number' ? (belt['mult'] as number) : 1;
+        // A belt gives its own multiplier (the one of its section on the open slope, never the product, 17.4).
+        const mult = belt ? (typeof belt['mult'] === 'number' ? (belt['mult'] as number) : 1) : sim.sectionMult();
         for (const gain of progress.advance(path, mult)) events.emit('gain', { ...gain, tick: sim.tick, belt: belt !== null });
         params.speed = moveSpeed(progress.stat, speedCurve);
       } else if (!hero.onGround) progress.resetCarry();
@@ -360,6 +363,11 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     gateRequirement(index) {
       const gate = level.gates[index];
       return gate ? gateRequirement(gate.requires, level.worldIndex, gate.index, tier, opts.balance.rebirth, opts.walls) : Infinity;
+    },
+    sectionMult() {
+      const z = hero.pos.z;
+      for (const s of level.sections) if (z >= s.z0 && z < s.z1) return s.mult;
+      return 1;
     },
     treadmillAt() {
       const belt = beltAt(beltList, hero.pos.x, hero.pos.y, hero.pos.z);

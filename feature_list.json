@@ -589,7 +589,7 @@
     "milestone": "PS",
     "description": "Множитель участка (docs/01-gdd.md 17.4; решение по умолчанию Q-033): прирост за шаг × zones[k].stepMult по позиции героя, дорожка грота рубежа и начала зоны великана = множитель участка, маленькие гроты без дорожки; HUD: значок «×N за участок» у плашки «+N за шаг»; в classic и fast поля нет — ×1",
     "acceptance": "Vitest: stepGain с stepMult 1.5 даёт ×1.5 к шагу на участке и ×1 в лагере; на дорожке грота рубежа множитель равен stepMult участка, не произведению; sim:balance на classic и fast даёт те же числа, что до фичи (docs/evidence/balance.txt, balance-fast.txt без изменений в цифрах); e2e (open): «+N» над головой после рубежа 1 растёт в 1,2 раза при тех же кроссовках и питомцах; скриншот плашки docs/evidence/open/hud_section_mult_1920x1080_ru.png",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

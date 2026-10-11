@@ -126,7 +126,8 @@ export interface Hud {
   /** Soft white veil when the camera is inside the snow body (docs/02-tech.md 7). */
   setVeil(on: boolean): void;
   /** Speed plaque: the number and «+N per step» under it (docs/01-gdd.md 10.1). */
-  setStat(value: string, perStep: string): void;
+  /** Speed and «+N per step»; `section` — «×N this section» of the open slope (docs/01-gdd.md 17.4), null hides it. */
+  setStat(value: string, perStep: string, section?: string | null): void;
   /** «+N» flying up over the Speed plaque on a gain. */
   popStatGain(text: string): void;
   /** A round number of Speed (docs/01-gdd.md 10.3, M2-13): the plaque flashes, the number bounces. */
@@ -266,7 +267,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const statBody = el('span', 'hud-stat-body');
   const statValue = el('span', 'hud-stat-value', '0');
   const statPer = el('span', 'hud-stat-per', '');
-  statBody.append(statValue, statPer);
+  // Open slope (docs/01-gdd.md 17.4): the multiplier of the section by «+N per step».
+  const statSection = el('span', 'hud-stat-section', '');
+  statSection.dataset['role'] = 'section-mult';
+  statBody.append(statValue, statPer, statSection);
   const statGain = el('span', 'hud-stat-gain');
   stat.append(statIcon, statBody, statGain);
   left.appendChild(stat);
@@ -624,9 +628,12 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       const r = root.getBoundingClientRect();
       return { x: b.left + b.width / 2 - r.left, y: b.top + b.height / 2 - r.top };
     },
-    setStat(value, perStep) {
+    setStat(value, perStep, section = null) {
       if (statValue.textContent !== value) statValue.textContent = value;
       if (statPer.textContent !== perStep) statPer.textContent = perStep;
+      const text = section ?? '';
+      if (statSection.textContent !== text) statSection.textContent = text;
+      statSection.classList.toggle('shown', section !== null);
     },
     flashStat() {
       stat.classList.remove('flash');

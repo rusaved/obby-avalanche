@@ -10,7 +10,7 @@
 import type { BalanceJson, ThemeJson, World } from '../content/types.ts';
 import type { Sim } from '../sim/world.ts';
 import type { Hud } from '../ui/hud.ts';
-import { formatNumber } from '../ui/format.ts';
+import { formatMult, formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
 
 /** «Wall open!» stays this long (docs/01-gdd.md 6.2: 2 s). */
@@ -69,7 +69,9 @@ export function createHudView(d: HudViewDeps): HudView {
       const level = sim.level;
       const len = Math.max(1, level.length);
       const stat = sim.progress.stat;
-      d.hud.setStat(fmt(stat), t('hud.perStep', { n: fmt(d.balance.gainPerStep * sim.progress.gainMult) }));
+      // Open slope: «×1.2 this section» by «+N per step» (docs/01-gdd.md 17.4); classic and fast have no sections.
+      const section = level.sections.length > 0 ? t('hud.sectionMult', { n: formatMult(sim.sectionMult(), d.numSuffix) }) : null;
+      d.hud.setStat(fmt(stat), t('hud.perStep', { n: fmt(d.balance.gainPerStep * sim.progress.gainMult) }), section);
       if (pendingPop !== null && timeSec - lastPopAt >= STAT_POP_MIN_SEC) {
         d.hud.popStatGain(`+${fmt(pendingPop)}`);
         pendingPop = null;

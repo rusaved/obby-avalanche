@@ -34,6 +34,7 @@ function level(): LevelData {
     safeZones: [],
     floorYAt: () => 0,
     floorAt: () => 0,
+    sections: [],
   };
 }
 

@@ -92,6 +92,8 @@ canvas.fallback {
 .hud-stat-body { display: flex; flex-direction: column; line-height: 1; }
 .hud-stat-value { font-size: clamp(28px, 3.2vmin, 36px); font-weight: 800; font-variant-numeric: tabular-nums; text-shadow: -2px -2px 0 #1b4a7a, 2px -2px 0 #1b4a7a, -2px 2px 0 #1b4a7a, 2px 2px 0 #1b4a7a; }
 .hud-stat-per { margin-top: 3px; font-size: 13px; font-weight: 800; color: #1b4a7a; white-space: nowrap; }
+.hud-stat-section { display: none; margin-top: 3px; align-self: flex-start; padding: 1px 6px; border-radius: 6px; background: #1b4a7a; color: #fff; font-size: 12px; font-weight: 800; white-space: nowrap; }
+.hud-stat-section.shown { display: inline-block; }
 .hud-stat-gain { position: absolute; left: calc(100% + 6px); top: 20%; white-space: nowrap; opacity: 0; font-size: 18px; font-weight: 800; color: #fff; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35); pointer-events: none; }
 .hud-stat-gain.show { animation: stat-gain 0.6s ease-out forwards; }
 @keyframes stat-gain { 0% { opacity: 0; transform: translateY(0); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateY(-22px); } }
