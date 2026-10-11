@@ -80,5 +80,10 @@
     "face": "happy",
     "silhouette": "#BAC5CC", "helper": { "height": 7, "snowball": "#FFFFFF" }
   },
-  "events": { "snowball": { "trail": "#7FC8F8", "ball": "#F4FAFF" }, "blizzard": { "fog": "#DCE8F2", "snow": "#FFFFFF", "glow": "#FFC94D" } }
+  "events": { "snowball": { "trail": "#7FC8F8", "ball": "#F4FAFF" }, "blizzard": { "fog": "#DCE8F2", "snow": "#FFFFFF", "glow": "#FFC94D" } },
+  "decor": {
+    "minQuality": "medium",
+    "walkers": { "look": "penguin", "on": ["slope", "canyon", "aurora"], "perSection": [2, 4], "patch": 10, "speed": 1 },
+    "sitters": { "looks": ["bullfinch", "owl", "petrel"], "on": ["pass", "blizzard", "aurora"], "perSection": [2, 3], "lookAtDist": 8, "hopDist": 4 }
+  }
 }

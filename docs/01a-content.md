@@ -1042,8 +1042,8 @@
 
 | Поле | Значение | Что |
 |---|---|---|
-| `decor.walkers` | `{ "look": "penguin", "perSection": [2, 4], "patch": 10, "speed": 1 }` у `look` `slope`, `canyon`, `aurora` | пингвины бродят у края склона |
-| `decor.sitters` | `{ "looks": ["bullfinch", "owl", "petrel"], "perSection": [2, 3], "lookAtDist": 8, "hopDist": 4 }` у `look` `pass`, `blizzard`, `aurora` | птицы на карнизах, утёсах, табличке великана |
+| `decor.walkers` | `{ "look": "penguin", "on": ["slope", "canyon", "aurora"], "perSection": [2, 4], "patch": 10, "speed": 1 }` | пингвины бродят у края склона; `on` — облики гор, где они есть |
+| `decor.sitters` | `{ "looks": ["bullfinch", "owl", "petrel"], "on": ["pass", "blizzard", "aurora"], "perSection": [2, 3], "lookAtDist": 8, "hopDist": 4 }` | птицы на бортиках под рубежом, утёсах развилки, табличке великана; одна порода на гору (по сиду) |
 | `decor.minQuality` | `medium` | на `low` украшений нет |
 
 ### 17.6 Тексты

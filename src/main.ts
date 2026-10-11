@@ -35,7 +35,7 @@ import { createFtueVisual } from './render/ftue.ts';
 import { createFtueView, type FtueView } from './app/ftue-view.ts';
 import { createWayView, type WayView } from './app/way-view.ts';
 import { createAdsView, type AdsView } from './app/ads-view.ts';
-import { createBossView, type BossView } from './app/boss-view.ts';
+import { BOSS_SIGN_HALF, BOSS_SIGN_TOP, createBossView, type BossView } from './app/boss-view.ts';
 import { createEventsView, type EventsView } from './app/events-view.ts';
 import { createFunView, type FunView } from './app/fun-view.ts';
 import { createFx, type FxParticles } from './render/fx.ts';
@@ -56,7 +56,8 @@ import { faceDataUrl } from './render/characters.ts';
 import { createAudio, type GameAudio } from './audio/index.ts';
 import type { ThreatOptions } from './sim/threat.ts';
 import type { World } from './content/types.ts';
-import { createQuality, qualityParams, type QualityLevel } from './render/quality.ts';
+import { createQuality, qualityParams, QUALITY_LEVELS, type QualityLevel } from './render/quality.ts';
+import { createDecor, type Decor } from './render/decor.ts';
 import { buildLevel } from './level/builder.ts';
 import { eggSpotIn } from './sim/gift-egg.ts';
 import { createSim, controllerParams, type Sim } from './sim/world.ts';
@@ -293,6 +294,12 @@ async function boot(): Promise<void> {
   let adsView: AdsView | null = null;
   let bossView: BossView | null = null;
   let eventsView: EventsView | null = null;
+  let decor: Decor | null = null;
+  // Decor of the open slope (docs/01-gdd.md 18.7): placed by the seed and the mountain, its look picks penguins or birds.
+  const decorWire = (s: Sim): void => {
+    const w = content.worlds.worlds.find((x) => x.index === s.level.worldIndex);
+    decor?.wire(s.level, w?.look ?? w?.id, (seed + s.level.worldIndex * 6007) >>> 0);
+  };
   let funView: FunView | null = null;
   let fx: FxParticles | null = null;
   let meta: MetaView | null = null;
@@ -503,6 +510,7 @@ async function boot(): Promise<void> {
     funView?.wire(s);
     hudView?.wire(s);
     bossView?.wire(s);
+    decorWire(s);
     questsView?.wire(s);
     petsView?.wire(s);
   };
@@ -640,6 +648,9 @@ async function boot(): Promise<void> {
     },
     get eventsView() {
       return eventsView;
+    },
+    get decor() {
+      return decor;
     },
     triggerWave() {
       sim.threat?.trigger();
@@ -933,6 +944,7 @@ async function boot(): Promise<void> {
       // The tumble of the rolling snowball (docs/01-gdd.md 18.4): the same ball round the hero, on the spot.
       const tb = sim.tumble;
       snowball.update(sim.caught ?? (tb ? tumbleClip(tb.t, tb.sec, renderPos) : null), renderPos, heroChar, playSec);
+      decor?.update(renderPos, frameDt, playSec, QUALITY_LEVELS.indexOf(quality.level) >= QUALITY_LEVELS.indexOf(theme.decor?.minQuality ?? 'medium'));
       if (hero.landedThisTick) heroChar.squash = 0.1;
       heroChar.visible = !(cameraRig?.heroHidden ?? false) && sim.respawnTicksLeft < 0;
     }
@@ -1077,6 +1089,8 @@ async function boot(): Promise<void> {
   // The giant of the open slope and his silhouette (docs/01-gdd.md 17.6).
   bossView = createBossView({ theme, characters, scene: gr.scene, camera: () => cameraRig?.camera ?? null, numSuffix: (k) => t(`num.${k}`), skinId: skins.default });
   bossView.wire(sim);
+  decor = createDecor(gr.scene, theme, pets.pets, { top: BOSS_SIGN_TOP, half: BOSS_SIGN_HALF });
+  decorWire(sim);
   eventsView = createEventsView({ theme, scene: gr.scene, camera: () => cameraRig?.camera ?? null, snowflakes: () => quality.params.snowflakes });
   botsView = createBotsView({
     cfg: bots,

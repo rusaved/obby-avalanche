@@ -769,7 +769,7 @@
     "milestone": "RG",
     "description": "Украшения: пингвины ходят, птицы сидят (docs/01-gdd.md 18.7; docs/01a-content.md 17.5): theme.json.decor.walkers и sitters из моделей pets.json (penguin; bullfinch, owl, petrel), по look горы; пингвины бродят по пятачку у края склона детерминированно по сиду, птицы сидят на карнизах, утёсах, табличке великана, поворачивают голову к герою ближе lookAtDist и подпрыгивают ближе hopDist; только рендер (render/decor.ts, InstancedMesh ×2), на low нет",
     "acceptance": "e2e (open): на горе 1 пингвины меняют позицию за 5 с и не выходят из пятачка, на горе 3 птица поворачивает голову при подходе героя; renderer.info: +2 draw calls против выключенных украшений, на ?quality=low +0; ни одной ошибки консоли при телепорте по 10 горам; Vitest: позиции детерминированы сидом, в симуляции и коллизиях украшений нет; скриншот docs/evidence/rg/decor_1920x1080_ru.png",
-    "passes": false,
+    "passes": true,
     "priority": "P1",
     "deferred": false
   },

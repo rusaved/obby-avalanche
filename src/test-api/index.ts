@@ -171,6 +171,8 @@ export interface TestState {
   tumble: number | null;
   /** The blizzard (docs/01-gdd.md 18.4): its section and seconds left; how far it has come on screen, snow and glows drawn, the fog's end. */
   blizzard: { on: boolean; z0: number; z1: number; left: number; k: number; snow: number; glows: number; fogFar: number };
+  /** Decor of the open slope (docs/01-gdd.md 18.7): penguins with their patch, birds with their yaw and hop; drawn now. */
+  decor: import('../render/decor.ts').DecorState | null;
   touchMode: boolean;
   stickActive: boolean;
   quality: { level: QualityLevel; dpr: number; locked: boolean };
@@ -199,6 +201,8 @@ export interface TestApi {
    * of the colour × the pixel's brightness share (0.4–1.2) (RG-13: the head in frame, lit or in a grotto's shade). */
   colorShare(hex: string, tol: number, x0: number, y0: number, x1: number, y1: number): number;
   setTimeScale(k: number): void;
+  /** Decor on or off (its draw calls are measured against off). */
+  setDecor(on: boolean): void;
   runSim(sec: number): void;
   stepFrames(n: number): void;
   teleport(z: number, x?: number, y?: number): void;
@@ -565,6 +569,7 @@ export function installTestApi(g: GameHandles): TestApi {
           return b ? { x: b.x, z0: b.z0, z1: b.z1, z: b.z, trail: g.eventsView?.trailShown ?? false } : null;
         })(),
         tumble: g.sim?.tumble ? g.sim.tumble.t : null,
+        decor: g.decor ? { ...g.decor.state } : null,
         blizzard: (() => {
           const b = g.sim?.rare?.state.blizzard;
           const v = g.eventsView?.blizzard ?? { k: 0, snow: 0, glows: 0, fogFar: 0 };
@@ -651,6 +656,9 @@ export function installTestApi(g: GameHandles): TestApi {
         if (k >= 0.4 && k <= 1.2 && want.every((c, a) => Math.abs(buf[i * 4 + a]! - c * k) <= tol)) hit++;
       }
       return hit / (w * h);
+    },
+    setDecor(on) {
+      if (g.decor) g.decor.enabled = on;
     },
     setTimeScale(k) {
       g.loop.timeScale = k;

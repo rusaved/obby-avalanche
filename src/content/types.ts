@@ -92,6 +92,14 @@ export interface ThemeJson {
   boss?: { height: number; colors: { head: string; torso: string; arms: string; legs: string; hat: string }; face: string; silhouette: string; helper?: { height: number; snowball: string } };
   /** Rare events (docs/01a-content.md 17.3): the colours of the snowball's trail and of the ball, of the blizzard's fog, snow and the glow over the shelters. */
   events?: { snowball?: { trail: string; ball: string }; blizzard?: { fog: string; snow: string; glow: string } };
+  /** Decor of the open slope (docs/01-gdd.md 18.7; docs/01a-content.md 17.5): pets of pets.json walking a patch at the
+   * slope edge and birds sitting on cliffs, the borders under a ridge and the giant's sign, on the mountains of `on` looks;
+   * none below minQuality. */
+  decor?: {
+    minQuality: 'low' | 'medium' | 'high';
+    walkers: { look: string; on: string[]; perSection: [number, number]; patch: number; speed: number };
+    sitters: { looks: string[]; on: string[]; perSection: [number, number]; lookAtDist: number; hopDist: number };
+  };
 }
 
 export interface Curve {

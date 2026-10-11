@@ -175,6 +175,13 @@ const themeSchema = v.object({
     }),
   ),
   events: v.optional(v.object({ snowball: v.optional(v.object({ trail: hex, ball: hex })), blizzard: v.optional(v.object({ fog: hex, snow: hex, glow: hex })) })),
+  decor: v.optional(
+    v.object({
+      minQuality: v.picklist(['low', 'medium', 'high']),
+      walkers: v.object({ look: id, on: v.array(id), perSection: v.tuple([nonNeg, nonNeg]), patch: positive, speed: positive }),
+      sitters: v.object({ looks: v.pipe(v.array(id), v.minLength(1)), on: v.array(id), perSection: v.tuple([nonNeg, nonNeg]), lookAtDist: positive, hopDist: positive }),
+    }),
+  ),
 });
 
 /** Quest kinds the game counts (docs/01a-content.md 10); a new one needs its counter in src/app/quests-view.ts. */
@@ -749,6 +756,9 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
   const freePet = (files['balance.json'] as { ftue: { freeEggPet: string } }).ftue.freeEggPet;
   if (!pets.pets.some((p) => p.id === freePet)) errors.push(`balance.json: ftue.freeEggPet — unknown pet "${freePet}" (pets.json)`);
   for (const [i, p] of pets.pets.entries()) if (!theme.rarity[p.rarity]) errors.push(`pets.json: pets[${i}].rarity — no colour "${p.rarity}" in theme.json rarity`);
+  // Decor of the open slope (docs/01a-content.md 17.5): its walkers and sitters are pets of pets.json.
+  const decor = (files['theme.json'] as { decor?: { walkers: { look: string }; sitters: { looks: string[] } } }).decor;
+  for (const id of decor ? [decor.walkers.look, ...decor.sitters.looks] : []) if (!pets.pets.some((p) => p.id === id)) errors.push(`theme.json: decor — unknown pet "${id}" (pets.json)`);
 
   // Eggs (docs/01a-content.md 6): pets of the pool exist, chances sum to 1, every mountain's egg is in eggs.json.
   const eggs = files['eggs.json'] as EggsJson;

@@ -31,6 +31,9 @@ const SILHOUETTE_AT = 0.9;
 const SILHOUETTE_MIN_RAD = (6 * Math.PI) / 180;
 const SIGN_SIZE: [number, number] = [18, 3.6];
 const SIGN_HEIGHT = 6;
+/** Top of the advice sign over the floor at the zone's line and its half width (birds sit on it, render/decor.ts). */
+export const BOSS_SIGN_TOP = SIGN_HEIGHT + SIGN_SIZE[1] / 2;
+export const BOSS_SIGN_HALF = SIGN_SIZE[0] / 2;
 const LINE_THICK = 0.6;
 
 export interface BossViewDeps {
