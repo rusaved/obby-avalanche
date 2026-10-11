@@ -706,7 +706,7 @@
     "milestone": "RG",
     "description": "Событие «Шар!» с горы 5 (docs/01-gdd.md 18.4; docs/01a-content.md 17.3): модуль src/sim/events.ts (до 150 строк): при входе на участок 2–4 с шансом chance и не раньше minGapSec, не на warn/run, не в зоне великана, не в лагере и не в теснине — тост event.snowball, гул, след 4 ед по полосе героя, шар 3 ед (меш кома 4.5) катится вниз 1,3 × v(S), встреча через aheadSec; задело героя или бота — кувырок tumbleSec и статус ×0,6 на 2 с, тост event.snowballHit, ничего не теряется; сирена растворяет шар; событие event_snowball в каталоге docs/06",
     "acceptance": "Vitest: розыгрыш детерминирован сидом, доля стартов ≈ chance ± 0,05 на 400 входах, ни одного старта на warn/run, в зоне, в лагере, в теснине и раньше minGapSec; герой вне следа не задет, на следе — кувырок и статус; Скорость, монеты, флажок рекорда не меняются; warn во время шара — шар исчезает; e2e (open, гора 5 с ?mock_event=snowball): след виден за 3 с, задело — тост и ×0,6, прошло — событие в __TEST__.events; тест docs/06: event_snowball в каталоге с кратностью always; скриншот docs/evidence/rg/snowball_1920x1080_ru.png",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

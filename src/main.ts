@@ -25,7 +25,7 @@ import { createLevelMeshes, type LevelMeshes } from './render/level-mesh.ts';
 import { createCharacters, type CharacterInstance, type Characters } from './render/characters.ts';
 import { createBlobShadow } from './render/blob.ts';
 import { createRecordFlag } from './render/record-flag.ts';
-import { createSnowball } from './render/threat/snowball.ts';
+import { createSnowball, tumbleClip } from './render/threat/snowball.ts';
 import { createBonusVisual, type BonusVisual } from './render/threat/bonus.ts';
 import { BONUS_HEIGHT } from './sim/bonus.ts';
 import { createCameraRig, type CameraRig } from './render/camera.ts';
@@ -36,6 +36,7 @@ import { createFtueView, type FtueView } from './app/ftue-view.ts';
 import { createWayView, type WayView } from './app/way-view.ts';
 import { createAdsView, type AdsView } from './app/ads-view.ts';
 import { createBossView, type BossView } from './app/boss-view.ts';
+import { createEventsView, type EventsView } from './app/events-view.ts';
 import { createFunView, type FunView } from './app/fun-view.ts';
 import { createFx, type FxParticles } from './render/fx.ts';
 import { guardBannerSigns } from './app/banner-signs.ts';
@@ -205,6 +206,10 @@ async function boot(): Promise<void> {
     const r = save.record;
     return r && r.world === w.index && Number.isFinite(r.z) ? { x: r.x, y: r.y, z: r.z } : null;
   };
+  // Rare events of the open slope (docs/01-gdd.md 18.4): rolled by the seed and the mountain; ?mock_event= forces one.
+  const mockEvent = __DEBUG_TOOLS__ && debugParams.get('mock_event') === 'snowball' ? 'snowball' : undefined;
+  const eventsOptions = (w: World): { cfg: NonNullable<typeof game.events>; seed: number; force: typeof mockEvent } | undefined =>
+    game.events ? { cfg: game.events, seed: (seed + w.index * 15485863) >>> 0, force: mockEvent } : undefined;
   let sim: Sim = createSim(level, tuning, {
     balance,
     speedCurve: speedCurve(),
@@ -219,6 +224,7 @@ async function boot(): Promise<void> {
     record: recordOf(world),
     boss: game.threat.boss,
     walls: wallsOf(world),
+    events: eventsOptions(world),
   });
   /** The climb into the save (docs/01-gdd.md 7.10): stat, best stat, coins, mountain, farthest wall passed. */
   const frontierOf = (s: Sim): number => s.level.gates.reduce((m, g, i) => (s.gatesPassed[i] ? Math.max(m, g.index) : m), 0);
@@ -285,6 +291,7 @@ async function boot(): Promise<void> {
   let wayView: WayView | null = null;
   let adsView: AdsView | null = null;
   let bossView: BossView | null = null;
+  let eventsView: EventsView | null = null;
   let funView: FunView | null = null;
   let fx: FxParticles | null = null;
   let meta: MetaView | null = null;
@@ -310,7 +317,7 @@ async function boot(): Promise<void> {
   const melting = new Map<number, number>();
   const wireSim = (s: Sim): void => {
     const recorded = ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'gatePass', 'portal', 'giftTake', 'giftsRespawn', 'eggTouch', 'eggHatch', 'statMilestone'] as const;
-    const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'caughtEnd', 'waveDusted', 'waveGone', 'waveEnd', 'bonusSpawn', 'bonusTake', 'bonusSaved', 'bonusLost', 'bossEnter', 'bossPassed', 'bossCaught', 'bossBotCaught', 'helperThrow', 'helperHit', 'recordUp', 'chasmDown', 'tunnelEnter'] as const;
+    const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'caughtEnd', 'waveDusted', 'waveGone', 'waveEnd', 'bonusSpawn', 'bonusTake', 'bonusSaved', 'bonusLost', 'bossEnter', 'bossPassed', 'bossCaught', 'bossBotCaught', 'helperThrow', 'helperHit', 'recordUp', 'chasmDown', 'tunnelEnter', 'eventStart', 'eventEnd', 'snowballHit', 'snowballBotHit'] as const;
     for (const name of [...recorded, ...waves]) {
       s.events.on(name, (payload) => {
         simEvents.push({ name, world: s.level.worldIndex, ...(payload as Record<string, unknown>), tick: s.tick });
@@ -377,6 +384,17 @@ async function boot(): Promise<void> {
     s.events.on('bossBotCaught', () => track('boss_bot_caught', { world: s.level.worldIndex }));
     // A helper's snowball (docs/01-gdd.md 18.5): its whistle in the air; a hit — «Snowball!» and the badge on the plaque.
     s.events.on('helperThrow', () => audio?.play('helper_throw'));
+    // Rare events (docs/01-gdd.md 18.4): «Snowball!» with its rumble and the trail; a hit — «Hit by a snowball!» and ×0,6.
+    s.events.on('eventStart', ({ id }) => {
+      if (id !== 'snowball') return;
+      hud?.toast(t('event.snowball'));
+      audio?.play('event_snowball_warn');
+      track('event_snowball', { world: s.level.worldIndex });
+    });
+    s.events.on('snowballHit', () => {
+      hud?.toast(t('event.snowballHit'));
+      audio?.play('event_snowball_hit');
+    });
     s.events.on('helperHit', () => {
       hud?.toast(t('helper.hit'));
       audio?.play('helper_hit');
@@ -610,6 +628,9 @@ async function boot(): Promise<void> {
     get waveView() {
       return waveView;
     },
+    get eventsView() {
+      return eventsView;
+    },
     triggerWave() {
       sim.threat?.trigger();
     },
@@ -701,7 +722,7 @@ async function boot(): Promise<void> {
     const tier = reset?.tier ?? sim.tier;
     world = next;
     level = buildLevel(world);
-    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world), walls: wallsOf(world), record: world.layout === 'openSlope' ? null : undefined, boss: game.threat.boss });
+    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world), walls: wallsOf(world), record: world.layout === 'openSlope' ? null : undefined, boss: game.threat.boss, events: eventsOptions(world) });
     avalanche?.setLevel(level);
     wireSim(sim);
     g.sim = sim;
@@ -899,7 +920,9 @@ async function boot(): Promise<void> {
       heroChar.pose = hero.onGround ? (hero.speed > 0.5 || sim.onBelt ? 'run' : 'idle') : hero.vel.y > 2 ? 'jump' : 'fall';
       if (sim.onBelt) heroChar.speedFactor = 1;
       heroChar.carry = (sim.bonus?.carried ?? false) && !sim.caught;
-      snowball.update(sim.caught, renderPos, heroChar, playSec);
+      // The tumble of the rolling snowball (docs/01-gdd.md 18.4): the same ball round the hero, on the spot.
+      const tb = sim.tumble;
+      snowball.update(sim.caught ?? (tb ? tumbleClip(tb.t, tb.sec, renderPos) : null), renderPos, heroChar, playSec);
       if (hero.landedThisTick) heroChar.squash = 0.1;
       heroChar.visible = !(cameraRig?.heroHidden ?? false) && sim.respawnTicksLeft < 0;
     }
@@ -942,6 +965,7 @@ async function boot(): Promise<void> {
     }
     botsView?.update(alpha, playSec);
     bossView?.update(sim);
+    eventsView?.update(sim);
     wayView?.update(renderPos);
     adsView?.update(frameDt, save.totalPlaySec ?? 0);
     funView?.update(gameDt, playSec, renderPos);
@@ -1043,6 +1067,7 @@ async function boot(): Promise<void> {
   // The giant of the open slope and his silhouette (docs/01-gdd.md 17.6).
   bossView = createBossView({ theme, characters, scene: gr.scene, camera: () => cameraRig?.camera ?? null, numSuffix: (k) => t(`num.${k}`), skinId: skins.default });
   bossView.wire(sim);
+  eventsView = createEventsView({ theme, scene: gr.scene });
   botsView = createBotsView({
     cfg: bots,
     characters,

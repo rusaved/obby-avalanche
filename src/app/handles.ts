@@ -50,6 +50,7 @@ export interface GameHandles {
   readonly ads: import('./ads-view.ts').AdsView | null;
   /** The giant's look (docs/01-gdd.md 17.6). */
   readonly bossView: import('./boss-view.ts').BossView | null;
+  readonly eventsView: import('./events-view.ts').EventsView | null;
   loop: Loop;
   pause: PauseManager;
   platform: Platform;

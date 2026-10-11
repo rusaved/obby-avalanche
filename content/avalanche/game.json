@@ -34,5 +34,11 @@
     "goldGift_mult": { "path": "game.threat.bonus.mult", "min": 3, "max": 10 },
     "sneakers1_price": { "path": "balance.upgrade.tiers.1.price", "min": 10, "max": 60 },
     "pace": { "path": "game.pace", "values": ["open", "fast"] }
+  },
+  "events": {
+    "minGapSec": 40,
+    "delaySec": 2,
+    "sections": [2, 4],
+    "snowball": { "fromWorld": 5, "chance": 0.25, "aheadSec": 3, "speedMult": 1.3, "trailWidth": 4, "size": 3, "tumbleSec": 1, "slow": 0.6, "slowSec": 2 }
   }
 }

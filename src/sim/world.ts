@@ -11,7 +11,7 @@
  */
 import { createEmitter, type Emitter } from '../core/events.ts';
 import type { Aabb, LevelData, LevelGate } from '../level/types.ts';
-import type { BalanceJson, Curve, TuningJson } from '../content/types.ts';
+import type { BalanceJson, Curve, GameEvents, TuningJson } from '../content/types.ts';
 import { moveSpeed } from './effects/moveSpeed.ts';
 import { createStepTracker, type StepGain, type StepTracker } from './steps.ts';
 import { gateIsOpen, gateRequirement, type WallCount } from './gates.ts';
@@ -31,8 +31,9 @@ import { BORDER_HEIGHT, BORDER_WIDTH, PORTAL_HALF_WIDTH } from '../level/builder
 import { createHero, placeHero, stepHero, type ControllerParams, type HeroInput, type HeroState, NO_INPUT } from './controller.ts';
 import { createFun, funInput, resetFun, stepFun, type FunState } from './fun.ts';
 import { createBoss, type Boss, type BossEvents } from './boss.ts';
+import { createEvents, type EventEvents, type EventId, type Events, type EventsContext } from './events.ts';
 
-export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, BossEvents, Record<string, unknown> {
+export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, BossEvents, EventEvents, Record<string, unknown> {
   /**
    * «Phew, made it!» (docs/01-gdd.md 4.4): `coins` = coins.waveSurvived × gift of the cave's zone × wallScale[tier],
    * plus `gold` when the hero brought the golden gift into the cave (one toast, docs/01-gdd.md 4.9).
@@ -133,6 +134,10 @@ export interface Sim {
   slow: { mult: number; left: number } | null;
   /** Slows the hero × mult for sec: hits in a row do not stack — the stronger mult and the longer time. */
   slowDown(mult: number, sec: number): void;
+  /** Rare events of the open slope (docs/01-gdd.md 18.4); null — none in this pace or this sim. */
+  readonly rare: Events | null;
+  /** Hit by the rolling snowball: the hero tumbles in place for `sec` (t of it gone), then «slowed» × slow for slowSec. */
+  tumble: { t: number; sec: number; slow: number; slowSec: number } | null;
   step(input: HeroInput, dt: number): void;
   teleport(x: number, y: number, z: number): void;
   respawn(): void;
@@ -184,6 +189,8 @@ export interface SimOptions {
   walls?: WallCount | undefined;
   /** Record flag (open slope, docs/01-gdd.md 17.7): the one of the save on this mountain or null; absent — no record flag. */
   record?: { x: number; y: number; z: number } | null | undefined;
+  /** Rare events (game.json events, docs/01-gdd.md 18.4): rolled by `seed`; `force` (?mock_event=) — every entry. */
+  events?: { cfg: GameEvents; seed: number; force?: EventId | undefined } | undefined;
   /** The giant (game.json threat.boss): with the zones of the level the mountain has giants. */
   boss?: { margin: number; reach: number; run?: number | undefined } | undefined;
 }
@@ -282,6 +289,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     fun: createFun(level),
     record: opts.record ? { ...opts.record } : null,
     boss: null,
+    rare: null,
+    tumble: null,
     slow: null,
     slowDown(mult, sec) {
       const cur = sim.slow;
@@ -326,6 +335,17 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         if (boss) botCtx.giants = boss.zones.map((z) => ({ zone: z.zone, active: z.hero !== 'passed', speed: z.giants[0]?.speed ?? 0 }));
         bots.step(dt, botCtx);
       }
+      if (rare) {
+        rareCtx.tick = sim.tick;
+        rareCtx.hero.x = hero.pos.x;
+        rareCtx.hero.y = hero.pos.y;
+        rareCtx.hero.z = hero.pos.z;
+        rareCtx.hero.sheltered = sim.inShelter();
+        rareCtx.run = moveSpeed(progress.stat, speedCurve);
+        rareCtx.phase = threat?.state.phase ?? 'idle';
+        rareCtx.bots = bots ? bots.list.filter(rolling).map((b) => ({ bot: b.index, x: b.x, z: b.z })) : [];
+        rare.step(dt, rareCtx);
+      }
       if (sim.caught) {
         stepCaught(dt);
         events.emit('step', { tick: sim.tick });
@@ -344,8 +364,17 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         sim.slow.left -= dt;
         if (sim.slow.left <= 0) sim.slow = null;
       }
+      // The tumble of the rolling snowball (docs/01-gdd.md 18.4): no control for its seconds, then slowed.
+      const tb = sim.tumble;
+      if (tb) {
+        tb.t += dt;
+        if (tb.t >= tb.sec - 1e-9) {
+          sim.tumble = null;
+          sim.slowDown(tb.slow, tb.slowSec);
+        }
+      }
       params.speed = moveSpeed(progress.stat, speedCurve) * (sim.slow?.mult ?? 1);
-      stepHero(hero, funInput(sim.fun, input, params, tuning.fun), dt, collision, params, level.killY);
+      stepHero(hero, funInput(sim.fun, tb ? NO_INPUT : input, params, tuning.fun), dt, collision, params, level.killY);
       // Trampolines and slides (docs/01-gdd.md 16.4): a launch leaves the ground, so this tick counts no steps.
       const fun = stepFun(sim.fun, hero, tuning.fun, dt);
       if (fun.pad >= 0) events.emit('padLaunch', { tick: sim.tick, index: fun.pad, x: hero.pos.x, y: hero.pos.y, z: hero.pos.z });
@@ -457,6 +486,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     teleport(x, y, z) {
       sim.caught = null;
       sim.slow = null;
+      sim.tumble = null;
       resetFun(sim.fun);
       placeHero(hero, x, y, z);
       progress.resetCarry();
@@ -493,6 +523,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     },
     respawn() {
       sim.slow = null;
+      sim.tumble = null;
       const c = level.checkpoints[sim.checkpoint];
       const target: [number, number, number] = c ? [c.x, c.y, c.z] : level.spawn;
       placeHero(hero, target[0], target[1] + 0.05, target[2]);
@@ -575,6 +606,33 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   };
   const botCtx: BotContext = { hero: { x: 0, z: 0 }, flagZ: level.spawn[2], gatesOpen, threat: threat ? threat.state : null, speedAt: stretchSpeed };
   (sim as { bots: BotCrowd | null }).bots = bots;
+
+  // Rare events (docs/01-gdd.md 18.4): only a mountain with sections (the open slope) has them; nothing is ever lost.
+  const rolling = (b: BotCrowd['list'][number]): boolean =>
+    (b.mode === 'up' || b.mode === 'wait' || b.mode === 'zone' || b.mode === 'hide') && shelterIndex(level, graceDist, b.x, b.y, b.z) < 0;
+  const rareCtx: EventsContext = { tick: 0, hero: { x: 0, y: 0, z: 0, sheltered: false }, run: 0, phase: 'idle', bots: [] };
+  const rare =
+    opts.events && level.sections.length > 0
+      ? createEvents(
+          level,
+          opts.events.cfg,
+          opts.events.seed,
+          gatesOpen,
+          (name, payload) => {
+            (events.emit as (n: string, p: unknown) => void)(name, payload);
+            if (name === 'snowballHit') {
+              const p = payload as EventEvents['snowballHit'];
+              sim.tumble = { t: 0, sec: p.tumbleSec, slow: p.slow, slowSec: p.slowSec };
+              hero.vel.set(0, hero.vel.y, 0);
+            } else if (name === 'snowballBotHit') {
+              const p = payload as EventEvents['snowballBotHit'];
+              bots?.tumble(p.bot, p.tumbleSec, p.slow, p.slowSec);
+            }
+          },
+          opts.events.force,
+        )
+      : null;
+  (sim as { rare: Events | null }).rare = rare;
 
   if (opts.resume) {
     const front = opts.resume.frontierWall;

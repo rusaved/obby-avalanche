@@ -1012,8 +1012,9 @@
 | Ключ | Значение | Что |
 |---|---|---|
 | `events.minGapSec` | 40 | не раньше 40 с после прошлого события |
+| `events.sections` / `delaySec` | [2, 4] / 2 | на каких участках разыгрывается; событие не раньше 2 с после входа (сначала тост подарков участка) |
 | `events.snowball.fromWorld` / `chance` | 5 / 0,25 | розыгрыш при входе на участок 2–4 |
-| `events.snowball.aheadSec` / `speedMult` / `trailWidth` | 3 / 1,3 / 4 | след за 3 с до встречи; шар 1,3 × v(S); след 4 ед |
+| `events.snowball.aheadSec` / `speedMult` / `trailWidth` / `size` | 3 / 1,3 / 4 / 3 | след за 3 с до встречи; шар 1,3 × v(S); след 4 ед; шар 3 ед поперёк; стартует, когда полоса впереди свободна на 3 с (без закрытого рубежа, теснины и утёса) |
 | `events.snowball.tumbleSec` / `slow` / `slowSec` | 1 / 0,6 / 2 | задело: кувырок 1 с, затем ×0,6 на 2 с |
 | `events.blizzard.fromWorld` / `chance` | 7 / 0,2 | — |
 | `events.blizzard.durationSec` / `speedMult` / `stepMult` | 12 / 0,7 / 2 | все на участке ×0,7, шаг героя ×2 (Q-041: 1 — без компенсации) |

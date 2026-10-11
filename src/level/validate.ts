@@ -105,6 +105,26 @@ const gameSchema = v.object({
     ),
   ),
   pace: v.optional(id),
+  events: v.optional(
+    v.object({
+      minGapSec: nonNeg,
+      delaySec: nonNeg,
+      sections: v.tuple([v.pipe(v.number(), v.integer(), v.minValue(1)), v.pipe(v.number(), v.integer(), v.minValue(1))]),
+      snowball: v.optional(
+        v.object({
+          fromWorld: v.pipe(v.number(), v.integer(), v.minValue(1)),
+          chance: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
+          aheadSec: positive,
+          speedMult: positive,
+          trailWidth: positive,
+          size: positive,
+          tumbleSec: nonNeg,
+          slow: v.pipe(v.number(), v.minValue(0.1), v.maxValue(1)),
+          slowSec: nonNeg,
+        }),
+      ),
+    }),
+  ),
 });
 
 const themeSchema = v.object({
@@ -143,6 +163,7 @@ const themeSchema = v.object({
       helper: v.optional(v.object({ height: positive, snowball: hex })),
     }),
   ),
+  events: v.optional(v.object({ snowball: v.optional(v.object({ trail: hex, ball: hex })) })),
 });
 
 /** Quest kinds the game counts (docs/01a-content.md 10); a new one needs its counter in src/app/quests-view.ts. */

@@ -12,7 +12,7 @@ import { Vector3, type Camera, type Scene } from 'three';
 import type { BotsJson } from '../content/types.ts';
 import type { Sim } from '../sim/world.ts';
 import type { Characters, CharacterInstance } from '../render/characters.ts';
-import { createSnowball, type Snowball } from '../render/threat/snowball.ts';
+import { createSnowball, tumbleClip, type Snowball } from '../render/threat/snowball.ts';
 import { HERO_HEIGHT } from '../sim/controller.ts';
 import { t } from '../ui/i18n.ts';
 
@@ -125,7 +125,9 @@ export function createBotsView(d: BotsViewDeps): BotsView {
         s.ch.yaw = b.yaw;
         s.ch.pose = b.moving ? 'run' : 'idle';
         s.ch.speedFactor = b.moving ? 1 : 0;
-        s.ball.update(b.ball, pos, s.ch, timeSec);
+        // Hit by the rolling snowball (docs/01-gdd.md 18.4): the same ball round him on the spot.
+        const tumbleSec = sim.rare?.cfg.snowball?.tumbleSec ?? 0;
+        s.ball.update(b.ball ?? (b.tumble > 0 && tumbleSec > 0 ? tumbleClip(tumbleSec - b.tumble, tumbleSec, pos) : null), pos, s.ch, timeSec);
         // The name over the head.
         let opacity = 0;
         if (namesOn && cam && !b.ball) {

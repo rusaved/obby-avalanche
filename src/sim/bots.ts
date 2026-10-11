@@ -64,6 +64,10 @@ export interface Bot {
   /** The giant's zone (docs/01-gdd.md 18.5): seconds left to wait before it, then his run speed through it (0 — not running). */
   zoneWait: number;
   zoneSpeed: number;
+  /** A rolling snowball hit him (docs/01-gdd.md 18.4): seconds of the tumble left, then × slowK for slowLeft s. */
+  tumble: number;
+  slowK: number;
+  slowLeft: number;
 }
 
 export interface BotContext {
@@ -101,6 +105,8 @@ export interface BotCrowd {
   runners(): Array<{ bot: number; z: number; speed: number }>;
   /** The giant slapped bot `index`: it rolls back as a snowball to `toZ` (below the start of the zone) and tries again. */
   giantSlap(index: number, toZ: number): void;
+  /** A rolling snowball hit bot `index` (docs/01-gdd.md 18.4): it stands for `sec`, then runs × slow for slowSec. */
+  tumble(index: number, sec: number, slow: number, slowSec: number): void;
 }
 
 /** Places in a cave beside the belt (docs/01-gdd.md 4.3: the hero and two bots). */
@@ -241,6 +247,9 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       tunnelFork: -Infinity,
       zoneWait: 0,
       zoneSpeed: 0,
+      tumble: 0,
+      slowK: 1,
+      slowLeft: 0,
     };
     if (!inCamp) bot.x = bot.lane;
     bot.y = level.floorYAt(bot.z);
@@ -399,7 +408,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
     const sl = slides.find((p) => on(p, b.x, b.z));
     if (sl) b.slideK = typeof sl['mult'] === 'number' ? (sl['mult'] as number) : (fun?.cfg.slideMult ?? 1);
     b.slide = sl ? Math.max(dt, typeof sl['hold'] === 'number' ? (sl['hold'] as number) : (fun?.cfg.slideSec ?? 0)) : Math.max(0, b.slide - dt);
-    let left = speed * dt * (b.slide > 0 ? b.slideK : 1);
+    let left = speed * dt * (b.slide > 0 ? b.slideK : 1) * (b.slowLeft > 0 ? b.slowK : 1);
     b.moving = false;
     while (left > 0 && b.path.length > 0) {
       const [tx, tz] = b.path[0]!;
@@ -474,6 +483,13 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       for (const b of list) if (b.mode === 'zone' && b.zoneSpeed > 0 && b.index < crowd.limit) out.push({ bot: b.index, z: b.z, speed: b.zoneSpeed });
       return out;
     },
+    tumble(index, sec, slow, slowSec) {
+      const b = list[index];
+      if (!b) return;
+      b.tumble = sec;
+      b.slowK = slow;
+      b.slowLeft = slowSec;
+    },
     giantSlap(index, toZ) {
       const b = list[index];
       if (!b || b.mode !== 'zone' || !opts.caught || !opts.avalanche) return;
@@ -515,6 +531,13 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
             stats.caught++;
           }
         }
+        // Hit by a rolling snowball: the tumble on the spot, then slowed (docs/01-gdd.md 18.4).
+        if (b.tumble > 0 && b.mode !== 'ball') {
+          b.tumble -= dt;
+          b.moving = false;
+          continue;
+        }
+        if (b.slowLeft > 0) b.slowLeft -= dt;
         // Left far below the hero: off to the camp, back later at his flag (docs/01-gdd.md 7.12).
         if (b.mode !== 'away' && b.mode !== 'ball' && b.mode !== 'hide' && heroStretch - stretchOf(b.z) > cfg.leashWalls) toAway(b);
         switch (b.mode) {

@@ -27,6 +27,31 @@ export interface GameJson {
   flags?: Record<string, { path: string; min?: number; max?: number; values?: string[] }>;
   /** Pace by default (docs/01-gdd.md 16.1): "classic" or a folder of content/<pack>/pace/; absent — classic. */
   pace?: string;
+  /** Rare events (docs/01-gdd.md 18.4; docs/01a-content.md 17.3): rolled on entering a section of `sections` [from, to]
+   * of a mountain with sections (the open slope); absent — no events. */
+  events?: GameEvents;
+}
+
+/** The rolling snowball (docs/01-gdd.md 18.4): the trail `trailWidth` wide on the hero's lane, the ball `size` across at
+ * speedMult × v(S), the meeting in aheadSec; a hit — the tumble for tumbleSec, then × slow for slowSec. */
+export interface SnowballEvent {
+  fromWorld: number;
+  chance: number;
+  aheadSec: number;
+  speedMult: number;
+  trailWidth: number;
+  size: number;
+  tumbleSec: number;
+  slow: number;
+  slowSec: number;
+}
+
+export interface GameEvents {
+  minGapSec: number;
+  /** Not before this long after entering the section: the toast of its gifts goes first. */
+  delaySec: number;
+  sections: [number, number];
+  snowball?: SnowballEvent;
 }
 
 export interface ThemeJson {
@@ -52,6 +77,8 @@ export interface ThemeJson {
   /** The giant (docs/01a-content.md 16.4): height, colours of the parts and the hat, the face, the horizon silhouette. */
   /** `helper` (docs/01a-content.md 17.4): the giant's helpers — their height, the colour of their snowball. */
   boss?: { height: number; colors: { head: string; torso: string; arms: string; legs: string; hat: string }; face: string; silhouette: string; helper?: { height: number; snowball: string } };
+  /** Rare events (docs/01a-content.md 17.3): the colours of the snowball's trail and of the ball. */
+  events?: { snowball?: { trail: string; ball: string } };
 }
 
 export interface Curve {

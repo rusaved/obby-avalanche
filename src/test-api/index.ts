@@ -166,6 +166,9 @@ export interface TestState {
   /** «Slowed» (RG-04): the status of the sim and the badge on the Speed plaque. */
   slow: { mult: number; left: number } | null;
   slowBadge: string;
+  /** The rolling snowball (docs/01-gdd.md 18.4): its trail and the ball now, the trail drawn; the hero's tumble. */
+  snowball: { x: number; z0: number; z1: number; z: number; trail: boolean } | null;
+  tumble: number | null;
   touchMode: boolean;
   stickActive: boolean;
   quality: { level: QualityLevel; dpr: number; locked: boolean };
@@ -555,6 +558,11 @@ export function installTestApi(g: GameHandles): TestApi {
         respawning: (g.sim?.respawnTicksLeft ?? -1) >= 0,
         slow: g.sim?.slow ? { ...g.sim.slow } : null,
         slowBadge: document.querySelector('[data-role="slow"].shown')?.textContent ?? '',
+        snowball: (() => {
+          const b = g.sim?.rare?.state.snowball;
+          return b ? { x: b.x, z0: b.z0, z1: b.z1, z: b.z, trail: g.eventsView?.trailShown ?? false } : null;
+        })(),
+        tumble: g.sim?.tumble ? g.sim.tumble.t : null,
         touchMode: g.input.touchActive,
         stickActive: g.input.stick.active,
         quality: { level: g.quality.level, dpr: g.quality.dpr, locked: g.quality.locked },

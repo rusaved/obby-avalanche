@@ -79,5 +79,6 @@
     "colors": { "head": "#F4FAFF", "torso": "#DDEFFF", "arms": "#C8E4FA", "legs": "#A9CDEB", "hat": "#8FD3FF" },
     "face": "happy",
     "silhouette": "#BAC5CC", "helper": { "height": 7, "snowball": "#FFFFFF" }
-  }
+  },
+  "events": { "snowball": { "trail": "#7FC8F8", "ball": "#F4FAFF" } }
 }

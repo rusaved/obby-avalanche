@@ -1,5 +1,5 @@
 // What: The snowball of the caught state: a 3-unit ball around the curled-up hero that grows, rolls with him and pops in the cave.
-// Called by: main.ts; app/bots-view.ts.
+// Called by: main.ts; app/bots-view.ts (the snowball of «Snowed in!» and the tumble of the rolling ball, tumbleClip).
 // Keep: One mesh, hidden when nobody is caught; saves and restores the hero's face, drives hero pose, speedFactor and face while caught; colour from theme.json.
 
 /**
@@ -21,6 +21,13 @@ export interface Snowball {
   readonly mesh: Mesh;
   /** Every frame: follows the hero while `caught` is set, restores the hero's face after. */
   update(caught: CaughtState | null, pos: Vector3, hero: CharacterInstance, timeSec: number): void;
+}
+
+/** The tumble of the rolling snowball (docs/01-gdd.md 18.4) as a clip of this ball on the spot: it forms and pops in
+ * TUMBLE_FORM of its seconds each; `t` — seconds of it gone. */
+const TUMBLE_FORM = 0.15;
+export function tumbleClip(t: number, sec: number, at: { x: number; y: number; z: number }): CaughtState {
+  return { t, formSec: TUMBLE_FORM * sec, rollSec: (1 - 2 * TUMBLE_FORM) * sec, popSec: TUMBLE_FORM * sec, from: at, to: at, via: at, niche: -1 };
 }
 
 export function createSnowball(color: string): Snowball {
