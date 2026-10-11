@@ -73,6 +73,8 @@ export interface CharacterInstance {
   wingsId: string | null;
   /** Hands up over the head (the golden gift, docs/01-gdd.md 4.9); legs keep the pose. */
   carry: boolean;
+  /** Size of the figure (1 — the hero; the giant of the open slope is about 4, docs/01-gdd.md 17.6). */
+  scale: number;
 }
 
 export interface Characters {
@@ -379,6 +381,7 @@ if (vObjNormal.z > 0.6) {
         hatId: null,
         wingsId: null,
         carry: false,
+        scale: 1,
       };
       instances.push(ch);
       applySkin(ch);
@@ -482,7 +485,8 @@ if (vObjNormal.z > 0.6) {
         root.position.copy(ch.position);
         root.position.y += bob + (ch.pose === 'ball' ? BALL_LIFT : 0);
         root.rotation.set(0, ch.yaw, sway);
-        root.scale.set(ballK / sq, ballK * sq, ballK / sq);
+        const size = ch.scale;
+        root.scale.set((ballK / sq) * size, ballK * sq * size, (ballK / sq) * size);
         root.updateMatrix();
         const world = root.matrix;
         const legTop = PART.leg.h;

@@ -305,6 +305,7 @@ export function buildLevel(world: World): LevelData {
     checkpoints: checkpoints.sort((a, b) => a.z - b.z),
     points,
     safeZones: world.safeZones,
+    bosses: (world.bosses ?? []).map((b) => ({ ...b, zone: [b.zone[0], b.zone[1]] as [number, number], giants: b.giants.map((g) => ({ ...g })) })),
     sections: world.zones.filter((z) => typeof z.stepMult === 'number').map((z) => ({ z0: z.zStart, z1: z.zEnd, mult: z.stepMult as number })),
     floorYAt,
     floorAt,

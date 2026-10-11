@@ -73,5 +73,11 @@
     "dust": "#FFFFFF",
     "height": 16
   },
-  "bonus": { "color": "#FFD34D" }
+  "bonus": { "color": "#FFD34D" },
+  "boss": {
+    "height": 20,
+    "colors": { "head": "#F4FAFF", "torso": "#DDEFFF", "arms": "#C8E4FA", "legs": "#A9CDEB", "hat": "#8FD3FF" },
+    "face": "happy",
+    "silhouette": "#BAC5CC"
+  }
 }

@@ -1230,7 +1230,7 @@
           "reward": {
             "coins": 100
           },
-          "speed": 31.8,
+          "speed": 31.7,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -1295,7 +1295,7 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 31.8,
+              "speed": 31.7,
               "patrol": "alongZ",
               "seeDist": 0,
               "turnSec": 0.5
@@ -3009,7 +3009,7 @@
           "reward": {
             "coins": 400
           },
-          "speed": 36.3,
+          "speed": 36.2,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -3074,7 +3074,7 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 36.3,
+              "speed": 36.2,
               "patrol": "alongZ",
               "seeDist": 0,
               "turnSec": 0.5
@@ -8568,7 +8568,7 @@
           "reward": {
             "coins": 30000
           },
-          "speed": 47.1,
+          "speed": 47,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -8633,7 +8633,7 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 47.1,
+              "speed": 47,
               "patrol": "alongZ",
               "seeDist": 0,
               "turnSec": 0.5
@@ -10441,7 +10441,7 @@
           "reward": {
             "coins": 300000
           },
-          "speed": 50.9,
+          "speed": 50.8,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -10506,7 +10506,7 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 50.9,
+              "speed": 50.8,
               "patrol": "alongZ",
               "seeDist": 0,
               "turnSec": 0.5
@@ -14221,7 +14221,7 @@
           "reward": {
             "coins": 40000000
           },
-          "speed": 59,
+          "speed": 58.9,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -14286,7 +14286,7 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 59,
+              "speed": 58.9,
               "patrol": "alongZ",
               "seeDist": 0,
               "turnSec": 0.5
@@ -16154,7 +16154,7 @@
           "reward": {
             "coins": 800000000
           },
-          "speed": 61,
+          "speed": 60.9,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -16219,7 +16219,7 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 61,
+              "speed": 60.9,
               "patrol": "alongZ",
               "seeDist": 0,
               "turnSec": 0.5
@@ -18071,7 +18071,7 @@
           "reward": {
             "coins": 20000000000
           },
-          "speed": 61,
+          "speed": 60.9,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -18136,7 +18136,7 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 61,
+              "speed": 60.9,
               "patrol": "alongZ",
               "seeDist": 0,
               "turnSec": 0.5

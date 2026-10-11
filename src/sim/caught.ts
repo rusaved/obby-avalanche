@@ -56,8 +56,10 @@ export function createCaught(
   from: { x: number; y: number; z: number },
   caught: BalanceJson['caught'],
   avalanche: Pick<TuningJson['avalanche'], 'caughtFormSec' | 'caughtPopSec'>,
+  /** A fixed point instead of the cave below (the giant rolls the hero back to the start of his zone, docs/01-gdd.md 17.6). */
+  to?: { x: number; y: number; z: number },
 ): CaughtState {
-  const target = caughtTarget(level, from.z, from.x);
+  const target = to ? { niche: -1, ...to } : caughtTarget(level, from.z, from.x);
   const formSec = Math.min(avalanche.caughtFormSec, caught.maxSec);
   const rollSec = Math.min(caught.rollSec, caught.maxSec - formSec);
   const popSec = Math.max(0, Math.min(avalanche.caughtPopSec, caught.maxSec - formSec - rollSec));

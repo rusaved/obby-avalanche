@@ -34,6 +34,7 @@ import { createFtueVisual } from './render/ftue.ts';
 import { createFtueView, type FtueView } from './app/ftue-view.ts';
 import { createWayView, type WayView } from './app/way-view.ts';
 import { createAdsView, type AdsView } from './app/ads-view.ts';
+import { createBossView, type BossView } from './app/boss-view.ts';
 import { createFunView, type FunView } from './app/fun-view.ts';
 import { createFx, type FxParticles } from './render/fx.ts';
 import { guardBannerSigns } from './app/banner-signs.ts';
@@ -205,6 +206,7 @@ async function boot(): Promise<void> {
     bonus: bonusOptions(world),
     resume: { frontierWall: save.frontierWall ?? 0 },
     record: recordOf(world),
+    boss: game.threat.boss,
     walls: wallsOf(world),
   });
   /** The climb into the save (docs/01-gdd.md 7.10): stat, best stat, coins, mountain, farthest wall passed. */
@@ -271,6 +273,7 @@ async function boot(): Promise<void> {
   let ftueView: FtueView | null = null;
   let wayView: WayView | null = null;
   let adsView: AdsView | null = null;
+  let bossView: BossView | null = null;
   let funView: FunView | null = null;
   let fx: FxParticles | null = null;
   let meta: MetaView | null = null;
@@ -296,7 +299,7 @@ async function boot(): Promise<void> {
   const melting = new Map<number, number>();
   const wireSim = (s: Sim): void => {
     const recorded = ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'gatePass', 'portal', 'giftTake', 'giftsRespawn', 'eggTouch', 'eggHatch', 'statMilestone'] as const;
-    const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'caughtEnd', 'waveDusted', 'waveGone', 'waveEnd', 'bonusSpawn', 'bonusTake', 'bonusSaved', 'bonusLost'] as const;
+    const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'caughtEnd', 'waveDusted', 'waveGone', 'waveEnd', 'bonusSpawn', 'bonusTake', 'bonusSaved', 'bonusLost', 'bossEnter', 'bossPassed', 'bossCaught', 'recordUp'] as const;
     for (const name of [...recorded, ...waves]) {
       s.events.on(name, (payload) => {
         simEvents.push({ name, world: s.level.worldIndex, ...(payload as Record<string, unknown>), tick: s.tick });
@@ -327,6 +330,13 @@ async function boot(): Promise<void> {
     // Round number of Speed (M2-13, Q-023): flash, bounce, chime, toast; no analytics.
     // Back above the record flag after «Snowed in!» or the giant (docs/01-gdd.md 17.7): «New height!».
     s.events.on('recordUp', () => hud?.toast(t('toast.recordUp')));
+    // The giant (docs/01-gdd.md 17.6): into his zone, past him, caught — a toast each; nothing is lost on a catch.
+    s.events.on('bossEnter', () => hud?.toast(t('boss.start')));
+    s.events.on('bossPassed', () => {
+      hud?.toast(t('boss.passed'), 3);
+      audio?.play('gate');
+    });
+    s.events.on('bossCaught', () => hud?.toast(t('boss.caught')));
     s.events.on('statMilestone', ({ value }) => {
       hud?.flashStat();
       hud?.toast(t('toast.statMilestone', { n: formatNumber(value, numSuffix) }));
@@ -409,6 +419,7 @@ async function boot(): Promise<void> {
     ftueView?.wire(s);
     funView?.wire(s);
     hudView?.wire(s);
+    bossView?.wire(s);
     questsView?.wire(s);
     petsView?.wire(s);
   };
@@ -557,6 +568,9 @@ async function boot(): Promise<void> {
     get ftue() {
       return ftueView;
     },
+    get bossView() {
+      return bossView;
+    },
     get ads() {
       return adsView;
     },
@@ -622,7 +636,7 @@ async function boot(): Promise<void> {
     const tier = reset?.tier ?? sim.tier;
     world = next;
     level = buildLevel(world);
-    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world), walls: wallsOf(world), record: world.layout === 'openSlope' ? null : undefined });
+    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world), walls: wallsOf(world), record: world.layout === 'openSlope' ? null : undefined, boss: game.threat.boss });
     avalanche?.setLevel(level);
     wireSim(sim);
     g.sim = sim;
@@ -858,6 +872,7 @@ async function boot(): Promise<void> {
       }
     }
     botsView?.update(alpha, playSec);
+    bossView?.update(sim);
     wayView?.update(renderPos);
     adsView?.update(frameDt, save.totalPlaySec ?? 0);
     funView?.update(gameDt, playSec, renderPos);
@@ -956,6 +971,9 @@ async function boot(): Promise<void> {
   characters = createCharacters(skins, accessories);
   gr.scene.add(characters.group);
   heroChar = characters.create(skins.default);
+  // The giant of the open slope and his silhouette (docs/01-gdd.md 17.6).
+  bossView = createBossView({ theme, characters, scene: gr.scene, camera: () => cameraRig?.camera ?? null, numSuffix: (k) => t(`num.${k}`), skinId: skins.default });
+  bossView.wire(sim);
   botsView = createBotsView({
     cfg: bots,
     characters,

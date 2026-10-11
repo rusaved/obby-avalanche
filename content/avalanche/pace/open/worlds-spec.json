@@ -78,7 +78,7 @@
     "margin": 0.05,
     "stepMult": 2,
     "gift": 20,
-    "speed": 31.8
+    "speed": 31.7
    }
   },
   {
@@ -139,7 +139,7 @@
     "margin": 0.05,
     "stepMult": 6,
     "gift": 80,
-    "speed": 36.3
+    "speed": 36.2
    }
   },
   {
@@ -322,7 +322,7 @@
     "margin": 0.05,
     "stepMult": 150,
     "gift": 6000,
-    "speed": 47.1
+    "speed": 47
    }
   },
   {
@@ -383,7 +383,7 @@
     "margin": 0.05,
     "stepMult": 500,
     "gift": 60000,
-    "speed": 50.9
+    "speed": 50.8
    }
   },
   {
@@ -505,7 +505,7 @@
     "margin": 0.05,
     "stepMult": 5000,
     "gift": 8000000,
-    "speed": 59
+    "speed": 58.9
    }
   },
   {
@@ -566,7 +566,7 @@
     "margin": 0.05,
     "stepMult": 15000,
     "gift": 160000000,
-    "speed": 61
+    "speed": 60.9
    }
   },
   {
@@ -627,7 +627,7 @@
     "margin": 0.05,
     "stepMult": 40000,
     "gift": 4000000000,
-    "speed": 61
+    "speed": 60.9
    }
   }
  ]

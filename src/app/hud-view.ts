@@ -35,6 +35,23 @@ export interface HudView {
 }
 
 export function createHudView(d: HudViewDeps): HudView {
+  /** Goal line of the giant's check while it is closed (docs/01-gdd.md 17.6): his advice before the zone, the distance
+   * to him inside it; false — no giant ahead. */
+  const giantGoal = (sim: Sim): boolean => {
+    const i = sim.level.gates.findIndex((g) => g.kind === 'boss');
+    if (i < 0 || sim.gatesOpen[i] || !sim.boss) return false;
+    const z = sim.hero.pos.z;
+    const zone = sim.boss.zoneOf(z);
+    if (zone >= 0) {
+      const near = Math.min(...sim.boss.zones[zone]!.giants.map((g) => Math.abs(g.z - z)));
+      d.hud.setGoal(t('boss.gap', { n: Math.round(near) }), null);
+    } else {
+      const req = sim.gateRequirement(i);
+      const stat = sim.progress.stat;
+      d.hud.setGoal(t('boss.sign', { n: fmt(req) }), { text: `${fmt(stat)}/${fmt(req)}`, frac: stat / req });
+    }
+    return true;
+  };
   let openedAt = -Infinity;
   /** The gate that opened last is a ridge of the open slope (docs/01-gdd.md 17.3): «Ridge open!». */
   let openedRidge = false;
@@ -52,6 +69,8 @@ export function createHudView(d: HudViewDeps): HudView {
         faceUrl: d.faceUrl,
       });
       sim.events.on('gateOpen', ({ index }) => {
+        // The giant's check has its own toast «You slipped past the giant!» (docs/01-gdd.md 17.6).
+        if (sim.level.gates[index]?.kind === 'boss') return;
         openedAt = now;
         openedRidge = sim.level.gates[index]?.kind === 'ridge';
       });
@@ -96,7 +115,7 @@ export function createHudView(d: HudViewDeps): HudView {
         const req = sim.gateRequirement(next);
         const key = level.gates[next]?.kind === 'ridge' ? 'ridge.goal' : 'hud.goal.wall';
         d.hud.setGoal(t(key, { n: fmt(req) }), { text: `${fmt(stat)}/${fmt(req)}`, frac: stat / req });
-      } else {
+      } else if (!giantGoal(sim)) {
         const summit = level.safeZones[level.safeZones.length - 1];
         const onSummit = level.safeZones.length > 1 && summit !== undefined && sim.hero.pos.z >= summit[0];
         d.hud.setGoal(t(onSummit ? 'hud.goal.portal' : 'hud.goal.summit'), null);

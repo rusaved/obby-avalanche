@@ -154,6 +154,8 @@ export interface TestState {
   adButtons: string[];
   /** Record flag of the open slope (docs/01-gdd.md 17.7): the highest point of this life on the mountain, null — none. */
   record: { x: number; y: number; z: number } | null;
+  /** Giants of the mountain (docs/01-gdd.md 17.6): the hero's state per zone, every giant's z and mode; the silhouette. */
+  boss: { zones: Array<{ zone: [number, number]; hero: string; giants: Array<{ z: number; mode: string }> }>; silhouette: boolean; silhouetteChest: [number, number, number] | null } | null;
   /** How far each gate has melted on screen (0 — whole, 1 — gone; a ridge melts all its passages at once). */
   gateMelt: number[];
   adBusy: string | null;
@@ -179,6 +181,8 @@ export interface TestApi {
   simEvents: SimEventRecord[];
   analytics(): ReadonlyArray<{ name: string; t: number; params?: Record<string, unknown> }>;
   renderInfo(): RenderInfo | null;
+  /** Colour [r, g, b] of the canvas pixel at field px (x, y) of a frame drawn right now (PS-07: the giant seen from the camp). */
+  pixelAt(x: number, y: number): [number, number, number];
   setTimeScale(k: number): void;
   runSim(sec: number): void;
   stepFrames(n: number): void;
@@ -518,6 +522,13 @@ export function installTestApi(g: GameHandles): TestApi {
         cameraViewBlend: cam?.viewBlend ?? 0,
         adButtons: [...(g.ads?.shown ?? [])],
         record: g.sim?.record ? { ...g.sim.record } : null,
+        boss: g.sim?.boss
+          ? {
+              zones: g.sim.boss.zones.map((z) => ({ zone: [z.zone[0], z.zone[1]] as [number, number], hero: z.hero, giants: z.giants.map((x) => ({ z: x.z, mode: x.mode })) })),
+              silhouette: g.bossView?.silhouetteShown ?? false,
+              silhouetteChest: g.bossView?.silhouetteChest() ?? null,
+            }
+          : null,
         gateMelt: g.sim ? g.sim.level.gates.map((_, i) => g.levelMeshes?.gateOpenness(i) ?? 0) : [],
         adBusy: g.ads?.busy ?? null,
         autoRun: g.input.autoRun,
@@ -539,6 +550,18 @@ export function installTestApi(g: GameHandles): TestApi {
     simEvents: g.simEvents,
     analytics: () => analyticsEvents(),
     renderInfo: () => g.renderer()?.info() ?? null,
+    pixelAt(x, y) {
+      const r = g.renderer();
+      if (!r) return [0, 0, 0];
+      // Draw a frame now: its pixels are readable in this same task.
+      g.loop.runSim(0);
+      const gl = r.renderer.getContext();
+      const canvas = r.renderer.domElement;
+      const k = canvas.width / Math.max(1, canvas.clientWidth);
+      const buf = new Uint8Array(4);
+      gl.readPixels(Math.round(x * k), Math.round(canvas.height - y * k), 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, buf);
+      return [buf[0]!, buf[1]!, buf[2]!];
+    },
     setTimeScale(k) {
       g.loop.timeScale = k;
       g.loop.unlimited = k !== 1;

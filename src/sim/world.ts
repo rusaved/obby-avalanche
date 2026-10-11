@@ -30,8 +30,9 @@ import { inSafeZone } from './shelter.ts';
 import { PORTAL_HALF_WIDTH } from '../level/builder.ts';
 import { createHero, placeHero, stepHero, type ControllerParams, type HeroInput, type HeroState, NO_INPUT } from './controller.ts';
 import { createFun, funInput, resetFun, stepFun, type FunState } from './fun.ts';
+import { createBoss, type Boss, type BossEvents } from './boss.ts';
 
-export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, Record<string, unknown> {
+export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, BossEvents, Record<string, unknown> {
   /**
    * «Phew, made it!» (docs/01-gdd.md 4.4): `coins` = coins.waveSurvived × gift of the cave's zone × wallScale[tier],
    * plus `gold` when the hero brought the golden gift into the cave (one toast, docs/01-gdd.md 4.9).
@@ -120,6 +121,8 @@ export interface Sim {
   /** Record flag of the open slope (docs/01-gdd.md 17.7): the highest point on the ground of this life on the mountain;
    * null — none yet, or no record flag in this pace. */
   record: { x: number; y: number; z: number } | null;
+  /** Giants of the open slope (docs/01-gdd.md 17.6); null when the mountain has none or the sim runs without them. */
+  readonly boss: Boss | null;
   step(input: HeroInput, dt: number): void;
   teleport(x: number, y: number, z: number): void;
   respawn(): void;
@@ -171,7 +174,12 @@ export interface SimOptions {
   walls?: WallCount | undefined;
   /** Record flag (open slope, docs/01-gdd.md 17.7): the one of the save on this mountain or null; absent — no record flag. */
   record?: { x: number; y: number; z: number } | null | undefined;
+  /** The giant (game.json threat.boss): with the zones of the level the mountain has giants. */
+  boss?: { margin: number; reach: number } | undefined;
 }
+
+/** «The giant caught you!»: the hero rolls back to this far below the start of the zone (docs/01-gdd.md 17.6). */
+const BOSS_BACK = 3;
 
 /** The record flag shows, and passing it again says «New height!», once the hero is this far below it. */
 export const RECORD_RETURN = 20;
@@ -245,6 +253,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     caught: null,
     fun: createFun(level),
     record: opts.record ? { ...opts.record } : null,
+    boss: null,
     gifts: giftsFromLevel(level),
     coins: opts.coins ?? 0,
     respawnGifts() {
@@ -263,6 +272,13 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         // Not taken before the front reached its point: it melts, no event (docs/01-gdd.md 4.9).
         const b = sim.bonus;
         if (b && !b.carried && threat.state.phase === 'run' && threat.state.frontZ <= b.z) sim.bonus = null;
+      }
+      if (boss) {
+        bossHero.x = hero.pos.x;
+        bossHero.y = hero.pos.y;
+        bossHero.z = hero.pos.z;
+        bossHero.speed = Math.hypot(hero.vel.x, hero.vel.z);
+        boss.step(dt, bossHero, !sim.caught && sim.respawnTicksLeft < 0, sim.tick);
       }
       if (bots) {
         botCtx.hero.x = hero.pos.x;
@@ -517,6 +533,41 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       prev.z = hero.pos.z;
     }
   }
+
+  // Giants (docs/01-gdd.md 17.6): speeds of the tier — the run speed of the scaled advice over the one of tier 0; the
+  // zone passed opens the giant's check at its end (the summit line), the slap rolls the hero back to the zone's start.
+  const bossGate = level.gates.findIndex((g) => g.kind === 'boss');
+  const bossHero = { x: 0, y: 0, z: 0, speed: 0 };
+  const boss =
+    opts.boss && level.bosses.length > 0 && opts.balance.caught
+      ? createBoss(
+          level.bosses,
+          opts.boss,
+          (zi) => {
+            const g = level.gates[bossGate];
+            const req = level.bosses[zi]!.requires;
+            const k = g ? sim.gateRequirement(bossGate) / g.requires : 1;
+            return moveSpeed(req * k, speedCurve) / moveSpeed(req, speedCurve);
+          },
+          () => bossGate >= 0 && gatesOpen[bossGate] === true,
+          (name, payload) => {
+            (events.emit as (n: string, p: unknown) => void)(name, payload);
+            if (name === 'bossCaught') {
+              const p = payload as BossEvents['bossCaught'];
+              const a = level.bosses[p.zone]!.zone[0] - BOSS_BACK;
+              if (sim.respawnTicksLeft >= 0) sim.respawnTicksLeft = -1;
+              sim.caught = createCaught(level, { x: p.x, y: p.y, z: p.z }, opts.balance.caught!, tuning.avalanche, { x: 0, y: level.floorAt(0, a), z: a });
+            } else if (name === 'bossPassed') {
+              const g = level.gates[bossGate];
+              if (g && !gatesOpen[bossGate] && Math.abs(level.bosses[(payload as BossEvents['bossPassed']).zone]!.zone[1] - g.z) < 1e-6) {
+                gatesOpen[bossGate] = true;
+                events.emit('gateOpen', { tick: sim.tick, index: bossGate, wall: g.index, z: g.z, requires: sim.gateRequirement(bossGate) });
+              }
+            }
+          },
+        )
+      : null;
+  (sim as { boss: Boss | null }).boss = boss;
 
   // «Snowed in!» (docs/01-gdd.md 4.5): the ball rolls to the cave below; stat, coins and gates stay as they are.
   const ballPos = { x: 0, y: 0, z: 0 };

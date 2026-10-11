@@ -48,6 +48,8 @@ export interface SimEventRecord {
 export interface GameHandles {
   /** Rewarded-ad buttons (docs/01-gdd.md 9.1). */
   readonly ads: import('./ads-view.ts').AdsView | null;
+  /** The giant's look (docs/01-gdd.md 17.6). */
+  readonly bossView: import('./boss-view.ts').BossView | null;
   loop: Loop;
   pause: PauseManager;
   platform: Platform;

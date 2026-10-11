@@ -84,6 +84,8 @@ export function createAdsView(d: AdsViewDeps): AdsView {
         (d.save.flags?.['firstWaveDone'] ?? false) &&
         standSec >= ads.standStillSec &&
         (phase === 'idle' || phase === 'gone') &&
+        // Nothing in the giant's zone (docs/01-gdd.md 17.6).
+        (sim.boss?.zoneOf(sim.hero.pos.z) ?? -1) < 0 &&
         !d.windowOpen();
       const list: Array<{ id: string; text: string; busy: boolean }> = [];
       if (ok || busy) {

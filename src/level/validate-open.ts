@@ -159,6 +159,23 @@ function shelterSpacing(w: World, i: number, every: number, at: string): string[
   return errors;
 }
 
+/**
+ * The giant's advice is honest (docs/01-gdd.md 17.6): the run speed of the advice number beats every giant of the zone ×
+ * (1 + margin) — with that Speed the zone is passed; the giant is no faster than the ceiling of the run allows.
+ */
+export function validateOpenBoss(worlds: WorldsJson, speedAt: (stat: number) => number, margin: number): string[] {
+  const errors: string[] = [];
+  for (const [wi, w] of worlds.worlds.entries()) {
+    for (const [zi, b] of (w.bosses ?? []).entries()) {
+      const v = speedAt(b.requires);
+      for (const g of b.giants)
+        if (!(v > g.speed * (1 + margin)))
+          errors.push(`worlds.json: worlds[${wi}] (${w.id}): bosses[${zi}] — the advice ${b.requires} runs ${v.toFixed(2)} units/s, not above the giant ${g.speed} × ${1 + margin} = ${(g.speed * (1 + margin)).toFixed(2)}`);
+    }
+  }
+  return errors;
+}
+
 /** Share of warnSec the run to shelter may take (docs/02-tech.md 5.4; docs/01-gdd.md 4.3). */
 export const OPEN_FAIRNESS_SHARE = 0.8;
 

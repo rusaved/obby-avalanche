@@ -18,7 +18,7 @@ import { GIFT_HALF, GIFT_HEIGHT, touchesGift } from '../sim/gifts.ts';
 import { HERO_HEIGHT, HERO_RADIUS } from '../sim/controller.ts';
 import { GATE_SIDE, zoneOfStretch } from './generate.ts';
 import { CLASSIC_PACE } from '../content/pace.ts';
-import { isOpenWorlds, validateOpenCount, validateOpenFairness, validateOpenGround, validateOpenWorld } from './validate-open.ts';
+import { isOpenWorlds, validateOpenBoss, validateOpenCount, validateOpenFairness, validateOpenGround, validateOpenWorld } from './validate-open.ts';
 
 export const PACK_FILES = [
   'game.json',
@@ -90,6 +90,7 @@ const gameSchema = v.object({
     bonus: v.optional(
       v.object({ kind: v.literal('goldGift'), fromWave: v.pipe(v.number(), v.integer(), v.minValue(1)), mult: positive, distMin: nonNeg, distMax: positive }),
     ),
+    boss: v.optional(v.object({ kind: v.literal('giant'), margin: nonNeg, catch: v.literal('roll'), reach: positive })),
   }),
   // The leaderboard scores by a whole counter of the save (trophies over all time), never by the stat (docs/01-gdd.md 7.9, 8.4).
   leaderboard: v.nullable(v.object({ name: v.string(), score: v.picklist(LEADERBOARD_SCORES) })),
@@ -133,6 +134,14 @@ const themeSchema = v.object({
   ui: v.object({ stat: hex, coins: hex, trophies: hex, ok: hex, no: hex, statIcon: name, plaque: hex, plaqueAlpha: v.pipe(v.number(), v.minValue(0.5), v.maxValue(1)), plaqueText: hex }),
   threat: v.object({ front: v.tuple([hex, hex]), edge: hex, body: hex, dust: hex, height: positive }),
   bonus: v.optional(v.object({ color: hex })),
+  boss: v.optional(
+    v.object({
+      height: positive,
+      colors: v.object({ head: hex, torso: hex, arms: hex, legs: hex, hat: hex }),
+      face: v.string(),
+      silhouette: hex,
+    }),
+  ),
 });
 
 /** Quest kinds the game counts (docs/01a-content.md 10); a new one needs its counter in src/app/quests-view.ts. */
@@ -761,6 +770,15 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
   if (errors.length === 0) errors.push(...(open ? validateOpenGround(worlds, tuning, speedAt) : validateReachability(worlds, tuning)));
   if (errors.length === 0) {
     errors.push(...(open ? validateOpenFairness(worlds, speedAt) : validateFairness(worlds, speedAt)));
+    if (open) {
+      // Giants need game.json threat.boss, their look in theme.json and their texts (docs/01a-content.md 16.4, 16.9).
+      const cfg = game.threat.boss;
+      if (!cfg) errors.push('game.json: threat.boss — required when worlds.json has bosses (docs/01a-content.md 16.4)');
+      else errors.push(...validateOpenBoss(worlds, speedAt, cfg.margin));
+      if (!(theme as { boss?: unknown }).boss) errors.push('theme.json: boss — required when worlds.json has bosses');
+      for (const key of ['boss.name', 'boss.sign', 'boss.start', 'boss.gap', 'boss.passed', 'boss.caught'])
+        for (const [file, dict] of [['i18n/ru.json', ru], ['i18n/en.json', en]] as const) if (!dict[key]) errors.push(`${file}: ${key} — missing (the giant, docs/01a-content.md 16.9)`);
+    }
     if (game.threat.bonus) errors.push(...validateGoldFairness(worlds, speedAt, game.threat.bonus.distMax));
     if (!open) errors.push(...validateFun(worlds, tuning, speedAt));
   }

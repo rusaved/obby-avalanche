@@ -14,6 +14,9 @@ export interface GameJson {
     kind: 'wave';
     visual: string;
     bonus?: { kind: 'goldGift'; fromWave: number; mult: number; distMin: number; distMax: number };
+    /** The giant of the open slope (docs/01-gdd.md 17.6; docs/01a-content.md 16.4): the hero slips past when he runs
+     * faster than the giant × (1 + margin); `reach` — how close the giant's slap gets him; `catch: roll` — back to the line. */
+    boss?: { kind: 'giant'; margin: number; catch: 'roll'; reach: number };
   };
   leaderboard: { name: string; score: string } | null;
   metrikaCounterId: number;
@@ -45,6 +48,8 @@ export interface ThemeJson {
   ui: { stat: string; coins: string; trophies: string; ok: string; no: string; statIcon: string; plaque: string; plaqueAlpha: number; plaqueText: string };
   threat: { front: [string, string]; edge: string; body: string; dust: string; height: number };
   bonus?: { color: string };
+  /** The giant (docs/01a-content.md 16.4): height, colours of the parts and the hat, the face, the horizon silhouette. */
+  boss?: { height: number; colors: { head: string; torso: string; arms: string; legs: string; hat: string }; face: string; silhouette: string };
 }
 
 export interface Curve {
