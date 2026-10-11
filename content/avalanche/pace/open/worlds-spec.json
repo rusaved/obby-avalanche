@@ -197,7 +197,7 @@
    ],
    "ridges": [
     {
-     "requires": 7100
+     "requires": 7400
     },
     {
      "requires": 12000
@@ -268,7 +268,7 @@
    ],
    "ridges": [
     {
-     "requires": 65000
+     "requires": 64000
     },
     {
      "requires": 98000
@@ -341,7 +341,7 @@
      "requires": 610000
     },
     {
-     "requires": 870000
+     "requires": 860000
     },
     {
      "requires": 1100000
@@ -417,7 +417,7 @@
      "requires": 3700000
     },
     {
-     "requires": 5000000
+     "requires": 4900000
     },
     {
      "requires": 6900000
@@ -425,7 +425,7 @@
    ],
    "boss": {
     "stretch": 360,
-    "requires": 9300000,
+    "requires": 9200000,
     "margin": 0.05,
     "stepMult": 150,
     "gift": 6000,
@@ -488,7 +488,7 @@
    ],
    "ridges": [
     {
-     "requires": 14000000
+     "requires": 13000000
     },
     {
      "requires": 20000000
@@ -497,7 +497,7 @@
      "requires": 26000000
     },
     {
-     "requires": 40000000
+     "requires": 41000000
     }
    ],
    "boss": {
@@ -570,7 +570,7 @@
      "requires": 140000000
     },
     {
-     "requires": 210000000
+     "requires": 220000000
     },
     {
      "requires": 300000000
@@ -644,10 +644,10 @@
    ],
    "ridges": [
     {
-     "requires": 670000000
+     "requires": 680000000
     },
     {
-     "requires": 980000000
+     "requires": 990000000
     },
     {
      "requires": 1600000000
@@ -658,7 +658,7 @@
    ],
    "boss": {
     "stretch": 450,
-    "requires": 3700000000,
+    "requires": 3800000000,
     "margin": 0.05,
     "stepMult": 5000,
     "gift": 8000000,
@@ -727,10 +727,10 @@
    ],
    "ridges": [
     {
-     "requires": 5700000000
+     "requires": 5900000000
     },
     {
-     "requires": 8600000000
+     "requires": 8800000000
     },
     {
      "requires": 12000000000
@@ -829,12 +829,12 @@
      "requires": 110000000000
     },
     {
-     "requires": 260000000000
+     "requires": 230000000000
     }
    ],
    "boss": {
     "stretch": 510,
-    "requires": 470000000000,
+    "requires": 400000000000,
     "margin": 0.05,
     "stepMult": 40000,
     "gift": 4000000000,

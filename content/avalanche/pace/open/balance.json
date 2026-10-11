@@ -18,18 +18,7 @@
     "continueShowSec": 6
   },
   "rebirth": {
-    "wallScale": [
-      1,
-      36,
-      230,
-      880,
-      5100,
-      17000,
-      53000,
-      200000,
-      800000,
-      2400000
-    ],
+    "wallScale": [1, 36, 180, 690, 3900, 16000, 54000, 200000, 1100000, 3400000],
     "unlock": "summitWorld10",
     "lateEase": {
       "fromWall": 30
@@ -49,7 +38,7 @@
       4.5
     ],
     "gateCurve": 1,
-    "keep": 1,
+    "keep": 4,
     "roundDigits": 2,
     "checks": {
       "early": [
@@ -72,7 +61,9 @@
       "share": 0.2,
       "lazyM1": 3.5,
       "deadEnd": 180,
-      "ratio": 0.6
+      "ratio": 0.6,
+      "before": [2.0, 2.2, 2.5, 2.7, 3.0, 3.4, 3.6, 4.0, 4.1, 4.7],
+      "growth": 0.1
     },
     "eggsByMountain": [
       {

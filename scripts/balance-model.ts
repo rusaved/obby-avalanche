@@ -25,6 +25,12 @@
  * Gifts on the path (`path: true`, docs/01-gdd.md 16.4, 16.8: the path, the slide, over the trampoline) are taken on the
  * run with no time lost, each once as the hero walks over it, again only after a wave is gone and the hero passes it
  * again; a mountain with no other gifts makes no detours for gifts. The slide and the trampoline cost no time here.
+ * Elements of the open slope and the rare events (docs/01-gdd.md 18.11): the throat on the axis is its ice — × its
+ * slide `mult` along it; the chasm is the trampoline flight, CHASM_FLIGHT s over it with no steps; the tunnel (the calm
+ * lane, no gifts) and the hump (the bold lane) are off the axis — the bot runs past them as before. Every section of
+ * game.json events.sections costs the events of its mountain once a pass at their expected price: the snowball
+ * chance × (tumbleSec + slowSec × (1 − slow)) s, the blizzard chance × durationSec × (1 − speedMult) s and
+ * chance × durationSec × speedMult × (stepMult − 1) s of steps more.
  */
 import type { AurasJson, BalanceJson, EggsJson, GameJson, PetsJson, Reward, Segment, TrailsJson, TuningJson, World } from '../src/content/types.ts';
 import { moveSpeed } from '../src/sim/effects/moveSpeed.ts';
@@ -151,6 +157,8 @@ export const FIT_SHARE = 0.97;
 const NICE = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10];
 
 const num = (s: Segment, k: string): number => (typeof s[k] === 'number' ? (s[k] as number) : 0);
+/** The trampoline flight over a chasm on the axis (docs/01-gdd.md 18.11: «бот — трамплин, без шагов 1 с»). */
+const CHASM_FLIGHT = 1;
 
 /** The generator of the reference: seed = (seed × 1103515245 + 12345) mod 2^31, value = seed / 2^31. */
 export function lcg(seed: number): (() => number) & { state: () => number } {
@@ -350,6 +358,46 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
         C += pg.coins * Wn;
       }
     };
+    // Elements on the axis and the rare events (docs/01-gdd.md 18.11); none in the reference.
+    const throats = reference
+      ? []
+      : world.segments
+          .filter((s) => s.type === 'throat')
+          .map((s) => {
+            const slide = world.segments.find((x) => x.type === 'slide' && x.z >= s.z && x.z <= s.z + num(s, 'length'));
+            const m = slide && typeof slide['mult'] === 'number' ? (slide['mult'] as number) : (pack.tuning.fun?.slideMult ?? 1);
+            return { a: s.z, b: s.z + num(s, 'length'), m };
+          });
+    const chasms = reference ? [] : world.segments.filter((s) => s.type === 'chasm').map((s) => ({ a: s.z, b: s.z + num(s, 'length') }));
+    const ev = reference ? undefined : pack.game.events;
+    const snow = ev?.snowball && w >= ev.snowball.fromWorld ? ev.snowball : null;
+    const bliz = ev?.blizzard && w >= ev.blizzard.fromWorld ? ev.blizzard : null;
+    const eventSec = (snow ? snow.chance * (snow.tumbleSec + snow.slowSec * (1 - snow.slow)) : 0) + (bliz ? bliz.chance * bliz.durationSec * (1 - bliz.speedMult) : 0);
+    const eventStepSec = bliz ? bliz.chance * bliz.durationSec * bliz.speedMult * (bliz.stepMult - 1) : 0;
+    // Only a mountain with sections (the open slope) has events, as in the game (src/sim/events.ts).
+    const sections = world.zones.some((zz) => typeof zz.stepMult === 'number');
+    const eventStarts = ev && sections ? world.zones.filter((zz) => zz.k >= ev.sections[0] && zz.k <= ev.sections[1]).map((zz) => zz.zStart) : [];
+    const entered = new Set<number>();
+    // From z to `to` at v: seconds and the distance that counts steps; the sections entered on the way pay their events.
+    const cross = (from: number, to: number, v: number, g: number, zMult: number): { sec: number; dist: number } => {
+      const over = (a: number, b: number): number => Math.max(0, Math.min(to, b) - Math.max(from, a));
+      let sec = (to - from) / v;
+      let dist = to - from;
+      for (const t of throats) sec -= (over(t.a, t.b) / v) * (1 - 1 / t.m);
+      for (const c of chasms) {
+        const o = over(c.a, c.b);
+        if (o <= 0) continue;
+        sec += (o / (c.b - c.a)) * CHASM_FLIGHT - o / v;
+        dist -= o;
+      }
+      for (const at of eventStarts)
+        if (at > from && at <= to && !entered.has(at)) {
+          entered.add(at);
+          sec += eventSec;
+          S += ((eventStepSec * v) / stepLen) * g * zMult;
+        }
+      return { sec, dist };
+    };
     const scripted = n === 0 && w === 1 && th.firstWaveScripted;
     const tw0 = T;
     let z = world.spawnZ;
@@ -422,10 +470,10 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
         if (z >= to) return;
         exposedMove(to);
         if (z >= to) return;
-        const d = to - z;
-        T += d / v;
-        S += (d / stepLen) * g * zm;
-        phT -= d / v;
+        const c = cross(z, to, v, g, zm);
+        T += c.sec;
+        S += (c.dist / stepLen) * g * zm;
+        phT -= c.sec;
         takePath(z, to);
         z = to;
       };
@@ -486,9 +534,9 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
           S += (v / stepLen) * g * treadAt(s) * DT;
           z = s;
         } else if (ready) {
-          const dist = gz - z;
-          runSec = Math.max(MIN_RUN_SEC, dist / v);
-          S += (dist / stepLen) * g * zm;
+          const c = cross(z, gz, v, g, zm);
+          runSec = Math.max(MIN_RUN_SEC, c.sec);
+          S += (c.dist / stepLen) * g * zm;
           T += runSec;
           exposedMove(gz + PAST_WALL);
           takePath(z, gz + PAST_WALL);

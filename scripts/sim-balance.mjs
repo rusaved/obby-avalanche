@@ -360,6 +360,15 @@ if (helperZones.length) {
   check(12, `помощники великана: Скорость совета со снежком в миг встречи проходит зону (горы ${rows[0][0]}–${rows.at(-1)[0]})`, rows.every(([, v, vb]) => v > vb), rows.map(([w, v, vb]) => `гора ${w} — ${v.toFixed(1)} > ${vb.toFixed(1)}`).join(', '));
 }
 
+// 13. Varied mountains (docs/01-gdd.md 18.11): with the elements and the events every mountain of the greedy bot on
+// tier 0 is at most `growth` longer than before them (the pace patch: sim.checks.before, minutes a mountain).
+if (LIM.before) {
+  const growth = LIM.growth ?? 0.1;
+  const rows = LIM.before.map((b, i) => [i + 1, (greedy.mountains[i] ?? Infinity) / 60, b]);
+  const worst = rows.reduce((a, r) => (r[1] / r[2] > a[1] / a[2] ? r : a), rows[0]);
+  check(13, `жадный, ступень 0: гора k не длиннее прежней больше чем на ${Math.round(growth * 100)}%`, rows.every(([, m, b]) => m <= b * (1 + growth) + 1e-9), `${rows.map(([w, m, b]) => `${w}: ${m.toFixed(1)}/${b.toFixed(1)}`).join(', ')}; худшая — гора ${worst[0]}, ×${(worst[1] / worst[2]).toFixed(2)}`);
+}
+
 // ---------- M3-10: the port repeats the reference; the gold seeker thresholds ----------
 const gates = [];
 let fidelity = null;
