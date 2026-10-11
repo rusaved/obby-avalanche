@@ -753,6 +753,14 @@
      {
       "side": "right"
      }
+    ],
+    "giants": [
+     {
+      "phase": 0
+     },
+     {
+      "phase": 0.5
+     }
     ]
    }
   },
@@ -837,6 +845,14 @@
      },
      {
       "side": "right"
+     }
+    ],
+    "giants": [
+     {
+      "phase": 0
+     },
+     {
+      "phase": 0.5
      }
     ]
    }

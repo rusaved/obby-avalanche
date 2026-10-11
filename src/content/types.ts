@@ -373,6 +373,9 @@ export interface WorldGiant {
   patrol: 'alongZ';
   seeDist: number;
   turnSec: number;
+  /** Where on its patrol (up the zone and back) it starts, a share of the round (docs/01a-content.md 17.4: 0 — at the
+   * start going up, 0.5 — at the end coming down); absent — spread evenly over the zone as on PS. */
+  phase?: number;
 }
 
 /**
@@ -507,7 +510,7 @@ export interface OpenSpecMountain {
   sections: Array<{ length: number; stepMult: number; shelterEvery: number; gift: number; fork: boolean; shape?: ShapeKind[] }>;
   ridges: Array<{ requires: number }>;
   /** The finish straight: its length, the advice number, the giant's speed V_b, step multiplier and gift there. */
-  boss: { stretch: number; requires: number; margin: number; stepMult: number; gift: number; speed: number; turnSec?: number; returnMult?: number; seeDist?: number; helpers?: Array<{ side: 'left' | 'right' }> };
+  boss: { stretch: number; requires: number; margin: number; stepMult: number; gift: number; speed: number; turnSec?: number; returnMult?: number; seeDist?: number; helpers?: Array<{ side: 'left' | 'right' }>; giants?: Array<{ phase: number }> };
 }
 
 export type I18nJson = Record<string, string>;

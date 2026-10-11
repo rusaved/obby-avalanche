@@ -760,7 +760,7 @@
     "milestone": "RG",
     "description": "Два великана — горы 9–10 только данными (docs/01-gdd.md 18.5; docs/01a-content.md 17.4): bosses[].giants[] ×2 с phase 0 и 0,5, оба разворачиваются к бегущему, проход — проскочить обоих; имя boss.nameNorthPair и табличка boss.signPair; число-совет не меняется",
     "acceptance": "Vitest: на горе 9 два великана стартуют с разных концов зоны, герой быстрее V_b × 1,05 проходит обоих, медленнее — пойман первым встречным; git diff src/ у фичи пуст, кроме i18n-ключей таблички (проверка в progress.md записью «данные + 2 ключа»); e2e (open, гора 9): два силуэта на горизонте и два великана в зоне, табличка «Два великана: Скорость ~{n}» ru/en; скриншот docs/evidence/rg/two_giants_1920x1080_ru.png",
-    "passes": false,
+    "passes": true,
     "priority": "P1",
     "deferred": false
   },

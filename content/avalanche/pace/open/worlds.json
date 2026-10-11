@@ -19327,7 +19327,15 @@
               "speed": 51.8,
               "patrol": "alongZ",
               "seeDist": 0,
-              "turnSec": 0.5
+              "turnSec": 0.5,
+              "phase": 0
+            },
+            {
+              "speed": 51.8,
+              "patrol": "alongZ",
+              "seeDist": 0,
+              "turnSec": 0.5,
+              "phase": 0.5
             }
           ],
           "helpers": [
@@ -22068,7 +22076,15 @@
               "speed": 51.8,
               "patrol": "alongZ",
               "seeDist": 0,
-              "turnSec": 0.5
+              "turnSec": 0.5,
+              "phase": 0
+            },
+            {
+              "speed": 51.8,
+              "patrol": "alongZ",
+              "seeDist": 0,
+              "turnSec": 0.5,
+              "phase": 0.5
             }
           ],
           "helpers": [

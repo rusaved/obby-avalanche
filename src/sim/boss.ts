@@ -96,7 +96,14 @@ export function createBoss(
     return {
       zone: [a, c],
       hero: passed(zi) ? 'passed' : 'out',
-      giants: b.giants.map((g, gi) => ({ z: a + ((gi + 1) * (c - a)) / (n + 1), dir: gi % 2 === 0 ? 1 : -1, mode: passed(zi) ? 'sit' : 'patrol', t: 0, speed: g.speed * scale(zi) })),
+      giants: b.giants.map((g, gi) => ({
+        // A phase of the patrol round (up the zone and back): 0 — its start going up, 0.5 — its end coming down.
+        z: g.phase === undefined ? a + ((gi + 1) * (c - a)) / (n + 1) : g.phase <= 0.5 ? a + 2 * g.phase * (c - a) : c - (2 * g.phase - 1) * (c - a),
+        dir: g.phase === undefined ? (gi % 2 === 0 ? 1 : -1) : g.phase < 0.5 ? 1 : -1,
+        mode: passed(zi) ? 'sit' : 'patrol',
+        t: 0,
+        speed: g.speed * scale(zi),
+      })),
       helpers: (b.helpers ?? []).map((h) => ({ x: h.x, z: (a + c) / 2, t: h.throwEverySec, ball: null, wave: passed(zi) })),
     };
   });

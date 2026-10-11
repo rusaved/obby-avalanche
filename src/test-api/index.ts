@@ -156,7 +156,7 @@ export interface TestState {
   /** Record flag of the open slope (docs/01-gdd.md 17.7): the highest point of this life on the mountain, null — none. */
   record: { x: number; y: number; z: number } | null;
   /** Giants of the mountain (docs/01-gdd.md 17.6): the hero's state per zone, every giant's z and mode; the silhouette. */
-  boss: { zones: Array<{ zone: [number, number]; hero: string; giants: Array<{ z: number; mode: string }> }>; silhouette: boolean; silhouetteChest: [number, number, number] | null } | null;
+  boss: { zones: Array<{ zone: [number, number]; hero: string; giants: Array<{ z: number; mode: string }> }>; silhouette: boolean; silhouettes: number; silhouetteChest: [number, number, number] | null } | null;
   /** How far each gate has melted on screen (0 — whole, 1 — gone; a ridge melts all its passages at once). */
   gateMelt: number[];
   adBusy: string | null;
@@ -544,6 +544,7 @@ export function installTestApi(g: GameHandles): TestApi {
           ? {
               zones: g.sim.boss.zones.map((z) => ({ zone: [z.zone[0], z.zone[1]] as [number, number], hero: z.hero, giants: z.giants.map((x) => ({ z: x.z, mode: x.mode })) })),
               silhouette: g.bossView?.silhouetteShown ?? false,
+              silhouettes: g.bossView?.silhouettesShown ?? 0,
               silhouetteChest: g.bossView?.silhouetteChest() ?? null,
             }
           : null,

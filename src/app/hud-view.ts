@@ -48,7 +48,7 @@ export function createHudView(d: HudViewDeps): HudView {
     } else {
       const req = sim.gateRequirement(i);
       const stat = sim.progress.stat;
-      d.hud.setGoal(t('boss.sign', { n: fmt(req) }), { text: `${fmt(stat)}/${fmt(req)}`, frac: stat / req });
+      d.hud.setGoal(t((sim.level.bosses[0]?.giants.length ?? 0) >= 2 ? 'boss.signPair' : 'boss.sign', { n: fmt(req) }), { text: `${fmt(stat)}/${fmt(req)}`, frac: stat / req });
     }
     return true;
   };

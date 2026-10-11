@@ -47,8 +47,9 @@ export interface BossView {
   /** A new mountain: places the line and the sign of its first zone. */
   wire(sim: Sim): void;
   update(sim: Sim): void;
-  /** The silhouette is drawn now (tests). */
+  /** The silhouette is drawn now (tests); how many of them (two giants). */
   readonly silhouetteShown: boolean;
+  readonly silhouettesShown: number;
   /** World point of the silhouette's chest as drawn now, null when hidden (tests: its pixel on the screen). */
   silhouetteChest(): [number, number, number] | null;
 }
@@ -75,9 +76,14 @@ export function createBossView(d: BossViewDeps): BossView {
   d.scene.add(balls);
   const silGeo = silhouetteGeometry(look?.height ?? 20);
   const silMat = new MeshBasicMaterial({ color: look?.silhouette ?? '#ffffff', fog: false, transparent: true, opacity: 0.9, depthWrite: false });
-  const silhouette = new Mesh(silGeo, silMat);
-  silhouette.frustumCulled = false;
-  silhouette.visible = false;
+  // One silhouette a giant (two giants of mountains 9–10, docs/01-gdd.md 18.5): one draw call each while far.
+  const silhouettes = Array.from({ length: MAX_GIANTS }, () => {
+    const m = new Mesh(silGeo, silMat);
+    m.frustumCulled = false;
+    m.visible = false;
+    return m;
+  });
+  const silhouette = silhouettes[0]!;
   const lineGeo = new BoxGeometry(1, LINE_THICK, LINE_THICK);
   const line = new Mesh(lineGeo, new MeshBasicMaterial({ color: look?.colors.hat ?? '#ffffff' }));
   line.visible = false;
@@ -88,9 +94,10 @@ export function createBossView(d: BossViewDeps): BossView {
   const sign = new Mesh(new PlaneGeometry(...SIGN_SIZE), new MeshBasicMaterial({ map: signTex, transparent: true }));
   sign.rotation.y = Math.PI;
   sign.visible = false;
-  d.scene.add(silhouette, line, sign);
+  d.scene.add(...silhouettes, line, sign);
   let signText = '';
   let shown = false;
+  let shownCount = 0;
   const _to = new Vector3();
 
   const drawSign = (text: string): void => {
@@ -114,6 +121,9 @@ export function createBossView(d: BossViewDeps): BossView {
   return {
     get silhouetteShown() {
       return shown;
+    },
+    get silhouettesShown() {
+      return shownCount;
     },
     silhouetteChest() {
       if (!shown) return null;
@@ -173,24 +183,30 @@ export function createBossView(d: BossViewDeps): BossView {
       balls.visible = flying > 0;
       if (flying > 0) balls.instanceMatrix.needsUpdate = true;
       const bossGate = sim.level.gates.findIndex((g) => g.kind === 'boss');
-      if (bossGate >= 0) drawSign(t('boss.sign', { n: formatNumber(sim.gateRequirement(bossGate), d.numSuffix) }));
-      // The silhouette: far away the giant is the flat shape facing the camera, inside the far plane at his angular size.
+      // Two giants: «Two giants: Speed ~N» (docs/01a-content.md 17.6).
+      const key = (zones[0]?.giants.length ?? 0) >= 2 ? 'boss.signPair' : 'boss.sign';
+      if (bossGate >= 0) drawSign(t(key, { n: formatNumber(sim.gateRequirement(bossGate), d.numSuffix) }));
+      // The silhouettes: far away a giant is the flat shape facing the camera, inside the far plane at his angular size.
       const cam = d.camera();
-      const g0 = all[0];
-      shown = false;
-      if (cam && g0 && look) {
-        _to.set(0, sim.level.floorAt(0, g0.z), g0.z);
-        const dist = _to.distanceTo(cam.position);
-        shown = dist > cam.far * SILHOUETTE_FROM;
-        if (shown) {
-          const at = Math.min(dist, cam.far * SILHOUETTE_AT);
-          silhouette.position.copy(cam.position).addScaledVector(_to.sub(cam.position).normalize(), at);
-          const height = look.height;
-          silhouette.scale.setScalar(Math.max(at / dist, (Math.tan(SILHOUETTE_MIN_RAD) * at) / height));
-          silhouette.lookAt(cam.position);
+      shownCount = 0;
+      silhouettes.forEach((sil, i) => {
+        const g = all[i];
+        let on = false;
+        if (cam && g && look) {
+          _to.set(0, sim.level.floorAt(0, g.z), g.z);
+          const dist = _to.distanceTo(cam.position);
+          on = dist > cam.far * SILHOUETTE_FROM;
+          if (on) {
+            const at = Math.min(dist, cam.far * SILHOUETTE_AT);
+            sil.position.copy(cam.position).addScaledVector(_to.sub(cam.position).normalize(), at);
+            sil.scale.setScalar(Math.max(at / dist, (Math.tan(SILHOUETTE_MIN_RAD) * at) / look.height));
+            sil.lookAt(cam.position);
+          }
         }
-      }
-      silhouette.visible = shown;
+        sil.visible = on;
+        if (on) shownCount++;
+      });
+      shown = silhouette.visible;
     },
   };
 }
