@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { test, expect, testState, waitTicks } from './fixtures.ts';
+import { test, expect, shot1080, testState, waitTicks } from './fixtures.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 import theme from '../content/avalanche/theme.json' with { type: 'json' };
 
@@ -17,7 +17,6 @@ const hex = (h: string): [number, number, number] => [parseInt(h.slice(1, 3), 16
 test('with the Speed of the advice the bot slips past the giant to the summit on the first try; screenshots', async ({ page, openGame }) => {
   test.setTimeout(150_000);
   mkdirSync(EVIDENCE, { recursive: true });
-  await page.setViewportSize({ width: 1920, height: 1080 });
   await openGame('pace=open&quality=high');
   // The scripted first wave out of the way (it would start at section 2 on the way up).
   await page.evaluate(() => window.__TEST__!.setTimeScale(8));
@@ -29,13 +28,12 @@ test('with the Speed of the advice the bot slips past the giant to the summit on
     window.__TEST__!.teleport(z);
   }, [zone[0] - 14, advice] as const);
   await waitTicks(page, 150);
-  await page.screenshot({ path: `${EVIDENCE}/boss_zone_1920x1080_ru.png` });
+  await shot1080(page, `${EVIDENCE}/boss_zone_1920x1080_ru.png`);
   await page.evaluate((z) => window.__TEST__!.botPath([[0, z]]), zone[1] + 20);
   await page.waitForFunction(() => window.__TEST__!.simEvents.some((e) => e.name === 'bossEnter'), undefined, { timeout: 30_000 });
   // The chase: the giant turned to the hero and walks at him.
   await page.waitForFunction(() => window.__TEST__!.state().boss?.zones[0]?.giants[0]?.mode === 'chase', undefined, { timeout: 30_000 });
-  await waitTicks(page, 20);
-  await page.screenshot({ path: `${EVIDENCE}/boss_chase_1920x1080_ru.png` });
+  await shot1080(page, `${EVIDENCE}/boss_chase_1920x1080_ru.png`, 20);
   await page.waitForFunction(() => window.__TEST__!.simEvents.some((e) => e.name === 'bossPassed' || e.name === 'bossCaught'), undefined, { timeout: 60_000 });
   // The toast right away: under load 30 ticks may outlive it.
   await expect.poll(async () => (await testState(page)).waveHud.toast).toContain('Проскочил великана');
@@ -45,7 +43,7 @@ test('with the Speed of the advice the bot slips past the giant to the summit on
   expect(events).toContain('bossPassed');
   expect(events).not.toContain('bossCaught');
   expect(s.gatesOpen[s.gatesOpen.length - 1]).toBe(true);
-  await page.screenshot({ path: `${EVIDENCE}/boss_passed_1920x1080_ru.png` });
+  await shot1080(page, `${EVIDENCE}/boss_passed_1920x1080_ru.png`);
 });
 
 test('at half the advice the giant catches the bot: back at the start of the zone, Speed and coins kept', async ({ page, openGame }) => {

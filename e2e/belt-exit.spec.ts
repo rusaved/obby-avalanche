@@ -9,7 +9,7 @@ import { beltExit, exitCaves, keyboardMover, type ExitResult } from './belt-exit
 const EXITS: Record<Pace, number> = { fast: 10, classic: 3 };
 
 for (const pace of PACES) {
-  test(`belt exit (${pace}): ${EXITS[pace]} exits in a row by W — the view back to the yaw before the frame, never at the hero, forward up the slope; also after an avalanche`, async ({ page, openGame }) => {
+  test(`belt exit (${pace}): ${EXITS[pace]} exits in a row by W — the view back to the yaw before the frame, never at the hero, forward up the slope; also after an avalanche @full`, async ({ page, openGame }) => {
     test.setTimeout(480_000);
     await openGame('pace=' + pace);
     const mover = keyboardMover(page);

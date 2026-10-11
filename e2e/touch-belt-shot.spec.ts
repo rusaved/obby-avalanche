@@ -7,7 +7,7 @@ import { beltExit, exitCaves, touchMover, type ExitResult } from './belt-exit.ts
 // playtest's touches did: a resting finger is not a turn by hand, the frame comes on the belt as on PC, in 5 caves of 5;
 // the exits by the stick bring the view back as on PC (e2e/belt-exit.ts).
 for (const pace of PACES) {
-  test(`touch belt frame (${pace}): with the stick and a resting thumb the wide frame comes on the belt in 5 caves of 5; exits by the stick as on PC`, async ({ page, openGame }) => {
+  test(`touch belt frame (${pace}): with the stick and a resting thumb the wide frame comes on the belt in 5 caves of 5; exits by the stick as on PC @full`, async ({ page, openGame }) => {
     test.setTimeout(420_000);
     await openGame('pace=' + pace);
     expect((await page.evaluate(() => window.__TEST__!.state().autoRun))).toBe(false);

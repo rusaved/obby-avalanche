@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
-import { test, expect, testState, waitTicks } from './fixtures.ts';
+import { test, expect, shot1080, testState, waitTicks } from './fixtures.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 
 // PS-08: sections of the open slope (docs/01-gdd.md 17.7, 17.8). The physical bot takes the bold lane of section 2 of
@@ -21,7 +21,6 @@ async function pastScriptedWave(page: Page): Promise<void> {
 test('the bot takes the bold lane of section 2 on mountain 2: over the crevasse, past the cliff, up to ridge 2; screenshots', async ({ page, openGame }) => {
   test.setTimeout(180_000);
   mkdirSync(EVIDENCE, { recursive: true });
-  await page.setViewportSize({ width: 1920, height: 1080 });
   await openGame('pace=open&quality=high');
   await pastScriptedWave(page);
   await page.evaluate(() => window.__TEST__!.gotoWorld(2));
@@ -37,11 +36,9 @@ test('the bot takes the bold lane of section 2 on mountain 2: over the crevasse,
     window.__TEST__!.setStat(s);
     window.__TEST__!.teleport(z);
   }, [fork.z - 12, 1e6] as const);
-  await waitTicks(page, 30);
-  await page.screenshot({ path: `${EVIDENCE}/fork_1920x1080_ru.png` });
+  await shot1080(page, `${EVIDENCE}/fork_1920x1080_ru.png`, 30);
   await page.evaluate(([x, z]) => window.__TEST__!.teleport(z, x), [xb, gap.z - 14] as const);
-  await waitTicks(page, 30);
-  await page.screenshot({ path: `${EVIDENCE}/crevasse_1920x1080_ru.png` });
+  await shot1080(page, `${EVIDENCE}/crevasse_1920x1080_ru.png`, 30);
   // The run: from below the slide, along the bold lane to the end of the fork, then to ridge 2.
   await page.evaluate(([x, z]) => window.__TEST__!.teleport(z, x), [xb, fork.z - 2] as const);
   await waitTicks(page, 5);

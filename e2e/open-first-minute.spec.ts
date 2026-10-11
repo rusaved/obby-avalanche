@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import type { Page } from '@playwright/test';
-import { test, expect, testState } from './fixtures.ts';
+import { test, expect, shot1080, testState } from './fixtures.ts';
 import type { TestState } from '../src/test-api/index.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 
@@ -30,7 +30,6 @@ type Leg = { z: number; req: number; grotto: Shelter | null; past: number };
 test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg, the ridges, the giant, the portal — 17.8 times', async ({ page, openGame }) => {
   test.setTimeout(420_000);
   mkdirSync(EVIDENCE, { recursive: true });
-  await page.setViewportSize({ width: 1920, height: 1080 });
   await openGame('pace=open&quality=high');
   const shelters = (await page.evaluate(() => window.__TEST__!.shelters())) as Shelter[];
   const beltGrotto = (kind: string, before: number): Shelter | null => shelters.find((n) => n.kind === kind && n.z < before && n.z > before - 30) ?? null;
@@ -50,7 +49,7 @@ test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg
   };
   const go = (path: Array<[number, number]>): Promise<void> => page.evaluate((p) => window.__TEST__!.botPath(p), path);
   const played = (): Promise<Played> => page.evaluate(() => window.__TEST__!.analyticsPlay());
-  const shot = (name: string): Promise<Buffer> => page.screenshot({ path: `${EVIDENCE}/ftue_${name}_1920x1080_ru.png` });
+  const shot = (name: string): Promise<void> => shot1080(page, `${EVIDENCE}/ftue_${name}_1920x1080_ru.png`);
 
   let s: TestState = await testState(page);
   expect(s.hint).toBe('hint.move');
@@ -88,11 +87,8 @@ test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg
       if (shots.has(name) || !due) continue;
       shots.add(name);
       await shot(name);
-      // The rest of the run in a smaller frame: the times are play seconds, the screenshots are taken.
-      if (shots.size === 3) {
-        await page.setViewportSize({ width: 960, height: 540 });
-        await page.evaluate(() => window.__TEST__!.setQuality('low'));
-      }
+      // The rest of the run at the low level: the times are play seconds, the screenshots are taken.
+      if (shots.size === 3) await page.evaluate(() => window.__TEST__!.setQuality('low'));
     }
     if (names.includes('gameTutorialComplete') || s.playSec > 240) break;
     if (s.caught) continue;

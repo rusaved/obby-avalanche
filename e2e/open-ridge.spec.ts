@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
-import { test, expect, testState, waitTicks } from './fixtures.ts';
+import { test, expect, shot1080, testState, waitTicks } from './fixtures.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 
 // PS-04: the ridge of the open slope (docs/01-gdd.md 17.3, 17.9, 17.11). The physical bot (controller and collisions in
@@ -25,7 +25,6 @@ async function walk(page: Page, points: Array<[number, number]>): Promise<void> 
 test('ridge 1 opens on the approach of the physical bot; all passages melt at once, fountain, flag, view frame; at ridge 2 only belt or run', async ({ page, openGame }) => {
   test.setTimeout(240_000);
   mkdirSync(EVIDENCE, { recursive: true });
-  await page.setViewportSize({ width: 1920, height: 1080 });
   await openGame('pace=open&quality=high');
   await waitTicks(page, 10);
   await page.evaluate((k) => window.__TEST__!.setTimeScale(k), TIME_SCALE);
@@ -55,7 +54,7 @@ test('ridge 1 opens on the approach of the physical bot; all passages melt at on
       rise = s.cameraPos[1] - s.hero!.y;
       back = Math.hypot(s.cameraPos[0] - s.hero!.x, s.cameraPos[1] - s.hero!.y, s.cameraPos[2] - s.hero!.z);
     }
-    if (i === 8) await page.screenshot({ path: `${EVIDENCE}/ridge_open_1920x1080_ru.png` });
+    if (i === 8) await shot1080(page, `${EVIDENCE}/ridge_open_1920x1080_ru.png`, 1);
     await waitTicks(page, 3);
   }
   expect(viewMax).toBeGreaterThan(0.9);
@@ -134,7 +133,6 @@ test('no «▶ Ad: open the wall» at any ridge; «▶ Ad: +N speed» in the rid
 test('section multiplier: past ridge 1 a step gives ×1.2 with the same shoes and pets; the plaque shows ×1,2', async ({ page, openGame }) => {
   test.setTimeout(120_000);
   mkdirSync(EVIDENCE, { recursive: true });
-  await page.setViewportSize({ width: 1920, height: 1080 });
   await openGame('pace=open');
   await waitTicks(page, 10);
   await expect(page.locator('[data-role="section-mult"]')).toHaveText('×1 за участок');
@@ -154,5 +152,7 @@ test('section multiplier: past ridge 1 a step gives ×1.2 with the same shoes an
   for (const a of before) expect(a).toBeCloseTo(1, 9);
   for (const a of after) expect(a).toBeCloseTo(1.2, 9);
   await expect(page.locator('[data-role="section-mult"]')).toHaveText('×1,2 за участок');
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await waitTicks(page, 3);
   await page.locator('[data-role="stat"]').screenshot({ path: `${EVIDENCE}/hud_section_mult_1920x1080_ru.png` });
 });

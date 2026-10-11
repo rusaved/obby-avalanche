@@ -82,7 +82,7 @@ for (const pace of PACES) {
   const balance = paceBalance(pace);
   const { gates, caves } = mountain(pace);
 
-  test(`belt frame (${pace}): 20 s on the belt of a cave at a closed gate — wide frame, never in the hero; a mouse turn gives the camera back`, async ({ page, openGame }) => {
+  test(`belt frame (${pace}): 20 s on the belt of a cave at a closed gate — wide frame, never in the hero; a mouse turn gives the camera back @full`, async ({ page, openGame }) => {
     test.setTimeout(240_000);
     await page.setViewportSize({ width: 1920, height: 1080 });
     await openGame('pace=' + pace);
@@ -145,7 +145,7 @@ for (const pace of PACES) {
     expect(s.cameraFixedBlend).toBe(1);
   });
 
-  test(`open gate (${pace}): walking through it the gate sign is in no frame between the camera and the hero`, async ({ page, openGame }) => {
+  test(`open gate (${pace}): walking through it the gate sign is in no frame between the camera and the hero @full`, async ({ page, openGame }) => {
     test.setTimeout(120_000);
     await openGame('pace=' + pace);
     const k = 1;

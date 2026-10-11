@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { test, expect, testState, waitTicks } from './fixtures.ts';
+import { test, expect, shot1080, testState, waitTicks } from './fixtures.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 
 // PS-06: the avalanche on the open slope (docs/01-gdd.md 17.5, 17.8). The physical bot runs up from the camp; at the
@@ -15,7 +15,6 @@ const EVIDENCE = 'docs/evidence/open';
 test('scripted wave at the entry of section 2: the bot in its grotto, «Phew, made it!» within 46 s', async ({ page, openGame }) => {
   test.setTimeout(180_000);
   mkdirSync(EVIDENCE, { recursive: true });
-  await page.setViewportSize({ width: 1920, height: 1080 });
   await openGame('pace=open&quality=high');
   await waitTicks(page, 10);
   const t0 = (await testState(page)).timeSec;
@@ -38,13 +37,15 @@ test('scripted wave at the entry of section 2: the bot in its grotto, «Phew, ma
   for (let i = 0; i < 400; i++) {
     s = await testState(page);
     if (!shot && s.wave?.phase === 'run' && s.inShelter) {
-      await waitTicks(page, 20);
-      await page.screenshot({ path: `${EVIDENCE}/wave_grotto_1920x1080_ru.png` });
+      await shot1080(page, `${EVIDENCE}/wave_grotto_1920x1080_ru.png`, 20);
       shot = true;
+      // The rest of the wave faster: the limit below is game time.
+      await page.evaluate(() => window.__TEST__!.setTimeScale(3));
     }
     if (s.waveHud.toast.startsWith('Уф, успел!')) break;
     await waitTicks(page, 3);
   }
+  await page.evaluate(() => window.__TEST__!.setTimeScale(1));
   expect(s.waveHud.toast).toMatch(/^Уф, успел!/);
   expect(s.inShelter).toBe(true);
   expect(s.timeSec - t0, 'grotto of section 2 by').toBeLessThanOrEqual(46);

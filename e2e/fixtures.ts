@@ -78,6 +78,18 @@ export async function runGameTime(page: Page, targetSec: number, scale = 20): Pr
   await page.evaluate(() => window.__TEST__!.setTimeScale(1));
 }
 
+/**
+ * An evidence screenshot at 1920×1080: the page takes that size only for the shot — SwiftShader draws 4× the pixels of
+ * 960×540 on the CPU the other worker shares — `ticks` frames to settle, then back to its own size (same 16:9).
+ */
+export async function shot1080(page: Page, path: string, ticks = 3): Promise<void> {
+  const size = page.viewportSize();
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await waitTicks(page, ticks);
+  await page.screenshot({ path });
+  if (size) await page.setViewportSize(size);
+}
+
 /** Waits until the simulation has advanced by `n` ticks (game time, independent of the machine speed). */
 export async function waitTicks(page: Page, n: number, timeout = 60_000): Promise<void> {
   const start = await page.evaluate(() => window.__TEST__!.state().ticks);

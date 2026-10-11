@@ -126,7 +126,7 @@ async function watchWave(page: Page, cave: Cave, label: string, shotPath: string
 for (const pace of PACES) {
   const balance = paceBalance(pace);
   for (const [width, height] of [[1920, 1080], [1280, 720]] as const) {
-    test(`cave frame on the avalanche (${pace}, ${width}x${height}): scripted and normal wave, hero on the belt`, async ({ page, openGame }) => {
+    test(`cave frame on the avalanche (${pace}, ${width}x${height}): scripted and normal wave, hero on the belt @full`, async ({ page, openGame }) => {
       test.setTimeout(300_000);
       await page.setViewportSize({ width, height });
       await openGame('pace=' + pace);
