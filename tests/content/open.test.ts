@@ -36,6 +36,7 @@ describe('pace open by default (PS-02)', () => {
     expect(open.camera).toEqual({ ...shared.camera, distance: 13, height: 4.5, pitchDeg: 24, fov: 76, zoomMax: 26, mobileFovAdd: 4 });
     expect(open.controller).toEqual(shared.controller);
     expect(open.ridgeShot).toEqual({ rise: 6, back: 4, sec: 1.5 });
+    expect(open.bossShot).toEqual({ side: 10, rise: 2, back: 2, sec: 1 });
     expect(open.far).toEqual({ pc: 600, mobile: 450 });
     expect(shared.camera.distance).toBe(10);
   });

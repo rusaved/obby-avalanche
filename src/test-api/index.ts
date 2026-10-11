@@ -11,7 +11,7 @@ import type { GameHandles, SimEventRecord } from '../app/handles.ts';
 import { analyticsEvents, onTrack } from '../analytics/index.ts';
 import type { QualityLevel } from '../render/quality.ts';
 import { content, pace } from '../content/index.ts';
-import { Ray, Vector3 } from 'three';
+import { Ray, Vector3, type Object3D } from 'three';
 import type { LevelData } from '../level/types.ts';
 import { segmentMeetsBox } from '../app/banner-signs.ts';
 
@@ -169,6 +169,7 @@ export interface TestState {
   menuOpen: boolean;
   lastFrameMs: number;
   lastSimMs: number;
+  lastStepMs: number;
   gpuLoad: number;
   framesPresented: number;
   framesRendered: number;
@@ -181,6 +182,8 @@ export interface TestApi {
   simEvents: SimEventRecord[];
   analytics(): ReadonlyArray<{ name: string; t: number; params?: Record<string, unknown> }>;
   renderInfo(): RenderInfo | null;
+  /** Objects drawn in a frame drawn right now (the shadow map pass apart), by name (the parent's when unnamed) with their count (PS-09: what the draw calls are). */
+  drawList(): Array<[string, number]>;
   /** Colour [r, g, b] of the canvas pixel at field px (x, y) of a frame drawn right now (PS-07: the giant seen from the camp). */
   pixelAt(x: number, y: number): [number, number, number];
   setTimeScale(k: number): void;
@@ -541,6 +544,7 @@ export function installTestApi(g: GameHandles): TestApi {
         menuOpen: g.pause.has('menu'),
         lastFrameMs: g.lastFrameMs,
         lastSimMs: g.lastSimMs,
+        lastStepMs: g.lastStepMs,
         gpuLoad: g.gpuLoad,
         framesPresented: g.framesPresented,
         framesRendered: g.framesRendered,
@@ -550,6 +554,35 @@ export function installTestApi(g: GameHandles): TestApi {
     simEvents: g.simEvents,
     analytics: () => analyticsEvents(),
     renderInfo: () => g.renderer()?.info() ?? null,
+    drawList() {
+      const r = g.renderer();
+      if (!r) return [];
+      const drawn = new Map<string, number>();
+      const hooked: Array<[Object3D, Object3D['onBeforeRender'], Object3D['onBeforeShadow']]> = [];
+      r.scene.traverse((o) => {
+        const prev = o.onBeforeRender;
+        const prevShadow = o.onBeforeShadow;
+        hooked.push([o, prev, prevShadow]);
+        const name = o.name || o.parent?.name || `${o.type} ${(o as Object3D & { geometry?: { type: string } }).geometry?.type ?? ''}`;
+        // An instanced mesh with no instances is not drawn (no draw call).
+        const empty = (): boolean => (o as Object3D & { isInstancedMesh?: boolean; count?: number }).isInstancedMesh === true && (o as { count?: number }).count === 0;
+        const count = (k: string): void => void (!empty() && drawn.set(k, (drawn.get(k) ?? 0) + 1));
+        o.onBeforeRender = function (...a) {
+          count(name);
+          prev.apply(this, a);
+        };
+        o.onBeforeShadow = function (...a) {
+          count(`shadow: ${name}`);
+          prevShadow.apply(this, a);
+        };
+      });
+      g.loop.runSim(0);
+      for (const [o, prev, prevShadow] of hooked) {
+        o.onBeforeRender = prev;
+        o.onBeforeShadow = prevShadow;
+      }
+      return [...drawn].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+    },
     pixelAt(x, y) {
       const r = g.renderer();
       if (!r) return [0, 0, 0];

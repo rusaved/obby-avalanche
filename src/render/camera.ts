@@ -47,8 +47,9 @@ export interface CameraRig {
   /** Share of the fixed frame in the view now: 1 — the frame, 0 — the player's camera (tests: the way back). */
   readonly fixedBlend: number;
   /** View frame of the open slope (docs/01-gdd.md 17.9: up on a ridge): for `sec` the camera rises `rise` and backs off
-   * `back`, looking along the slope over the hero; control stays with the player, his first turn by hand ends it. */
-  view: { rise: number; back: number; sec: number; t: number } | null;
+   * `back`, looking along the slope over the hero; control stays with the player, his first turn by hand ends it.
+   * `side` — the shot from the side (into the giant's zone, 17.9: the hero and the giant both in the frame). */
+  view: { rise: number; back: number; sec: number; t: number; side?: number } | null;
   /** Share of the view frame in the camera now (0…1; tests). */
   readonly viewBlend: number;
   update(dt: number, target: CameraTarget, input: CameraInputInfo, collision: CollisionWorld | null): void;
@@ -82,16 +83,18 @@ function smooth01(k: number): number {
   return k * k * (3 - 2 * k);
 }
 
-export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, tuning: TuningJson, rngNext: () => number): CameraRig {
+export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, tuning: TuningJson, rngNext: () => number, mobile = false): CameraRig {
   const c = tuning.camera;
+  /** The FOV of this device: a phone sees wider on the open slope (docs/01-gdd.md 17.9: camera.mobileFovAdd). */
+  const baseFov = (): number => c.fov + (mobile ? (c.mobileFovAdd ?? 0) : 0);
   camera.near = 0.1;
   camera.far = 400;
-  camera.fov = c.fov;
+  camera.fov = baseFov();
   camera.updateProjectionMatrix();
   const pivot = new Vector3();
   const heroChest = new Vector3();
   const heroHead = new Vector3();
-  let fov = c.fov;
+  let fov = baseFov();
   let shakeT = 0;
   /** Extra pitch over the wall right behind the hero (rad), and the blend into the fixed frame (0…1). */
   let raise = 0;
@@ -317,6 +320,10 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       if (rig.view && viewK > 0) {
         _tmp.copy(_desired);
         _desired.y += rig.view.rise * viewK;
+        // From the side: the camera steps to the hero's right (screen right is −X at yaw 0).
+        const side = (rig.view.side ?? 0) * viewK;
+        _desired.x += -Math.cos(yaw) * side;
+        _desired.z += Math.sin(yaw) * side;
         if (collision && blocked(_desired, c.collisionRadius, collision)) _desired.copy(_tmp);
         _look.x += Math.sin(yaw) * (rig.view.back + rig.view.rise) * viewK;
         _look.z += Math.cos(yaw) * (rig.view.back + rig.view.rise) * viewK;
@@ -366,7 +373,7 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
 
       // FOV from speed, smoothed.
       const ratio = target.maxSpeed > 0 ? Math.min(1, target.speed / target.maxSpeed) : 0;
-      let wantFov = c.fov + c.fovSpeedAdd * ratio;
+      let wantFov = baseFov() + c.fovSpeedAdd * ratio;
       if (fixedK > 0) wantFov += (fixedFov - wantFov) * smooth01(fixedK);
       const kf = dt > 0 ? 1 - Math.exp(-dt / Math.max(1e-3, c.fovSmoothSec)) : 1;
       fov += (wantFov - fov) * kf;

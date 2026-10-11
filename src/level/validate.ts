@@ -327,7 +327,7 @@ const tuningSchema = v.object({
   fun: v.object({ padSpeed: positive, padForward: nonNeg, slideMult: v.pipe(v.number(), v.minValue(1)), slideSec: nonNeg, giftStreakSec: nonNeg }),
   // Pace open (docs/01a-content.md 16.7): the ridge view, the giant-zone shot, the giant's stomp, draw distance.
   ridgeShot: v.optional(v.object({ rise: nonNeg, back: nonNeg, sec: positive })),
-  bossShot: v.optional(v.object({ side: positive, sec: positive })),
+  bossShot: v.optional(v.object({ side: positive, rise: nonNeg, back: nonNeg, sec: positive })),
   boss: v.optional(v.object({ stompShake: nonNeg })),
   far: v.optional(v.object({ pc: positive, mobile: positive })),
   gateReward: v.object({

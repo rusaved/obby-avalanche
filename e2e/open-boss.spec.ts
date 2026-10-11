@@ -37,13 +37,14 @@ test('with the Speed of the advice the bot slips past the giant to the summit on
   await waitTicks(page, 20);
   await page.screenshot({ path: `${EVIDENCE}/boss_chase_1920x1080_ru.png` });
   await page.waitForFunction(() => window.__TEST__!.simEvents.some((e) => e.name === 'bossPassed' || e.name === 'bossCaught'), undefined, { timeout: 60_000 });
+  // The toast right away: under load 30 ticks may outlive it.
+  await expect.poll(async () => (await testState(page)).waveHud.toast).toContain('Проскочил великана');
   await waitTicks(page, 30);
   const s = await testState(page);
   const events = await page.evaluate(() => window.__TEST__!.simEvents.map((e) => e.name));
   expect(events).toContain('bossPassed');
   expect(events).not.toContain('bossCaught');
   expect(s.gatesOpen[s.gatesOpen.length - 1]).toBe(true);
-  expect(s.waveHud.toast).toContain('Проскочил великана');
   await page.screenshot({ path: `${EVIDENCE}/boss_passed_1920x1080_ru.png` });
 });
 

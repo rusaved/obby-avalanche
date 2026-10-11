@@ -1,10 +1,10 @@
-// What: Level meshes: boxes and ramps merged per 120-unit chunk with baked vertex colours; gates, gifts, fun parts and cave walls as InstancedMeshes; gate signs.
+// What: Level meshes: boxes and ramps merged per 120-unit chunk (per section on the open slope) with baked vertex colours; gates, gifts, fun parts and cave walls as InstancedMeshes; gate signs.
 // Called by: main.ts; app/banner-signs.ts, fun-view.ts, handles.ts, wave-view.ts.
 // Keep: Draw-call budget (chunks plus a few instanced meshes); colours only from theme.json; instance indices follow LevelData order (gates, points, fun.pads).
 
 /**
  * Level meshes (docs/02-tech.md 9.1): static boxes and ramps merged per 120-unit chunk with baked vertex colours
- * (one Lambert material), gates and gifts as InstancedMeshes, gate numbers from the digit atlas. Grey/flat at M1,
+ * (one Lambert material) — on the open slope one chunk a section, the camp and the summit straight (docs/01-gdd.md 17.10), gates and gifts as InstancedMeshes, gate numbers from the digit atlas. Grey/flat at M1,
  * themed details at M5. The back walls and roofs of the caves are one InstancedMesh of their own: the wide frame of an
  * avalanche (PR-07) looks into its cave from above the back wall, the roof (or the back wall) is not drawn meanwhile.
  * Trampolines and ice slides (PR-04) are one InstancedMesh more.
@@ -154,10 +154,18 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   group.name = `level-${level.worldId}`;
   const material = new MeshLambertMaterial({ vertexColors: true });
 
-  // Static geometry per chunk along Z.
-  const chunkCount = Math.ceil(level.length / CHUNK_LENGTH);
+  // Static geometry per chunk along Z: edges every CHUNK_LENGTH, or the edges of the sections of the open slope.
+  const edges =
+    level.sections.length > 0
+      ? [...new Set([0, ...level.sections.flatMap((s) => [s.z0, s.z1]), level.length])].sort((a, b) => a - b)
+      : Array.from({ length: Math.ceil(level.length / CHUNK_LENGTH) + 1 }, (_, i) => Math.min(level.length, i * CHUNK_LENGTH));
+  const chunkCount = edges.length - 1;
   const buckets: BufferGeometry[][] = Array.from({ length: chunkCount }, () => []);
-  const bucketOf = (z: number): BufferGeometry[] => buckets[Math.min(chunkCount - 1, Math.max(0, Math.floor(z / CHUNK_LENGTH)))] as BufferGeometry[];
+  const bucketOf = (z: number): BufferGeometry[] => {
+    let i = 0;
+    while (i < chunkCount - 1 && z >= edges[i + 1]!) i++;
+    return buckets[i]!;
+  };
   // The back wall of a cave is a cave wall outside the cave box on its far side, the roof lies over it (src/level/builder.ts).
   const partOf = (b: LevelBox): { niche: number; part: CavePart } | null => {
     if (b.kind !== 'nicheWall' && b.kind !== 'nicheRoof') return null;
@@ -223,7 +231,8 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     merged.computeBoundingSphere();
     const mesh = new Mesh(merged, material);
     mesh.name = `chunk-${i}`;
-    mesh.userData['z'] = (i + 0.5) * CHUNK_LENGTH;
+    mesh.userData['z0'] = edges[i];
+    mesh.userData['z1'] = edges[i + 1];
     group.add(mesh);
     chunks.push(mesh);
   });
@@ -532,10 +541,8 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       gates.instanceMatrix.needsUpdate = true;
     },
     cullByDistance(z, far) {
-      for (const c of chunks) {
-        const cz = c.userData['z'] as number;
-        c.visible = Math.abs(cz - z) < far + CHUNK_LENGTH;
-      }
+      // Half a chunk of margin each way (a 120-unit chunk shows while its centre is within far + 120).
+      for (const c of chunks) c.visible = c.userData['z1'] > z - far - CHUNK_LENGTH / 2 && c.userData['z0'] < z + far + CHUNK_LENGTH / 2;
     },
     dispose() {
       for (const c of chunks) c.geometry.dispose();

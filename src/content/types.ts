@@ -287,8 +287,8 @@ export interface TuningJson {
   gateReward: { fountain: [number, number]; streakSec: number; streakSteps: number };
   /** Pace open (docs/01a-content.md 16.7): the ridge view — up `rise`, back `back`, `sec` long (docs/01-gdd.md 17.9). */
   ridgeShot?: { rise: number; back: number; sec: number };
-  /** The giant-zone shot: from the side `side` units away, `sec` long (docs/01-gdd.md 17.9). */
-  bossShot?: { side: number; sec: number };
+  /** The giant-zone shot: from the side `side` units, up `rise`, back `back`, `sec` long (docs/01-gdd.md 17.9). */
+  bossShot?: { side: number; rise: number; back: number; sec: number };
   /** The giant's stomp shakes the camera this much near him. */
   boss?: { stompShake: number };
   /** Draw distance of the slope parts on a PC and a phone (docs/01-gdd.md 17.10). */

@@ -73,6 +73,8 @@ export interface GameHandles {
   field: FieldRect;
   lastFrameMs: number;
   lastSimMs: number;
+  /** Of it, sim.step alone (the budget of docs/02-tech.md 9.5; the rest is the save mirror and the views). */
+  lastStepMs: number;
   gpuLoad: number;
   framesPresented: number;
   framesRendered: number;

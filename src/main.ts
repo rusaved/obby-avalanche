@@ -54,7 +54,7 @@ import { faceDataUrl } from './render/characters.ts';
 import { createAudio, type GameAudio } from './audio/index.ts';
 import type { ThreatOptions } from './sim/threat.ts';
 import type { World } from './content/types.ts';
-import { createQuality, type QualityLevel } from './render/quality.ts';
+import { createQuality, qualityParams, type QualityLevel } from './render/quality.ts';
 import { buildLevel } from './level/builder.ts';
 import { createSim, controllerParams, type Sim } from './sim/world.ts';
 import { HERO_HEIGHT } from './sim/controller.ts';
@@ -78,6 +78,9 @@ const DEG = Math.PI / 180;
 const GAIN_POP_MIN_SEC = 0.25;
 /** A gate melts into an arch in 0.4 s (docs/01-gdd.md 3.3). */
 const GATE_MELT_SEC = 0.4;
+/** The camera's far plane at least (src/render/camera.ts), and over the fog's end by this share. */
+const CAMERA_FAR = 400;
+const FAR_PLANE_OVER_FOG = 1.15;
 const GATE_FUNNEL_WALLS = [1, 2, 3, 4, 6, 9];
 /** Play time goes into the save at most this often (seconds of play). */
 const PLAY_PERSIST_SEC = 5;
@@ -331,7 +334,12 @@ async function boot(): Promise<void> {
     // Back above the record flag after «Snowed in!» or the giant (docs/01-gdd.md 17.7): «New height!».
     s.events.on('recordUp', () => hud?.toast(t('toast.recordUp')));
     // The giant (docs/01-gdd.md 17.6): into his zone, past him, caught — a toast each; nothing is lost on a catch.
-    s.events.on('bossEnter', () => hud?.toast(t('boss.start')));
+    s.events.on('bossEnter', () => {
+      hud?.toast(t('boss.start'));
+      // Into the giant's zone (docs/01-gdd.md 17.9): a second from the side, the hero and the giant, then back behind.
+      const shot = tuning.bossShot;
+      if (shot && cameraRig) cameraRig.view = { rise: shot.rise, back: shot.back, side: shot.side, sec: shot.sec, t: 0 };
+    });
     s.events.on('bossPassed', () => {
       hud?.toast(t('boss.passed'), 3);
       audio?.play('gate');
@@ -467,6 +475,7 @@ async function boot(): Promise<void> {
     },
     lastFrameMs: 0,
     lastSimMs: 0,
+    lastStepMs: 0,
     gpuLoad,
     framesPresented: 0,
     framesRendered: 0,
@@ -613,11 +622,19 @@ async function boot(): Promise<void> {
     },
   };
 
+  // Draw distance (docs/01-gdd.md 17.10): the open slope sees far — tuning `far` (PC / phone) for the high level, the
+  // lower levels shorter by the same share as their fog; other paces — the fog of the quality level.
+  const highFog = qualityParams('high', mobile).fogFar;
+  const drawFar = (): number => (tuning.far ? (mobile ? tuning.far.mobile : tuning.far.pc) * (quality.params.fogFar / highFog) : quality.params.fogFar);
   const applyQualityNow = (): void => {
     if (!gr) return;
-    gr.applyQuality(quality.params);
+    gr.applyQuality({ ...quality.params, fogFar: drawFar() });
+    // The far plane keeps the fog's end in view (the giant's silhouette stands inside it, src/app/boss-view.ts).
+    gr.camera.far = Math.max(CAMERA_FAR, drawFar() * FAR_PLANE_OVER_FOG);
+    gr.camera.updateProjectionMatrix();
     gr.resize(field.width, field.height, quality.dpr);
-    if (characters) characters.group.traverse((o) => void (o.castShadow = quality.params.shadowMap > 0));
+    // Bodies cast the shadow, accessories do not: 4 draw calls fewer in the shadow pass (docs/02-tech.md 9.5; PS-09).
+    if (characters) characters.group.traverse((o) => void (o.castShadow = quality.params.shadowMap > 0 && o.name.startsWith('char-')));
     levelMeshes?.chunks.forEach((c) => void (c.receiveShadow = quality.params.shadowMap > 0));
     avalanche?.setParticles(quality.params.particles);
     fx?.setShare(quality.params.particles);
@@ -779,7 +796,9 @@ async function boot(): Promise<void> {
       }
     }
     prevPos.copy(sim.hero.pos);
+    const s0 = performance.now();
     sim.step({ moveX: w.x, moveZ: w.z, jump: snap.jumpPressed, jumpHeld: snap.jumpHeld }, dt);
+    g.lastStepMs = performance.now() - s0;
     curPos.copy(sim.hero.pos);
     maxSpeed = sim.params.speed;
     if (pendingSummit !== null) {
@@ -894,7 +913,7 @@ async function boot(): Promise<void> {
     // Test hooks see the frame as it is drawn: camera, hero and the signs hidden for it (PR-11).
     g.onFrame?.();
     gr.follow(renderPos);
-    levelMeshes?.cullByDistance(renderPos.z, quality.params.fogFar);
+    levelMeshes?.cullByDistance(renderPos.z, drawFar());
     if (hud) {
       if (pendingGain !== null && cameraRig && playSec - lastGainPopAt >= GAIN_POP_MIN_SEC && heroChar?.visible) {
         headPos.copy(renderPos);
@@ -998,7 +1017,8 @@ async function boot(): Promise<void> {
   }
   avalanche = createAvalancheVisual(level, theme, tuning, rng.next);
   gr.scene.add(avalanche.group);
-  cameraRig = createCameraRig(gr.camera, frame, tuning, rng.next);
+  cameraRig = createCameraRig(gr.camera, frame, tuning, rng.next, mobile);
+  applyQualityNow();
   g.camera = cameraRig;
   cameraRig.snapTo({ pos: sim.hero.pos, vel: sim.hero.vel, speed: 0, maxSpeed });
 
