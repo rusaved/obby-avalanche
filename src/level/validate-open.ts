@@ -348,6 +348,19 @@ export function validateOpenFun(worlds: WorldsJson, tuning: TuningJson, speedAt:
         if (hits) errors.push(`${where} — its arc at ${v.toFixed(1)} units/s meets a grotto`);
       }
     }
+    // A throat (docs/01a-content.md 17.2): from its entry along its slide and on to the field grotto at the minimum speed
+    // of its section ≤ warnSec × 0.8.
+    for (const t of w.segments.filter((x) => x.type === 'throat')) {
+      const below = gates.filter((g) => g.z <= t.z);
+      const v = speedAt(below.length ? num(below[below.length - 1] as Segment, 'requires') : carried);
+      const exit = t.z + num(t, 'length');
+      const slide = w.segments.find((x) => x.type === 'slide' && x['shape'] === 'throat' && Math.abs(x.z - (t.z + exit) / 2) < 1);
+      const mult = slide && typeof slide['mult'] === 'number' ? (slide['mult'] as number) : 1;
+      const field = level.niches.filter((n) => n.z > exit && n.kind === 'grotto').sort((a, b) => a.z - b.z)[0];
+      if (!field) continue;
+      const sec = num(t, 'length') / (mult * v) + distToEntrance(level, field, 0, exit).dist / v;
+      if (sec > w.threat.warnSec * OPEN_FAIRNESS_SHARE) errors.push(`${at}: throat at z=${t.z} — its entry to the field grotto takes ${sec.toFixed(2)} s at ${v.toFixed(1)} units/s, above warnSec × ${OPEN_FAIRNESS_SHARE}`);
+    }
     for (const s of w.segments.filter((x) => x.type === 'slide')) {
       const x = num(s, 'x');
       const z0 = s.z - num(s, 'length') / 2;

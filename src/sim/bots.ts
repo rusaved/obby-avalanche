@@ -57,6 +57,8 @@ export interface Bot {
   slide: number;
   /** Feet height where the trampoline threw him (the flight is counted from it, over a chasm too). */
   hopY: number;
+  /** The boost of the last slide (its own `mult`, a throat). */
+  slideK: number;
 }
 
 export interface BotContext {
@@ -100,8 +102,8 @@ const REACH = 0.4;
 const LANE_MARGIN = 2;
 /** The bot walks out of a cave to this far inside the track edge (the mouth). */
 const MOUTH_INSET = 2;
-/** Boxes that are not obstacles on the slope. */
-const NOT_OBSTACLE = new Set(['floor', 'border', 'nicheFloor', 'nicheWall', 'nicheRoof']);
+/** Boxes that are not obstacles on the slope (the walls of throats and tunnels squeeze the lanes only along them). */
+const NOT_OBSTACLE = new Set(['floor', 'border', 'nicheFloor', 'nicheWall', 'nicheRoof', 'throatWall', 'tunnelWall', 'tunnelRoof']);
 /** Camp places keep this far from the middle of the track and from props (tent, tree, egg stand, belt). */
 const CAMP_CLEAR_MID = 4;
 const CAMP_CLEAR_PROP = 3.5;
@@ -218,6 +220,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       hop: -1,
       slide: 0,
       hopY: 0,
+      slideK: 1,
     };
     if (!inCamp) bot.x = bot.lane;
     bot.y = level.floorYAt(bot.z);
@@ -326,9 +329,26 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
   const pads = fun ? level.points.filter((p) => p.type === 'jumpPad') : [];
   const slides = fun ? level.points.filter((p) => p.type === 'slide') : [];
   const on = (p: LevelPoint, x: number, z: number): boolean => Math.abs(x - p.x) <= (p['width'] as number) / 2 && Math.abs(z - p.z) <= (p['length'] as number) / 2;
+  // Narrow places (docs/01-gdd.md 18.3): in a throat bots keep between its walls (closing in over its funnel); on the
+  // side of a tunnel they keep inside its hall. Out on the track only, not in a cave.
+  const narrows = (level.shapes ?? []).filter((n) => n.kind === 'throat' || n.kind === 'tunnel');
+  const squeeze = (b: Bot): void => {
+    if (inCave(b)) return;
+    for (const n of narrows) {
+      if (b.z < n.z0 || b.z > n.z1) continue;
+      if (n.kind === 'throat') {
+        const f = n.funnel ?? 0;
+        const k = f > 0 ? Math.min(1, (b.z - n.z0) / f, (n.z1 - b.z) / f) : 1;
+        const lim = halfW - (halfW - n.x1) * k - LANE_MARGIN;
+        b.x = Math.max(-lim, Math.min(lim, b.x));
+      } else if ((n.side === 'left') === b.x < 0) b.x = Math.max(n.x0 + LANE_MARGIN, Math.min(n.x1 - LANE_MARGIN, b.x));
+    }
+  };
   const move = (b: Bot, dt: number, speed: number): void => {
-    b.slide = slides.some((p) => on(p, b.x, b.z)) ? (fun?.cfg.slideSec ?? 0) : Math.max(0, b.slide - dt);
-    let left = speed * dt * (b.slide > 0 ? (fun?.cfg.slideMult ?? 1) : 1);
+    const sl = slides.find((p) => on(p, b.x, b.z));
+    if (sl) b.slideK = typeof sl['mult'] === 'number' ? (sl['mult'] as number) : (fun?.cfg.slideMult ?? 1);
+    b.slide = sl ? (fun?.cfg.slideSec ?? 0) : Math.max(0, b.slide - dt);
+    let left = speed * dt * (b.slide > 0 ? b.slideK : 1);
     b.moving = false;
     while (left > 0 && b.path.length > 0) {
       const [tx, tz] = b.path[0]!;
@@ -348,6 +368,12 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       b.moving = true;
       if (k < 1) break;
       left -= d;
+    }
+    if (narrows.length) {
+      squeeze(b);
+      // A step sideways into a wall of a narrow place never ends: past it.
+      const wp = b.path[0];
+      if (wp && Math.abs(wp[1] - b.z) <= REACH && Math.abs(wp[0] - b.x) > REACH) b.path.shift();
     }
     // Feet on the ground where he is (open slope: down into a chasm, up a hump, docs/01-gdd.md 18.3); off the track
     // (in a cave) — the floor of the track centre at that z.
