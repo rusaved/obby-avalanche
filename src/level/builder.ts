@@ -24,6 +24,10 @@ export const PORTAL_HALF_WIDTH = 4;
 export const NICHE_BELT_WIDTH = 3;
 /** The walls of a throat step in over its funnel in this many blocks (docs/01-gdd.md 18.3). */
 export const THROAT_STEPS = 4;
+/** A tunnel (docs/01-gdd.md 18.3): the glowing lintel of its mouths, its crystals (size, one every so many units). */
+const TUNNEL_LINTEL = 1.2;
+const TUNNEL_CRYSTAL = 0.8;
+const TUNNEL_CRYSTAL_EVERY = 14;
 
 function num(seg: Segment, key: string, def = 0): number {
   const v = seg[key];
@@ -217,6 +221,16 @@ export function buildLevel(world: World): LevelData {
     const [hx0, hx1] = span(a, b);
     boxes.push(box([wx0, y - FLOOR_THICKNESS, z0], [wx1, y + h + FLOOR_THICKNESS, z1], 'ice', 'tunnelWall'));
     boxes.push(box([rx0, y + h, z0], [rx1, y + h + FLOOR_THICKNESS, z1], 'ice', 'tunnelRoof'));
+    // Its mouths glow like a grotto, crystals light the dim hall (docs/01-gdd.md 18.3): drawn only, no colliders.
+    for (const ze of [z0, z1]) {
+      boxes.push(box([hx0, y + h - TUNNEL_LINTEL, ze - 0.3], [hx1, y + h, ze + 0.3], 'cave', 'tunnelGlow', false));
+      for (const xe of [hx0, hx1]) boxes.push(box([xe - 0.3, y, ze - 0.3], [xe + 0.3, y + h, ze + 0.3], 'cave', 'tunnelGlow', false));
+    }
+    const xc = sign > 0 ? hx1 - TUNNEL_CRYSTAL / 2 - 0.1 : hx0 + TUNNEL_CRYSTAL / 2 + 0.1;
+    for (let zc = z0 + TUNNEL_CRYSTAL_EVERY / 2, k = 0; zc < z1 - 2; zc += TUNNEL_CRYSTAL_EVERY, k++) {
+      const hc = TUNNEL_CRYSTAL * (k % 2 ? 2.5 : 1.6);
+      boxes.push(box([xc - TUNNEL_CRYSTAL / 2, y, zc - TUNNEL_CRYSTAL / 2], [xc + TUNNEL_CRYSTAL / 2, y + hc, zc + TUNNEL_CRYSTAL / 2], 'portal', 'crystal', false));
+    }
     niches.push({
       stretch: num(t, 'stretch'),
       z: (z0 + z1) / 2,

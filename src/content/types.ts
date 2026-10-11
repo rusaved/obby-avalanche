@@ -558,6 +558,8 @@ export interface BotsJson {
   campReleaseSec: [number, number];
   /** Name labels: full up to `nearDist` from the camera, faded out over the next `fadeDist`. */
   label: { nearDist: number; fadeDist: number };
+  /** Open slope (docs/01-gdd.md 18.3): the share of bots that take a tunnel at its fork; absent — the lane decides. */
+  tunnelShare?: number;
 }
 
 /** sfx.json (docs/02-tech.md 10): ZzFX parameters per sound event. */

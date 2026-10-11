@@ -206,6 +206,19 @@ export function validateOpenShapes(worlds: WorldsJson, spec: OpenSpecJson): stri
         if (fork && (e['side'] === fork['bold']) !== (t === 'hump')) errors.push(`${at}: section ${j} — the ${t} is on the ${t === 'hump' ? 'calm' : 'bold'} lane (a tunnel is the calm lane, a hump the bold one)`);
         if ((ch && e.z < ch.z + num(ch, 'length')) || (th && e.z < th.z + num(th, 'length'))) errors.push(`${at}: section ${j} — the ${t} at z=${e.z} overlaps an element below it`);
       }
+      // A tunnel opens at both ends (docs/01-gdd.md 18.3): ground in front of each mouth at its floor, nothing solid there.
+      const tu = one('tunnel');
+      if (tu) {
+        const level = buildLevel(w);
+        const n = level.niches.find((x) => x.kind === 'tunnel' && Math.abs(x.box.min[2] - tu.z) < 1e-6);
+        if (n) {
+          const mx = (n.box.min[0] + n.box.max[0]) / 2;
+          for (const [name, zm] of [['entry', n.box.min[2] - 2], ['exit', n.box.max[2] + 2]] as const) {
+            const blocked = level.boxes.some((b) => b.solid && b.kind !== 'floor' && mx > b.min[0] && mx < b.max[0] && zm > b.min[2] && zm < b.max[2] && n.y + 1 > b.min[1] && n.y + 1 < b.max[1]);
+            if (blocked || Math.abs(level.floorAt(mx, zm) - n.y) > 0.01) errors.push(`${at}: section ${j} — the tunnel has no open ${name} at z=${zm} on its lane`);
+          }
+        }
+      }
       const hu = one('hump');
       if (hu) {
         const landEnd = num(hu, 'landEnd');

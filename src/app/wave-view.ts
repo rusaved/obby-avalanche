@@ -19,6 +19,7 @@ import type { Hud } from '../ui/hud.ts';
 import type { ControlFrame } from '../input/control-frame.ts';
 import { t } from '../ui/i18n.ts';
 import { NICHE_WALL } from '../level/builder.ts';
+import { distToEntrance } from '../sim/shelter.ts';
 
 /** Shake amplitude share while the front is far (0.05 of 0.3 units, docs/01-gdd.md 4.8) and the longest strong burst. */
 const FAR_SHAKE_SHARE = 0.17;
@@ -114,7 +115,12 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       let arrow: { x: number; y: number; angle: number } | null = null;
       if (cave && (ts.phase === 'warn' || (running && ts.outcome === 'none')) && sim.shelterIndex() < 0) {
         const sign = cave.side === 'left' ? -1 : 1;
-        p.set(sign * (sim.level.width / 2), cave.y + 4, cave.z).project(d.camera.camera);
+        // A tunnel (docs/01-gdd.md 18.3): its nearer mouth, not the track edge by its middle.
+        if (cave.kind === 'tunnel') {
+          const e = distToEntrance(sim.level, cave, hero.x, hero.z);
+          p.set(e.tx, cave.y + 4, e.tz);
+        } else p.set(sign * (sim.level.width / 2), cave.y + 4, cave.z);
+        p.project(d.camera.camera);
         const behind = p.z > 1;
         let nx = behind ? -p.x : p.x;
         let ny = behind ? -p.y : p.y;

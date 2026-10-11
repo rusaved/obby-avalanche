@@ -568,6 +568,7 @@ const botsSchema = v.object({
   awaySec: range,
   campReleaseSec: range,
   label: v.object({ nearDist: positive, fadeDist: nonNeg }),
+  tunnelShare: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
 });
 
 const i18nSchema = v.record(v.string(), v.pipe(v.string(), v.minLength(1, 'empty text')));

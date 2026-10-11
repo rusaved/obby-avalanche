@@ -21,5 +21,6 @@
   "spawnCampMax": 4,
   "awaySec": [20, 40],
   "campReleaseSec": [2, 12],
-  "label": { "nearDist": 35, "fadeDist": 10 }
+  "label": { "nearDist": 35, "fadeDist": 10 },
+  "tunnelShare": 0.5
 }

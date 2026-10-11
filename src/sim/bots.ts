@@ -59,6 +59,8 @@ export interface Bot {
   hopY: number;
   /** The boost of the last slide (its own `mult`, a throat). */
   slideK: number;
+  /** z of the last tunnel fork he chose a lane for (docs/01-gdd.md 18.3), −∞ none yet. */
+  tunnelFork: number;
 }
 
 export interface BotContext {
@@ -107,6 +109,8 @@ const NOT_OBSTACLE = new Set(['floor', 'border', 'nicheFloor', 'nicheWall', 'nic
 /** Camp places keep this far from the middle of the track and from props (tent, tree, egg stand, belt). */
 const CAMP_CLEAR_MID = 4;
 const CAMP_CLEAR_PROP = 3.5;
+/** A bot picks the tunnel or the open lane this far before the fork of a tunnel (docs/01-gdd.md 18.3). */
+const TUNNEL_PICK = 30;
 /** Wait at a closed wall before the cave again, seconds. */
 const WAIT_SEC: [number, number] = [1, 4];
 
@@ -221,6 +225,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       slide: 0,
       hopY: 0,
       slideK: 1,
+      tunnelFork: -Infinity,
     };
     if (!inCamp) bot.x = bot.lane;
     bot.y = level.floorYAt(bot.z);
@@ -247,6 +252,14 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
     const n = level.niches[cave];
     b.cave = cave;
     b.spot = spot;
+    if (n?.kind === 'tunnel') {
+      // A tunnel (docs/01-gdd.md 18.3) shelters along its whole hall: in it — stay; else to its nearer point along the lane.
+      const mx = (n.box.min[0] + n.box.max[0]) / 2;
+      const tz = Math.min(n.box.max[2] - 1, Math.max(n.box.min[2] + 1, b.z));
+      const inside = b.x >= n.box.min[0] && b.x <= n.box.max[0] && b.z >= n.box.min[2] && b.z <= n.box.max[2];
+      b.path = inside ? [] : [...(inCave(b) ? [[Math.sign(b.x) * (halfW - MOUTH_INSET), b.z] as [number, number]] : []), [mx, b.z < tz ? b.z : tz], [mx, tz]];
+      return;
+    }
     if (n && inCave(b) && Math.abs(b.z - n.z) <= (n.box.max[2] - n.box.min[2]) / 2 && Math.sign(b.x) === nicheSign(n)) {
       // Already inside this cave: straight to the place.
       const s = caveSpot(n, spot);
@@ -261,6 +274,22 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       pts.push([entranceX(level, n) - nicheSign(n) * MOUTH_INSET, n.z], [s.x, s.z]);
     }
     b.path = pts;
+  };
+  // A tunnel ahead (docs/01-gdd.md 18.3): before its fork a bot picks the tunnel with bots.tunnelShare, else the open
+  // lane — over to that side while the slope is still open.
+  const tunnelForks = (level.shapes ?? []).flatMap((t) => {
+    const f = t.kind === 'tunnel' ? level.forks.find((x) => t.z0 >= x.z0 && t.z0 <= x.z1) : undefined;
+    return f && t.side ? [{ z0: f.z0, calm: t.side === 'left' ? -1 : 1 }] : [];
+  });
+  const pickTunnel = (b: Bot): void => {
+    const f = tunnelForks.find((x) => b.z > x.z0 - TUNNEL_PICK && b.z < x.z0 - 2);
+    if (!f || b.tunnelFork === f.z0 || cfg.tunnelShare === undefined) return;
+    b.tunnelFork = f.z0;
+    const want = rng.chance(cfg.tunnelShare) ? f.calm : -f.calm;
+    if (Math.sign(b.lane) === want) return;
+    b.lane = -b.lane;
+    const end = b.path[b.path.length - 1];
+    if (end) b.path = [[b.lane, Math.min(end[1], f.z0 - 1)], [b.lane, end[1]]];
   };
   const goUp = (b: Bot, gatesOpen: readonly boolean[]): void => {
     b.mode = 'up';
@@ -308,6 +337,11 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       const caves = sheltersByRunTime(level, ctx.gatesOpen, b.x, b.z);
       let target: { cave: number; spot: number } | null = null;
       for (const cave of caves) {
+        // A tunnel has room for all (docs/01-gdd.md 18.3).
+        if (level.niches[cave]!.kind === 'tunnel') {
+          target = { cave, spot: 0 };
+          break;
+        }
         const taken = occupied(cave, b);
         const spot = [0, 1].find((s) => !taken.includes(s));
         if (spot !== undefined) {
@@ -451,6 +485,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
             break;
           }
           case 'up': {
+            if (tunnelForks.length) pickTunnel(b);
             const stop = firstStop(b.z, ctx.gatesOpen);
             // A wall opened on the way: the stop point moves up with it.
             const end = b.path[b.path.length - 1];
@@ -503,8 +538,12 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
             move(b, dt, b.speedFactor * ctx.speedAt(b.z));
             if (b.path.length === 0) b.yaw = 0;
             if (phase === 'gone' || phase === 'idle') {
-              b.mode = 'treadmill';
-              b.timer = range(cfg.treadmillSec);
+              // Out of a tunnel straight on up (no belt there); from a cave onto its belt.
+              if (level.niches[b.cave]?.kind === 'tunnel') goUp(b, ctx.gatesOpen);
+              else {
+                b.mode = 'treadmill';
+                b.timer = range(cfg.treadmillSec);
+              }
             }
             break;
           }
