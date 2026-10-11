@@ -128,7 +128,8 @@ describe('generator openSlope and its validator (PS-03)', () => {
           expect(num(fork, 'length')).toBeLessThanOrEqual(120);
         }
         // 12 gift places on the path; on a fork one on each lane, the bold one ×2.
-        const gifts = w.segments.filter((s) => s.type === 'gift' && num(s, 'zone') === i + 1);
+        // (Detours — the crevasse bottom, the ledge — are off the path, PS-08.)
+        const gifts = w.segments.filter((s) => s.type === 'gift' && s['path'] === true && num(s, 'zone') === i + 1);
         expect(new Set(gifts.map((g) => g.z)).size).toBe(O.pathGifts);
         for (const g of gifts) expect(num(g, 'coins')).toBe(g['lane'] === 'bold' ? 2 * zone.gift : zone.gift);
       });
