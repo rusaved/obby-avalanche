@@ -303,12 +303,13 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         const moving = Math.hypot(hero.vel.x, hero.vel.z);
         const run = opts.boss?.run;
         bossHero.speed = run !== undefined && moving >= sim.params.speed * run ? Math.max(moving, sim.params.speed) : moving;
-        boss.step(dt, bossHero, !sim.caught && sim.respawnTicksLeft < 0, sim.tick);
+        boss.step(dt, bossHero, !sim.caught && sim.respawnTicksLeft < 0, sim.tick, bots ? bots.runners() : undefined);
       }
       if (bots) {
         botCtx.hero.x = hero.pos.x;
         botCtx.hero.z = hero.pos.z;
         botCtx.flagZ = level.checkpoints[sim.checkpoint]?.z ?? level.spawn[2];
+        if (boss) botCtx.giants = boss.zones.map((z) => ({ zone: z.zone, active: z.hero !== 'passed', speed: z.giants[0]?.speed ?? 0 }));
         bots.step(dt, botCtx);
       }
       if (sim.caught) {
@@ -594,6 +595,10 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
               const a = level.bosses[p.zone]!.zone[0] - BOSS_BACK;
               if (sim.respawnTicksLeft >= 0) sim.respawnTicksLeft = -1;
               sim.caught = createCaught(level, { x: p.x, y: p.y, z: p.z }, opts.balance.caught!, tuning.avalanche, { x: 0, y: level.floorAt(0, a), z: a });
+            } else if (name === 'bossBotCaught') {
+              // A bot slapped (docs/01-gdd.md 18.5): it rolls back to the start of the zone as the hero would.
+              const p = payload as BossEvents['bossBotCaught'];
+              bots?.giantSlap(p.bot, level.bosses[p.zone]!.zone[0] - BOSS_BACK);
             } else if (name === 'bossPassed') {
               const g = level.gates[bossGate];
               if (g && !gatesOpen[bossGate] && Math.abs(level.bosses[(payload as BossEvents['bossPassed']).zone]!.zone[1] - g.z) < 1e-6) {

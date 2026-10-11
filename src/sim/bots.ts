@@ -19,7 +19,7 @@ import { caughtPosition, caughtTotalSec, createCaught, type CaughtState } from '
 import { distToEntrance, entranceX, inSafeZone, nicheSign, shelterIndex } from './shelter.ts';
 import { sheltersByRunTime, type ThreatState } from './threat.ts';
 
-export type BotMode = 'off' | 'camp' | 'up' | 'wait' | 'treadmill' | 'hide' | 'ball' | 'away';
+export type BotMode = 'off' | 'camp' | 'up' | 'wait' | 'treadmill' | 'hide' | 'ball' | 'away' | 'zone';
 
 export interface BotLook {
   head: string;
@@ -61,6 +61,9 @@ export interface Bot {
   slideK: number;
   /** z of the last tunnel fork he chose a lane for (docs/01-gdd.md 18.3), −∞ none yet. */
   tunnelFork: number;
+  /** The giant's zone (docs/01-gdd.md 18.5): seconds left to wait before it, then his run speed through it (0 — not running). */
+  zoneWait: number;
+  zoneSpeed: number;
 }
 
 export interface BotContext {
@@ -71,6 +74,8 @@ export interface BotContext {
   threat: Pick<ThreatState, 'phase' | 'frontZ' | 'spawnZ'> | null;
   /** Run speed of the hero on the stretch below z: speed of the stat that opened the wall under it. */
   speedAt(z: number): number;
+  /** Zones of giants (docs/01-gdd.md 18.5): active until the hero has passed it, the giant's speed; absent — none. */
+  giants?: ReadonlyArray<{ zone: readonly [number, number]; active: boolean; speed: number }>;
 }
 
 export interface BotsOptions {
@@ -92,6 +97,10 @@ export interface BotCrowd {
   /** Decisions on warn since the start: bots on the slope that ran to a cave or dawdled, and snowballs. */
   readonly stats: { hid: number; dawdled: number; caught: number };
   step(dt: number, ctx: BotContext): void;
+  /** Bots running a giant's zone now (docs/01-gdd.md 18.5), for the giants to go at. */
+  runners(): Array<{ bot: number; z: number; speed: number }>;
+  /** The giant slapped bot `index`: it rolls back as a snowball to `toZ` (below the start of the zone) and tries again. */
+  giantSlap(index: number, toZ: number): void;
 }
 
 /** Places in a cave beside the belt (docs/01-gdd.md 4.3: the hero and two bots). */
@@ -111,6 +120,8 @@ const CAMP_CLEAR_MID = 4;
 const CAMP_CLEAR_PROP = 3.5;
 /** A bot picks the tunnel or the open lane this far before the fork of a tunnel (docs/01-gdd.md 18.3). */
 const TUNNEL_PICK = 30;
+/** A bot stops this far below the start of a giant's zone, by the grotto there (docs/01-gdd.md 18.5). */
+const ZONE_STOP = 3;
 /** Wait at a closed wall before the cave again, seconds. */
 const WAIT_SEC: [number, number] = [1, 4];
 
@@ -176,6 +187,8 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
   };
 
   const stats = { hid: 0, dawdled: 0, caught: 0 };
+  /** Zones of giants still guarded (the hero has not passed them), from the last context (docs/01-gdd.md 18.5). */
+  let guarded: ReadonlyArray<{ zone: readonly [number, number]; active: boolean; speed: number }> = [];
   let dawdleDebt = 0;
   let waveNo = 0;
   let lastPhase: string = 'idle';
@@ -226,13 +239,16 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       hopY: 0,
       slideK: 1,
       tunnelFork: -Infinity,
+      zoneWait: 0,
+      zoneSpeed: 0,
     };
     if (!inCamp) bot.x = bot.lane;
     bot.y = level.floorYAt(bot.z);
     list.push(bot);
   }
 
-  /** The first wall above z that is closed for the hero, as a stop point; the summit when all are open. */
+  /** The first wall above z that is closed for the hero, as a stop point; the summit when all are open. A guarded
+   * giant's zone ahead stops the bot by its start (it waits there and runs the zone). */
   function firstStop(z: number, gatesOpen?: readonly boolean[]): number {
     let stop = (summit[0] + summit[1]) / 2;
     level.gates.forEach((g, i) => {
@@ -240,6 +256,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       const at = g.box.min[2] - GATE_STOP;
       if (g.z > z && at < stop) stop = at;
     });
+    if (cfg.boss) for (const gz of guarded) if (gz.active && gz.zone[0] - ZONE_STOP > z + REACH && gz.zone[0] - ZONE_STOP < stop) stop = gz.zone[0] - ZONE_STOP;
     return stop;
   }
   const stretchOf = (z: number): number => level.gates.filter((g) => g.z <= z).length;
@@ -426,11 +443,48 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
     }
   };
 
+  // The giant's zone (docs/01-gdd.md 18.5): at its start a bot waits in the grotto there, then runs it at the giant's
+  // speed × speedK[1] (passShare of them: past him) or × speedK[0] (caught, rolled back, tries again).
+  const zoneAhead = (b: Bot): (typeof guarded)[number] | undefined =>
+    cfg.boss ? guarded.find((gz) => gz.active && Math.abs(b.z - (gz.zone[0] - ZONE_STOP)) <= 1.5) : undefined;
+  const startZone = (b: Bot): void => {
+    b.mode = 'zone';
+    b.zoneWait = range(cfg.boss!.waitSec);
+    b.zoneSpeed = 0;
+    const place = treadmillCave(b);
+    if (place) routeTo(b, level.niches[place.cave]!.z, place.cave, place.spot);
+    else b.path = [];
+  };
+  const runZone = (b: Bot, gz: (typeof guarded)[number]): void => {
+    const k = cfg.boss!.speedK;
+    b.zoneSpeed = gz.speed * (rng.chance(cfg.boss!.passShare) ? k[1] : k[0]);
+    b.cave = -1;
+    const pts: Array<[number, number]> = [];
+    if (inCave(b)) pts.push([Math.sign(b.x) * (halfW - MOUTH_INSET), b.z]);
+    pts.push([b.lane, gz.zone[0] - 1], [b.lane, gz.zone[1] + 8]);
+    b.path = pts;
+  };
+
   const crowd: BotCrowd = {
     list,
     limit: opts.count,
     stats,
+    runners() {
+      const out: Array<{ bot: number; z: number; speed: number }> = [];
+      for (const b of list) if (b.mode === 'zone' && b.zoneSpeed > 0 && b.index < crowd.limit) out.push({ bot: b.index, z: b.z, speed: b.zoneSpeed });
+      return out;
+    },
+    giantSlap(index, toZ) {
+      const b = list[index];
+      if (!b || b.mode !== 'zone' || !opts.caught || !opts.avalanche) return;
+      b.mode = 'ball';
+      b.zoneSpeed = 0;
+      b.ball = createCaught(level, { x: b.x, y: b.y, z: b.z }, opts.caught, opts.avalanche, { x: b.x, y: level.floorYAt(toZ), z: toZ });
+      b.path = [];
+      b.cave = -1;
+    },
     step(dt, ctx) {
+      guarded = ctx.giants ?? [];
       const phase = ctx.threat?.phase ?? 'idle';
       if (phase === 'warn' && lastPhase !== 'warn') onWarn(ctx);
       const heroStretch = stretchOf(ctx.hero.z);
@@ -505,6 +559,10 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
           }
           case 'wait': {
             b.moving = false;
+            if (zoneAhead(b)) {
+              startZone(b);
+              break;
+            }
             b.timer -= dt;
             if (firstStop(b.z, ctx.gatesOpen) > b.z + GATE_STOP * 2 && b.z < summit[0]) {
               goUp(b, ctx.gatesOpen);
@@ -531,6 +589,29 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
               b.yaw = 0;
               b.timer -= dt;
               if (b.timer <= 0) goUp(b, ctx.gatesOpen);
+            }
+            break;
+          }
+          case 'zone': {
+            const gz = guarded.find((x) => b.z < x.zone[1] + 8 && b.z > x.zone[0] - ZONE_STOP - 20);
+            if (b.zoneSpeed === 0) {
+              // Waiting in the grotto before the zone (on its belt).
+              move(b, dt, b.speedFactor * ctx.speedAt(b.z));
+              if (b.path.length === 0) {
+                b.moving = b.cave >= 0;
+                b.yaw = 0;
+              }
+              b.zoneWait -= dt;
+              if (b.zoneWait <= 0 && gz) runZone(b, gz);
+              else if (b.zoneWait <= 0) goUp(b, ctx.gatesOpen);
+              break;
+            }
+            move(b, dt, b.zoneSpeed);
+            if (b.path.length === 0) {
+              // Past the giant: he sits on the summit a while, then off through the portal.
+              b.zoneSpeed = 0;
+              b.mode = 'wait';
+              b.timer = range(cfg.treadmillSec);
             }
             break;
           }

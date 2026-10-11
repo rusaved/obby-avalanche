@@ -22,5 +22,6 @@
   "awaySec": [20, 40],
   "campReleaseSec": [2, 12],
   "label": { "nearDist": 35, "fadeDist": 10 },
-  "tunnelShare": 0.5
+  "tunnelShare": 0.5,
+  "boss": { "waitSec": [2, 6], "passShare": 0.6, "speedK": [0.85, 1.15] }
 }

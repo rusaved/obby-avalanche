@@ -310,7 +310,7 @@ async function boot(): Promise<void> {
   const melting = new Map<number, number>();
   const wireSim = (s: Sim): void => {
     const recorded = ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'gatePass', 'portal', 'giftTake', 'giftsRespawn', 'eggTouch', 'eggHatch', 'statMilestone'] as const;
-    const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'caughtEnd', 'waveDusted', 'waveGone', 'waveEnd', 'bonusSpawn', 'bonusTake', 'bonusSaved', 'bonusLost', 'bossEnter', 'bossPassed', 'bossCaught', 'recordUp', 'chasmDown', 'tunnelEnter'] as const;
+    const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'caughtEnd', 'waveDusted', 'waveGone', 'waveEnd', 'bonusSpawn', 'bonusTake', 'bonusSaved', 'bonusLost', 'bossEnter', 'bossPassed', 'bossCaught', 'bossBotCaught', 'recordUp', 'chasmDown', 'tunnelEnter'] as const;
     for (const name of [...recorded, ...waves]) {
       s.events.on(name, (payload) => {
         simEvents.push({ name, world: s.level.worldIndex, ...(payload as Record<string, unknown>), tick: s.tick });
@@ -373,6 +373,8 @@ async function boot(): Promise<void> {
       hud?.toast(t('boss.caught'));
       track('boss_caught', { world: s.level.worldIndex });
     });
+    // The giant slapped a bot (docs/01-gdd.md 18.5): nothing on screen but the slap; the funnel counts it (docs/06).
+    s.events.on('bossBotCaught', () => track('boss_bot_caught', { world: s.level.worldIndex }));
     s.events.on('statMilestone', ({ value }) => {
       hud?.flashStat();
       hud?.toast(t('toast.statMilestone', { n: formatNumber(value, numSuffix) }));

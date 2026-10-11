@@ -560,6 +560,11 @@ export interface BotsJson {
   label: { nearDist: number; fadeDist: number };
   /** Open slope (docs/01-gdd.md 18.3): the share of bots that take a tunnel at its fork; absent — the lane decides. */
   tunnelShare?: number;
+  /**
+   * The giant's zone (docs/01-gdd.md 18.5): a bot waits `waitSec` in the grotto before it and runs it; `passShare` of
+   * them run at the giant's speed × speedK[1] (past him), the rest × speedK[0] (caught). Absent — bots walk through.
+   */
+  boss?: { waitSec: [number, number]; passShare: number; speedK: [number, number] };
 }
 
 /** sfx.json (docs/02-tech.md 10): ZzFX parameters per sound event. */

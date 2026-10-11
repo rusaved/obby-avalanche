@@ -1,4 +1,4 @@
-// What: The giant of the open slope: each zone of worlds.json bosses[] with its giants — patrol along the slope, turn to the hero, the slap or the slip past, the way back.
+// What: The giant of the open slope: each zone of worlds.json bosses[] with its giants — patrol along the slope, turn to the nearest runner (hero or bot), the slap or the slip past, the way back.
 // Called by: sim/world.ts (createBoss, step every tick, its events go out through the sim bus); tests/sim/boss.test.ts.
 // Keep: Pure TS, no DOM, deterministic; every number from the data (zones, speeds, turnSec, returnMult — worlds.json; margin, reach — game.json threat.boss).
 
@@ -34,6 +34,15 @@ export interface BossEvents {
   bossEnter: { tick: number; zone: number };
   bossPassed: { tick: number; zone: number };
   bossCaught: { tick: number; zone: number; x: number; y: number; z: number };
+  /** A bot running the zone was slapped (docs/01-gdd.md 18.5): `bot` is its index; the bots roll it back. */
+  bossBotCaught: { tick: number; zone: number; bot: number };
+}
+
+/** A bot running a giant's zone (docs/01-gdd.md 18.5): the giant goes at the nearest runner, bot or hero. */
+export interface BossRunner {
+  bot: number;
+  z: number;
+  speed: number;
 }
 
 export interface BossHero {
@@ -48,8 +57,9 @@ export interface Boss {
   readonly zones: BossZoneState[];
   /** Index of the zone the hero is in, −1 outside every zone. */
   zoneOf(z: number): number;
-  /** One tick; `free` false while the hero cannot act (snowed in, rolling back): the giants keep walking only. */
-  step(dt: number, hero: BossHero, free: boolean, tick: number): void;
+  /** One tick; `free` false while the hero cannot act (snowed in, rolling back): the giants keep walking only.
+   * `bots` — bots running the zones now (none: the giants know the hero only, as on PS). */
+  step(dt: number, hero: BossHero, free: boolean, tick: number, bots?: readonly BossRunner[]): void;
 }
 
 export function createBoss(
@@ -77,10 +87,20 @@ export function createBoss(
   return {
     zones,
     zoneOf,
-    step(dt, hero, free, tick) {
+    step(dt, hero, free, tick, bots = []) {
       zones.forEach((s, zi) => {
         const [a, c] = s.zone;
         const data0 = data[zi]!;
+        // Bots in this zone (docs/01-gdd.md 18.5): until the hero has passed it; one slapped this tick runs no more.
+        const runners = s.hero === 'passed' ? [] : bots.filter((r) => r.z >= a && r.z <= c);
+        const slapped = new Set<number>();
+        if (runners.length > 0)
+          s.giants.forEach((g, gi) => {
+            if (g.mode === 'patrol' || g.mode === 'back') {
+              g.mode = 'turn';
+              g.t = data0.giants[gi]!.turnSec;
+            }
+          });
         if (s.hero !== 'passed') {
           const inside = free && hero.z >= a && hero.z <= c;
           if (inside && s.hero === 'out') {
@@ -97,9 +117,15 @@ export function createBoss(
             return;
           } else if (!inside && s.hero === 'in') {
             s.hero = 'out';
-            s.giants.forEach((g) => (g.mode = g.mode === 'sit' ? 'sit' : 'back'));
+            if (runners.length === 0) s.giants.forEach((g) => (g.mode = g.mode === 'sit' ? 'sit' : 'back'));
           }
         }
+        // The nearest runner to a giant: the hero in the zone or a bot running it.
+        const target = (g: GiantState): number => {
+          let best = s.hero === 'in' ? hero.z : NaN;
+          for (const r of runners) if (!slapped.has(r.bot) && !(Math.abs(r.z - g.z) >= Math.abs(best - g.z))) best = r.z;
+          return best;
+        };
         for (const g of s.giants) {
           switch (g.mode) {
             case 'sit':
@@ -121,11 +147,23 @@ export function createBoss(
               if (g.t <= 0) g.mode = 'chase';
               break;
             case 'chase': {
-              g.dir = hero.z >= g.z ? 1 : -1;
-              walk(g, s.zone, g.dir * Math.min(g.speed * dt, Math.abs(hero.z - g.z)));
+              const tz = target(g);
+              if (Number.isNaN(tz)) {
+                g.mode = 'back';
+                break;
+              }
+              g.dir = tz >= g.z ? 1 : -1;
+              walk(g, s.zone, g.dir * Math.min(g.speed * dt, Math.abs(tz - g.z)));
               break;
             }
           }
+          // A bot within reach of a giant that walks at it: slower than speed × (1 + margin) — slapped, rolled back.
+          if (g.mode === 'chase')
+            for (const r of runners)
+              if (!slapped.has(r.bot) && Math.abs(r.z - g.z) <= cfg.reach && r.speed <= g.speed * (1 + cfg.margin)) {
+                slapped.add(r.bot);
+                emit('bossBotCaught', { tick, zone: zi, bot: r.bot });
+              }
           // The slap: within reach of a giant that walks at him; only a run faster than speed × (1 + margin) slips past.
           if (s.hero === 'in' && g.mode === 'chase' && Math.abs(hero.z - g.z) <= cfg.reach && hero.speed <= g.speed * (1 + cfg.margin)) {
             s.hero = 'out';

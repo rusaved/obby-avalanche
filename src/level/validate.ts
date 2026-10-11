@@ -569,6 +569,7 @@ const botsSchema = v.object({
   campReleaseSec: range,
   label: v.object({ nearDist: positive, fadeDist: nonNeg }),
   tunnelShare: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
+  boss: v.optional(v.object({ waitSec: range, passShare: v.pipe(v.number(), v.minValue(0), v.maxValue(1)), speedK: range })),
 });
 
 const i18nSchema = v.record(v.string(), v.pipe(v.string(), v.minLength(1, 'empty text')));
@@ -801,7 +802,12 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
       // Giants need game.json threat.boss, their look in theme.json and their texts (docs/01a-content.md 16.4, 16.9).
       const cfg = game.threat.boss;
       if (!cfg) errors.push('game.json: threat.boss — required when worlds.json has bosses (docs/01a-content.md 16.4)');
-      else errors.push(...validateOpenBoss(worlds, speedAt, cfg.margin));
+      else {
+        errors.push(...validateOpenBoss(worlds, speedAt, cfg.margin));
+        // Bots in the giant's zone (docs/01-gdd.md 18.5): the fast ones beat V_b × (1 + margin), the slow ones do not.
+        const k = (files['bots.json'] as BotsJson).boss?.speedK;
+        if (k && !(k[1] > 1 + cfg.margin && k[0] <= 1 + cfg.margin)) errors.push(`bots.json: boss.speedK — [${k.join(', ')}]: the fast must run above 1 + margin = ${1 + cfg.margin}, the slow not`);
+      }
       if (!(theme as { boss?: unknown }).boss) errors.push('theme.json: boss — required when worlds.json has bosses');
       for (const key of ['boss.name', 'boss.sign', 'boss.start', 'boss.gap', 'boss.passed', 'boss.caught'])
         for (const [file, dict] of [['i18n/ru.json', ru], ['i18n/en.json', en]] as const) if (!dict[key]) errors.push(`${file}: ${key} — missing (the giant, docs/01a-content.md 16.9)`);

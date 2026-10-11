@@ -48,6 +48,7 @@
 | великан горы 1 пройден | `boss_passed` | шина `bossPassed`: гора 1, ступень 0 | player | 7–9 с после `boss_enter` |
 | великан поймал | `boss_caught`, параметр `world` | шина `bossCaught`, любая гора и ступень | always | проход с первой попытки ≥ 60% (8.2) |
 | снова выше флажка рекорда | `record_up` | шина `recordUp`: после «Накрыло» или великана герой снова прошёл свою высоту | always | — |
+| великан поймал бота | `boss_bot_caught`, параметр `world` | шина `bossBotCaught`: хлопок по боту в зоне (`01` 18.5, веха RG) | always | игрок видит поимки других до своего входа |
 
 Имена `gameReady`, `gameTutorialStart`, `gameTutorialComplete` и `params.levelComplete` — стандартные из документации Яндекса, остальные — наши.
 
@@ -108,9 +109,9 @@ ym(counterId, 'reachGoal', name, {
    - воронка (25): `load_start`, `gameReady`, `startup_ad_start`, `startup_ad_end`, `first_input`, `gameTutorialStart`, `gate_1`, `gate_2`, `shoes_1`, `gate_3`, `first_wave_survived`, `treadmill_first`, `egg_1`, `session_60s`, `gate_4`, `rewarded_shown`, `wave_real_1`, `gate_6`, `session_180s`, `daily_claim`, `gate_9`, `session_300s`, `gameTutorialComplete`, `session_600s`, `rebirth_1`;
    - техника (1): `sdk_init_slow`;
    - реклама (11): `gameRewardedRequest`, `gameRewardedOpen`, `gameRewardedEarned`, `gameRewardedClose`, `gameRewardedError`, `ad_resume_ok`, `gameFullscreenRequest`, `gameFullscreenOpen`, `gameFullscreenClose`, `gameFullscreenError`, `quit_after_inter`;
-   - простор (7, темп `open`): `ridge_1`, `ridge_2`, `ridge_3`, `boss_enter`, `boss_passed`, `boss_caught`, `record_up`;
+   - простор (8, темп `open`): `ridge_1`, `ridge_2`, `ridge_3`, `boss_enter`, `boss_passed`, `boss_caught`, `record_up`, `boss_bot_caught`;
    - покупки (4, только если они включены): `gameOfferView`, `gamePurchaseStart`, `gamePurchaseSuccess`, `gamePurchaseError`;
-   - итого 44 цели, с покупками 48.
+   - итого 45 целей, с покупками 49.
 4. Отчёты «Воронка»: «Отчёты» → «Создать отчёт» → «Воронка», условие шага — «Достижение JS-цели», окно 30 минут, сегмент — только новые посетители. В воронке Метрики не больше 10 шагов, и шаги засчитываются по порядку: если шаг 3 случился раньше шага 2, игрок из воронки выпадает. Поэтому отчётов три, и в каждом только шаги, порядок которых держит сама игра:
    - «Первая минута»: `load_start` → `gameReady` → `first_input` → `gameTutorialStart` → `gate_1` → `gate_2` → `gate_3` → `first_wave_survived` → `treadmill_first` → `gate_4`;
    - «Гора 1»: `gate_4` → `gate_6` → `gate_9` → `gameTutorialComplete`;
