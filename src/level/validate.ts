@@ -194,6 +194,7 @@ const balanceSchema = v.object({
     skipGate: v.object({ cooldownSec: nonNeg, standSec: nonNeg, distance: nonNeg, excludeLastWall: v.boolean(), enabled: v.optional(v.boolean()) }),
     /** «Continue from here» (continue_here, docs/01-gdd.md 17.11): seconds between two offers. */
     continueCooldownSec: v.optional(nonNeg),
+    continueShowSec: v.optional(nonNeg),
     eggViews: v.pipe(v.number(), v.integer(), v.minValue(1)),
     eggPauseSec: nonNeg,
     skipFirstPortal: v.boolean(),

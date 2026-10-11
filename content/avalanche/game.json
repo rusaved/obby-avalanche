@@ -15,7 +15,7 @@
   "payments": { "enabled": false },
   "ads": {
     "interstitial": ["portal", "rebirth", "menu"],
-    "rewarded": ["x2_stat", "stat_now", "skip_gate", "x2_chest", "egg", "daily_x2", "wheel"]
+    "rewarded": ["x2_stat", "stat_now", "skip_gate", "x2_chest", "egg", "daily_x2", "wheel", "continue_here"]
   },
   "flags": {
     "w1_intervalSec": { "path": "worlds.1.threat.intervalSec", "min": 30, "max": 90 },

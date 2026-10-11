@@ -14,7 +14,8 @@
     "skipGate": {
       "enabled": false
     },
-    "continueCooldownSec": 120
+    "continueCooldownSec": 120,
+    "continueShowSec": 6
   },
   "rebirth": {
     "wallScale": [

@@ -209,11 +209,13 @@ canvas.fallback {
 /* «▶ Ad: …» buttons (docs/01-gdd.md 10.1): PC — left middle, touch — top centre under the goal, 52 px (44 px on a low phone). */
 .hud-ads { position: absolute; left: calc(8px + env(safe-area-inset-left)); top: 50%; transform: translateY(-50%); display: none; flex-direction: column; gap: 8px; max-width: 30%; pointer-events: auto; }
 .hud-ads.shown { display: flex; }
-.hud-ad { height: 52px; padding: 0 16px; border: 2px solid rgba(27, 42, 58, 0.6); border-radius: 12px; background: #2f6fb3; color: #fff; font: 800 17px/1 var(--font); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
+.hud-ad { min-height: 52px; padding: 6px 16px; border: 2px solid rgba(27, 42, 58, 0.6); border-radius: 12px; background: #2f6fb3; color: #fff; font: 800 17px/1.15 var(--font); white-space: normal; text-align: left; overflow: hidden; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
 .hud-ad[hidden] { display: none; }
 .hud-ad:disabled { opacity: 0.6; cursor: default; }
 .hud.touch .hud-ads { left: 50%; top: 22%; transform: translateX(-50%); flex-direction: row; max-width: 60%; }
-@media (max-height: 420px) { .hud.touch .hud-ad { height: 44px; font-size: 15px; } }
+@media (max-height: 420px) { .hud.touch .hud-ad { min-height: 44px; font-size: 15px; } }
+/* A long label goes on two lines; a small screen takes a smaller font (PS-11: «continue from here» at 640×360). */
+@media (max-width: 700px) { .hud-ad { min-height: 44px; padding: 4px 12px; font-size: 15px; } }
 .hud-egg { position: absolute; left: 0; top: 0; display: none; min-height: 48px; padding: 0 16px; border: 2px solid rgba(27, 42, 58, 0.6); border-radius: 12px; background: #9aa7b4; color: #fff; font: 800 18px/1 var(--font); white-space: nowrap; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
 .hud-egg.shown { display: flex; align-items: center; }
 .hud-egg.can { background: var(--ok); }

@@ -1,4 +1,4 @@
-// What: Rewarded-ad buttons on the HUD by the common rules of docs/01-gdd.md 9.1: «Speed now» in a grotto with a belt (stat_now) and «continue from here» (continue_here).
+// What: Rewarded-ad buttons on the HUD by the common rules of docs/01-gdd.md 9.1: «Speed now» in a grotto with a belt (stat_now) and «continue from here» after a catch (continue_here).
 // Called by: main.ts (createAdsView, update every frame, onAd from the HUD buttons, caught() after «Snowed in!»); app/handles.ts (AdsView type).
 // Keep: The reward is given only when the ad says rewarded (docs/03 2.3); the game pauses with reason «ad» while it plays and goes on after any outcome; texts via t().
 
@@ -8,7 +8,10 @@
  * the avalanche idle or gone, no window — and hides on the first move or the warning. While the ad runs the button is
  * locked and the game is paused («ad»); the reward comes only with `rewarded`, any other outcome is a toast.
  * Places here: `stat_now` — in a grotto with a belt (the ridge grotto, the one before the giant's zone; the cave of
- * 4.3 in the other paces), the belt's steps of `boost.statNowSec` at run speed, once in `ads.statNowCooldownSec`.
+ * 4.3 in the other paces), the belt's steps of `boost.statNowSec` at run speed, once in `ads.statNowCooldownSec`;
+ * `continue_here` (the open slope, 17.11) — for `ads.continueShowSec` from the pop of the snowball of «Snowed in!» or
+ * «The giant caught you!» until the first move, the hero back on the record flag, once in `ads.continueCooldownSec`.
+ * It needs no second of standing (it comes at the pop) and takes an avalanche that has passed the hero for over.
  */
 import type { BalanceJson } from '../content/types.ts';
 import type { Sim } from '../sim/world.ts';
@@ -18,6 +21,7 @@ import type { Platform } from '../platform/types.ts';
 import type { SaveData } from '../meta/save.ts';
 import { formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
+import { track } from '../analytics/index.ts';
 
 /** The hero «stands» below this speed (units/s). */
 const STAND_SPEED = 0.5;
@@ -49,6 +53,9 @@ export interface AdsView {
 
 export function createAdsView(d: AdsViewDeps): AdsView {
   let standSec = 0;
+  /** The hero was in a snowball last frame; play second the «continue from here» offer ends at. */
+  let caughtBefore = false;
+  let continueUntil = -Infinity;
   let shown: string[] = [];
   let busy: string | null = null;
   /** Play seconds of the last reward of each place (its cooldown counts from there). */
@@ -77,21 +84,30 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       now = playSec;
       const sim = d.getSim();
       const phase = sim.threat?.state.phase ?? 'idle';
-      const still = !d.moving() && (sim.hero.speed < STAND_SPEED || sim.onBelt) && !sim.caught;
+      const moving = d.moving();
+      const still = !moving && (sim.hero.speed < STAND_SPEED || sim.onBelt) && !sim.caught;
       standSec = still ? standSec + dt : 0;
-      const ok =
+      // The snowball popped: «continue from here» for continueShowSec, until the first move (docs/01-gdd.md 17.11).
+      if (caughtBefore && !sim.caught && sim.record && ads.continueCooldownSec !== undefined) continueUntil = playSec + (ads.continueShowSec ?? 0);
+      caughtBefore = !!sim.caught;
+      if (moving) continueUntil = -Infinity;
+      const common =
         playSec >= ads.rewardedMinPlaySec &&
         (d.save.flags?.['firstWaveDone'] ?? false) &&
-        standSec >= ads.standStillSec &&
-        (phase === 'idle' || phase === 'gone') &&
         // Nothing in the giant's zone (docs/01-gdd.md 17.6).
         (sim.boss?.zoneOf(sim.hero.pos.z) ?? -1) < 0 &&
         !d.windowOpen();
+      const calm = phase === 'idle' || phase === 'gone';
+      const ok = common && standSec >= ads.standStillSec && calm;
       const list: Array<{ id: string; text: string; busy: boolean }> = [];
       if (ok || busy) {
         const n = statNow(sim);
         if ((n > 0 && cooled('stat_now', ads.statNowCooldownSec)) || busy === 'stat_now') list.push({ id: 'stat_now', text: t('ad.statNow', { n: fmt(n) }), busy: busy === 'stat_now' });
       }
+      // The avalanche that caught the hero is over for him once its front is below him.
+      const passed = calm || (phase === 'run' && sim.threat?.state.outcome !== 'none');
+      const offer = common && passed && playSec < continueUntil && !sim.caught && cooled('continue_here', ads.continueCooldownSec ?? Infinity);
+      if (offer || busy === 'continue_here') list.push({ id: 'continue_here', text: t('ad.continueHere'), busy: busy === 'continue_here' });
       shown = list.map((b) => b.id);
       d.hud.setAdButtons(list);
     },
@@ -110,12 +126,20 @@ export function createAdsView(d: AdsViewDeps): AdsView {
               d.getSim().progress.stat += amount;
               d.onStat();
             }
+            // Back on the record flag, where the hero was caught (docs/01-gdd.md 17.11).
+            const r = d.getSim().record;
+            if (id === 'continue_here' && r) {
+              d.getSim().teleport(r.x, r.y, r.z);
+              continueUntil = -Infinity;
+            }
             d.hud.toast(t('toast.reward'));
           } else d.hud.toast(t(r.error ? 'toast.adUnavailable' : 'toast.noReward'));
         })
         .finally(() => {
           busy = null;
           d.pause.remove('ad');
+          // The hero is in the player's hands again after any outcome (docs/06 section 3).
+          track('ad_resume_ok', { placement: id, type: 'rewarded' });
         });
     },
   };

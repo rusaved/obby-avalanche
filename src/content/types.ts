@@ -111,6 +111,8 @@ export interface BalanceJson {
     skipGate: { cooldownSec: number; standSec: number; distance: number; excludeLastWall: boolean; enabled?: boolean };
     /** «Continue from here» (continue_here, docs/01-gdd.md 17.11): seconds between two offers; absent — no such place. */
     continueCooldownSec?: number;
+    /** …and how long the offer stays after the snowball pops (until the first move). */
+    continueShowSec?: number;
     eggViews: number;
     eggPauseSec: number;
     skipFirstPortal: boolean;
