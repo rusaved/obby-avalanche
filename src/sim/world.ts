@@ -175,7 +175,7 @@ export interface SimOptions {
   /** Record flag (open slope, docs/01-gdd.md 17.7): the one of the save on this mountain or null; absent — no record flag. */
   record?: { x: number; y: number; z: number } | null | undefined;
   /** The giant (game.json threat.boss): with the zones of the level the mountain has giants. */
-  boss?: { margin: number; reach: number } | undefined;
+  boss?: { margin: number; reach: number; run?: number | undefined } | undefined;
 }
 
 /** «The giant caught you!»: the hero rolls back to this far below the start of the zone (docs/01-gdd.md 17.6). */
@@ -277,7 +277,11 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         bossHero.x = hero.pos.x;
         bossHero.y = hero.pos.y;
         bossHero.z = hero.pos.z;
-        bossHero.speed = Math.hypot(hero.vel.x, hero.vel.z);
+        // A hero on the run meets the giant at his run speed: steering and the pick-up after a catch cost him nothing
+        // (playtest PS: 14 catches at 1,2–1,4 × the advice); one standing or walking slowly — at the speed he has.
+        const moving = Math.hypot(hero.vel.x, hero.vel.z);
+        const run = opts.boss?.run;
+        bossHero.speed = run !== undefined && moving >= sim.params.speed * run ? Math.max(moving, sim.params.speed) : moving;
         boss.step(dt, bossHero, !sim.caught && sim.respawnTicksLeft < 0, sim.tick);
       }
       if (bots) {

@@ -90,7 +90,7 @@ const gameSchema = v.object({
     bonus: v.optional(
       v.object({ kind: v.literal('goldGift'), fromWave: v.pipe(v.number(), v.integer(), v.minValue(1)), mult: positive, distMin: nonNeg, distMax: positive }),
     ),
-    boss: v.optional(v.object({ kind: v.literal('giant'), margin: nonNeg, catch: v.literal('roll'), reach: positive })),
+    boss: v.optional(v.object({ kind: v.literal('giant'), margin: nonNeg, catch: v.literal('roll'), reach: positive, run: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))) })),
   }),
   // The leaderboard scores by a whole counter of the save (trophies over all time), never by the stat (docs/01-gdd.md 7.9, 8.4).
   leaderboard: v.nullable(v.object({ name: v.string(), score: v.picklist(LEADERBOARD_SCORES) })),

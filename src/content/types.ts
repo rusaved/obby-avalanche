@@ -16,7 +16,8 @@ export interface GameJson {
     bonus?: { kind: 'goldGift'; fromWave: number; mult: number; distMin: number; distMax: number };
     /** The giant of the open slope (docs/01-gdd.md 17.6; docs/01a-content.md 16.4): the hero slips past when he runs
      * faster than the giant × (1 + margin); `reach` — how close the giant's slap gets him; `catch: roll` — back to the line. */
-    boss?: { kind: 'giant'; margin: number; catch: 'roll'; reach: number };
+    /** `run`: a hero moving at least this share of his run speed meets the giant at his run speed (absent — as he moves). */
+    boss?: { kind: 'giant'; margin: number; catch: 'roll'; reach: number; run?: number };
   };
   leaderboard: { name: string; score: string } | null;
   metrikaCounterId: number;

@@ -85,6 +85,30 @@ describe('giant (PS-07)', () => {
     expect(s.boss!.zones[0]!.giants[0]!.mode).toBe('chase');
   });
 
+  it('on the run he meets the giant at his run speed: half-pushed stick and zigzags with the advice — past him; a slow walk — caught (playtest PS)', () => {
+    const level = buildLevel(w1);
+    const advice = w1.bosses![0]!.requires;
+    for (const [input, passes] of [
+      [{ moveX: 0, moveZ: 0.6, jump: false, jumpHeld: false }, true],
+      [{ moveX: 0.5, moveZ: 0.85, jump: false, jumpHeld: false }, true],
+      [{ moveX: 0, moveZ: 0.3, jump: false, jumpHeld: false }, false],
+    ] as Array<[HeroInput, boolean]>) {
+      // From a standstill at the start of the zone, where a catch puts him; the giant at the foot of his patrol.
+      const s = createSim(level, tuning, { balance, speedCurve: curve, stat: advice, boss: cfg });
+      s.boss!.zones[0]!.giants[0]!.z = zone[0] + 20;
+      s.teleport(0, level.floorYAt(zone[0] - 3), zone[0] - 3);
+      const events: string[] = [];
+      s.events.on('bossCaught', () => events.push('caught'));
+      s.events.on('bossPassed', () => events.push('passed'));
+      let zig = 1;
+      for (let i = 0; i < 40 * 60 && events.length === 0; i++) {
+        if (i % 30 === 0) zig = -zig;
+        s.step({ ...input, moveX: input.moveX * zig }, DT);
+      }
+      expect(events, JSON.stringify(input)).toEqual([passes ? 'passed' : 'caught']);
+    }
+  });
+
   it('standing still in the zone the hero is caught at any Speed', () => {
     const { s, events } = climb(w1, 1e12);
     s.teleport(0, s.level.floorAt(0, zone[0] + 5), zone[0] + 5);

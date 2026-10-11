@@ -126,6 +126,21 @@ describe('avalanche on the open slope (PS-06)', () => {
     expect(level.niches[warn.shelter]!.stretch).toBe(2);
   });
 
+  it('at the fork the scripted wave lights the grotto of the hero’s lane and follows him to the other one (playtest PS)', () => {
+    const threat = createThreat(level, { threat: { ...w1.threat }, balance, avalanche: tuning.avalanche, scriptedPending: true, normalWavesDone: 0 }, () => {});
+    const first2 = level.niches.find((n) => n.stretch === 2)!;
+    const row = level.niches.flatMap((n, i) => (n.stretch === 2 && n.z === first2.z ? [i] : []));
+    expect(row).toHaveLength(2);
+    const open = level.gates.map(() => true);
+    const z = first2.z - balance.ftue.triggerDist + 1;
+    threat.step(DT, { x: 16, y: 0, z, vx: 0, vz: 0 }, open, 1);
+    expect(threat.state.scripted).toBe(true);
+    expect(level.niches[threat.state.shelter]!.side).toBe('right');
+    threat.step(DT, { x: -16, y: 0, z: z + 2, vx: 0, vz: 0 }, open, 2);
+    expect(level.niches[threat.state.shelter]!.side).toBe('left');
+    expect(row).toContain(threat.state.shelter);
+  });
+
   it('the free egg of that wave stands in its grotto with no belt, by the back wall; in the other lane’s grotto too (PS-10)', () => {
     const spot = giftEggSpot(level, balance.ftue.scriptedWaveWall)!;
     const n = level.niches[spot.niche]!;

@@ -111,6 +111,21 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
   // The scripted wave comes at the first shelter of stretch `scriptedWaveWall` (the cave of that stretch in classic and
   // fast; the first grotto of section 2 on the open slope, 17.8).
   const scriptedCave = level.niches.find((n) => n.stretch === balance.ftue.scriptedWaveWall) ?? null;
+  // At a fork that first row has a grotto on each lane: the scripted wave lights the one nearer by run time and follows
+  // the hero to the other lane (playtest PS: the arrow pointed at the grotto behind the cliff). One cave elsewhere.
+  const scriptedRow = level.niches.flatMap((n, i) => (scriptedCave && n.stretch === scriptedCave.stretch && n.z === scriptedCave.z && n.kind !== 'ledge' ? [i] : []));
+  const scriptedShelter = (hero: ThreatHero): number => {
+    let best = scriptedRow[0] ?? -1;
+    let bestD = Infinity;
+    for (const i of scriptedRow) {
+      const d = distToEntrance(level, level.niches[i]!, hero.x, hero.z).dist;
+      if (d < bestD - 1e-9) {
+        bestD = d;
+        best = i;
+      }
+    }
+    return best;
+  };
   const state: ThreatState = {
     phase: 'idle',
     timer: opts.firstSec ?? threat.firstIntervalSec,
@@ -135,7 +150,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
       // docs/01-gdd.md 4.6: at cave 4 when the hero walks in; on the fallback (or a forced start) — the nearest cave.
       const nearZone = scriptedCave !== null && hero.z >= scriptedCave.z - balance.ftue.triggerDist;
       const near = nearestShelter(level, gatesOpen, hero.x, hero.z);
-      const idx = nearZone && scriptedCave ? level.niches.indexOf(scriptedCave) : near;
+      const idx = nearZone && scriptedCave ? scriptedShelter(hero) : near;
       const cave = level.niches[idx] ?? scriptedCave;
       state.shelter = idx;
       state.warnSec = balance.ftue.warnSec;
@@ -221,6 +236,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
         }
         case 'warn': {
           if (!state.scripted) state.shelter = nearestShelter(level, gatesOpen, hero.x, hero.z);
+          else if (scriptedRow.includes(state.shelter)) state.shelter = scriptedShelter(hero);
           state.timer -= dt;
           if (state.timer <= 0) {
             state.phase = 'run';
@@ -231,6 +247,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
         }
         case 'run': {
           if (!state.scripted && state.outcome === 'none') state.shelter = nearestShelter(level, gatesOpen, hero.x, hero.z);
+          else if (state.outcome === 'none' && scriptedRow.includes(state.shelter)) state.shelter = scriptedShelter(hero);
           state.frontZ -= threat.speed * dt;
           if (state.outcome === 'none' && state.frontZ <= hero.z) resolve(hero, tick);
           if (state.frontZ <= campTop) {
