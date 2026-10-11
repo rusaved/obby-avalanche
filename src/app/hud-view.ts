@@ -91,6 +91,7 @@ export function createHudView(d: HudViewDeps): HudView {
       // Open slope: «×1.2 this section» by «+N per step» (docs/01-gdd.md 17.4); classic and fast have no sections.
       const section = level.sections.length > 0 ? t('hud.sectionMult', { n: formatMult(sim.sectionMult(), d.numSuffix) }) : null;
       d.hud.setStat(fmt(stat), t('hud.perStep', { n: fmt(d.balance.gainPerStep * sim.progress.gainMult) }), section);
+      d.hud.setSlow(sim.slow ? t('hud.slow', { n: formatMult(sim.slow.mult, d.numSuffix) }) : null);
       if (pendingPop !== null && timeSec - lastPopAt >= STAT_POP_MIN_SEC) {
         d.hud.popStatGain(`+${fmt(pendingPop)}`);
         pendingPop = null;

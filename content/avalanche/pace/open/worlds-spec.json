@@ -27,7 +27,15 @@
   "turnSec": 0.5,
   "returnMult": 1.5,
   "seeDist": 0,
-  "zoneGap": 30
+  "zoneGap": 30,
+  "helper": {
+   "throwEverySec": 2.5,
+   "flightSec": 1,
+   "slow": 0.85,
+   "slowSec": 1,
+   "hitRadius": 1.5,
+   "x": 26
+  }
  },
  "shapeFrom": {
   "chasm": 2,
@@ -345,7 +353,12 @@
     "margin": 0.05,
     "stepMult": 60,
     "gift": 2000,
-    "speed": 43.9
+    "speed": 37.3,
+    "helpers": [
+     {
+      "side": "left"
+     }
+    ]
    }
   },
   {
@@ -416,7 +429,12 @@
     "margin": 0.05,
     "stepMult": 150,
     "gift": 6000,
-    "speed": 47
+    "speed": 40.0,
+    "helpers": [
+     {
+      "side": "left"
+     }
+    ]
    }
   },
   {
@@ -488,7 +506,12 @@
     "margin": 0.05,
     "stepMult": 500,
     "gift": 60000,
-    "speed": 50.8
+    "speed": 43.2,
+    "helpers": [
+     {
+      "side": "left"
+     }
+    ]
    }
   },
   {
@@ -559,7 +582,15 @@
     "margin": 0.05,
     "stepMult": 1500,
     "gift": 600000,
-    "speed": 54.7
+    "speed": 46.4,
+    "helpers": [
+     {
+      "side": "left"
+     },
+     {
+      "side": "right"
+     }
+    ]
    }
   },
   {
@@ -631,7 +662,15 @@
     "margin": 0.05,
     "stepMult": 5000,
     "gift": 8000000,
-    "speed": 58.9
+    "speed": 50.1,
+    "helpers": [
+     {
+      "side": "left"
+     },
+     {
+      "side": "right"
+     }
+    ]
    }
   },
   {
@@ -706,7 +745,15 @@
     "margin": 0.05,
     "stepMult": 15000,
     "gift": 160000000,
-    "speed": 60.9
+    "speed": 51.8,
+    "helpers": [
+     {
+      "side": "left"
+     },
+     {
+      "side": "right"
+     }
+    ]
    }
   },
   {
@@ -783,7 +830,15 @@
     "margin": 0.05,
     "stepMult": 40000,
     "gift": 4000000000,
-    "speed": 60.9
+    "speed": 51.8,
+    "helpers": [
+     {
+      "side": "left"
+     },
+     {
+      "side": "right"
+     }
+    ]
    }
   }
  ]

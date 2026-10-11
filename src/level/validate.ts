@@ -140,6 +140,7 @@ const themeSchema = v.object({
       colors: v.object({ head: hex, torso: hex, arms: hex, legs: hex, hat: hex }),
       face: v.string(),
       silhouette: hex,
+      helper: v.optional(v.object({ height: positive, snowball: hex })),
     }),
   ),
 });
@@ -434,7 +435,13 @@ const openSpecSchema = v.object({
     firstWaveScripted: v.boolean(),
   }),
   rarities: v.pipe(v.array(id), v.minLength(1)),
-  boss: v.object({ turnSec: nonNeg, returnMult: positive, seeDist: nonNeg, zoneGap: positive }),
+  boss: v.object({
+    turnSec: nonNeg,
+    returnMult: positive,
+    seeDist: nonNeg,
+    zoneGap: positive,
+    helper: v.optional(v.object({ throwEverySec: positive, flightSec: positive, slow: v.pipe(v.number(), v.gtValue(0), v.maxValue(1)), slowSec: positive, hitRadius: positive, x: positive })),
+  }),
   shapeFrom: v.optional(v.object({ chasm: positive, throat: positive, tunnel: positive, hump: positive })),
   shapes: v.optional(
     v.object({
@@ -479,6 +486,7 @@ const openSpecSchema = v.object({
           turnSec: v.optional(nonNeg),
           returnMult: v.optional(positive),
           seeDist: v.optional(nonNeg),
+          helpers: v.optional(v.array(v.object({ side: v.picklist(['left', 'right']) }))),
         }),
       }),
     ),

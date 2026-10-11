@@ -78,6 +78,6 @@
     "height": 20,
     "colors": { "head": "#F4FAFF", "torso": "#DDEFFF", "arms": "#C8E4FA", "legs": "#A9CDEB", "hat": "#8FD3FF" },
     "face": "happy",
-    "silhouette": "#BAC5CC"
+    "silhouette": "#BAC5CC", "helper": { "height": 7, "snowball": "#FFFFFF" }
   }
 }

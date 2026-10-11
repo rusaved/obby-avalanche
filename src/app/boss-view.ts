@@ -1,4 +1,4 @@
-// What: How the giant looks: the blocky giant of the hero's parts walking his zone, his flat silhouette on the horizon, the start line and the advice sign.
+// What: How the giant looks: the blocky giant of the hero's parts walking his zone, his helpers with their snowballs, his flat silhouette on the horizon, the start line and the advice sign.
 // Called by: main.ts (createBossView, wire on each new mountain, update every frame); app/handles.ts (BossView type).
 // Keep: Reads the sim, never changes it; colours, height and face from theme.json boss, texts via t(); the silhouette is one draw call and never fogged out.
 
@@ -9,7 +9,7 @@
  * across the snow and the sign «Giant: Speed ~4.1K» (the advice of the tier). Walks — run pose, turns — stands,
  * passed — sits with hands up (the «win» pose).
  */
-import { BoxGeometry, CanvasTexture, Mesh, MeshBasicMaterial, PlaneGeometry, Vector3, type PerspectiveCamera, type Scene } from 'three';
+import { BoxGeometry, CanvasTexture, Color, IcosahedronGeometry, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, MeshLambertMaterial, PlaneGeometry, Vector3, type PerspectiveCamera, type Scene } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { ThemeJson } from '../content/types.ts';
 import type { Sim } from '../sim/world.ts';
@@ -20,6 +20,10 @@ import { t } from '../ui/i18n.ts';
 
 /** At most this many giants on a mountain are drawn (data may have more; docs/01a-content.md 16.4). */
 const MAX_GIANTS = 2;
+/** Helpers of the giant (docs/01-gdd.md 18.5): at most this many drawn, their snowballs this big and this high an arc. */
+const MAX_HELPERS = 4;
+const SNOWBALL = 0.55;
+const BALL_RISE = 4;
 /** The silhouette takes over past this share of the far plane, and stands at this share of it. */
 const SILHOUETTE_FROM = 0.6;
 const SILHOUETTE_AT = 0.9;
@@ -62,6 +66,13 @@ function silhouetteGeometry(height: number): PlaneGeometry | ReturnType<typeof m
 export function createBossView(d: BossViewDeps): BossView {
   const look = d.theme.boss;
   const giants: CharacterInstance[] = [];
+  const helpers: CharacterInstance[] = [];
+  // The snowballs in the air: one instanced mesh, a draw call only while one flies (docs/01-gdd.md 18.9).
+  const balls = new InstancedMesh(new IcosahedronGeometry(SNOWBALL, 1), new MeshLambertMaterial({ color: new Color(look?.helper?.snowball ?? '#ffffff') }), MAX_HELPERS);
+  balls.frustumCulled = false;
+  balls.count = 0;
+  const _m = new Matrix4();
+  d.scene.add(balls);
   const silGeo = silhouetteGeometry(look?.height ?? 20);
   const silMat = new MeshBasicMaterial({ color: look?.silhouette ?? '#ffffff', fog: false, transparent: true, opacity: 0.9, depthWrite: false });
   const silhouette = new Mesh(silGeo, silMat);
@@ -136,6 +147,31 @@ export function createBossView(d: BossViewDeps): BossView {
         ch.pose = g.mode === 'sit' ? 'win' : g.mode === 'turn' ? 'idle' : 'run';
         ch.speedFactor = g.mode === 'chase' ? 1 : 0.6;
       });
+      // Helpers on the borders: a third of the giant, facing the track; they wave when the zone is passed or the hero caught.
+      const hs = zones.flatMap((z) => z.helpers);
+      while (look?.helper && helpers.length < Math.min(MAX_HELPERS, hs.length)) {
+        const h = d.characters.create(d.skinId);
+        d.characters.paint(h, { head: look.colors.head, torso: look.colors.torso, arms: look.colors.arms, legs: look.colors.legs, hat: null, hatColor: look.colors.hat, face: look.face });
+        h.scale = look.helper.height / HERO_HEIGHT;
+        helpers.push(h);
+      }
+      let flying = 0;
+      helpers.forEach((ch, i) => {
+        const h = hs[i];
+        ch.visible = !!h;
+        if (!h) return;
+        ch.position.set(h.x, sim.level.floorYAt(h.z), h.z);
+        ch.yaw = h.x < 0 ? Math.PI / 2 : -Math.PI / 2;
+        ch.pose = h.wave ? 'win' : 'idle';
+        const b = h.ball;
+        if (!b || flying >= MAX_HELPERS) return;
+        const k = Math.min(1, b.t / b.flight);
+        _to.set(b.from[0] + (b.to[0] - b.from[0]) * k, b.from[1] + (b.to[1] - b.from[1]) * k + 4 * BALL_RISE * k * (1 - k), b.from[2] + (b.to[2] - b.from[2]) * k);
+        balls.setMatrixAt(flying++, _m.makeTranslation(_to.x, _to.y, _to.z));
+      });
+      balls.count = flying;
+      balls.visible = flying > 0;
+      if (flying > 0) balls.instanceMatrix.needsUpdate = true;
       const bossGate = sim.level.gates.findIndex((g) => g.kind === 'boss');
       if (bossGate >= 0) drawSign(t('boss.sign', { n: formatNumber(sim.gateRequirement(bossGate), d.numSuffix) }));
       // The silhouette: far away the giant is the flat shape facing the camera, inside the far plane at his angular size.

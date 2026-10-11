@@ -163,6 +163,9 @@ export interface TestState {
   autoRun: boolean;
   checkpoint: number;
   respawning: boolean;
+  /** «Slowed» (RG-04): the status of the sim and the badge on the Speed plaque. */
+  slow: { mult: number; left: number } | null;
+  slowBadge: string;
   touchMode: boolean;
   stickActive: boolean;
   quality: { level: QualityLevel; dpr: number; locked: boolean };
@@ -549,6 +552,8 @@ export function installTestApi(g: GameHandles): TestApi {
         autoRun: g.input.autoRun,
         checkpoint: g.sim?.checkpoint ?? -1,
         respawning: (g.sim?.respawnTicksLeft ?? -1) >= 0,
+        slow: g.sim?.slow ? { ...g.sim.slow } : null,
+        slowBadge: document.querySelector('[data-role="slow"].shown')?.textContent ?? '',
         touchMode: g.input.touchActive,
         stickActive: g.input.stick.active,
         quality: { level: g.quality.level, dpr: g.quality.dpr, locked: g.quality.locked },

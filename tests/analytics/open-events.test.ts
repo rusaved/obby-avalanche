@@ -16,6 +16,8 @@ const EVENTS: Array<{ names: string[]; times: 'player' | 'always'; code: RegExp 
   { names: ['record_up'], times: 'always', code: /[^e]track\('record_up'\)/ },
   // RG-10: the giant slapped a bot.
   { names: ['boss_bot_caught'], times: 'always', code: /[^e]track\('boss_bot_caught'/ },
+  // RG-04: a helper's snowball hit the hero.
+  { names: ['helper_hit'], times: 'always', code: /[^e]track\('helper_hit'/ },
 ];
 
 describe('events of the open slope (PS-13)', () => {

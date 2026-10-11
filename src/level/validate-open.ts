@@ -291,10 +291,12 @@ export function validateOpenBoss(worlds: WorldsJson, speedAt: (stat: number) => 
   const errors: string[] = [];
   for (const [wi, w] of worlds.worlds.entries()) {
     for (const [zi, b] of (w.bosses ?? []).entries()) {
-      const v = speedAt(b.requires);
+      // With helpers (docs/01-gdd.md 18.5, F12): the advice passes even slowed by a snowball at the meeting.
+      const slow = Math.min(1, ...(b.helpers ?? []).map((h) => h.slow));
+      const v = speedAt(b.requires) * slow;
       for (const g of b.giants)
         if (!(v > g.speed * (1 + margin)))
-          errors.push(`worlds.json: worlds[${wi}] (${w.id}): bosses[${zi}] — the advice ${b.requires} runs ${v.toFixed(2)} units/s, not above the giant ${g.speed} × ${1 + margin} = ${(g.speed * (1 + margin)).toFixed(2)}`);
+          errors.push(`worlds.json: worlds[${wi}] (${w.id}): bosses[${zi}] — the advice ${b.requires}${slow < 1 ? ` slowed × ${slow}` : ''} runs ${v.toFixed(2)} units/s, not above the giant ${g.speed} × ${1 + margin} = ${(g.speed * (1 + margin)).toFixed(2)}`);
     }
   }
   return errors;

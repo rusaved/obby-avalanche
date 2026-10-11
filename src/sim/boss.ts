@@ -1,6 +1,6 @@
 // What: The giant of the open slope: each zone of worlds.json bosses[] with its giants — patrol along the slope, turn to the nearest runner (hero or bot), the slap or the slip past, the way back.
 // Called by: sim/world.ts (createBoss, step every tick, its events go out through the sim bus); tests/sim/boss.test.ts.
-// Keep: Pure TS, no DOM, deterministic; every number from the data (zones, speeds, turnSec, returnMult — worlds.json; margin, reach — game.json threat.boss).
+// Keep: Pure TS, no DOM, deterministic; every number from the data (zones, speeds, turnSec, returnMult, helpers — worlds.json; margin, reach — game.json threat.boss).
 
 /**
  * Giants (docs/01-gdd.md 17.6; docs/01a-content.md 16.4): a giant walks its zone up and down at `speed`. The hero steps
@@ -24,10 +24,22 @@ export interface GiantState {
   speed: number;
 }
 
+/** A helper of the giant (docs/01-gdd.md 18.5): on its border level with the hero, its snowball in the air. */
+export interface HelperState {
+  x: number;
+  z: number;
+  /** Seconds to its next throw. */
+  t: number;
+  ball: { from: [number, number, number]; to: [number, number, number]; t: number; flight: number } | null;
+  /** The zone is passed or the hero caught: it waves, no throws. */
+  wave: boolean;
+}
+
 export interface BossZoneState {
   zone: [number, number];
   giants: GiantState[];
   hero: 'out' | 'in' | 'passed';
+  helpers: HelperState[];
 }
 
 export interface BossEvents {
@@ -36,6 +48,9 @@ export interface BossEvents {
   bossCaught: { tick: number; zone: number; x: number; y: number; z: number };
   /** A bot running the zone was slapped (docs/01-gdd.md 18.5): `bot` is its index; the bots roll it back. */
   bossBotCaught: { tick: number; zone: number; bot: number };
+  /** A helper threw a snowball at the hero (whistle) and it hit him: slowed × `slow` for `slowSec`. */
+  helperThrow: { tick: number; zone: number; helper: number };
+  helperHit: { tick: number; zone: number; slow: number; slowSec: number };
 }
 
 /** A bot running a giant's zone (docs/01-gdd.md 18.5): the giant goes at the nearest runner, bot or hero. */
@@ -49,9 +64,15 @@ export interface BossHero {
   x: number;
   y: number;
   z: number;
-  /** Horizontal speed now. */
+  /** Horizontal speed now; velocity (a helper throws at where he will be). */
   speed: number;
+  vx?: number;
+  vz?: number;
 }
+
+/** A helper keeps this far ahead of the hero along its border, and its snowball flies this high over the line. */
+const HELPER_AHEAD = 14;
+const BALL_ARC = 3;
 
 export interface Boss {
   readonly zones: BossZoneState[];
@@ -76,12 +97,43 @@ export function createBoss(
       zone: [a, c],
       hero: passed(zi) ? 'passed' : 'out',
       giants: b.giants.map((g, gi) => ({ z: a + ((gi + 1) * (c - a)) / (n + 1), dir: gi % 2 === 0 ? 1 : -1, mode: passed(zi) ? 'sit' : 'patrol', t: 0, speed: g.speed * scale(zi) })),
+      helpers: (b.helpers ?? []).map((h) => ({ x: h.x, z: (a + c) / 2, t: h.throwEverySec, ball: null, wave: passed(zi) })),
     };
   });
   const zoneOf = (z: number): number => zones.findIndex((s) => z >= s.zone[0] && z <= s.zone[1]);
 
   const walk = (g: GiantState, zone: [number, number], dz: number): void => {
     g.z = Math.min(zone[1], Math.max(zone[0], g.z + dz));
+  };
+
+  // Helpers (docs/01-gdd.md 18.5): along their border level with the hero; while he is in the zone each throws a
+  // snowball every throwEverySec at where he will be in flightSec; it lands — within hitRadius of him: slowed.
+  const stepHelpers = (s: BossZoneState, zi: number, dt: number, hero: BossHero, free: boolean, tick: number): void => {
+    const hd = data[zi]!.helpers;
+    if (!hd) return;
+    const [a, c] = s.zone;
+    s.helpers.forEach((h, hi) => {
+      const d = hd[hi]!;
+      const want = s.hero === 'in' ? Math.min(c, Math.max(a, hero.z + HELPER_AHEAD)) : (a + c) / 2;
+      const step = (s.giants[0]?.speed ?? 10) * 1.5 * dt;
+      h.z += Math.max(-step, Math.min(step, want - h.z));
+      if (h.ball) {
+        h.ball.t += dt;
+        if (h.ball.t >= h.ball.flight) {
+          const [tx, , tz] = h.ball.to;
+          h.ball = null;
+          if (free && Math.hypot(hero.x - tx, hero.z - tz) <= d.hitRadius) emit('helperHit', { tick, zone: zi, slow: d.slow, slowSec: d.slowSec });
+        }
+      }
+      if (s.hero !== 'in' || !free || h.wave) return;
+      h.t -= dt;
+      if (h.t > 0 || h.ball) return;
+      h.t = d.throwEverySec;
+      const tx = hero.x + (hero.vx ?? 0) * d.flightSec;
+      const tz = Math.min(c, hero.z + (hero.vz ?? 0) * d.flightSec);
+      h.ball = { from: [h.x, hero.y + BALL_ARC, h.z], to: [tx, hero.y, tz], t: 0, flight: d.flightSec };
+      emit('helperThrow', { tick, zone: zi, helper: hi });
+    });
   };
 
   return {
@@ -110,9 +162,15 @@ export function createBoss(
               g.mode = 'turn';
               g.t = data0.giants[gi]!.turnSec;
             });
+            // The first snowballs within 3 s of the zone (docs/01a-content.md 17.4), the helpers a little apart.
+            s.helpers.forEach((h, hi) => {
+              h.wave = false;
+              h.t = data0.helpers![hi]!.throwEverySec * (0.4 + 0.3 * hi);
+            });
           } else if (free && hero.z > c && s.hero === 'in') {
             s.hero = 'passed';
             s.giants.forEach((g) => (g.mode = 'sit'));
+            s.helpers.forEach((h) => (h.wave = true));
             emit('bossPassed', { tick, zone: zi });
             return;
           } else if (!inside && s.hero === 'in') {
@@ -126,6 +184,7 @@ export function createBoss(
           for (const r of runners) if (!slapped.has(r.bot) && !(Math.abs(r.z - g.z) >= Math.abs(best - g.z))) best = r.z;
           return best;
         };
+        stepHelpers(s, zi, dt, hero, free, tick);
         for (const g of s.giants) {
           switch (g.mode) {
             case 'sit':
@@ -171,6 +230,7 @@ export function createBoss(
               o.mode = 'back';
               o.dir = 1;
             });
+            s.helpers.forEach((h) => (h.wave = true));
             emit('bossCaught', { tick, zone: zi, x: hero.x, y: hero.y, z: hero.z });
             return;
           }

@@ -128,6 +128,8 @@ export interface Hud {
   /** Speed plaque: the number and «+N per step» under it (docs/01-gdd.md 10.1). */
   /** Speed and «+N per step»; `section` — «×N this section» of the open slope (docs/01-gdd.md 17.4), null hides it. */
   setStat(value: string, perStep: string, section?: string | null): void;
+  /** «Slowed» on the Speed plaque (docs/01-gdd.md 18.5): «×0,85» while it lasts; null — hidden. */
+  setSlow(text: string | null): void;
   /** «+N» flying up over the Speed plaque on a gain. */
   popStatGain(text: string): void;
   /** A round number of Speed (docs/01-gdd.md 10.3, M2-13): the plaque flashes, the number bounces. */
@@ -270,7 +272,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   // Open slope (docs/01-gdd.md 17.4): the multiplier of the section by «+N per step».
   const statSection = el('span', 'hud-stat-section', '');
   statSection.dataset['role'] = 'section-mult';
-  statBody.append(statValue, statPer, statSection);
+  const statSlow = el('span', 'hud-stat-slow', '');
+  statSlow.dataset['role'] = 'slow';
+  statBody.append(statValue, statPer, statSection, statSlow);
   const statGain = el('span', 'hud-stat-gain');
   stat.append(statIcon, statBody, statGain);
   left.appendChild(stat);
@@ -634,6 +638,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       const text = section ?? '';
       if (statSection.textContent !== text) statSection.textContent = text;
       statSection.classList.toggle('shown', section !== null);
+    },
+    setSlow(text) {
+      if (statSlow.textContent !== (text ?? '')) statSlow.textContent = text ?? '';
+      statSlow.classList.toggle('shown', text !== null);
     },
     flashStat() {
       stat.classList.remove('flash');

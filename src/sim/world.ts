@@ -126,6 +126,13 @@ export interface Sim {
   record: { x: number; y: number; z: number } | null;
   /** Giants of the open slope (docs/01-gdd.md 17.6); null when the mountain has none or the sim runs without them. */
   readonly boss: Boss | null;
+  /**
+   * «Slowed» (docs/01-gdd.md 18.5): one status for a helper's snowball, the rolling ball and the blizzard — the run ×
+   * `mult` for `left` more seconds of simulation (a pause or a window steps no sim, so it does not tick); null — none.
+   */
+  slow: { mult: number; left: number } | null;
+  /** Slows the hero × mult for sec: hits in a row do not stack — the stronger mult and the longer time. */
+  slowDown(mult: number, sec: number): void;
   step(input: HeroInput, dt: number): void;
   teleport(x: number, y: number, z: number): void;
   respawn(): void;
@@ -275,6 +282,11 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     fun: createFun(level),
     record: opts.record ? { ...opts.record } : null,
     boss: null,
+    slow: null,
+    slowDown(mult, sec) {
+      const cur = sim.slow;
+      sim.slow = cur ? { mult: Math.min(cur.mult, mult), left: Math.max(cur.left, sec) } : { mult, left: sec };
+    },
     gifts: giftsFromLevel(level),
     coins: opts.coins ?? 0,
     respawnGifts() {
@@ -298,6 +310,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         bossHero.x = hero.pos.x;
         bossHero.y = hero.pos.y;
         bossHero.z = hero.pos.z;
+        bossHero.vx = hero.vel.x;
+        bossHero.vz = hero.vel.z;
         // A hero on the run meets the giant at his run speed: steering and the pick-up after a catch cost him nothing
         // (playtest PS: 14 catches at 1,2–1,4 × the advice); one standing or walking slowly — at the speed he has.
         const moving = Math.hypot(hero.vel.x, hero.vel.z);
@@ -325,6 +339,12 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         return;
       }
       const zBefore = hero.pos.z;
+      // The run speed of the stat, × the «slowed» status while it lasts (docs/01-gdd.md 18.5).
+      if (sim.slow) {
+        sim.slow.left -= dt;
+        if (sim.slow.left <= 0) sim.slow = null;
+      }
+      params.speed = moveSpeed(progress.stat, speedCurve) * (sim.slow?.mult ?? 1);
       stepHero(hero, funInput(sim.fun, input, params, tuning.fun), dt, collision, params, level.killY);
       // Trampolines and slides (docs/01-gdd.md 16.4): a launch leaves the ground, so this tick counts no steps.
       const fun = stepFun(sim.fun, hero, tuning.fun, dt);
@@ -361,7 +381,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         // A belt gives its own multiplier (the one of its section on the open slope, never the product, 17.4).
         const mult = belt ? (typeof belt['mult'] === 'number' ? (belt['mult'] as number) : 1) : sim.sectionMult();
         for (const gain of progress.advance(path, mult)) events.emit('gain', { ...gain, tick: sim.tick, belt: belt !== null });
-        params.speed = moveSpeed(progress.stat, speedCurve);
+        params.speed = moveSpeed(progress.stat, speedCurve) * (sim.slow?.mult ?? 1);
       } else if (!hero.onGround) progress.resetCarry();
       // A round number of the stat (docs/01-gdd.md 10.4): one event with the biggest value crossed.
       const milestone = sim.milestones.check(progress.stat);
@@ -436,6 +456,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     },
     teleport(x, y, z) {
       sim.caught = null;
+      sim.slow = null;
       resetFun(sim.fun);
       placeHero(hero, x, y, z);
       progress.resetCarry();
@@ -471,6 +492,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       return true;
     },
     respawn() {
+      sim.slow = null;
       const c = level.checkpoints[sim.checkpoint];
       const target: [number, number, number] = c ? [c.x, c.y, c.z] : level.spawn;
       placeHero(hero, target[0], target[1] + 0.05, target[2]);
@@ -575,7 +597,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   // Giants (docs/01-gdd.md 17.6): speeds of the tier — the run speed of the scaled advice over the one of tier 0; the
   // zone passed opens the giant's check at its end (the summit line), the slap rolls the hero back to the zone's start.
   const bossGate = level.gates.findIndex((g) => g.kind === 'boss');
-  const bossHero = { x: 0, y: 0, z: 0, speed: 0 };
+  const bossHero = { x: 0, y: 0, z: 0, speed: 0, vx: 0, vz: 0 };
   const boss =
     opts.boss && level.bosses.length > 0 && opts.balance.caught
       ? createBoss(
@@ -595,6 +617,10 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
               const a = level.bosses[p.zone]!.zone[0] - BOSS_BACK;
               if (sim.respawnTicksLeft >= 0) sim.respawnTicksLeft = -1;
               sim.caught = createCaught(level, { x: p.x, y: p.y, z: p.z }, opts.balance.caught!, tuning.avalanche, { x: 0, y: level.floorAt(0, a), z: a });
+            } else if (name === 'helperHit') {
+              // A helper's snowball (docs/01-gdd.md 18.5): slowed for a moment; nothing is lost.
+              const p = payload as BossEvents['helperHit'];
+              sim.slowDown(p.slow, p.slowSec);
             } else if (name === 'bossBotCaught') {
               // A bot slapped (docs/01-gdd.md 18.5): it rolls back to the start of the zone as the hero would.
               const p = payload as BossEvents['bossBotCaught'];

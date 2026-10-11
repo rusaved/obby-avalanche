@@ -50,7 +50,8 @@ export interface ThemeJson {
   threat: { front: [string, string]; edge: string; body: string; dust: string; height: number };
   bonus?: { color: string };
   /** The giant (docs/01a-content.md 16.4): height, colours of the parts and the hat, the face, the horizon silhouette. */
-  boss?: { height: number; colors: { head: string; torso: string; arms: string; legs: string; hat: string }; face: string; silhouette: string };
+  /** `helper` (docs/01a-content.md 17.4): the giant's helpers — their height, the colour of their snowball. */
+  boss?: { height: number; colors: { head: string; torso: string; arms: string; legs: string; hat: string }; face: string; silhouette: string; helper?: { height: number; snowball: string } };
 }
 
 export interface Curve {
@@ -374,12 +375,29 @@ export interface WorldGiant {
   turnSec: number;
 }
 
+/**
+ * A helper of the giant (docs/01-gdd.md 18.5; docs/01a-content.md 17.4): stands on the border `side` at `x`; while the
+ * hero is in the zone it throws a snowball every `throwEverySec` at where he will be in `flightSec`; a hit within
+ * `hitRadius` slows him × `slow` for `slowSec`.
+ */
+export interface WorldHelper {
+  side: 'left' | 'right';
+  x: number;
+  throwEverySec: number;
+  flightSec: number;
+  slow: number;
+  slowSec: number;
+  hitRadius: number;
+}
+
 /** A zone of giants before the summit: [zStart, zEnd], the advice number of its sign, back to patrol × returnMult. */
 export interface WorldBoss {
   zone: [number, number];
   requires: number;
   returnMult: number;
   giants: WorldGiant[];
+  /** From mountain 4 (docs/01-gdd.md 18.5): helpers with snowballs on the borders; absent — none. */
+  helpers?: WorldHelper[];
 }
 
 export interface World {
@@ -454,8 +472,9 @@ export interface OpenSpecJson {
   spawnZ: number;
   threat: WorldsSpecJson['threat'];
   rarities: string[];
-  /** Defaults of every giant zone (docs/01a-content.md 16.4); a mountain's `boss` may override them. */
-  boss: { turnSec: number; returnMult: number; seeDist: number; zoneGap: number };
+  /** Defaults of every giant zone (docs/01a-content.md 16.4); a mountain's `boss` may override them. `helper` — the
+   * numbers of every helper (docs/01a-content.md 17.4). */
+  boss: { turnSec: number; returnMult: number; seeDist: number; zoneGap: number; helper?: Omit<WorldHelper, 'side'> };
   /** Elements of the slope (docs/01-gdd.md 18.3; docs/01a-content.md 17.1): from which mountain each is allowed. */
   shapeFrom?: Record<ShapeKind, number>;
   /** Sizes of the elements (docs/01a-content.md 17.2), read by the generator. */
@@ -488,7 +507,7 @@ export interface OpenSpecMountain {
   sections: Array<{ length: number; stepMult: number; shelterEvery: number; gift: number; fork: boolean; shape?: ShapeKind[] }>;
   ridges: Array<{ requires: number }>;
   /** The finish straight: its length, the advice number, the giant's speed V_b, step multiplier and gift there. */
-  boss: { stretch: number; requires: number; margin: number; stepMult: number; gift: number; speed: number; turnSec?: number; returnMult?: number; seeDist?: number };
+  boss: { stretch: number; requires: number; margin: number; stepMult: number; gift: number; speed: number; turnSec?: number; returnMult?: number; seeDist?: number; helpers?: Array<{ side: 'left' | 'right' }> };
 }
 
 export type I18nJson = Record<string, string>;

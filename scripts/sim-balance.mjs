@@ -20,6 +20,7 @@ import { basename, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { cosmeticMults, fitBalance, paceTargets, referenceTargets, runCycle, wallScale, withWalls } from './balance-model.ts';
 import { CLASSIC_PACE, mergePatch } from '../src/content/pace.ts';
+import { moveSpeed } from '../src/sim/effects/moveSpeed.ts';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -344,6 +345,19 @@ if (!classic && Array.isArray(pack.balance.sim?.eggsByMountain)) {
   const rules = pack.balance.sim.eggsByMountain;
   const got = rules.map((r) => [r.mountain, r.min, greedy.eggsAt[r.mountain - 1] ?? 0]);
   check(11, `жадный, ступень 0: к вершине горы ${rules.map((r) => r.mountain).join(' / ')} куплено яиц ≥ ${rules.map((r) => r.min).join(' / ')}`, got.every(([, k, n]) => n >= k), got.map(([m, k, n]) => `гора ${m} — ${n} (≥ ${k})`).join(', '));
+}
+
+// 12. The giant's helpers (docs/01-gdd.md 18.5, 18.11): a run at the Speed of the advice passes a zone with helpers even
+// slowed by a snowball at the meeting — v(advice) × slow > V_b × (1 + margin) on every mountain that has them.
+const helperZones = classic ? [] : [...pack.worlds].sort((a, b) => a.index - b.index).flatMap((w) => (w.bosses ?? []).filter((b) => b.helpers?.length).map((b) => ({ w: w.index, b })));
+if (helperZones.length) {
+  const curve = { ...pack.balance.speedCurve, base: pack.tuning.controller.baseSpeed, max: pack.tuning.controller.maxSpeed };
+  const margin = pack.game.threat.boss?.margin ?? 0;
+  const rows = helperZones.map(({ w, b }) => {
+    const slow = Math.min(...b.helpers.map((h) => h.slow));
+    return [w, moveSpeed(b.requires, curve) * slow, Math.max(...b.giants.map((g) => g.speed)) * (1 + margin)];
+  });
+  check(12, `помощники великана: Скорость совета со снежком в миг встречи проходит зону (горы ${rows[0][0]}–${rows.at(-1)[0]})`, rows.every(([, v, vb]) => v > vb), rows.map(([w, v, vb]) => `гора ${w} — ${v.toFixed(1)} > ${vb.toFixed(1)}`).join(', '));
 }
 
 // ---------- M3-10: the port repeats the reference; the gold seeker thresholds ----------

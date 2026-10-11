@@ -493,6 +493,9 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
     returnMult: m.boss.returnMult ?? b.returnMult,
     giants: [{ speed: m.boss.speed, patrol: 'alongZ', seeDist: m.boss.seeDist ?? b.seeDist, turnSec: m.boss.turnSec ?? b.turnSec }],
   };
+  // Helpers with snowballs on the borders of the zone (docs/01-gdd.md 18.5; docs/01a-content.md 17.4).
+  const hp = b.helper;
+  if (m.boss.helpers?.length && hp) boss.helpers = m.boss.helpers.map((h) => ({ side: h.side, x: (h.side === 'left' ? -1 : 1) * hp.x, throwEverySec: hp.throwEverySec, flightSec: hp.flightSec, slow: hp.slow, slowSec: hp.slowSec, hitRadius: hp.hitRadius }));
   const length = zSummit + spec.summitLength;
   const world: World = {
     id: m.id,

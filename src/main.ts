@@ -310,7 +310,7 @@ async function boot(): Promise<void> {
   const melting = new Map<number, number>();
   const wireSim = (s: Sim): void => {
     const recorded = ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'gatePass', 'portal', 'giftTake', 'giftsRespawn', 'eggTouch', 'eggHatch', 'statMilestone'] as const;
-    const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'caughtEnd', 'waveDusted', 'waveGone', 'waveEnd', 'bonusSpawn', 'bonusTake', 'bonusSaved', 'bonusLost', 'bossEnter', 'bossPassed', 'bossCaught', 'bossBotCaught', 'recordUp', 'chasmDown', 'tunnelEnter'] as const;
+    const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'caughtEnd', 'waveDusted', 'waveGone', 'waveEnd', 'bonusSpawn', 'bonusTake', 'bonusSaved', 'bonusLost', 'bossEnter', 'bossPassed', 'bossCaught', 'bossBotCaught', 'helperThrow', 'helperHit', 'recordUp', 'chasmDown', 'tunnelEnter'] as const;
     for (const name of [...recorded, ...waves]) {
       s.events.on(name, (payload) => {
         simEvents.push({ name, world: s.level.worldIndex, ...(payload as Record<string, unknown>), tick: s.tick });
@@ -375,6 +375,13 @@ async function boot(): Promise<void> {
     });
     // The giant slapped a bot (docs/01-gdd.md 18.5): nothing on screen but the slap; the funnel counts it (docs/06).
     s.events.on('bossBotCaught', () => track('boss_bot_caught', { world: s.level.worldIndex }));
+    // A helper's snowball (docs/01-gdd.md 18.5): its whistle in the air; a hit — «Snowball!» and the badge on the plaque.
+    s.events.on('helperThrow', () => audio?.play('helper_throw'));
+    s.events.on('helperHit', () => {
+      hud?.toast(t('helper.hit'));
+      audio?.play('helper_hit');
+      track('helper_hit', { world: s.level.worldIndex });
+    });
     s.events.on('statMilestone', ({ value }) => {
       hud?.flashStat();
       hud?.toast(t('toast.statMilestone', { n: formatNumber(value, numSuffix) }));

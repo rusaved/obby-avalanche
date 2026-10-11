@@ -7877,7 +7877,7 @@
           "reward": {
             "coins": 10000
           },
-          "speed": 43.9,
+          "speed": 37.3,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -7942,10 +7942,21 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 43.9,
+              "speed": 37.3,
               "patrol": "alongZ",
               "seeDist": 0,
               "turnSec": 0.5
+            }
+          ],
+          "helpers": [
+            {
+              "side": "left",
+              "x": -26,
+              "throwEverySec": 2.5,
+              "flightSec": 1,
+              "slow": 0.85,
+              "slowSec": 1,
+              "hitRadius": 1.5
             }
           ]
         }
@@ -10070,7 +10081,7 @@
           "reward": {
             "coins": 30000
           },
-          "speed": 47,
+          "speed": 40,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -10135,10 +10146,21 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 47,
+              "speed": 40,
               "patrol": "alongZ",
               "seeDist": 0,
               "turnSec": 0.5
+            }
+          ],
+          "helpers": [
+            {
+              "side": "left",
+              "x": -26,
+              "throwEverySec": 2.5,
+              "flightSec": 1,
+              "slow": 0.85,
+              "slowSec": 1,
+              "hitRadius": 1.5
             }
           ]
         }
@@ -12037,7 +12059,7 @@
           "reward": {
             "coins": 300000
           },
-          "speed": 50.8,
+          "speed": 43.2,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -12102,10 +12124,21 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 50.8,
+              "speed": 43.2,
               "patrol": "alongZ",
               "seeDist": 0,
               "turnSec": 0.5
+            }
+          ],
+          "helpers": [
+            {
+              "side": "left",
+              "x": -26,
+              "throwEverySec": 2.5,
+              "flightSec": 1,
+              "slow": 0.85,
+              "slowSec": 1,
+              "hitRadius": 1.5
             }
           ]
         }
@@ -14152,7 +14185,7 @@
           "reward": {
             "coins": 3000000
           },
-          "speed": 54.7,
+          "speed": 46.4,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -14217,10 +14250,30 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 54.7,
+              "speed": 46.4,
               "patrol": "alongZ",
               "seeDist": 0,
               "turnSec": 0.5
+            }
+          ],
+          "helpers": [
+            {
+              "side": "left",
+              "x": -26,
+              "throwEverySec": 2.5,
+              "flightSec": 1,
+              "slow": 0.85,
+              "slowSec": 1,
+              "hitRadius": 1.5
+            },
+            {
+              "side": "right",
+              "x": 26,
+              "throwEverySec": 2.5,
+              "flightSec": 1,
+              "slow": 0.85,
+              "slowSec": 1,
+              "hitRadius": 1.5
             }
           ]
         }
@@ -16485,7 +16538,7 @@
           "reward": {
             "coins": 40000000
           },
-          "speed": 58.9,
+          "speed": 50.1,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -16550,10 +16603,30 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 58.9,
+              "speed": 50.1,
               "patrol": "alongZ",
               "seeDist": 0,
               "turnSec": 0.5
+            }
+          ],
+          "helpers": [
+            {
+              "side": "left",
+              "x": -26,
+              "throwEverySec": 2.5,
+              "flightSec": 1,
+              "slow": 0.85,
+              "slowSec": 1,
+              "hitRadius": 1.5
+            },
+            {
+              "side": "right",
+              "x": 26,
+              "throwEverySec": 2.5,
+              "flightSec": 1,
+              "slow": 0.85,
+              "slowSec": 1,
+              "hitRadius": 1.5
             }
           ]
         }
@@ -19186,7 +19259,7 @@
           "reward": {
             "coins": 800000000
           },
-          "speed": 60.9,
+          "speed": 51.8,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -19251,10 +19324,30 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 60.9,
+              "speed": 51.8,
               "patrol": "alongZ",
               "seeDist": 0,
               "turnSec": 0.5
+            }
+          ],
+          "helpers": [
+            {
+              "side": "left",
+              "x": -26,
+              "throwEverySec": 2.5,
+              "flightSec": 1,
+              "slow": 0.85,
+              "slowSec": 1,
+              "hitRadius": 1.5
+            },
+            {
+              "side": "right",
+              "x": 26,
+              "throwEverySec": 2.5,
+              "flightSec": 1,
+              "slow": 0.85,
+              "slowSec": 1,
+              "hitRadius": 1.5
             }
           ]
         }
@@ -21907,7 +22000,7 @@
           "reward": {
             "coins": 20000000000
           },
-          "speed": 60.9,
+          "speed": 51.8,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -21972,10 +22065,30 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 60.9,
+              "speed": 51.8,
               "patrol": "alongZ",
               "seeDist": 0,
               "turnSec": 0.5
+            }
+          ],
+          "helpers": [
+            {
+              "side": "left",
+              "x": -26,
+              "throwEverySec": 2.5,
+              "flightSec": 1,
+              "slow": 0.85,
+              "slowSec": 1,
+              "hitRadius": 1.5
+            },
+            {
+              "side": "right",
+              "x": 26,
+              "throwEverySec": 2.5,
+              "flightSec": 1,
+              "slow": 0.85,
+              "slowSec": 1,
+              "hitRadius": 1.5
             }
           ]
         }
