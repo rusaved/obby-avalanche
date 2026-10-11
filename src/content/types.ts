@@ -102,7 +102,10 @@ export interface BalanceJson {
     interstitialCooldownSec: number;
     interstitialAfterRewardedSec: number;
     statNowCooldownSec: number;
-    skipGate: { cooldownSec: number; standSec: number; distance: number; excludeLastWall: boolean };
+    /** `enabled` false — no «open the wall» ad at all (pace open, docs/01-gdd.md 17.11); absent — on. */
+    skipGate: { cooldownSec: number; standSec: number; distance: number; excludeLastWall: boolean; enabled?: boolean };
+    /** «Continue from here» (continue_here, docs/01-gdd.md 17.11): seconds between two offers; absent — no such place. */
+    continueCooldownSec?: number;
     eggViews: number;
     eggPauseSec: number;
     skipFirstPortal: boolean;
@@ -139,7 +142,18 @@ export interface BalanceJson {
    * mountain 1 the fit leaves as they are (default 0); `roundDigits` — significant digits of a fitted wall (default:
    * the nice row of 8.5).
    */
-  sim?: { mountainMin: number[]; gateCurve: number; keep?: number; roundDigits?: number };
+  sim?: {
+    mountainMin: number[];
+    gateCurve: number;
+    keep?: number;
+    roundDigits?: number;
+    /** Thresholds of F1–F8 (pace open, docs/01-gdd.md 17.12); absent — the numbers of 8.5. */
+    checks?: Record<string, number | Array<number | number[]>>;
+    /** F11: eggs bought by the summit of a mountain (decision 07.10). */
+    eggsByMountain?: Array<{ mountain: number; min: number }>;
+    /** Words of the report for a wall of the pace: one, of one, many, of many. */
+    words?: { one: string; gen: string; many: string; manyGen: string };
+  };
 }
 
 export interface HintsTiming {
@@ -215,6 +229,8 @@ export interface TuningJson {
     raiseReturnRate: number;
     /** A bot closer than this to the line camera → hero hides. */
     occludeRadius: number;
+    /** Pace open (docs/01-gdd.md 17.9): the FOV on a phone is this much wider. */
+    mobileFovAdd?: number;
   };
   input: {
     stickRadiusFrac: number;
@@ -262,6 +278,14 @@ export interface TuningJson {
    * coming within `streakSec` of each other ring a semitone higher each, up to `streakSteps` steps.
    */
   gateReward: { fountain: [number, number]; streakSec: number; streakSteps: number };
+  /** Pace open (docs/01a-content.md 16.7): the ridge view — up `rise`, back `back`, `sec` long (docs/01-gdd.md 17.9). */
+  ridgeShot?: { rise: number; back: number; sec: number };
+  /** The giant-zone shot: from the side `side` units away, `sec` long (docs/01-gdd.md 17.9). */
+  bossShot?: { side: number; sec: number };
+  /** The giant's stomp shakes the camera this much near him. */
+  boss?: { stompShake: number };
+  /** Draw distance of the slope parts on a PC and a phone (docs/01-gdd.md 17.10). */
+  far?: { pc: number; mobile: number };
 }
 
 export type SegmentType =
@@ -283,7 +307,8 @@ export type SegmentType =
   | 'zoneArch'
   | 'summit'
   | 'jumpPad'
-  | 'slide';
+  | 'slide'
+  | 'fork';
 
 export interface Segment {
   type: SegmentType;
@@ -302,6 +327,8 @@ export interface WorldThreat {
   spawnAhead: number;
   firstWaveScripted: boolean;
   safeZoneZ: [number, number];
+  /** Open slope (docs/01-gdd.md 17.5): the front never starts above this z — the start line of the giant's zone. */
+  spawnMaxZ?: number;
 }
 
 export interface WorldZone {
@@ -310,6 +337,27 @@ export interface WorldZone {
   gift: number;
   zStart: number;
   zEnd: number;
+  /** Open slope (docs/01-gdd.md 17.4): every step on this section gives × stepMult; absent — ×1. */
+  stepMult?: number;
+}
+
+/**
+ * A giant of a zone (docs/01-gdd.md 17.6; docs/01a-content.md 16.4): walks the zone along the slope at `speed` (tier 0),
+ * turns to the hero in `turnSec` once he is in the zone (`seeDist` 0 — sees him anywhere in it).
+ */
+export interface WorldGiant {
+  speed: number;
+  patrol: 'alongZ';
+  seeDist: number;
+  turnSec: number;
+}
+
+/** A zone of giants before the summit: [zStart, zEnd], the advice number of its sign, back to patrol × returnMult. */
+export interface WorldBoss {
+  zone: [number, number];
+  requires: number;
+  returnMult: number;
+  giants: WorldGiant[];
 }
 
 export interface World {
@@ -319,6 +367,7 @@ export interface World {
   width: number;
   spawnZ: number;
   egg: string;
+  /** Stretch length of the classic and gateSide layouts; the open slope (sections of their own lengths) — the longest. */
   stretch: number;
   wallCount: number;
   safeZones: Array<[number, number]>;
@@ -330,9 +379,11 @@ export interface World {
   layout?: WorldLayout;
   /** Theme of the mountain look (sky, decor; M5) when it differs from the id (docs/01-gdd.md 16.3). */
   look?: string;
+  /** Open slope (docs/01-gdd.md 17.6): zones of giants before the summit; absent — no giant. */
+  bosses?: WorldBoss[];
 }
 
-export type WorldLayout = 'classic' | 'gateSide';
+export type WorldLayout = 'classic' | 'gateSide' | 'openSlope';
 
 export interface WorldsJson {
   schema: number;
@@ -366,6 +417,38 @@ export interface WorldsSpecJson {
     walls: Array<{ requires: number; treadmill: number }>;
     campTreadmill?: number;
   }>;
+}
+
+/**
+ * worlds-spec.json of the open slope (docs/01-gdd.md 17.2; docs/01a-content.md 16.1–16.5): per mountain its sections
+ * (length, step multiplier, shelter spacing, gift, a fork or not), the ridges at their ends and the giant's zone.
+ */
+export interface OpenSpecJson {
+  schema: number;
+  layout: 'openSlope';
+  campLength: number;
+  summitLength: number;
+  width: number;
+  spawnZ: number;
+  threat: WorldsSpecJson['threat'];
+  rarities: string[];
+  /** Defaults of every giant zone (docs/01a-content.md 16.4); a mountain's `boss` may override them. */
+  boss: { turnSec: number; returnMult: number; seeDist: number; zoneGap: number };
+  mountains: OpenSpecMountain[];
+}
+
+export interface OpenSpecMountain {
+  id: string;
+  look?: string;
+  egg: string;
+  intervalSec: number;
+  firstIntervalSec?: number;
+  warnSec: number;
+  speed: number;
+  sections: Array<{ length: number; stepMult: number; shelterEvery: number; gift: number; fork: boolean }>;
+  ridges: Array<{ requires: number }>;
+  /** The finish straight: its length, the advice number, the giant's speed V_b, step multiplier and gift there. */
+  boss: { stretch: number; requires: number; margin: number; stepMult: number; gift: number; speed: number; turnSec?: number; returnMult?: number; seeDist?: number };
 }
 
 export type I18nJson = Record<string, string>;

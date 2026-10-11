@@ -23,6 +23,8 @@ export interface TestState {
   pack: string;
   /** Pace of this run (docs/01-gdd.md 16.1): classic or a folder of content/<pack>/pace/. */
   pace: string;
+  /** Width of the slope of this mountain (open slope: 56, docs/01-gdd.md 17.2). */
+  width: number;
   world: string;
   controllable: boolean;
   pauseReasons: string[];
@@ -391,6 +393,7 @@ export function installTestApi(g: GameHandles): TestApi {
         lang: g.lang,
         pack: g.packId,
         pace,
+        width: g.sim?.level.width ?? 0,
         world: g.world.id,
         controllable: g.boot.controllable,
         pauseReasons: g.pause.reasons,

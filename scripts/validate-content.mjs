@@ -33,7 +33,7 @@ export function paceNames(dir) {
     .sort();
 }
 
-/** The pack as a pace plays it: its worlds.json and worlds-spec.json, the shared balance.json with its patch merged in. */
+/** The pack as a pace plays it: its worlds.json and worlds-spec.json, the shared balance.json and tuning.json with its patches merged in. */
 export function pacePack(files, dir, pace) {
   const read = (name) => {
     const file = resolve(dir, 'pace', pace, name);
@@ -45,7 +45,14 @@ export function pacePack(files, dir, pace) {
     }
   };
   const patch = read('balance.json');
-  return { ...files, 'balance.json': patch === undefined ? files['balance.json'] : mergePatch(files['balance.json'], patch), 'worlds.json': read('worlds.json'), 'worlds-spec.json': read('worlds-spec.json') };
+  const feel = read('tuning.json');
+  return {
+    ...files,
+    'balance.json': patch === undefined ? files['balance.json'] : mergePatch(files['balance.json'], patch),
+    'tuning.json': feel === undefined ? files['tuning.json'] : mergePatch(files['tuning.json'], feel),
+    'worlds.json': read('worlds.json'),
+    'worlds-spec.json': read('worlds-spec.json'),
+  };
 }
 
 const report = (name, run) => {

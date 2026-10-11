@@ -30,6 +30,7 @@ const byPace = (files: Record<string, unknown>): Record<string, unknown> =>
   Object.fromEntries(Object.entries(files).map(([path, data]) => [paceOfPath(path) ?? path, data]));
 const paceWorlds = byPace(import.meta.glob('@content/pace/*/worlds.json', { eager: true, import: 'default' }));
 const paceBalance = byPace(import.meta.glob('@content/pace/*/balance.json', { eager: true, import: 'default' }));
+const paceTuning = byPace(import.meta.glob('@content/pace/*/tuning.json', { eager: true, import: 'default' }));
 
 /** Pace folders of the pack (classic is not one of them). */
 export const paces: readonly string[] = Object.keys(paceWorlds).sort();
@@ -44,7 +45,8 @@ export const content: ContentPack = {
   game: game as unknown as ContentPack['game'],
   theme: theme as unknown as ContentPack['theme'],
   balance: (classic ? balance : mergePatch(balance, paceBalance[pace])) as unknown as ContentPack['balance'],
-  tuning: tuning as unknown as ContentPack['tuning'],
+  // A pace may patch the feel too (camera of the open slope, docs/01a-content.md 16.7): the same deep merge.
+  tuning: (classic ? tuning : mergePatch(tuning, paceTuning[pace])) as unknown as ContentPack['tuning'],
   worlds: (classic ? worlds : (paceWorlds[pace] ?? worlds)) as unknown as ContentPack['worlds'],
   skins: skins as unknown as ContentPack['skins'],
   accessories: accessories as unknown as ContentPack['accessories'],

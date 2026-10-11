@@ -8,7 +8,7 @@
  * physics (M1) and cave fairness against warnSec (M2-03).
  */
 import * as v from 'valibot';
-import type { AurasJson, BalanceJson, BotsJson, Curve, EggsJson, TrailsJson, GameJson, Reward, Segment, SkinsJson, TuningJson, World, WorldsJson, WorldsSpecJson } from '../content/types.ts';
+import type { AurasJson, BalanceJson, BotsJson, Curve, EggsJson, TrailsJson, GameJson, OpenSpecJson, Reward, Segment, SkinsJson, TuningJson, World, WorldsJson, WorldsSpecJson } from '../content/types.ts';
 import { summitTrophies } from '../sim/economy.ts';
 import { LEADERBOARD_SCORES } from '../meta/trophies.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
@@ -18,6 +18,7 @@ import { GIFT_HALF, GIFT_HEIGHT, touchesGift } from '../sim/gifts.ts';
 import { HERO_HEIGHT, HERO_RADIUS } from '../sim/controller.ts';
 import { GATE_SIDE, zoneOfStretch } from './generate.ts';
 import { CLASSIC_PACE } from '../content/pace.ts';
+import { isOpenWorlds, validateOpenCount, validateOpenFairness, validateOpenGround, validateOpenWorld } from './validate-open.ts';
 
 export const PACK_FILES = [
   'game.json',
@@ -64,10 +65,10 @@ const curve = v.object({ base: positive, k: nonNeg, max: positive });
 export const STAT_EFFECTS = ['moveSpeed', 'jumpPower', 'gateOnly'] as const;
 export const SEGMENT_TYPES = [
   'floor', 'wall', 'gate', 'niche', 'gap', 'ramp', 'steps', 'treadmill', 'checkpoint', 'coins', 'chest',
-  'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit', 'jumpPad', 'slide',
+  'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit', 'jumpPad', 'slide', 'fork',
 ] as const;
 /** Mountain layouts of the generator (docs/01-gdd.md 5.2, 16.3). */
-export const WORLD_LAYOUTS = ['classic', 'gateSide'] as const;
+export const WORLD_LAYOUTS = ['classic', 'gateSide', 'openSlope'] as const;
 /** docs/02-tech.md 5.3: in game 1 every fx field has exactly one known value. */
 export const FX_VALUES = {
   caught: ['ball'],
@@ -180,7 +181,10 @@ const balanceSchema = v.object({
     interstitialCooldownSec: v.pipe(v.number(), v.minValue(180)),
     interstitialAfterRewardedSec: nonNeg,
     statNowCooldownSec: nonNeg,
-    skipGate: v.object({ cooldownSec: nonNeg, standSec: nonNeg, distance: nonNeg, excludeLastWall: v.boolean() }),
+    // `enabled` false — no «open the wall» ad (pace open: a ridge is never opened by an ad, docs/01-gdd.md 17.11).
+    skipGate: v.object({ cooldownSec: nonNeg, standSec: nonNeg, distance: nonNeg, excludeLastWall: v.boolean(), enabled: v.optional(v.boolean()) }),
+    /** «Continue from here» (continue_here, docs/01-gdd.md 17.11): seconds between two offers. */
+    continueCooldownSec: v.optional(nonNeg),
     eggViews: v.pipe(v.number(), v.integer(), v.minValue(1)),
     eggPauseSec: nonNeg,
     skipFirstPortal: v.boolean(),
@@ -231,6 +235,10 @@ const balanceSchema = v.object({
       gateCurve: positive,
       keep: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
       roundDigits: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
+      // Thresholds of F1–F8, the F11 egg rows and the words of the report (pace open, docs/01-gdd.md 17.12).
+      checks: v.optional(v.record(v.string(), v.union([v.number(), v.array(v.union([v.number(), v.array(v.number())]))]))),
+      eggsByMountain: v.optional(v.array(v.object({ mountain: v.pipe(v.number(), v.integer(), v.minValue(1)), min: nonNeg }))),
+      words: v.optional(v.object({ one: v.string(), gen: v.string(), many: v.string(), manyGen: v.string() })),
     }),
   ),
 });
@@ -279,6 +287,7 @@ const tuningSchema = v.object({
     raiseMaxDeg: v.pipe(v.number(), v.minValue(0), v.maxValue(85)),
     raiseStepDeg: positive,
     raiseReturnRate: positive,
+    mobileFovAdd: v.optional(v.number()),
     occludeRadius: nonNeg,
   }),
   input: v.object({
@@ -306,6 +315,11 @@ const tuningSchema = v.object({
     ballBounce: nonNeg,
   }),
   fun: v.object({ padSpeed: positive, padForward: nonNeg, slideMult: v.pipe(v.number(), v.minValue(1)), slideSec: nonNeg, giftStreakSec: nonNeg }),
+  // Pace open (docs/01a-content.md 16.7): the ridge view, the giant-zone shot, the giant's stomp, draw distance.
+  ridgeShot: v.optional(v.object({ rise: nonNeg, back: nonNeg, sec: positive })),
+  bossShot: v.optional(v.object({ side: positive, sec: positive })),
+  boss: v.optional(v.object({ stompShake: nonNeg })),
+  far: v.optional(v.object({ pc: positive, mobile: positive })),
   gateReward: v.object({
     fountain: v.pipe(v.tuple([v.pipe(v.number(), v.integer(), v.minValue(1)), v.pipe(v.number(), v.integer(), v.minValue(1))]), v.check((r) => r[0] <= r[1], 'expected [min, max]')),
     streakSec: positive,
@@ -334,12 +348,24 @@ const worldSchema = v.object({
     spawnAhead: positive,
     firstWaveScripted: v.boolean(),
     safeZoneZ: v.tuple([nonNeg, nonNeg]),
+    spawnMaxZ: v.optional(nonNeg),
   }),
-  zones: v.pipe(v.array(v.object({ k: v.pipe(v.number(), v.integer()), rarity: id, gift: positive, zStart: nonNeg, zEnd: nonNeg })), v.minLength(1)),
+  zones: v.pipe(v.array(v.object({ k: v.pipe(v.number(), v.integer()), rarity: id, gift: positive, zStart: nonNeg, zEnd: nonNeg, stepMult: v.optional(positive) })), v.minLength(1)),
   segments: v.pipe(v.array(segmentSchema), v.minLength(1)),
   treadmillMult: positive,
   layout: v.optional(v.picklist(WORLD_LAYOUTS)),
   look: v.optional(id),
+  // The giant's zones (docs/01a-content.md 16.4): several zones and several giants a zone — data only.
+  bosses: v.optional(
+    v.array(
+      v.object({
+        zone: v.tuple([nonNeg, nonNeg]),
+        requires: positive,
+        returnMult: positive,
+        giants: v.pipe(v.array(v.object({ speed: positive, patrol: v.literal('alongZ'), seeDist: nonNeg, turnSec: nonNeg })), v.minLength(1)),
+      }),
+    ),
+  ),
 });
 
 const worldsSchema = v.object({ schema: v.literal(1), generator: v.string(), worlds: v.pipe(v.array(worldSchema), v.minLength(1)) });
@@ -373,6 +399,52 @@ const specSchema = v.object({
         gifts: v.pipe(v.array(positive), v.minLength(1)),
         walls: v.pipe(v.array(v.object({ requires: positive, treadmill: positive })), v.minLength(1)),
         campTreadmill: v.optional(positive),
+      }),
+    ),
+    v.minLength(1),
+  ),
+});
+
+/** worlds-spec.json of the open slope (docs/01a-content.md 16.1–16.5): sections, ridges, the giant. */
+const openSpecSchema = v.object({
+  schema: v.literal(1),
+  layout: v.literal('openSlope'),
+  campLength: positive,
+  summitLength: positive,
+  width: positive,
+  spawnZ: nonNeg,
+  threat: v.object({
+    spawnAhead: positive,
+    firstIntervalSec: positive,
+    laterFirstIntervalSec: v.optional(v.tuple([positive, positive])),
+    from: v.picklist(['aboveHero', 'end', 'start']),
+    firstWaveScripted: v.boolean(),
+  }),
+  rarities: v.pipe(v.array(id), v.minLength(1)),
+  boss: v.object({ turnSec: nonNeg, returnMult: positive, seeDist: nonNeg, zoneGap: positive }),
+  mountains: v.pipe(
+    v.array(
+      v.object({
+        id: id,
+        look: v.optional(id),
+        egg: id,
+        intervalSec: positive,
+        firstIntervalSec: v.optional(positive),
+        warnSec: positive,
+        speed: positive,
+        sections: v.pipe(v.array(v.object({ length: positive, stepMult: positive, shelterEvery: positive, gift: positive, fork: v.boolean() })), v.minLength(1)),
+        ridges: v.pipe(v.array(v.object({ requires: positive })), v.minLength(1)),
+        boss: v.object({
+          stretch: positive,
+          requires: positive,
+          margin: nonNeg,
+          stepMult: positive,
+          gift: positive,
+          speed: positive,
+          turnSec: v.optional(nonNeg),
+          returnMult: v.optional(positive),
+          seeDist: v.optional(nonNeg),
+        }),
       }),
     ),
     v.minLength(1),
@@ -485,7 +557,8 @@ const SCHEMAS: Record<PackFile, v.GenericSchema> = {
 };
 
 function schemaErrors(file: PackFile, data: unknown): string[] {
-  const res = v.safeParse(SCHEMAS[file], data);
+  const open = file === 'worlds-spec.json' && (data as { layout?: unknown } | null)?.layout === 'openSlope';
+  const res = v.safeParse(open ? openSpecSchema : SCHEMAS[file], data);
   if (res.success) return [];
   return res.issues.map((issue) => `${file}: ${v.getDotPath(issue) || '(root)'} — ${issue.message}`);
 }
@@ -681,17 +754,19 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
 
   // Worlds: structure of the mountain template, then reachability by the controller physics (docs/02-tech.md 5.4).
   errors.push(...validateWorlds(worlds, theme.rarity));
-  if (errors.length === 0) errors.push(...validateReachability(worlds, files['tuning.json'] as TuningJson));
+  const open = isOpenWorlds(worlds);
+  const tuning = files['tuning.json'] as TuningJson;
+  const curve = { ...(balance.speedCurve as Curve), base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed };
+  const speedAt = (stat: number): number => (game.stat.effect === 'moveSpeed' ? moveSpeed(stat, curve) : tuning.controller.baseSpeed);
+  if (errors.length === 0) errors.push(...(open ? validateOpenGround(worlds, tuning, speedAt) : validateReachability(worlds, tuning)));
   if (errors.length === 0) {
-    const tuning = files['tuning.json'] as TuningJson;
-    const curve = { ...(balance.speedCurve as Curve), base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed };
-    const speedAt = (stat: number): number => (game.stat.effect === 'moveSpeed' ? moveSpeed(stat, curve) : tuning.controller.baseSpeed);
-    errors.push(...validateFairness(worlds, speedAt));
+    errors.push(...(open ? validateOpenFairness(worlds, speedAt) : validateFairness(worlds, speedAt)));
     if (game.threat.bonus) errors.push(...validateGoldFairness(worlds, speedAt, game.threat.bonus.distMax));
-    errors.push(...validateFun(worlds, tuning, speedAt));
+    if (!open) errors.push(...validateFun(worlds, tuning, speedAt));
   }
   // The count of 01a against the generated mountains (M3-05): after fairness, so a broken number still gets its seconds named.
-  errors.push(...validateContentCount(worlds, files['worlds-spec.json'] as WorldsSpecJson, (files['balance.json'] as BalanceJson).gifts.perZone));
+  if (open) errors.push(...validateOpenCount(worlds, files['worlds-spec.json'] as OpenSpecJson), ...validateFirstIntervals(worlds, files['worlds-spec.json'] as WorldsSpecJson));
+  else errors.push(...validateContentCount(worlds, files['worlds-spec.json'] as WorldsSpecJson, (files['balance.json'] as BalanceJson).gifts.perZone));
 
   // Remote flags: every path resolves to a number or boolean inside its range (docs/02-tech.md 11.11).
   if (game.flags) {
@@ -705,10 +780,12 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
       if (typeof value === 'number') {
         if (flag.min !== undefined && value < flag.min) errors.push(`game.json: flags.${name} — default ${value} is below min ${flag.min}`);
         if (flag.max !== undefined && value > flag.max) errors.push(`game.json: flags.${name} — default ${value} is above max ${flag.max}`);
-      } else if (typeof value === 'boolean') {
+      } else if (typeof value === 'boolean' || typeof value === 'string') {
+        // A string flag (the pace, docs/06 8.1 row 6) lists every value it may take, the default among them.
+        if (typeof value === 'string' && !flag.values) errors.push(`game.json: flags.${name} — a text flag needs values`);
         if (flag.values && !flag.values.includes(String(value))) errors.push(`game.json: flags.${name} — default ${value} not in values`);
       } else {
-        errors.push(`game.json: flags.${name}.path — "${flag.path}" is not a number or boolean`);
+        errors.push(`game.json: flags.${name}.path — "${flag.path}" is not a number, boolean or text`);
       }
     }
   }
@@ -759,13 +836,15 @@ export function validateWorlds(worlds: WorldsJson, rarityColors: Record<string, 
       const req = num(g, 'requires');
       if (!(req > lastRequires)) errors.push(`${at}: gate ${gi + 1} — requires ${req} must grow (previous ${lastRequires})`);
       lastRequires = req;
+      if (w.layout === 'openSlope') continue;
       const zone = zoneOfStretch(gi + 1, w.wallCount, w.layout);
       if (!w.zones.some((z) => z.k === zone)) errors.push(`${at}: gate ${gi + 1} — zone ${zone} is not described`);
       if (w.layout === 'gateSide' && num(g, 'zone') !== zone) errors.push(`${at}: gate ${gi + 1} — zone ${num(g, 'zone')}, expected ${zone} (⌈6i/n⌉, docs/01-gdd.md 16.3)`);
     }
     // One cave with a treadmill in every stretch (docs/01-gdd.md 5.2), caves between consecutive gates.
     const camp = w.safeZones[0]?.[1] ?? 0;
-    for (let i = 1; i <= gates.length; i++) {
+    if (w.layout === 'openSlope') errors.push(...validateOpenWorld(w, at));
+    for (let i = 1; i <= (w.layout === 'openSlope' ? 0 : gates.length); i++) {
       const zStart = i === 1 ? camp : (gates[i - 2] as Segment).z;
       const zEnd = (gates[i - 1] as Segment).z;
       const inStretch = niches.filter((n) => n.z > zStart && n.z < zEnd);

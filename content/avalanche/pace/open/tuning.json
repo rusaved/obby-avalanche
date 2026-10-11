@@ -1,0 +1,26 @@
+{
+  "camera": {
+    "distance": 13,
+    "height": 4.5,
+    "pitchDeg": 24,
+    "fov": 76,
+    "zoomMax": 26,
+    "mobileFovAdd": 4
+  },
+  "ridgeShot": {
+    "rise": 6,
+    "back": 4,
+    "sec": 1.5
+  },
+  "bossShot": {
+    "side": 10,
+    "sec": 1
+  },
+  "boss": {
+    "stompShake": 0.4
+  },
+  "far": {
+    "pc": 600,
+    "mobile": 450
+  }
+}

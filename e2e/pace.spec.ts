@@ -2,15 +2,17 @@ import type { Page } from '@playwright/test';
 import { test, expect, testState, waitReady, waitTicks } from './fixtures.ts';
 import classicWorlds from '../content/avalanche/worlds.json' with { type: 'json' };
 import fastWorlds from '../content/avalanche/pace/fast/worlds.json' with { type: 'json' };
+import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 
-// PR-01: the pace flag (docs/01-gdd.md 16.1). Without ?pace — game.json `pace` (fast: 15 gates on mountain 1),
-// ?pace=classic — the M3 game (12 walls); each pace keeps its own progress: classic at the root of the save as before,
-// fast in its own slot; F5 brings each pace back to its own flag.
+// PR-01, PS-02: the pace flag (docs/01-gdd.md 16.1, 17.1). Without ?pace — game.json `pace` (open: ridge 50 first on
+// mountain 1, the slope 56 wide), ?pace=fast — 15 gates, ?pace=classic — the M3 game (12 walls); each pace keeps its own
+// progress: classic at the root of the save as before, fast and open in their own slots; F5 brings each to its own flag.
 type Seg = { type: string; z: number; requires?: number };
 const gateSegs = (w: unknown): Seg[] => (w as { worlds: Array<{ segments: Seg[] }> }).worlds[0]!.segments.filter((s) => s.type === 'gate');
 const gatesOf = (w: unknown): number[] => gateSegs(w).map((s) => s.z);
 const classicGates = gatesOf(classicWorlds);
 const fastGates = gatesOf(fastWorlds);
+const openGates = gatesOf(openWorlds);
 /** Gate 2 of fast after sim:balance --fit (PR-10): the stat that opens it comes from the data. */
 const fastGate2 = gateSegs(fastWorlds)[1]!.requires!;
 
@@ -35,11 +37,19 @@ async function passGate(page: Page, gates: number[], wall: number, stat: number)
   await waitTicks(page, 30);
 }
 
-test('without ?pace the pace of game.json (fast, 15 gates); ?pace=classic — 12 walls; unknown pace — game.json', async ({ page, openGame }) => {
+test('without ?pace the pace of game.json (open: ridge 50, 56 wide); ?pace=fast — 15 gates; ?pace=classic — 12 walls; unknown pace — game.json', async ({ page, openGame }) => {
   await open(page, '');
   let s = await testState(page);
-  expect(s.pace).toBe('fast');
+  expect(s.pace).toBe('open');
   expect(s.world).toBe('slope');
+  expect(s.width).toBe(56);
+  expect(s.gatesOpen).toHaveLength(4);
+  expect((await page.evaluate(() => window.__TEST__!.gateSign(0))).text).toBe('0/50');
+
+  await open(page, 'pace=fast');
+  s = await testState(page);
+  expect(s.pace).toBe('fast');
+  expect(s.width).toBe(28);
   expect(s.gatesOpen).toHaveLength(15);
   await expect(page.locator('.hud-mountain-label')).toHaveText('Гора 1 · 0/15');
 
@@ -51,8 +61,8 @@ test('without ?pace the pace of game.json (fast, 15 gates); ?pace=classic — 12
 
   await open(page, 'pace=nope');
   s = await testState(page);
-  expect(s.pace).toBe('fast');
-  expect(s.gatesOpen).toHaveLength(15);
+  expect(s.pace).toBe('open');
+  expect(s.gatesOpen).toHaveLength(4);
 });
 
 test('separate saves: classic progress (wall 3) is not seen in fast and not erased by it; F5 brings each pace to its flag', async ({ page }) => {
@@ -88,6 +98,23 @@ test('separate saves: classic progress (wall 3) is not seen in fast and not eras
   expect(s.hero!.z).toBeGreaterThan(fastGates[1]!);
   expect(s.hero!.z).toBeLessThan(fastGates[1]! + 6);
 
+  // Open: a fresh climb as well; through ridge 1 (its number 50), F5 — at the flag past it.
+  await open(page, 'pace=open');
+  s = await testState(page);
+  expect(s.pace).toBe('open');
+  expect(s.gatesPassed.some(Boolean)).toBe(false);
+  expect(s.stat).toBe(0);
+  await passGate(page, openGates, 1, 50);
+  await page.reload();
+  await waitReady(page);
+  await waitTicks(page, 2);
+  s = await testState(page);
+  expect(s.pace).toBe('open');
+  expect(s.gatesPassed[0]).toBe(true);
+  expect(s.gatesPassed[1]).toBe(false);
+  expect(s.hero!.z).toBeGreaterThan(openGates[0]!);
+  expect(s.hero!.z).toBeLessThan(openGates[0]! + 16);
+
   // Back to classic: wall 3 and its stat are still there.
   await open(page, 'pace=classic');
   s = await testState(page);
@@ -103,8 +130,9 @@ test('separate saves: classic progress (wall 3) is not seen in fast and not eras
       const key = Object.keys(localStorage).find((k) => k.endsWith(suffix));
       return key ? (JSON.parse(localStorage.getItem(key)!) as { frontierWall?: number }) : null;
     };
-    return { classic: read(':save'), fast: read(':save.fast') };
+    return { classic: read(':save'), fast: read(':save.fast'), open: read(':save.open') };
   });
   expect(mirror.classic?.frontierWall).toBe(3);
   expect(mirror.fast?.frontierWall).toBe(2);
+  expect(mirror.open?.frontierWall).toBe(1);
 });

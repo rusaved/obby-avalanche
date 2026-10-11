@@ -1,6 +1,6 @@
 // `npm run gen:worlds`: content/<pack>/worlds-spec.json + balance.json → content/<pack>/worlds.json for every pack, and
 // the same for every pace folder content/<pack>/pace/<pace>/ with the pace balance (shared + patch, docs/01-gdd.md 16.1);
-// tuning.json of the pack places the gift over a trampoline by its arc (layout gateSide, docs/01-gdd.md 16.4);
+// tuning.json of the pack (with the pace patch) places the gift over a trampoline by its arc (layout gateSide, docs/01-gdd.md 16.4);
 // then validate:content. Deterministic; worlds.json is committed and never edited by hand (docs/02-tech.md, section 3).
 import { readdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -47,7 +47,9 @@ for (const pack of readdirSync(contentDir, { withFileTypes: true })) {
   for (const pace of paceNames(dir)) {
     const paceDir = resolve(dir, 'pace', pace);
     const patchFile = resolve(paceDir, 'balance.json');
-    generate(`${pack.name}/pace/${pace}`, paceDir, existsSync(patchFile) ? mergePatch(balance, readJson(patchFile)) : balance, tuning);
+    const feelFile = resolve(paceDir, 'tuning.json');
+    const paceTuning = existsSync(feelFile) ? mergePatch(tuning, readJson(feelFile)) : tuning;
+    generate(`${pack.name}/pace/${pace}`, paceDir, existsSync(patchFile) ? mergePatch(balance, readJson(patchFile)) : balance, paceTuning);
   }
 }
 if (check && changed) process.exit(1);

@@ -37,13 +37,40 @@ export function shelterIndex(level: LevelData, graceDist: number, x: number, y: 
   return level.niches.findIndex((n) => inNiche(level, n, graceDist, x, y, z));
 }
 
-/** Distance on the ground plane from the point to the entrance opening of cave `n` (0 inside the opening line). */
+/** Distance on the ground plane from the point to the entrance opening of cave `n` (0 inside the opening line); across
+ * the cliff of a fork (open slope, docs/01-gdd.md 17.7) the way goes round its nearer end. */
 export function distToEntrance(level: LevelData, n: LevelNiche, x: number, z: number): { dist: number; tx: number; tz: number } {
   const ex = entranceX(level, n);
   const tz = Math.min(n.box.max[2], Math.max(n.box.min[2], z));
   const outside = nicheSign(n) * (ex - x) > 0; // still on the track side of the entrance
   const dx = outside ? ex - x : 0;
-  return { dist: Math.hypot(dx, tz - z), tx: ex, tz };
+  return { dist: groundPath(level, x, z, x + dx, tz), tx: ex, tz };
+}
+
+const cliffCache = new WeakMap<LevelData, Array<{ x0: number; x1: number; z0: number; z1: number }>>();
+
+/** Ground distance from (x, z) to (tx, tz): straight, or round the end of a fork cliff that stands between them. */
+export function groundPath(level: LevelData, x: number, z: number, tx: number, tz: number): number {
+  let cliffs = cliffCache.get(level);
+  if (!cliffs) {
+    cliffs = level.boxes.filter((b) => b.kind === 'cliff').map((b) => ({ x0: b.min[0], x1: b.max[0], z0: b.min[2], z1: b.max[2] }));
+    cliffCache.set(level, cliffs);
+  }
+  const straight = Math.hypot(tx - x, tz - z);
+  for (const c of cliffs) {
+    const left = x <= c.x0 && tx >= c.x1;
+    const right = x >= c.x1 && tx <= c.x0;
+    if (!left && !right) continue;
+    // Where the straight way crosses the middle of the cliff: past either end it does not touch it.
+    const cx = (c.x0 + c.x1) / 2;
+    const zc = tx === x ? z : z + ((tz - z) * (cx - x)) / (tx - x);
+    if (zc < c.z0 || zc > c.z1) continue;
+    const near = left ? c.x0 : c.x1;
+    const far = left ? c.x1 : c.x0;
+    const round = (e: number): number => Math.hypot(near - x, e - z) + Math.abs(far - near) + Math.hypot(tx - far, tz - e);
+    return Math.min(round(c.z0), round(c.z1));
+  }
+  return straight;
 }
 
 /** Camp or summit (worlds.json safeZones): the avalanche never catches there and pays nothing there. */

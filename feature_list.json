@@ -562,7 +562,7 @@
     "milestone": "PS",
     "description": "Темп open флагом game.json.pace (docs/01-gdd.md 17.1): папка content/<pack>/pace/open/ (worlds-spec.json → worlds.json, заплатки balance.json и tuning.json глубоким слиянием), по умолчанию open, ?pace=open|fast|classic в сборках с отладкой, своё сохранение у темпа, флаг pace в game.json.flags для удалённой конфигурации (docs/06 8.1 строка 6)",
     "acceptance": "Vitest: заплатка tuning.json темпа сливается как balance.json; choosePace отдаёт open по умолчанию и fast/classic по ?pace=; флаг pace проходит валидатор (values); e2e: без параметра — open (рубеж 50 на горе 1, ширина 56), ?pace=fast — 15 ворот, ?pace=classic — 12 стен; прогресс трёх темпов не пересекается; релизная сборка не читает ?pace= (check-release)",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
@@ -571,7 +571,7 @@
     "milestone": "PS",
     "description": "Генератор openSlope и валидатор (docs/01-gdd.md 17.2, 17.5; docs/01a-content.md 16.1, 16.3, 16.5): склон 56 ед из террас-участков (3 на горе 1, 4 на горах 2–10, длины 200–560), гроты по shelterEvery без дорожки, грот рубежа с дорожкой = stepMult участка, рубеж-карниз с 2–3 проходами, финишная прямая как зона великана с гротом у её начала и threat.spawnMaxZ, вершина; worlds.json только через gen:worlds",
     "acceptance": "validate:content на 10 горах open: число участков и рубежей по 01a 16.1, укрытия не реже shelterEvery на каждой полосе, честность warnSec × 0,8 при минимальной скорости участка без бонуса новичка на каждой полосе каждой развилки, spawnMaxZ = начало зоны великана, зазоры ≤ 60% прыжка; gen:worlds детерминирован (--check); Vitest: раскладка участка по долям 01a 16.5; e2e: телепорт на каждую из 10 гор без ошибок консоли; скриншоты docs/evidence/open/mountain1_{camp,ridge2,bossline}_1920x1080_ru.png",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

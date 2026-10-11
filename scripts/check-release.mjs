@@ -139,8 +139,10 @@ const ALLOWED_URL = (u) => u === '/sdk.js' || /^(https?:)?\/\/mc\.yandex\.ru(\/|
     const src = text(data);
     for (const n of needles) if (src.includes(n)) problems.push(`${name}: ${n}`);
     if (/(^|[^.\w$])debugger\s*;?/m.test(src.replace(/["'`][^"'`]*["'`]/g, ''))) problems.push(`${name}: debugger`);
+    // The release plays game.json `pace` only (docs/01-gdd.md 16.1, PS-02): no reading of ?pace= from the address.
+    if (extname(name) === '.js' && /\.get\(\s*["'`]pace["'`]\s*\)/.test(src)) problems.push(`${name}: reads ?pace=`);
   }
-  check(6, 'no lil-gui, __TEST__, __STUDIO__, __YA_MOCK__, yasdk-mock, localhost, debugger, sourceMappingURL', problems.length === 0, problems);
+  check(6, 'no lil-gui, __TEST__, __STUDIO__, __YA_MOCK__, yasdk-mock, localhost, debugger, sourceMappingURL, ?pace=', problems.length === 0, problems);
 }
 // 7. Dev-trace words and stop-list words in shipped texts (i18n json files).
 {

@@ -33,6 +33,12 @@ export interface LevelRamp {
 
 export interface LevelGate {
   index: number;
+  /** Open slope (docs/01-gdd.md 17.3, 17.6): «ridge» — ice in three passages of a low carniz; «boss» — the giant's
+   * check at the summit line, never a collider; absent — a wall of the classic and gateSide layouts. */
+  kind?: 'ridge' | 'boss';
+  /** Ridge: x of the passage centres and their width. */
+  passes?: number[];
+  passWidth?: number;
   z: number;
   y: number;
   requires: number;
@@ -53,6 +59,10 @@ export interface LevelNiche {
   treadmill: number;
   /** Gift zone of the stretch (docs/01a-content.md 4): «Phew, made it!» pays 3 × its gift. */
   zone?: number;
+  /** Open slope (docs/01-gdd.md 17.5): grotto (no belt), ridgeGrotto, bossLine; absent — the cave of 4.3. */
+  kind?: string;
+  /** On a fork: the lane the grotto serves (its side of the cliff). */
+  lane?: 'calm' | 'bold';
 }
 
 export interface LevelCheckpoint {
@@ -89,4 +99,6 @@ export interface LevelData {
   safeZones: Array<[number, number]>;
   /** Floor height at a given z along the track centre (piecewise from floors and ramps). */
   floorYAt(z: number): number;
+  /** Top of the ground at (x, z): floors and ramps of any width; −Infinity over a hole (open slope: passages, lanes). */
+  floorAt(x: number, z: number): number;
 }

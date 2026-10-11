@@ -33,6 +33,7 @@ function level(): LevelData {
     points: [{ type: 'treadmill', x: 0, y: 0, z: 60, mult: 3, width: 20, length: 20, inNiche: true }],
     safeZones: [],
     floorYAt: () => 0,
+    floorAt: () => 0,
   };
 }
 

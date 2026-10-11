@@ -7,33 +7,16 @@
  * applied to the tables of docs/01a-content.md 2–4 that live in content/<pack>/worlds-spec.json.
  * Pure and deterministic: same input → same JSON byte for byte. worlds.json is never edited by hand.
  */
-import type { Curve, Segment, World, WorldLayout, WorldZone, WorldsJson, WorldsSpecJson } from '../content/types.ts';
+import type { Curve, OpenSpecJson, Segment, World, WorldLayout, WorldZone, WorldsJson, WorldsSpecJson } from '../content/types.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 import { GIFT_HALF, GIFT_HEIGHT } from '../sim/gifts.ts';
 import { HERO_HEIGHT, HERO_RADIUS } from '../sim/controller.ts';
 import { PAD_SIZE, SLIDE_LENGTH, SLIDE_WIDTH, TICK, padArc, padGiftBand, type ArcTuning } from './pad-arc.ts';
+import { ceilToSeries, generateOpenWorlds, isOpenSpec, round3 } from './open-slope.ts';
+
+export { ceilToSeries };
 
 export const GENERATOR_VERSION = 'gen-worlds/1';
-
-/** Rounding series for treadmill multipliers (docs/01a-content.md, section 2): 1; 1.2; 1.5; 2; 2.5; 3; 4; 5; 6; 8 × 10^k. */
-const SERIES = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8];
-
-export function ceilToSeries(x: number): number {
-  if (x <= 0) return 0;
-  const k = Math.floor(Math.log10(x));
-  for (let e = k; e <= k + 1; e++) {
-    const scale = Math.pow(10, e);
-    for (const s of SERIES) {
-      const v = s * scale;
-      if (v >= x - 1e-9) return round3(v);
-    }
-  }
-  return x;
-}
-
-function round3(x: number): number {
-  return Math.round(x * 1000) / 1000;
-}
 
 /** Layout fractions of a stretch (docs/01-gdd.md 5.2): flagged checkpoint and gift 1 in 0–15%, ramp and gifts 2–3 in 15–60%, cave at 70%, wall at 100%. */
 export const LAYOUT = {
@@ -97,12 +80,14 @@ export function zoneOfStretch(i: number, n: number, layout: WorldLayout | undefi
  * the stretch (src/level/pad-arc.ts); the classic layout does not read them.
  */
 export interface GenerateInput {
-  spec: WorldsSpecJson;
+  /** The open slope (layout openSlope, docs/01-gdd.md 17.2) has a spec of its own: sections, ridges, the giant. */
+  spec: WorldsSpecJson | OpenSpecJson;
   balance: { coins: { gatePass: number; chest: number }; speedCurve?: Curve };
   tuning?: ArcTuning;
 }
 
 export function generateWorlds({ spec, balance, tuning }: GenerateInput): WorldsJson {
+  if (isOpenSpec(spec)) return { schema: 1, generator: GENERATOR_VERSION, worlds: generateOpenWorlds({ spec, balance }) };
   const worlds = spec.mountains.map((m, mi) => generateWorld(spec, balance, mi + 1, tuning));
   return { schema: 1, generator: GENERATOR_VERSION, worlds };
 }

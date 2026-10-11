@@ -51,9 +51,9 @@ describe('pace flag (PR-01)', () => {
     expect(paceOfPath('../../content/avalanche/worlds.json')).toBeNull();
   });
 
-  it('avalanche: game.json pace fast, the patch of 01a 15.4 over the shared balance', () => {
-    expect(json<{ pace: string }>('avalanche', 'game.json').pace).toBe('fast');
-    expect(paceNames('avalanche')).toEqual(['fast']);
+  it('avalanche: game.json pace open (PS-02, Q-034), the fast patch of 01a 15.4 over the shared balance', () => {
+    expect(json<{ pace: string }>('avalanche', 'game.json').pace).toBe('open');
+    expect(paceNames('avalanche')).toEqual(['fast', 'open']);
     const shared = json<BalanceJson>('avalanche', 'balance.json');
     const fast = mergePatch(shared, json('avalanche', 'pace', 'fast', 'balance.json'));
     expect(fast.coins).toEqual({ ...shared.coins, gatePass: 1 });
@@ -78,7 +78,7 @@ describe('pace flag (PR-01)', () => {
     }
     const unknown = pacePack('avalanche', 'fast');
     (unknown['game.json'] as { pace: string }).pace = 'turbo';
-    expect(validatePack(unknown, { paces: ['fast'] }).errors.some((e) => e.startsWith('game.json: pace'))).toBe(true);
+    expect(validatePack(unknown, { paces: ['fast', 'open'] }).errors.some((e) => e.startsWith('game.json: pace'))).toBe(true);
   });
 });
 
@@ -192,7 +192,7 @@ describe('mountains of the fast pace (PR-02)', () => {
     const w = (broken['worlds.json'] as WorldsJson).worlds[0]!;
     const cave = w.segments.find((s) => s.type === 'niche' && s['stretch'] === 3)!;
     cave.z -= 5;
-    const res = validatePack(broken, { paces: ['fast'] });
+    const res = validatePack(broken, { paces: ['fast', 'open'] });
     expect(res.errors.some((e) => e.includes('gate 3 — cave exit 8 units below the gate'))).toBe(true);
   });
 
@@ -200,12 +200,12 @@ describe('mountains of the fast pace (PR-02)', () => {
     const low = JSON.parse(JSON.stringify(files)) as PackFiles;
     const gift = (low['worlds.json'] as WorldsJson).worlds[0]!.segments.find((s) => s.type === 'gift' && s['pad'] === true)!;
     gift['y'] = num(gift, 'y') - 4;
-    const errs = validatePack(low, { paces: ['fast'] }).errors;
+    const errs = validatePack(low, { paces: ['fast', 'open'] }).errors;
     expect(errs.some((e) => e.includes('trampoline') && e.includes('within a plain jump'))).toBe(true);
     const far = JSON.parse(JSON.stringify(files)) as PackFiles;
     (far['tuning.json'] as TuningJson).fun.padForward = 40;
-    expect(validatePack(far, { paces: ['fast'] }).errors.some((e) => e.includes('trampoline') && e.includes('past gate'))).toBe(true);
-    expect(validatePack(files, { paces: ['fast'] }).errors).toEqual([]);
+    expect(validatePack(far, { paces: ['fast', 'open'] }).errors.some((e) => e.includes('trampoline') && e.includes('past gate'))).toBe(true);
+    expect(validatePack(files, { paces: ['fast', 'open'] }).errors).toEqual([]);
   });
 
   it('lateEase counts walls through the pace: wall 118 of 195 eases on tier 1, the defaults stay 12 a mountain and 60', () => {

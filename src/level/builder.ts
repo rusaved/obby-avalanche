@@ -107,8 +107,10 @@ export function buildLevel(world: World): LevelData {
     if (cur < z1) spans.push([cur, z1]);
     return spans;
   };
-  const addBorders = (z0: number, z1: number, yTop: number): void => {
+  // A piece narrower than the track (open slope: carniz blocks and passage ramps) has a border only on the edge it touches.
+  const addBorders = (z0: number, z1: number, yTop: number, x0 = -half, x1 = half): void => {
     for (const side of ['left', 'right'] as const) {
+      if ((side === 'left' && x0 > -half) || (side === 'right' && x1 < half)) continue;
       const sign = side === 'left' ? -1 : 1;
       for (const [a, b] of nicheGap(side, z0, z1)) {
         const xIn = sign * half;
@@ -129,16 +131,26 @@ export function buildLevel(world: World): LevelData {
     const z0 = f.z;
     const z1 = f.z + num(f, 'length');
     const y = num(f, 'y');
-    boxes.push(box([-half, y - FLOOR_THICKNESS, z0], [half, y, z1], 'track', 'floor'));
-    addBorders(z0, z1, y);
+    const x0 = num(f, 'x0', -half);
+    const x1 = num(f, 'x1', half);
+    boxes.push(box([x0, y - num(f, 'thickness', FLOOR_THICKNESS), z0], [x1, y, z1], 'track', 'floor'));
+    addBorders(z0, z1, y, x0, x1);
   }
   for (const r of rampSegs) {
     const z0 = r.z;
     const z1 = r.z + num(r, 'length');
     const y0 = num(r, 'y');
     const y1 = y0 + num(r, 'rise');
-    ramps.push({ x0: -half, x1: half, z0, z1, y0, y1, thickness: FLOOR_THICKNESS, material: 'track' });
-    addBorders(z0, z1, y1);
+    const x0 = num(r, 'x0', -half);
+    const x1 = num(r, 'x1', half);
+    ramps.push({ x0, x1, z0, z1, y0, y1, thickness: FLOOR_THICKNESS, material: 'track' });
+    addBorders(z0, z1, y1, x0, x1);
+  }
+  // Fork (docs/01-gdd.md 17.7): an ice cliff down the middle splits the slope into two lanes.
+  for (const f of world.segments.filter((s) => s.type === 'fork')) {
+    const w = num(f, 'width') / 2;
+    const y = num(f, 'y');
+    boxes.push(box([num(f, 'x') - w, y - FLOOR_THICKNESS, f.z], [num(f, 'x') + w, y + num(f, 'height'), f.z + num(f, 'length')], 'ice', 'cliff'));
   }
 
   // Niches: recess outside the track edge, open towards the track (docs/02-tech.md 8.2).
@@ -169,6 +181,12 @@ export function buildLevel(world: World): LevelData {
       treadmill: num(n, 'treadmill', 1) * mountainTreadmill,
       zone: num(n, 'zone', 0),
     });
+    const nicheKind = str(n, 'kind');
+    if (nicheKind) niches[niches.length - 1]!.kind = nicheKind;
+    const lane = str(n, 'lane');
+    if (lane === 'calm' || lane === 'bold') niches[niches.length - 1]!.lane = lane;
+    // A grotto of the open slope has no belt (docs/01-gdd.md 17.5): sheltering costs steps.
+    if (!(num(n, 'treadmill', 1) > 0)) continue;
     const beltX = sign * (half + BORDER_WIDTH + depth - NICHE_BELT_WIDTH / 2);
     points.push({
       type: 'treadmill',
@@ -200,6 +218,12 @@ export function buildLevel(world: World): LevelData {
           signHeight: num(s, 'signHeight', 7),
           rarity: str(s, 'rarity', 'common'),
         };
+        const kind = str(s, 'kind');
+        if (kind === 'ridge' || kind === 'boss') gate.kind = kind;
+        if (Array.isArray(s['passes'])) {
+          gate.passes = (s['passes'] as number[]).slice();
+          gate.passWidth = num(s, 'passWidth');
+        }
         gates.push(gate);
         break;
       }
@@ -244,14 +268,23 @@ export function buildLevel(world: World): LevelData {
   for (const b of boxes) if (b.solid) pushBoxTriangles(tris, b);
   for (const r of ramps) pushRampTriangles(tris, r);
 
+  // The centre line only: pieces that cover x = 0 (open slope: the side blocks of a carniz do not).
+  const centreFloors = floors.filter((f) => num(f, 'x0', -half) <= 0 && num(f, 'x1', half) >= 0);
+  const centreRamps = ramps.filter((r) => r.x0 <= 0 && r.x1 >= 0);
   const floorYAt = (z: number): number => {
-    for (const r of ramps) if (z >= r.z0 && z <= r.z1) return r.y0 + ((r.y1 - r.y0) * (z - r.z0)) / (r.z1 - r.z0);
+    for (const r of centreRamps) if (z >= r.z0 && z <= r.z1) return r.y0 + ((r.y1 - r.y0) * (z - r.z0)) / (r.z1 - r.z0);
     let best = 0;
-    for (const f of floors) {
+    for (const f of centreFloors) {
       if (z >= f.z && z <= f.z + num(f, 'length')) return num(f, 'y');
       if (f.z <= z) best = num(f, 'y');
     }
     return best;
+  };
+  const floorAt = (x: number, z: number): number => {
+    let top = -Infinity;
+    for (const r of ramps) if (z >= r.z0 && z <= r.z1 && x >= r.x0 && x <= r.x1) top = Math.max(top, r.y0 + ((r.y1 - r.y0) * (z - r.z0)) / (r.z1 - r.z0));
+    for (const f of floors) if (z >= f.z && z <= f.z + num(f, 'length') && x >= num(f, 'x0', -half) && x <= num(f, 'x1', half)) top = Math.max(top, num(f, 'y'));
+    return top;
   };
 
   const minY = Math.min(0, ...floors.map((f) => num(f, 'y')));
@@ -271,5 +304,6 @@ export function buildLevel(world: World): LevelData {
     points,
     safeZones: world.safeZones,
     floorYAt,
+    floorAt,
   };
 }

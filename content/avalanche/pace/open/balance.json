@@ -1,0 +1,91 @@
+{
+  "coins": {
+    "gatePass": 5
+  },
+  "ftue": {
+    "scriptedWaveWall": 2
+  },
+  "hints": {
+    "stuckMax": 99
+  },
+  "ads": {
+    "skipGate": {
+      "enabled": false
+    },
+    "continueCooldownSec": 120
+  },
+  "rebirth": {
+    "wallScale": [
+      1,
+      36,
+      230,
+      880,
+      5100,
+      17000,
+      53000,
+      200000,
+      800000,
+      2400000
+    ],
+    "unlock": "summitWorld10",
+    "lateEase": {
+      "fromWall": 30
+    }
+  },
+  "sim": {
+    "mountainMin": [
+      1.8,
+      2,
+      2.3,
+      2.6,
+      2.9,
+      3.2,
+      3.5,
+      3.8,
+      4.1,
+      4.5
+    ],
+    "gateCurve": 1,
+    "keep": 1,
+    "roundDigits": 2,
+    "checks": {
+      "early": [
+        [
+          1,
+          15
+        ]
+      ],
+      "m1": [
+        1.6,
+        2.2
+      ],
+      "longest": 75,
+      "mean": [
+        3,
+        30
+      ],
+      "shoeMountains": 5,
+      "shoeGap": 150,
+      "share": 0.2,
+      "lazyM1": 3.5,
+      "deadEnd": 180,
+      "ratio": 0.6
+    },
+    "eggsByMountain": [
+      {
+        "mountain": 5,
+        "min": 3
+      },
+      {
+        "mountain": 10,
+        "min": 10
+      }
+    ],
+    "words": {
+      "one": "рубеж",
+      "gen": "рубежа",
+      "many": "рубежи",
+      "manyGen": "рубежей"
+    }
+  }
+}

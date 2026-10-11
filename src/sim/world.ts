@@ -189,7 +189,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   const collision = createCollisionWorld(level.staticTriangles);
   const gatesOpen = level.gates.map(() => false);
   const tier = opts.tier ?? 0;
-  const syncGates = (): void => collision.setDynamicBoxes(level.gates.filter((_, i) => !gatesOpen[i]).map((g) => g.box));
+  // The giant's check (gate of kind boss, docs/01-gdd.md 17.6) is a line, never a collider.
+  const syncGates = (): void => collision.setDynamicBoxes(level.gates.filter((g, i) => !gatesOpen[i] && g.kind !== 'boss').map((g) => g.box));
   syncGates();
   const hero = createHero(level.spawn);
   const events = createEmitter<SimEvents>();
@@ -312,7 +313,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       // Gates: the number is all that matters; an open gate stays open until rebirth (docs/01-gdd.md 3.3).
       let opened = false;
       level.gates.forEach((gate, i) => {
-        if (gatesOpen[i] || !gateIsOpen(progress.stat, sim.gateRequirement(i))) return;
+        if (gatesOpen[i] || gate.kind === 'boss' || !gateIsOpen(progress.stat, sim.gateRequirement(i))) return;
         gatesOpen[i] = true;
         opened = true;
         events.emit('gateOpen', { tick: sim.tick, index: i, wall: gate.index, z: gate.z, requires: sim.gateRequirement(i) });
@@ -468,7 +469,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     const front = opts.resume.frontierWall;
     level.gates.forEach((gate, i) => {
       if (gate.index <= front) sim.gatesPassed[i] = true;
-      if (gate.index <= front || gateIsOpen(progress.stat, sim.gateRequirement(i))) gatesOpen[i] = true;
+      if (gate.index <= front || (gate.kind !== 'boss' && gateIsOpen(progress.stat, sim.gateRequirement(i)))) gatesOpen[i] = true;
     });
     syncGates();
     const flag = level.checkpoints.findIndex((c) => c.wall === front);
