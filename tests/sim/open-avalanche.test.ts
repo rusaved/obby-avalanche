@@ -126,6 +126,27 @@ describe('avalanche on the open slope (PS-06)', () => {
     expect(level.niches[warn.shelter]!.stretch).toBe(2);
   });
 
+  it('up past the point the front starts from during the warning: safe, never snowed in (producer’s playtest PS)', () => {
+    const events: string[] = [];
+    const threat = createThreat(level, { threat: { ...w1.threat }, balance, avalanche: tuning.avalanche, scriptedPending: false, normalWavesDone: 10 }, (name) =>
+      events.push(name),
+    );
+    const open = level.gates.map(() => true);
+    threat.trigger();
+    let z = 300;
+    threat.step(DT, { x: 0, y: 0, z, vx: 0, vz: 30 }, open, 1);
+    expect(threat.state.phase).toBe('warn');
+    const spawnZ = threat.state.spawnZ;
+    // He runs on through the opened ridge and past the start of the front before the warning ends.
+    for (let t = 2; threat.state.phase !== 'idle' && t < 60 * 120; t++) {
+      z = Math.min(spawnZ + 20, z + 0.6);
+      threat.step(DT, { x: 0, y: 0, z, vx: 0, vz: 36 }, open, t);
+    }
+    expect(z).toBeGreaterThan(spawnZ);
+    expect(events).not.toContain('waveCaught');
+    expect(threat.state.outcome).toBe('safe');
+  });
+
   it('at the fork the scripted wave lights the grotto of the hero’s lane and follows him to the other one (playtest PS)', () => {
     const threat = createThreat(level, { threat: { ...w1.threat }, balance, avalanche: tuning.avalanche, scriptedPending: true, normalWavesDone: 0 }, () => {});
     const first2 = level.niches.find((n) => n.stretch === 2)!;

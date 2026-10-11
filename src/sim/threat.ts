@@ -241,6 +241,12 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
           if (state.timer <= 0) {
             state.phase = 'run';
             state.frontZ = state.spawnZ;
+            // Up past the point it starts from during the warning: it rolls down behind him, he is safe (producer's
+            // playtest PS: through a wall opened on the warning and on — and still snowed in when the front began).
+            if (hero.z > state.spawnZ) {
+              state.outcome = 'safe';
+              state.shelter = -1;
+            }
             emit('waveStart', { tick, scripted: state.scripted, spawnZ: state.spawnZ });
           }
           return;

@@ -10,7 +10,7 @@
  * Pure TS, no DOM, no rendering.
  */
 import { createEmitter, type Emitter } from '../core/events.ts';
-import type { LevelData } from '../level/types.ts';
+import type { Aabb, LevelData, LevelGate } from '../level/types.ts';
 import type { BalanceJson, Curve, TuningJson } from '../content/types.ts';
 import { moveSpeed } from './effects/moveSpeed.ts';
 import { createStepTracker, type StepGain, type StepTracker } from './steps.ts';
@@ -27,7 +27,7 @@ import { createBots, type BotContext, type BotCrowd, type BotsOptions } from './
 import { placeBonus, touchesBonus, zoneAt, type BonusConfig, type BonusState } from './bonus.ts';
 import { createRng } from '../core/rng.ts';
 import { inSafeZone } from './shelter.ts';
-import { PORTAL_HALF_WIDTH } from '../level/builder.ts';
+import { BORDER_HEIGHT, BORDER_WIDTH, PORTAL_HALF_WIDTH } from '../level/builder.ts';
 import { createHero, placeHero, stepHero, type ControllerParams, type HeroInput, type HeroState, NO_INPUT } from './controller.ts';
 import { createFun, funInput, resetFun, stepFun, type FunState } from './fun.ts';
 import { createBoss, type Boss, type BossEvents } from './boss.ts';
@@ -181,6 +181,19 @@ export interface SimOptions {
 /** «The giant caught you!»: the hero rolls back to this far below the start of the zone (docs/01-gdd.md 17.6). */
 const BOSS_BACK = 3;
 
+/** How far past the side borders a closed gate blocks (over the void): a jump around its end never lands back. */
+const GATE_SIDE_BLOCK = 20;
+
+/**
+ * The collider of a closed gate: its ice across the track, and over the side borders and past them, as much higher as a
+ * border is tall — a jump from a border top never clears it (producer's playtest PS: past a wall along the border,
+ * every pace). The ice drawn stays `box`.
+ */
+function gateBlock(g: LevelGate): Aabb {
+  const side = BORDER_WIDTH + GATE_SIDE_BLOCK;
+  return { min: [g.box.min[0] - side, g.box.min[1], g.box.min[2]], max: [g.box.max[0] + side, g.box.max[1] + BORDER_HEIGHT, g.box.max[2]] };
+}
+
 /** The record flag shows, and passing it again says «New height!», once the hero is this far below it. */
 export const RECORD_RETURN = 20;
 
@@ -210,7 +223,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   const gatesOpen = level.gates.map(() => false);
   const tier = opts.tier ?? 0;
   // The giant's check (gate of kind boss, docs/01-gdd.md 17.6) is a line, never a collider.
-  const syncGates = (): void => collision.setDynamicBoxes(level.gates.filter((g, i) => !gatesOpen[i] && g.kind !== 'boss').map((g) => g.box));
+  const syncGates = (): void => collision.setDynamicBoxes(level.gates.filter((g, i) => !gatesOpen[i] && g.kind !== 'boss').map(gateBlock));
   syncGates();
   const hero = createHero(level.spawn);
   const events = createEmitter<SimEvents>();

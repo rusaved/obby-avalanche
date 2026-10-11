@@ -156,3 +156,27 @@ test('section multiplier: past ridge 1 a step gives ×1.2 with the same shoes an
   await waitTicks(page, 3);
   await page.locator('[data-role="stat"]').screenshot({ path: `${EVIDENCE}/hud_section_mult_1920x1080_ru.png` });
 });
+
+// Producer's playtest PS: the sign of an opened ridge hid as the hero went through it and came back behind him.
+test('the sign of a ridge the hero has passed is gone for good, also when he looks back down', async ({ page, openGame }) => {
+  test.setTimeout(120_000);
+  await openGame('pace=open');
+  await page.evaluate((z) => {
+    window.__TEST__!.setStat(1e4);
+    window.__TEST__!.teleport(z);
+  }, ridges[0]! - 20);
+  await waitTicks(page, 10);
+  expect((await page.evaluate(() => window.__TEST__!.signBox(0))).hidden).toBe(false);
+  // Through the middle passage, then the left lane of the fork of section 2 (its cliff stands on the axis).
+  await walk(page, [[0, ridges[0]! + 12], [-16, ridges[0]! + 30]]);
+  await page.waitForFunction(() => window.__TEST__!.state().gatesPassed[0] === true, undefined, { timeout: 30_000 });
+  await page.waitForFunction((z) => window.__TEST__!.state().hero!.z >= z, ridges[0]! + 28, { timeout: 30_000 });
+  for (const yaw of [0, Math.PI]) {
+    await page.evaluate((y) => window.__TEST__!.setCamera({ yaw: y, pitch: 0.1 }), yaw);
+    for (let i = 0; i < 10; i++) {
+      await waitTicks(page, 3);
+      expect((await page.evaluate(() => window.__TEST__!.signBox(0))).hidden, `yaw ${yaw}`).toBe(true);
+    }
+  }
+  await page.evaluate(() => window.__TEST__!.setCamera('auto'));
+});

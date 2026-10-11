@@ -1,4 +1,4 @@
-// What: Hides gate signs that sit under the avalanche banner or between the camera and the hero, and brings them back when the overlap ends (screen-box tests).
+// What: Hides gate signs that sit under the avalanche banner or between the camera and the hero (back when the overlap ends), and for good once the hero has passed the gate.
 // Called by: main.ts (guardBannerSigns each frame); test-api/index.ts (segmentMeetsBox).
 // Keep: Only toggles sign visibility - reads the camera, never changes sim or level data; the banner must never end up under a sign (docs/01-gdd.md 16.7, PR-11).
 
@@ -87,13 +87,17 @@ export function segmentMeetsBox(a: Vector3, b: Vector3, center: readonly number[
   return true;
 }
 
-/** Every frame after the camera moved and the signs got their text; `hero` — his feet as drawn. */
-export function guardBannerSigns(hud: Hud, meshes: LevelMeshes, level: LevelData, camera: PerspectiveCamera, field: { width: number; height: number }, hero: Vector3): void {
+/**
+ * Every frame after the camera moved and the signs got their text; `hero` — his feet as drawn. The sign of a gate the
+ * hero has passed is gone for good: it hid as he went through and came back behind him like a closed one (producer's
+ * playtest PS).
+ */
+export function guardBannerSigns(hud: Hud, meshes: LevelMeshes, level: LevelData, camera: PerspectiveCamera, field: { width: number; height: number }, hero: Vector3, passed: readonly boolean[]): void {
   const banner = hud.waveBannerRect();
   for (let i = 0; i < level.gates.length; i++) {
-    let hide = false;
+    let hide = passed[i] === true;
     const near = Math.abs(level.gates[i]!.z - hero.z) < SIGHT_RANGE;
-    if (banner || near) {
+    if (!hide && (banner || near)) {
       const box = meshes.signBox(i);
       if (banner) {
         const r = screenRect(camera, box.center, box.size, field);

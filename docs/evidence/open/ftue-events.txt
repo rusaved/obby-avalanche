@@ -1,14 +1,14 @@
    0.0 s  game_ready {"pace":"open"}
-   0.5 s  gameTutorialStart
-   4.2 s  shoes_1
-   6.7 s  ridge_1
-  18.6 s  first_wave_survived {"inShelter":true}
-  25.2 s  egg_1
+   0.4 s  gameTutorialStart
+   3.8 s  shoes_1
+   6.5 s  ridge_1
+  18.5 s  first_wave_survived {"inShelter":true}
+  25.3 s  egg_1
   33.1 s  treadmill_first
   56.0 s  ridge_2
   60.0 s  session_60s
-  82.4 s  ridge_3
- 101.1 s  wave_real_1 {"caught":false}
+  82.5 s  ridge_3
+ 101.0 s  wave_real_1 {"caught":false}
  121.4 s  boss_enter
  127.7 s  boss_passed
- 129.1 s  gameTutorialComplete {"levelComplete":"world_1"}
+ 129.2 s  gameTutorialComplete {"levelComplete":"world_1"}

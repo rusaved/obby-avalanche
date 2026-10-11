@@ -939,7 +939,7 @@ async function boot(): Promise<void> {
         const open = sim.gatesOpen[i] ?? false;
         levelMeshes!.setGateSign(i, open ? req : `${statText}/${req}`, open);
       });
-      if (hud && cameraRig) guardBannerSigns(hud, levelMeshes, level, cameraRig.camera, field, renderPos);
+      if (hud && cameraRig) guardBannerSigns(hud, levelMeshes, level, cameraRig.camera, field, renderPos, sim.gatesPassed);
     }
     // Test hooks see the frame as it is drawn: camera, hero and the signs hidden for it (PR-11).
     g.onFrame?.();
