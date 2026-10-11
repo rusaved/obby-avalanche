@@ -168,6 +168,10 @@ export function validateOpenShapes(worlds: WorldsJson, spec: OpenSpecJson): stri
     if (!w) continue;
     const at = `worlds.json: worlds[${mi}] (${w.id})`;
     const niches = sorted(w, 'niche');
+    // Grottos `shapes.grotto.width` long from its mountain (docs/01-gdd.md 18.8 item 3: the camera has room).
+    const gw = spec.shapes?.grotto;
+    if (gw && mi + 1 >= gw.fromWorld)
+      for (const n of niches) if (n['kind'] === 'grotto' && num(n, 'length') !== gw.width) errors.push(`${at}: grotto at z=${n.z} — ${num(n, 'length')} long, shapes.grotto.width is ${gw.width}`);
     m.sections.forEach((sec, si) => {
       const j = si + 1;
       const zone = w.zones[si];
@@ -240,7 +244,7 @@ function shelterSpacing(w: World, i: number, every: number, at: string): string[
   const niches = sorted(w, 'niche');
   const inSection = (s: Segment): boolean => num(s, 'section') === i;
   const tunnels = w.segments.filter((s) => s.type === 'tunnel' && inSection(s));
-  const g = OPEN_SLOPE.grotto.length / 2 + 1;
+  const g = num(niches.find((n) => n['kind'] === 'grotto') ?? ({ length: OPEN_SLOPE.grotto.length } as unknown as Segment), 'length') / 2 + 1;
   const holes = w.segments
     .filter((s) => (s.type === 'throat' || s.type === 'chasm' || s.type === 'hump') && inSection(s))
     .map((s) => ({ a: s.z - g, b: s.z + num(s, 'length') + g, side: s.type === 'hump' ? (s['side'] as string) : null }));

@@ -234,6 +234,12 @@ export interface TuningJson {
     /** Playtest M2: a wall right behind the hero closer than this — the camera rises over him, up to raiseMaxDeg
      * of pitch in raiseStepDeg steps, and comes down at raiseReturnRate rad/s. */
     minDistance: number;
+    /** In a shelter the camera never comes closer than this to the hero's body; pressed into a wall there (the free
+     * distance under minDistance) it takes the grotto frame `grottoShot` (docs/01-gdd.md 18.8, item 3). */
+    minDist: number;
+    /** The grotto frame: from the slope `out` units off the mouth, `height` over the floor, `back` downhill, looking at the
+     * hero; taken when the free distance behind him in a shelter is under `pressed` (the camera ran into a wall). */
+    grottoShot: { out: number; height: number; back: number; fov: number; pressed: number };
     raiseMaxDeg: number;
     raiseStepDeg: number;
     raiseReturnRate: number;
@@ -462,6 +468,8 @@ export type ShapeKind = 'chasm' | 'throat' | 'tunnel' | 'hump';
 
 /** Sizes of the elements (docs/01a-content.md 17.2); `…ByWorld` — the value on that mountain (key: its number). */
 export interface OpenShapes {
+  /** Grottos of the slope this long along it from mountain `fromWorld` (docs/01-gdd.md 18.8 item 3: 8 → 10; mountain 1 stays as built). */
+  grotto?: { width: number; fromWorld: number };
   chasm: { width: number; depth: number; giftsAir: number; giftsBottom: number; ramp: number; padBefore: number; widthByWorld?: Record<string, number> };
   throat: { width: number; length: number; slideMult: number; fieldGifts: number; fieldGrotto: number; height: number; funnel: number; lengthByWorld?: Record<string, number> };
   tunnel: { width: number; height: number; length: number; openGifts: number; lengthByWorld?: Record<string, number> };

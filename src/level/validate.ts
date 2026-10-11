@@ -295,6 +295,8 @@ const tuningSchema = v.object({
     retreatSpeed: positive,
     hideDistance: nonNeg,
     minDistance: nonNeg,
+    minDist: positive,
+    grottoShot: v.object({ out: positive, height: positive, back: nonNeg, fov: v.pipe(v.number(), v.minValue(30), v.maxValue(120)), pressed: positive }),
     raiseMaxDeg: v.pipe(v.number(), v.minValue(0), v.maxValue(85)),
     raiseStepDeg: positive,
     raiseReturnRate: positive,
@@ -436,6 +438,7 @@ const openSpecSchema = v.object({
   shapeFrom: v.optional(v.object({ chasm: positive, throat: positive, tunnel: positive, hump: positive })),
   shapes: v.optional(
     v.object({
+      grotto: v.optional(v.object({ width: positive, fromWorld: positive })),
       chasm: v.object({ width: positive, depth: positive, giftsAir: nonNeg, giftsBottom: nonNeg, ramp: positive, padBefore: positive, widthByWorld: v.optional(v.record(v.string(), positive)) }),
       throat: v.object({ width: positive, length: positive, slideMult: positive, fieldGifts: positive, fieldGrotto: positive, height: positive, funnel: nonNeg, lengthByWorld: v.optional(v.record(v.string(), positive)) }),
       tunnel: v.object({ width: positive, height: positive, length: positive, openGifts: positive, lengthByWorld: v.optional(v.record(v.string(), positive)) }),

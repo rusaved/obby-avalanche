@@ -38,6 +38,8 @@
     "retreatSpeed": 4,
     "hideDistance": 2.5,
     "minDistance": 4,
+    "minDist": 2.5,
+    "grottoShot": { "out": 6, "height": 6, "back": 5, "fov": 85, "pressed": 6 },
     "raiseMaxDeg": 75,
     "raiseStepDeg": 7.5,
     "raiseReturnRate": 1.5,

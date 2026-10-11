@@ -187,6 +187,9 @@ export interface TestApi {
   drawList(): Array<[string, number]>;
   /** Colour [r, g, b] of the canvas pixel at field px (x, y) of a frame drawn right now (PS-07: the giant seen from the camp). */
   pixelAt(x: number, y: number): [number, number, number];
+  /** Share of pixels of the field rect [x0, x1) × [y0, y1) (px) of the colour under any light: each channel within `tol`
+   * of the colour × the pixel's brightness share (0.4–1.2) (RG-13: the head in frame, lit or in a grotto's shade). */
+  colorShare(hex: string, tol: number, x0: number, y0: number, x1: number, y1: number): number;
   setTimeScale(k: number): void;
   runSim(sec: number): void;
   stepFrames(n: number): void;
@@ -199,6 +202,8 @@ export interface TestApi {
   setAutoRun(on: boolean): void;
   setCamera(opts: { yaw?: number; pitch?: number; dist?: number; fov?: number } | 'auto'): void;
   cameraInsideGeometry(): boolean;
+  /** The camera position now (RG-13: behind the hero out of a grotto). */
+  cameraPos(): [number, number, number];
   /** A world point in field px as the camera sees it now; `ahead` false — behind the camera (PR-06, PR-07). */
   project(x: number, y: number, z: number): { x: number; y: number; ahead: boolean };
   /** Gate sign plaque as a world box and whether it is hidden now (PR-08: never under the avalanche banner). */
@@ -206,8 +211,8 @@ export interface TestApi {
   /** Per rendered frame since the last reset (playtest M2): camera inside a collider (solid box, closed gate, ramp —
    * with the near plane), hero hidden by the camera while he should be seen, camera closer than 2.5 units to the hero's
    * body from chest to head (PR-13), hero behind level geometry, a drawn gate sign between the camera and the hero or
-   * around the camera (PR-11); first bad frames. */
-  cameraStats(): { frames: number; inside: number; heroHidden: number; heroNear: number; heroBlocked: number; signBlocked: number; bad: string[] };
+   * around the camera (PR-11); frames of the grotto frame (RG-13); first bad frames. */
+  cameraStats(): { frames: number; inside: number; heroHidden: number; heroNear: number; heroBlocked: number; signBlocked: number; tight: number; bad: string[] };
   resetCameraStats(): void;
   forceSlowFrames(sec: number): boolean;
   setQuality(level: QualityLevel | 'auto'): void;
@@ -223,6 +228,8 @@ export interface TestApi {
   waveGone(): void;
   /** Starts the next avalanche now (scripted if the first wave is still pending). */
   triggerWave(): void;
+  /** The next wave no sooner than `sec` from now when the avalanche is idle (tests that need no wave meanwhile). */
+  holdWave(sec: number): void;
   /** To the camp of mountain `index` (1…5) as through a portal (M3-05: every mountain loads without errors). */
   gotoWorld(index: number): void;
   /** Summits done on this tier, as after walking the portals of mountains 1…n (M3-06: the rebirth opens at the last). */
@@ -329,7 +336,7 @@ export function installTestApi(g: GameHandles): TestApi {
       for (const b of sim.bots?.list ?? []) if (b.mode !== 'away' && b.mode !== 'off') overClosed = Math.max(overClosed, b.z - gate.z);
     });
   };
-  const cam = { frames: 0, inside: 0, heroHidden: 0, heroNear: 0, heroBlocked: 0, signBlocked: 0, bad: [] as string[] };
+  const cam = { frames: 0, inside: 0, heroHidden: 0, heroNear: 0, heroBlocked: 0, signBlocked: 0, tight: 0, bad: [] as string[] };
   const ray = new Ray();
   const chest = new Vector3();
   g.onFrame = () => {
@@ -337,6 +344,7 @@ export function installTestApi(g: GameHandles): TestApi {
     const rig = g.camera;
     if (!sim || !rig || !g.hero || g.windows?.current) return;
     cam.frames++;
+    if (rig.tight) cam.tight++;
     const p = rig.camera.position;
     const h = sim.hero.pos;
     const note = (what: string): void => {
@@ -599,6 +607,30 @@ export function installTestApi(g: GameHandles): TestApi {
       gl.readPixels(Math.round(x * k), Math.round(canvas.height - y * k), 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, buf);
       return [buf[0]!, buf[1]!, buf[2]!];
     },
+    cameraPos() {
+      const p = g.camera?.camera.position;
+      return p ? [p.x, p.y, p.z] : [0, 0, 0];
+    },
+    colorShare(hex, tol, x0, y0, x1, y1) {
+      const r = g.renderer();
+      if (!r) return 0;
+      g.loop.runSim(0);
+      const gl = r.renderer.getContext();
+      const canvas = r.renderer.domElement;
+      const k = canvas.width / Math.max(1, canvas.clientWidth);
+      const w = Math.max(1, Math.round((x1 - x0) * k));
+      const h = Math.max(1, Math.round((y1 - y0) * k));
+      const buf = new Uint8Array(w * h * 4);
+      gl.readPixels(Math.round(x0 * k), Math.round(canvas.height - y1 * k), w, h, gl.RGBA, gl.UNSIGNED_BYTE, buf);
+      const want = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+      const sum = want[0]! + want[1]! + want[2]!;
+      let hit = 0;
+      for (let i = 0; i < w * h; i++) {
+        const k = (buf[i * 4]! + buf[i * 4 + 1]! + buf[i * 4 + 2]!) / sum;
+        if (k >= 0.4 && k <= 1.2 && want.every((c, a) => Math.abs(buf[i * 4 + a]! - c * k) <= tol)) hit++;
+      }
+      return hit / (w * h);
+    },
     setTimeScale(k) {
       g.loop.timeScale = k;
       g.loop.unlimited = k !== 1;
@@ -669,6 +701,7 @@ export function installTestApi(g: GameHandles): TestApi {
       cam.heroNear = 0;
       cam.heroBlocked = 0;
       cam.signBlocked = 0;
+      cam.tight = 0;
       cam.bad = [];
     },
     forceSlowFrames: (sec) => g.quality.forceSlow(sec),
@@ -685,6 +718,10 @@ export function installTestApi(g: GameHandles): TestApi {
       g.sim?.events.emit('waveGone', { tick: g.sim.tick });
     },
     triggerWave: () => g.triggerWave(),
+    holdWave(sec) {
+      const t = g.sim?.threat?.state;
+      if (t && t.phase === 'idle') t.timer = Math.max(t.timer, sec);
+    },
     gotoWorld: (index) => g.gotoWorld(index),
     setSummits(n) {
       g.save.summits = n;

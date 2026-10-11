@@ -36,6 +36,10 @@
   "hump": 8
  },
  "shapes": {
+  "grotto": {
+   "width": 10,
+   "fromWorld": 2
+  },
   "chasm": {
    "width": 12,
    "depth": 3,

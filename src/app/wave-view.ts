@@ -145,6 +145,21 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       // belt the camera flew into the hero): on the belt or in a jump over it; turned by hand — the player's camera
       // until the hero leaves the belt.
       const inCave = sim.shelterIndex();
+      // The grotto frame (RG-13, docs/01-gdd.md 18.8 item 3): from the slope off the mouth of the shelter the hero is in,
+      // looking at him (a tunnel: from behind him along its hall); the rig cuts to it when pressed into a wall there.
+      const sh = inCave >= 0 && !sim.caught ? sim.level.niches[inCave]! : null;
+      if (sh && sh.kind !== 'ledge') {
+        const gs = d.tuning.camera.grottoShot;
+        const f = d.camera.shelter ?? { pos: new Vector3(), look: new Vector3(), fov: gs.fov };
+        f.fov = gs.fov;
+        f.look.set(hero.x, hero.y + 1.5, hero.z);
+        if (sh.kind === 'tunnel') f.pos.set((sh.box.min[0] + sh.box.max[0]) / 2, sh.y + gs.height, Math.max(sh.box.min[2] + 1, hero.z - gs.back - gs.out));
+        else {
+          const sign = sh.side === 'left' ? -1 : 1;
+          f.pos.set(sign * (sim.level.width / 2 - gs.out), sh.y + gs.height, sh.z - gs.back);
+        }
+        d.camera.shelter = f;
+      } else d.camera.shelter = null;
       const waveShot =
         inCave >= 0 && !sim.caught && (ts.phase === 'warn' || (running && dz > -av.shotTriggerDist)) && (ts.scripted || !d.manualCamera());
       const belt = inCave >= 0 && !sim.caught && (sim.onBelt || (shotCave === inCave && !sim.hero.onGround));

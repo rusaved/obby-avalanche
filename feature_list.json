@@ -778,7 +778,7 @@
     "milestone": "RG",
     "description": "Камера в тесном гроте — замечание сборщика 3 (docs/01-gdd.md 18.8; docs/01a-content.md 16.7): в любом укрытии камера не ближе tuning.camera.minDist 2,5 ед к герою; упёрлась в стену при ручном повороте — переход в кадр грота (широкий план от входа, 16.7) с возвратом за спину на выходе; ширина гротов grotto 8 → 10 ед данными (worlds-spec.json shapes.grotto.width); общая камера — исправление и в fast",
     "acceptance": "e2e (open и fast): герой в гроте, поворот камеры на 360° за 4 с — дистанция камера–герой ≥ camera.minDist каждый кадр и голова героя в кадре (пиксели цвета головы в центре экрана ≥ 1%); на выходе из грота камера за спиной ≤ 1 с; validate:content: ширина гротов 10; скриншот docs/evidence/rg/grotto_camera_1920x1080_ru.png",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

@@ -135,6 +135,8 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
   const seg: Segment[] = [];
   pushOpenCamp(seg, spec, m);
 
+  // Grottos 10 long from mountain 2 (docs/01-gdd.md 18.8 item 3: the camera has room; mountain 1 stays as built).
+  const G = spec.shapes?.grotto && index >= spec.shapes.grotto.fromWorld ? spec.shapes.grotto.width : O.grotto.length;
   let y = 0;
   let chestDone = false;
   m.sections.forEach((sec, i) => {
@@ -174,7 +176,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
         y,
         flag: O.flag,
         forkCfg: O.fork,
-        grotto: O.grotto.length,
+        grotto: G,
         vmin: speedOf(balance, tuning, stat(j - 1)),
         vmax: speedOf(balance, tuning, stat(j)),
         tuning,
@@ -194,10 +196,10 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
     const zRidgeGrotto = round3(z1 - big.exit - big.length / 2);
     const side = (n: number): 'left' | 'right' => (n % 2 === 1 ? 'left' : 'right');
     const base = j === 1 ? z0 : z0 - big.exit - big.length / 2;
-    const flatLo = (j === 1 ? z0 : zFlat) + O.grotto.length / 2 + O.grottoClear;
-    const flatHi = zA - O.grotto.length / 2 - O.grottoClear;
-    const topLo = zB + O.grotto.length / 2 + O.grottoClear;
-    const topHi = zRidgeGrotto - big.length / 2 - O.grotto.length / 2 - O.grottoClear;
+    const flatLo = (j === 1 ? z0 : zFlat) + G / 2 + O.grottoClear;
+    const flatHi = zA - G / 2 - O.grottoClear;
+    const topLo = zB + G / 2 + O.grottoClear;
+    const topHi = zRidgeGrotto - big.length / 2 - G / 2 - O.grottoClear;
     let nth = 0;
     const grottoAt = (zg: number, s: 'left' | 'right'): Segment => ({
       type: 'niche',
@@ -205,7 +207,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       y: zg >= zB ? yTop : y,
       side: s,
       kind: 'grotto',
-      length: O.grotto.length,
+      length: G,
       depth: O.grotto.depth,
       treadmill: 0,
       zone: j,
@@ -232,14 +234,14 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
     else {
       // With elements (docs/01-gdd.md 18.3): the field grottos past a throat and the landing grotto of a hump are fixed;
       // between them as evenly; never in a throat, a chasm, the calm side of a tunnel or the bold side of a hump crest.
-      const all = blockedFor(plan, null, bold, O.grotto.length);
-      const per = { left: blockedFor(plan, 'left', bold, O.grotto.length), right: blockedFor(plan, 'right', bold, O.grotto.length) };
+      const all = blockedFor(plan, null, bold, G);
+      const per = { left: blockedFor(plan, 'left', bold, G), right: blockedFor(plan, 'right', bold, G) };
       const fixed: Array<{ z: number; sides: Array<'left' | 'right'> }> = [];
       if (plan.field !== null) fixed.push({ z: plan.field, sides: ['left', 'right'] });
       if (plan.hump) fixed.push({ z: plan.hump.grotto, sides: [bold] });
       for (const f of fixed)
         if (f.z > flatHi && f.z < topLo) throw new Error(`${m.id}: section ${j} — the grotto at z=${f.z} falls on the approach rise (the elements need a longer section)`);
-      const ridgeRoom = zRidgeGrotto - big.length / 2 - O.grotto.length / 2 - O.grottoClear;
+      const ridgeRoom = zRidgeGrotto - big.length / 2 - G / 2 - O.grottoClear;
       for (let cursor = base; ; ) {
         const anchor = fixed.find((f) => f.z > cursor + 1e-9);
         const rest = (anchor ? anchor.z : zRidgeGrotto) - cursor;

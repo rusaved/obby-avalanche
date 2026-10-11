@@ -52,6 +52,14 @@ export interface CameraRig {
   view: { rise: number; back: number; sec: number; t: number; side?: number } | null;
   /** Share of the view frame in the camera now (0…1; tests). */
   readonly viewBlend: number;
+  /**
+   * The grotto frame of the shelter the hero is in (docs/01-gdd.md 18.8, item 3), set by the app every frame; null out of
+   * shelters. Pressed into a wall there (the free distance under `grottoShot.pressed`, or within `minDist` of his body) the
+   * camera cuts to it and keeps it while he stays in; out of the shelter it comes back behind him in shotReturnSec.
+   */
+  shelter: { pos: Vector3; look: Vector3; fov: number } | null;
+  /** The grotto frame is on now (tests). */
+  readonly tight: boolean;
   update(dt: number, target: CameraTarget, input: CameraInputInfo, collision: CollisionWorld | null): void;
   snapTo(target: CameraTarget): void;
   /** Is the camera inside level geometry (sphere test) — for tests. */
@@ -110,6 +118,13 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
   let retK = 1;
   /** View frame now (0…1): eased in over the first 20% of it, out over the last 25%. */
   let viewK = 0;
+  /** RG-13: the grotto frame on; its share on the way back out (1 → 0); the way back does not turn the movement frame. */
+  let tight = false;
+  let tightK = 0;
+  const tightPos = new Vector3();
+  const tightLook = new Vector3();
+  let tightFov = c.fov;
+  let retFollow = true;
   /** Distance from a point to the hero's body axis, chest to head (the camera keeps hideDistance off it; PR-13). */
   const bodyDistance = (p: Vector3): number => {
     const y = Math.min(heroHead.y, Math.max(heroChest.y, p.y));
@@ -154,6 +169,10 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
     view: null,
     get viewBlend() {
       return viewK;
+    },
+    shelter: null,
+    get tight() {
+      return tight;
     },
     snapTo(target) {
       pivot.copy(target.pos).y += c.height;
@@ -226,6 +245,7 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
         if (backYaw !== null && rig.sinceManual >= MANUAL_RECENT_SEC) {
           retFrom = frame.viewYaw;
           retK = 0;
+          retFollow = true;
         } else backYaw = null;
       }
       wasFixed = rig.fixed !== null;
@@ -234,7 +254,7 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
           backYaw = null;
           retK = 1;
         } else if (dt > 0) {
-          const follow = Math.abs(angleDiff(frame.controlYaw, frame.viewYaw)) < 1e-4;
+          const follow = retFollow && Math.abs(angleDiff(frame.controlYaw, frame.viewYaw)) < 1e-4;
           retK = Math.min(1, retK + dt / Math.max(1e-3, tuning.avalanche.shotReturnSec));
           frame.viewYaw = wrapAngle(retFrom + angleDiff(retFrom, backYaw) * smooth01(retK));
           if (follow) frame.controlYaw = frame.viewYaw;
@@ -315,7 +335,44 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
           _desired.copy(_tmp);
         } else pivot.copy(_from);
       }
+      // The grotto frame (RG-13): pressed into a wall in a shelter — a cut to the wide shot from the mouth, held while the
+      // hero is in the shelter; out of it the camera blends back and turns behind him (where he runs), the movement frame
+      // stays the player's. Not over a fixed frame (the avalanche and belt shots keep theirs).
+      if (rig.shelter && !rig.fixed && !tight && collision && (rig.currentDistance < Math.min(wantDist, c.grottoShot.pressed) || bodyDistance(_desired) < c.minDist)) {
+        tight = true;
+        tightK = 1;
+      }
+      if (tight && (!rig.shelter || rig.fixed)) {
+        tight = false;
+        const moving = Math.hypot(target.vel.x, target.vel.z) > 1;
+        if (!rig.fixed && moving && !input.manualCamera) {
+          backYaw = Math.atan2(target.vel.x, target.vel.z);
+          retFrom = frame.viewYaw;
+          retK = 0;
+          retFollow = false;
+        }
+      }
+      if (tight && rig.shelter) {
+        tightPos.copy(rig.shelter.pos);
+        tightLook.copy(rig.shelter.look);
+        tightFov = rig.shelter.fov;
+        // Never inside the level: from the frame point towards the hero until free.
+        if (collision) for (let i = 0; i < 10 && blocked(tightPos, c.collisionRadius, collision); i++) tightPos.lerp(tightLook, 0.15);
+      } else if (!tight && tightK > 0) {
+        tightK = dt > 0 ? Math.max(0, tightK - dt / Math.max(1e-3, tuning.avalanche.shotReturnSec)) : 0;
+        if (collision && tightK > 0 && pathBlocked(_desired, tightPos, collision)) tightK = 0;
+      }
+      if (tightK > 0) {
+        const kk = tight ? 1 : smooth01(tightK);
+        _tmp.copy(_desired).lerp(tightPos, kk);
+        if (!collision || !blocked(_tmp, c.collisionRadius * 0.5, collision)) _desired.copy(_tmp);
+        if (tight) {
+          _seg.copy(tightLook).sub(tightPos);
+          frame.viewYaw = Math.atan2(_seg.x, _seg.z);
+        }
+      }
       _look.copy(pivot);
+      if (tightK > 0) _look.lerp(tightLook, tight ? 1 : smooth01(tightK));
       // The view frame: higher (unless that puts it into the level), looking along the slope ahead of the hero.
       if (rig.view && viewK > 0) {
         _tmp.copy(_desired);
@@ -375,6 +432,7 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       const ratio = target.maxSpeed > 0 ? Math.min(1, target.speed / target.maxSpeed) : 0;
       let wantFov = baseFov() + c.fovSpeedAdd * ratio;
       if (fixedK > 0) wantFov += (fixedFov - wantFov) * smooth01(fixedK);
+      else if (tightK > 0) wantFov += (tightFov - wantFov) * (tight ? 1 : smooth01(tightK));
       const kf = dt > 0 ? 1 - Math.exp(-dt / Math.max(1e-3, c.fovSmoothSec)) : 1;
       fov += (wantFov - fov) * kf;
       if (Math.abs(camera.fov - fov) > 0.01) {
