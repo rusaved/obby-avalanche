@@ -39,6 +39,16 @@
 | 22 | 10 минут игры | `session_600s` | `src/core`: 600 с активной игры без пауз в этой загрузке | session | 10 мин | гора 2 не держит; сверка с долей сессий дольше 10 мин в Консоли |
 | 23 | первое перерождение | `rebirth_1` + `params({ rebirth: n })` | `src/meta`: подтверждено перерождение | player | 35–42 мин | не доживают до меты |
 
+**Простор (`open`, `01` 17.8; PS-10, PS-13).** На просторе вместо `gate_N` — рубежи; остальные шаги таблицы те же.
+
+| Шаг игрока | Событие | Где вызывается | Раз | Ориентир (`01` 17.8) |
+|---|---|---|---|---|
+| рубеж N горы 1 открыт | `ridge_1`, `ridge_2`, `ridge_3` | шина: открыт рубеж N горы 1 на ступени 0 (вместо `gate_N`) | player | 10–20 с / 60–90 с / 1:30–2:30 |
+| вход в зону великана горы 1 | `boss_enter` | шина `bossEnter`: гора 1, ступень 0 | player | 2:20–3:00 |
+| великан горы 1 пройден | `boss_passed` | шина `bossPassed`: гора 1, ступень 0 | player | 7–9 с после `boss_enter` |
+| великан поймал | `boss_caught`, параметр `world` | шина `bossCaught`, любая гора и ступень | always | проход с первой попытки ≥ 60% (8.2) |
+| снова выше флажка рекорда | `record_up` | шина `recordUp`: после «Накрыло» или великана герой снова прошёл свою высоту | always | — |
+
 Имена `gameReady`, `gameTutorialStart`, `gameTutorialComplete` и `params.levelComplete` — стандартные из документации Яндекса, остальные — наши.
 
 Параметры прогресса без отдельных целей (`always`): `params({ levelComplete: 'world_N' })` на каждой горе, `params({ waveCaught: 'wN_gM' })` на каждой поимке лавиной (гора и номер ближайшей стены выше), `params({ rebirth: n })` на каждом перерождении, `params({ goldGift: 'take' | 'saved' | 'lost' })` на каждом золотом подарке (`01`, 4.9; фича M2-12): в буфере и `__TEST__.events` это события `gold_take`, `gold_saved`, `gold_lost`, в Метрику — только параметр, без `reachGoal`. Доля `saved` от `take` — тянет ли подарок из пещеры и честно ли успеть.
@@ -62,7 +72,7 @@
 | `quit_after_inter` | `visibilitychange: hidden` или `pagehide` в течение 15 с после `gameFullscreenClose` | `placement` |
 | `gameOfferView`, `gamePurchaseStart`, `gamePurchaseSuccess`, `gamePurchaseError` | только при `payments.enabled: true` (`01`, 9.3) | `productId` |
 
-Значения `placement`: за награду — `x2_stat`, `stat_now`, `skip_gate`, `x2_chest`, `egg`, `daily_x2`, `wheel` (`01`, 9.1); полноэкранная — `portal`, `rebirth`, `menu` (`01`, 9.2).
+Значения `placement`: за награду — `x2_stat`, `stat_now`, `skip_gate`, `x2_chest`, `egg`, `daily_x2`, `wheel`, `continue_here` (темп `open`) (`01`, 9.1, 17.11); полноэкранная — `portal`, `rebirth`, `menu` (`01`, 9.2).
 Имена из ранних черновиков не используем: `rw_click` → `gameRewardedRequest`, `rw_open` → `gameRewardedOpen`, `rw_done` → `gameRewardedEarned`, `rw_fail` → `gameRewardedError`, `inter_shown` → `gameFullscreenOpen`.
 
 ## 4. Параметры событий
@@ -79,7 +89,7 @@ ym(counterId, 'reachGoal', name, {
 ```
 
 Один раз за загрузку: `ym(counterId, 'params', { game: { appId, language, pack, build }, levelAtLaunch: 'w1_g3_t0' })`.
-У `gameReady` в `event` ещё параметр `flags` — набор принятых флагов удалённой конфигурации после зажима, например `{ "w1_warnSec": 10 }`; без флагов — пустой объект (`02`, 11.11). Нужен для разбора экспериментов.
+У `gameReady` в `event` ещё параметр `flags` — набор принятых флагов удалённой конфигурации после зажима, например `{ "w1_warnSec": 10 }`; без флагов — пустой объект (`02`, 11.11). Нужен для разбора экспериментов. И параметр `pace` — темп этой загрузки (`open`, `fast`; флаг `pace`, 8.1–8.2): по нему делится сравнение темпов.
 `setUserID` и `userParams` в первой версии не шлём: стандартный отчёт удержания работает без них, а лишних данных об игроке меньше (допущение).
 
 ## 5. Как устроено в коде
@@ -98,12 +108,14 @@ ym(counterId, 'reachGoal', name, {
    - воронка (25): `load_start`, `gameReady`, `startup_ad_start`, `startup_ad_end`, `first_input`, `gameTutorialStart`, `gate_1`, `gate_2`, `shoes_1`, `gate_3`, `first_wave_survived`, `treadmill_first`, `egg_1`, `session_60s`, `gate_4`, `rewarded_shown`, `wave_real_1`, `gate_6`, `session_180s`, `daily_claim`, `gate_9`, `session_300s`, `gameTutorialComplete`, `session_600s`, `rebirth_1`;
    - техника (1): `sdk_init_slow`;
    - реклама (11): `gameRewardedRequest`, `gameRewardedOpen`, `gameRewardedEarned`, `gameRewardedClose`, `gameRewardedError`, `ad_resume_ok`, `gameFullscreenRequest`, `gameFullscreenOpen`, `gameFullscreenClose`, `gameFullscreenError`, `quit_after_inter`;
+   - простор (7, темп `open`): `ridge_1`, `ridge_2`, `ridge_3`, `boss_enter`, `boss_passed`, `boss_caught`, `record_up`;
    - покупки (4, только если они включены): `gameOfferView`, `gamePurchaseStart`, `gamePurchaseSuccess`, `gamePurchaseError`;
-   - итого 37 целей, с покупками 41.
+   - итого 44 цели, с покупками 48.
 4. Отчёты «Воронка»: «Отчёты» → «Создать отчёт» → «Воронка», условие шага — «Достижение JS-цели», окно 30 минут, сегмент — только новые посетители. В воронке Метрики не больше 10 шагов, и шаги засчитываются по порядку: если шаг 3 случился раньше шага 2, игрок из воронки выпадает. Поэтому отчётов три, и в каждом только шаги, порядок которых держит сама игра:
    - «Первая минута»: `load_start` → `gameReady` → `first_input` → `gameTutorialStart` → `gate_1` → `gate_2` → `gate_3` → `first_wave_survived` → `treadmill_first` → `gate_4`;
    - «Гора 1»: `gate_4` → `gate_6` → `gate_9` → `gameTutorialComplete`;
    - «Время в игре»: `session_60s` → `wave_real_1` → `session_180s` → `session_300s` → `session_600s`.
+   - «Простор, гора 1» (сегмент — `gameReady` с `pace: open`): `gameReady` → `first_input` → `gameTutorialStart` → `ridge_1` → `first_wave_survived` → `ridge_2` → `ridge_3` → `boss_enter` → `boss_passed` → `gameTutorialComplete`.
 
    У `shoes_1`, `egg_1`, `rewarded_shown` и `daily_claim` время плавает, их смотрим отдельными целями в отчёте «Конверсии» с тем же сегментом. Долю пойманных первой обычной лавиной — веткой `event → wave_real_1 → caught` в отчёте «Параметры событий».
 5. Проверка в черновике: адрес игры с `_ym_debug=1`, в консоли браузера строки `Reach goal` с нашими целями (`03`, 7.2, пункт 9).

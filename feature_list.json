@@ -661,7 +661,7 @@
     "milestone": "PS",
     "description": "События простора в воронке и договор измерения (docs/06 2, 8.1–8.2): ridge_1…ridge_3 горы 1, boss_enter, boss_passed, boss_caught, record_up, параметр pace у gameReady; флаг pace в удалённой конфигурации; отчёт сравнения open и fast по модели и смоуку в docs/evidence/open/compare.md (доля сессий 60 с и возврат — после выхода)",
     "acceptance": "Vitest: каталог событий содержит новые имена с кратностью player/always по docs/06; e2e (open): порядок ridge_1 → ridge_2 → ridge_3 → boss_enter → boss_passed на горе 1 у физического бота, boss_caught при проигрыше, record_up при первом подъёме выше флажка; gameReady несёт pace: 'open'; флаг pace переключает темп на моке getFlags без перезагрузки данных других темпов; compare.md с таблицей 06 8.2 заполнен столбцами «модель» и «смоук», столбцы «после выхода» пустые",
-    "passes": false,
+    "passes": true,
     "priority": "P1",
     "deferred": false
   },

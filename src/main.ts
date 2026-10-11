@@ -4,10 +4,11 @@
 
 import './styles.css';
 import { Vector3 } from 'three';
-import { content, i18nUrls, pace } from './content/index.ts';
+import { content, i18nUrls, pace, usePace } from './content/index.ts';
 import { CLASSIC_PACE } from './content/pace.ts';
 import { configureAnalytics, track } from './analytics/index.ts';
 import { createPlatform } from './platform/index.ts';
+import type { PlatformOptions } from './platform/types.ts';
 import { createStorage } from './platform/storage.ts';
 import { PauseManager } from './core/pause.ts';
 import { createLoop } from './core/loop.ts';
@@ -93,7 +94,7 @@ const PLAY_PERSIST_SEC = 5;
  * LoadingAPI.ready() exactly once → GameplayAPI.start() when nothing pauses the game.
  */
 async function boot(): Promise<void> {
-  const { game, theme, tuning, balance, skins, accessories, pets, eggs, trails, auras, sfx, bots } = content;
+  const { game } = content;
   const params = new URLSearchParams(location.search);
   // Address parameters exist only in dev, playtest, e2e and pages builds (docs/02-tech.md 9.3).
   const debugParams = __DEBUG_TOOLS__ ? params : new URLSearchParams();
@@ -103,9 +104,13 @@ async function boot(): Promise<void> {
   const events: string[] = [];
   const bootState: BootState = { firstFrameAt: null, readyAt: null, controllable: false, glRenderer: '' };
 
-  // Each pace keeps its own progress (docs/01-gdd.md 16.1): classic in the old place, other paces in their slot.
-  const saveSlot = pace === CLASSIC_PACE ? undefined : pace;
-  const platform = await createPlatform({ packId: game.id, saveSlot, leaderboardName: game.leaderboard?.name ?? '', track });
+  const platformOpts: PlatformOptions = { packId: game.id, leaderboardName: game.leaderboard?.name ?? '', track };
+  const platform = await createPlatform(platformOpts);
+  // The remote flag `pace` (docs/06 8.1–8.2) picks the pace before the save is read; each pace keeps its own progress
+  // (docs/01-gdd.md 16.1): classic in the old place, other paces in their slot.
+  const runPace = usePace((await platform.getFlags({ pace: game.pace ?? CLASSIC_PACE }))['pace']);
+  platformOpts.saveSlot = runPace === CLASSIC_PACE ? undefined : runPace;
+  const { theme, tuning, balance, skins, accessories, pets, eggs, trails, auras, sfx, bots } = content;
   platform.onPause(() => pause.add('sdk'));
   platform.onResume(() => pause.remove('sdk'));
   track('sdk_ready', { platform: platform.kind, lang: platform.lang, device: platform.device });
@@ -1336,7 +1341,8 @@ async function boot(): Promise<void> {
   platform.ready();
   bootState.readyAt = gr.info().frame;
   events.push('ready');
-  track('game_ready');
+  // The pace of the run goes with gameReady: the reports split the open/fast comparison by it (docs/06 4, 8.2).
+  track('game_ready', { pace });
   persist();
   if (!pause.paused) platform.gameplayStart();
 
