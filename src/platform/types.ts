@@ -1,3 +1,7 @@
+// What: The Platform facade interface (init, ready, gameplay, ads, save, leaderboard, review, flags), PlatformOptions and language mapping.
+// Called by: platform/{index,null,yandex}.ts, app/handles.ts; tests/platform/yandex.test.ts.
+// Keep: Contract shared by Yandex and Null platforms (docs/02-tech.md 11.1): change both implementations together; types plus mapLang only, no SDK calls.
+
 import type { SaveData } from '../meta/save.ts';
 
 export type Lang = 'ru' | 'en';

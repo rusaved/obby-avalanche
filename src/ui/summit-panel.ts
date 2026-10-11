@@ -1,3 +1,7 @@
+// What: Renders the Mountain N cleared window body: time on the mountain, chest coins, summit trophies, the next mountain swatch and tomorrow's calendar reward.
+// Called by: main.ts (renderSummitPanel).
+// Keep: Pure view over SummitPanelModel; Next is the window frame's own next button, so the window is never a dead end; texts via i18n summit.* keys; no ad code here.
+
 /**
  * «Mountain N cleared!» window body (docs/01-gdd.md 10.2, 6.3): the time on the mountain, the chest coins, the summit
  * trophies, the next mountain with its colour and, on the first calendar circle, «Tomorrow in the calendar: …» with

@@ -1,3 +1,7 @@
+// What: Gives one reward (coins, trophies, x2 boost seconds, egg, look) for the calendar, quests, time rewards and the wheel.
+// Called by: app/daily-view.ts and app/quests-view.ts; main.ts (createRewards); tests/meta/daily.test.ts.
+// Keep: Coins are gifts x wallScale of the player's zone; boosts add play seconds and never stack to x4; eggs roll with the seeded rng; all values come from content.
+
 /**
  * Gives a reward of the calendar, quests, time rewards and the wheel (docs/01a-content.md 10; docs/01-gdd.md 7.6–7.8,
  * 7.13). Coins are «N gifts» of the player's zone × wallScale[n] (8.1), so a reward never loses its worth up the

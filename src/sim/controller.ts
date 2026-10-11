@@ -1,3 +1,7 @@
+// What: Kinematic hero controller: capsule against the Octree, fixed step with substeps, coyote time, jump buffer, step-up, slope limit; deterministic, runs in Node.
+// Called by: sim/world.ts (stepHero), sim/fun.ts, sim/bonus.ts, sim/gifts.ts, level/generate.ts, pad-arc.ts, validate.ts, main.ts, app/*-view modules; tests/sim/*
+// Keep: Pure TS, no DOM, no Math.random; feel numbers arrive only via ControllerParams (tuning.json); level/pad-arc.ts mirrors its gravity and step - change together.
+
 /**
  * Kinematic hero controller (docs/02-tech.md 6.1): capsule against the Octree, fixed step, substeps,
  * coyote time and jump buffer, step-up, slope limit. Pure TS, deterministic, runs in Node.

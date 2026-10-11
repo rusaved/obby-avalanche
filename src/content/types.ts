@@ -1,3 +1,7 @@
+// What: Types only: the shape of every content/<pack>/*.json file (game, theme, balance, tuning, worlds, skins, pets, eggs, trails, auras, sfx, bots) and ContentPack.
+// Called by: Almost every layer: sim/*, level/*, meta/*, render/*, app/*-view, audio, debug, main.ts, scripts/balance-model.ts; tests/content, tests/meta, tests/sim.
+// Keep: Must match content/<pack>/*.json and docs/02-tech.md 5.2-5.3 (validate-content checks it); types only, no values; a new field goes here AND into the data.
+
 /** Shapes of content/<pack>/*.json (docs/02-tech.md 5.2–5.3). Numbers and texts live only in the pack. */
 
 export type StatEffect = 'moveSpeed' | 'jumpPower' | 'gateOnly';

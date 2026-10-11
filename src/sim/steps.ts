@@ -1,3 +1,7 @@
+// What: Step tracker: each balance.stepLength of ground path (the belt counts on a treadmill) gives gainPerStep x multipliers x treadmill to the stat.
+// Called by: sim/world.ts; tests/sim/economy.test.ts, tests/meta/cosmetics.test.ts
+// Keep: No steps in the air; a teleport or respawn never counts as path (resetCarry); stepLength and gainPerStep come from balance.json; pure TS, no DOM.
+
 /**
  * Steps and the stat (docs/01-gdd.md 3.3, 8.1; docs/02-tech.md 5.3): every `balance.stepLength` units of path on the
  * ground (relative to the support: on a treadmill the belt counts) give `gainPerStep × multipliers × treadmill(p)`.

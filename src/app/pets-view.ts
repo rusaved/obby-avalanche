@@ -1,3 +1,7 @@
+// What: Eggs and pets: the egg button at stands, hatching with a toast, up to 3 pets hopping by the hero, the Pets window, the collection counter and the shop Eggs tab.
+// Called by: main.ts (createPetsView); app/handles.ts (type); app/rewards.ts (hatched); tests/meta/{collection,daily}.test.ts.
+// Keep: Inventory lives in save.pets / save.petsOn and purchases write at once; egg rolls use the seeded d.rng, never Math.random; prices and odds come from content.
+
 /**
  * Eggs and pets in the game (docs/01-gdd.md 7.2): the egg button over a stand when the hero stands next to it
  * (camp and the flag past wall 6), price × wallScale[n], one tap buys; the egg wobbles 1 s, the pet jumps out with

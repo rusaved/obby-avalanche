@@ -1,3 +1,7 @@
+// What: Draws bots on screen: blocky figures, a snowball while one rolls and a DOM name label over the head (pool moved by transform only).
+// Called by: main.ts (createBotsView); app/handles.ts (BotsView and HudMode types).
+// Keep: Reads the sim only; names stay hidden with showNames false, in HUD modes shots/promo and in the photo studio; distances and fades come from content bots.
+
 /**
  * Bots on screen (docs/01-gdd.md 7.12): blocky figures of the same instanced generator in their own colours, a
  * snowball while one rolls, and a small grey name over the head — a DOM pool like «+1», moved only by transform.

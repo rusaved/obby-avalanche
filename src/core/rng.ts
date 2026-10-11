@@ -1,3 +1,7 @@
+// What: Seeded mulberry32 RNG (createRng) and seedFrom for ?seed= (number or FNV-1a string hash), so runs and replays are reproducible.
+// Called by: main.ts; app/pets-view.ts; meta/quests.ts; sim/bonus.ts, sim/bots.ts, sim/world.ts; tests/core/rng.test.ts and meta and sim tests.
+// Keep: The only randomness allowed in sim and meta (Math.random is forbidden there, architecture test); the sequence for a given seed must never change.
+
 /** Seeded RNG, mulberry32 (docs/02-tech.md 4.2). `Math.random` is forbidden in sim and meta. */
 export interface Rng {
   readonly seed: number;

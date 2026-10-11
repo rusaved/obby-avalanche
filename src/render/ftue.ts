@@ -1,3 +1,7 @@
+// What: First-minute visuals: the free gift egg on its stand with sparks, and white arrows on the snow towards the cave entrance.
+// Called by: main.ts; app/ftue-view.ts.
+// Keep: Primitives only, at most 4 draw calls (egg, stand, sparks, arrows); the hatched pet lives in render/pets.ts; colours from theme.json; reads GiftEggState only.
+
 /**
  * First-minute visuals (docs/01-gdd.md 6.2, 6.5): the free egg «Mountain Gift» on its stand (glows, wobbles and
  * cracks on the touch; comes with a burst of sparks after the scripted wave, 16.6), white arrows on the snow towards

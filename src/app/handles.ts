@@ -1,3 +1,7 @@
+// What: Types only: the GameHandles bag of live game objects that main.ts assembles for the test API and the debug panel.
+// Called by: main.ts (builds it); test-api/index.ts and debug/index.ts (read it).
+// Keep: Type-only imports, no runtime code (no import cycle with main.ts); a new field must be filled in main.ts; e2e specs and the debug panel rely on this shape.
+
 /** Everything the test API and the debug panel reach into; assembled by main.ts. */
 import type { Loop } from '../core/loop.ts';
 import type { PauseManager } from '../core/pause.ts';

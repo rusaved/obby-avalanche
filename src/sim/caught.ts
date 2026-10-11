@@ -1,3 +1,7 @@
+// What: The "Snowed in!" clip: plans the snowball roll of a caught hero to the nearest cave below (or the camp) and gives his position at time t.
+// Called by: sim/world.ts, sim/bots.ts, render/threat/snowball.ts
+// Keep: Pure TS, no DOM; nothing is lost, only the position changes (6+ rule); the whole clip fits caught.maxSec; durations come from balance.caught, tuning.avalanche.
+
 /**
  * «Snowed in!» (docs/01-gdd.md 4.5, GDD-04): the snow wraps the hero into a ball, the ball rolls down to the nearest
  * cave below him (none below — to the camp) in `caught.rollSec`, pops there, controls come back; the whole clip lasts

@@ -1,3 +1,7 @@
+// What: Static Octree from triangle arrays plus a small dynamic Octree for gates; capsule and sphere hit queries for the controller.
+// Called by: sim/controller.ts, sim/world.ts, render/blob.ts, render/camera.ts; tests/sim/collision.test.ts, controller.test.ts, gates.test.ts, steps.test.ts
+// Keep: From three only the math whitelist plus Capsule/Octree addons (architecture test); keep the padded Octree retry that checks no triangle is lost on splits.
+
 /** Static Octree from triangle arrays (docs/02-tech.md 6.1); gates and other movers live in a second small Octree. */
 import { Triangle, Vector3, Sphere } from 'three';
 import { Capsule } from 'three/examples/jsm/math/Capsule.js';

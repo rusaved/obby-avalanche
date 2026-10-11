@@ -1,3 +1,7 @@
+// What: Wrong-way hint: a small arrow on a plaque by the hero toward the next closed gate when he runs down a calm slope; also exports screenAngle.
+// Called by: main.ts (createWayView); app/handles.ts (type); app/ftue-view.ts (screenAngle).
+// Keep: Reads the sim and the camera, never changes them; no text on the arrow; it shows only on a calm mountain and goes as soon as the hero stands or runs up.
+
 /**
  * «Wrong way» (docs/01-gdd.md 16.7): the hero runs down the slope — over the last `balance.hints.wrongWaySec` he went
  * `wrongWayDist` or more lower and moves down now — on a calm mountain (no avalanche, not in a cave, the camp or a

@@ -1,3 +1,7 @@
+// What: Renders the Rebirth window body (what resets, what stays, what you get, Rebirth/Later buttons) and the All mountains cleared body.
+// Called by: app/rebirth-view.ts.
+// Keep: Fits one screen without scrolling at 640x360; Rebirth inactive with lock text until the last summit; never a dead end (Later, Stay); texts via i18n.
+
 /**
  * Rebirth window body (docs/01-gdd.md 7.5, 10.2; GDD-08): before the button it shows exactly what resets, what stays
  * and what the player gets (the step ×3: now → after, the tier reward card, more trophies), «Mountains get higher» in

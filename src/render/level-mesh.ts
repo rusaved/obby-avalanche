@@ -1,3 +1,7 @@
+// What: Level meshes: boxes and ramps merged per 120-unit chunk with baked vertex colours; gates, gifts, fun parts and cave walls as InstancedMeshes; gate signs.
+// Called by: main.ts; app/banner-signs.ts, fun-view.ts, handles.ts, wave-view.ts.
+// Keep: Draw-call budget (chunks plus a few instanced meshes); colours only from theme.json; instance indices follow LevelData order (gates, points, fun.pads).
+
 /**
  * Level meshes (docs/02-tech.md 9.1): static boxes and ramps merged per 120-unit chunk with baked vertex colours
  * (one Lambert material), gates and gifts as InstancedMeshes, gate numbers from the digit atlas. Grey/flat at M1,

@@ -1,3 +1,7 @@
+// What: Hides gate signs that sit under the avalanche banner or between the camera and the hero, and brings them back when the overlap ends (screen-box tests).
+// Called by: main.ts (guardBannerSigns each frame); test-api/index.ts (segmentMeetsBox).
+// Keep: Only toggles sign visibility - reads the camera, never changes sim or level data; the banner must never end up under a sign (docs/01-gdd.md 16.7, PR-11).
+
 /**
  * The avalanche banner is never under a gate sign (docs/01-gdd.md 16.7; playtest M3, item 6: «Avalanche in 9» was
  * printed on a huge red sign): while the banner shows, a sign whose box on screen meets the banner box is not drawn.

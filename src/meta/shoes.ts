@@ -1,3 +1,7 @@
+// What: Shoe ladder (next pair only, price x wallScale) and the pet-aware step multiplier helpers of the meta layer.
+// Called by: app/meta-view.ts, app/quests-view.ts, meta/rebirth.ts; tests/meta/shoes.test.ts, tests/sim/economy.test.ts, tests/sim/ftue.test.ts.
+// Keep: Pure TS, no DOM; prices and bonuses come from balance.json/pets.json via sim/economy.ts; a failed buy changes nothing; rebirth resets to SHOES_AFTER_REBIRTH.
+
 /**
  * Shoes and the step multiplier of the meta (docs/01-gdd.md 7.1, 8.1; docs/01a-content.md 5): 16 pairs in order,
  * the next one only, price × wallScale[tier], one tap buys, a rebirth puts the starting pair back. Pure TS.

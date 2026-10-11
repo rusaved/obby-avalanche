@@ -1,3 +1,7 @@
+// What: Renders the calendar window body: 7 reward cards (past ticked, today glowing, future locked) and the Claim button or the next-reward timer; exports rewardIcon.
+// Called by: app/daily-view.ts; ui/quests-panel.ts and ui/summit-panel.ts (rewardIcon).
+// Keep: Pure view over DailyPanelModel, no game rules; data-role/data-hud hooks daily-card, daily-claim, daily-next are used by e2e/daily.spec.ts.
+
 /**
  * Calendar window body (docs/01-gdd.md 7.6, 10.2): 7 cards in a row (4 + 3 on a phone) — past ones with a tick, today's
  * bigger and glowing, future ones with a lock; «Claim» while today's reward waits, otherwise «Next reward in 14:20».

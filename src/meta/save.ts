@@ -1,3 +1,7 @@
+// What: SaveData shape, defaults, versioned migrations, tolerant parseSave and newerSave (cloud vs mirror) for everything that survives a reload.
+// Called by: main.ts, platform/{null,yandex,types}.ts, all app/*-view modules, meta/{daily,quests,rebirth,trophies}.ts; tests/meta/*, tests/platform/pace-save.test.ts.
+// Keep: Save format is versioned: migrate with a unit test, never rename keys; a new field must be added to the NUMBER/ARRAY/OBJECT_KEYS lists; parseSave never throws.
+
 /**
  * SaveData (docs/02-tech.md 4.4): everything that survives a reload. Plain JSON, `v` is the schema
  * version, `rev` the write counter, `savedAt` the platform server time. Grows at M3 (meta).

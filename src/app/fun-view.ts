@@ -1,3 +1,7 @@
+// What: Sound, snow puffs and confetti for trampolines, ice slides, gifts and passed gates, including the coin fountain and the rising chime streaks.
+// Called by: main.ts (createFunView); app/handles.ts (type).
+// Keep: Reads the sim, never changes it: gate coins are paid once by the sim (gatePass), this only shows them; streak windows come from tuning (fun, gateReward).
+
 /**
  * Fun and the gate reward as the player sees and hears them (docs/01-gdd.md 16.4, 16.5): «boing» and a puff of snow
  * off a trampoline (the plate springs), «whoosh» and a snow trail on an ice slide, «ding» of a gift on the path a note

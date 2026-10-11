@@ -1,3 +1,7 @@
+// What: Quests of the day, time rewards and the free wheel spin: pick, progress, claim, all tied to the calendar game day.
+// Called by: app/quests-view.ts; tests/meta/quests.test.ts.
+// Keep: Pure, runs in Node; day picks use the seeded core/rng (no Math.random); all lists and amounts come from balance.json; refreshes with save.daily.dayStart.
+
 /**
  * Quests of the day, time rewards and the free spin of the wheel (docs/01-gdd.md 7.7, 7.8, 7.13; docs/01a-content.md 10).
  * All three belong to the game day of the calendar (meta/daily.ts: `save.daily.dayStart`) and refresh with it by the

@@ -1,3 +1,7 @@
+// What: Trampoline arc: flies the hero tick by tick from the pad like the controller does, and gives the gift-height band over the pad; pure TS.
+// Called by: level/generate.ts (gift placement over the pad), level/validate.ts (arc and gift checks)
+// Keep: Must integrate exactly like sim/controller.ts (same midpoint step, gravity, fallMult, 1/60 tick) or generator, validator and game disagree on the arc; no DOM.
+
 /**
  * The trampoline arc (docs/01-gdd.md 16.4): the hero leaves the pad at `fun.padSpeed` up and his run speed plus
  * `fun.padForward` along +Z, and flies by the controller's gravity tick by tick, as in the game. The generator places

@@ -1,3 +1,7 @@
+// What: Number display: formatNumber, formatMult, formatTimer (999, 1.23K, ru 1,23K; suffix letters from i18n keys num.K..num.Dc), 3 significant digits.
+// Called by: main.ts, render/level-mesh.ts, 9 app/* modules (views, rewards); tests/ui/*, tests/meta/collection.test.ts, tests/render/quality.test.ts.
+// Keep: Always cut down, never round up (1999 is 1.99K, a price never looks reached early); SUFFIX_KEYS match i18n num.* keys; main.ts sets setNumberLocale first.
+
 /**
  * Number display (docs/01-gdd.md 10.4): 999 → "999", 1234 → "1.23K" (ru "1,23K"), suffix letters come from i18n keys
  * num.K … num.Dc, the decimal separator from Intl.NumberFormat of the interface language.

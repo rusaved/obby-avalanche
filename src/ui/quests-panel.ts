@@ -1,3 +1,7 @@
+// What: Renders the Quests window (rows with bars, bonus row, claim, timer) and the Time rewards window (8 timer tiles and the lucky wheel with the free daily spin).
+// Called by: app/quests-view.ts.
+// Keep: Pure view over QuestsPanelModel/TimePanelModel: quest rules, timers and the wheel result (hit) come from the caller; wheel keeps 8 equal sectors.
+
 /**
  * Quests window and time rewards window with the lucky wheel (docs/01-gdd.md 7.7, 7.8, 7.13; 10.2). Quests: a row per
  * quest with its bar «2/3» and «Claim» once done, the bonus row for all three, the timer to new quests. Time rewards:

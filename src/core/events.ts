@@ -1,3 +1,7 @@
+// What: Typed event bus (createEmitter: on, once, off, emit, clear) used for sim events.
+// Called by: sim/world.ts; tests/core/events.test.ts.
+// Keep: Pure TS with no dependencies and no DOM so sim and tests run in Node (core layer, architecture test); emit walks a copy so listeners may unsubscribe.
+
 /** Typed event bus (docs/02-tech.md 4.6). No dependencies, works in Node. */
 export type Listener<T> = (payload: T) => void;
 

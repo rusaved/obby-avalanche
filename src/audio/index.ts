@@ -1,3 +1,7 @@
+// What: Sound layer: one AudioContext started by the first gesture, ZzFX buffers built once from sfx.json, play() with pitch shift and delay, pause suspends it.
+// Called by: main.ts (createAudio); app/handles.ts and app/fun-view.ts (GameAudio type).
+// Keep: Sounds come only from content sfx.json; nothing plays before a gesture or while paused; max 3 equal sounds per 100 ms; zzfx stays a lazy import.
+
 /**
  * Sound (docs/02-tech.md 10), minimal for M2: one AudioContext started by the first gesture of the player
  * (pointerdown, keydown), master → sfx gain, ZzFX buffers built once from sfx.json on our context, any pause

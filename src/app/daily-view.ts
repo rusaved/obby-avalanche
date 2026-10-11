@@ -1,3 +1,7 @@
+// What: Calendar button and window: shows the waiting reward or the timer, claims it through rewards.ts and rolls the game day by server time.
+// Called by: main.ts (createDailyView); app/handles.ts (type); app/quests-view.ts (REWARD_ICON).
+// Keep: The window never opens by itself; day math lives in meta/daily.ts and uses d.now() (server time); claim sends daily_claim (docs/06-analytics.md).
+
 /**
  * The calendar in the game (docs/01-gdd.md 7.6; GDD-10): the «Calendar» button of the HUD column from 3:00 of play with
  * «!» while today's reward waits, otherwise the timer «in 14:20» to the next one; the window never opens by itself.

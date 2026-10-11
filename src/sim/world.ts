@@ -1,3 +1,7 @@
+// What: Simulation of one mountain: ties hero, steps and stat, gates, gifts, caves, avalanche, caught clip, bots, golden gift, egg and fun behind createSim().step().
+// Called by: main.ts and 12 app/* modules (*-view, rewards, handles); tests/sim/*, tests/level/mountain.test.ts, tests/meta/*
+// Keep: Pure TS, no DOM/render, seeded rng only; the Sim interface and SimEvents are the contract of the app views and the test API - extend, do not rename.
+
 /**
  * Simulation of one mountain (docs/02-tech.md 4.2, 6.1): hero, checkpoints, fall and respawn.
  * Steps and the stat (M2-01, `steps.ts`): run speed follows the stat through the `moveSpeed` effect.

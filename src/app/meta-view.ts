@@ -1,3 +1,7 @@
+// What: Shoes button and shop tab Sneakers, the shoe reset on rebirth, and the meta step multiplier (shoes, pets, trails, auras) pushed into the sim.
+// Called by: main.ts; app/handles.ts (type); tests/meta/{cosmetics,pets,rebirth,shoes}.test.ts.
+// Keep: Shoe level and the button-was-shown flag live in the save (never rename keys); prices come from content balance; the sim gets the multiplier only via apply().
+
 /**
  * Meta on the HUD (docs/01-gdd.md 6.2, 6.4, 7.1): the shoes button «Shoes ×N · price» at the bottom centre (shows the
  * first time coins reach the next pair, then stays, grey while short; one tap buys), the reset of the shoes on a

@@ -1,3 +1,7 @@
+// What: Installs window.__TEST__, the state and control API for Playwright specs, and keeps the SDK mock clock in step with accelerated game time.
+// Called by: main.ts, by dynamic import only when __TEST_API__ (build:e2e); e2e/*.spec.ts and e2e/fixtures.ts (types).
+// Keep: e2e builds only (check-release rejects __TEST__ and __YA_MOCK__); tests read state, not pixels; game time, not wall time; changing a field breaks the specs.
+
 /**
  * window.__TEST__ (docs/02-tech.md 17.3, docs/04-packaging.md 11.2): only in build:e2e. Tests read state, not pixels.
  * Time in tests is game time: setTimeScale(k) and runSim(sec) also move the SDK mock clock (__YA_MOCK__.advance).

@@ -1,3 +1,7 @@
+// What: Loads the content pack of this build (@content alias, game.json pace, ?pace= in debug builds) and exports `content`, `pace`, `paces` and `i18nUrls`.
+// Called by: main.ts, debug/index.ts, test-api/index.ts; the @content alias is set in vite.config.ts and the vitest config.
+// Keep: Pure data wiring: no numbers or texts here; dictionaries stay URLs, not bundled; the release never reads ?pace= (__DEBUG_TOOLS__ guard); classic = shared files.
+
 /**
  * The content pack of this build (docs/02-tech.md 5.1): `@content` is an alias to content/<VITE_CONTENT>/.
  * Texts are not bundled: the dictionary of the SDK language is fetched before the first UI frame.

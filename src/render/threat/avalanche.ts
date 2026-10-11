@@ -1,3 +1,7 @@
+// What: Visual of the avalanche threat: curved front, snow body, slope crack and snow dust (at most 4 draw calls), plus the lit cave marker.
+// Called by: main.ts; app/handles.ts, app/wave-view.ts; tests/render/avalanche.test.ts.
+// Keep: Materials ignore fog and are never culled with chunks (spawn point 160 units up stays visible); front stays within the track; colours from theme, feel from tuning.
+
 /**
  * Visual `avalanche` of the threat `wave` (docs/02-tech.md 8.3): at most 4 draw calls — the front (curved plane
  * 48 × 12 with vertex noise, white → blue gradient, light edge, DoubleSide), the snow body behind it, the crack on the

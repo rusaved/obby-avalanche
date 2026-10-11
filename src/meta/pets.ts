@@ -1,3 +1,7 @@
+// What: Eggs and pets: roll an egg by its pool chances, keep the inventory, choose pets on, compute the pet multiplier and the collection counter.
+// Called by: app/pets-view.ts, app/meta-view.ts, app/rebirth-view.ts, app/rewards.ts; tests/meta/pets.test.ts, tests/meta/collection.test.ts.
+// Keep: Pure TS, no DOM and no Math.random, the roll value is passed in; limits come from balance.pets; petsOn indices must stay valid after release/add.
+
 /**
  * Eggs and pets (docs/01-gdd.md 7.2; docs/01a-content.md 6): an egg rolls one pet of its pool by the chances of
  * eggs.json, the inventory holds up to `balance.pets.inventory` pets (duplicates allowed), up to `balance.pets.slots`

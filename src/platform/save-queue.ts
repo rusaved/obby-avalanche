@@ -1,3 +1,7 @@
+// What: Cloud write queue: debounce, max wait, token-bucket gap and retries, so the latest save goes to the cloud without breaking the SDK limits.
+// Called by: platform/yandex.ts; tests/meta/save.test.ts.
+// Keep: Limits from docs/03 SAV-01/SAV-02 (2 s debounce, 10 s max wait, 3.5 s gap, 5/15/60 s retries); time is the injected platform clock; newest data always wins.
+
 /**
  * Cloud write queue (docs/02-tech.md 11.6; docs/03 SAV-01, SAV-02): the latest SaveData goes to `write` 2 s after the
  * last change but never later than 10 s after the first unsent one; a `flush` writes at once. Over all of it a token

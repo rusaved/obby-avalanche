@@ -1,3 +1,7 @@
+// What: Type definitions of the built level (LevelData: boxes, ramps, gates, caves, checkpoints, points, floorYAt); colliders and render descriptions, no three objects.
+// Called by: Produced by level/builder.ts; read by sim/*, render/level-mesh.ts, render/threat/avalanche.ts, app/banner-signs.ts, app/handles.ts, test-api; tests/sim/*
+// Keep: Types only, no runtime code and no three objects (level layer stays pure); `material` is a key of theme.json materials; fix all consumers when a field changes.
+
 /** Level data built from worlds.json (docs/02-tech.md 6.1): colliders and render descriptions, no three.js objects. */
 
 export type Vec3 = [number, number, number];

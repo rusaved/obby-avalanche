@@ -1,3 +1,7 @@
+// What: Shop (trails, auras) and wardrobe (skins, wings) windows plus the equipped trail, aura, skin and wings on the hero.
+// Called by: main.ts (createCosmeticsView); the sneaker and egg shop tabs plug in through ShopTabSource.
+// Keep: Purchases persist at once; the step multiplier reaches the sim only via onChange (meta-view); prices and items come from content, ownership rules from meta/.
+
 /**
  * Trails, auras and the wardrobe in the game (docs/01-gdd.md 7.3, 7.4, 6.4): the «Shop» window with the tabs
  * «Trails» and «Auras» (buy for trophies, equip), the trail and the aura on the hero, the «Wardrobe» window with the

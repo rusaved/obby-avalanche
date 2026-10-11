@@ -1,3 +1,7 @@
+// What: Builds LevelData (boxes, ramps, gates, caves, checkpoints, points, collider triangles) from one worlds.json world; pure and deterministic.
+// Called by: main.ts, sim/world.ts, sim/bots.ts, level/validate.ts, app/wave-view.ts, render/threat/avalanche.ts; tests/level/*, tests/sim/*, tests/meta/*
+// Keep: Pure TS, no DOM/three; staticTriangles = 9 numbers per triangle with outward normals; GATE_THICKNESS and NICHE_* are shared with validate.ts and meshes.
+
 /**
  * worlds.json → LevelData (docs/02-tech.md 6.1): boxes and ramps for colliders and meshes, gates as dynamic
  * colliders, niches as shelter volumes, checkpoints, spawn. Pure, runs in Node (validator, bot, tests).

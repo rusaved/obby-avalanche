@@ -1,3 +1,7 @@
+// What: The golden gift visual: box, sparks and a pillar of light on the slope, carried over the hero's head, a golden puff when it pops.
+// Called by: main.ts.
+// Keep: Reads sim BonusState only, never writes it; three draw calls, hidden when no gift; colour from theme.json bonus.color; sizes follow BONUS_HALF/BONUS_HEIGHT.
+
 /**
  * The golden gift (docs/01-gdd.md 4.9): the gift box 1.5 times bigger in theme.json bonus.color, sparks around it and
  * a pillar of light up to the sky while it lies on the slope (seen from the cave); over the hero's head while he

@@ -1,3 +1,7 @@
+// What: Game entry: boots platform, content, save, sim, renderer and all app/* views in the documented order, then runs the loop.
+// Called by: index.html (vite entry script); nothing imports it.
+// Keep: Boot order (docs/02-tech.md 11.2): ready() exactly once after the first frame, gameplayStart only unpaused; test-api and debug load dynamically by build flag.
+
 import './styles.css';
 import { Vector3 } from 'three';
 import { content, i18nUrls, pace } from './content/index.ts';

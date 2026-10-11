@@ -1,3 +1,7 @@
+// What: Teaching in the world: one hint plaque at a time above the hero, arrows to the cave and the belt, and the free egg with a hand over it.
+// Called by: main.ts (createFtueView); app/handles.ts (type).
+// Keep: Reads the sim, never changes it; hint order and timing live in meta/hints.ts; the free egg hatches through app/pets-view.ts; no text is hardcoded (t() keys).
+
 /**
  * Teaching in the world (docs/01-gdd.md 6.1, 6.2, 6.5): hint plaques above the hero (one at a time), white arrows
  * on the snow to the cave entrance on the warning, and with hint.stuck to the cave below that gate plus an arrow in

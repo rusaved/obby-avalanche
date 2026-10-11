@@ -1,3 +1,7 @@
+// What: Ice cave geometry queries: is a point sheltered (cave volume plus graceDist), distance to the entrance, safe zones, treadmill belt lookup.
+// Called by: sim/world.ts, sim/threat.ts, sim/bots.ts, sim/caught.ts, sim/bonus.ts, app/ftue-view.ts; tests/sim/shelter, threat, caught, bonus tests
+// Keep: Pure TS, no DOM; graceDist comes from the caller (balance.niche); a cave counts by its whole AABB, so level/builder.ts niche boxes and this module must agree.
+
 /**
  * Ice caves and treadmills (docs/01-gdd.md 4.3; docs/02-tech.md 8.2): the shelter is the whole cave volume (AABB)
  * plus `niche.graceDist` past the entrance onto the slope; a treadmill belt makes the hero run in place by himself.

@@ -1,3 +1,7 @@
+// What: Decides which HUD buttons and the shop tab are due by play time and first-summit progress (time group, then summit group, one after another).
+// Called by: main.ts; tests/meta/hud-schedule.test.ts.
+// Keep: Pure function of save-derived state, no DOM; every delay comes from balance.json ui; ids in TIME_GROUP/SUMMIT_GROUP must match the HUD element ids.
+
 /**
  * When the HUD elements come (docs/01-gdd.md 6.4; GDD-12), by the play time of the player (`totalPlaySec`) and the
  * progress, never earlier. «Shop», «Pets», «Calendar» from `ui.unlockMenusSec` one after another, `ui.menuStepSec`

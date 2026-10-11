@@ -1,3 +1,7 @@
+// What: Content validator: valibot schemas per pack file, cross-file links, enums, i18n parity, plus level checks (reachability by controller physics, fairness, fun).
+// Called by: scripts/validate-content.mjs, e2e/debug.spec.ts; tests/content/*, tests/level/mountain.test.ts, tests/meta/collection.test.ts, tests/ui/numbers.test.ts
+// Keep: Pure: takes parsed files, returns messages "file: path - what is wrong", no fs/DOM; no src module imports it (out of the bundle); schemas track content/types.ts.
+
 /**
  * Content validator (docs/02-tech.md 5.4): valibot schemas per file, cross-file links, enums, i18n parity.
  * Pure: takes the parsed files, returns messages "file: path — what is wrong". Reachability by the controller

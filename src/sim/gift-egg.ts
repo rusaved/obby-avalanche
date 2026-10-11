@@ -1,3 +1,7 @@
+// What: The free "Mountain Gift" egg of the first minute: finds its spot beside the cave treadmill, wobbles and cracks on touch, then the pet hatches.
+// Called by: sim/world.ts, render/ftue.ts; tests/sim/ftue.test.ts
+// Keep: Once in a player life (caller passes it only while save.flags.giftEgg is unset); not shown until the scripted wave is over; hatch time ftue.eggHatchSec; pure TS.
+
 /**
  * The free egg «Mountain Gift» of the first minute (docs/01-gdd.md 6.2): it stands beside the treadmill of cave
  * `ftue.scriptedWaveWall`, a touch makes it wobble and crack for `ftue.eggHatchSec`, then the pet jumps out.

@@ -1,3 +1,7 @@
+// What: Per-frame core HUD: Speed plaque with +N per step, mountain bar (zones, walls, caves, avalanche mark), wall goal and the Wall open toast.
+// Called by: main.ts (createHudView, wire on each new mountain, update every frame).
+// Keep: Reads the sim, never changes it; texts via t(), numbers via formatNumber with numSuffix, colours from theme; wire(sim) must run for every new mountain.
+
 /**
  * Core HUD each frame (docs/01-gdd.md 10.1, 10.4): Speed plaque with «+N per step», the mountain bar (zones, walls,
  * caves, the hero's face, the avalanche mark, the blinking cave on the warning), the goal «Wall 2K · 1.2K/2K» and

@@ -1,3 +1,7 @@
+// What: Trails and auras bought for trophies (owned forever, one of each on, step multipliers) plus skins and wings as looks only.
+// Called by: app/cosmetics-view.ts, app/meta-view.ts, app/rebirth-view.ts, app/rewards.ts, meta/rebirth.ts; tests/meta/cosmetics.test.ts.
+// Keep: Pure TS, no DOM/platform; prices and multipliers come from content items; failed buys change nothing; a rebirth never takes cosmetics; looks carry no numbers.
+
 /**
  * Trails and auras (docs/01-gdd.md 7.3; docs/01a-content.md 7): bought for trophies in any order, kept forever (a
  * rebirth never takes them), one trail and one aura on; each is a step multiplier (src/sim/economy.ts gainMult).

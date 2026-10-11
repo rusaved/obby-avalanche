@@ -1,3 +1,7 @@
+// What: Tiny dictionary: setDictionary, t(key, params), hasKey, loadDictionary; every player-facing text comes from content/<pack>/i18n/<lang>.json through here.
+// Called by: main.ts, ui/hud.ts and the ui/*-panel modules, 10 app/* view modules; tests/meta/collection.test.ts.
+// Keep: Unknown key returns the key itself (tests spot missing texts); placeholders are {name}; load the dictionary before any UI shows; no texts stored in src.
+
 /** Texts come only from content/<pack>/i18n/<lang>.json (docs/02-tech.md 12). Loaded before any UI shows. */
 export type Dict = Record<string, string>;
 

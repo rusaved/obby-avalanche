@@ -1,3 +1,7 @@
+// What: Round-number tracker of the stat plaque: reports the biggest balance.ui.statMilestones value newly crossed, once per load.
+// Called by: sim/world.ts; tests/sim/milestones.test.ts
+// Keep: Thresholds come only from data (balance.ui.statMilestones); values already below the stat at start never fire; reset() after a rebirth re-arms them; pure TS.
+
 /**
  * Round numbers of the stat (docs/01-gdd.md 10.3–10.4; producer decision 04.10, QUESTIONS Q-023): the first time the
  * stat crosses a value of `balance.ui.statMilestones` in this load the plaque flashes. A step that jumps over several

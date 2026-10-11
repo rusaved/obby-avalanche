@@ -1,3 +1,7 @@
+// What: Ice wall requirement formulas: base number x wallScale[tier] x lateEase, and the rule that a gate is open when the stat reaches it.
+// Called by: sim/world.ts, sim/economy.ts (wallScale); tests/sim/gates.test.ts, tests/content/pace.test.ts, tests/meta/daily.test.ts
+// Keep: Pure TS; wallScale and lateEase come from balance.json rebirth, no numbers here; economy.ts reuses wallScale for prices and coins - keep them consistent.
+
 /**
  * Ice walls with a number (docs/01-gdd.md 3.3, 8.1; GDD-07): a gate is open when the stat is at least its requirement.
  * Requirement of wall p (1…60 through all mountains of classic, 1…195 of the fast pace) on rebirth tier n:

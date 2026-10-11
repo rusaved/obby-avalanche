@@ -1,3 +1,7 @@
+// What: Trophy counters of the save (to spend and all-time) and the leaderboard score taken from them.
+// Called by: main.ts, app/rewards.ts, level/validate.ts; tests/ui/numbers.test.ts.
+// Keep: Pure TS; both counters stay whole numbers capped at 2^53-1; only whole counters (LEADERBOARD_SCORES) may score, never the stat; amounts come from sim/economy.ts.
+
 /**
  * Trophies (docs/01-gdd.md 7.9, 8.1, 8.4): a summit gives g × (1 + n) (src/sim/economy.ts, from balance.json). Two
  * counters in the save: `trophies` to spend and `trophiesTotal` earned over all time. The leaderboard goes by the

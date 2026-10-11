@@ -1,3 +1,7 @@
+// What: Inline SVG icon set (stat bolt, sound, flag, wave, shop, pets, wardrobe, lock, calendar, quests, gift, trophy, more) and the icon(id) lookup.
+// Called by: main.ts, ui/hud.ts, ui/daily-panel.ts, ui/quests-panel.ts, ui/rebirth-panel.ts, ui/shop-panel.ts, ui/wardrobe-panel.ts.
+// Keep: Inline only, no files or fonts; currentColor so CSS recolours; ids match theme.json ui.statIcon and menu/reward icon ids; unknown id falls back to iceBolt.
+
 /**
  * Interface icon set (docs/02-tech.md 5.2: theme.json ui.statIcon picks one by id). Inline SVG, no files, no fonts.
  * `currentColor` takes the colour of the element the icon sits in.

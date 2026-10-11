@@ -1,3 +1,7 @@
+// What: Third-person camera rig: damped follow with velocity lead, wall avoidance by a sphere against the Octree, speed FOV, scripted shot and the fixed cave frame.
+// Called by: main.ts; app/ftue-view.ts, fun-view.ts, handles.ts, pets-view.ts, wave-view.ts, way-view.ts; tests/render/avalanche.test.ts.
+// Keep: Changes only viewYaw of the control frame; never ends inside level geometry (re-checked after shake); HEAD must match characters.ts PART; numbers from tuning.json.
+
 /**
  * Third-person camera (docs/02-tech.md, section 7): orbit around a point above the hero, critically damped
  * follow with velocity lead, auto-turn towards +Z only with `camera.autoTurn` (off since 05.10, docs/01-gdd.md 16.7),

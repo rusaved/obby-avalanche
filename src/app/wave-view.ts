@@ -1,3 +1,7 @@
+// What: How the avalanche looks and feels each frame: banner, frost frame, cave arrow, wide camera frame, shake, white veil and the hero covering his head.
+// Called by: main.ts (createWaveView); app/handles.ts (type).
+// Keep: Reads the sim, never changes it; feel values live in tuning avalanche (?debug=1 sliders) - new ones go there, not into this file.
+
 /**
  * How the avalanche looks and feels each frame (docs/01-gdd.md 4.3, 4.8; docs/02-tech.md 7, 8.3): «Avalanche in N»,
  * frost frame, steady arrow to the lit cave, wide camera frame on the wave from the cave, shake by distance,

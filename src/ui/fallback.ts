@@ -1,3 +1,7 @@
+// What: Draws the no-WebGL2 screen on a Canvas2D: sky and slope in theme colours, a code-drawn hero, the title and one calm message.
+// Called by: main.ts (drawNoGraphics when no WebGL2 context can be created).
+// Keep: Canvas2D only, no three/WebGL; texts arrive as arguments from i18n; no alert, no console.error, no technical words (docs/02-tech.md 9.4).
+
 import type { ThemeJson } from '../content/types.ts';
 
 /**

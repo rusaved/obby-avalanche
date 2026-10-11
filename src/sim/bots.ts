@@ -1,3 +1,7 @@
+// What: Bots on the track: a deterministic kinematic state machine (camp, climb, treadmill, hide in caves, snowball roll, return) that keeps the mountain alive.
+// Called by: sim/world.ts (createBots, stepped every tick); tests/sim/bots.test.ts
+// Keep: Deterministic by the seed (createRng, no Math.random); bots never take gifts nor pass a wall closed for the hero; no collisions; numbers from bots.json, balance.
+
 /**
  * Bots on the track (docs/01-gdd.md 4.7, 7.12; docs/01a-content.md 12): characters of the game, not players — a
  * state machine in the simulation, deterministic by the seed. Up to the first wall closed for the hero, a treadmill

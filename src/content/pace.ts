@@ -1,3 +1,7 @@
+// What: Pure pace helpers: choose the pace, deep-merge a pace balance.json patch over the shared one, read the pace name from a content path.
+// Called by: content/index.ts, level/validate.ts, main.ts, scripts (gen-worlds, sim-balance, validate-content), e2e/pace-data.ts; tests/content/pace, tests/sim/fun
+// Keep: No DOM: loader and Node scripts share these exact functions; mergePatch replaces arrays whole, never mutates inputs; classic is always a valid pace.
+
 /**
  * Pace of the game (docs/01-gdd.md 16.1): `classic` plays the shared files of the pack; any other pace is the folder
  * content/<pack>/pace/<pace>/ with its own worlds.json and a balance.json patch over the shared one. Pure, no DOM:

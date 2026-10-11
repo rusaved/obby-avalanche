@@ -1,3 +1,7 @@
+// What: Keeps one save per pace: mirror key names and splitting/joining the cloud data (classic at the root, other paces under paces.<slot>).
+// Called by: platform/null.ts, platform/yandex.ts; tests/platform/pace-save.test.ts.
+// Keep: Classic save stays at the cloud root and mirror key `save` (old saves must load); a write of one pace carries the other paces' data untouched; pure, no DOM.
+
 /**
  * A save per pace (docs/01-gdd.md 16.1): one player, the progress of each pace apart. The classic save stays where it
  * always was — the root of the cloud data and the mirror key `save` — so the saves made before the paces stay classic.

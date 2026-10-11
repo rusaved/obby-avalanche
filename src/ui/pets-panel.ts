@@ -1,3 +1,7 @@
+// What: Renders the Pets window body: 3 equip slots, a grid of up to 30 pets sorted by bonus, Equip best, and Equip/Unequip/Release per card.
+// Called by: app/pets-view.ts.
+// Keep: Pure view over PetsPanelModel/PetsPanelActions: no save access or pet rules; Release asks first (askRelease, then release); texts via i18n, numbers ready.
+
 /**
  * The «Pets» window body (docs/01-gdd.md 7.2, 10.2): 3 slots on top, the grid of up to 30 pets sorted by bonus,
  * «Equip best», and on every card «Equip / Unequip / Release» (release asks first). Texts from i18n, numbers ready.

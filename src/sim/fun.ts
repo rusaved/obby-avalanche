@@ -1,3 +1,7 @@
+// What: Fun between the gates: a trampoline throws the hero up (padSpeed, padForward until landing), an ice slide speeds his run (slideMult, held slideSec).
+// Called by: sim/world.ts only (createFun, funInput, stepFun, resetFun)
+// Keep: Pure TS, no DOM; reads tuning.fun every tick (?debug=1 sliders apply at once), so no cached copies; no steps count in the air, on the slide they count by path.
+
 /**
  * Fun between the gates in the simulation (docs/01-gdd.md 16.4): a step onto a trampoline throws the hero up at
  * `fun.padSpeed` with `fun.padForward` more along +Z until he lands — no jump key, steering in the air stays; on an ice

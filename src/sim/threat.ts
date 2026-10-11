@@ -1,3 +1,7 @@
+// What: The avalanche state machine: idle, warn, run, gone; front position, run-to-cave choice, the scripted first wave and the outcome for the hero.
+// Called by: sim/world.ts, sim/bots.ts, main.ts, render/threat/avalanche.ts; tests/sim/threat.test.ts, tests/sim/bots.test.ts
+// Keep: Phases advance only inside simulation steps (a pause freezes them); scripted first wave never catches; deterministic; numbers from worlds.json, balance, tuning.
+
 /**
  * Threat `wave` — the avalanche (docs/01-gdd.md 4; docs/02-tech.md 8.1–8.2): phases idle → warn → run → gone → idle,
  * the front comes down from `spawnAhead` above the hero (`from: "aboveHero"`), numbers per mountain from worlds.json.

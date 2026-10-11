@@ -1,3 +1,7 @@
+// What: track() buffers the last 500 events and sends them to Yandex Metrika via ym() when a counter is set, else echoes to the console in dev builds.
+// Called by: main.ts (configureAnalytics, track); debug/index.ts and test-api/index.ts (read buffer, onTrack); tests/analytics/gold-params.test.ts.
+// Keep: sim/level/meta/core must not import this (architecture test); gold_* go as visit params, not goals; no ym call at counterId 0; index.html seeds __T0 and the buffer.
+
 /**
  * Analytics (docs/02-tech.md 13.1, docs/06): `track()` buffers events, sends them to Yandex Metrika
  * when a counter is configured, otherwise prints them in dev/playtest builds. Catalog grows at M4.

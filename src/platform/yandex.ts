@@ -1,3 +1,7 @@
+// What: YandexPlatform: the one place where ysdk exists - init with retry, ready/gameplay, ads with watchdog, cloud save, leaderboard, review, server time, flags.
+// Called by: platform/index.ts; tests/platform/yandex.test.ts, tests/platform/pace-save.test.ts, tests/meta/save.test.ts (with a fake SDK / dev/yasdk-mock).
+// Keep: Ads follow docs/03 section 2 (game resumes after any outcome, reward only in onRewarded); LoadingAPI.ready strictly once; no ysdk outside this file.
+
 import type { Player, SDK } from 'ysdk';
 import type { SaveData } from '../meta/save.ts';
 import { newerSave, parseSave } from '../meta/save.ts';

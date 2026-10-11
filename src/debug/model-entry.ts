@@ -1,3 +1,7 @@
+// What: Computes the entry state (stat, coins, shoes, pets) for To mountain N by running the greedy bot of the balance model up to that camp.
+// Called by: debug/index.ts; e2e/to-mountain.spec.ts.
+// Keep: Wraps scripts/balance-model.ts, shared with sim:balance, so the game and the model stay identical; debug-only (never in the release, check-release).
+
 /**
  * «To mountain N» of ?debug=1 (PR-09): the state of the greedy bot of the balance model (scripts/balance-model.ts,
  * docs/01-gdd.md 8.5, 16.8) at the camp of mountain N on a tier — the tiers below whole, then mountains 1…N−1 of this

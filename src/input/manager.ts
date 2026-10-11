@@ -1,3 +1,7 @@
+// What: InputManager: keyboard by event.code, mouse drag, dynamic left stick, right-half camera swipe, tap-jump in autorun, multitouch; consume() gives an InputSnapshot.
+// Called by: main.ts; app/handles.ts (type); src/test-api/index.ts (setVirtualStick, injectKey, injectJump).
+// Keep: reset() on pause, blur, pointercancel and lostpointercapture; a HUD button press is never a stick; no Ctrl/Alt/Meta shortcuts; numbers via InputOptions.
+
 /**
  * InputManager (docs/02-tech.md 6.2–6.3): keyboard by event.code, mouse drag and wheel, dynamic stick on the left
  * half, camera swipe on the right half, jump button, multitouch by pointerId with setPointerCapture. Resets on any

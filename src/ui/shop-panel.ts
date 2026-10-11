@@ -1,3 +1,7 @@
+// What: Renders the Shop window body: tabs (sneakers, eggs, trails, auras, special), cards with price and Buy/Equip/Owned/lock state; exports price chips.
+// Called by: app/cosmetics-view.ts, app/meta-view.ts, app/pets-view.ts; ui/wardrobe-panel.ts (trophyPrice).
+// Keep: Pure view over ShopPanelModel/ShopPanelActions: card states, prices and locks are decided by the caller; trophyPrice and coinPrice are shared with other panels.
+
 /**
  * Shop window body (docs/01-gdd.md 10.2, 7.1–7.3): tabs «Sneakers», «Eggs», «Trails», «Auras» and «Special» (from
  * 300 s with purchases on). A card: a colour preview, the name, the multiplier or the chances, the price in coins or

@@ -1,3 +1,7 @@
+// What: Game day and 7-day calendar logic: when a new day starts, who can claim, which card is next, and the alt reward for looks already owned.
+// Called by: app/daily-view.ts; tests/meta/daily.test.ts, tests/meta/quests.test.ts (quests.ts uses the same game day from the save).
+// Keep: Server time only (never Date.now); reset is resetHours after the last claim, not midnight; a skipped day never breaks the series; pure, no DOM.
+
 /**
  * The game day and the 7-day calendar (docs/01-gdd.md 7.6; docs/02-tech.md 11.8; GDD-10). Server time only. A new game
  * day starts `daily.resetHours` after the last calendar claim (not at midnight); a player who has not claimed today gets

@@ -1,3 +1,7 @@
+// What: Chooses which one-line hint plaque is up near the hero: priority-ordered rules, one at a time, show counts kept in the save.
+// Called by: app/ftue-view.ts (draws the plaque and feeds HintFrame each frame); tests/meta/hints.test.ts.
+// Keep: Pure TS, no DOM; timings come from balance.json hints; `counts` is the live save object so once-per-life hints survive F5; rule order = priority.
+
 /**
  * Hint plaques (docs/01-gdd.md 6.5): which one-line hint is up near the hero. One at a time; a hint with a higher
  * priority takes the place of a lower one. How many times each hint was shown lives in the save, so «once in the

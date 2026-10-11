@@ -1,3 +1,7 @@
+// What: The ?debug=1 panel (lil-gui): tuning sliders, mountain jump, render and analytics folders, stats overlay and tuning JSON export.
+// Called by: main.ts, by dynamic import only when __DEBUG_TOOLS__ and ?debug=1.
+// Keep: Debug builds only: the release never imports it (check-release rejects lil-gui); the export JSON is what the producer sends back, so keep tuning paths stable.
+
 /**
  * ?debug=1 panel (docs/02-tech.md, section 15): lil-gui folders Controller, Camera, Avalanche, Fun, HUD, Mountains
  * («to mountain N», PR-09), Render, Analytics, stats overlay, Export of tuning JSON. Only in dev, playtest, e2e and pages

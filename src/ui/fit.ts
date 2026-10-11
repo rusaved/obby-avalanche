@@ -1,3 +1,7 @@
+// What: fitField() computes the canvas rectangle inside the window: desktop is capped at 2:1 with centred margins, phone/tablet/tv use the whole window.
+// Called by: main.ts, app/handles.ts, app/fun-view.ts; tests/ui/fit.test.ts.
+// Keep: Pure function without DOM; the 2:1 cap and margin rule are fixed by docs/02-tech.md 6.4 and SCR-02; input mapping and HUD layout rely on the returned rect.
+
 /**
  * fitField (docs/02-tech.md 6.4, docs/03 SCR-02): the canvas rectangle inside the window.
  * Desktop: touches the window on at least one axis and never stretches past 2:1; the rest is margin in

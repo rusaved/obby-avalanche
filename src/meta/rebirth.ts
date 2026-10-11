@@ -1,3 +1,7 @@
+// What: Rebirth rules: when it opens (summit goal), the tier preview, and applyRebirth on the save (tier +1, starting shoes, tier looks granted).
+// Called by: app/rebirth-view.ts, main.ts (builds the new simulation from RebirthResult); tests/meta/rebirth.test.ts.
+// Keep: Pure TS; a rebirth keeps pets, looks, trophies, calendar and quests and resets only stat, coins, shoes, mountains; step multiplier comes from balance.rebirth.
+
 /**
  * Rebirth (docs/01-gdd.md 7.5, 8.4; GDD-08): open once the summit of the mountain of `balance.rebirth.unlock` is done on
  * the current tier. A rebirth resets the stat, the coins, the shoes and the mountains (back to the camp of mountain 1),

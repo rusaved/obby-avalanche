@@ -1,3 +1,7 @@
+// What: Golden gift of the avalanche warning: picks a seeded spot on open ground above the lit cave, hero carries it, counted saved or lost; bots never take it.
+// Called by: sim/world.ts, main.ts, app/rewards.ts, render/threat/bonus.ts; tests/sim/bonus.test.ts
+// Keep: Pure TS, seeded Rng only (no Math.random); amounts and ranges come from game.json threat.bonus; the spot must be plain ground clear of walls, props, safe zones.
+
 /**
  * Golden gift of the avalanche warning (docs/01-gdd.md 4.9; docs/02-tech.md 8.1, `threat.bonus` of kind `goldGift`):
  * from the `fromWave`-th normal wave of the load, one per wave, on the track axis `distMin`–`distMax` above the cave

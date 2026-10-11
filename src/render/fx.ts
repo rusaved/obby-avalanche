@@ -1,3 +1,7 @@
+// What: Small particles (snow puff, ice-slide trail, gate confetti) in one Points pool with vertex colours.
+// Called by: main.ts; app/fun-view.ts.
+// Keep: One draw call while any particle lives, none otherwise; thinned by the quality particles share via setShare(); own seeded generator, no Math.random; pool of 480.
+
 /**
  * Small particles of the fun and of the gate reward (docs/01-gdd.md 16.4, 16.5): a puff of snow off a trampoline, a
  * snow trail behind the hero on an ice slide, confetti of the zone colour in a gate arch. One Points pool with vertex

@@ -1,3 +1,7 @@
+// What: Generates worlds.json from worlds-spec.json plus balance and tuning (mountain template, classic and gateSide layouts); pure and deterministic.
+// Called by: scripts/gen-worlds.mjs (gen:worlds), level/validate.ts; tests/content/pace.test.ts, tests/content/validate.test.ts, tests/level/mountain.test.ts
+// Keep: Same input gives the same JSON byte for byte (no Math.random); worlds.json is never hand-edited; LAYOUT/GATE_SIDE are read by validate.ts - change together.
+
 /**
  * worlds.json generator (docs/02-tech.md, section 3 `gen:worlds`): mountain template of docs/01-gdd.md 5.2
  * applied to the tables of docs/01a-content.md 2–4 that live in content/<pack>/worlds-spec.json.

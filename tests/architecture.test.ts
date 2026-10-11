@@ -127,6 +127,19 @@ export function checkStopwords(file: string, src: string, words: string[]): stri
   return problems;
 }
 
+/**
+ * PS-01 (CLAUDE.md «How to work» p. 8): every src module of 10+ lines opens with a three-line header comment —
+ * what it does, who calls it, what must not be touched. Russian or English prefixes are both fine.
+ */
+const HEADER_PREFIXES = [/^\/\/ (What|Что):\s*\S/, /^\/\/ (Called by|Кто вызывает):\s*\S/, /^\/\/ (Keep|Не трогать):\s*\S/];
+export function checkHeader(file: string, src: string): string[] {
+  const lines = src.split('\n');
+  if (lines.length < 10) return [];
+  const rel = relative(root, file);
+  const ok = HEADER_PREFIXES.every((re, i) => re.test(lines[i] ?? '')) && !/^\s*\/\//.test(lines[3] ?? '');
+  return ok ? [] : [`${rel}: no three-line header (// What: / // Called by: / // Keep:)`];
+}
+
 describe('architecture', () => {
   it('sim, level, meta, core: no DOM, render, ui, platform, audio; three only by the whitelist', () => {
     const problems: string[] = [];
@@ -193,6 +206,12 @@ describe('architecture', () => {
     expect(problems).toEqual([]);
   });
 
+  it('every src module of 10+ lines opens with the three-line header (What / Called by / Keep)', () => {
+    const problems: string[] = [];
+    for (const f of tsFiles('src')) problems.push(...checkHeader(f, readFileSync(f, 'utf8')));
+    expect(problems).toEqual([]);
+  });
+
   it('the checks themselves catch violations', () => {
     expect(checkLayerFile(resolve(root, 'src/sim/x.ts'), "import * as THREE from 'three';")).toHaveLength(1);
     expect(checkLayerFile(resolve(root, 'src/sim/x.ts'), "import { Mesh } from 'three';")).toHaveLength(1);
@@ -204,5 +223,12 @@ describe('architecture', () => {
     expect(checkCyrillic('x.ts', '// Привет\nconst s = "hi";')).toHaveLength(0);
     expect(checkStopwords('x.ts', 'const s = "' + ['Ro', 'blox'].join('') + '";', stop.brands)).toHaveLength(1);
     expect(checkStopwords('x.ts', 'const s = "snow";', stop.brands)).toHaveLength(0);
+    const body = '\nconst a = 1;'.repeat(12);
+    expect(checkHeader('x.ts', '// What: a\n// Called by: b\n// Keep: c\n' + body)).toHaveLength(0);
+    expect(checkHeader('x.ts', '// Что: а\n// Кто вызывает: б\n// Не трогать: в\n' + body)).toHaveLength(0);
+    expect(checkHeader('x.ts', '// What: a\n// Keep: c\n' + body)).toHaveLength(1);
+    expect(checkHeader('x.ts', '// What: a\n// Called by: b\n// Keep: c\n// more\n' + body)).toHaveLength(1);
+    expect(checkHeader('x.ts', '/** doc */' + body)).toHaveLength(1);
+    expect(checkHeader('x.ts', 'const a = 1;')).toHaveLength(0);
   });
 });

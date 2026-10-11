@@ -1,3 +1,7 @@
+// What: Platform factory: YandexPlatform when YaGames exists (init waits), NullPlatform when there is no SDK or init failed twice; re-exports the facade types.
+// Called by: main.ts; tests/platform/yandex.test.ts.
+// Keep: The game must always start (fall back to NullPlatform, never throw); only src/platform touches ysdk; keep the docs/02-tech.md 11.2 init order.
+
 import { NullPlatform } from './null.ts';
 import { YandexPlatform, type YandexDeps } from './yandex.ts';
 import type { Platform, PlatformOptions } from './types.ts';

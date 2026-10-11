@@ -1,3 +1,7 @@
+// What: Economy formulas of docs/01-gdd.md 8.1 (step gain, coin rewards, prices, trophies, formula eval): one module for the game and the balance model.
+// Called by: sim/world.ts, main.ts, meta/{pets,shoes}.ts, app/{rewards,quests-view}.ts, level/validate.ts, scripts/balance-model.ts; tests/sim/economy.test.ts
+// Keep: Shared with scripts/balance-model.ts - game and model must stay identical (sim:balance); every number comes from balance.json and pack files, none here; pure TS.
+
 /**
  * Economy formulas of docs/01-gdd.md 8.1, one module for the game and for the balance model (scripts/balance-model.ts):
  * every number comes from balance.json (and per-item multipliers from the pack files), none lives here. Pure TS.

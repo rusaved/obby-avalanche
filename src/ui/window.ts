@@ -1,3 +1,7 @@
+// What: Window frame: one modal window at a time over a 50% veil, a 48 px close cross, a bottom next button, body re-rendered by refresh().
+// Called by: main.ts, app/handles.ts and the app/* views cosmetics, daily, pets, quests, rebirth.
+// Keep: Opened only by a player's button; never a dead end (docs/03 GD-05): close cross or next button always present; onChange pauses game and avalanche; data-hud on both.
+
 /**
  * Window frame (docs/01-gdd.md 10.2): one window at a time over a 50% veil, opened only by a player's button;
  * closes by the 48 px cross at the top right, a tap on the veil or Esc (the caller routes Esc to `close`).

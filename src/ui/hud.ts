@@ -1,3 +1,7 @@
+// What: In-game HUD DOM: stick, jump/pause/sound buttons, Speed and coin plaques, mountain bar, goal, wave banner, hints, toasts, menu column, egg/shoes buttons.
+// Called by: main.ts and 13 app/* modules (hud-view, wave-view, way-view, fun-view, ftue-view, rewards and the other views); tests/meta/*.
+// Keep: data-hud elements never start the stick; buttons fire on pointerdown and drop the follow-up tap click; no balance numbers, texts or theme colours (HudOptions, t()).
+
 /**
  * HUD (docs/01-gdd.md 10.1, docs/02-tech.md 6.3): touch stick visual, jump button (≥ 18% of the short side),
  * pause and sound buttons, pause/settings panel with the auto-run toggle. Buttons carry data-hud so a touch on them

@@ -1,3 +1,7 @@
+// What: Control-frame math: viewYaw (camera) versus controlYaw (movement), manual turn, snap on move start, stick-to-world conversion, angle helpers.
+// Called by: main.ts; app/handles.ts, app/wave-view.ts; render/camera.ts; tests/render/avalanche.test.ts.
+// Keep: Only the player changes controlYaw (the camera rig changes viewYaw only); toWorld keeps forward = +Z, screen right = -X; a scripted shot keeps its own frame; no DOM.
+
 /**
  * Two angles (docs/02-tech.md 6.3): `viewYaw` is where the camera looks (manual turns, auto-turn, scripted shots);
  * `controlYaw` is the frame of movement and only the player changes it. Manual camera rotation turns both;

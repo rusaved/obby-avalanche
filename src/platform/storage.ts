@@ -1,3 +1,7 @@
+// What: The only localStorage wrapper: prefixed keys (<pack.id>:) and guarded get/set/remove/JSON calls.
+// Called by: platform/null.ts, platform/yandex.ts, main.ts, debug/index.ts, render/quality.ts; tests/render/quality.test.ts.
+// Keep: Never throws (private mode, quota, disabled storage); every key keeps the pack prefix; no other module may touch localStorage directly.
+
 /**
  * The only localStorage wrapper in the game (docs/02-tech.md 4.4): every key gets the `<pack.id>:` prefix,
  * every call is guarded (private mode, quota, disabled storage never throw into the game).

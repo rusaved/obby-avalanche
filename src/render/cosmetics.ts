@@ -1,3 +1,7 @@
+// What: Hero trail (ribbon of shrinking cubes) and aura (ring of glowing bits), each one InstancedMesh.
+// Called by: main.ts; app/cosmetics-view.ts.
+// Keep: Colours only from trails.json and auras.json via set(); one draw call each, none when off; fixed pools (TRAIL_MAX, AURA_BITS); dispose() frees geometry and materials.
+
 /**
  * Trail and aura on the hero (docs/01-gdd.md 7.3): the trail is a ribbon of small cubes of its colour left at the
  * feet while he runs, shrinking away; the aura is a ring of glowing bits circling the body. Colours from trails.json

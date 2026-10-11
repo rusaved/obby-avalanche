@@ -1,3 +1,7 @@
+// What: Rebirth button and windows: what resets, what stays and what the player gets, plus the All mountains cleared window at the last portal.
+// Called by: main.ts (createRebirthView); app/handles.ts (type).
+// Keep: The rebirth itself is the caller's onRebirth and its save rules live in meta/rebirth.ts; this module only shows and asks, it never resets state on its own.
+
 /**
  * Rebirth in the game (docs/01-gdd.md 7.5, 6.4, 10.2; GDD-08): the «Rebirth» button of the HUD column from the first
  * summit — with a lock and «Mountain {a}/5» until the summit of the last mountain on this tier; the rebirth window

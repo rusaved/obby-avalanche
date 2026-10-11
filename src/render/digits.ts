@@ -1,3 +1,7 @@
+// What: Digit atlas: one CanvasTexture of digits, suffix letters and signs; every label is a run of instanced quads on one InstancedMesh (one draw call for all gate numbers).
+// Called by: render/level-mesh.ts only (gate signs).
+// Keep: ATLAS_CHARS must stay in sync with the glyphs ui/format.ts can emit (an unknown glyph draws as '0'); labels are at most 10 chars; keep one mesh and one texture.
+
 /**
  * Digit atlas (docs/02-tech.md 9.1): one canvas texture with 0–9, suffix letters and signs; every label is a run
  * of instanced quads on a single InstancedMesh — one draw call and one texture for all gate numbers.

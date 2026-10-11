@@ -1,3 +1,7 @@
+// What: Shared input types: per-frame InputSnapshot, StickState and InputOptions (tuning-driven numbers).
+// Called by: input/manager.ts, main.ts, ui/hud.ts.
+// Keep: Type-only module, no logic; InputSnapshot directions are in the control frame (x right, y forward) and its edge flags are consumed once per frame.
+
 /** Per-frame input snapshot (docs/02-tech.md 6.2–6.3). Directions are in the control frame: x right, y forward. */
 export interface InputSnapshot {
   moveX: number;

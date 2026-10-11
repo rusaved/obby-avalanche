@@ -1,3 +1,7 @@
+// What: DOM coin fountain of a gate: pooled spans burst up, hang, then fly one by one into the coin plaque; the first to arrive calls onArrive.
+// Called by: app/fun-view.ts (createCoinFountain, update(dt) on game time).
+// Keep: Fixed pool of 48 spans moved by transform only; own seeded generator, no Math.random; runs on game time so it freezes on pause; coin colour comes in as an argument.
+
 /**
  * The coin fountain of a gate (docs/01-gdd.md 16.5): coins burst up out of the arch on screen, hang for a moment and
  * fly into the coin plaque one after another; the first one there calls `onArrive` («+N» by the plaque). DOM, pooled

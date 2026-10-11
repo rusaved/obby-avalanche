@@ -1,3 +1,7 @@
+// What: Blob shadow under a character: a flat dark disc placed by a ray down against the collision Octree, scaled and faded with height.
+// Called by: main.ts.
+// Keep: Always on, independent of the quality level (real shadows are off on phones); reads CollisionWorld.static only; dispose() must free its geometry and material.
+
 /** Blob shadow under a character (docs/02-tech.md 7): always on, placed by a ray down against the Octree. */
 import { CircleGeometry, Mesh, MeshBasicMaterial, Ray, Vector3 } from 'three';
 import type { CollisionWorld } from '../sim/collision.ts';

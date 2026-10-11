@@ -1,3 +1,7 @@
+// What: NullPlatform: the Platform facade without any SDK (page opened outside Yandex or SDK init failed) with a local localStorage save and no ads.
+// Called by: platform/index.ts (fallback), tests/meta/save.test.ts, tests/platform/pace-save.test.ts.
+// Keep: Must implement the whole Platform interface and never throw; save goes to the mirror key at once; ads report not-shown/unavailable so ad buttons stay hidden.
+
 import type { SaveData } from '../meta/save.ts';
 import { parseSave } from '../meta/save.ts';
 import { createStorage, type KeyValueStore } from './storage.ts';

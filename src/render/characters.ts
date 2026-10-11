@@ -1,3 +1,7 @@
+// What: Blocky characters (hero, bots, studio figures): 6 rounded-box parts, 8 canvas-drawn faces, procedural poses, accessories and wings, all instanced.
+// Called by: main.ts; app/handles.ts, app/bots-view.ts, app/wave-view.ts; render/threat/snowball.ts.
+// Keep: All characters stay within the draw-call budget (about 8); proportions live only in PART (camera.ts HEAD depends on it); skins and accessories come from content JSON.
+
 /**
  * Blocky characters (docs/02-tech.md 9.2): 6 rounded-box parts, faces from a code-drawn atlas of 8 emotions,
  * procedural animations, instancing by part type with instanceColor — hero, bots and studio figures on at most

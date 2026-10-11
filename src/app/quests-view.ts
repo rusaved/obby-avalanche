@@ -1,3 +1,7 @@
+// What: Quests of the day, time rewards and the lucky wheel: HUD buttons with timers and a waiting mark, and their windows.
+// Called by: main.ts (createQuestsView); app/handles.ts (type).
+// Keep: Counters come from the sim bus and meta hooks (eggs, shoes); rewards go out only via app/rewards.ts; daily refresh follows the calendar day (meta/quests.ts).
+
 /**
  * Quests of the day, time rewards and the lucky wheel in the game (docs/01-gdd.md 7.7, 7.8, 7.13; GDD-10). The
  * «Quests» button after the first summit, «!» when something waits; the «Rewards» button (a gift) from 5:00 of play

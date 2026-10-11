@@ -1,3 +1,7 @@
+// What: The snowball of the caught state: a 3-unit ball around the curled-up hero that grows, rolls with him and pops in the cave.
+// Called by: main.ts; app/bots-view.ts.
+// Keep: One mesh, hidden when nobody is caught; saves and restores the hero's face, drives hero pose, speedFactor and face while caught; colour from theme.json.
+
 /**
  * The snowball of «Snowed in!» (docs/01-gdd.md 4.5; theme fx.caught = "ball"): a 3-unit ball around the curled-up hero,
  * hat and blinking eyes on top; it grows in while forming, rolls with the hero and pops (shrinks) in the cave.

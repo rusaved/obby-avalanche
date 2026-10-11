@@ -1,3 +1,7 @@
+// What: Pets next to the hero and eggs on their stands: block pets hop behind the hero, the bought egg wobbles and cracks, the pet jumps out; all instanced.
+// Called by: main.ts; app/pets-view.ts.
+// Keep: Three draw calls for all pets and eggs; at most 3 pets and 4 eggs; colours via PetLook from content; STAND_TOP must match the stand box in level-mesh.ts.
+
 /**
  * Pets next to the hero and eggs on their stands (docs/01-gdd.md 7.2; docs/01a-content.md 6): block pets of 1.2 u
  * (body with ears and eyes, accent nose and inner ears) hop 2–3 u behind the hero and hide in the cave with him;

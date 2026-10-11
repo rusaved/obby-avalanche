@@ -1,3 +1,7 @@
+// What: Gifts by zone rarity: builds the gift list from level points, touch test, coins of the zone; all gifts return after each avalanche.
+// Called by: sim/world.ts, sim/bonus.ts, level/generate.ts, level/validate.ts, render/level-mesh.ts
+// Keep: GIFT_HALF and GIFT_HEIGHT are shared by generator, validator, golden gift and mesh; gift order follows level.points (renderer instances rely on it); pure TS.
+
 /**
  * Gifts by zone rarity (docs/01-gdd.md 3.2, 5.2; docs/01a-content.md 4): a touch gives the coins of the gift's zone
  * × wallScale[tier] and the gift disappears; after every avalanche (`balance.gifts.respawn: "onWaveGone"`) all gifts

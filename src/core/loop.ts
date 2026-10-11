@@ -1,3 +1,7 @@
+// What: Fixed-step game loop: 1/60 s accumulator, capped steps per frame, clipped long frames, render alpha, injected frame scheduler.
+// Called by: main.ts; app/handles.ts (Loop type); tests/core/loop.test.ts, tests/sim/threat.test.ts.
+// Keep: Step stays 1/60 so the sim is deterministic; no DOM (scheduler injected, tests call tick()); paused frames render but never step; timeScale/unlimited are e2e only.
+
 /**
  * Game loop with a fixed simulation step (docs/02-tech.md 4.2): accumulator, at most `maxSteps`
  * steps per frame, frames longer than `maxFrameSec` are clipped, render interpolates with alpha.

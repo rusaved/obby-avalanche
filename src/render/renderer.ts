@@ -1,3 +1,7 @@
+// What: WebGL2 renderer, scene, fog, lights, sky colour and far ground built from theme.json; applyQuality(), follow(), resize(), info().
+// Called by: main.ts; app/handles.ts; src/test-api/index.ts.
+// Keep: WebGL2 only (createWebGL2Context returns null otherwise); every colour from theme.json; shadows and fog change only via applyQuality().
+
 import {
   AmbientLight,
   Color,

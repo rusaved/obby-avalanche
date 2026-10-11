@@ -1,3 +1,7 @@
+// What: PauseManager: one set of pause reasons (ad, sdk, hidden, blur, menu, shop, pointerlock, orientation, transition); the game runs only while it is empty.
+// Called by: main.ts, app/handles.ts; tests/core/pause.test.ts, tests/sim/threat.test.ts.
+// Keep: A reason is removed only by the source that added it, never by a timer; listeners fire only on paused/running transitions; ad and sdk must keep pausing.
+
 /**
  * PauseManager (docs/02-tech.md 4.3): one set of reasons, the game runs only while the set is empty.
  * Reasons are removed by the same source that added them; there is never a timed resume.

@@ -1,3 +1,7 @@
+// What: Quality levels low, medium, high: desktop and phone tables, start level by device, automatic downgrade (DPR first, then level), remembered per device.
+// Called by: main.ts, app/handles.ts, render/renderer.ts, debug/index.ts, test-api/index.ts; tests/render/quality.test.ts, tests/render/avalanche.test.ts.
+// Keep: Never upgrades within a session; ?quality= and ?dpr= lock it (debug builds only); the 'quality' key lives in the platform KeyValueStore.
+
 /**
  * Quality levels (docs/02-tech.md 9.3): desktop and phone tables, start level by device, automatic
  * downgrade (first lever DPR, then the level), never an upgrade within a session. Remembered per device.

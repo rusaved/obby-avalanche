@@ -1,3 +1,7 @@
+// What: Renders the Wardrobe window body: the large slowly turning hero in the current skin and wings, Skins/Wings tabs, cards with state and source (trophy price or lock).
+// Called by: app/cosmetics-view.ts.
+// Keep: Pure view over WardrobePanelModel: looks come from content, state and lock source (Tier, Day, Starter Pack) from the caller; reuses trophyPrice of shop-panel.
+
 /**
  * Wardrobe window body (docs/01-gdd.md 7.4, 10.2): the hero large and slowly turning in the skin and wings on, tabs
  * «Skins 2/12» and «Wings 0/8», cards with the look, its state and its source: the trophy price with «Buy» / «N more»,
