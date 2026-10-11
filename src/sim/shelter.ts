@@ -26,7 +26,8 @@ export function entranceX(level: LevelData, n: LevelNiche): number {
 
 /** Is the point inside cave `n` or within `graceDist` past its entrance onto the slope; on a ledge — on its top. */
 export function inNiche(level: LevelData, n: LevelNiche, graceDist: number, x: number, y: number, z: number): boolean {
-  if (n.kind === 'ledge') return x >= n.box.min[0] && x <= n.box.max[0] && z >= n.box.min[2] && z <= n.box.max[2] && y >= n.box.min[1] - FEET_SLACK && y <= n.box.max[1];
+  // A ledge on a cliff and a tunnel (docs/01-gdd.md 18.3) shelter by their volume: the front passes over them.
+  if (n.kind === 'ledge' || n.kind === 'tunnel') return x >= n.box.min[0] && x <= n.box.max[0] && z >= n.box.min[2] && z <= n.box.max[2] && y >= n.box.min[1] - FEET_SLACK && y <= n.box.max[1];
   const ex = entranceX(level, n);
   const lo = n.side === 'left' ? n.box.min[0] : ex - graceDist;
   const hi = n.side === 'left' ? ex + graceDist : n.box.max[0];
@@ -41,6 +42,14 @@ export function shelterIndex(level: LevelData, graceDist: number, x: number, y: 
 /** Distance on the ground plane from the point to the entrance opening of cave `n` (0 inside the opening line); across
  * the cliff of a fork (open slope, docs/01-gdd.md 17.7) the way goes round its nearer end. */
 export function distToEntrance(level: LevelData, n: LevelNiche, x: number, z: number): { dist: number; tx: number; tz: number } {
+  if (n.kind === 'tunnel') {
+    // A tunnel opens at both ends of its hall: inside — 0, else the nearer mouth by the ground.
+    const mx = (n.box.min[0] + n.box.max[0]) / 2;
+    if (x >= n.box.min[0] && x <= n.box.max[0] && z >= n.box.min[2] && z <= n.box.max[2]) return { dist: 0, tx: x, tz: z };
+    const lo = { dist: groundPath(level, x, z, mx, n.box.min[2]), tx: mx, tz: n.box.min[2] };
+    const hi = { dist: groundPath(level, x, z, mx, n.box.max[2]), tx: mx, tz: n.box.max[2] };
+    return lo.dist <= hi.dist ? lo : hi;
+  }
   const ex = entranceX(level, n);
   const tz = Math.min(n.box.max[2], Math.max(n.box.min[2], z));
   const outside = nicheSign(n) * (ex - x) > 0; // still on the track side of the entrance
@@ -50,8 +59,24 @@ export function distToEntrance(level: LevelData, n: LevelNiche, x: number, z: nu
 
 const cliffCache = new WeakMap<LevelData, Array<{ x0: number; x1: number; z0: number; z1: number }>>();
 
-/** Ground distance from (x, z) to (tx, tz): straight, or round the end of a fork cliff that stands between them. */
+/** Ground distance from (x, z) to (tx, tz): straight, or round the end of a fork cliff that stands between them, or
+ * through the gap of a throat (docs/01-gdd.md 18.3: its walls reach the track edge, the only way past is between them). */
 export function groundPath(level: LevelData, x: number, z: number, tx: number, tz: number): number {
+  for (const t of level.shapes ?? []) {
+    if (t.kind !== 'throat') continue;
+    const lo = Math.max(t.z0, Math.min(z, tz));
+    const hi = Math.min(t.z1, Math.max(z, tz));
+    if (lo >= hi) continue;
+    const at = (zz: number): number => (tz === z ? x : x + ((tx - x) * (zz - z)) / (tz - z));
+    if (Math.abs(at(lo)) <= t.x1 && Math.abs(at(hi)) <= t.x1) continue;
+    // Into the gap at the near end (or where the point already is), out of it at the far end towards the target.
+    const clampX = (v: number): number => Math.max(t.x0, Math.min(t.x1, v));
+    const up = tz >= z;
+    const inZ = (zz: number): boolean => zz > t.z0 && zz < t.z1;
+    const a: [number, number] = inZ(z) ? [x, z] : [clampX(x), up ? t.z0 : t.z1];
+    const b: [number, number] = inZ(tz) ? [tx, tz] : [clampX(tx), up ? t.z1 : t.z0];
+    return Math.hypot(a[0] - x, a[1] - z) + Math.hypot(b[0] - a[0], b[1] - a[1]) + Math.hypot(tx - b[0], tz - b[1]);
+  }
   let cliffs = cliffCache.get(level);
   if (!cliffs) {
     cliffs = level.boxes.filter((b) => b.kind === 'cliff').map((b) => ({ x0: b.min[0], x1: b.max[0], z0: b.min[2], z1: b.max[2] }));

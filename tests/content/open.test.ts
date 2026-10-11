@@ -73,7 +73,7 @@ describe('pace open by default (PS-02)', () => {
 
 describe('generator openSlope and its validator (PS-03)', () => {
   it('gen:worlds is deterministic and matches the committed pace/open/worlds.json; validate:content passes it', () => {
-    const input = { spec, balance: files['balance.json'] as BalanceJson };
+    const input = { spec, balance: files['balance.json'] as BalanceJson, tuning: files['tuning.json'] as TuningJson };
     const text = stringifyWorlds(generateWorlds(input));
     expect(stringifyWorlds(generateWorlds(input))).toBe(text);
     expect(readFileSync(resolve(root, 'content/avalanche/pace/open/worlds.json'), 'utf8')).toBe(text);
@@ -118,10 +118,12 @@ describe('generator openSlope and its validator (PS-03)', () => {
         expect(at(rise.z + num(rise, 'length'))).toBeLessThanOrEqual(0.95);
         // The flag past the ridge below in the first 5% (from section 2).
         if (i > 0) expect(at(w.segments.find((s) => s.type === 'checkpoint' && num(s, 'wall') === i)!.z)).toBeLessThanOrEqual(0.06);
-        // A fork inside 5–40%, 60–120 units; on mountain 1 only section 2.
+        // A fork inside 5–40%, 60–120 units; on mountain 1 only section 2. A section with elements (RG, docs/01-gdd.md
+        // 18.6) has its fork in the slot 40–75% — tests/content/rg-shapes.test.ts.
         const fork = w.segments.find((s) => s.type === 'fork' && num(s, 'section') === i + 1);
+        const shaped = (spec.mountains[wi]!.sections[i]!.shape ?? []).length > 0;
         if (wi === 0) expect(!!fork).toBe(i === 1);
-        if (fork) {
+        if (fork && !shaped) {
           expect([fork.z, fork.z + num(fork, 'length')]).toEqual(forkRange(zone.zStart, L));
           expect(at(fork.z)).toBeGreaterThanOrEqual(0.05);
           expect(at(fork.z + num(fork, 'length'))).toBeLessThanOrEqual(0.4 + 1e-9);
@@ -132,7 +134,8 @@ describe('generator openSlope and its validator (PS-03)', () => {
         // (Detours — the crevasse bottom, the ledge — are off the path, PS-08.)
         const gifts = w.segments.filter((s) => s.type === 'gift' && s['path'] === true && num(s, 'zone') === i + 1);
         expect(new Set(gifts.map((g) => g.z)).size).toBe(O.pathGifts);
-        for (const g of gifts) expect(num(g, 'coins')).toBe(g['lane'] === 'bold' ? 2 * zone.gift : zone.gift);
+        // The field past a throat ×1.5 (RG, docs/01a-content.md 17.2).
+        for (const g of gifts) expect(num(g, 'coins')).toBe(g['field'] === true ? Math.round(1.5 * zone.gift) : g['lane'] === 'bold' ? 2 * zone.gift : zone.gift);
       });
       // The finish straight: the grotto with the belt before the zone, 4 gifts, the boss line at the summit.
       const finish = w.zones[w.zones.length - 1]!;

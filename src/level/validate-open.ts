@@ -19,7 +19,8 @@ import { buildLevel, GATE_THICKNESS } from './builder.ts';
 import { PAD_SIZE, TICK, padArc } from './pad-arc.ts';
 import { HERO_HEIGHT, HERO_RADIUS } from '../sim/controller.ts';
 import { forkRange, OPEN_SLOPE } from './open-slope.ts';
-import { groundPath } from '../sim/shelter.ts';
+import { humpArc, SLOTS } from './open-shapes.ts';
+import { distToEntrance, groundPath } from '../sim/shelter.ts';
 
 const num = (s: Segment, key: string): number => (typeof s[key] === 'number' ? (s[key] as number) : NaN);
 const sorted = (w: World, type: string): Segment[] => w.segments.filter((s) => s.type === type).sort((a, b) => a.z - b.z);
@@ -105,13 +106,29 @@ export function validateOpenCount(worlds: WorldsJson, spec: OpenSpecJson): strin
       const gifts = w.segments.filter((s) => s.type === 'gift' && s['path'] === true && num(s, 'zone') === i + 1);
       const places = new Set(gifts.map((s) => s.z)).size;
       if (places !== OPEN_SLOPE.pathGifts) errors.push(`${at}: section ${i + 1} — ${places} gift places on the path, expected ${OPEN_SLOPE.pathGifts} (docs/01a-content.md 16.2)`);
+      const shaped = (sec.shape ?? []).length > 0;
+      const tunnelFork = (sec.shape ?? []).includes('tunnel');
       for (const s of gifts) {
-        const want = s['lane'] === 'bold' ? 2 * sec.gift : sec.gift;
+        // The field past a throat ×fieldGifts, the open lane of a tunnel ×openGifts (docs/01a-content.md 17.2).
+        const want =
+          s['field'] === true
+            ? Math.round((spec.shapes?.throat.fieldGifts ?? 1) * sec.gift)
+            : s['lane'] === 'bold'
+              ? (tunnelFork ? (spec.shapes?.tunnel.openGifts ?? 2) : 2) * sec.gift
+              : sec.gift;
         if (num(s, 'coins') !== want) errors.push(`${at}: gift at z=${s.z} — ${num(s, 'coins')} coins, expected ${want}`);
       }
       const forks = w.segments.filter((s) => s.type === 'fork' && num(s, 'section') === i + 1);
       if (sec.fork !== forks.length > 0) errors.push(`${at}: section ${i + 1} — fork ${forks.length > 0}, worlds-spec.json has ${sec.fork}`);
       for (const f of forks) {
+        if (shaped) {
+          // With elements the fork stands in its slot 40–75% (docs/01-gdd.md 18.6); a tunnel or a hump makes it longer.
+          const lo = zone.zStart + SLOTS.fork[0] * sec.length - 1e-6;
+          const hi = zone.zStart + SLOTS.fork[1] * sec.length + 1e-6;
+          const plain = !(sec.shape ?? []).some((k) => k === 'tunnel' || k === 'hump');
+          if (f.z < lo || f.z > hi || (plain && f.z + num(f, 'length') > hi)) errors.push(`${at}: fork of section ${i + 1} — z ${f.z}–${f.z + num(f, 'length')}, outside its slot 40–75% (docs/01-gdd.md 18.6)`);
+          continue;
+        }
         const [a, b] = forkRange(zone.zStart, sec.length);
         if (f.z !== a || f.z + num(f, 'length') !== b) errors.push(`${at}: fork of section ${i + 1} — z ${f.z}–${f.z + num(f, 'length')}, expected ${a}–${b} (5–40%, 60–120 units)`);
       }
@@ -130,6 +147,73 @@ export function validateOpenCount(worlds: WorldsJson, spec: OpenSpecJson): strin
   return errors;
 }
 
+/**
+ * Elements of the slope (docs/01-gdd.md 18.1–18.3, 18.6; docs/01a-content.md 17.1): an element no earlier than its
+ * mountain (`shapeFrom`); in worlds.json each section has the elements of its spec in their slots — a throat starting in
+ * 5–25%, a chasm in 25–40% past it, a tunnel or a hump inside the fork, its landing grotto by 80%; the field grotto past a
+ * throat no farther than `fieldGrotto`.
+ */
+export function validateOpenShapes(worlds: WorldsJson, spec: OpenSpecJson): string[] {
+  const errors: string[] = [];
+  const from = spec.shapeFrom;
+  for (const [mi, m] of spec.mountains.entries()) {
+    m.sections.forEach((sec, si) => {
+      for (const k of sec.shape ?? []) {
+        if (!from || !spec.shapes) errors.push(`worlds-spec.json: mountains[${mi}] (${m.id}), section ${si + 1} — ${k} needs shapeFrom and shapes in the root`);
+        else if (mi + 1 < from[k]) errors.push(`worlds-spec.json: mountains[${mi}] (${m.id}), section ${si + 1} — ${k} on mountain ${mi + 1}, allowed from mountain ${from[k]} (shapeFrom, docs/01-gdd.md 18.2)`);
+      }
+      if ((sec.shape ?? []).some((k) => k === 'tunnel' || k === 'hump') && !sec.fork) errors.push(`worlds-spec.json: mountains[${mi}] (${m.id}), section ${si + 1} — a tunnel or a hump stands on a fork: fork must be true`);
+    });
+    const w = worlds.worlds[mi];
+    if (!w) continue;
+    const at = `worlds.json: worlds[${mi}] (${w.id})`;
+    const niches = sorted(w, 'niche');
+    m.sections.forEach((sec, si) => {
+      const j = si + 1;
+      const zone = w.zones[si];
+      if (!zone) return;
+      const L = sec.length;
+      const share = (z: number): number => (z - zone.zStart) / L;
+      const marks = w.segments.filter((s) => (s.type === 'chasm' || s.type === 'throat' || s.type === 'tunnel' || s.type === 'hump') && num(s, 'section') === j);
+      const want = [...(sec.shape ?? [])].sort().join('+') || '—';
+      const have = marks.map((s) => s.type).sort().join('+') || '—';
+      if (want !== have) errors.push(`${at}: section ${j} — elements ${have}, worlds-spec.json has ${want} (npm run gen:worlds)`);
+      const one = (t: string): Segment | undefined => marks.find((s) => s.type === t);
+      const th = one('throat');
+      const ch = one('chasm');
+      const fork = w.segments.find((s) => s.type === 'fork' && num(s, 'section') === j);
+      const eps = 1e-6;
+      if (th) {
+        const end = th.z + num(th, 'length');
+        if (share(th.z) < SLOTS.throat[0] - eps || share(th.z) > SLOTS.throat[1] + eps) errors.push(`${at}: section ${j} — the throat starts at ${(share(th.z) * 100).toFixed(0)}%, its slot is 5–25% (docs/01-gdd.md 18.6)`);
+        const field = niches.filter((n) => n.z > end && n.z - num(n, 'length') / 2 - end <= (spec.shapes?.throat.fieldGrotto ?? 20) + eps);
+        if (field.length === 0) errors.push(`${at}: section ${j} — no field grotto within ${spec.shapes?.throat.fieldGrotto ?? 20} units past the throat exit z=${end}`);
+      }
+      if (ch) {
+        if (share(ch.z) < SLOTS.chasm[0] - eps || share(ch.z) > SLOTS.chasm[1] + eps) errors.push(`${at}: section ${j} — the chasm at ${(share(ch.z) * 100).toFixed(0)}%, its slot is 25–40% (docs/01-gdd.md 18.6)`);
+        if (th && ch.z < th.z + num(th, 'length')) errors.push(`${at}: section ${j} — the chasm at z=${ch.z} overlaps the throat`);
+        const pads = w.segments.filter((s) => s.type === 'jumpPad' && s['shape'] === 'chasm' && s.z < ch.z && s.z > ch.z - 20);
+        if (pads.length < OPEN_SLOPE.passes.length) errors.push(`${at}: section ${j} — the chasm at z=${ch.z} has ${pads.length} trampolines, one on every lane is needed (docs/01-gdd.md 18.3)`);
+      }
+      for (const t of ['tunnel', 'hump'] as const) {
+        const e = one(t);
+        if (!e) continue;
+        if (!fork || e.z < fork.z || e.z + num(e, 'length') > fork.z + num(fork, 'length') + eps) errors.push(`${at}: section ${j} — the ${t} at z=${e.z} is not inside its fork`);
+        if (fork && (e['side'] === fork['bold']) !== (t === 'hump')) errors.push(`${at}: section ${j} — the ${t} is on the ${t === 'hump' ? 'calm' : 'bold'} lane (a tunnel is the calm lane, a hump the bold one)`);
+        if ((ch && e.z < ch.z + num(ch, 'length')) || (th && e.z < th.z + num(th, 'length'))) errors.push(`${at}: section ${j} — the ${t} at z=${e.z} overlaps an element below it`);
+      }
+      const hu = one('hump');
+      if (hu) {
+        const landEnd = num(hu, 'landEnd');
+        const grotto = niches.find((n) => n['side'] === hu['side'] && n.z > landEnd && n.z - num(n, 'length') / 2 - landEnd <= 2 + eps);
+        if (!grotto) errors.push(`${at}: section ${j} — no landing grotto right past the hump's landing (z=${landEnd})`);
+        else if (share(grotto.z) > SLOTS.landing + eps) errors.push(`${at}: section ${j} — the landing grotto at ${(share(grotto.z) * 100).toFixed(0)}%, by 80% (docs/01-gdd.md 18.6)`);
+      }
+    });
+  }
+  return errors;
+}
+
 /** Lines that stand for the lanes: the left and the right half of the slope (on a fork — the two lanes). */
 const LANES = [
   { name: 'left', x: -OPEN_SLOPE.laneX },
@@ -142,7 +226,11 @@ function serves(n: Segment, lineX: number): boolean {
   return (n['side'] === 'left') === lineX < 0;
 }
 
-/** Shelters of section i on each lane no farther apart than `every` (from the grotto under the ridge below, or the camp). */
+/**
+ * Shelters of section i on each lane no farther apart than `every` (from the grotto under the ridge below, or the camp).
+ * Elements (docs/01-gdd.md 18.3): a tunnel shelters its lane along its whole length; a throat, a chasm and (on its bold
+ * lane) a hump hold no grotto, so a gap across one may be longer by its length — its fairness is checked by seconds.
+ */
 function shelterSpacing(w: World, i: number, every: number, at: string): string[] {
   const errors: string[] = [];
   const gates = sorted(w, 'gate');
@@ -150,12 +238,29 @@ function shelterSpacing(w: World, i: number, every: number, at: string): string[
   const z0 = i === 1 ? camp : (gates[i - 2] as Segment).z;
   const z1 = (gates[i - 1] as Segment).z;
   const niches = sorted(w, 'niche');
+  const inSection = (s: Segment): boolean => num(s, 'section') === i;
+  const tunnels = w.segments.filter((s) => s.type === 'tunnel' && inSection(s));
+  const g = OPEN_SLOPE.grotto.length / 2 + 1;
+  const holes = w.segments
+    .filter((s) => (s.type === 'throat' || s.type === 'chasm' || s.type === 'hump') && inSection(s))
+    .map((s) => ({ a: s.z - g, b: s.z + num(s, 'length') + g, side: s.type === 'hump' ? (s['side'] as string) : null }));
   for (const lane of LANES) {
     const below = i === 1 ? camp : (niches.filter((n) => n.z < z0).pop()?.z ?? z0);
     const list = [below, ...niches.filter((n) => n.z > z0 && n.z < z1 && serves(n, lane.x)).map((n) => n.z)];
+    const inside: Array<[number, number]> = [];
+    for (const t of tunnels)
+      if ((t['side'] === 'left') === lane.x < 0) {
+        list.push(t.z, t.z + num(t, 'length'));
+        inside.push([t.z, t.z + num(t, 'length')]);
+      }
+    list.sort((a, b) => a - b);
     for (let k = 1; k < list.length; k++) {
-      const gap = (list[k] as number) - (list[k - 1] as number);
-      if (gap > every + 1e-6) errors.push(`${at}: section ${i}, ${lane.name} lane — shelters ${gap.toFixed(1)} units apart (z=${list[k - 1]}→${list[k]}), above shelterEvery ${every} (docs/01a-content.md 16.3)`);
+      const a = list[k - 1] as number;
+      const b = list[k] as number;
+      if (inside.some(([p, q]) => a >= p && b <= q)) continue;
+      const allow = holes.filter((h) => (h.side === null || (h.side === 'left') === lane.x < 0) && h.b > a && h.a < b).reduce((sum, h) => sum + (h.b - h.a), 0);
+      const gap = b - a;
+      if (gap > every + allow + 1e-6) errors.push(`${at}: section ${i}, ${lane.name} lane — shelters ${gap.toFixed(1)} units apart (z=${a}→${b}), above shelterEvery ${every} (docs/01a-content.md 16.3)`);
     }
   }
   return errors;
@@ -203,9 +308,37 @@ export function validateOpenFun(worlds: WorldsJson, tuning: TuningJson, speedAt:
         continue;
       }
       const vmin = speedAt(below.length ? num(below[below.length - 1] as Segment, 'requires') : carried);
-      for (const v of [vmin, tuning.controller.maxSpeed]) {
+      // The hump's pad (docs/01-gdd.md 18.3) throws off the slide boost with its own forward push.
+      const hump = p['slide'] === true;
+      const fly = (v: number): ReturnType<typeof padArc> => {
         const rear = p.z - num(p, 'length') / 2 + (v * TICK) / 2;
-        const arc = padArc(rear, num(p, 'y'), v, tuning, (z) => level.floorAt(x, z), w.length);
+        return hump ? humpArc(rear, num(p, 'y'), v, num(p, 'forward'), tuning, (z) => level.floorAt(x, z)) : padArc(rear, num(p, 'y'), v, tuning, (z) => level.floorAt(x, z), w.length);
+      };
+      if (p['shape'] === 'chasm') {
+        // Over the chasm at the minimum speed of the section, 2 units past its far edge (docs/01a-content.md 17.2).
+        const ch = (level.shapes ?? []).find((c) => c.kind === 'chasm' && c.z0 > p.z && c.z0 - p.z < 20);
+        const land = fly(vmin).landZ;
+        if (!ch) errors.push(`${where} — a chasm trampoline without its chasm`);
+        else if (land - HERO_RADIUS < ch.z1 + 2) errors.push(`${where} — at ${vmin.toFixed(1)} units/s it lands at z=${land.toFixed(1)}, not 2 units past the chasm edge z=${ch.z1}`);
+      }
+      if (hump) {
+        // Into the landing at the minimum and the top speed of the section; flight plus the run to the landing grotto ≤
+        // warnSec × 0.8 (docs/01-gdd.md 18.3).
+        const h = (level.shapes ?? []).find((c) => c.kind === 'hump' && p.z >= c.z0 && p.z <= c.z1);
+        const vtop = speedAt(num(next, 'requires'));
+        const grotto = h && level.niches.filter((n) => n.side === h.side && n.kind === 'grotto' && n.z > (h.land?.[1] ?? 0)).sort((a, b) => a.z - b.z)[0];
+        if (!h || !grotto) errors.push(`${where} — a hump trampoline without its hump and landing grotto`);
+        else
+          for (const v of [vmin, vtop]) {
+            const arc = fly(v);
+            const [l0, l1] = h.land!;
+            if (arc.landZ < l0 - 1 || arc.landZ > Math.max(l1, grotto.box.min[2]) + 1) errors.push(`${where} — at ${v.toFixed(1)} units/s it lands at z=${arc.landZ.toFixed(1)}, off its landing ${l0}–${l1}`);
+            const t = arc.points[arc.points.length - 1]!.t + distToEntrance(level, grotto, x, arc.landZ).dist / v;
+            if (t > w.threat.warnSec * OPEN_FAIRNESS_SHARE) errors.push(`${where} — flight and the run to the landing grotto take ${t.toFixed(2)} s at ${v.toFixed(1)} units/s, above warnSec × ${OPEN_FAIRNESS_SHARE}`);
+          }
+      }
+      for (const v of [vmin, tuning.controller.maxSpeed]) {
+        const arc = fly(v);
         if (arc.landZ + HERO_RADIUS > next.z - GATE_THICKNESS / 2) errors.push(`${where} — at ${v.toFixed(1)} units/s it lands at z=${arc.landZ.toFixed(1)}, past the ridge at z=${next.z}`);
         const hits = arc.points.some((q) => caveBoxes.some((b) => x + HERO_RADIUS > b.min[0] && x - HERO_RADIUS < b.max[0] && q.y + HERO_HEIGHT > b.min[1] && q.y < b.max[1] && q.z + HERO_RADIUS > b.min[2] && q.z - HERO_RADIUS < b.max[2]));
         if (hits) errors.push(`${where} — its arc at ${v.toFixed(1)} units/s meets a grotto`);
@@ -218,7 +351,9 @@ export function validateOpenFun(worlds: WorldsJson, tuning: TuningJson, speedAt:
       const where = `${at}: ice slide at z=${s.z}`;
       if (Math.abs(x) + num(s, 'width') / 2 > half) errors.push(`${where} — off the track`);
       if (gates.some((g) => g.z > z0 && g.z < z1)) errors.push(`${where} — crosses a ridge`);
-      if (Math.abs(level.floorAt(x, z0) - num(s, 'y')) > 0.01 || Math.abs(level.floorAt(x, z1) - num(s, 'y')) > 0.01) errors.push(`${where} — not on flat ground`);
+      // Flat, or up a hump at its `rise` (docs/01-gdd.md 18.3).
+      const rise = typeof s['rise'] === 'number' ? (s['rise'] as number) : 0;
+      if (Math.abs(level.floorAt(x, z0) - num(s, 'y')) > 0.01 || Math.abs(level.floorAt(x, z1) - num(s, 'y') - rise) > 0.01) errors.push(`${where} — not on ${rise ? 'its hump' : 'flat ground'}`);
     }
     carried = num(gates[gates.length - 1] as Segment, 'requires');
   }
@@ -249,7 +384,13 @@ export function openFairnessReport(worlds: WorldsJson, speedAt: (stat: number) =
     const gates = sorted(w, 'gate');
     const camp = w.safeZones[0]?.[1] ?? 0;
     const safeLine = w.threat.spawnMaxZ ?? w.length;
-    const cliffs = level.boxes.filter((b) => b.kind === 'cliff');
+    // Fork cliffs and the walls of throats and tunnels (docs/01-gdd.md 18.3): no one stands inside them.
+    const cliffs = level.boxes.filter((b) => b.kind === 'cliff' || b.kind === 'throatWall' || b.kind === 'tunnelWall');
+    const throats = (level.shapes ?? []).filter((t) => t.kind === 'throat');
+    const slideMult = (z: number): number => {
+      const p = level.points.find((q) => q.type === 'slide' && q['shape'] === 'throat' && Math.abs(q.z - z) <= (q['length'] as number) / 2);
+      return p && typeof p['mult'] === 'number' ? (p['mult'] as number) : 1;
+    };
     let worstSec = 0;
     let worstZ = 0;
     let worstX = 0;
@@ -265,8 +406,14 @@ export function openFairnessReport(worlds: WorldsJson, speedAt: (stat: number) =
           let best = i === 1 ? Math.max(0, z - camp) : Infinity;
           if (z >= safeLine) best = 0;
           else if (i === gates.length) best = Math.min(best, safeLine - z);
-          for (const n of caves) best = Math.min(best, distToMouth(level, n, x, z));
-          const sec = best / speed;
+          // In a throat the ice slide carries the hero ×its mult (docs/01a-content.md 17.2): the way inside it is faster.
+          const th = throats.find((t) => z >= t.z0 && z <= t.z1 && x >= t.x0 && x <= t.x1);
+          let sec = best / speed;
+          for (const n of caves) {
+            const d = distToMouth(level, n, x, z);
+            const inThroat = th ? Math.min(d, Math.abs(Math.min(th.z1, Math.max(th.z0, n.z)) - z)) : 0;
+            sec = Math.min(sec, (d - inThroat) / speed + inThroat / (speed * (th ? slideMult(z) : 1)));
+          }
           if (sec > worstSec) {
             worstSec = sec;
             worstZ = z;
@@ -281,6 +428,7 @@ export function openFairnessReport(worlds: WorldsJson, speedAt: (stat: number) =
 }
 
 function distToMouth(level: LevelData, n: LevelData['niches'][number], x: number, z: number): number {
+  if (n.kind === 'tunnel') return distToEntrance(level, n, x, z).dist;
   const ex = (n.side === 'left' ? -1 : 1) * (level.width / 2);
   const tz = Math.min(n.box.max[2], Math.max(n.box.min[2], z));
   return groundPath(level, x, z, ex, tz);

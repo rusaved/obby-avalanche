@@ -67,6 +67,25 @@ export interface LevelNiche {
   lane?: 'calm' | 'bold';
 }
 
+/**
+ * An element of the open slope (docs/01-gdd.md 18.3) along [z0, z1] at floor height y: a chasm (its bottom `depth`
+ * lower), a throat (the floor `x0`–`x1` between its walls, `funnel` units of narrowing at each end), a tunnel (the hall
+ * `x0`–`x1` on `side`), a hump (its bold lane `side`, the crest at z1, landing `land`).
+ */
+export interface LevelShape {
+  kind: 'chasm' | 'throat' | 'tunnel' | 'hump';
+  z0: number;
+  z1: number;
+  y: number;
+  x0: number;
+  x1: number;
+  side?: 'left' | 'right';
+  depth?: number;
+  funnel?: number;
+  land?: [number, number];
+  section: number;
+}
+
 export interface LevelCheckpoint {
   z: number;
   y: number;
@@ -105,6 +124,8 @@ export interface LevelData {
   forks: Array<{ z0: number; z1: number }>;
   /** Open slope (docs/01-gdd.md 17.6): zones of giants (worlds.json bosses[]); empty — none. */
   bosses: import('../content/types.ts').WorldBoss[];
+  /** Open slope (docs/01-gdd.md 18.3): elements of the sections — chasm, throat, tunnel, hump; absent or empty — none. */
+  shapes?: LevelShape[];
   /** Floor height at a given z along the track centre (piecewise from floors and ramps). */
   floorYAt(z: number): number;
   /** Top of the ground at (x, z): floors and ramps of any width; −Infinity over a hole (open slope: passages, lanes). */

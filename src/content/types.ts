@@ -320,7 +320,11 @@ export type SegmentType =
   | 'slide'
   | 'fork'
   | 'cliff'
-  | 'chestGrotto';
+  | 'chestGrotto'
+  | 'chasm'
+  | 'throat'
+  | 'tunnel'
+  | 'hump';
 
 export interface Segment {
   type: SegmentType;
@@ -446,7 +450,22 @@ export interface OpenSpecJson {
   rarities: string[];
   /** Defaults of every giant zone (docs/01a-content.md 16.4); a mountain's `boss` may override them. */
   boss: { turnSec: number; returnMult: number; seeDist: number; zoneGap: number };
+  /** Elements of the slope (docs/01-gdd.md 18.3; docs/01a-content.md 17.1): from which mountain each is allowed. */
+  shapeFrom?: Record<ShapeKind, number>;
+  /** Sizes of the elements (docs/01a-content.md 17.2), read by the generator. */
+  shapes?: OpenShapes;
   mountains: OpenSpecMountain[];
+}
+
+/** An element of a section of the open slope (docs/01-gdd.md 18.3): chasm, throat, tunnel, hump. */
+export type ShapeKind = 'chasm' | 'throat' | 'tunnel' | 'hump';
+
+/** Sizes of the elements (docs/01a-content.md 17.2); `…ByWorld` — the value on that mountain (key: its number). */
+export interface OpenShapes {
+  chasm: { width: number; depth: number; giftsAir: number; giftsBottom: number; ramp: number; padBefore: number; widthByWorld?: Record<string, number> };
+  throat: { width: number; length: number; slideMult: number; fieldGifts: number; fieldGrotto: number; height: number; funnel: number; lengthByWorld?: Record<string, number> };
+  tunnel: { width: number; height: number; length: number; openGifts: number; lengthByWorld?: Record<string, number> };
+  hump: { rise: number; slideLength: number; top: number; flight: number; giftsAir: number; landing: number; flightByWorld?: Record<string, number> };
 }
 
 export interface OpenSpecMountain {
@@ -457,7 +476,8 @@ export interface OpenSpecMountain {
   firstIntervalSec?: number;
   warnSec: number;
   speed: number;
-  sections: Array<{ length: number; stepMult: number; shelterEvery: number; gift: number; fork: boolean }>;
+  /** `shape` — the elements of the section by the slots of docs/01-gdd.md 18.6; absent or empty — as 16.5. */
+  sections: Array<{ length: number; stepMult: number; shelterEvery: number; gift: number; fork: boolean; shape?: ShapeKind[] }>;
   ridges: Array<{ requires: number }>;
   /** The finish straight: its length, the advice number, the giant's speed V_b, step multiplier and gift there. */
   boss: { stretch: number; requires: number; margin: number; stepMult: number; gift: number; speed: number; turnSec?: number; returnMult?: number; seeDist?: number };

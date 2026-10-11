@@ -18,7 +18,7 @@ import { GIFT_HALF, GIFT_HEIGHT, touchesGift } from '../sim/gifts.ts';
 import { HERO_HEIGHT, HERO_RADIUS } from '../sim/controller.ts';
 import { GATE_SIDE, zoneOfStretch } from './generate.ts';
 import { CLASSIC_PACE } from '../content/pace.ts';
-import { isOpenWorlds, validateOpenBoss, validateOpenCount, validateOpenFairness, validateOpenFun, validateOpenGround, validateOpenWorld } from './validate-open.ts';
+import { isOpenWorlds, validateOpenBoss, validateOpenCount, validateOpenFairness, validateOpenFun, validateOpenGround, validateOpenShapes, validateOpenWorld } from './validate-open.ts';
 
 export const PACK_FILES = [
   'game.json',
@@ -65,7 +65,7 @@ const curve = v.object({ base: positive, k: nonNeg, max: positive });
 export const STAT_EFFECTS = ['moveSpeed', 'jumpPower', 'gateOnly'] as const;
 export const SEGMENT_TYPES = [
   'floor', 'wall', 'gate', 'niche', 'gap', 'ramp', 'steps', 'treadmill', 'checkpoint', 'coins', 'chest',
-  'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit', 'jumpPad', 'slide', 'fork', 'cliff', 'chestGrotto',
+  'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit', 'jumpPad', 'slide', 'fork', 'cliff', 'chestGrotto', 'chasm', 'throat', 'tunnel', 'hump',
 ] as const;
 /** Mountain layouts of the generator (docs/01-gdd.md 5.2, 16.3). */
 export const WORLD_LAYOUTS = ['classic', 'gateSide', 'openSlope'] as const;
@@ -433,6 +433,15 @@ const openSpecSchema = v.object({
   }),
   rarities: v.pipe(v.array(id), v.minLength(1)),
   boss: v.object({ turnSec: nonNeg, returnMult: positive, seeDist: nonNeg, zoneGap: positive }),
+  shapeFrom: v.optional(v.object({ chasm: positive, throat: positive, tunnel: positive, hump: positive })),
+  shapes: v.optional(
+    v.object({
+      chasm: v.object({ width: positive, depth: positive, giftsAir: nonNeg, giftsBottom: nonNeg, ramp: positive, padBefore: positive, widthByWorld: v.optional(v.record(v.string(), positive)) }),
+      throat: v.object({ width: positive, length: positive, slideMult: positive, fieldGifts: positive, fieldGrotto: positive, height: positive, funnel: nonNeg, lengthByWorld: v.optional(v.record(v.string(), positive)) }),
+      tunnel: v.object({ width: positive, height: positive, length: positive, openGifts: positive, lengthByWorld: v.optional(v.record(v.string(), positive)) }),
+      hump: v.object({ rise: positive, slideLength: positive, top: positive, flight: positive, giftsAir: nonNeg, landing: positive, flightByWorld: v.optional(v.record(v.string(), positive)) }),
+    }),
+  ),
   mountains: v.pipe(
     v.array(
       v.object({
@@ -443,7 +452,19 @@ const openSpecSchema = v.object({
         firstIntervalSec: v.optional(positive),
         warnSec: positive,
         speed: positive,
-        sections: v.pipe(v.array(v.object({ length: positive, stepMult: positive, shelterEvery: positive, gift: positive, fork: v.boolean() })), v.minLength(1)),
+        sections: v.pipe(
+          v.array(
+            v.object({
+              length: positive,
+              stepMult: positive,
+              shelterEvery: positive,
+              gift: positive,
+              fork: v.boolean(),
+              shape: v.optional(v.array(v.picklist(['chasm', 'throat', 'tunnel', 'hump']))),
+            }),
+          ),
+          v.minLength(1),
+        ),
         ridges: v.pipe(v.array(v.object({ requires: positive })), v.minLength(1)),
         boss: v.object({
           stretch: positive,
@@ -785,7 +806,12 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
     errors.push(...(open ? validateOpenFun(worlds, tuning, speedAt) : validateFun(worlds, tuning, speedAt)));
   }
   // The count of 01a against the generated mountains (M3-05): after fairness, so a broken number still gets its seconds named.
-  if (open) errors.push(...validateOpenCount(worlds, files['worlds-spec.json'] as OpenSpecJson), ...validateFirstIntervals(worlds, files['worlds-spec.json'] as WorldsSpecJson));
+  if (open)
+    errors.push(
+      ...validateOpenCount(worlds, files['worlds-spec.json'] as OpenSpecJson),
+      ...validateOpenShapes(worlds, files['worlds-spec.json'] as OpenSpecJson),
+      ...validateFirstIntervals(worlds, files['worlds-spec.json'] as WorldsSpecJson),
+    );
   else errors.push(...validateContentCount(worlds, files['worlds-spec.json'] as WorldsSpecJson, (files['balance.json'] as BalanceJson).gifts.perZone));
 
   // Remote flags: every path resolves to a number or boolean inside its range (docs/02-tech.md 11.11).

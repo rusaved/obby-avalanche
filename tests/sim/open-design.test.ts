@@ -27,8 +27,10 @@ const level2 = buildLevel(w2);
 describe('sections of the open slope (PS-08)', () => {
   it('every fork has its bold lane: a slide, a crevasse with the trampoline over it; from mountain 2 a cliff with a ledge; one chest grotto a mountain', () => {
     for (const w of worlds.worlds) {
-      const forks = w.segments.filter((s) => s.type === 'fork').length;
-      const count = (t: string): number => w.segments.filter((s) => s.type === t).length;
+      // A fork with a tunnel or a hump (RG, docs/01-gdd.md 18.3) has that element for its lane; the parts of elements carry `shape`.
+      const special = new Set(w.segments.filter((s) => s.type === 'tunnel' || s.type === 'hump').map((s) => s['section']));
+      const forks = w.segments.filter((s) => s.type === 'fork' && !special.has(s['section'])).length;
+      const count = (t: string): number => w.segments.filter((s) => s.type === t && s['shape'] === undefined).length;
       expect(count('slide'), w.id).toBe(forks);
       expect(count('gap'), w.id).toBe(forks);
       expect(count('jumpPad'), w.id).toBe(forks);

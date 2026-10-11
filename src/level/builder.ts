@@ -7,7 +7,7 @@
  * colliders, niches as shelter volumes, checkpoints, spawn. Pure, runs in Node (validator, bot, tests).
  */
 import type { Segment, World } from '../content/types.ts';
-import type { Aabb, LevelBox, LevelCheckpoint, LevelData, LevelGate, LevelNiche, LevelPoint, LevelRamp, Vec3 } from './types.ts';
+import type { Aabb, LevelBox, LevelCheckpoint, LevelData, LevelGate, LevelNiche, LevelPoint, LevelRamp, LevelShape, Vec3 } from './types.ts';
 
 export const FLOOR_THICKNESS = 2;
 export const BORDER_HEIGHT = 3;
@@ -22,6 +22,8 @@ export const PORTAL_HALF_WIDTH = 4;
 /** Treadmill belt inside a cave (docs/01-gdd.md 4.3): 3 units wide, flush with the back wall and as long as the cave
  * (playtest M2: running forward the hero hit the side wall past a 5-unit belt and lost it), room in front of it. */
 export const NICHE_BELT_WIDTH = 3;
+/** The walls of a throat step in over its funnel in this many blocks (docs/01-gdd.md 18.3). */
+export const THROAT_STEPS = 4;
 
 function num(seg: Segment, key: string, def = 0): number {
   const v = seg[key];
@@ -134,7 +136,7 @@ export function buildLevel(world: World): LevelData {
     const y = num(f, 'y');
     const x0 = num(f, 'x0', -half);
     const x1 = num(f, 'x1', half);
-    boxes.push(box([x0, y - num(f, 'thickness', FLOOR_THICKNESS), z0], [x1, y, z1], 'track', 'floor'));
+    boxes.push(box([x0, y - num(f, 'thickness', FLOOR_THICKNESS), z0], [x1, y, z1], str(f, 'material', 'track'), 'floor'));
     addBorders(z0, z1, y, x0, x1);
   }
   for (const r of rampSegs) {
@@ -144,7 +146,7 @@ export function buildLevel(world: World): LevelData {
     const y1 = y0 + num(r, 'rise');
     const x0 = num(r, 'x0', -half);
     const x1 = num(r, 'x1', half);
-    ramps.push({ x0, x1, z0, z1, y0, y1, thickness: FLOOR_THICKNESS, material: 'track' });
+    ramps.push({ x0, x1, z0, z1, y0, y1, thickness: FLOOR_THICKNESS, material: str(r, 'material', 'track') });
     addBorders(z0, z1, y1, x0, x1);
   }
   // Ice cliff on a bold lane (docs/01-gdd.md 17.5, 17.7): a winding way up (a ramp the width of the cliff), the cliff, and
@@ -175,6 +177,64 @@ export function buildLevel(world: World): LevelData {
     const w = num(f, 'width') / 2;
     const y = num(f, 'y');
     boxes.push(box([num(f, 'x') - w, y - FLOOR_THICKNESS, f.z], [num(f, 'x') + w, y + num(f, 'height'), f.z + num(f, 'length')], 'ice', 'cliff'));
+  }
+
+  // Elements of the open slope (docs/01-gdd.md 18.3): the walls of a throat (stepping in over `funnel` at each end), the
+  // ice hall of a tunnel on the calm lane of its fork (its inner wall is the fork cliff) — a shelter at every point.
+  const shapes: LevelShape[] = [];
+  const outer = half + BORDER_WIDTH;
+  for (const t of world.segments.filter((s) => s.type === 'throat')) {
+    const z0 = t.z;
+    const z1 = t.z + num(t, 'length');
+    const y = num(t, 'y');
+    const w = num(t, 'width') / 2;
+    const f = num(t, 'funnel');
+    const h = num(t, 'height');
+    const wall = (a: number, b: number, xin: number): void => {
+      boxes.push(box([-outer, y - FLOOR_THICKNESS, a], [-xin, y + h, b], 'rock', 'throatWall'));
+      boxes.push(box([xin, y - FLOOR_THICKNESS, a], [outer, y + h, b], 'rock', 'throatWall'));
+    };
+    for (let k = 0; k < THROAT_STEPS; k++) {
+      const xin = half - ((half - w) * (k + 1)) / THROAT_STEPS;
+      wall(z0 + (f * k) / THROAT_STEPS, z0 + (f * (k + 1)) / THROAT_STEPS, xin);
+      wall(z1 - (f * (k + 1)) / THROAT_STEPS, z1 - (f * k) / THROAT_STEPS, xin);
+    }
+    wall(z0 + f, z1 - f, w);
+    shapes.push({ kind: 'throat', z0, z1, y, x0: -w, x1: w, funnel: f, section: num(t, 'section') });
+  }
+  for (const t of world.segments.filter((s) => s.type === 'tunnel')) {
+    const z0 = t.z;
+    const z1 = t.z + num(t, 'length');
+    const y = num(t, 'y');
+    const side = str(t, 'side') === 'left' ? 'left' : 'right';
+    const sign = side === 'left' ? -1 : 1;
+    const a = num(t, 'inner');
+    const b = a + num(t, 'width');
+    const h = num(t, 'height');
+    const span = (p: number, q: number): [number, number] => [Math.min(sign * p, sign * q), Math.max(sign * p, sign * q)];
+    const [wx0, wx1] = span(b, outer);
+    const [rx0, rx1] = span(a, outer);
+    const [hx0, hx1] = span(a, b);
+    boxes.push(box([wx0, y - FLOOR_THICKNESS, z0], [wx1, y + h + FLOOR_THICKNESS, z1], 'ice', 'tunnelWall'));
+    boxes.push(box([rx0, y + h, z0], [rx1, y + h + FLOOR_THICKNESS, z1], 'ice', 'tunnelRoof'));
+    niches.push({
+      stretch: num(t, 'stretch'),
+      z: (z0 + z1) / 2,
+      y,
+      side,
+      box: { min: [hx0, y, z0], max: [hx1, y + h, z1] },
+      treadmill: 0,
+      zone: num(t, 'zone', 0),
+      kind: 'tunnel',
+      lane: 'calm',
+    });
+    shapes.push({ kind: 'tunnel', z0, z1, y, x0: hx0, x1: hx1, side, section: num(t, 'section') });
+  }
+  for (const c of world.segments.filter((s) => s.type === 'chasm'))
+    shapes.push({ kind: 'chasm', z0: c.z, z1: c.z + num(c, 'length'), y: num(c, 'y'), x0: -half, x1: half, depth: num(c, 'depth'), section: num(c, 'section') });
+  for (const c of world.segments.filter((s) => s.type === 'hump')) {
+    const land = c['land'] as [number, number];
+    shapes.push({ kind: 'hump', z0: c.z, z1: c.z + num(c, 'length'), y: num(c, 'y'), x0: num(c, 'x0'), x1: num(c, 'x1'), side: str(c, 'side') === 'left' ? 'left' : 'right', land: [land[0], num(c, 'landEnd')], section: num(c, 'section') });
   }
 
   // Niches: recess outside the track edge, open towards the track (docs/02-tech.md 8.2).
@@ -338,6 +398,7 @@ export function buildLevel(world: World): LevelData {
     safeZones: world.safeZones,
     forks: world.segments.filter((s) => s.type === 'fork').map((f) => ({ z0: f.z, z1: f.z + num(f, 'length') })),
     bosses: (world.bosses ?? []).map((b) => ({ ...b, zone: [b.zone[0], b.zone[1]] as [number, number], giants: b.giants.map((g) => ({ ...g })) })),
+    shapes,
     sections: world.zones.filter((z) => typeof z.stepMult === 'number').map((z) => ({ z0: z.zStart, z1: z.zEnd, mult: z.stepMult as number })),
     floorYAt,
     floorAt,

@@ -1,0 +1,1373 @@
+{
+  "id": "slope",
+  "index": 1,
+  "length": 1030,
+  "width": 56,
+  "spawnZ": 20,
+  "egg": "snow",
+  "stretch": 260,
+  "wallCount": 4,
+  "safeZones": [
+    [
+      0,
+      40
+    ],
+    [
+      970,
+      1030
+    ]
+  ],
+  "threat": {
+    "intervalSec": 50,
+    "firstIntervalSec": 30,
+    "warnSec": 8,
+    "speed": 45,
+    "from": "aboveHero",
+    "spawnAhead": 160,
+    "firstWaveScripted": true,
+    "safeZoneZ": [
+      0,
+      40
+    ],
+    "spawnMaxZ": 760
+  },
+  "zones": [
+    {
+      "k": 1,
+      "rarity": "uncommon",
+      "gift": 12,
+      "stepMult": 1,
+      "zStart": 40,
+      "zEnd": 240
+    },
+    {
+      "k": 2,
+      "rarity": "rare",
+      "gift": 14,
+      "stepMult": 1.2,
+      "zStart": 240,
+      "zEnd": 470
+    },
+    {
+      "k": 3,
+      "rarity": "legendary",
+      "gift": 18,
+      "stepMult": 1.5,
+      "zStart": 470,
+      "zEnd": 730
+    },
+    {
+      "k": 4,
+      "rarity": "mythic",
+      "gift": 20,
+      "stepMult": 2,
+      "zStart": 730,
+      "zEnd": 970
+    }
+  ],
+  "segments": [
+    {
+      "type": "floor",
+      "z": 0,
+      "length": 40,
+      "y": 0
+    },
+    {
+      "type": "treadmill",
+      "z": 10,
+      "x": -8,
+      "y": 0,
+      "length": 10,
+      "width": 6,
+      "mult": 1
+    },
+    {
+      "type": "eggStand",
+      "z": 30,
+      "x": 8,
+      "y": 0,
+      "egg": "snow"
+    },
+    {
+      "type": "decor",
+      "z": 6,
+      "x": -11,
+      "y": 0,
+      "kind": "tent"
+    },
+    {
+      "type": "decor",
+      "z": 12,
+      "x": 11,
+      "y": 0,
+      "kind": "tent"
+    },
+    {
+      "type": "decor",
+      "z": 34,
+      "x": -24,
+      "y": 0,
+      "kind": "tree"
+    },
+    {
+      "type": "decor",
+      "z": 36,
+      "x": 24,
+      "y": 0,
+      "kind": "tree"
+    },
+    {
+      "type": "decor",
+      "z": 8,
+      "x": 4,
+      "y": 0,
+      "kind": "snowman"
+    },
+    {
+      "type": "decor",
+      "z": 26,
+      "x": 0,
+      "y": 0,
+      "kind": "arrow"
+    },
+    {
+      "type": "decor",
+      "z": 30,
+      "x": 0,
+      "y": 0,
+      "kind": "arrow"
+    },
+    {
+      "type": "decor",
+      "z": 34,
+      "x": 0,
+      "y": 0,
+      "kind": "arrow"
+    },
+    {
+      "type": "ramp",
+      "z": 200,
+      "length": 20,
+      "y": 0,
+      "rise": 4
+    },
+    {
+      "type": "floor",
+      "z": 220,
+      "length": 20,
+      "y": 4
+    },
+    {
+      "type": "niche",
+      "z": 78,
+      "y": 0,
+      "side": "left",
+      "kind": "grotto",
+      "length": 8,
+      "depth": 4,
+      "treadmill": 0,
+      "zone": 1,
+      "stretch": 1
+    },
+    {
+      "type": "niche",
+      "z": 116,
+      "y": 0,
+      "side": "right",
+      "kind": "grotto",
+      "length": 8,
+      "depth": 4,
+      "treadmill": 0,
+      "zone": 1,
+      "stretch": 1
+    },
+    {
+      "type": "niche",
+      "z": 154,
+      "y": 0,
+      "side": "left",
+      "kind": "grotto",
+      "length": 8,
+      "depth": 4,
+      "treadmill": 0,
+      "zone": 1,
+      "stretch": 1
+    },
+    {
+      "type": "niche",
+      "z": 192,
+      "y": 0,
+      "side": "right",
+      "kind": "grotto",
+      "length": 8,
+      "depth": 4,
+      "treadmill": 0,
+      "zone": 1,
+      "stretch": 1
+    },
+    {
+      "type": "niche",
+      "z": 230,
+      "y": 4,
+      "side": "left",
+      "kind": "ridgeGrotto",
+      "length": 16,
+      "depth": 6,
+      "treadmill": 1,
+      "zone": 1,
+      "stretch": 1
+    },
+    {
+      "type": "floor",
+      "z": 40,
+      "length": 160,
+      "y": 0
+    },
+    {
+      "type": "gift",
+      "z": 50,
+      "x": 0,
+      "y": 0,
+      "height": 0,
+      "zone": 1,
+      "rarity": "uncommon",
+      "coins": 12,
+      "n": 1,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 66.364,
+      "x": 0,
+      "y": 0,
+      "height": 0,
+      "zone": 1,
+      "rarity": "uncommon",
+      "coins": 12,
+      "n": 2,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 82.727,
+      "x": 0,
+      "y": 0,
+      "height": 0,
+      "zone": 1,
+      "rarity": "uncommon",
+      "coins": 12,
+      "n": 3,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 99.091,
+      "x": 0,
+      "y": 0,
+      "height": 0,
+      "zone": 1,
+      "rarity": "uncommon",
+      "coins": 12,
+      "n": 4,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 115.455,
+      "x": 0,
+      "y": 0,
+      "height": 0,
+      "zone": 1,
+      "rarity": "uncommon",
+      "coins": 12,
+      "n": 5,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 131.818,
+      "x": 0,
+      "y": 0,
+      "height": 0,
+      "zone": 1,
+      "rarity": "uncommon",
+      "coins": 12,
+      "n": 6,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 148.182,
+      "x": 0,
+      "y": 0,
+      "height": 0,
+      "zone": 1,
+      "rarity": "uncommon",
+      "coins": 12,
+      "n": 7,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 164.545,
+      "x": 0,
+      "y": 0,
+      "height": 0,
+      "zone": 1,
+      "rarity": "uncommon",
+      "coins": 12,
+      "n": 8,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 180.909,
+      "x": 0,
+      "y": 0,
+      "height": 0,
+      "zone": 1,
+      "rarity": "uncommon",
+      "coins": 12,
+      "n": 9,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 197.273,
+      "x": 0,
+      "y": 0,
+      "height": 0,
+      "zone": 1,
+      "rarity": "uncommon",
+      "coins": 12,
+      "n": 10,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 213.636,
+      "x": 0,
+      "y": 2.727,
+      "height": 0,
+      "zone": 1,
+      "rarity": "uncommon",
+      "coins": 12,
+      "n": 11,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 230,
+      "x": 0,
+      "y": 4,
+      "height": 0,
+      "zone": 1,
+      "rarity": "uncommon",
+      "coins": 12,
+      "n": 12,
+      "path": true
+    },
+    {
+      "type": "gate",
+      "z": 240,
+      "y": 4,
+      "kind": "ridge",
+      "requires": 50,
+      "reward": {
+        "coins": 60
+      },
+      "height": 10,
+      "signHeight": 7.5,
+      "rise": 4,
+      "passes": [
+        -18,
+        0,
+        18
+      ],
+      "passWidth": 11,
+      "passLength": 8,
+      "wall": 1,
+      "zone": 1,
+      "rarity": "uncommon"
+    },
+    {
+      "type": "floor",
+      "z": 240,
+      "length": 8,
+      "y": 8,
+      "x0": -28,
+      "x1": -23.5,
+      "thickness": 6
+    },
+    {
+      "type": "ramp",
+      "z": 240,
+      "length": 8,
+      "y": 4,
+      "rise": 4,
+      "x0": -23.5,
+      "x1": -12.5
+    },
+    {
+      "type": "floor",
+      "z": 240,
+      "length": 8,
+      "y": 8,
+      "x0": -12.5,
+      "x1": -5.5,
+      "thickness": 6
+    },
+    {
+      "type": "ramp",
+      "z": 240,
+      "length": 8,
+      "y": 4,
+      "rise": 4,
+      "x0": -5.5,
+      "x1": 5.5
+    },
+    {
+      "type": "floor",
+      "z": 240,
+      "length": 8,
+      "y": 8,
+      "x0": 5.5,
+      "x1": 12.5,
+      "thickness": 6
+    },
+    {
+      "type": "ramp",
+      "z": 240,
+      "length": 8,
+      "y": 4,
+      "rise": 4,
+      "x0": 12.5,
+      "x1": 23.5
+    },
+    {
+      "type": "floor",
+      "z": 240,
+      "length": 8,
+      "y": 8,
+      "x0": 23.5,
+      "x1": 28,
+      "thickness": 6
+    },
+    {
+      "type": "ramp",
+      "z": 424,
+      "length": 20,
+      "y": 8,
+      "rise": 4
+    },
+    {
+      "type": "floor",
+      "z": 444,
+      "length": 26,
+      "y": 12
+    },
+    {
+      "type": "checkpoint",
+      "z": 252,
+      "y": 8,
+      "x": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "wall": 1
+    },
+    {
+      "type": "fork",
+      "z": 258.4,
+      "length": 73.6,
+      "x": 0,
+      "y": 8,
+      "width": 8,
+      "height": 10,
+      "bold": "right",
+      "section": 2
+    },
+    {
+      "type": "niche",
+      "z": 287.5,
+      "y": 8,
+      "side": "left",
+      "kind": "grotto",
+      "length": 8,
+      "depth": 4,
+      "treadmill": 0,
+      "zone": 2,
+      "stretch": 2,
+      "lane": "calm"
+    },
+    {
+      "type": "niche",
+      "z": 287.5,
+      "y": 8,
+      "side": "right",
+      "kind": "grotto",
+      "length": 8,
+      "depth": 4,
+      "treadmill": 0,
+      "zone": 2,
+      "stretch": 2,
+      "lane": "bold"
+    },
+    {
+      "type": "niche",
+      "z": 345,
+      "y": 8,
+      "side": "left",
+      "kind": "grotto",
+      "length": 8,
+      "depth": 4,
+      "treadmill": 0,
+      "zone": 2,
+      "stretch": 2
+    },
+    {
+      "type": "niche",
+      "z": 402.5,
+      "y": 8,
+      "side": "right",
+      "kind": "grotto",
+      "length": 8,
+      "depth": 4,
+      "treadmill": 0,
+      "zone": 2,
+      "stretch": 2
+    },
+    {
+      "type": "niche",
+      "z": 460,
+      "y": 12,
+      "side": "right",
+      "kind": "ridgeGrotto",
+      "length": 16,
+      "depth": 6,
+      "treadmill": 1.2,
+      "zone": 2,
+      "stretch": 2
+    },
+    {
+      "type": "slide",
+      "z": 268.4,
+      "x": 16,
+      "y": 8,
+      "width": 4,
+      "length": 16,
+      "stretch": 2
+    },
+    {
+      "type": "gap",
+      "z": 294.4,
+      "length": 5,
+      "x0": 4,
+      "x1": 28,
+      "y": 8,
+      "depth": 2,
+      "lane": "bold"
+    },
+    {
+      "type": "jumpPad",
+      "z": 289.4,
+      "x": 16,
+      "y": 8,
+      "width": 4,
+      "length": 4,
+      "stretch": 2
+    },
+    {
+      "type": "gift",
+      "z": 295.65,
+      "x": 16,
+      "y": 6,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 14,
+      "n": 0,
+      "detour": true
+    },
+    {
+      "type": "chestGrotto",
+      "z": 342,
+      "y": 8,
+      "side": "right",
+      "length": 8,
+      "depth": 4,
+      "coins": 140,
+      "zone": 2,
+      "rarity": "rare",
+      "stretch": 2
+    },
+    {
+      "type": "floor",
+      "z": 248,
+      "length": 46.4,
+      "y": 8
+    },
+    {
+      "type": "floor",
+      "z": 294.4,
+      "length": 5,
+      "y": 8,
+      "x0": -28,
+      "x1": 4
+    },
+    {
+      "type": "floor",
+      "z": 294.4,
+      "length": 2.5,
+      "y": 6,
+      "x0": 4,
+      "x1": 28
+    },
+    {
+      "type": "ramp",
+      "z": 296.9,
+      "length": 2.5,
+      "y": 6,
+      "rise": 2,
+      "x0": 4,
+      "x1": 28
+    },
+    {
+      "type": "floor",
+      "z": 299.4,
+      "length": 124.6,
+      "y": 8
+    },
+    {
+      "type": "gift",
+      "z": 251.5,
+      "x": 0,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 14,
+      "n": 1,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 270.318,
+      "x": -16,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 14,
+      "n": 2,
+      "path": true,
+      "lane": "calm"
+    },
+    {
+      "type": "gift",
+      "z": 270.318,
+      "x": 16,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 28,
+      "n": 2,
+      "path": true,
+      "lane": "bold"
+    },
+    {
+      "type": "gift",
+      "z": 289.136,
+      "x": -16,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 14,
+      "n": 3,
+      "path": true,
+      "lane": "calm"
+    },
+    {
+      "type": "gift",
+      "z": 307.955,
+      "x": -16,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 14,
+      "n": 4,
+      "path": true,
+      "lane": "calm"
+    },
+    {
+      "type": "gift",
+      "z": 307.955,
+      "x": 16,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 28,
+      "n": 4,
+      "path": true,
+      "lane": "bold"
+    },
+    {
+      "type": "gift",
+      "z": 326.773,
+      "x": -16,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 14,
+      "n": 5,
+      "path": true,
+      "lane": "calm"
+    },
+    {
+      "type": "gift",
+      "z": 326.773,
+      "x": 16,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 28,
+      "n": 5,
+      "path": true,
+      "lane": "bold"
+    },
+    {
+      "type": "gift",
+      "z": 345.591,
+      "x": 0,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 14,
+      "n": 6,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 364.409,
+      "x": 0,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 14,
+      "n": 7,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 383.227,
+      "x": 0,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 14,
+      "n": 8,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 402.045,
+      "x": 0,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 14,
+      "n": 9,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 420.864,
+      "x": 0,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 14,
+      "n": 10,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 439.682,
+      "x": 0,
+      "y": 11.136,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 14,
+      "n": 11,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 458.5,
+      "x": 0,
+      "y": 12,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 14,
+      "n": 12,
+      "path": true
+    },
+    {
+      "type": "gate",
+      "z": 470,
+      "y": 12,
+      "kind": "ridge",
+      "requires": 1100,
+      "reward": {
+        "coins": 70
+      },
+      "height": 10,
+      "signHeight": 7.5,
+      "rise": 4,
+      "passes": [
+        -18,
+        0,
+        18
+      ],
+      "passWidth": 11,
+      "passLength": 8,
+      "wall": 2,
+      "zone": 2,
+      "rarity": "rare"
+    },
+    {
+      "type": "floor",
+      "z": 470,
+      "length": 8,
+      "y": 16,
+      "x0": -28,
+      "x1": -23.5,
+      "thickness": 6
+    },
+    {
+      "type": "ramp",
+      "z": 470,
+      "length": 8,
+      "y": 12,
+      "rise": 4,
+      "x0": -23.5,
+      "x1": -12.5
+    },
+    {
+      "type": "floor",
+      "z": 470,
+      "length": 8,
+      "y": 16,
+      "x0": -12.5,
+      "x1": -5.5,
+      "thickness": 6
+    },
+    {
+      "type": "ramp",
+      "z": 470,
+      "length": 8,
+      "y": 12,
+      "rise": 4,
+      "x0": -5.5,
+      "x1": 5.5
+    },
+    {
+      "type": "floor",
+      "z": 470,
+      "length": 8,
+      "y": 16,
+      "x0": 5.5,
+      "x1": 12.5,
+      "thickness": 6
+    },
+    {
+      "type": "ramp",
+      "z": 470,
+      "length": 8,
+      "y": 12,
+      "rise": 4,
+      "x0": 12.5,
+      "x1": 23.5
+    },
+    {
+      "type": "floor",
+      "z": 470,
+      "length": 8,
+      "y": 16,
+      "x0": 23.5,
+      "x1": 28,
+      "thickness": 6
+    },
+    {
+      "type": "ramp",
+      "z": 678,
+      "length": 20,
+      "y": 16,
+      "rise": 4
+    },
+    {
+      "type": "floor",
+      "z": 698,
+      "length": 32,
+      "y": 20
+    },
+    {
+      "type": "checkpoint",
+      "z": 482,
+      "y": 16,
+      "x": 0,
+      "zone": 3,
+      "rarity": "legendary",
+      "wall": 2
+    },
+    {
+      "type": "eggStand",
+      "z": 486,
+      "x": 12,
+      "y": 16,
+      "egg": "snow"
+    },
+    {
+      "type": "niche",
+      "z": 546.667,
+      "y": 16,
+      "side": "left",
+      "kind": "grotto",
+      "length": 8,
+      "depth": 4,
+      "treadmill": 0,
+      "zone": 3,
+      "stretch": 3
+    },
+    {
+      "type": "niche",
+      "z": 633.334,
+      "y": 16,
+      "side": "right",
+      "kind": "grotto",
+      "length": 8,
+      "depth": 4,
+      "treadmill": 0,
+      "zone": 3,
+      "stretch": 3
+    },
+    {
+      "type": "niche",
+      "z": 720,
+      "y": 20,
+      "side": "left",
+      "kind": "ridgeGrotto",
+      "length": 16,
+      "depth": 6,
+      "treadmill": 1.5,
+      "zone": 3,
+      "stretch": 3
+    },
+    {
+      "type": "floor",
+      "z": 478,
+      "length": 200,
+      "y": 16
+    },
+    {
+      "type": "gift",
+      "z": 483,
+      "x": 0,
+      "y": 16,
+      "height": 0,
+      "zone": 3,
+      "rarity": "legendary",
+      "coins": 18,
+      "n": 1,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 504.273,
+      "x": 0,
+      "y": 16,
+      "height": 0,
+      "zone": 3,
+      "rarity": "legendary",
+      "coins": 18,
+      "n": 2,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 525.545,
+      "x": 0,
+      "y": 16,
+      "height": 0,
+      "zone": 3,
+      "rarity": "legendary",
+      "coins": 18,
+      "n": 3,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 546.818,
+      "x": 0,
+      "y": 16,
+      "height": 0,
+      "zone": 3,
+      "rarity": "legendary",
+      "coins": 18,
+      "n": 4,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 568.091,
+      "x": 0,
+      "y": 16,
+      "height": 0,
+      "zone": 3,
+      "rarity": "legendary",
+      "coins": 18,
+      "n": 5,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 589.364,
+      "x": 0,
+      "y": 16,
+      "height": 0,
+      "zone": 3,
+      "rarity": "legendary",
+      "coins": 18,
+      "n": 6,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 610.636,
+      "x": 0,
+      "y": 16,
+      "height": 0,
+      "zone": 3,
+      "rarity": "legendary",
+      "coins": 18,
+      "n": 7,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 631.909,
+      "x": 0,
+      "y": 16,
+      "height": 0,
+      "zone": 3,
+      "rarity": "legendary",
+      "coins": 18,
+      "n": 8,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 653.182,
+      "x": 0,
+      "y": 16,
+      "height": 0,
+      "zone": 3,
+      "rarity": "legendary",
+      "coins": 18,
+      "n": 9,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 674.455,
+      "x": 0,
+      "y": 16,
+      "height": 0,
+      "zone": 3,
+      "rarity": "legendary",
+      "coins": 18,
+      "n": 10,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 695.727,
+      "x": 0,
+      "y": 19.545,
+      "height": 0,
+      "zone": 3,
+      "rarity": "legendary",
+      "coins": 18,
+      "n": 11,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 717,
+      "x": 0,
+      "y": 20,
+      "height": 0,
+      "zone": 3,
+      "rarity": "legendary",
+      "coins": 18,
+      "n": 12,
+      "path": true
+    },
+    {
+      "type": "gate",
+      "z": 730,
+      "y": 20,
+      "kind": "ridge",
+      "requires": 2200,
+      "reward": {
+        "coins": 90
+      },
+      "height": 10,
+      "signHeight": 7.5,
+      "rise": 4,
+      "passes": [
+        -18,
+        0,
+        18
+      ],
+      "passWidth": 11,
+      "passLength": 8,
+      "wall": 3,
+      "zone": 3,
+      "rarity": "legendary"
+    },
+    {
+      "type": "floor",
+      "z": 730,
+      "length": 8,
+      "y": 24,
+      "x0": -28,
+      "x1": -23.5,
+      "thickness": 6
+    },
+    {
+      "type": "ramp",
+      "z": 730,
+      "length": 8,
+      "y": 20,
+      "rise": 4,
+      "x0": -23.5,
+      "x1": -12.5
+    },
+    {
+      "type": "floor",
+      "z": 730,
+      "length": 8,
+      "y": 24,
+      "x0": -12.5,
+      "x1": -5.5,
+      "thickness": 6
+    },
+    {
+      "type": "ramp",
+      "z": 730,
+      "length": 8,
+      "y": 20,
+      "rise": 4,
+      "x0": -5.5,
+      "x1": 5.5
+    },
+    {
+      "type": "floor",
+      "z": 730,
+      "length": 8,
+      "y": 24,
+      "x0": 5.5,
+      "x1": 12.5,
+      "thickness": 6
+    },
+    {
+      "type": "ramp",
+      "z": 730,
+      "length": 8,
+      "y": 20,
+      "rise": 4,
+      "x0": 12.5,
+      "x1": 23.5
+    },
+    {
+      "type": "floor",
+      "z": 730,
+      "length": 8,
+      "y": 24,
+      "x0": 23.5,
+      "x1": 28,
+      "thickness": 6
+    },
+    {
+      "type": "floor",
+      "z": 738,
+      "length": 232,
+      "y": 24
+    },
+    {
+      "type": "checkpoint",
+      "z": 742,
+      "y": 24,
+      "x": 0,
+      "zone": 4,
+      "rarity": "mythic",
+      "wall": 3
+    },
+    {
+      "type": "niche",
+      "z": 750,
+      "y": 24,
+      "side": "right",
+      "kind": "bossLine",
+      "length": 16,
+      "depth": 6,
+      "treadmill": 2,
+      "zone": 4,
+      "stretch": 4
+    },
+    {
+      "type": "gift",
+      "z": 786.25,
+      "x": 0,
+      "y": 24,
+      "height": 0,
+      "zone": 4,
+      "rarity": "mythic",
+      "coins": 20,
+      "n": 1,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 838.75,
+      "x": 0,
+      "y": 24,
+      "height": 0,
+      "zone": 4,
+      "rarity": "mythic",
+      "coins": 20,
+      "n": 2,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 891.25,
+      "x": 0,
+      "y": 24,
+      "height": 0,
+      "zone": 4,
+      "rarity": "mythic",
+      "coins": 20,
+      "n": 3,
+      "path": true
+    },
+    {
+      "type": "gift",
+      "z": 943.75,
+      "x": 0,
+      "y": 24,
+      "height": 0,
+      "zone": 4,
+      "rarity": "mythic",
+      "coins": 20,
+      "n": 4,
+      "path": true
+    },
+    {
+      "type": "gate",
+      "z": 970,
+      "y": 24,
+      "kind": "boss",
+      "boss": true,
+      "requires": 4100,
+      "reward": {
+        "coins": 100
+      },
+      "speed": 31.7,
+      "margin": 0.05,
+      "height": 0,
+      "signHeight": 7.5,
+      "wall": 4,
+      "zone": 4,
+      "rarity": "mythic"
+    },
+    {
+      "type": "floor",
+      "z": 970,
+      "length": 60,
+      "y": 24
+    },
+    {
+      "type": "summit",
+      "z": 970,
+      "y": 24,
+      "wall": 4
+    },
+    {
+      "type": "checkpoint",
+      "z": 973,
+      "y": 24,
+      "x": 0,
+      "zone": 4,
+      "rarity": "mythic",
+      "wall": 4
+    },
+    {
+      "type": "treadmill",
+      "z": 982,
+      "x": -8,
+      "y": 24,
+      "length": 10,
+      "width": 6,
+      "mult": 3
+    },
+    {
+      "type": "chest",
+      "z": 1000,
+      "x": 0,
+      "y": 24,
+      "coins": 500
+    },
+    {
+      "type": "portal",
+      "z": 1020,
+      "x": 0,
+      "y": 24,
+      "next": 2
+    }
+  ],
+  "treadmillMult": 1,
+  "layout": "openSlope",
+  "bosses": [
+    {
+      "zone": [
+        760,
+        970
+      ],
+      "requires": 4100,
+      "returnMult": 1.5,
+      "giants": [
+        {
+          "speed": 31.7,
+          "patrol": "alongZ",
+          "seeDist": 0,
+          "turnSec": 0.5
+        }
+      ]
+    }
+  ],
+  "look": "slope"
+}

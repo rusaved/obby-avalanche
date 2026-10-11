@@ -87,7 +87,7 @@ export interface GenerateInput {
 }
 
 export function generateWorlds({ spec, balance, tuning }: GenerateInput): WorldsJson {
-  if (isOpenSpec(spec)) return { schema: 1, generator: GENERATOR_VERSION, worlds: generateOpenWorlds({ spec, balance }) };
+  if (isOpenSpec(spec)) return { schema: 1, generator: GENERATOR_VERSION, worlds: generateOpenWorlds({ spec, balance, tuning }) };
   const worlds = spec.mountains.map((m, mi) => generateWorld(spec, balance, mi + 1, tuning));
   return { schema: 1, generator: GENERATOR_VERSION, worlds };
 }

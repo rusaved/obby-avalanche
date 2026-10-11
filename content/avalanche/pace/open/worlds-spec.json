@@ -29,6 +29,63 @@
   "seeDist": 0,
   "zoneGap": 30
  },
+ "shapeFrom": {
+  "chasm": 2,
+  "throat": 3,
+  "tunnel": 6,
+  "hump": 8
+ },
+ "shapes": {
+  "chasm": {
+   "width": 12,
+   "depth": 3,
+   "giftsAir": 2,
+   "giftsBottom": 3,
+   "ramp": 12,
+   "padBefore": 6,
+   "widthByWorld": {
+    "2": 10,
+    "9": 14,
+    "10": 14
+   }
+  },
+  "throat": {
+   "width": 20,
+   "length": 80,
+   "slideMult": 1.6,
+   "fieldGifts": 1.5,
+   "fieldGrotto": 20,
+   "height": 10,
+   "funnel": 8,
+   "lengthByWorld": {
+    "3": 60,
+    "9": 100,
+    "10": 100
+   }
+  },
+  "tunnel": {
+   "width": 16,
+   "height": 12,
+   "length": 110,
+   "openGifts": 2,
+   "lengthByWorld": {
+    "6": 80,
+    "10": 140
+   }
+  },
+  "hump": {
+   "rise": 10,
+   "slideLength": 40,
+   "top": 6,
+   "flight": 90,
+   "giftsAir": 6,
+   "landing": 20,
+   "flightByWorld": {
+    "8": 80,
+    "10": 100
+   }
+  }
+ },
  "mountains": [
   {
    "id": "slope",
@@ -102,14 +159,20 @@
      "stepMult": 3,
      "shelterEvery": 65,
      "gift": 40,
-     "fork": true
+     "fork": false,
+     "shape": [
+      "chasm"
+     ]
     },
     {
      "length": 290,
      "stepMult": 4,
      "shelterEvery": 90,
      "gift": 50,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "chasm"
+     ]
     },
     {
      "length": 320,
@@ -163,21 +226,31 @@
      "stepMult": 10,
      "shelterEvery": 65,
      "gift": 150,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "throat"
+     ]
     },
     {
      "length": 320,
      "stepMult": 12,
      "shelterEvery": 90,
      "gift": 200,
-     "fork": true
+     "fork": false,
+     "shape": [
+      "throat"
+     ]
     },
     {
      "length": 350,
      "stepMult": 15,
      "shelterEvery": 120,
      "gift": 200,
-     "fork": true
+     "fork": false,
+     "shape": [
+      "throat",
+      "chasm"
+     ]
     }
    ],
    "ridges": [
@@ -231,14 +304,20 @@
      "stepMult": 40,
      "shelterEvery": 90,
      "gift": 1200,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "chasm"
+     ]
     },
     {
      "length": 380,
      "stepMult": 40,
      "shelterEvery": 120,
      "gift": 1500,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "throat"
+     ]
     }
    ],
    "ridges": [
@@ -285,21 +364,31 @@
      "stepMult": 80,
      "shelterEvery": 65,
      "gift": 3000,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "throat"
+     ]
     },
     {
      "length": 380,
      "stepMult": 100,
      "shelterEvery": 90,
      "gift": 4000,
-     "fork": true
+     "fork": false,
+     "shape": [
+      "chasm"
+     ]
     },
     {
      "length": 410,
      "stepMult": 150,
      "shelterEvery": 120,
      "gift": 5000,
-     "fork": true
+     "fork": false,
+     "shape": [
+      "throat",
+      "chasm"
+     ]
     }
    ],
    "ridges": [
@@ -346,21 +435,32 @@
      "stepMult": 250,
      "shelterEvery": 65,
      "gift": 20000,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "tunnel"
+     ]
     },
     {
      "length": 410,
      "stepMult": 300,
      "shelterEvery": 90,
      "gift": 30000,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "chasm",
+      "tunnel"
+     ]
     },
     {
      "length": 440,
      "stepMult": 400,
      "shelterEvery": 120,
      "gift": 40000,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "throat",
+      "tunnel"
+     ]
     }
    ],
    "ridges": [
@@ -407,21 +507,31 @@
      "stepMult": 800,
      "shelterEvery": 65,
      "gift": 200000,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "tunnel"
+     ]
     },
     {
      "length": 440,
      "stepMult": 1000,
      "shelterEvery": 90,
      "gift": 300000,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "throat"
+     ]
     },
     {
      "length": 470,
      "stepMult": 1200,
      "shelterEvery": 120,
      "gift": 400000,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "chasm",
+      "tunnel"
+     ]
     }
    ],
    "ridges": [
@@ -468,21 +578,32 @@
      "stepMult": 2500,
      "shelterEvery": 65,
      "gift": 2400000,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "hump"
+     ]
     },
     {
      "length": 470,
      "stepMult": 3000,
      "shelterEvery": 90,
      "gift": 4000000,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "tunnel",
+      "hump"
+     ]
     },
     {
      "length": 500,
      "stepMult": 4000,
      "shelterEvery": 120,
      "gift": 6000000,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "throat",
+      "hump"
+     ]
     }
    ],
    "ridges": [
@@ -529,21 +650,35 @@
      "stepMult": 8000,
      "shelterEvery": 65,
      "gift": 40000000,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "throat",
+      "chasm",
+      "hump"
+     ]
     },
     {
      "length": 500,
      "stepMult": 10000,
      "shelterEvery": 90,
      "gift": 60000000,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "chasm",
+      "tunnel"
+     ]
     },
     {
      "length": 530,
      "stepMult": 12000,
      "shelterEvery": 120,
      "gift": 100000000,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "throat",
+      "chasm",
+      "hump"
+     ]
     }
    ],
    "ridges": [
@@ -590,21 +725,37 @@
      "stepMult": 25000,
      "shelterEvery": 65,
      "gift": 800000000,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "throat",
+      "chasm",
+      "tunnel"
+     ]
     },
     {
      "length": 530,
      "stepMult": 30000,
      "shelterEvery": 90,
      "gift": 1200000000,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "throat",
+      "chasm",
+      "hump"
+     ]
     },
     {
      "length": 560,
      "stepMult": 40000,
      "shelterEvery": 120,
      "gift": 2400000000,
-     "fork": true
+     "fork": true,
+     "shape": [
+      "throat",
+      "chasm",
+      "tunnel",
+      "hump"
+     ]
     }
    ],
    "ridges": [
