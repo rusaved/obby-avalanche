@@ -14,6 +14,7 @@ import { content, pace } from '../content/index.ts';
 import { Ray, Vector3, type Object3D } from 'three';
 import type { LevelData } from '../level/types.ts';
 import { segmentMeetsBox } from '../app/banner-signs.ts';
+import { entranceX, nicheSign } from '../sim/shelter.ts';
 
 export type { BootState as TestBootState } from '../app/handles.ts';
 
@@ -250,6 +251,9 @@ export interface TestApi {
   botPath(points: Array<[number, number] | [number, number, number]> | null): void;
   /** Points the bot has not reached yet. */
   botLeft(): number;
+  /** Caves of this mountain in LevelData order, as the bot walks to them: a point in front of the mouth, the middle
+   * inside, the belt (null — none); `x` sign: left −, right + (PS-10). */
+  shelters(): Array<{ kind: string; z: number; y: number; side: string; treadmill: number; mouth: [number, number]; inside: [number, number]; belt: [number, number] | null }>;
   /** Longest stand (game seconds) right below a closed gate since the page opened (GDD-01). */
   gateStandMax(): number;
   /** Highest (bot z − z of a wall closed for the hero) over every tick since the page opened; < 0 means never above (M2-10). */
@@ -723,6 +727,24 @@ export function installTestApi(g: GameHandles): TestApi {
       g.botPath = points ? points.map((p) => [p[0], p[1], p[2]] as [number, number, number?]) : null;
     },
     botLeft: () => g.botPath?.length ?? 0,
+    shelters() {
+      const level = g.level;
+      if (!level) return [];
+      return level.niches.map((n, i) => {
+        const sign = nicheSign(n);
+        const belt = level.points.find((p) => p.type === 'treadmill' && p['inNiche'] === true && p['niche'] === i);
+        return {
+          kind: n.kind ?? 'cave',
+          z: n.z,
+          y: n.y,
+          side: n.side,
+          treadmill: n.treadmill,
+          mouth: [entranceX(level, n) - sign * 4, n.z] as [number, number],
+          inside: [(n.box.min[0] + n.box.max[0]) / 2, n.z] as [number, number],
+          belt: belt ? ([belt.x, belt.z] as [number, number]) : null,
+        };
+      });
+    },
     gateStandMax: () => standMax,
     botsOverClosedMax: () => overClosed,
     analyticsPlay: () => played,

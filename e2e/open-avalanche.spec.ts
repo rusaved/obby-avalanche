@@ -59,7 +59,15 @@ test('a normal wave with the hero in the giant’s zone (above spawnMaxZ) never 
   await page.evaluate(() => window.__TEST__!.setTimeScale(8));
   await page.evaluate(() => window.__TEST__!.triggerWave());
   await page.waitForFunction(() => window.__TEST__!.state().wave?.scriptedPending === false && window.__TEST__!.state().wave?.phase === 'idle', undefined, { timeout: 60_000 });
+  // Past the giant first (PS-07): a hero standing in his zone is his, and a catch rolls him below the line.
   const zone = world.bosses[0]!.zone;
+  await page.evaluate(([z, st]) => {
+    window.__TEST__!.setStat(st);
+    window.__TEST__!.teleport(z);
+  }, [zone[0] - 4, 1e6] as const);
+  await page.evaluate((z) => window.__TEST__!.botPath([[0, z]]), zone[1] + 6);
+  await page.waitForFunction(() => window.__TEST__!.simEvents.some((e) => e.name === 'bossPassed'), undefined, { timeout: 60_000 });
+  await page.evaluate(() => window.__TEST__!.botPath(null));
   await page.evaluate((z) => window.__TEST__!.teleport(z), zone[0] + 40);
   await waitTicks(page, 10);
   await page.evaluate(() => window.__TEST__!.triggerWave());

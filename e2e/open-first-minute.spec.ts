@@ -1,0 +1,179 @@
+import { mkdirSync, writeFileSync } from 'node:fs';
+import type { Page } from '@playwright/test';
+import { test, expect, testState } from './fixtures.ts';
+import type { TestState } from '../src/test-api/index.ts';
+import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
+
+// PS-10: the first minutes on the slope (docs/01-gdd.md 17.8) on a fresh save, on a PC (the file name keeps it off the
+// phone project of playwright.config.ts). The physical bot (controller and collisions in the browser) climbs mountain 1
+// as a player would: up the middle, into the lit grotto at the siren, the egg after «Phew, made it!», a lane of the fork,
+// a ridge grotto belt while the stat is short of a ridge, a grotto at every siren, the belt before the giant up to his
+// advice, past him and into the portal. Times are play seconds.
+type Seg = { type: string; z: number; kind?: string; requires?: number; length?: number };
+type OpenWorld = { segments: Seg[]; bosses: Array<{ zone: [number, number]; requires: number }> };
+type Shelter = { kind: string; z: number; mouth: [number, number]; inside: [number, number]; belt: [number, number] | null };
+type Played = Array<{ name: string; playSec: number; params?: Record<string, unknown> }>;
+const world = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds[0]!;
+const ridges = world.segments.filter((s) => s.type === 'gate' && s.kind === 'ridge');
+const fork = world.segments.find((s) => s.type === 'fork')!;
+const forkEnd = fork.z + fork.length!;
+const boss = world.bosses[0]!;
+const portal = world.segments.find((s) => s.type === 'portal')!.z;
+const EVIDENCE = 'docs/evidence/open';
+/** Tolerance of the 17.8 times for the bot (the criterion of PS-10). */
+const SLACK = 5;
+/** Plaques allowed in the first 60 s: the shoes and the controls. */
+const EARLY_HINTS = new Set(['hint.move', 'hint.shoes', 'hint.jumpPc', 'hint.jumpTouch']);
+
+type Leg = { z: number; req: number; grotto: Shelter | null; past: number };
+
+test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg, the ridges, the giant, the portal — 17.8 times', async ({ page, openGame }) => {
+  test.setTimeout(420_000);
+  mkdirSync(EVIDENCE, { recursive: true });
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await openGame('pace=open&quality=high');
+  const shelters = (await page.evaluate(() => window.__TEST__!.shelters())) as Shelter[];
+  const beltGrotto = (kind: string, before: number): Shelter | null => shelters.find((n) => n.kind === kind && n.z < before && n.z > before - 30) ?? null;
+  // Ridges 2–3 by their grotto belts if the stat is short, then the giant by the belt before his zone.
+  const legs: Leg[] = [
+    ...ridges.slice(1).map((r) => ({ z: r.z, req: r.requires!, grotto: beltGrotto('ridgeGrotto', r.z), past: r.z + 10 })),
+    { z: boss.zone[0], req: boss.requires, grotto: shelters.find((n) => n.kind === 'bossLine') ?? null, past: portal + 2 },
+  ];
+
+  /** The path to the points from the hero: round the fork's cliff by the lane on the hero's side. */
+  const route = (s: TestState, to: Array<[number, number]>): Array<[number, number]> => {
+    const h = s.hero!;
+    const z = to[0]![1];
+    const lane = h.x < 0 ? -16 : 16;
+    if (h.z > forkEnd || z < fork.z) return to;
+    return [[lane, Math.max(h.z, fork.z) + 2], [lane, Math.min(z, forkEnd + 4)], ...to];
+  };
+  const go = (path: Array<[number, number]>): Promise<void> => page.evaluate((p) => window.__TEST__!.botPath(p), path);
+  const played = (): Promise<Played> => page.evaluate(() => window.__TEST__!.analyticsPlay());
+  const shot = (name: string): Promise<Buffer> => page.screenshot({ path: `${EVIDENCE}/ftue_${name}_1920x1080_ru.png` });
+
+  let s: TestState = await testState(page);
+  expect(s.hint).toBe('hint.move');
+  await go([[0, ridges[0]!.z - 4], [0, ridges[0]!.z + 12], [-16, ridges[0]!.z + 24]]);
+  await page.evaluate(() => window.__TEST__!.setTimeScale(3));
+
+  // Set in resume() too: typed wide, so the loop's checks are not narrowed away.
+  let stage = 'up' as 'up' | 'hide' | 'egg' | 'hatch' | 'leg' | 'belt';
+  let leg = 0;
+  let hiding = false;
+  const early = new Set<string>();
+  const shots = new Set<string>();
+  const resume = async (st: TestState): Promise<void> => {
+    const l = legs[leg];
+    if (!l) return;
+    const inIt = l.grotto !== null && st.shelter === shelters.indexOf(l.grotto);
+    if (st.stat >= l.req || !l.grotto) {
+      stage = 'leg';
+      const out: Array<[number, number]> = inIt ? [l.grotto!.mouth] : [];
+      const finish: Array<[number, number]> = leg === legs.length - 1 ? [[0, boss.zone[1] + 4], [0, portal + 2]] : [[0, l.z + 10]];
+      await go(route(st, [...out, [0, l.z - 4], ...finish]));
+    } else {
+      stage = 'belt';
+      const belt = l.grotto.belt ?? l.grotto.inside;
+      await go(inIt ? [belt] : route(st, [l.grotto.mouth, belt]));
+    }
+  };
+
+  for (let i = 0; i < 6000; i++) {
+    s = await testState(page);
+    if (s.playSec < 60 && s.hint) early.add(s.hint);
+    if (s.shoesButton.can && !s.window) await page.locator('[data-hud="shoes"]').click();
+    const names = (await played()).map((e) => e.name);
+    for (const [name, due] of [['10s', s.playSec >= 10], ['ridge1', names.includes('ridge_1')], ['40s', s.playSec >= 40]] as const) {
+      if (shots.has(name) || !due) continue;
+      shots.add(name);
+      await shot(name);
+      // The rest of the run in a smaller frame: the times are play seconds, the screenshots are taken.
+      if (shots.size === 3) {
+        await page.setViewportSize({ width: 960, height: 540 });
+        await page.evaluate(() => window.__TEST__!.setQuality('low'));
+      }
+    }
+    if (names.includes('gameTutorialComplete') || s.playSec > 240) break;
+    if (s.caught) continue;
+    // A siren: into the grotto the game lights (the scripted one at the entry of section 2 included).
+    if (s.wave?.phase === 'warn' && !hiding) {
+      hiding = true;
+      if (!s.inShelter) {
+        const n = shelters[s.wave.shelter]!;
+        await go(route(s, [n.mouth, n.inside]));
+      } else await go([]);
+      if (stage === 'up') stage = 'hide';
+      continue;
+    }
+    if (hiding && s.wave && (s.wave.phase === 'idle' || s.wave.phase === 'gone')) {
+      hiding = false;
+      if (stage === 'hide') {
+        stage = 'egg';
+        // The egg comes with «Phew, made it!» in the grotto the bot hid in.
+        await expect.poll(async () => (await testState(page)).egg?.shown).toBe(true);
+        const egg = (await testState(page)).egg!;
+        await go([[egg.x, egg.z]]);
+        stage = 'hatch';
+      } else await resume(s);
+      continue;
+    }
+    if (hiding) continue;
+    if (stage === 'hatch' && names.includes('egg_1')) await resume(s);
+    else if (stage === 'belt' && s.stat >= legs[leg]!.req) await resume(s);
+    else if (stage === 'leg' && s.hero!.z > legs[leg]!.past - 4 && leg < legs.length - 1) {
+      leg++;
+      await resume(s);
+    } else if (stage === 'leg' && (await page.evaluate(() => window.__TEST__!.botLeft())) === 0) await resume(s);
+  }
+  await page.evaluate(() => window.__TEST__!.setTimeScale(1));
+  const ev = await played();
+  const first = (name: string): number => ev.find((e) => e.name === name)?.playSec ?? Infinity;
+  const count = (name: string): number => ev.filter((e) => e.name === name).length;
+  const all = await page.evaluate(() => window.__TEST__!.analytics().map((e) => e.name));
+  writeFileSync(`${EVIDENCE}/ftue-events.txt`, `${ev.map((e) => `${e.playSec.toFixed(1).padStart(6)} s  ${e.name}${e.params ? ` ${JSON.stringify(e.params)}` : ''}`).join('\n')}\n`);
+  // 17.8 with ±5 s for the bot.
+  expect(all).toContain('game_ready');
+  expect(first('ridge_1')).toBeLessThanOrEqual(20 + SLACK);
+  expect(first('first_wave_survived')).toBeLessThanOrEqual(46 + SLACK);
+  expect(ev.filter((e) => e.name === 'first_wave_survived').map((e) => e.params)).toEqual([{ inShelter: true }]);
+  expect(first('egg_1')).toBeGreaterThan(first('first_wave_survived'));
+  expect(first('session_60s')).toBeLessThan(Infinity);
+  expect(first('boss_enter')).toBeLessThanOrEqual(150);
+  expect(first('gameTutorialComplete')).toBeLessThan(Infinity);
+  // Order and once a player (docs/06 2, 8.2); the open slope counts ridges, not walls.
+  const order = ['ridge_1', 'first_wave_survived', 'egg_1', 'ridge_2', 'ridge_3', 'boss_enter', 'boss_passed', 'gameTutorialComplete'];
+  for (let k = 1; k < order.length; k++) expect(first(order[k]!), `${order[k - 1]} before ${order[k]}`).toBeGreaterThan(first(order[k - 1]!));
+  for (const name of [...order, 'session_60s', 'shoes_1']) expect(count(name), name).toBe(1);
+  expect(all.filter((n) => n.startsWith('gate_'))).toEqual([]);
+  // Plaques of the first minute: the shoes and the controls only — never «To the cave!» (17.8: the blink instead).
+  expect([...early].filter((h) => !EARLY_HINTS.has(h))).toEqual([]);
+  expect(shots.size).toBe(3);
+});
+
+test('the egg of the scripted wave stands in the grotto the hero hid in, either lane of the fork', async ({ page, openGame }) => {
+  test.setTimeout(150_000);
+  await openGame('pace=open');
+  await hideInGrotto(page, 'right');
+  const s = await testState(page);
+  const shelters = await page.evaluate(() => window.__TEST__!.shelters());
+  const n = shelters[s.shelter]!;
+  expect(n.side).toBe('right');
+  expect(s.egg!.shown).toBe(true);
+  expect(Math.abs(s.egg!.z - n.z)).toBeLessThan(5);
+  expect(Math.sign(s.egg!.x)).toBe(1);
+});
+
+/** Up to the fork of section 2 at the scripted siren, then into the grotto of the `side` lane; waits for the egg. */
+async function hideInGrotto(page: Page, side: 'left' | 'right'): Promise<void> {
+  const shelters = await page.evaluate(() => window.__TEST__!.shelters());
+  const n = shelters.find((x) => x.side === side && x.z > fork.z && x.z < forkEnd)!;
+  await page.evaluate(([z, x]) => {
+    window.__TEST__!.setStat(1000);
+    window.__TEST__!.teleport(z, x);
+  }, [ridges[0]!.z + 6, Math.sign(n.mouth[0]) * 16] as const);
+  await page.evaluate((p) => window.__TEST__!.botPath(p), [[Math.sign(n.mouth[0]) * 16, n.z - 6], n.mouth, n.inside] as Array<[number, number]>);
+  await page.evaluate(() => window.__TEST__!.setTimeScale(3));
+  await page.waitForFunction(() => window.__TEST__!.state().egg?.shown === true, undefined, { timeout: 90_000 });
+  await page.evaluate(() => window.__TEST__!.setTimeScale(1));
+}

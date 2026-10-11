@@ -9,6 +9,7 @@ import { distToEntrance } from '../../src/sim/shelter.ts';
 import { buildLevel } from '../../src/level/builder.ts';
 import { mergePatch } from '../../src/content/pace.ts';
 import { parseSave } from '../../src/meta/save.ts';
+import { eggSpotIn, giftEggSpot } from '../../src/sim/gift-egg.ts';
 import type { BalanceJson, TuningJson, WorldsJson } from '../../src/content/types.ts';
 
 // PS-06: the avalanche on the open slope (docs/01-gdd.md 17.5, 17.7).
@@ -123,5 +124,21 @@ describe('avalanche on the open slope (PS-06)', () => {
     const warn = events.find((e) => e.name === 'waveWarn')!.payload as ThreatEvents['waveWarn'];
     expect(warn.scripted).toBe(true);
     expect(level.niches[warn.shelter]!.stretch).toBe(2);
+  });
+
+  it('the free egg of that wave stands in its grotto with no belt, by the back wall; in the other lane’s grotto too (PS-10)', () => {
+    const spot = giftEggSpot(level, balance.ftue.scriptedWaveWall)!;
+    const n = level.niches[spot.niche]!;
+    expect(n.stretch).toBe(2);
+    expect(n.treadmill).toBe(0);
+    for (const k of [spot.niche, level.niches.findIndex((m, i) => i !== spot.niche && m.stretch === 2 && m.z === n.z)]) {
+      const at = eggSpotIn(level, k)!;
+      const g = level.niches[k]!;
+      expect(at.x).toBeGreaterThan(g.box.min[0]);
+      expect(at.x).toBeLessThan(g.box.max[0]);
+      expect(at.z).toBeGreaterThan(g.box.min[2]);
+      expect(at.z).toBeLessThan(g.box.max[2]);
+      expect(at.y).toBe(g.y);
+    }
   });
 });

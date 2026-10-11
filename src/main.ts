@@ -56,6 +56,7 @@ import type { ThreatOptions } from './sim/threat.ts';
 import type { World } from './content/types.ts';
 import { createQuality, qualityParams, type QualityLevel } from './render/quality.ts';
 import { buildLevel } from './level/builder.ts';
+import { eggSpotIn } from './sim/gift-egg.ts';
 import { createSim, controllerParams, type Sim } from './sim/world.ts';
 import { HERO_HEIGHT } from './sim/controller.ts';
 import { formatNumber, formatTimer, setNumberLocale } from './ui/format.ts';
@@ -82,6 +83,8 @@ const GATE_MELT_SEC = 0.4;
 const CAMERA_FAR = 400;
 const FAR_PLANE_OVER_FOG = 1.15;
 const GATE_FUNNEL_WALLS = [1, 2, 3, 4, 6, 9];
+/** session_Ns funnel events at these seconds of play in a load (docs/06 section 2). */
+const SESSION_MARKS = [60, 180, 300, 600];
 /** Play time goes into the save at most this often (seconds of play). */
 const PLAY_PERSIST_SEC = 5;
 
@@ -332,10 +335,16 @@ async function boot(): Promise<void> {
     });
     // Round number of Speed (M2-13, Q-023): flash, bounce, chime, toast; no analytics.
     // Back above the record flag after «Snowed in!» or the giant (docs/01-gdd.md 17.7): «New height!».
-    s.events.on('recordUp', () => hud?.toast(t('toast.recordUp')));
+    s.events.on('recordUp', () => {
+      hud?.toast(t('toast.recordUp'));
+      track('record_up');
+    });
     // The giant (docs/01-gdd.md 17.6): into his zone, past him, caught — a toast each; nothing is lost on a catch.
+    // Funnel (docs/06 8.2): the first giant — into his zone and past him once a player, every catch.
+    const firstGiant = (): boolean => s.level.worldIndex === 1 && s.tier === 0;
     s.events.on('bossEnter', () => {
       hud?.toast(t('boss.start'));
+      if (firstGiant()) trackOnce('boss_enter');
       // Into the giant's zone (docs/01-gdd.md 17.9): a second from the side, the hero and the giant, then back behind.
       const shot = tuning.bossShot;
       if (shot && cameraRig) cameraRig.view = { rise: shot.rise, back: shot.back, side: shot.side, sec: shot.sec, t: 0 };
@@ -343,8 +352,12 @@ async function boot(): Promise<void> {
     s.events.on('bossPassed', () => {
       hud?.toast(t('boss.passed'), 3);
       audio?.play('gate');
+      if (firstGiant()) trackOnce('boss_passed');
     });
-    s.events.on('bossCaught', () => hud?.toast(t('boss.caught')));
+    s.events.on('bossCaught', () => {
+      hud?.toast(t('boss.caught'));
+      track('boss_caught', { world: s.level.worldIndex });
+    });
     s.events.on('statMilestone', ({ value }) => {
       hud?.flashStat();
       hud?.toast(t('toast.statMilestone', { n: formatNumber(value, numSuffix) }));
@@ -355,7 +368,11 @@ async function boot(): Promise<void> {
     });
     s.events.on('gateOpen', ({ index, wall }) => {
       melting.set(index, playSec);
-      if (s.level.worldIndex === 1 && s.tier === 0 && GATE_FUNNEL_WALLS.includes(wall)) trackOnce(`gate_${wall}`);
+      if (s.level.worldIndex !== 1 || s.tier !== 0) return;
+      // The open slope counts its ridges (docs/06 8.2: ridge_1…ridge_3), the other paces their walls.
+      const kind = s.level.gates[index]?.kind;
+      if (kind === 'ridge') trackOnce(`ridge_${wall}`);
+      else if (kind !== 'boss' && GATE_FUNNEL_WALLS.includes(wall)) trackOnce(`gate_${wall}`);
     });
     // Avalanche (M2-06): newbie counter and first-wave flag in the save, toasts, funnel steps 9 and 15 (docs/06).
     s.events.on('waveWarn', ({ scripted, normalWavesDone }) => {
@@ -366,7 +383,13 @@ async function boot(): Promise<void> {
     });
     // The free egg comes on its stand after the scripted wave: with its «Phew, made it!» (docs/01-gdd.md 16.6).
     const showEgg = (): void => {
-      if (s.giftEgg) s.giftEgg.shown = true;
+      const egg = s.giftEgg;
+      if (!egg) return;
+      // In the cave the hero hid in: on the open slope either lane of the fork has its grotto (docs/01-gdd.md 17.8).
+      const at = s.shelterIndex();
+      const spot = at >= 0 && at !== egg.niche && egg.phase === 'idle' ? eggSpotIn(s.level, at) : null;
+      if (spot) Object.assign(egg, spot);
+      egg.shown = true;
     };
     s.events.on('waveSurvived', ({ coins, total, gold, scripted }) => {
       // The scripted wave passed the hero in a cave (docs/01-gdd.md 4.6): step 9 of docs/06 with «Phew, made it!», so
@@ -438,6 +461,7 @@ async function boot(): Promise<void> {
   const curPos = new Vector3().copy(sim.hero.pos);
   const renderPos = new Vector3();
   let playSec = 0;
+  const sessionMarks = [...SESSION_MARKS];
   let playPersistAt = 0;
   let lastRenderTicks = 0;
   const blob = createBlobShadow();
@@ -813,6 +837,8 @@ async function boot(): Promise<void> {
     }
     saveClimb();
     playSec += dt;
+    // Minutes of play in this load, pauses not counted (docs/06 steps 12, 17, 20, 22).
+    while (sessionMarks.length > 0 && playSec >= sessionMarks[0]!) track(`session_${sessionMarks.shift()!}s`);
     questsView?.tick(dt);
     // The ×2 step boost runs on play seconds (stands on pause, survives F5; docs/01-gdd.md 9.1).
     if ((save.boostSec ?? 0) > 0) {

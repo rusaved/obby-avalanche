@@ -634,7 +634,7 @@
     "milestone": "PS",
     "description": "Первая минута на склоне (docs/01-gdd.md 17.8): сценарная сирена при входе на участок 2 (ftue.scriptedWaveWall 2), первое укрытие — грот участка 2 ≤ 46 с, подсказка об укрытии только бликом грота при первой сирене (hint.waveCave снят), яйцо после «Уф, успел!», развилка без объяснения до первой остановки, рубеж 1 на подходе, кадр-вид, первый великан на 2:20–3:00; события воронки ridge_1…3, boss_enter, boss_passed, boss_caught, record_up (docs/06)",
     "acceptance": "e2e ftue (open): по сценарию 17.8 с допусками ±5 с — gameReady, ridge_1 ≤ 20 с, first_wave_survived ≤ 46 с с inShelter true, egg_1 после тоста, session_60s, treadmill_first не обязателен до 90 с, boss_enter ≤ 150 с у физического бота, gameTutorialComplete; плашки-подсказки в первые 60 с — только «Кроссовки ×2» и управление, hint.waveCave не показан; порядок и кратность событий по docs/06 раздел 2; скриншоты docs/evidence/open/ftue_{10s,40s,ridge1}_1920x1080_ru.png",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
