@@ -32,6 +32,7 @@ import { createWaveView, type WaveView } from './app/wave-view.ts';
 import { createFtueVisual } from './render/ftue.ts';
 import { createFtueView, type FtueView } from './app/ftue-view.ts';
 import { createWayView, type WayView } from './app/way-view.ts';
+import { createAdsView, type AdsView } from './app/ads-view.ts';
 import { createFunView, type FunView } from './app/fun-view.ts';
 import { createFx, type FxParticles } from './render/fx.ts';
 import { guardBannerSigns } from './app/banner-signs.ts';
@@ -258,6 +259,7 @@ async function boot(): Promise<void> {
   let waveView: WaveView | null = null;
   let ftueView: FtueView | null = null;
   let wayView: WayView | null = null;
+  let adsView: AdsView | null = null;
   let funView: FunView | null = null;
   let fx: FxParticles | null = null;
   let meta: MetaView | null = null;
@@ -300,7 +302,12 @@ async function boot(): Promise<void> {
       levelMeshes?.setGiftShown(index, false);
       hud?.setCoins(formatNumber(total, numSuffix));
     });
-    s.events.on('gatePass', ({ total }) => hud?.setCoins(formatNumber(total, numSuffix)));
+    s.events.on('gatePass', ({ total, index }) => {
+      hud?.setCoins(formatNumber(total, numSuffix));
+      // Up on a ridge (docs/01-gdd.md 17.3, 17.9): the view frame over the next section, its grottos and number.
+      const shot = tuning.ridgeShot;
+      if (shot && cameraRig && s.level.gates[index]?.kind === 'ridge') cameraRig.view = { rise: shot.rise, back: shot.back, sec: shot.sec, t: 0 };
+    });
     // The free egg hatched (docs/01-gdd.md 6.2): the pet jumps out, +20% per step, egg_1 (docs/06 step 11).
     s.events.on('eggHatch', ({ pet }) => {
       const egg = s.giftEgg;
@@ -533,6 +540,9 @@ async function boot(): Promise<void> {
     },
     get ftue() {
       return ftueView;
+    },
+    get ads() {
+      return adsView;
     },
     get way() {
       return wayView;
@@ -832,6 +842,7 @@ async function boot(): Promise<void> {
     }
     botsView?.update(alpha, playSec);
     wayView?.update(renderPos);
+    adsView?.update(frameDt, save.totalPlaySec ?? 0);
     funView?.update(gameDt, playSec, renderPos);
     characters?.update(frameDt);
     if (levelMeshes) {
@@ -966,6 +977,7 @@ async function boot(): Promise<void> {
     threatColor: theme.threat.front[1],
     bonusColor: theme.bonus?.color,
     onShoes: () => void meta?.buyShoes(),
+    onAd: (id) => adsView?.press(id),
     onEgg: () => void petsView?.buyEgg(),
     onMenu: (id) => openMenuWindow(id),
     trophyColor: theme.ui.trophies,
@@ -1004,6 +1016,19 @@ async function boot(): Promise<void> {
     hideCaveParts: (niche, parts) => levelMeshes?.setCaveCut(niche, parts),
   });
   wayView = createWayView({ balance, getSim: () => sim, hud, camera: cameraRig, field: () => field });
+  // Rewarded ads by the common rules of docs/01-gdd.md 9.1 (stat_now in a grotto with a belt; continue_here, 17.11).
+  adsView = createAdsView({
+    balance,
+    hud,
+    platform,
+    pause,
+    save,
+    getSim: () => sim,
+    windowOpen: () => !!windows?.current,
+    moving: () => input.autoRun || (lastSnap ? lastSnap.moveX !== 0 || lastSnap.moveY !== 0 : false) || !!g.botPath,
+    numSuffix,
+    onStat: () => persist(),
+  });
   // Fun between the gates and the reward of every gate (docs/01-gdd.md 16.4, 16.5): sounds, particles, the fountain.
   fx = createFx();
   fx.setShare(quality.params.particles);

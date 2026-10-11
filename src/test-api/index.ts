@@ -148,6 +148,13 @@ export interface TestState {
   cameraPos: [number, number, number];
   /** Share of the fixed cave frame in the view (1 — the frame, 0 — the player's camera; PR-07). */
   cameraFixedBlend: number;
+  /** Share of the view frame of a ridge in the camera (0…1; docs/01-gdd.md 17.9). */
+  cameraViewBlend: number;
+  /** «▶ Ad: …» buttons on the HUD now (place ids, docs/01-gdd.md 9.1) and the one waiting for its ad. */
+  adButtons: string[];
+  /** How far each gate has melted on screen (0 — whole, 1 — gone; a ridge melts all its passages at once). */
+  gateMelt: number[];
+  adBusy: string | null;
   autoRun: boolean;
   checkpoint: number;
   respawning: boolean;
@@ -506,6 +513,10 @@ export function installTestApi(g: GameHandles): TestApi {
         cameraFov: cam?.camera.fov ?? 0,
         cameraPos: cam ? [cam.camera.position.x, cam.camera.position.y, cam.camera.position.z] : [0, 0, 0],
         cameraFixedBlend: cam?.fixedBlend ?? 0,
+        cameraViewBlend: cam?.viewBlend ?? 0,
+        adButtons: [...(g.ads?.shown ?? [])],
+        gateMelt: g.sim ? g.sim.level.gates.map((_, i) => g.levelMeshes?.gateOpenness(i) ?? 0) : [],
+        adBusy: g.ads?.busy ?? null,
         autoRun: g.input.autoRun,
         checkpoint: g.sim?.checkpoint ?? -1,
         respawning: (g.sim?.respawnTicksLeft ?? -1) >= 0,

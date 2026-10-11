@@ -36,9 +36,11 @@ export interface LevelGate {
   /** Open slope (docs/01-gdd.md 17.3, 17.6): «ridge» — ice in three passages of a low carniz; «boss» — the giant's
    * check at the summit line, never a collider; absent — a wall of the classic and gateSide layouts. */
   kind?: 'ridge' | 'boss';
-  /** Ridge: x of the passage centres and their width. */
+  /** Ridge: x of the passage centres, their width and length up the step, the height of the step (carniz). */
   passes?: number[];
   passWidth?: number;
+  passLength?: number;
+  rise?: number;
   z: number;
   y: number;
   requires: number;

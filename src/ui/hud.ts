@@ -28,6 +28,8 @@ export interface HudOptions {
   bonusColor?: string | undefined;
   /** «Shoes ×N · price» pressed (docs/01-gdd.md 6.2, 10.1): one tap buys. */
   onShoes: () => void;
+  /** A «▶ Ad: …» button released (docs/01-gdd.md 9.1, 10.1): the id of its place (stat_now, continue_here, …). */
+  onAd?: (id: string) => void;
   /** «Can» and «not yet» colours of the shoes button (theme.json ui.ok, ui.no). */
   okColor: string;
   /** Speed plaque colour and its icon id (theme.json ui.stat, ui.statIcon). */
@@ -141,6 +143,9 @@ export interface Hud {
   setMenu(items: readonly MenuItem[]): void;
   /** The egg button over the stand the hero stands at; null hides it. */
   setEggButton(state: EggButtonState | null): void;
+  /** «▶ Ad: …» buttons shown now (docs/01-gdd.md 9.1, 10.1: PC — left middle, touch — top centre under the goal);
+   * `busy` — waiting for the ad, the button is locked. An empty list hides the row. */
+  setAdButtons(list: ReadonlyArray<{ id: string; text: string; busy: boolean }>): void;
   /** Trophy plaque under the coins (docs/01-gdd.md 6.4: from the first summit); null hides it. */
   setTrophies(text: string | null): void;
   readonly jumpButton: HTMLButtonElement;
@@ -404,6 +409,13 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const gainPool = Array.from({ length: 4 }, () => el('div', 'hud-gain'));
   let gainNext = 0;
   for (const node of gainPool) root.appendChild(node);
+
+  // «▶ Ad: …» buttons (docs/01-gdd.md 9.1, 10.1): a row, no sound and no lure animation.
+  const ads = el('div', 'hud-ads');
+  ads.dataset['role'] = 'ads';
+  ads.dataset['hud'] = 'ads';
+  const adBtns: HTMLButtonElement[] = [];
+  root.appendChild(ads);
 
   // Shoes button (docs/01-gdd.md 10.1): grey with a fill bar while coins are short, green with a shine when enough.
   const shoes = el('button', 'hud-shoes');
@@ -715,6 +727,40 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
         const badge = menuButtons.get(item.id)?.badge;
         if (badge && badge.textContent !== (item.badge ?? '')) badge.textContent = item.badge ?? '';
       }
+    },
+    setAdButtons(list) {
+      ads.classList.toggle('shown', list.length > 0);
+      while (adBtns.length < list.length) {
+        const b = el('button', 'hud-ad');
+        let down: { x: number; y: number } | null = null;
+        // Fires on release when the finger moved under 10 px (docs/01-gdd.md 10.1); never starts the stick.
+        b.addEventListener('pointerdown', (ev) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          down = { x: ev.clientX, y: ev.clientY };
+        });
+        b.addEventListener('pointerup', (ev) => {
+          ev.stopPropagation();
+          if (ev.pointerType === 'touch' || ev.pointerType === 'pen') dropTapClick();
+          const ok = down !== null && Math.hypot(ev.clientX - down.x, ev.clientY - down.y) < 10;
+          down = null;
+          if (ok && !b.disabled && b.dataset['ad']) opts.onAd?.(b.dataset['ad']);
+        });
+        b.addEventListener('click', (ev) => {
+          if (ev.detail === 0 && !b.disabled && b.dataset['ad']) opts.onAd?.(b.dataset['ad']);
+        });
+        ads.appendChild(b);
+        adBtns.push(b);
+      }
+      adBtns.forEach((b, i) => {
+        const item = list[i];
+        b.hidden = !item;
+        if (!item) return;
+        b.dataset['ad'] = item.id;
+        b.dataset['hud'] = `ad-${item.id}`;
+        if (b.textContent !== item.text) b.textContent = item.text;
+        b.disabled = item.busy;
+      });
     },
     setEggButton(state) {
       eggBtn.classList.toggle('shown', state !== null);

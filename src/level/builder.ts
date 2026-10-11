@@ -223,6 +223,8 @@ export function buildLevel(world: World): LevelData {
         if (Array.isArray(s['passes'])) {
           gate.passes = (s['passes'] as number[]).slice();
           gate.passWidth = num(s, 'passWidth');
+          gate.passLength = num(s, 'passLength');
+          gate.rise = num(s, 'rise');
         }
         gates.push(gate);
         break;

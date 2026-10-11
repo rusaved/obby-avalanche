@@ -381,7 +381,7 @@
             "coins": 60
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -389,6 +389,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 1,
           "zone": 1,
           "rarity": "uncommon"
@@ -767,7 +768,7 @@
             "coins": 70
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -775,6 +776,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 2,
           "zone": 2,
           "rarity": "rare"
@@ -1067,7 +1069,7 @@
             "coins": 90
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -1075,6 +1077,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 3,
           "zone": 3,
           "rarity": "legendary"
@@ -1230,7 +1233,7 @@
           "speed": 31.8,
           "margin": 0.05,
           "height": 0,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "wall": 4,
           "zone": 4,
           "rarity": "mythic"
@@ -1689,7 +1692,7 @@
             "coins": 200
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -1697,6 +1700,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 1,
           "zone": 1,
           "rarity": "uncommon"
@@ -2075,7 +2079,7 @@
             "coins": 200
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -2083,6 +2087,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 2,
           "zone": 2,
           "rarity": "rare"
@@ -2468,7 +2473,7 @@
             "coins": 250
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -2476,6 +2481,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 3,
           "zone": 3,
           "rarity": "epic"
@@ -2842,7 +2848,7 @@
             "coins": 300
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -2850,6 +2856,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 4,
           "zone": 4,
           "rarity": "legendary"
@@ -3005,7 +3012,7 @@
           "speed": 36.3,
           "margin": 0.05,
           "height": 0,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "wall": 5,
           "zone": 5,
           "rarity": "mythic"
@@ -3488,7 +3495,7 @@
             "coins": 600
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -3496,6 +3503,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 1,
           "zone": 1,
           "rarity": "uncommon"
@@ -3900,7 +3908,7 @@
             "coins": 750
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -3908,6 +3916,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 2,
           "zone": 2,
           "rarity": "rare"
@@ -4293,7 +4302,7 @@
             "coins": 1000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -4301,6 +4310,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 3,
           "zone": 3,
           "rarity": "epic"
@@ -4667,7 +4677,7 @@
             "coins": 1000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -4675,6 +4685,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 4,
           "zone": 4,
           "rarity": "legendary"
@@ -4830,7 +4841,7 @@
           "speed": 40.1,
           "margin": 0.05,
           "height": 0,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "wall": 5,
           "zone": 5,
           "rarity": "mythic"
@@ -5325,7 +5336,7 @@
             "coins": 3000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -5333,6 +5344,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 1,
           "zone": 1,
           "rarity": "uncommon"
@@ -5737,7 +5749,7 @@
             "coins": 5000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -5745,6 +5757,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 2,
           "zone": 2,
           "rarity": "rare"
@@ -6130,7 +6143,7 @@
             "coins": 6000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -6138,6 +6151,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 3,
           "zone": 3,
           "rarity": "epic"
@@ -6516,7 +6530,7 @@
             "coins": 7500
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -6524,6 +6538,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 4,
           "zone": 4,
           "rarity": "legendary"
@@ -6679,7 +6694,7 @@
           "speed": 43.9,
           "margin": 0.05,
           "height": 0,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "wall": 5,
           "zone": 5,
           "rarity": "mythic"
@@ -7174,7 +7189,7 @@
             "coins": 12000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -7182,6 +7197,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 1,
           "zone": 1,
           "rarity": "uncommon"
@@ -7598,7 +7614,7 @@
             "coins": 15000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -7606,6 +7622,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 2,
           "zone": 2,
           "rarity": "rare"
@@ -8017,7 +8034,7 @@
             "coins": 20000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -8025,6 +8042,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 3,
           "zone": 3,
           "rarity": "epic"
@@ -8389,7 +8407,7 @@
             "coins": 25000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -8397,6 +8415,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 4,
           "zone": 4,
           "rarity": "legendary"
@@ -8552,7 +8571,7 @@
           "speed": 47.1,
           "margin": 0.05,
           "height": 0,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "wall": 5,
           "zone": 5,
           "rarity": "mythic"
@@ -9059,7 +9078,7 @@
             "coins": 60000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -9067,6 +9086,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 1,
           "zone": 1,
           "rarity": "uncommon"
@@ -9495,7 +9515,7 @@
             "coins": 100000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -9503,6 +9523,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 2,
           "zone": 2,
           "rarity": "rare"
@@ -9886,7 +9907,7 @@
             "coins": 150000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -9894,6 +9915,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 3,
           "zone": 3,
           "rarity": "epic"
@@ -10258,7 +10280,7 @@
             "coins": 200000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -10266,6 +10288,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 4,
           "zone": 4,
           "rarity": "legendary"
@@ -10421,7 +10444,7 @@
           "speed": 50.9,
           "margin": 0.05,
           "height": 0,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "wall": 5,
           "zone": 5,
           "rarity": "mythic"
@@ -10928,7 +10951,7 @@
             "coins": 600000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -10936,6 +10959,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 1,
           "zone": 1,
           "rarity": "uncommon"
@@ -11362,7 +11386,7 @@
             "coins": 1000000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -11370,6 +11394,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 2,
           "zone": 2,
           "rarity": "rare"
@@ -11753,7 +11778,7 @@
             "coins": 1500000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -11761,6 +11786,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 3,
           "zone": 3,
           "rarity": "epic"
@@ -12125,7 +12151,7 @@
             "coins": 2000000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -12133,6 +12159,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 4,
           "zone": 4,
           "rarity": "legendary"
@@ -12288,7 +12315,7 @@
           "speed": 54.7,
           "margin": 0.05,
           "height": 0,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "wall": 5,
           "zone": 5,
           "rarity": "mythic"
@@ -12795,7 +12822,7 @@
             "coins": 8000000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -12803,6 +12830,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 1,
           "zone": 1,
           "rarity": "uncommon"
@@ -13229,7 +13257,7 @@
             "coins": 12000000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -13237,6 +13265,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 2,
           "zone": 2,
           "rarity": "rare"
@@ -13646,7 +13675,7 @@
             "coins": 20000000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -13654,6 +13683,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 3,
           "zone": 3,
           "rarity": "epic"
@@ -14030,7 +14060,7 @@
             "coins": 30000000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -14038,6 +14068,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 4,
           "zone": 4,
           "rarity": "legendary"
@@ -14193,7 +14224,7 @@
           "speed": 59,
           "margin": 0.05,
           "height": 0,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "wall": 5,
           "zone": 5,
           "rarity": "mythic"
@@ -14712,7 +14743,7 @@
             "coins": 120000000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -14720,6 +14751,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 1,
           "zone": 1,
           "rarity": "uncommon"
@@ -15146,7 +15178,7 @@
             "coins": 200000000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -15154,6 +15186,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 2,
           "zone": 2,
           "rarity": "rare"
@@ -15575,7 +15608,7 @@
             "coins": 300000000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -15583,6 +15616,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 3,
           "zone": 3,
           "rarity": "epic"
@@ -15959,7 +15993,7 @@
             "coins": 500000000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -15967,6 +16001,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 4,
           "zone": 4,
           "rarity": "legendary"
@@ -16122,7 +16157,7 @@
           "speed": 61,
           "margin": 0.05,
           "height": 0,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "wall": 5,
           "zone": 5,
           "rarity": "mythic"
@@ -16653,7 +16688,7 @@
             "coins": 2500000000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -16661,6 +16696,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 1,
           "zone": 1,
           "rarity": "uncommon"
@@ -17087,7 +17123,7 @@
             "coins": 4000000000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -17095,6 +17131,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 2,
           "zone": 2,
           "rarity": "rare"
@@ -17502,7 +17539,7 @@
             "coins": 6000000000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -17510,6 +17547,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 3,
           "zone": 3,
           "rarity": "epic"
@@ -17872,7 +17910,7 @@
             "coins": 12000000000
           },
           "height": 10,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "rise": 4,
           "passes": [
             -18,
@@ -17880,6 +17918,7 @@
             18
           ],
           "passWidth": 11,
+          "passLength": 8,
           "wall": 4,
           "zone": 4,
           "rarity": "legendary"
@@ -18035,7 +18074,7 @@
           "speed": 61,
           "margin": 0.05,
           "height": 0,
-          "signHeight": 2,
+          "signHeight": 7.5,
           "wall": 5,
           "zone": 5,
           "rarity": "mythic"

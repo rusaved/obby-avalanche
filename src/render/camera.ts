@@ -46,6 +46,11 @@ export interface CameraRig {
   fixed: { pos: Vector3; look: Vector3; fov: number } | null;
   /** Share of the fixed frame in the view now: 1 — the frame, 0 — the player's camera (tests: the way back). */
   readonly fixedBlend: number;
+  /** View frame of the open slope (docs/01-gdd.md 17.9: up on a ridge): for `sec` the camera rises `rise` and backs off
+   * `back`, looking along the slope over the hero; control stays with the player, his first turn by hand ends it. */
+  view: { rise: number; back: number; sec: number; t: number } | null;
+  /** Share of the view frame in the camera now (0…1; tests). */
+  readonly viewBlend: number;
   update(dt: number, target: CameraTarget, input: CameraInputInfo, collision: CollisionWorld | null): void;
   snapTo(target: CameraTarget): void;
   /** Is the camera inside level geometry (sphere test) — for tests. */
@@ -100,6 +105,8 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
   let wasFixed = false;
   let retFrom = 0;
   let retK = 1;
+  /** View frame now (0…1): eased in over the first 20% of it, out over the last 25%. */
+  let viewK = 0;
   /** Distance from a point to the hero's body axis, chest to head (the camera keeps hideDistance off it; PR-13). */
   const bodyDistance = (p: Vector3): number => {
     const y = Math.min(heroHead.y, Math.max(heroChest.y, p.y));
@@ -141,6 +148,10 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
     get fixedBlend() {
       return fixedK;
     },
+    view: null,
+    get viewBlend() {
+      return viewK;
+    },
     snapTo(target) {
       pivot.copy(target.pos).y += c.height;
       rig.currentDistance = frame.distance;
@@ -166,6 +177,13 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
     update(dt, target, input, collision) {
       if (input.manualCamera) rig.sinceManual = 0;
       else rig.sinceManual += dt;
+      viewK = 0;
+      if (rig.view) {
+        const v = rig.view;
+        v.t += dt;
+        if (input.manualCamera || v.t >= v.sec) rig.view = null;
+        else viewK = smooth01(Math.max(0, Math.min(1, v.t / (0.2 * v.sec), (v.sec - v.t) / (0.25 * v.sec))));
+      }
 
       // Follow with critical damping and lead by velocity.
       _tmp.copy(target.pos);
@@ -225,7 +243,7 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       // tuning camera.autoTurn (docs/01-gdd.md 16.7: running down the slope the view stays where the player left it).
       let yaw = frame.viewYaw;
       let pitch = frame.pitch;
-      let wantDist = frame.distance;
+      let wantDist = frame.distance + (rig.view ? rig.view.back * viewK : 0);
       if (rig.shot) {
         yaw = rig.shot.yaw;
         pitch = rig.shot.pitch;
@@ -273,7 +291,11 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       _dir.set(-Math.sin(yaw) * Math.cos(usePitch), Math.sin(usePitch), -Math.cos(yaw) * Math.cos(usePitch));
       if (allowed < rig.currentDistance || dt === 0) rig.currentDistance = allowed;
       // Out at retreatSpeed, but never lingering inside minDistance when there is room (the hero would hide).
-      else rig.currentDistance = Math.min(allowed, Math.max(rig.currentDistance + c.retreatSpeed * dt, Math.min(allowed, c.minDistance)));
+      // The view frame backs off in its first 20% (docs/01-gdd.md 17.9), faster than the plain retreat.
+      else {
+        const out = c.retreatSpeed + (rig.view ? rig.view.back / (0.2 * rig.view.sec) : 0);
+        rig.currentDistance = Math.min(allowed, Math.max(rig.currentDistance + out * dt, Math.min(allowed, c.minDistance)));
+      }
 
       _desired.copy(pivot).addScaledVector(_dir, rig.currentDistance);
       // The lead ahead of a fast hero never brings the camera back onto him (prototype playtest, item 2: running into a
@@ -291,6 +313,15 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
         } else pivot.copy(_from);
       }
       _look.copy(pivot);
+      // The view frame: higher (unless that puts it into the level), looking along the slope ahead of the hero.
+      if (rig.view && viewK > 0) {
+        _tmp.copy(_desired);
+        _desired.y += rig.view.rise * viewK;
+        if (collision && blocked(_desired, c.collisionRadius, collision)) _desired.copy(_tmp);
+        _look.x += Math.sin(yaw) * (rig.view.back + rig.view.rise) * viewK;
+        _look.z += Math.cos(yaw) * (rig.view.back + rig.view.rise) * viewK;
+        _look.y += rig.view.rise * 0.5 * viewK;
+      }
       // Fixed frame (the cave during an avalanche): blend in and out over shotReturnSec.
       if (rig.fixed) {
         fixedPos.copy(rig.fixed.pos);

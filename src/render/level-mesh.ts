@@ -27,6 +27,7 @@ import {
 } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { LevelBox, LevelData, LevelRamp } from '../level/types.ts';
+import { GATE_THICKNESS } from '../level/builder.ts';
 import type { ThemeJson } from '../content/types.ts';
 import { createDigitLabels, type DigitLabels } from './digits.ts';
 import { formatNumber } from '../ui/format.ts';
@@ -37,6 +38,15 @@ export const CHUNK_LENGTH = 120;
 const SIGN_TEXT = 2.2;
 const SIGN_MIN_WIDTH = 6;
 const SIGN_PAD = 2;
+/** Ridge of the open slope (docs/01-gdd.md 17.3): its number in glyphs this tall, read from the ridge below; the
+ * plaque height. The ice plugs of the passages stand this far over the carniz; the crest over the carniz is see-through. */
+const RIDGE_TEXT = 5;
+const RIDGE_PLAQUE = 6.5;
+const RIDGE_PLUG_OVER = 1;
+const RIDGE_CREST_OPACITY = 0.22;
+const RIDGE_CREST_THICK = 0.6;
+/** A plug starts at the front face of the gate slab. */
+const GATE_HALF = GATE_THICKNESS / 2;
 /** Fun parts (docs/01-gdd.md 16.4): plate and ribbon thickness, the pattern bars, chevrons a slide, the plate's spring. */
 const PAD_THICK = 0.25;
 const SLIDE_THICK = 0.1;
@@ -54,6 +64,8 @@ export interface LevelMeshes {
   digits: DigitLabels;
   /** Scale a gate slab (1 = closed, 0 = gone); M2 melts gates with this. */
   setGateOpen(index: number, openness: number): void;
+  /** How far gate `index` has melted (0 — whole, 1 — gone; tests). */
+  gateOpenness(index: number): number;
   /** Sign text («15/20» while closed, the requirement when open) and colour by state (docs/01-gdd.md 3.3). */
   setGateSign(index: number, text: string, open: boolean): void;
   /** What a sign currently shows (test API). */
@@ -255,13 +267,54 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     const w = g.box.max[0] - g.box.min[0];
     const d = g.box.max[2] - g.box.min[2];
     dummy.position.set(0, g.y + g.height / 2, g.z);
-    dummy.scale.set(w, g.height, d);
+    // A ridge is drawn by its plugs and crest below; the giant's line has no slab at all.
+    dummy.scale.set(w, g.kind ? 1e-4 : g.height, d);
     dummy.updateMatrix();
     gates.setMatrixAt(i, dummy.matrix);
   });
   gates.instanceMatrix.needsUpdate = true;
   signs.instanceMatrix.needsUpdate = true;
   group.add(gates, signs);
+
+  // Ridges (docs/01-gdd.md 17.3): ice plugs fill the passages up the step, a see-through crest over the carniz up to the
+  // top of the collider (no invisible wall); both melt with the gate. Two draw calls for all ridges of the mountain.
+  const ridgeParts: Array<{ gate: number; x: number; w: number; y0: number; h: number; z: number; d: number; crest: boolean }> = [];
+  level.gates.forEach((g, i) => {
+    if (g.kind !== 'ridge') return;
+    const plugTop = (g.rise ?? 0) + RIDGE_PLUG_OVER;
+    const pass = g.passWidth ?? 0;
+    const len = (g.passLength ?? 0) + GATE_HALF;
+    for (const px of g.passes ?? []) ridgeParts.push({ gate: i, x: px, w: pass, y0: g.y, h: plugTop, z: g.z - GATE_HALF + len / 2, d: len, crest: false });
+    ridgeParts.push({ gate: i, x: 0, w: level.width, y0: g.y + plugTop, h: g.height - plugTop, z: g.z, d: RIDGE_CREST_THICK, crest: true });
+  });
+  const crestMat = new MeshLambertMaterial({ color: materialColor(theme, 'gateClosed'), transparent: true, opacity: RIDGE_CREST_OPACITY, depthWrite: false });
+  const plugCount = ridgeParts.filter((p) => !p.crest).length;
+  const ridgePlugs = new InstancedMesh(gateGeo, gateMat, Math.max(1, plugCount));
+  const ridgeCrests = new InstancedMesh(gateGeo, crestMat, Math.max(1, ridgeParts.length - plugCount));
+  ridgePlugs.count = plugCount;
+  ridgeCrests.count = ridgeParts.length - plugCount;
+  const ridgeSlot: number[] = [];
+  const melted: number[] = level.gates.map(() => 0);
+  const placeRidge = (k: number, openness: number): void => {
+    const p = ridgeParts[k]!;
+    const h = p.h * Math.max(0.001, 1 - openness);
+    dummy.position.set(p.x, p.y0 + h / 2, p.z);
+    dummy.rotation.set(0, 0, 0);
+    dummy.scale.set(p.w, h, p.d);
+    dummy.updateMatrix();
+    (p.crest ? ridgeCrests : ridgePlugs).setMatrixAt(ridgeSlot[k]!, dummy.matrix);
+  };
+  let plugN = 0;
+  let crestN = 0;
+  ridgeParts.forEach((p, k) => {
+    ridgeSlot[k] = p.crest ? crestN++ : plugN++;
+    placeRidge(k, 0);
+  });
+  ridgePlugs.instanceMatrix.setUsage(DynamicDrawUsage);
+  ridgeCrests.instanceMatrix.setUsage(DynamicDrawUsage);
+  ridgePlugs.instanceMatrix.needsUpdate = true;
+  ridgeCrests.instanceMatrix.needsUpdate = true;
+  if (plugCount > 0) group.add(ridgePlugs, ridgeCrests);
 
   const digits = createDigitLabels(level.gates.length * 10 + 8);
   const signState = level.gates.map((g) => ({ text: formatNumber(g.requires, suffix), open: false, hidden: false }));
@@ -282,18 +335,24 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       signs.instanceMatrix.needsUpdate = true;
       return;
     }
-    digits.setLabel(i, st.text, 0, g.y + g.signHeight, g.z - d / 2 - 0.52, SIGN_TEXT, '#ffffff');
+    const ridge = g.kind === 'ridge';
+    const size = ridge ? RIDGE_TEXT : SIGN_TEXT;
+    digits.setLabel(i, st.text, 0, g.y + g.signHeight, g.z - d / 2 - 0.52, size, '#ffffff');
     // The plaque fits the text it shows now, «4,2K/12K» included (playtest M2: the text ran past it).
     dummy.position.set(0, g.y + g.signHeight, g.z - d / 2 - 0.3);
     dummy.rotation.set(0, 0, 0);
-    dummy.scale.set(Math.max(SIGN_MIN_WIDTH, digits.measure(st.text, SIGN_TEXT) + SIGN_PAD), 3, 0.4);
+    dummy.scale.set(Math.max(SIGN_MIN_WIDTH, digits.measure(st.text, size) + SIGN_PAD * (ridge ? 2 : 1)), ridge ? RIDGE_PLAQUE : 3, 0.4);
     dummy.updateMatrix();
     signs.setMatrixAt(i, dummy.matrix);
     signs.instanceMatrix.needsUpdate = true;
     signs.setColorAt(i, signColor.set(st.open ? signOpenColor : signClosedColor));
     if (signs.instanceColor) signs.instanceColor.needsUpdate = true;
   };
-  level.gates.forEach((_, i) => applySign(i));
+  level.gates.forEach((g, i) => {
+    // The giant's line carries no number plaque (its sign comes with the giant, docs/01-gdd.md 17.6).
+    if (g.kind === 'boss') signState[i]!.hidden = true;
+    applySign(i);
+  });
   group.add(digits.mesh);
 
   // Gifts (M2-04): one InstancedMesh in zone rarity colours; a taken gift scales to zero until the respawn.
@@ -428,7 +487,9 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       const st = signState[index];
       if (!g || !st) return { center: [0, 0, 0], size: [0, 0, 0] };
       const d = g.box.max[2] - g.box.min[2];
-      return { center: [0, g.y + g.signHeight, g.z - d / 2 - 0.3], size: [Math.max(SIGN_MIN_WIDTH, digits.measure(st.text, SIGN_TEXT) + SIGN_PAD), 3, 0.4] };
+      const ridge = g.kind === 'ridge';
+      const width = Math.max(SIGN_MIN_WIDTH, digits.measure(st.text, ridge ? RIDGE_TEXT : SIGN_TEXT) + SIGN_PAD * (ridge ? 2 : 1));
+      return { center: [0, g.y + g.signHeight, g.z - d / 2 - 0.3], size: [width, ridge ? RIDGE_PLAQUE : 3, 0.4] };
     },
     setSignHidden(index, hidden) {
       const st = signState[index];
@@ -446,9 +507,18 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       });
     },
     cutBoxes: () => cutParts.filter((_, i) => cutHidden[i]).map((w) => ({ min: w.box.min, max: w.box.max })),
+    gateOpenness: (index) => melted[index] ?? 0,
     setGateOpen(index, openness) {
       const g = level.gates[index];
       if (!g) return;
+      melted[index] = openness;
+      if (g.kind === 'ridge') {
+        // Every passage of the ridge and its crest melt at once (docs/01-gdd.md 17.3).
+        ridgeParts.forEach((p, k) => p.gate === index && placeRidge(k, openness));
+        ridgePlugs.instanceMatrix.needsUpdate = true;
+        ridgeCrests.instanceMatrix.needsUpdate = true;
+        return;
+      }
       gates.getMatrixAt(index, _m);
       _m.decompose(_p, _q, _s);
       const h = g.height * Math.max(0.001, 1 - openness);
@@ -469,6 +539,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       material.dispose();
       gateGeo.dispose();
       gateMat.dispose();
+      crestMat.dispose();
       signGeo.dispose();
       signMat.dispose();
       backGeo.dispose();

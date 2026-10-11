@@ -46,6 +46,8 @@ export interface SimEventRecord {
 }
 
 export interface GameHandles {
+  /** Rewarded-ad buttons (docs/01-gdd.md 9.1). */
+  readonly ads: import('./ads-view.ts').AdsView | null;
   loop: Loop;
   pause: PauseManager;
   platform: Platform;

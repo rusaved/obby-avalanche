@@ -47,7 +47,8 @@ export const OPEN_SLOPE = {
   passWidth: 11,
   passLength: 8,
   gateHeight: 10,
-  signHeight: 2,
+  /** The number plaque stands over the carniz (its glyphs 6 units, docs/01-gdd.md 17.3): centre this high over the floor. */
+  signHeight: 7.5,
   grotto: { length: 8, depth: 4 },
   /** The grotto under the ridge and the one before the giant's zone: 16 long, 6 deep, its exit 2 units below the line. */
   bigGrotto: { length: 16, depth: 6, exit: 2 },
@@ -231,6 +232,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       rise: O.ridgeRise,
       passes: [...O.passes],
       passWidth: O.passWidth,
+      passLength: O.passLength,
       wall: j,
       zone: j,
       rarity: zone.rarity,

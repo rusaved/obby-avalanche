@@ -36,6 +36,8 @@ export interface HudView {
 
 export function createHudView(d: HudViewDeps): HudView {
   let openedAt = -Infinity;
+  /** The gate that opened last is a ridge of the open slope (docs/01-gdd.md 17.3): «Ridge open!». */
+  let openedRidge = false;
   let pendingPop: number | null = null;
   let lastPopAt = -Infinity;
   let now = 0;
@@ -49,7 +51,10 @@ export function createHudView(d: HudViewDeps): HudView {
         caves: sim.level.niches.map((n) => n.z / len),
         faceUrl: d.faceUrl,
       });
-      sim.events.on('gateOpen', () => void (openedAt = now));
+      sim.events.on('gateOpen', ({ index }) => {
+        openedAt = now;
+        openedRidge = sim.level.gates[index]?.kind === 'ridge';
+      });
       // Entering a new gift zone (Q-019: the place is announced): «Rare gifts» when the flag behind a wall starts a new zone.
       sim.events.on('checkpoint', ({ index }) => {
         const c = sim.level.checkpoints[index];
@@ -75,14 +80,20 @@ export function createHudView(d: HudViewDeps): HudView {
       const open = sim.gatesOpen.filter(Boolean).length;
       const ts = sim.threat?.state;
       const wave = ts?.phase === 'warn' ? ts.spawnZ / len : ts?.phase === 'run' ? Math.max(0, ts.frontZ) / len : null;
-      d.hud.updateMountain(t('hud.mountain', { a: level.worldIndex, b: open, c: level.gates.length }), sim.hero.pos.z / len, wave, ts?.phase === 'warn' ? ts.shelter : -1);
+      // Open slope (docs/01a-content.md 16.9): «Mountain 1 · ridge 1/3» — ridges only, the giant has his own mark.
+      const ridges = level.gates.filter((g) => g.kind === 'ridge').length;
+      const label = ridges > 0
+        ? t('summit.progress', { a: level.worldIndex, b: level.gates.filter((g, i) => g.kind === 'ridge' && sim.gatesOpen[i]).length, c: ridges })
+        : t('hud.mountain', { a: level.worldIndex, b: open, c: level.gates.length });
+      d.hud.updateMountain(label, sim.hero.pos.z / len, wave, ts?.phase === 'warn' ? ts.shelter : -1);
 
       // Goal: the next closed wall with the count, «Wall open!» for 2 s, then the summit and the portal.
-      const next = sim.gatesOpen.findIndex((o) => !o);
-      if (timeSec - openedAt < GOAL_OPEN_SEC) d.hud.setGoal(t('hud.goal.open'), null);
+      const next = sim.gatesOpen.findIndex((o, i) => !o && level.gates[i]?.kind !== 'boss');
+      if (timeSec - openedAt < GOAL_OPEN_SEC) d.hud.setGoal(t(openedRidge ? 'ridge.open' : 'hud.goal.open'), null);
       else if (next >= 0) {
         const req = sim.gateRequirement(next);
-        d.hud.setGoal(t('hud.goal.wall', { n: fmt(req) }), { text: `${fmt(stat)}/${fmt(req)}`, frac: stat / req });
+        const key = level.gates[next]?.kind === 'ridge' ? 'ridge.goal' : 'hud.goal.wall';
+        d.hud.setGoal(t(key, { n: fmt(req) }), { text: `${fmt(stat)}/${fmt(req)}`, frac: stat / req });
       } else {
         const summit = level.safeZones[level.safeZones.length - 1];
         const onSummit = level.safeZones.length > 1 && summit !== undefined && sim.hero.pos.z >= summit[0];
