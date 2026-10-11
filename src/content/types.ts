@@ -178,6 +178,8 @@ export interface HintsTiming {
   wrongWayDist: number;
   portalIdleSec: number;
   portalMax: number;
+  /** «Two ways: pick one» (open slope, docs/01-gdd.md 17.8): once, after standing this long at a fork; absent — never. */
+  forkSec?: number;
 }
 
 export interface TuningJson {
@@ -313,7 +315,9 @@ export type SegmentType =
   | 'summit'
   | 'jumpPad'
   | 'slide'
-  | 'fork';
+  | 'fork'
+  | 'cliff'
+  | 'chestGrotto';
 
 export interface Segment {
   type: SegmentType;

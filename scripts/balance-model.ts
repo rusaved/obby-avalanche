@@ -330,14 +330,17 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
     const lastGateZ = gates[gates.length - 1]?.z ?? world.length;
     const zEnd = lastGateZ + TO_PORTAL;
     const before = wallsPerMountain.slice(0, w - 1).reduce((a, b) => a + b, 0);
-    const giftsAll = world.segments.filter((s) => s.type === 'gift' && s['path'] !== true);
+    // Open slope (docs/01-gdd.md 17.12): the bot runs the axis — the bold lane of a fork and the detours (a crevasse
+    // bottom, a ledge, the grotto with the chest) are not counted; on a fork it takes the calm lane.
+    const axis = (s: Segment): boolean => s['lane'] !== 'bold' && s['detour'] !== true;
+    const giftsAll = world.segments.filter((s) => s.type === 'gift' && s['path'] !== true && axis(s));
     const groundShare = giftsAll.length ? giftsAll.filter((s) => num(s, 'height') === 0).length / giftsAll.length : 1;
     // Only gifts off the path cost a detour of GIFT_SEC (classic: perZone after every wave); a mountain of path gifts has none.
     const perZone = giftsAll.length ? balance.gifts.perZone : 0;
     const giftsPerZone = lazy ? Math.round(perZone * groundShare) : perZone;
     // Gifts on the path, bottom up: taken while the hero walks over them, back after a wave is gone (gifts.respawn).
     const pathGifts = world.segments
-      .filter((s) => s.type === 'gift' && s['path'] === true)
+      .filter((s) => s.type === 'gift' && s['path'] === true && axis(s))
       .map((s) => ({ z: s.z, coins: num(s, 'coins'), taken: false }))
       .sort((a, b) => a.z - b.z);
     const takePath = (from: number, to: number): void => {

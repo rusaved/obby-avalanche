@@ -11,6 +11,7 @@
  * section's multiplier. A fork splits the slope by a cliff into a calm and a bold lane; each lane has its grottos.
  */
 import type { Segment, World, WorldBoss, WorldZone, WorldsSpecJson, OpenSpecJson, OpenSpecMountain } from '../content/types.ts';
+import { PAD_SIZE, SLIDE_LENGTH, SLIDE_WIDTH } from './pad-arc.ts';
 
 /** Rounding series for treadmill multipliers (docs/01a-content.md, section 2): 1; 1.2; 1.5; 2; 2.5; 3; 4; 5; 6; 8 × 10^k. */
 const SERIES = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8];
@@ -62,6 +63,16 @@ export const OPEN_SLOPE = {
   giftSpan: [0.05, 0.95] as const,
   eggStandSection: 3,
   eggStandX: 12,
+  /**
+   * The bold lane of a fork (docs/01-gdd.md 17.7), units from the fork start: the ice slide at `slideAt`; a crevasse 5
+   * wide and 2 deep across the lane from `from` on (where no grotto of that side is near), its bottom flat for `bottom`,
+   * then a slope out; the trampoline `padBefore` below it throws over it.
+   */
+  crevasse: { slideAt: 2, from: 26, width: 5, depth: 2, bottom: 2.5, padBefore: 5 },
+  /** From mountain 2 (17.5): an ice cliff on the bold lane (|x| 18–26), a winding way up, the ledge shelter on top. */
+  cliff: { x0: 18, x1: 26, ramp: 14, top: 8, height: 9, gap: 8 },
+  /** One grotto with a chest a mountain, past the bold lane of section 2 or 3: 10 × the gift of its section. */
+  chest: { sections: [2, 3], length: 8, depth: 4, gifts: 10, after: 6 },
 } as const;
 
 type Spec = OpenSpecJson;
@@ -115,6 +126,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
   pushOpenCamp(seg, spec, m);
 
   let y = 0;
+  let chestDone = false;
   m.sections.forEach((sec, i) => {
     const j = i + 1;
     const zone = zones[i] as WorldZone;
@@ -130,7 +142,6 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       zFlat = z0 + O.passLength;
       pushPassages(seg, z0, y - O.ridgeRise, y, half);
     }
-    seg.push({ type: 'floor', z: zFlat, length: round3(zA - zFlat), y });
     seg.push({ type: 'ramp', z: zA, length: round3(zB - zA), y, rise: O.approachRise });
     seg.push({ type: 'floor', z: zB, length: round3(z1 - zB), y: yTop });
 
@@ -195,11 +206,84 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       stretch: j,
     });
 
+    // The bold lane of the fork (docs/01-gdd.md 17.7; docs/01a-content.md 16.5): the ice slide, the trampoline over the
+    // crevasse (a gift at its bottom, a slope out), from mountain 2 the ice cliff with the ledge shelter on top (gift ×2),
+    // the grotto with the chest past the fork (one a mountain). Each where no grotto of the bold side is near.
+    const overHole: Array<[number, number]> = [];
+    let crevasse: [number, number] | null = null;
+    const sb = bold === 'left' ? -1 : 1;
+    const boldNiches = seg.filter((x) => x.type === 'niche' && x['side'] === bold && x.z > z0 - 20 && x.z < z1 + 20);
+    const free = (a: number, b: number): boolean =>
+      boldNiches.every((n) => (n.z as number) + (n['length'] as number) / 2 + 2 < a || (n.z as number) - (n['length'] as number) / 2 - 2 > b);
+    const gift = (z: number, x: number, yy: number, coins: number, extra: Record<string, unknown>): Segment => ({
+      type: 'gift',
+      z: round3(z),
+      x,
+      y: yy,
+      height: 0,
+      zone: j,
+      rarity: zone.rarity,
+      coins,
+      n: 0,
+      ...extra,
+    });
+    if (fork) {
+      const C = O.crevasse;
+      const xb = sb * O.laneX;
+      seg.push({ type: 'slide', z: round3(fork[0] + C.slideAt + SLIDE_LENGTH / 2), x: xb, y, width: SLIDE_WIDTH, length: SLIDE_LENGTH, stretch: j });
+      for (let c0 = fork[0] + C.from; c0 + C.width <= fork[1] - 4; c0 += 1) {
+        if (!free(c0, c0 + C.width)) continue;
+        crevasse = [round3(c0), round3(c0 + C.width)];
+        break;
+      }
+      if (crevasse) {
+        const [c0, c1] = crevasse;
+        const inner = (O.fork.width / 2) * sb;
+        seg.push({ type: 'gap', z: c0, length: C.width, x0: Math.min(inner, sb * half), x1: Math.max(inner, sb * half), y, depth: C.depth, lane: 'bold' });
+        seg.push({ type: 'jumpPad', z: round3(c0 - C.padBefore), x: xb, y, width: PAD_SIZE, length: PAD_SIZE, stretch: j });
+        seg.push(gift(c0 + C.bottom / 2, xb, y - C.depth, sec.gift, { detour: true }));
+        overHole.push([c0 - C.padBefore - PAD_SIZE / 2 - 1, c1 + 1]);
+      }
+      const K = O.cliff;
+      const span = K.ramp + K.top;
+      if (index >= 2) {
+        for (let k0 = (crevasse ? crevasse[1] : fork[0] + C.from) + K.gap; k0 + span <= zA - 2; k0 += 1) {
+          if (!free(k0, k0 + span)) continue;
+          seg.push({ type: 'cliff', z: round3(k0), length: K.ramp, top: K.top, height: K.height, x0: Math.min(sb * K.x0, sb * K.x1), x1: Math.max(sb * K.x0, sb * K.x1), y, side: bold, zone: j, stretch: j });
+          seg.push(gift(k0 + K.ramp + K.top / 2, (sb * (K.x0 + K.x1)) / 2, y + K.height, 2 * sec.gift, { detour: true }));
+          break;
+        }
+      }
+      const H = O.chest;
+      if (!chestDone && (H.sections as readonly number[]).includes(j)) {
+        for (let zc = fork[1] + H.after + H.length / 2; zc + H.length / 2 <= flatHi; zc += 1) {
+          if (!free(zc - H.length / 2, zc + H.length / 2)) continue;
+          seg.push({ type: 'chestGrotto', z: round3(zc), y, side: bold, length: H.length, depth: H.depth, coins: H.gifts * sec.gift, zone: j, rarity: zone.rarity, stretch: j });
+          chestDone = true;
+          break;
+        }
+      }
+    }
+    // The floor of the section: whole, or round the crevasse — the calm half at the slope, the bold half down to its
+    // bottom and up its slope.
+    if (crevasse) {
+      const C = O.crevasse;
+      const [c0, c1] = crevasse;
+      const inner = (O.fork.width / 2) * sb;
+      const calm: [number, number] = [Math.min(-sb * half, inner), Math.max(-sb * half, inner)];
+      const boldX: [number, number] = [Math.min(inner, sb * half), Math.max(inner, sb * half)];
+      seg.push({ type: 'floor', z: zFlat, length: round3(c0 - zFlat), y });
+      seg.push({ type: 'floor', z: c0, length: C.width, y, x0: calm[0], x1: calm[1] });
+      seg.push({ type: 'floor', z: c0, length: C.bottom, y: y - C.depth, x0: boldX[0], x1: boldX[1] });
+      seg.push({ type: 'ramp', z: round3(c0 + C.bottom), length: round3(C.width - C.bottom), y: y - C.depth, rise: C.depth, x0: boldX[0], x1: boldX[1] });
+      seg.push({ type: 'floor', z: c1, length: round3(zA - c1), y });
+    } else seg.push({ type: 'floor', z: zFlat, length: round3(zA - zFlat), y });
+
     // Gifts on the path (docs/01a-content.md 16.2): 12 a section, taken on the run; on a fork one on each lane, the bold one ×2.
     for (let g = 0; g < O.pathGifts; g++) {
       const zg = round3(z0 + L * (O.giftSpan[0] + ((O.giftSpan[1] - O.giftSpan[0]) * g) / (O.pathGifts - 1)));
       const yg = zg < zA ? y : zg < zB ? round3(y + (O.approachRise * (zg - zA)) / (zB - zA)) : yTop;
-      const gift = (x: number, coins: number, extra: Record<string, unknown> = {}): Segment => ({
+      const pathGift = (x: number, coins: number, extra: Record<string, unknown> = {}): Segment => ({
         type: 'gift',
         z: zg,
         x,
@@ -213,10 +297,10 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
         ...extra,
       });
       if (fork && zg >= fork[0] && zg <= fork[1]) {
-        const sign = bold === 'left' ? -1 : 1;
-        seg.push(gift(-sign * O.laneX, sec.gift, { lane: 'calm' }));
-        seg.push(gift(sign * O.laneX, 2 * sec.gift, { lane: 'bold' }));
-      } else seg.push(gift(0, sec.gift));
+        seg.push(pathGift(-sb * O.laneX, sec.gift, { lane: 'calm' }));
+        // Not over the crevasse and its trampoline: there the hero flies.
+        if (!overHole.some(([a, b]) => zg >= a && zg <= b)) seg.push(pathGift(sb * O.laneX, 2 * sec.gift, { lane: 'bold' }));
+      } else seg.push(pathGift(0, sec.gift));
     }
 
     const ridge = m.ridges[i] as { requires: number };

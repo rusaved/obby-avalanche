@@ -18,7 +18,7 @@ import { GIFT_HALF, GIFT_HEIGHT, touchesGift } from '../sim/gifts.ts';
 import { HERO_HEIGHT, HERO_RADIUS } from '../sim/controller.ts';
 import { GATE_SIDE, zoneOfStretch } from './generate.ts';
 import { CLASSIC_PACE } from '../content/pace.ts';
-import { isOpenWorlds, validateOpenBoss, validateOpenCount, validateOpenFairness, validateOpenGround, validateOpenWorld } from './validate-open.ts';
+import { isOpenWorlds, validateOpenBoss, validateOpenCount, validateOpenFairness, validateOpenFun, validateOpenGround, validateOpenWorld } from './validate-open.ts';
 
 export const PACK_FILES = [
   'game.json',
@@ -65,7 +65,7 @@ const curve = v.object({ base: positive, k: nonNeg, max: positive });
 export const STAT_EFFECTS = ['moveSpeed', 'jumpPower', 'gateOnly'] as const;
 export const SEGMENT_TYPES = [
   'floor', 'wall', 'gate', 'niche', 'gap', 'ramp', 'steps', 'treadmill', 'checkpoint', 'coins', 'chest',
-  'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit', 'jumpPad', 'slide', 'fork',
+  'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit', 'jumpPad', 'slide', 'fork', 'cliff', 'chestGrotto',
 ] as const;
 /** Mountain layouts of the generator (docs/01-gdd.md 5.2, 16.3). */
 export const WORLD_LAYOUTS = ['classic', 'gateSide', 'openSlope'] as const;
@@ -236,6 +236,7 @@ const balanceSchema = v.object({
     wrongWayDist: positive,
     portalIdleSec: positive,
     portalMax: v.pipe(v.number(), v.integer(), v.minValue(0)),
+    forkSec: v.optional(positive),
   }),
   // Targets of sim:balance --fit for a pace (docs/01-gdd.md 16.8): the game never reads them.
   sim: v.optional(
@@ -780,7 +781,7 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
         for (const [file, dict] of [['i18n/ru.json', ru], ['i18n/en.json', en]] as const) if (!dict[key]) errors.push(`${file}: ${key} — missing (the giant, docs/01a-content.md 16.9)`);
     }
     if (game.threat.bonus) errors.push(...validateGoldFairness(worlds, speedAt, game.threat.bonus.distMax));
-    if (!open) errors.push(...validateFun(worlds, tuning, speedAt));
+    errors.push(...(open ? validateOpenFun(worlds, tuning, speedAt) : validateFun(worlds, tuning, speedAt)));
   }
   // The count of 01a against the generated mountains (M3-05): after fairness, so a broken number still gets its seconds named.
   if (open) errors.push(...validateOpenCount(worlds, files['worlds-spec.json'] as OpenSpecJson), ...validateFirstIntervals(worlds, files['worlds-spec.json'] as WorldsSpecJson));

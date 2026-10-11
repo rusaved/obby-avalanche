@@ -41,6 +41,7 @@ const SIGN_PAD = 2;
 /** Ridge of the open slope (docs/01-gdd.md 17.3): its number in glyphs this tall, read from the ridge below; the
  * plaque height. The ice plugs of the passages stand this far over the carniz; the crest over the carniz is see-through. */
 const RIDGE_TEXT = 5;
+const CHEST_GIFT_SCALE = 1.8;
 const RIDGE_PLAQUE = 6.5;
 const RIDGE_PLUG_OVER = 1;
 const RIDGE_CREST_OPACITY = 0.22;
@@ -369,14 +370,16 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     if (!p) return;
     dummy.position.set(p.x, p.y, p.z);
     dummy.rotation.set(0, 0, 0);
-    dummy.scale.setScalar(shown ? 1 : 0.0001);
+    // The chest of a grotto (docs/01-gdd.md 17.7) is a bigger gift in the chest colour.
+    dummy.scale.setScalar(shown ? (p['chest'] === true ? CHEST_GIFT_SCALE : 1) : 0.0001);
     dummy.updateMatrix();
     gifts.setMatrixAt(i, dummy.matrix);
     gifts.instanceMatrix.needsUpdate = true;
   };
   giftPoints.forEach((p, i) => {
     placeGift(i, true);
-    gifts.setColorAt(i, giftColor.set(theme.rarity[(p['rarity'] as string) ?? 'common'] ?? '#ffffff'));
+    const color = p['chest'] === true ? materialColor(theme, 'chest') : giftColor.set(theme.rarity[(p['rarity'] as string) ?? 'common'] ?? '#ffffff');
+    gifts.setColorAt(i, color);
   });
   if (gifts.instanceColor) gifts.instanceColor.needsUpdate = true;
   gifts.computeBoundingSphere();

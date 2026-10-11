@@ -14,6 +14,7 @@ export type HintId =
   | 'wave.cave'
   | 'hint.caught'
   | 'hint.stuck'
+  | 'hint.fork'
   | 'hint.treadmill'
   | 'hint.shoes'
   | 'hint.jumpPc'
@@ -51,6 +52,8 @@ export interface HintFrame {
   /** On the way from the gate of hint.stuck down to the cave below it, that gate still closed (docs/01-gdd.md 6.5:
    * the plaque goes on entering the cave, not on the first step; PR-12). */
   stuckWay: boolean;
+  /** At a fork of the open slope or just below it (docs/01-gdd.md 17.8). */
+  atFork?: boolean;
   /** On the summit, and whether he moves towards the portal. */
   onSummit: boolean;
   towardsPortal: boolean;
@@ -72,6 +75,7 @@ interface HintsState {
   movedSec: number;
   stuckSec: number;
   portalIdleSec: number;
+  forkIdleSec: number;
   lastWaveId: number;
   caughtPending: boolean;
 }
@@ -96,6 +100,13 @@ const RULES: Rule[] = [
     max: () => 1,
     show: (_, s) => s.caughtPending,
     hide: (_, e, s) => e >= s.t.caughtSec,
+  },
+  {
+    // «Two ways: pick one» — never in advance: once, when the player first stopped at a fork (17.8).
+    id: 'hint.fork',
+    max: () => 1,
+    show: (f, s) => !!f.atFork && s.t.forkSec !== undefined && s.forkIdleSec >= s.t.forkSec,
+    hide: (f, e, s) => f.moving || !f.atFork || e >= (s.t.forkSec ?? 0) + 1,
   },
   {
     id: 'hint.stuck',
@@ -153,7 +164,7 @@ export interface Hints {
 
 /** `counts` is the live object from the save: the controller increments it when a hint shows. */
 export function createHints(timing: HintsTiming, counts: Record<string, number>): Hints {
-  const s: HintsState = { t: timing, counts, idleSec: 0, movedSec: 0, stuckSec: 0, portalIdleSec: 0, lastWaveId: 0, caughtPending: false };
+  const s: HintsState = { t: timing, counts, idleSec: 0, movedSec: 0, stuckSec: 0, portalIdleSec: 0, forkIdleSec: 0, lastWaveId: 0, caughtPending: false };
   let current: Rule | null = null;
   let elapsed = 0;
   const left = (r: Rule): boolean => (counts[r.id] ?? 0) < r.max(timing);
@@ -173,6 +184,7 @@ export function createHints(timing: HintsTiming, counts: Record<string, number>)
       }
       s.stuckSec = f.nearClosedGate && !f.moving && !f.inShelter ? s.stuckSec + dt : 0;
       s.portalIdleSec = f.onSummit && !f.towardsPortal ? s.portalIdleSec + dt : 0;
+      s.forkIdleSec = f.atFork && !f.moving && !f.inShelter ? s.forkIdleSec + dt : 0;
       const caughtRule = RULES.find((r) => r.id === 'hint.caught')!;
       if (f.caughtNow && left(caughtRule)) s.caughtPending = true;
 

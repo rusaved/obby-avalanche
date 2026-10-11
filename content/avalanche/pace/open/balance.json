@@ -6,7 +6,8 @@
     "scriptedWaveWall": 2
   },
   "hints": {
-    "stuckMax": 99
+    "stuckMax": 99,
+    "forkSec": 2
   },
   "ads": {
     "skipGate": {

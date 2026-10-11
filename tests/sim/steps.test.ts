@@ -36,6 +36,7 @@ function level(): LevelData {
     floorAt: () => 0,
     sections: [],
     bosses: [],
+    forks: [],
   };
 }
 

@@ -24,8 +24,9 @@ export function entranceX(level: LevelData, n: LevelNiche): number {
   return nicheSign(n) * (level.width / 2);
 }
 
-/** Is the point inside cave `n` or within `graceDist` past its entrance onto the slope. */
+/** Is the point inside cave `n` or within `graceDist` past its entrance onto the slope; on a ledge — on its top. */
 export function inNiche(level: LevelData, n: LevelNiche, graceDist: number, x: number, y: number, z: number): boolean {
+  if (n.kind === 'ledge') return x >= n.box.min[0] && x <= n.box.max[0] && z >= n.box.min[2] && z <= n.box.max[2] && y >= n.box.min[1] - FEET_SLACK && y <= n.box.max[1];
   const ex = entranceX(level, n);
   const lo = n.side === 'left' ? n.box.min[0] : ex - graceDist;
   const hi = n.side === 'left' ? ex + graceDist : n.box.max[0];

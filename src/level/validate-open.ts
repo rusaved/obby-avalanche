@@ -15,7 +15,9 @@
  */
 import type { OpenSpecJson, Segment, TuningJson, World, WorldsJson } from '../content/types.ts';
 import type { LevelData } from './types.ts';
-import { buildLevel } from './builder.ts';
+import { buildLevel, GATE_THICKNESS } from './builder.ts';
+import { PAD_SIZE, TICK, padArc } from './pad-arc.ts';
+import { HERO_HEIGHT, HERO_RADIUS } from '../sim/controller.ts';
 import { forkRange, OPEN_SLOPE } from './open-slope.ts';
 import { groundPath } from '../sim/shelter.ts';
 
@@ -176,6 +178,53 @@ export function validateOpenBoss(worlds: WorldsJson, speedAt: (stat: number) => 
   return errors;
 }
 
+/**
+ * Fun of the open slope (docs/01-gdd.md 17.7; docs/02-tech.md 5.4): a trampoline's arc at the minimum speed of its section
+ * and at the ceiling of the run stays on the track, lands before the next ridge and never meets a grotto; an ice slide
+ * lies flat inside its section on the track.
+ */
+export function validateOpenFun(worlds: WorldsJson, tuning: TuningJson, speedAt: (stat: number) => number): string[] {
+  const errors: string[] = [];
+  let carried = 0;
+  for (const [wi, w] of worlds.worlds.entries()) {
+    const at = `worlds.json: worlds[${wi}] (${w.id})`;
+    const level = buildLevel(w);
+    const gates = sorted(w, 'gate');
+    const caveBoxes = level.boxes.filter((b) => b.kind.startsWith('niche'));
+    const half = w.width / 2;
+    for (const p of w.segments.filter((s) => s.type === 'jumpPad')) {
+      const below = gates.filter((g) => g.z <= p.z);
+      const next = gates[below.length];
+      const x = num(p, 'x');
+      const where = `${at}: trampoline at z=${p.z}`;
+      if (Math.abs(x) + PAD_SIZE / 2 > half) errors.push(`${where} — off the track`);
+      if (!next) {
+        errors.push(`${where} — no ridge above it`);
+        continue;
+      }
+      const vmin = speedAt(below.length ? num(below[below.length - 1] as Segment, 'requires') : carried);
+      for (const v of [vmin, tuning.controller.maxSpeed]) {
+        const rear = p.z - num(p, 'length') / 2 + (v * TICK) / 2;
+        const arc = padArc(rear, num(p, 'y'), v, tuning, (z) => level.floorAt(x, z), w.length);
+        if (arc.landZ + HERO_RADIUS > next.z - GATE_THICKNESS / 2) errors.push(`${where} — at ${v.toFixed(1)} units/s it lands at z=${arc.landZ.toFixed(1)}, past the ridge at z=${next.z}`);
+        const hits = arc.points.some((q) => caveBoxes.some((b) => x + HERO_RADIUS > b.min[0] && x - HERO_RADIUS < b.max[0] && q.y + HERO_HEIGHT > b.min[1] && q.y < b.max[1] && q.z + HERO_RADIUS > b.min[2] && q.z - HERO_RADIUS < b.max[2]));
+        if (hits) errors.push(`${where} — its arc at ${v.toFixed(1)} units/s meets a grotto`);
+      }
+    }
+    for (const s of w.segments.filter((x) => x.type === 'slide')) {
+      const x = num(s, 'x');
+      const z0 = s.z - num(s, 'length') / 2;
+      const z1 = s.z + num(s, 'length') / 2;
+      const where = `${at}: ice slide at z=${s.z}`;
+      if (Math.abs(x) + num(s, 'width') / 2 > half) errors.push(`${where} — off the track`);
+      if (gates.some((g) => g.z > z0 && g.z < z1)) errors.push(`${where} — crosses a ridge`);
+      if (Math.abs(level.floorAt(x, z0) - num(s, 'y')) > 0.01 || Math.abs(level.floorAt(x, z1) - num(s, 'y')) > 0.01) errors.push(`${where} — not on flat ground`);
+    }
+    carried = num(gates[gates.length - 1] as Segment, 'requires');
+  }
+  return errors;
+}
+
 /** Share of warnSec the run to shelter may take (docs/02-tech.md 5.4; docs/01-gdd.md 4.3). */
 export const OPEN_FAIRNESS_SHARE = 0.8;
 
@@ -209,7 +258,7 @@ export function openFairnessReport(worlds: WorldsJson, speedAt: (stat: number) =
       const zHi = Math.min((gates[i - 1] as Segment).z, safeLine);
       const zBelow = i <= 2 ? -Infinity : (gates[i - 3] as Segment).z;
       const speed = speedAt(i === 1 ? carried : num(gates[i - 2] as Segment, 'requires'));
-      const caves = level.niches.filter((n) => n.z > Math.max(zBelow, camp) && n.z < (gates[i - 1] as Segment).z);
+      const caves = level.niches.filter((n) => n.kind !== 'ledge' && n.z > Math.max(zBelow, camp) && n.z < (gates[i - 1] as Segment).z);
       for (let z = zLo; z <= zHi; z += 1) {
         for (const x of [-OPEN_SLOPE.laneX, 0, OPEN_SLOPE.laneX]) {
           if (cliffs.some((c) => x >= c.min[0] && x <= c.max[0] && z >= c.min[2] && z <= c.max[2])) continue;
@@ -275,14 +324,16 @@ export function validateOpenGround(worlds: WorldsJson, tuning: TuningJson, speed
           errors.push(`${at}: hole in the ground at x=${x}, z=${z}`);
           break;
         }
-        if (Math.abs(y - prev) > stepUp) {
-          errors.push(`${at}: step of ${Math.abs(y - prev).toFixed(2)} at x=${x}, z=${z} above stepUp ${stepUp}`);
+        // Down is fine (into a crevasse, off a cliff); up only by stepUp or a ramp.
+        if (y - prev > stepUp) {
+          errors.push(`${at}: step of ${(y - prev).toFixed(2)} at x=${x}, z=${z} above stepUp ${stepUp}`);
           break;
         }
         prev = y;
       }
     }
     for (const n of level.niches) {
+      if (n.kind === 'ledge') continue;
       const ex = (n.side === 'left' ? -1 : 1) * (level.width / 2);
       const ground = level.floorAt(ex, n.z);
       if (Math.abs(ground - n.y) > 0.01) errors.push(`${at}: grotto at z=${n.z} — floor ${n.y}, the ground at its mouth is ${ground}`);

@@ -88,7 +88,8 @@ export function buildLevel(world: World): LevelData {
 
   const floors = world.segments.filter((s) => s.type === 'floor');
   const rampSegs = world.segments.filter((s) => s.type === 'ramp');
-  const nicheSegs = world.segments.filter((s) => s.type === 'niche');
+  // A grotto with a chest (open slope, docs/01-gdd.md 17.7) is a niche of kind chestGrotto with the chest inside.
+  const nicheSegs = world.segments.filter((s) => s.type === 'niche' || s.type === 'chestGrotto');
   // Multiplier of every treadmill of the mountain (flag w1_treadmillMult, docs/01a-content.md 1).
   const mountainTreadmill = world.treadmillMult ?? 1;
 
@@ -146,6 +147,29 @@ export function buildLevel(world: World): LevelData {
     ramps.push({ x0, x1, z0, z1, y0, y1, thickness: FLOOR_THICKNESS, material: 'track' });
     addBorders(z0, z1, y1, x0, x1);
   }
+  // Ice cliff on a bold lane (docs/01-gdd.md 17.5, 17.7): a winding way up (a ramp the width of the cliff), the cliff, and
+  // on top the ledge — a shelter the front passes under (a niche of kind ledge without walls).
+  for (const c of world.segments.filter((s) => s.type === 'cliff')) {
+    const x0 = num(c, 'x0');
+    const x1 = num(c, 'x1');
+    const y = num(c, 'y');
+    const h = num(c, 'height');
+    const z1 = c.z + num(c, 'length');
+    const z2 = z1 + num(c, 'top');
+    ramps.push({ x0, x1, z0: c.z, z1, y0: y, y1: y + h, thickness: FLOOR_THICKNESS, material: 'ice' });
+    boxes.push(box([x0, y - FLOOR_THICKNESS, z1], [x1, y + h, z2], 'ice', 'ledgeCliff'));
+    niches.push({
+      stretch: num(c, 'stretch'),
+      z: (z1 + z2) / 2,
+      y: y + h,
+      side: str(c, 'side') === 'left' ? 'left' : 'right',
+      box: { min: [x0, y + h, z1], max: [x1, y + h + NICHE_HEIGHT, z2] },
+      treadmill: 0,
+      zone: num(c, 'zone', 0),
+      kind: 'ledge',
+      lane: 'bold',
+    });
+  }
   // Fork (docs/01-gdd.md 17.7): an ice cliff down the middle splits the slope into two lanes.
   for (const f of world.segments.filter((s) => s.type === 'fork')) {
     const w = num(f, 'width') / 2;
@@ -181,7 +205,7 @@ export function buildLevel(world: World): LevelData {
       treadmill: num(n, 'treadmill', 1) * mountainTreadmill,
       zone: num(n, 'zone', 0),
     });
-    const nicheKind = str(n, 'kind');
+    const nicheKind = n.type === 'chestGrotto' ? 'chestGrotto' : str(n, 'kind');
     if (nicheKind) niches[niches.length - 1]!.kind = nicheKind;
     const lane = str(n, 'lane');
     if (lane === 'calm' || lane === 'bold') niches[niches.length - 1]!.lane = lane;
@@ -246,6 +270,13 @@ export function buildLevel(world: World): LevelData {
         points.push(gift);
         break;
       }
+      case 'chestGrotto': {
+        // The chest of the grotto (docs/01-gdd.md 17.7): a big gift at its back, back after every avalanche like gifts.
+        const sign = str(s, 'side') === 'left' ? -1 : 1;
+        const x = sign * (half + BORDER_WIDTH + num(s, 'depth') / 2);
+        points.push({ type: 'gift', x, y, z: s.z, zone: num(s, 'zone'), rarity: str(s, 'rarity'), coins: num(s, 'coins'), n: 0, chest: true });
+        break;
+      }
       case 'jumpPad':
       case 'slide':
         // Fun between the gates (docs/01-gdd.md 16.4): flat on the floor, not colliders; the sim reads their rectangles.
@@ -305,6 +336,7 @@ export function buildLevel(world: World): LevelData {
     checkpoints: checkpoints.sort((a, b) => a.z - b.z),
     points,
     safeZones: world.safeZones,
+    forks: world.segments.filter((s) => s.type === 'fork').map((f) => ({ z0: f.z, z1: f.z + num(f, 'length') })),
     bosses: (world.bosses ?? []).map((b) => ({ ...b, zone: [b.zone[0], b.zone[1]] as [number, number], giants: b.giants.map((g) => ({ ...g })) })),
     sections: world.zones.filter((z) => typeof z.stepMult === 'number').map((z) => ({ z0: z.zStart, z1: z.zEnd, mult: z.stepMult as number })),
     floorYAt,

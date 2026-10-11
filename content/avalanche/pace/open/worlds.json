@@ -149,12 +149,6 @@
           "kind": "arrow"
         },
         {
-          "type": "floor",
-          "z": 40,
-          "length": 160,
-          "y": 0
-        },
-        {
           "type": "ramp",
           "z": 200,
           "length": 20,
@@ -226,6 +220,12 @@
           "treadmill": 1,
           "zone": 1,
           "stretch": 1
+        },
+        {
+          "type": "floor",
+          "z": 40,
+          "length": 160,
+          "y": 0
         },
         {
           "type": "gift",
@@ -458,12 +458,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 248,
-          "length": 176,
-          "y": 8
-        },
-        {
           "type": "ramp",
           "z": 424,
           "length": 20,
@@ -559,6 +553,95 @@
           "stretch": 2
         },
         {
+          "type": "slide",
+          "z": 268.4,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 16,
+          "stretch": 2
+        },
+        {
+          "type": "gap",
+          "z": 294.4,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 8,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 289.4,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 295.65,
+          "x": 16,
+          "y": 6,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 14,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "chestGrotto",
+          "z": 342,
+          "y": 8,
+          "side": "right",
+          "length": 8,
+          "depth": 4,
+          "coins": 140,
+          "zone": 2,
+          "rarity": "rare",
+          "stretch": 2
+        },
+        {
+          "type": "floor",
+          "z": 248,
+          "length": 46.4,
+          "y": 8
+        },
+        {
+          "type": "floor",
+          "z": 294.4,
+          "length": 5,
+          "y": 8,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 294.4,
+          "length": 2.5,
+          "y": 6,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 296.9,
+          "length": 2.5,
+          "y": 6,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 299.4,
+          "length": 124.6,
+          "y": 8
+        },
+        {
           "type": "gift",
           "z": 251.5,
           "x": 0,
@@ -608,19 +691,6 @@
           "n": 3,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 289.136,
-          "x": 16,
-          "y": 8,
-          "height": 0,
-          "zone": 2,
-          "rarity": "rare",
-          "coins": 28,
-          "n": 3,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",
@@ -845,12 +915,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 478,
-          "length": 200,
-          "y": 16
-        },
-        {
           "type": "ramp",
           "z": 678,
           "length": 20,
@@ -914,6 +978,12 @@
           "treadmill": 1.5,
           "zone": 3,
           "stretch": 3
+        },
+        {
+          "type": "floor",
+          "z": 478,
+          "length": 200,
+          "y": 16
         },
         {
           "type": "gift",
@@ -1460,12 +1530,6 @@
           "kind": "arrow"
         },
         {
-          "type": "floor",
-          "z": 40,
-          "length": 184,
-          "y": 0
-        },
-        {
           "type": "ramp",
           "z": 224,
           "length": 20,
@@ -1537,6 +1601,12 @@
           "treadmill": 2.5,
           "zone": 1,
           "stretch": 1
+        },
+        {
+          "type": "floor",
+          "z": 40,
+          "length": 184,
+          "y": 0
         },
         {
           "type": "gift",
@@ -1769,12 +1839,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 278,
-          "length": 200,
-          "y": 8
-        },
-        {
           "type": "ramp",
           "z": 478,
           "length": 20,
@@ -1870,6 +1934,120 @@
           "stretch": 2
         },
         {
+          "type": "slide",
+          "z": 300.8,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 16,
+          "stretch": 2
+        },
+        {
+          "type": "gap",
+          "z": 331.8,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 8,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 326.8,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 333.05,
+          "x": 16,
+          "y": 6,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 40,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 344.8,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 8,
+          "side": "right",
+          "zone": 2,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 362.8,
+          "x": 22,
+          "y": 17,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 80,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "chestGrotto",
+          "z": 384,
+          "y": 8,
+          "side": "right",
+          "length": 8,
+          "depth": 4,
+          "coins": 400,
+          "zone": 2,
+          "rarity": "rare",
+          "stretch": 2
+        },
+        {
+          "type": "floor",
+          "z": 278,
+          "length": 53.8,
+          "y": 8
+        },
+        {
+          "type": "floor",
+          "z": 331.8,
+          "length": 5,
+          "y": 8,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 331.8,
+          "length": 2.5,
+          "y": 6,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 334.3,
+          "length": 2.5,
+          "y": 6,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 336.8,
+          "length": 141.2,
+          "y": 8
+        },
+        {
           "type": "gift",
           "z": 283,
           "x": 0,
@@ -1919,19 +2097,6 @@
           "n": 3,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 325.545,
-          "x": 16,
-          "y": 8,
-          "height": 0,
-          "zone": 2,
-          "rarity": "rare",
-          "coins": 80,
-          "n": 3,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",
@@ -2156,12 +2321,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 538,
-          "length": 224,
-          "y": 16
-        },
-        {
           "type": "ramp",
           "z": 762,
           "length": 20,
@@ -2262,6 +2421,108 @@
           "treadmill": 4,
           "zone": 3,
           "stretch": 3
+        },
+        {
+          "type": "slide",
+          "z": 563.2,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
+          "type": "gap",
+          "z": 579.2,
+          "length": 5,
+          "x0": -28,
+          "x1": -4,
+          "y": 16,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 574.2,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 4,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 580.45,
+          "x": -16,
+          "y": 14,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 50,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 599.2,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": -26,
+          "x1": -18,
+          "y": 16,
+          "side": "left",
+          "zone": 3,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 617.2,
+          "x": -22,
+          "y": 25,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 100,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 538,
+          "length": 41.2,
+          "y": 16
+        },
+        {
+          "type": "floor",
+          "z": 579.2,
+          "length": 5,
+          "y": 16,
+          "x0": -4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 579.2,
+          "length": 2.5,
+          "y": 14,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "ramp",
+          "z": 581.7,
+          "length": 2.5,
+          "y": 14,
+          "rise": 2,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "floor",
+          "z": 584.2,
+          "length": 177.8,
+          "y": 16
         },
         {
           "type": "gift",
@@ -2550,12 +2811,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 828,
-          "length": 248,
-          "y": 24
-        },
-        {
           "type": "ramp",
           "z": 1076,
           "length": 20,
@@ -2637,6 +2892,108 @@
           "treadmill": 5,
           "zone": 4,
           "stretch": 4
+        },
+        {
+          "type": "slide",
+          "z": 855.6,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 4
+        },
+        {
+          "type": "gap",
+          "z": 871.6,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 24,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 866.6,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 872.85,
+          "x": 16,
+          "y": 22,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 60,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 884.6,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 24,
+          "side": "right",
+          "zone": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 902.6,
+          "x": 22,
+          "y": 33,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 120,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 828,
+          "length": 43.6,
+          "y": 24
+        },
+        {
+          "type": "floor",
+          "z": 871.6,
+          "length": 5,
+          "y": 24,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 871.6,
+          "length": 2.5,
+          "y": 22,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 874.1,
+          "length": 2.5,
+          "y": 22,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 876.6,
+          "length": 199.4,
+          "y": 24
         },
         {
           "type": "gift",
@@ -3239,12 +3596,6 @@
           "kind": "arrow"
         },
         {
-          "type": "floor",
-          "z": 40,
-          "length": 208,
-          "y": 0
-        },
-        {
           "type": "ramp",
           "z": 248,
           "length": 20,
@@ -3340,6 +3691,12 @@
           "treadmill": 8,
           "zone": 1,
           "stretch": 1
+        },
+        {
+          "type": "floor",
+          "z": 40,
+          "length": 208,
+          "y": 0
         },
         {
           "type": "gift",
@@ -3572,12 +3929,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 308,
-          "length": 224,
-          "y": 8
-        },
-        {
           "type": "ramp",
           "z": 532,
           "length": 20,
@@ -3697,6 +4048,120 @@
           "treadmill": 10,
           "zone": 2,
           "stretch": 2
+        },
+        {
+          "type": "slide",
+          "z": 333.2,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 16,
+          "stretch": 2
+        },
+        {
+          "type": "gap",
+          "z": 354.2,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 8,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 349.2,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 355.45,
+          "x": 16,
+          "y": 6,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 150,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 367.2,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 8,
+          "side": "right",
+          "zone": 2,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 385.2,
+          "x": 22,
+          "y": 17,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 300,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "chestGrotto",
+          "z": 426,
+          "y": 8,
+          "side": "right",
+          "length": 8,
+          "depth": 4,
+          "coins": 1500,
+          "zone": 2,
+          "rarity": "rare",
+          "stretch": 2
+        },
+        {
+          "type": "floor",
+          "z": 308,
+          "length": 46.2,
+          "y": 8
+        },
+        {
+          "type": "floor",
+          "z": 354.2,
+          "length": 5,
+          "y": 8,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 354.2,
+          "length": 2.5,
+          "y": 6,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 356.7,
+          "length": 2.5,
+          "y": 6,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 359.2,
+          "length": 172.8,
+          "y": 8
         },
         {
           "type": "gift",
@@ -3985,12 +4450,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 598,
-          "length": 248,
-          "y": 16
-        },
-        {
           "type": "ramp",
           "z": 846,
           "length": 20,
@@ -4091,6 +4550,108 @@
           "treadmill": 12,
           "zone": 3,
           "stretch": 3
+        },
+        {
+          "type": "slide",
+          "z": 625.6,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
+          "type": "gap",
+          "z": 641.6,
+          "length": 5,
+          "x0": -28,
+          "x1": -4,
+          "y": 16,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 636.6,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 4,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 642.85,
+          "x": -16,
+          "y": 14,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 200,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 666.6,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": -26,
+          "x1": -18,
+          "y": 16,
+          "side": "left",
+          "zone": 3,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 684.6,
+          "x": -22,
+          "y": 25,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 400,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 598,
+          "length": 43.6,
+          "y": 16
+        },
+        {
+          "type": "floor",
+          "z": 641.6,
+          "length": 5,
+          "y": 16,
+          "x0": -4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 641.6,
+          "length": 2.5,
+          "y": 14,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "ramp",
+          "z": 644.1,
+          "length": 2.5,
+          "y": 14,
+          "rise": 2,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "floor",
+          "z": 646.6,
+          "length": 199.4,
+          "y": 16
         },
         {
           "type": "gift",
@@ -4379,12 +4940,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 918,
-          "length": 272,
-          "y": 24
-        },
-        {
           "type": "ramp",
           "z": 1190,
           "length": 20,
@@ -4468,6 +5023,108 @@
           "stretch": 4
         },
         {
+          "type": "slide",
+          "z": 948,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 4
+        },
+        {
+          "type": "gap",
+          "z": 964,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 24,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 959,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 965.25,
+          "x": 16,
+          "y": 22,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 200,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 977,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 24,
+          "side": "right",
+          "zone": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 995,
+          "x": 22,
+          "y": 33,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 400,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 918,
+          "length": 46,
+          "y": 24
+        },
+        {
+          "type": "floor",
+          "z": 964,
+          "length": 5,
+          "y": 24,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 964,
+          "length": 2.5,
+          "y": 22,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 966.5,
+          "length": 2.5,
+          "y": 22,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 969,
+          "length": 221,
+          "y": 24
+        },
+        {
           "type": "gift",
           "z": 927.5,
           "x": 0,
@@ -4491,19 +5148,6 @@
           "n": 2,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 956.136,
-          "x": 16,
-          "y": 24,
-          "height": 0,
-          "zone": 4,
-          "rarity": "legendary",
-          "coins": 400,
-          "n": 2,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",
@@ -5068,12 +5712,6 @@
           "kind": "arrow"
         },
         {
-          "type": "floor",
-          "z": 40,
-          "length": 232,
-          "y": 0
-        },
-        {
           "type": "ramp",
           "z": 272,
           "length": 20,
@@ -5181,6 +5819,12 @@
           "treadmill": 25,
           "zone": 1,
           "stretch": 1
+        },
+        {
+          "type": "floor",
+          "z": 40,
+          "length": 232,
+          "y": 0
         },
         {
           "type": "gift",
@@ -5413,12 +6057,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 338,
-          "length": 248,
-          "y": 8
-        },
-        {
           "type": "ramp",
           "z": 586,
           "length": 20,
@@ -5538,6 +6176,120 @@
           "treadmill": 30,
           "zone": 2,
           "stretch": 2
+        },
+        {
+          "type": "slide",
+          "z": 365.6,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 16,
+          "stretch": 2
+        },
+        {
+          "type": "gap",
+          "z": 390.6,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 8,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 385.6,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 391.85,
+          "x": 16,
+          "y": 6,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 1000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 403.6,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 8,
+          "side": "right",
+          "zone": 2,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 421.6,
+          "x": 22,
+          "y": 17,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 2000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "chestGrotto",
+          "z": 468,
+          "y": 8,
+          "side": "right",
+          "length": 8,
+          "depth": 4,
+          "coins": 10000,
+          "zone": 2,
+          "rarity": "rare",
+          "stretch": 2
+        },
+        {
+          "type": "floor",
+          "z": 338,
+          "length": 52.6,
+          "y": 8
+        },
+        {
+          "type": "floor",
+          "z": 390.6,
+          "length": 5,
+          "y": 8,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 390.6,
+          "length": 2.5,
+          "y": 6,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 393.1,
+          "length": 2.5,
+          "y": 6,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 395.6,
+          "length": 190.4,
+          "y": 8
         },
         {
           "type": "gift",
@@ -5826,12 +6578,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 658,
-          "length": 272,
-          "y": 16
-        },
-        {
           "type": "ramp",
           "z": 930,
           "length": 20,
@@ -5934,6 +6680,108 @@
           "stretch": 3
         },
         {
+          "type": "slide",
+          "z": 688,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
+          "type": "gap",
+          "z": 704,
+          "length": 5,
+          "x0": -28,
+          "x1": -4,
+          "y": 16,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 699,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 4,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 705.25,
+          "x": -16,
+          "y": 14,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 1200,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 734,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": -26,
+          "x1": -18,
+          "y": 16,
+          "side": "left",
+          "zone": 3,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 752,
+          "x": -22,
+          "y": 25,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 2400,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 658,
+          "length": 46,
+          "y": 16
+        },
+        {
+          "type": "floor",
+          "z": 704,
+          "length": 5,
+          "y": 16,
+          "x0": -4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 704,
+          "length": 2.5,
+          "y": 14,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "ramp",
+          "z": 706.5,
+          "length": 2.5,
+          "y": 14,
+          "rise": 2,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "floor",
+          "z": 709,
+          "length": 221,
+          "y": 16
+        },
+        {
           "type": "gift",
           "z": 667.5,
           "x": 0,
@@ -5957,19 +6805,6 @@
           "n": 2,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 696.136,
-          "x": -16,
-          "y": 16,
-          "height": 0,
-          "zone": 3,
-          "rarity": "epic",
-          "coins": 2400,
-          "n": 2,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",
@@ -6220,12 +7055,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 1008,
-          "length": 296,
-          "y": 24
-        },
-        {
           "type": "ramp",
           "z": 1304,
           "length": 20,
@@ -6321,6 +7150,108 @@
           "stretch": 4
         },
         {
+          "type": "slide",
+          "z": 1040.4,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 4
+        },
+        {
+          "type": "gap",
+          "z": 1056.4,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 24,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 1051.4,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 1057.65,
+          "x": 16,
+          "y": 22,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 1500,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 1091.4,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 24,
+          "side": "right",
+          "zone": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 1109.4,
+          "x": 22,
+          "y": 33,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 3000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 1008,
+          "length": 48.4,
+          "y": 24
+        },
+        {
+          "type": "floor",
+          "z": 1056.4,
+          "length": 5,
+          "y": 24,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 1056.4,
+          "length": 2.5,
+          "y": 22,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 1058.9,
+          "length": 2.5,
+          "y": 22,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 1061.4,
+          "length": 242.6,
+          "y": 24
+        },
+        {
           "type": "gift",
           "z": 1019,
           "x": 0,
@@ -6344,19 +7275,6 @@
           "n": 2,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 1050.091,
-          "x": 16,
-          "y": 24,
-          "height": 0,
-          "zone": 4,
-          "rarity": "legendary",
-          "coins": 3000,
-          "n": 2,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",
@@ -6921,12 +7839,6 @@
           "kind": "arrow"
         },
         {
-          "type": "floor",
-          "z": 40,
-          "length": 256,
-          "y": 0
-        },
-        {
           "type": "ramp",
           "z": 296,
           "length": 20,
@@ -7034,6 +7946,12 @@
           "treadmill": 60,
           "zone": 1,
           "stretch": 1
+        },
+        {
+          "type": "floor",
+          "z": 40,
+          "length": 256,
+          "y": 0
         },
         {
           "type": "gift",
@@ -7266,12 +8184,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 368,
-          "length": 272,
-          "y": 8
-        },
-        {
           "type": "ramp",
           "z": 640,
           "length": 20,
@@ -7403,6 +8315,120 @@
           "treadmill": 80,
           "zone": 2,
           "stretch": 2
+        },
+        {
+          "type": "slide",
+          "z": 398,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 16,
+          "stretch": 2
+        },
+        {
+          "type": "gap",
+          "z": 415,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 8,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 410,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 416.25,
+          "x": 16,
+          "y": 6,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 3000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 428,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 8,
+          "side": "right",
+          "zone": 2,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 446,
+          "x": 22,
+          "y": 17,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 6000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "chestGrotto",
+          "z": 510,
+          "y": 8,
+          "side": "right",
+          "length": 8,
+          "depth": 4,
+          "coins": 30000,
+          "zone": 2,
+          "rarity": "rare",
+          "stretch": 2
+        },
+        {
+          "type": "floor",
+          "z": 368,
+          "length": 47,
+          "y": 8
+        },
+        {
+          "type": "floor",
+          "z": 415,
+          "length": 5,
+          "y": 8,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 415,
+          "length": 2.5,
+          "y": 6,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 417.5,
+          "length": 2.5,
+          "y": 6,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 420,
+          "length": 220,
+          "y": 8
         },
         {
           "type": "gift",
@@ -7691,12 +8717,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 718,
-          "length": 296,
-          "y": 16
-        },
-        {
           "type": "ramp",
           "z": 1014,
           "length": 20,
@@ -7823,6 +8843,108 @@
           "treadmill": 100,
           "zone": 3,
           "stretch": 3
+        },
+        {
+          "type": "slide",
+          "z": 750.4,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
+          "type": "gap",
+          "z": 782.4,
+          "length": 5,
+          "x0": -28,
+          "x1": -4,
+          "y": 16,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 777.4,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 4,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 783.65,
+          "x": -16,
+          "y": 14,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 4000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 795.4,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": -26,
+          "x1": -18,
+          "y": 16,
+          "side": "left",
+          "zone": 3,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 813.4,
+          "x": -22,
+          "y": 25,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 8000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 718,
+          "length": 64.4,
+          "y": 16
+        },
+        {
+          "type": "floor",
+          "z": 782.4,
+          "length": 5,
+          "y": 16,
+          "x0": -4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 782.4,
+          "length": 2.5,
+          "y": 14,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "ramp",
+          "z": 784.9,
+          "length": 2.5,
+          "y": 14,
+          "rise": 2,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "floor",
+          "z": 787.4,
+          "length": 226.6,
+          "y": 16
         },
         {
           "type": "gift",
@@ -8111,12 +9233,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 1098,
-          "length": 320,
-          "y": 24
-        },
-        {
           "type": "ramp",
           "z": 1418,
           "length": 20,
@@ -8212,6 +9328,108 @@
           "stretch": 4
         },
         {
+          "type": "slide",
+          "z": 1132.8,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 4
+        },
+        {
+          "type": "gap",
+          "z": 1148.8,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 24,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 1143.8,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 1150.05,
+          "x": 16,
+          "y": 22,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 5000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 1188.8,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 24,
+          "side": "right",
+          "zone": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 1206.8,
+          "x": 22,
+          "y": 33,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 10000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 1098,
+          "length": 50.8,
+          "y": 24
+        },
+        {
+          "type": "floor",
+          "z": 1148.8,
+          "length": 5,
+          "y": 24,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 1148.8,
+          "length": 2.5,
+          "y": 22,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 1151.3,
+          "length": 2.5,
+          "y": 22,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 1153.8,
+          "length": 264.2,
+          "y": 24
+        },
+        {
           "type": "gift",
           "z": 1110.5,
           "x": 0,
@@ -8235,19 +9453,6 @@
           "n": 2,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 1144.045,
-          "x": 16,
-          "y": 24,
-          "height": 0,
-          "zone": 4,
-          "rarity": "legendary",
-          "coins": 10000,
-          "n": 2,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",
@@ -8798,12 +10003,6 @@
           "kind": "arrow"
         },
         {
-          "type": "floor",
-          "z": 40,
-          "length": 280,
-          "y": 0
-        },
-        {
           "type": "ramp",
           "z": 320,
           "length": 20,
@@ -8923,6 +10122,12 @@
           "treadmill": 200,
           "zone": 1,
           "stretch": 1
+        },
+        {
+          "type": "floor",
+          "z": 40,
+          "length": 280,
+          "y": 0
         },
         {
           "type": "gift",
@@ -9155,12 +10360,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 398,
-          "length": 296,
-          "y": 8
-        },
-        {
           "type": "ramp",
           "z": 694,
           "length": 20,
@@ -9304,6 +10503,120 @@
           "treadmill": 250,
           "zone": 2,
           "stretch": 2
+        },
+        {
+          "type": "slide",
+          "z": 430.4,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 16,
+          "stretch": 2
+        },
+        {
+          "type": "gap",
+          "z": 449.4,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 8,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 444.4,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 450.65,
+          "x": 16,
+          "y": 6,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 20000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 462.4,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 8,
+          "side": "right",
+          "zone": 2,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 480.4,
+          "x": 22,
+          "y": 17,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 40000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "chestGrotto",
+          "z": 550.4,
+          "y": 8,
+          "side": "right",
+          "length": 8,
+          "depth": 4,
+          "coins": 200000,
+          "zone": 2,
+          "rarity": "rare",
+          "stretch": 2
+        },
+        {
+          "type": "floor",
+          "z": 398,
+          "length": 51.4,
+          "y": 8
+        },
+        {
+          "type": "floor",
+          "z": 449.4,
+          "length": 5,
+          "y": 8,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 449.4,
+          "length": 2.5,
+          "y": 6,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 451.9,
+          "length": 2.5,
+          "y": 6,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 454.4,
+          "length": 239.6,
+          "y": 8
         },
         {
           "type": "gift",
@@ -9592,12 +10905,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 778,
-          "length": 320,
-          "y": 16
-        },
-        {
           "type": "ramp",
           "z": 1098,
           "length": 20,
@@ -9712,6 +11019,108 @@
           "stretch": 3
         },
         {
+          "type": "slide",
+          "z": 812.8,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
+          "type": "gap",
+          "z": 828.8,
+          "length": 5,
+          "x0": -28,
+          "x1": -4,
+          "y": 16,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 823.8,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 4,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 830.05,
+          "x": -16,
+          "y": 14,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 30000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 848.8,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": -26,
+          "x1": -18,
+          "y": 16,
+          "side": "left",
+          "zone": 3,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 866.8,
+          "x": -22,
+          "y": 25,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 60000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 778,
+          "length": 50.8,
+          "y": 16
+        },
+        {
+          "type": "floor",
+          "z": 828.8,
+          "length": 5,
+          "y": 16,
+          "x0": -4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 828.8,
+          "length": 2.5,
+          "y": 14,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "ramp",
+          "z": 831.3,
+          "length": 2.5,
+          "y": 14,
+          "rise": 2,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "floor",
+          "z": 833.8,
+          "length": 264.2,
+          "y": 16
+        },
+        {
           "type": "gift",
           "z": 790.5,
           "x": 0,
@@ -9735,19 +11144,6 @@
           "n": 2,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 824.045,
-          "x": -16,
-          "y": 16,
-          "height": 0,
-          "zone": 3,
-          "rarity": "epic",
-          "coins": 60000,
-          "n": 2,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",
@@ -9984,12 +11380,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 1188,
-          "length": 344,
-          "y": 24
-        },
-        {
           "type": "ramp",
           "z": 1532,
           "length": 20,
@@ -10085,6 +11475,108 @@
           "stretch": 4
         },
         {
+          "type": "slide",
+          "z": 1225.2,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 4
+        },
+        {
+          "type": "gap",
+          "z": 1241.2,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 24,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 1236.2,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 1242.45,
+          "x": 16,
+          "y": 22,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 40000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 1286.2,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 24,
+          "side": "right",
+          "zone": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 1304.2,
+          "x": 22,
+          "y": 33,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 80000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 1188,
+          "length": 53.2,
+          "y": 24
+        },
+        {
+          "type": "floor",
+          "z": 1241.2,
+          "length": 5,
+          "y": 24,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 1241.2,
+          "length": 2.5,
+          "y": 22,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 1243.7,
+          "length": 2.5,
+          "y": 22,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 1246.2,
+          "length": 285.8,
+          "y": 24
+        },
+        {
           "type": "gift",
           "z": 1202,
           "x": 0,
@@ -10108,19 +11600,6 @@
           "n": 2,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 1238,
-          "x": 16,
-          "y": 24,
-          "height": 0,
-          "zone": 4,
-          "rarity": "legendary",
-          "coins": 80000,
-          "n": 2,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",
@@ -10671,12 +12150,6 @@
           "kind": "arrow"
         },
         {
-          "type": "floor",
-          "z": 40,
-          "length": 304,
-          "y": 0
-        },
-        {
           "type": "ramp",
           "z": 344,
           "length": 20,
@@ -10796,6 +12269,12 @@
           "treadmill": 600,
           "zone": 1,
           "stretch": 1
+        },
+        {
+          "type": "floor",
+          "z": 40,
+          "length": 304,
+          "y": 0
         },
         {
           "type": "gift",
@@ -11028,12 +12507,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 428,
-          "length": 320,
-          "y": 8
-        },
-        {
           "type": "ramp",
           "z": 748,
           "length": 20,
@@ -11191,6 +12664,120 @@
           "stretch": 2
         },
         {
+          "type": "slide",
+          "z": 462.8,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 16,
+          "stretch": 2
+        },
+        {
+          "type": "gap",
+          "z": 478.8,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 8,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 473.8,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 480.05,
+          "x": 16,
+          "y": 6,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 200000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 491.8,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 8,
+          "side": "right",
+          "zone": 2,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 509.8,
+          "x": 22,
+          "y": 17,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 400000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "chestGrotto",
+          "z": 582.8,
+          "y": 8,
+          "side": "right",
+          "length": 8,
+          "depth": 4,
+          "coins": 2000000,
+          "zone": 2,
+          "rarity": "rare",
+          "stretch": 2
+        },
+        {
+          "type": "floor",
+          "z": 428,
+          "length": 50.8,
+          "y": 8
+        },
+        {
+          "type": "floor",
+          "z": 478.8,
+          "length": 5,
+          "y": 8,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 478.8,
+          "length": 2.5,
+          "y": 6,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 481.3,
+          "length": 2.5,
+          "y": 6,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 483.8,
+          "length": 264.2,
+          "y": 8
+        },
+        {
           "type": "gift",
           "z": 440.5,
           "x": 0,
@@ -11214,19 +12801,6 @@
           "n": 2,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 474.045,
-          "x": 16,
-          "y": 8,
-          "height": 0,
-          "zone": 2,
-          "rarity": "rare",
-          "coins": 400000,
-          "n": 2,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",
@@ -11463,12 +13037,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 838,
-          "length": 344,
-          "y": 16
-        },
-        {
           "type": "ramp",
           "z": 1182,
           "length": 20,
@@ -11583,6 +13151,108 @@
           "stretch": 3
         },
         {
+          "type": "slide",
+          "z": 875.2,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
+          "type": "gap",
+          "z": 891.2,
+          "length": 5,
+          "x0": -28,
+          "x1": -4,
+          "y": 16,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 886.2,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 4,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 892.45,
+          "x": -16,
+          "y": 14,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 300000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 914.2,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": -26,
+          "x1": -18,
+          "y": 16,
+          "side": "left",
+          "zone": 3,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 932.2,
+          "x": -22,
+          "y": 25,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 600000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 838,
+          "length": 53.2,
+          "y": 16
+        },
+        {
+          "type": "floor",
+          "z": 891.2,
+          "length": 5,
+          "y": 16,
+          "x0": -4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 891.2,
+          "length": 2.5,
+          "y": 14,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "ramp",
+          "z": 893.7,
+          "length": 2.5,
+          "y": 14,
+          "rise": 2,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "floor",
+          "z": 896.2,
+          "length": 285.8,
+          "y": 16
+        },
+        {
           "type": "gift",
           "z": 852,
           "x": 0,
@@ -11606,19 +13276,6 @@
           "n": 2,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 888,
-          "x": -16,
-          "y": 16,
-          "height": 0,
-          "zone": 3,
-          "rarity": "epic",
-          "coins": 600000,
-          "n": 2,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",
@@ -11855,12 +13512,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 1278,
-          "length": 368,
-          "y": 24
-        },
-        {
           "type": "ramp",
           "z": 1646,
           "length": 20,
@@ -11956,6 +13607,108 @@
           "stretch": 4
         },
         {
+          "type": "slide",
+          "z": 1317.6,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 4
+        },
+        {
+          "type": "gap",
+          "z": 1333.6,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 24,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 1328.6,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 1334.85,
+          "x": 16,
+          "y": 22,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 400000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 1346.6,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 24,
+          "side": "right",
+          "zone": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 1364.6,
+          "x": 22,
+          "y": 33,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 800000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 1278,
+          "length": 55.6,
+          "y": 24
+        },
+        {
+          "type": "floor",
+          "z": 1333.6,
+          "length": 5,
+          "y": 24,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 1333.6,
+          "length": 2.5,
+          "y": 22,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 1336.1,
+          "length": 2.5,
+          "y": 22,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 1338.6,
+          "length": 307.4,
+          "y": 24
+        },
+        {
           "type": "gift",
           "z": 1293.5,
           "x": 0,
@@ -11979,19 +13732,6 @@
           "n": 2,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 1331.955,
-          "x": 16,
-          "y": 24,
-          "height": 0,
-          "zone": 4,
-          "rarity": "legendary",
-          "coins": 800000,
-          "n": 2,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",
@@ -12542,12 +14282,6 @@
           "kind": "arrow"
         },
         {
-          "type": "floor",
-          "z": 40,
-          "length": 328,
-          "y": 0
-        },
-        {
           "type": "ramp",
           "z": 368,
           "length": 20,
@@ -12667,6 +14401,12 @@
           "treadmill": 2000,
           "zone": 1,
           "stretch": 1
+        },
+        {
+          "type": "floor",
+          "z": 40,
+          "length": 328,
+          "y": 0
         },
         {
           "type": "gift",
@@ -12899,12 +14639,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 458,
-          "length": 344,
-          "y": 8
-        },
-        {
           "type": "ramp",
           "z": 802,
           "length": 20,
@@ -13062,6 +14796,120 @@
           "stretch": 2
         },
         {
+          "type": "slide",
+          "z": 495.2,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 16,
+          "stretch": 2
+        },
+        {
+          "type": "gap",
+          "z": 511.2,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 8,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 506.2,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 512.45,
+          "x": 16,
+          "y": 6,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 2400000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 524.2,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 8,
+          "side": "right",
+          "zone": 2,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 542.2,
+          "x": 22,
+          "y": 17,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 4800000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "chestGrotto",
+          "z": 615.2,
+          "y": 8,
+          "side": "right",
+          "length": 8,
+          "depth": 4,
+          "coins": 24000000,
+          "zone": 2,
+          "rarity": "rare",
+          "stretch": 2
+        },
+        {
+          "type": "floor",
+          "z": 458,
+          "length": 53.2,
+          "y": 8
+        },
+        {
+          "type": "floor",
+          "z": 511.2,
+          "length": 5,
+          "y": 8,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 511.2,
+          "length": 2.5,
+          "y": 6,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 513.7,
+          "length": 2.5,
+          "y": 6,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 516.2,
+          "length": 285.8,
+          "y": 8
+        },
+        {
           "type": "gift",
           "z": 472,
           "x": 0,
@@ -13085,19 +14933,6 @@
           "n": 2,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 508,
-          "x": 16,
-          "y": 8,
-          "height": 0,
-          "zone": 2,
-          "rarity": "rare",
-          "coins": 4800000,
-          "n": 2,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",
@@ -13334,12 +15169,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 898,
-          "length": 368,
-          "y": 16
-        },
-        {
           "type": "ramp",
           "z": 1266,
           "length": 20,
@@ -13478,6 +15307,108 @@
           "treadmill": 3000,
           "zone": 3,
           "stretch": 3
+        },
+        {
+          "type": "slide",
+          "z": 937.6,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
+          "type": "gap",
+          "z": 964.6,
+          "length": 5,
+          "x0": -28,
+          "x1": -4,
+          "y": 16,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 959.6,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 4,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 965.85,
+          "x": -16,
+          "y": 14,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 4000000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 977.6,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": -26,
+          "x1": -18,
+          "y": 16,
+          "side": "left",
+          "zone": 3,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 995.6,
+          "x": -22,
+          "y": 25,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 8000000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 898,
+          "length": 66.6,
+          "y": 16
+        },
+        {
+          "type": "floor",
+          "z": 964.6,
+          "length": 5,
+          "y": 16,
+          "x0": -4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 964.6,
+          "length": 2.5,
+          "y": 14,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "ramp",
+          "z": 967.1,
+          "length": 2.5,
+          "y": 14,
+          "rise": 2,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "floor",
+          "z": 969.6,
+          "length": 296.4,
+          "y": 16
         },
         {
           "type": "gift",
@@ -13752,12 +15683,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 1368,
-          "length": 392,
-          "y": 24
-        },
-        {
           "type": "ramp",
           "z": 1760,
           "length": 20,
@@ -13865,6 +15790,108 @@
           "stretch": 4
         },
         {
+          "type": "slide",
+          "z": 1410,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 4
+        },
+        {
+          "type": "gap",
+          "z": 1426,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 24,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 1421,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 1427.25,
+          "x": 16,
+          "y": 22,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 6000000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 1457,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 24,
+          "side": "right",
+          "zone": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 1475,
+          "x": 22,
+          "y": 33,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 12000000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 1368,
+          "length": 58,
+          "y": 24
+        },
+        {
+          "type": "floor",
+          "z": 1426,
+          "length": 5,
+          "y": 24,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 1426,
+          "length": 2.5,
+          "y": 22,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 1428.5,
+          "length": 2.5,
+          "y": 22,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 1431,
+          "length": 329,
+          "y": 24
+        },
+        {
           "type": "gift",
           "z": 1385,
           "x": 0,
@@ -13888,19 +15915,6 @@
           "n": 2,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 1425.909,
-          "x": 16,
-          "y": 24,
-          "height": 0,
-          "zone": 4,
-          "rarity": "legendary",
-          "coins": 12000000,
-          "n": 2,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",
@@ -14451,12 +16465,6 @@
           "kind": "arrow"
         },
         {
-          "type": "floor",
-          "z": 40,
-          "length": 352,
-          "y": 0
-        },
-        {
           "type": "ramp",
           "z": 392,
           "length": 20,
@@ -14588,6 +16596,12 @@
           "treadmill": 6000,
           "zone": 1,
           "stretch": 1
+        },
+        {
+          "type": "floor",
+          "z": 40,
+          "length": 352,
+          "y": 0
         },
         {
           "type": "gift",
@@ -14820,12 +16834,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 488,
-          "length": 368,
-          "y": 8
-        },
-        {
           "type": "ramp",
           "z": 856,
           "length": 20,
@@ -14983,6 +16991,120 @@
           "stretch": 2
         },
         {
+          "type": "slide",
+          "z": 527.6,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 16,
+          "stretch": 2
+        },
+        {
+          "type": "gap",
+          "z": 543.6,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 8,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 538.6,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 544.85,
+          "x": 16,
+          "y": 6,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 40000000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 556.6,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 8,
+          "side": "right",
+          "zone": 2,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 574.6,
+          "x": 22,
+          "y": 17,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 80000000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "chestGrotto",
+          "z": 647.6,
+          "y": 8,
+          "side": "right",
+          "length": 8,
+          "depth": 4,
+          "coins": 400000000,
+          "zone": 2,
+          "rarity": "rare",
+          "stretch": 2
+        },
+        {
+          "type": "floor",
+          "z": 488,
+          "length": 55.6,
+          "y": 8
+        },
+        {
+          "type": "floor",
+          "z": 543.6,
+          "length": 5,
+          "y": 8,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 543.6,
+          "length": 2.5,
+          "y": 6,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 546.1,
+          "length": 2.5,
+          "y": 6,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 548.6,
+          "length": 307.4,
+          "y": 8
+        },
+        {
           "type": "gift",
           "z": 503.5,
           "x": 0,
@@ -15006,19 +17128,6 @@
           "n": 2,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 541.955,
-          "x": 16,
-          "y": 8,
-          "height": 0,
-          "zone": 2,
-          "rarity": "rare",
-          "coins": 80000000,
-          "n": 2,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",
@@ -15255,12 +17364,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 958,
-          "length": 392,
-          "y": 16
-        },
-        {
           "type": "ramp",
           "z": 1350,
           "length": 20,
@@ -15411,6 +17514,108 @@
           "treadmill": 10000,
           "zone": 3,
           "stretch": 3
+        },
+        {
+          "type": "slide",
+          "z": 1000,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
+          "type": "gap",
+          "z": 1030,
+          "length": 5,
+          "x0": -28,
+          "x1": -4,
+          "y": 16,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 1025,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 4,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 1031.25,
+          "x": -16,
+          "y": 14,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 60000000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 1043,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": -26,
+          "x1": -18,
+          "y": 16,
+          "side": "left",
+          "zone": 3,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 1061,
+          "x": -22,
+          "y": 25,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 120000000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 958,
+          "length": 72,
+          "y": 16
+        },
+        {
+          "type": "floor",
+          "z": 1030,
+          "length": 5,
+          "y": 16,
+          "x0": -4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 1030,
+          "length": 2.5,
+          "y": 14,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "ramp",
+          "z": 1032.5,
+          "length": 2.5,
+          "y": 14,
+          "rise": 2,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "floor",
+          "z": 1035,
+          "length": 315,
+          "y": 16
         },
         {
           "type": "gift",
@@ -15685,12 +17890,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 1458,
-          "length": 416,
-          "y": 24
-        },
-        {
           "type": "ramp",
           "z": 1874,
           "length": 20,
@@ -15798,6 +17997,108 @@
           "stretch": 4
         },
         {
+          "type": "slide",
+          "z": 1502.4,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 4
+        },
+        {
+          "type": "gap",
+          "z": 1518.4,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 24,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 1513.4,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 1519.65,
+          "x": 16,
+          "y": 22,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 100000000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 1552.4,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 24,
+          "side": "right",
+          "zone": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 1570.4,
+          "x": 22,
+          "y": 33,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 200000000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 1458,
+          "length": 60.4,
+          "y": 24
+        },
+        {
+          "type": "floor",
+          "z": 1518.4,
+          "length": 5,
+          "y": 24,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 1518.4,
+          "length": 2.5,
+          "y": 22,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 1520.9,
+          "length": 2.5,
+          "y": 22,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 1523.4,
+          "length": 350.6,
+          "y": 24
+        },
+        {
           "type": "gift",
           "z": 1476.5,
           "x": 0,
@@ -15821,19 +18122,6 @@
           "n": 2,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 1519.864,
-          "x": 16,
-          "y": 24,
-          "height": 0,
-          "zone": 4,
-          "rarity": "legendary",
-          "coins": 200000000,
-          "n": 2,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",
@@ -16384,12 +18672,6 @@
           "kind": "arrow"
         },
         {
-          "type": "floor",
-          "z": 40,
-          "length": 376,
-          "y": 0
-        },
-        {
           "type": "ramp",
           "z": 416,
           "length": 20,
@@ -16533,6 +18815,12 @@
           "treadmill": 20000,
           "zone": 1,
           "stretch": 1
+        },
+        {
+          "type": "floor",
+          "z": 40,
+          "length": 376,
+          "y": 0
         },
         {
           "type": "gift",
@@ -16765,12 +19053,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 518,
-          "length": 392,
-          "y": 8
-        },
-        {
           "type": "ramp",
           "z": 910,
           "length": 20,
@@ -16928,6 +19210,120 @@
           "stretch": 2
         },
         {
+          "type": "slide",
+          "z": 560,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 16,
+          "stretch": 2
+        },
+        {
+          "type": "gap",
+          "z": 576,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 8,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 571,
+          "x": 16,
+          "y": 8,
+          "width": 4,
+          "length": 4,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 577.25,
+          "x": 16,
+          "y": 6,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 800000000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 589,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 8,
+          "side": "right",
+          "zone": 2,
+          "stretch": 2
+        },
+        {
+          "type": "gift",
+          "z": 607,
+          "x": 22,
+          "y": 17,
+          "height": 0,
+          "zone": 2,
+          "rarity": "rare",
+          "coins": 1600000000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "chestGrotto",
+          "z": 680,
+          "y": 8,
+          "side": "right",
+          "length": 8,
+          "depth": 4,
+          "coins": 8000000000,
+          "zone": 2,
+          "rarity": "rare",
+          "stretch": 2
+        },
+        {
+          "type": "floor",
+          "z": 518,
+          "length": 58,
+          "y": 8
+        },
+        {
+          "type": "floor",
+          "z": 576,
+          "length": 5,
+          "y": 8,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 576,
+          "length": 2.5,
+          "y": 6,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 578.5,
+          "length": 2.5,
+          "y": 6,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 581,
+          "length": 329,
+          "y": 8
+        },
+        {
           "type": "gift",
           "z": 535,
           "x": 0,
@@ -16951,19 +19347,6 @@
           "n": 2,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 575.909,
-          "x": 16,
-          "y": 8,
-          "height": 0,
-          "zone": 2,
-          "rarity": "rare",
-          "coins": 1600000000,
-          "n": 2,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",
@@ -17200,12 +19583,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 1018,
-          "length": 416,
-          "y": 16
-        },
-        {
           "type": "ramp",
           "z": 1434,
           "length": 20,
@@ -17342,6 +19719,108 @@
           "treadmill": 30000,
           "zone": 3,
           "stretch": 3
+        },
+        {
+          "type": "slide",
+          "z": 1062.4,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 16,
+          "stretch": 3
+        },
+        {
+          "type": "gap",
+          "z": 1094.4,
+          "length": 5,
+          "x0": -28,
+          "x1": -4,
+          "y": 16,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 1089.4,
+          "x": -16,
+          "y": 16,
+          "width": 4,
+          "length": 4,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 1095.65,
+          "x": -16,
+          "y": 14,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 1200000000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 1107.4,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": -26,
+          "x1": -18,
+          "y": 16,
+          "side": "left",
+          "zone": 3,
+          "stretch": 3
+        },
+        {
+          "type": "gift",
+          "z": 1125.4,
+          "x": -22,
+          "y": 25,
+          "height": 0,
+          "zone": 3,
+          "rarity": "epic",
+          "coins": 2400000000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 1018,
+          "length": 76.4,
+          "y": 16
+        },
+        {
+          "type": "floor",
+          "z": 1094.4,
+          "length": 5,
+          "y": 16,
+          "x0": -4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 1094.4,
+          "length": 2.5,
+          "y": 14,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "ramp",
+          "z": 1096.9,
+          "length": 2.5,
+          "y": 14,
+          "rise": 2,
+          "x0": -28,
+          "x1": -4
+        },
+        {
+          "type": "floor",
+          "z": 1099.4,
+          "length": 334.6,
+          "y": 16
         },
         {
           "type": "gift",
@@ -17616,12 +20095,6 @@
           "thickness": 6
         },
         {
-          "type": "floor",
-          "z": 1548,
-          "length": 440,
-          "y": 24
-        },
-        {
           "type": "ramp",
           "z": 1988,
           "length": 20,
@@ -17729,6 +20202,108 @@
           "stretch": 4
         },
         {
+          "type": "slide",
+          "z": 1594.8,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 16,
+          "stretch": 4
+        },
+        {
+          "type": "gap",
+          "z": 1610.8,
+          "length": 5,
+          "x0": 4,
+          "x1": 28,
+          "y": 24,
+          "depth": 2,
+          "lane": "bold"
+        },
+        {
+          "type": "jumpPad",
+          "z": 1605.8,
+          "x": 16,
+          "y": 24,
+          "width": 4,
+          "length": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 1612.05,
+          "x": 16,
+          "y": 22,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 2400000000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "cliff",
+          "z": 1648.8,
+          "length": 14,
+          "top": 8,
+          "height": 9,
+          "x0": 18,
+          "x1": 26,
+          "y": 24,
+          "side": "right",
+          "zone": 4,
+          "stretch": 4
+        },
+        {
+          "type": "gift",
+          "z": 1666.8,
+          "x": 22,
+          "y": 33,
+          "height": 0,
+          "zone": 4,
+          "rarity": "legendary",
+          "coins": 4800000000,
+          "n": 0,
+          "detour": true
+        },
+        {
+          "type": "floor",
+          "z": 1548,
+          "length": 62.8,
+          "y": 24
+        },
+        {
+          "type": "floor",
+          "z": 1610.8,
+          "length": 5,
+          "y": 24,
+          "x0": -28,
+          "x1": 4
+        },
+        {
+          "type": "floor",
+          "z": 1610.8,
+          "length": 2.5,
+          "y": 22,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "ramp",
+          "z": 1613.3,
+          "length": 2.5,
+          "y": 22,
+          "rise": 2,
+          "x0": 4,
+          "x1": 28
+        },
+        {
+          "type": "floor",
+          "z": 1615.8,
+          "length": 372.2,
+          "y": 24
+        },
+        {
           "type": "gift",
           "z": 1568,
           "x": 0,
@@ -17752,19 +20327,6 @@
           "n": 2,
           "path": true,
           "lane": "calm"
-        },
-        {
-          "type": "gift",
-          "z": 1613.818,
-          "x": 16,
-          "y": 24,
-          "height": 0,
-          "zone": 4,
-          "rarity": "legendary",
-          "coins": 4800000000,
-          "n": 2,
-          "path": true,
-          "lane": "bold"
         },
         {
           "type": "gift",

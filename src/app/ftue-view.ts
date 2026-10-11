@@ -23,6 +23,8 @@ import { screenAngle } from './way-view.ts';
 
 /** A hero slower than this stands (units/s). */
 const MOVING_SPEED = 1.5;
+/** «At a fork»: from this far below its cliff up to its end (docs/01-gdd.md 17.8). */
+const FORK_NEAR = 25;
 /** The plaque floats this share of the field height above the head (docs/01-gdd.md 6.5: 15%). */
 const PLAQUE_ABOVE = 0.15;
 /** The hand floats this high above the egg (units). */
@@ -151,6 +153,7 @@ export function createFtueView(d: FtueViewDeps): FtueView {
         treadmillCave: firstWaveDone && sim.level.worldIndex === 1 && sim.shelterIndex() === scriptedCave,
         onBelt: sim.onBelt,
         nearClosedGate: nearClosedGate && !inShelter,
+        atFork: sim.level.forks.some((f) => hero.pos.z >= f.z0 - FORK_NEAR && hero.pos.z <= f.z1),
         stuckWay,
         onSummit,
         towardsPortal,

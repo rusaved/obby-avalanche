@@ -91,6 +91,8 @@ export function sheltersByRunTime(level: LevelData, gatesOpen: readonly boolean[
   if (inSafeZone(level, z)) return [];
   const found: Array<{ i: number; d: number }> = [];
   level.niches.forEach((n, i) => {
+    // A ledge is no place to run to on the warning: it is a shelter only for the one already on top (17.5).
+    if (n.kind === 'ledge') return;
     const lo = Math.min(z, n.z);
     const hi = Math.max(z, n.z);
     if (level.gates.some((g, gi) => !gatesOpen[gi] && g.z > lo && g.z < hi)) return;
@@ -174,6 +176,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
     // Running into a cave and closer than graceMoving to its entrance: made it (docs/02-tech.md 8.2).
     for (let i = 0; i < level.niches.length; i++) {
       const n = level.niches[i]!;
+      if (n.kind === 'ledge') continue;
       const e = distToEntrance(level, n, hero.x, hero.z);
       const towards = hero.vx * (e.tx - hero.x) + hero.vz * (e.tz - hero.z) > 0;
       if (e.dist < balance.niche.graceMoving && towards && Math.hypot(hero.vx, hero.vz) > 1) {
