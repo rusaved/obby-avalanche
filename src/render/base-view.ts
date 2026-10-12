@@ -1,4 +1,4 @@
-// What: How the base looks (docs/01-gdd.md 19.2–19.3): the arches of the mountains by state (passed — open with a flag and a cup, own — filled with light under a pillar, locked — iced with a lock), their signs and the «×N» of the base treadmill in one atlas, 3 arrows on the snow to the own portal, the snowman.
+// What: How the base looks (docs/01-gdd.md 19.2–19.3): the arches of the mountains by state (passed — open with a flag and a cup, own — filled with light under a pillar, locked — iced with a lock), their signs and the «×N» of the base treadmill in one atlas, 3 arrows on the snow to the own portal, the shop counter with sneakers and an egg, the snowman.
 // Called by: main.ts (createBaseView; set on every entry to the base, clear on a mountain); test-api (drawn).
 // Keep: Render only, nothing in the sim (the ice of a locked arch is a hero collider of the level); at most 6 draw calls; colours from theme.json, texts through the caller's t().
 
@@ -22,6 +22,8 @@ const FILL_OPACITY = 0.6;
 /** The sign of the base treadmill: its height and how far before the front of its belts (units). */
 const TREAD_SIGN_Y = 3;
 const TREAD_SIGN_BACK = 1;
+/** The shop counter: width, height, depth (units). */
+const COUNTER: [number, number, number] = [3, 1.2, 1.4];
 
 export interface BaseView {
   group: Group;
@@ -219,7 +221,9 @@ export function createBaseView(theme: ThemeJson): BaseView {
       const flagColors = Object.values(theme.rarity);
       const boxGeo = new BoxGeometry(1, 1, 1);
       const boxMat = new MeshLambertMaterial({ color: 0xffffff });
-      const count = passed.length * 3 + locked.length * 2;
+      // The shop counter (docs/01-gdd.md 19.3): the counter and a pair of sneakers on its showcase (the egg — a ball below).
+      const shop = level.points.find((p) => p.type === 'stand' && p['kind'] === 'shop');
+      const count = passed.length * 3 + locked.length * 2 + (shop ? 2 : 0);
       const marks = new InstancedMesh(boxGeo, boxMat, Math.max(1, count));
       marks.name = 'base-marks';
       marks.count = count;
@@ -241,6 +245,11 @@ export function createBaseView(theme: ThemeJson): BaseView {
         place(p, -p.width / 2 + 1.4, top + 2.4, 0, 1.6, 1, 0.1, new Color(flagColors[(p.world - 1) % Math.max(1, flagColors.length)] ?? theme.ui.trophies));
         place(p, 0, top + 0.6, 0, 1, 1.2, 1, new Color(theme.ui.trophies));
       }
+      if (shop) {
+        const at = { world: 0, id: '', x: shop.x, z: shop.z, yaw: 0, width: 0, height: 0, state: 'passed', ridge: null } as BasePortal;
+        place(at, 0, COUNTER[1] / 2, 0, COUNTER[0], COUNTER[1], COUNTER[2], color('eggStand'));
+        place(at, -COUNTER[0] / 4, COUNTER[1] + 0.25, 0, 0.9, 0.45, 0.45, new Color(theme.ui.stat));
+      }
       for (const p of locked) {
         place(p, 0, p.height * 0.45, -0.6, 1.4, 1.2, 0.4, new Color(theme.ui.plaque));
         place(p, 0, p.height * 0.45 + 0.9, -0.6, 0.9, 0.7, 0.25, color('pole'));
@@ -248,24 +257,26 @@ export function createBaseView(theme: ThemeJson): BaseView {
       dummy.scale.set(1, 1, 1);
       group.add(marks);
       parts.push(boxGeo, boxMat);
+      // Balls: the snowman of the decor and the egg on the shop counter, one mesh.
       const snow = level.points.find((p) => p.type === 'decor' && p['kind'] === 'snowman');
-      if (snow) {
+      const balls: Array<{ x: number; y: number; z: number; r: number; c: Color }> = [];
+      if (snow) balls.push({ x: snow.x, y: 1.3, z: snow.z, r: 1.4, c: color('snowman') }, { x: snow.x, y: 3.3, z: snow.z, r: 0.9, c: color('snowman') });
+      if (shop) balls.push({ x: shop.x + COUNTER[0] / 4, y: COUNTER[1] + 0.5, z: shop.z, r: 0.5, c: color('giftEgg') });
+      if (balls.length) {
         const ballGeo = new SphereGeometry(1, 14, 10);
-        const ballMat = new MeshLambertMaterial({ color: color('snowman') });
-        const balls = new InstancedMesh(ballGeo, ballMat, 2);
-        balls.name = 'base-snowman';
-        [
-          [1.4, 1.3],
-          [0.9, 3.3],
-        ].forEach(([r, y], i) => {
-          dummy.position.set(snow.x, y!, snow.z);
+        const ballMat = new MeshLambertMaterial({ color: 0xffffff });
+        const mesh = new InstancedMesh(ballGeo, ballMat, balls.length);
+        mesh.name = 'base-balls';
+        balls.forEach((b, i) => {
+          dummy.position.set(b.x, b.y, b.z);
           dummy.rotation.set(0, 0, 0);
-          dummy.scale.setScalar(r!);
+          dummy.scale.set(b.r, b.r * (b.r < 0.6 ? 1.3 : 1), b.r);
           dummy.updateMatrix();
-          balls.setMatrixAt(i, dummy.matrix);
+          mesh.setMatrixAt(i, dummy.matrix);
+          mesh.setColorAt(i, b.c);
         });
         dummy.scale.set(1, 1, 1);
-        group.add(balls);
+        group.add(mesh);
         parts.push(ballGeo, ballMat);
       }
     },

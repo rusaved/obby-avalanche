@@ -80,6 +80,9 @@ import { baseBelts, baseTreadMult, buildBase, type BasePortal } from './level/ba
 import { nextPlace, ownWorld, type FlowEvent, type FlowState, type Place } from './meta/base-flow.ts';
 import { basePortalEntered } from './sim/base-portals.ts';
 import { createBaseView, type BaseView } from './render/base-view.ts';
+import { createStandsView, type StandsView } from './app/stands-view.ts';
+import { nextShoes, shoesPrice } from './meta/shoes.ts';
+import { eggPrice, type Egg } from './meta/pets.ts';
 
 const DEG = Math.PI / 180;
 /** «+N» above the hero at most 4 times a second (docs/01-gdd.md 10.3). */
@@ -343,6 +346,7 @@ async function boot(): Promise<void> {
   let fx: FxParticles | null = null;
   let meta: MetaView | null = null;
   let petsView: PetsView | null = null;
+  let standsView: StandsView | null = null;
   let cosmeticsView: CosmeticsView | null = null;
   let rebirthView: RebirthView | null = null;
   let dailyView: DailyView | null = null;
@@ -705,6 +709,9 @@ async function boot(): Promise<void> {
     },
     get waveView() {
       return waveView;
+    },
+    get standsView() {
+      return standsView;
     },
     get eventsView() {
       return eventsView;
@@ -1122,6 +1129,7 @@ async function boot(): Promise<void> {
     lastRenderTicks = loop.ticks;
     meta?.update();
     petsView?.update(gameDt, playSec, renderPos, hero.yaw, hero.speed > 1.5 || sim.onBelt);
+    standsView?.update(gameDt);
     cosmeticsView?.update();
     if (cosmeticsVisual) {
       cosmeticsVisual.group.visible = heroChar?.visible ?? false;
@@ -1306,6 +1314,7 @@ async function boot(): Promise<void> {
     onShoes: () => void meta?.buyShoes(),
     onAd: (id) => adsView?.press(id),
     onEgg: () => void petsView?.buyEgg(),
+    onStand: () => standsView?.press(),
     onMenu: (id) => openMenuWindow(id),
     trophyColor: theme.ui.trophies,
     plaqueColor: theme.ui.plaque,
@@ -1439,6 +1448,43 @@ async function boot(): Promise<void> {
       },
     },
     trophiesDue: () => hudDueNow().has('trophies'),
+  });
+  // The points of the base (docs/01-gdd.md 19.3). The shop: with «Shop» of the HUD; its tab — the sneakers if they are
+  // affordable, else the eggs if the egg of the own mountain is, else the sneakers; the hand when one is affordable.
+  const ownEgg = (): Egg | null => {
+    const own = ownWorld(flowState()) || content.worlds.worlds.length;
+    const w = [...content.worlds.worlds].reverse().find((x) => x.index <= own && x.egg);
+    return eggs.eggs.find((e) => e.id === w?.egg) ?? null;
+  };
+  const shopAfford = (): { shoes: boolean; egg: boolean } => {
+    const next = nextShoes(balance.upgrade.tiers, meta?.shoeLevel ?? 0);
+    const egg = ownEgg();
+    return {
+      shoes: next !== null && sim.coins >= shoesPrice(next, sim.tier, balance.rebirth),
+      egg: egg !== null && sim.coins >= eggPrice(egg, sim.tier, balance.rebirth),
+    };
+  };
+  standsView = createStandsView({
+    getSim: () => sim,
+    hud,
+    camera: cameraRig,
+    field: () => field,
+    onBase: () => onBase,
+    windowOpen: () => !!windows?.current,
+    stands: {
+      shop: {
+        due: () => hudDueNow().has('shop'),
+        text: () => t('btn.shop'),
+        hand: () => {
+          const a = shopAfford();
+          return a.shoes || a.egg;
+        },
+        press: () => {
+          const a = shopAfford();
+          cosmeticsView?.openShop(a.shoes ? 'shoes' : a.egg ? 'eggs' : 'shoes');
+        },
+      },
+    },
   });
   if (heroChar.skinId !== cosmeticsView.skin) characters.setSkin(heroChar, cosmeticsView.skin);
   characters.setWings(heroChar, cosmeticsView.wings);

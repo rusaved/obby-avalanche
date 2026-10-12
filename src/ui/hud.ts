@@ -41,6 +41,8 @@ export interface HudOptions {
   onMenu: (id: string) => void;
   /** The egg button over a stand pressed (docs/01-gdd.md 7.2). */
   onEgg: () => void;
+  /** The button over a point of the base pressed (docs/01-gdd.md 19.3: the shop counter …); absent — none. */
+  onStand?: () => void;
   /** Trophy plaque colour (theme.json ui.trophies). */
   trophyColor: string;
   /** Dark see-through plaque under the avalanche banner and the small arrows, and its text (theme.json ui.plaque,
@@ -154,6 +156,10 @@ export interface Hud {
   setMenu(items: readonly MenuItem[]): void;
   /** The egg button over the stand the hero stands at; null hides it. */
   setEggButton(state: EggButtonState | null): void;
+  /** The button over a point of the base the hero stands at (docs/01-gdd.md 19.3), like the egg button; null hides it. */
+  setStandButton(state: { text: string; x: number; y: number } | null): void;
+  /** The hand over a point of the base with something to take there (the shop: enough coins); null hides it. */
+  setStandHand(pos: { x: number; y: number } | null): void;
   /** «▶ Ad: …» buttons shown now (docs/01-gdd.md 9.1, 10.1: PC — left middle, touch — top centre under the goal);
    * `busy` — waiting for the ad, the button is locked. An empty list hides the row. */
   setAdButtons(list: ReadonlyArray<{ id: string; text: string; busy: boolean }>): void;
@@ -354,6 +360,12 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   eggBtn.style.setProperty('--ok', opts.okColor);
   onPress(eggBtn, () => opts.onEgg());
   root.appendChild(eggBtn);
+  // The button and the hand over a point of the base (docs/01-gdd.md 19.3): the look of the egg button and the hand.
+  const standBtn = el('button', 'hud-egg can');
+  standBtn.dataset['hud'] = 'stand';
+  standBtn.style.setProperty('--ok', opts.okColor);
+  onPress(standBtn, () => opts.onStand?.());
+  root.appendChild(standBtn);
 
   // Avalanche (docs/01-gdd.md 4.8): banner, frost frame, arrow to the cave, toast, veil. Never red (docs/03, 3.2).
   root.style.setProperty('--threat', opts.threatColor);
@@ -437,6 +449,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   hand.innerHTML =
     '<svg viewBox="0 0 24 24" width="40" height="40"><path d="M9 11V4.5a1.5 1.5 0 0 1 3 0V10h.5V3.5a1.5 1.5 0 0 1 3 0V10h.5V5a1.5 1.5 0 0 1 3 0v8c0 4-2.5 7.5-7 7.5-3 0-4.6-1.4-6-3.6L3.3 13.6a1.4 1.4 0 0 1 2.2-1.8L7.5 14V7a1.5 1.5 0 0 1 3 0" fill="#fff" stroke="#1b2a3a" stroke-width="1.2"/></svg>';
   root.appendChild(hand);
+  const standHand = el('div', 'hud-hand');
+  standHand.dataset['role'] = 'stand-hand';
+  standHand.innerHTML = hand.innerHTML;
+  root.appendChild(standHand);
   const gainPool = Array.from({ length: 4 }, () => el('div', 'hud-gain'));
   let gainNext = 0;
   for (const node of gainPool) root.appendChild(node);
@@ -802,6 +818,16 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
         if (b.textContent !== item.text) b.textContent = item.text;
         b.disabled = item.busy;
       });
+    },
+    setStandButton(state) {
+      standBtn.classList.toggle('shown', state !== null);
+      if (!state) return;
+      if (standBtn.textContent !== state.text) standBtn.textContent = state.text;
+      standBtn.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
+    },
+    setStandHand(pos) {
+      standHand.classList.toggle('shown', pos !== null);
+      if (pos) standHand.style.transform = `translate(${Math.round(pos.x)}px, ${Math.round(pos.y)}px) translate(-50%, -100%)`;
     },
     setEggButton(state) {
       eggBtn.classList.toggle('shown', state !== null);

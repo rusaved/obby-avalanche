@@ -112,6 +112,8 @@ export interface GameHandles {
   /** Avalanche visual and its per-frame presentation (M2-06). */
   readonly avalanche: AvalancheVisual | null;
   readonly waveView: WaveView | null;
+  /** The points of the base (FM-10…FM-12): the stand whose button is up, the stands with a hand. */
+  readonly standsView: import('./stands-view.ts').StandsView | null;
   /** Starts the next avalanche now (debug «Avalanche now», __TEST__.triggerWave). */
   triggerWave(): void;
   /** e2e bot: world points [x, z] the hero walks to one after another (overrides the input), a third number — the reach

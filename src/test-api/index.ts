@@ -32,6 +32,9 @@ export interface TestState {
   replay: boolean;
   /** The sign of the base treadmill (FM-09). */
   baseTread: string | null;
+  /** The points of the base (FM-10…FM-12): the stand whose button is up, the stands with a hand over them. */
+  standButton: string | null;
+  standHands: string[];
   world: string;
   controllable: boolean;
   pauseReasons: string[];
@@ -521,6 +524,8 @@ export function installTestApi(g: GameHandles): TestApi {
         basePortals: g.basePortals.map((b) => ({ world: b.world, x: b.x, z: b.z, yaw: b.yaw, width: b.width, state: b.state })),
         replay: g.replay,
         baseTread: g.baseTreadSign,
+        standButton: g.standsView?.button ?? null,
+        standHands: [...(g.standsView?.hands ?? [])],
         world: g.world.id,
         controllable: g.boot.controllable,
         pauseReasons: g.pause.reasons,
