@@ -7,7 +7,7 @@ import { createBoss, type BossEvents } from '../../src/sim/boss.ts';
 import { createSim } from '../../src/sim/world.ts';
 import type { BalanceJson, BotsJson, GameJson, TuningJson, WorldBoss, WorldsJson } from '../../src/content/types.ts';
 
-// RG-10: the giant goes at bots too (docs/01-gdd.md 18.5; docs/01a-content.md 17.4).
+// RG-10: the giant goes at bots too, at the hero first (docs/01-gdd.md 18.5; docs/01a-content.md 17.4; Q-047).
 const root = resolve(__dirname, '../..');
 const read = <T>(f: string): T => JSON.parse(readFileSync(resolve(root, 'content/avalanche', f), 'utf8')) as T;
 const balance = mergePatch(read<BalanceJson>('balance.json'), read('pace/open/balance.json'));
@@ -52,7 +52,7 @@ describe('the giant goes at bots too (RG-10)', () => {
     expect(ev2.filter((e) => e.name === 'bossBotCaught')).toEqual([]);
   });
 
-  it('with the hero and a bot in the zone the giant goes at the nearer one', () => {
+  it('with the hero and a bot in the zone the giant goes at the hero, even past a nearer bot (Q-047)', () => {
     const { b } = boss();
     const g = b.zones[0]!.giants[0]!;
     g.z = 150;
@@ -60,8 +60,8 @@ describe('the giant goes at bots too (RG-10)', () => {
     const bot = { bot: 0, z: 125, speed: 0 };
     for (let i = 0; i < 40; i++) b.step(DT, hero, true, i, [bot]);
     expect(g.mode).toBe('chase');
-    expect(g.dir).toBe(-1);
-    expect(g.z).toBeLessThan(150);
+    expect(g.dir).toBe(1);
+    expect(g.z).toBeGreaterThan(150);
   });
 
   it('mountain 1: bots wait by the zone, run it; some slapped and rolled back to its start, about passShare past him', () => {

@@ -1,4 +1,4 @@
-// What: The giant of the open slope: each zone of worlds.json bosses[] with its giants — patrol along the slope, turn to the nearest runner (hero or bot), the slap or the slip past, the way back.
+// What: The giant of the open slope: each zone of worlds.json bosses[] with its giants — patrol along the slope, turn to the hero in the zone (else the nearest bot running it), the slap or the slip past, the way back.
 // Called by: sim/world.ts (createBoss, step every tick, its events go out through the sim bus); tests/sim/boss.test.ts.
 // Keep: Pure TS, no DOM, deterministic; every number from the data (zones, speeds, turnSec, returnMult, helpers — worlds.json; margin, reach — game.json threat.boss).
 
@@ -53,7 +53,7 @@ export interface BossEvents {
   helperHit: { tick: number; zone: number; slow: number; slowSec: number };
 }
 
-/** A bot running a giant's zone (docs/01-gdd.md 18.5): the giant goes at the nearest runner, bot or hero. */
+/** A bot running a giant's zone (docs/01-gdd.md 18.5): the giant goes at it only while the hero is not in the zone. */
 export interface BossRunner {
   bot: number;
   z: number;
@@ -185,9 +185,10 @@ export function createBoss(
             if (runners.length === 0) s.giants.forEach((g) => (g.mode = g.mode === 'sit' ? 'sit' : 'back'));
           }
         }
-        // The nearest runner to a giant: the hero in the zone or a bot running it.
+        // The hero in the zone first (producer 12.10, Q-047: the giant is about him); else the nearest bot running it.
         const target = (g: GiantState): number => {
-          let best = s.hero === 'in' ? hero.z : NaN;
+          if (s.hero === 'in') return hero.z;
+          let best = NaN;
           for (const r of runners) if (!slapped.has(r.bot) && !(Math.abs(r.z - g.z) >= Math.abs(best - g.z))) best = r.z;
           return best;
         };
