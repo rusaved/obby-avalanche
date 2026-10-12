@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs';
 import { test, expect, shot1080, testState, waitTicks } from './fixtures.ts';
-import { intoPortal, intoSummit, toFirstBase, worlds } from './base-route.ts';
+import { intoPortal, intoSummit, toFirstBase, upPastRidge, worlds } from './base-route.ts';
 import ru from '../content/avalanche/i18n/ru.json' with { type: 'json' };
 
 // FM-07: the base between the mountains (docs/01-gdd.md 19.2–19.4): the first summit → the window → «Next» → the base
@@ -57,15 +57,8 @@ test('F5 on mountain 3 after ridge 2 → the base → portal 3 («ridge 2/3») �
     window.__TEST__!.gotoWorld(3);
   });
   await waitTicks(page, 20);
-  // Up past ridge 2 with the Speed of it.
-  await page.evaluate(([st, z]) => {
-    window.__TEST__!.holdWave(900);
-    window.__TEST__!.setStat(st);
-    window.__TEST__!.teleport(z, 0);
-  }, [r2.requires! * 1.2, r2.z - 12] as const);
-  await waitTicks(page, 10);
-  await page.evaluate((z) => window.__TEST__!.botPath([[0, z]]), r2.z + (r2.passLength ?? 0) + 12);
-  await page.waitForFunction(() => window.__TEST__!.botLeft() === 0, undefined, { timeout: 60_000 });
+  // Up past ridge 2 with the Speed of it, through its pass.
+  await upPastRidge(page, w, 1);
   await waitTicks(page, 30);
   await page.reload();
   await page.waitForFunction(() => window.__TEST__?.ready === true, undefined, { timeout: 60_000 });

@@ -3,9 +3,30 @@ import { testState, waitTicks } from './fixtures.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 
 // The way about the base of the open pace for the FM e2e (docs/01-gdd.md 19.2–19.4): a summit, a base portal, the first base.
-export type Seg = { type: string; z: number; x?: number; kind?: string; requires?: number; passLength?: number };
+// Every point comes from worlds.json and the base state (SP, docs/01-gdd.md 20.11): no x or z literals, so the widths,
+// passes and lengths of «Размах» move the way with them.
+export type Seg = { type: string; z: number; x?: number; kind?: string; requires?: number; passLength?: number; passes?: number[] };
 export type OpenWorld = { id: string; index: number; segments: Seg[]; bosses: Array<{ zone: [number, number]; requires: number }> };
 export const worlds = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds;
+
+/** The x of the pass of ridge `r` nearest the middle of the slope (worlds.json `passes`). */
+export function passX(r: Seg): number {
+  return (r.passes ?? [0]).reduce((a, b) => (Math.abs(b) < Math.abs(a) ? b : a));
+}
+
+/** The hero of `w` (the current mountain) from below ridge `i` (0-based) up through its pass to past it, with its Speed × `k`. */
+export async function upPastRidge(page: Page, w: OpenWorld, i: number, k = 1.2): Promise<void> {
+  const r = w.segments.filter((s) => s.type === 'gate' && s.kind === 'ridge')[i]!;
+  const x = passX(r);
+  await page.evaluate(([st, z, xx]) => {
+    window.__TEST__!.holdWave(900);
+    window.__TEST__!.setStat(st);
+    window.__TEST__!.teleport(z, xx);
+  }, [r.requires! * k, r.z - 12, x] as const);
+  await waitTicks(page, 10);
+  await page.evaluate((p) => window.__TEST__!.botPath(p), [[x, r.z + (r.passLength ?? 0) + 12]] as Array<[number, number]>);
+  await page.waitForFunction(() => window.__TEST__!.botLeft() === 0, undefined, { timeout: 60_000 });
+}
 
 /** The hero of `w` (the current mountain) from past its giant into its summit portal, fast enough for every wall. */
 export async function intoSummit(page: Page, w: OpenWorld): Promise<void> {
