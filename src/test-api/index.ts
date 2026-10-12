@@ -30,6 +30,8 @@ export interface TestState {
   onBase: boolean;
   basePortals: Array<{ world: number; x: number; z: number; yaw: number; width: number; state: string }>;
   replay: boolean;
+  /** The sign of the base treadmill (FM-09). */
+  baseTread: string | null;
   world: string;
   controllable: boolean;
   pauseReasons: string[];
@@ -518,6 +520,7 @@ export function installTestApi(g: GameHandles): TestApi {
         onBase: g.onBase,
         basePortals: g.basePortals.map((b) => ({ world: b.world, x: b.x, z: b.z, yaw: b.yaw, width: b.width, state: b.state })),
         replay: g.replay,
+        baseTread: g.baseTreadSign,
         world: g.world.id,
         controllable: g.boot.controllable,
         pauseReasons: g.pause.reasons,

@@ -72,6 +72,8 @@ export interface SaveData {
   wheel?: { day: number };
   /** Record flag of the open slope (docs/01-gdd.md 17.7): the highest point of this life on mountain `world`. */
   record?: { world: number; x: number; y: number; z: number };
+  /** The base treadmill step last announced (docs/01-gdd.md 19.2): tier × 100 + summits of the tier. */
+  baseTread?: number;
 }
 
 export const SAVE_VERSION = 2;
@@ -107,7 +109,7 @@ export function migrate(raw: Record<string, unknown>): Record<string, unknown> |
   return s;
 }
 
-const NUMBER_KEYS = ['sessions', 'wavesNormal', 'totalPlaySec', 'shoes', 'trophies', 'trophiesTotal', 'tier', 'summits', 'stat', 'bestStat', 'coins', 'world', 'frontierWall', 'boostSec', 'adEgg'] as const;
+const NUMBER_KEYS = ['sessions', 'wavesNormal', 'totalPlaySec', 'shoes', 'trophies', 'trophiesTotal', 'tier', 'summits', 'stat', 'bestStat', 'coins', 'world', 'frontierWall', 'boostSec', 'adEgg', 'baseTread'] as const;
 const ARRAY_KEYS = ['pets', 'petsOn', 'trails', 'auras', 'skins', 'wings'] as const;
 const OBJECT_KEYS = ['flags', 'hints', 'daily', 'quests', 'timeRw', 'wheel', 'record'] as const;
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);

@@ -344,5 +344,6 @@
   "base.goal": "To the portal: {name}",
   "base.portalRidge": "ridge {b}/{c}",
   "base.portalLocked": "Clear mountain {n}",
-  "toast.replaySummit": "Top again!"
+  "toast.replaySummit": "Top again!",
+  "toast.baseTreadmill": "Base treadmill ×{n}!"
 }

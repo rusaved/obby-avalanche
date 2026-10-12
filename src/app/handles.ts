@@ -102,6 +102,8 @@ export interface GameHandles {
   readonly onBase: boolean;
   readonly basePortals: ReadonlyArray<{ world: number; x: number; z: number; yaw: number; width: number; state: string }>;
   readonly replay: boolean;
+  /** The sign of the base treadmill («×6», FM-09); null — not on the base. */
+  readonly baseTreadSign: string | null;
   /** A toast as the game shows them (FM-04 e2e: its plaque and contrast). */
   showToast(text: string, sec?: number, gold?: boolean): void;
   /** Gate sign as rendered: text and open colour (M2-02 e2e). */

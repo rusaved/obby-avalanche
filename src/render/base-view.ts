@@ -1,4 +1,4 @@
-// What: How the base looks (docs/01-gdd.md 19.2–19.3): the arches of the mountains by state (passed — open with a flag and a cup, own — filled with light under a pillar, locked — iced with a lock), their signs in one atlas, 3 arrows on the snow to the own portal, the snowman.
+// What: How the base looks (docs/01-gdd.md 19.2–19.3): the arches of the mountains by state (passed — open with a flag and a cup, own — filled with light under a pillar, locked — iced with a lock), their signs and the «×N» of the base treadmill in one atlas, 3 arrows on the snow to the own portal, the snowman.
 // Called by: main.ts (createBaseView; set on every entry to the base, clear on a mountain); test-api (drawn).
 // Keep: Render only, nothing in the sim (the ice of a locked arch is a hero collider of the level); at most 6 draw calls; colours from theme.json, texts through the caller's t().
 
@@ -19,14 +19,20 @@ const ATLAS_W = 512;
 const ARROWS = 3;
 const ARROW_GAP = 4;
 const FILL_OPACITY = 0.6;
+/** The sign of the base treadmill: its height and how far before the front of its belts (units). */
+const TREAD_SIGN_Y = 3;
+const TREAD_SIGN_BACK = 1;
 
 export interface BaseView {
   group: Group;
-  /** The base of `level` with its portals (a new entry: the states may have changed); `t` — the game's texts. */
-  set(level: LevelData, portals: readonly BasePortal[], t: (key: string, p?: Record<string, string | number>) => string): void;
+  /** The base of `level` with its portals (a new entry: the states may have changed); `t` — the game's texts; `tread` —
+   * the sign over the base treadmill («×6»). */
+  set(level: LevelData, portals: readonly BasePortal[], t: (key: string, p?: Record<string, string | number>) => string, tread?: string): void;
   /** Off the base: nothing drawn. */
   clear(): void;
   readonly drawn: boolean;
+  /** The text on the sign of the base treadmill now; null — none. */
+  readonly treadSign: string | null;
   dispose(): void;
 }
 
@@ -38,12 +44,14 @@ export function createBaseView(theme: ThemeJson): BaseView {
   const parts: Array<{ dispose(): void }> = [];
   const dummy = new Object3D();
   let drawn = false;
+  let treadSign: string | null = null;
 
   const clear = (): void => {
     for (const p of parts) p.dispose();
     parts.length = 0;
     group.clear();
     drawn = false;
+    treadSign = null;
   };
 
   const view: BaseView = {
@@ -51,8 +59,11 @@ export function createBaseView(theme: ThemeJson): BaseView {
     get drawn() {
       return drawn;
     },
+    get treadSign() {
+      return treadSign;
+    },
     clear,
-    set(level, portals, t) {
+    set(level, portals, t, tread) {
       clear();
       if (portals.length === 0) return;
       drawn = true;
@@ -107,27 +118,42 @@ export function createBaseView(theme: ThemeJson): BaseView {
         parts.push(fillGeo, fillMat);
       }
 
-      // Signs: the name of the mountain, under it «ridge b/c» on the own one begun or «Clear mountain N» on a locked one.
+      // Signs: the name of the mountain, under it «ridge b/c» on the own one begun or «Clear mountain N» on a locked one;
+      // the step of the base treadmill over its belts (docs/01-gdd.md 19.3), facing the spawn. One atlas, one mesh.
+      const rows: Array<{ x: number; z: number; yaw: number; y: number; text: string; sub: string }> = portals.map((p) => ({
+        x: p.x,
+        z: p.z,
+        yaw: p.yaw,
+        y: p.height + SIGN_OVER,
+        text: t(`world.${p.id}`),
+        sub: p.state === 'own' && p.ridge ? t('base.portalRidge', { b: p.ridge.b, c: p.ridge.c }) : p.state === 'locked' ? t('base.portalLocked', { n: p.world - 1 }) : '',
+      }));
+      const belts = level.points.filter((p) => p.type === 'treadmill');
+      if (tread && belts.length) {
+        const x = belts.reduce((a, b) => a + b.x, 0) / belts.length;
+        const len = Number(belts[0]!['length'] ?? 0);
+        treadSign = tread;
+        rows.push({ x, z: Math.min(...belts.map((b) => b.z)) - len / 2 - TREAD_SIGN_BACK, yaw: 0, y: TREAD_SIGN_Y, text: tread, sub: '' });
+      }
       const canvas = document.createElement('canvas');
       canvas.width = ATLAS_W;
-      canvas.height = ROW_PX * portals.length;
+      canvas.height = ROW_PX * rows.length;
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        portals.forEach((p, i) => {
+        rows.forEach((g, i) => {
           const y0 = i * ROW_PX;
           ctx.fillStyle = theme.ui.plaque;
           ctx.globalAlpha = theme.ui.plaqueAlpha;
           ctx.fillRect(4, y0 + 4, ATLAS_W - 8, ROW_PX - 8);
           ctx.globalAlpha = 1;
           ctx.fillStyle = theme.ui.plaqueText;
-          const sub = p.state === 'own' && p.ridge ? t('base.portalRidge', { b: p.ridge.b, c: p.ridge.c }) : p.state === 'locked' ? t('base.portalLocked', { n: p.world - 1 }) : '';
-          ctx.font = `800 ${sub ? 36 : 44}px Rubik, sans-serif`;
-          ctx.fillText(t(`world.${p.id}`), ATLAS_W / 2, y0 + (sub ? ROW_PX * 0.34 : ROW_PX / 2), ATLAS_W - 24);
-          if (sub) {
+          ctx.font = `800 ${g.sub ? 36 : 44}px Rubik, sans-serif`;
+          ctx.fillText(g.text, ATLAS_W / 2, y0 + (g.sub ? ROW_PX * 0.34 : ROW_PX / 2), ATLAS_W - 24);
+          if (g.sub) {
             ctx.font = '700 28px Rubik, sans-serif';
-            ctx.fillText(sub, ATLAS_W / 2, y0 + ROW_PX * 0.74, ATLAS_W - 24);
+            ctx.fillText(g.sub, ATLAS_W / 2, y0 + ROW_PX * 0.74, ATLAS_W - 24);
           }
         });
       }
@@ -135,18 +161,17 @@ export function createBaseView(theme: ThemeJson): BaseView {
       tex.colorSpace = SRGBColorSpace;
       const sPos: number[] = [];
       const sUv: number[] = [];
-      portals.forEach((p, i) => {
-        const v0 = 1 - (i + 1) / portals.length;
-        const v1 = 1 - i / portals.length;
-        const c = Math.cos(p.yaw);
-        const s = Math.sin(p.yaw);
-        const y = p.height + SIGN_OVER;
+      rows.forEach((g, i) => {
+        const v0 = 1 - (i + 1) / rows.length;
+        const v1 = 1 - i / rows.length;
+        const c = Math.cos(g.yaw);
+        const s = Math.sin(g.yaw);
         // Facing the field (back to the way in): screen left of the reader is +across of the arch.
-        const corner = (u: number, yy: number): number[] => [p.x - u * c - 0.6 * s, yy, p.z + u * s - 0.6 * c];
-        const a = corner(-SIGN_W / 2, y);
-        const b = corner(SIGN_W / 2, y);
-        const cc = corner(SIGN_W / 2, y + SIGN_H);
-        const d = corner(-SIGN_W / 2, y + SIGN_H);
+        const corner = (u: number, yy: number): number[] => [g.x - u * c - 0.6 * s, yy, g.z + u * s - 0.6 * c];
+        const a = corner(-SIGN_W / 2, g.y);
+        const b = corner(SIGN_W / 2, g.y);
+        const cc = corner(SIGN_W / 2, g.y + SIGN_H);
+        const d = corner(-SIGN_W / 2, g.y + SIGN_H);
         sPos.push(...a, ...b, ...cc, ...a, ...cc, ...d);
         sUv.push(0, v0, 1, v0, 1, v1, 0, v0, 1, v1, 0, v1);
       });

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { mergePatch } from '../../src/content/pace.ts';
-import { basePortals, buildBase, type BaseProgress } from '../../src/level/base-layout.ts';
+import { baseBelts, basePortals, baseTreadMult, buildBase, type BaseProgress } from '../../src/level/base-layout.ts';
 import { fenceGaps, validateBase, validateBaseFile } from '../../src/level/validate-base.ts';
 import { basePortalEntered } from '../../src/sim/base-portals.ts';
 import type { BalanceJson, BaseJson, TuningJson, WorldsJson } from '../../src/content/types.ts';
@@ -78,5 +78,15 @@ describe('the base (FM-07)', () => {
     expect(basePortalEntered(ps, own.x - s + 5 * c, own.z - c - 5 * s, own.x + 0.5 * s + 5 * c, own.z + 0.5 * c - 5 * s)).toBeNull();
     const locked = ps[3]!;
     expect(basePortalEntered(ps, locked.x - Math.sin(locked.yaw), locked.z - Math.cos(locked.yaw), locked.x, locked.z + 0.1)).toBeNull();
+  });
+
+  it('FM-09: the base treadmill after 0…10 summits is the row of 01a 18.2 from worlds.json; its belts carry it; bogus data — the mountain named', () => {
+    expect([...Array(11).keys()].map((n) => baseTreadMult(worlds.worlds, n))).toEqual([1, 2, 6, 20, 60, 150, 500, 1500, 5000, 15000, 40000]);
+    const level = buildBase(base, { ...progress(2), treadMult: baseTreadMult(worlds.worlds, 2) }, tuning.bounds?.wallHeight).level;
+    const belts = level.points.filter((p) => p.type === 'treadmill');
+    expect(belts.map((p) => [p.x, p.z, p['mult']])).toEqual(baseBelts(base).map((b) => [b.x, b.z, 6]));
+    const bogus = structuredClone(worlds);
+    bogus.worlds[2]!.zones[0]!.stepMult = 5;
+    expect(validateBase(base, bogus, tuning, balance, i18n)).toEqual(['base.json: treadmill — ×6 after 2 summits is more than section 1 of mountain 3 (×5)']);
   });
 });

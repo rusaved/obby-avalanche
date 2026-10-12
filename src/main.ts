@@ -76,7 +76,7 @@ import { scaled, summitTrophies } from './sim/economy.ts';
 import type { GameHandles, BootState } from './app/handles.ts';
 import type { TestApi } from './test-api/index.ts';
 import type { DebugPanel } from './debug/index.ts';
-import { buildBase, type BasePortal } from './level/base-layout.ts';
+import { baseBelts, baseTreadMult, buildBase, type BasePortal } from './level/base-layout.ts';
 import { nextPlace, ownWorld, type FlowEvent, type FlowState, type Place } from './meta/base-flow.ts';
 import { basePortalEntered } from './sim/base-portals.ts';
 import { createBaseView, type BaseView } from './render/base-view.ts';
@@ -184,6 +184,8 @@ async function boot(): Promise<void> {
   let replay = false;
   let basePortals: BasePortal[] = [];
   let pendingPlace: Place | null = null;
+  /** Bots on the base treadmill (docs/01a-content.md 18.1): `bots.count`, on the low quality `bots.low`. */
+  const baseBotCount = (): number => (baseCfg ? (quality.level === 'low' ? baseCfg.bots.low : baseCfg.bots.count) : 0);
   const flowState = (): FlowState => ({
     base: baseCfg !== null && (g.baseEnabled ?? true),
     startOnReturn: baseCfg?.startOnReturn ?? false,
@@ -681,6 +683,9 @@ async function boot(): Promise<void> {
     get replay() {
       return replay;
     },
+    get baseTreadSign() {
+      return baseView?.treadSign ?? null;
+    },
     showToast: (text, sec, gold) => hud?.toast(text, sec, gold),
     showFaces() {
       if (!characters || !cameraRig) return;
@@ -783,7 +788,7 @@ async function boot(): Promise<void> {
     levelMeshes?.chunks.forEach((c) => void (c.receiveShadow = quality.params.shadowMap > 0));
     avalanche?.setParticles(quality.params.particles);
     fx?.setShare(quality.params.particles);
-    if (sim.bots) sim.bots.limit = Math.min(sim.bots.list.length, bots.count[quality.level]);
+    if (sim.bots) sim.bots.limit = Math.min(sim.bots.list.length, onBase ? baseBotCount() : bots.count[quality.level]);
   };
 
   /**
@@ -843,13 +848,16 @@ async function boot(): Promise<void> {
     const ownW = content.worlds.worlds.find((w) => w.index === own);
     const begun = ownW && save.world === own && (save.frontierWall ?? 0) > 0;
     const ridges = ownW ? ownW.segments.filter((x) => x.type === 'gate' && x['kind'] === 'ridge').length : 0;
+    const summits = summitsDone(save);
+    // The base treadmill: the finish straight of the last mountain passed on this tier (docs/01a-content.md 18.2).
+    const treadMult = baseTreadMult(content.worlds.worlds, summits);
     const b = buildBase(
       baseCfg,
       {
         mountains: content.worlds.worlds.map((w) => ({ index: w.index, id: w.id })),
-        summits: summitsDone(save),
+        summits,
         ridge: begun ? { b: Math.min(ridges, save.frontierWall ?? 0), c: ridges } : null,
-        treadMult: 1,
+        treadMult,
       },
       tuning.bounds?.wallHeight,
     );
@@ -861,7 +869,8 @@ async function boot(): Promise<void> {
     basePortals = b.portals;
     world = b.world;
     level = b.level;
-    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier });
+    // Bots run on its belt (docs/01-gdd.md 19.2), nothing else of a mountain: no avalanche, giant or events.
+    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, bots: { cfg: bots, count: baseCfg.bots.count, seed: (seed + 7919 * 97) >>> 0, belts: baseBelts(baseCfg) } });
     avalanche?.setLevel(level);
     wireSim(sim);
     g.sim = sim;
@@ -877,17 +886,24 @@ async function boot(): Promise<void> {
       gr.scene.add(levelMeshes.group);
       applyQualityNow();
     }
-    baseView?.set(level, basePortals, t);
+    baseView?.set(level, basePortals, t, `×${formatNumber(treadMult, numSuffix)}`);
     hud?.setMountainShown(false);
     maxSpeed = sim.params.speed;
     frame.controlYaw = b.spawnYaw;
     frame.viewYaw = b.spawnYaw;
     g.teleport(level.spawn[0], level.spawn[1] + 0.05, level.spawn[2]);
     sim.hero.yaw = b.spawnYaw;
+    // A new summit of the tier: the base treadmill has a new step — said once (19.2); the first base says only itself.
+    const treadMark = (save.tier ?? 0) * 100 + summits;
+    const newTread = treadMult > 1 && save.baseTread !== treadMark;
+    save.baseTread = treadMark;
     if (!(save.flags?.['baseOpen'] ?? false)) {
       save.flags = { ...(save.flags ?? {}), baseOpen: true };
       trackOnce('base_first');
       hud?.toast(t('toast.baseFirst'), 3);
+      persist(true);
+    } else if (newTread) {
+      hud?.toast(t('toast.baseTreadmill', { n: formatNumber(treadMult, numSuffix) }), 3);
       persist(true);
     }
   };

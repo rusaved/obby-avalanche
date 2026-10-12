@@ -94,6 +94,8 @@ export interface BotsOptions {
   graceDist: number;
   /** Trampolines and slides on the way (docs/01-gdd.md 16.4); absent — the bots walk over them. */
   fun?: { cfg: Pick<TuningJson['fun'], 'padSpeed' | 'slideMult' | 'slideSec'>; gravity: number } | undefined;
+  /** The base (docs/01-gdd.md 19.2): every bot runs in place on one of these belt spots for good. */
+  belts?: ReadonlyArray<{ x: number; z: number }> | undefined;
 }
 
 export interface BotCrowd {
@@ -255,6 +257,13 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       slowLeft: 0,
     };
     if (!inCamp) bot.x = bot.lane;
+    const belt = opts.belts?.[i % opts.belts.length];
+    if (belt) {
+      bot.x = belt.x;
+      bot.z = belt.z;
+      bot.mode = 'treadmill';
+      bot.moving = true;
+    }
     bot.y = level.floorYAt(bot.z);
     list.push(bot);
   }
@@ -503,6 +512,8 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       b.cave = -1;
     },
     step(dt, ctx) {
+      // On the base the bots only run on its belt.
+      if (opts.belts?.length) return;
       guarded = ctx.giants ?? [];
       weather = ctx.slowAt ?? (() => 1);
       const phase = ctx.threat?.phase ?? 'idle';

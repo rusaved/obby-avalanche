@@ -1,4 +1,4 @@
-// What: Rewarded-ad buttons on the HUD by the common rules of docs/01-gdd.md 9.1: «Speed now» in a grotto with a belt (stat_now) and «continue from here» after a catch (continue_here).
+// What: Rewarded-ad buttons on the HUD by the common rules of docs/01-gdd.md 9.1: «Speed now» in a grotto with a belt or on the base treadmill (stat_now) and «continue from here» after a catch (continue_here).
 // Called by: main.ts (createAdsView, update every frame, onAd from the HUD buttons, caught() after «Snowed in!»); app/handles.ts (AdsView type).
 // Keep: The reward is given only when the ad says rewarded (docs/03 2.3); the game pauses with reason «ad» while it plays and goes on after any outcome; texts via t().
 
@@ -64,12 +64,14 @@ export function createAdsView(d: AdsViewDeps): AdsView {
   const ads = d.balance.ads;
   const fmt = (n: number): string => formatNumber(n, d.numSuffix);
 
-  /** «Speed now» of the grotto the hero stands in: its belt's steps over statNowSec at run speed; 0 — no belt here. */
+  /** «Speed now» of the grotto the hero stands in: its belt's steps over statNowSec at run speed; 0 — no belt here. On
+   * the base (level index 0, docs/01-gdd.md 19.3) — standing on its treadmill. */
   const statNow = (sim: Sim): number => {
     const n = sim.level.niches[sim.shelterIndex()];
-    if (!n || !(n.treadmill > 0)) return 0;
+    const belt = n && n.treadmill > 0 ? n.treadmill : sim.level.worldIndex === 0 && sim.onBelt ? sim.treadmillAt() : 0;
+    if (!(belt > 0)) return 0;
     const steps = (sim.params.speed * d.balance.boost.statNowSec) / d.balance.stepLength;
-    return d.balance.gainPerStep * sim.progress.gainMult * n.treadmill * steps;
+    return d.balance.gainPerStep * sim.progress.gainMult * belt * steps;
   };
   const cooled = (id: string, sec: number): boolean => now - (lastAt.get(id) ?? -Infinity) >= sec;
 

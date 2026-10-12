@@ -71,6 +71,22 @@ export function basePortals(base: BaseJson, progress: BaseProgress): BasePortal[
   });
 }
 
+/**
+ * Step multiplier of the base treadmill after `summits` summits of the tier (docs/01a-content.md 18.2): the finish
+ * straight (the last section) of the last mountain passed; ×1 with none (after a rebirth until the first summit).
+ */
+export function baseTreadMult(worlds: ReadonlyArray<Pick<World, 'index' | 'zones'>>, summits: number): number {
+  const last = worlds.find((w) => w.index === summits);
+  const zones = (last?.zones ?? []).filter((z) => typeof z.stepMult === 'number');
+  return summits > 0 && zones.length ? (zones[zones.length - 1]!.stepMult as number) : 1;
+}
+
+/** Belt spots of the base treadmill: one in the middle of each lane (docs/01a-content.md 18.1; its bots run there). */
+export function baseBelts(base: BaseJson): Array<{ x: number; z: number }> {
+  const t = base.treadmill;
+  return Array.from({ length: t.lanes }, (_, k) => ({ x: round3(t.x + (k - (t.lanes - 1) / 2) * t.laneWidth), z: t.z }));
+}
+
 /** The World of the base for buildLevel (index 0: no mountain of the pace). */
 export function generateBase(base: BaseJson, progress: BaseProgress): World {
   const [W, L] = base.size;
@@ -90,8 +106,7 @@ export function generateBase(base: BaseJson, progress: BaseProgress): World {
     }
   }
   const t = base.treadmill;
-  for (let k = 0; k < t.lanes; k++)
-    seg.push({ type: 'treadmill', z: t.z, x: round3(t.x + (k - (t.lanes - 1) / 2) * t.laneWidth), y: 0, length: t.length, width: t.laneWidth, mult: progress.treadMult, base: true });
+  for (const b of baseBelts(base)) seg.push({ type: 'treadmill', z: b.z, x: b.x, y: 0, length: t.length, width: t.laneWidth, mult: progress.treadMult, base: true });
   for (const [kind, s] of Object.entries(base.stands)) seg.push({ type: 'stand', z: s.z, x: s.x, y: 0, kind, radius: s.radius, ...('standSec' in s ? { standSec: s.standSec } : {}) });
   for (const [x, z] of base.decor.tents) {
     seg.push({ type: 'decor', z, x, y: 0, kind: 'tent' });

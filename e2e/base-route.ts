@@ -33,8 +33,18 @@ export async function intoPortal(page: Page, world: number): Promise<number> {
   return ((await testState(page)).ticks - t0) / 60;
 }
 
-export async function toFirstBase(page: Page, openGame: (q?: string) => Promise<void>): Promise<void> {
+/** The scripted first wave of mountain 1 over (the flag the ad buttons wait for, docs/01-gdd.md 9.1). */
+export async function pastScriptedWave(page: Page): Promise<void> {
+  await page.evaluate(() => window.__TEST__!.setTimeScale(8));
+  await page.evaluate(() => window.__TEST__!.triggerWave());
+  await page.waitForFunction(() => window.__TEST__!.state().wave?.scriptedPending === false && window.__TEST__!.state().wave?.phase === 'idle', undefined, { timeout: 60_000 });
+  await page.evaluate(() => window.__TEST__!.setTimeScale(1));
+}
+
+/** A new game of the open pace, mountain 1 to its summit, «Next» — the first base; `prep` — right after the load. */
+export async function toFirstBase(page: Page, openGame: (q?: string) => Promise<void>, prep?: () => Promise<void>): Promise<void> {
   await openGame('pace=open&quality=high');
+  await prep?.();
   await intoSummit(page, worlds[0]!);
   await page.waitForFunction(() => window.__TEST__!.state().window === 'summit', undefined, { timeout: 60_000 });
   await page.locator('[data-hud="win-next"]').click();

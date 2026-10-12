@@ -344,5 +344,6 @@
   "base.goal": "В портал: {name}",
   "base.portalRidge": "рубеж {b}/{c}",
   "base.portalLocked": "Пройди гору {n}",
-  "toast.replaySummit": "Снова на вершине!"
+  "toast.replaySummit": "Снова на вершине!",
+  "toast.baseTreadmill": "Дорожка базы ×{n}!"
 }

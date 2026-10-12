@@ -177,7 +177,7 @@ export interface SimOptions {
    * false — not there until the app shows it after the scripted wave (docs/01-gdd.md 16.6). */
   giftEgg?: { wall: number; pet: string; hatchSec: number; shown?: boolean } | undefined;
   /** Bots (docs/01-gdd.md 7.12): bots.json, how many for the quality level and the seed; caught and avalanche come from here. */
-  bots?: Pick<BotsOptions, 'cfg' | 'count' | 'seed'> | undefined;
+  bots?: Pick<BotsOptions, 'cfg' | 'count' | 'seed' | 'belts'> | undefined;
   /** Golden gift (docs/01-gdd.md 4.9): game.json threat.bonus, the seed, normal waves of this load before this mountain. */
   bonus?: { cfg: BonusConfig; seed: number; wavesBefore: number } | undefined;
   /**

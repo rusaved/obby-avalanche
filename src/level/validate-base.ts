@@ -1,17 +1,17 @@
-// What: Content checks of the base (docs/01a-content.md 18.1): as many portals as mountains, every portal entered by the hero's physics from the spawn, no gap in the fence, the stands and decor clear of the arches and the belts, the texts of the base.
+// What: Content checks of the base (docs/01a-content.md 18.1–18.2): as many portals as mountains, every portal entered by the hero's physics from the spawn, no gap in the fence, the stands and decor clear of the arches and the belts, the base treadmill under section 1 of the next mountain, the texts of the base.
 // Called by: level/validate.ts (validatePack, when a pace has base.json); tests/level/base.test.ts.
 // Keep: Pure like validate.ts: base.json, worlds, tuning and balance in, messages "base.json: field — what is wrong" out; the way in is the game's (sim/base-portals.ts).
 
 import * as v from 'valibot';
 import type { BalanceJson, BaseJson, TuningJson, WorldsJson } from '../content/types.ts';
-import { basePortals, buildBase, type BasePortal } from './base-layout.ts';
+import { basePortals, baseTreadMult, buildBase, type BasePortal } from './base-layout.ts';
 import { BORDER_HEIGHT } from './builder.ts';
 import type { LevelData } from './types.ts';
 import { createSim } from '../sim/world.ts';
 import { basePortalEntered } from '../sim/base-portals.ts';
 
 /** Texts the base shows (docs/01a-content.md 18.8). */
-export const BASE_KEYS = ['base.name', 'toast.baseFirst', 'base.goal', 'base.portalRidge', 'base.portalLocked', 'toast.replaySummit'] as const;
+export const BASE_KEYS = ['base.name', 'toast.baseFirst', 'base.goal', 'base.portalRidge', 'base.portalLocked', 'toast.replaySummit', 'toast.baseTreadmill'] as const;
 /** The hero walks from the spawn into a portal within this many seconds. */
 const REACH_SEC = 12;
 /** A point of the base keeps this far from an arch's opening and from the treadmill (units). */
@@ -91,6 +91,13 @@ export function validateBase(base: BaseJson, worlds: WorldsJson, tuning: TuningJ
   }
   for (const p of portals)
     if (Math.abs(p.x - t.x) < beltHalf.x + p.width / 2 && Math.abs(p.z - t.z) < beltHalf.z + p.width / 2) errors.push(`base.json: treadmill — under the portal of mountain ${p.world}`);
+  // The base treadmill never beats section 1 of the next mountain (docs/01a-content.md 18.2): running pays more.
+  for (let k = 0; k < n; k++) {
+    const next = worlds.worlds[k]!;
+    const first = next.zones.find((z) => typeof z.stepMult === 'number')?.stepMult ?? 1;
+    const tread = baseTreadMult(worlds.worlds, k);
+    if (tread > first) errors.push(`base.json: treadmill — ×${tread} after ${k} summits is more than section 1 of mountain ${next.index} (×${first})`);
+  }
   // Texts.
   for (const [lang, dict] of Object.entries(i18n)) for (const k of BASE_KEYS) if (!(k in dict)) errors.push(`i18n/${lang}.json: ${k} — missing (the base shows it)`);
   if (errors.length) return errors;
