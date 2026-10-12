@@ -787,7 +787,7 @@
     "milestone": "RG",
     "description": "Баланс, события воронки и итог вехи RG (docs/01-gdd.md 18.11–18.12; docs/06 раздел 2): модель sim:balance учитывает теснину, пропасть, тоннель, горб, события и помощников (F12, F13: гора k не длиннее прежней больше чем на 10%), подгонка --fit --pace=open ≤ 2 раз, таблицы 01a 16.2 и 17.4 переписаны под данные; события event_snowball, event_blizzard, helper_hit, boss_bot_caught — в каталоге docs/06 (раздел 2, таблица «Простор») и в целях раздела 6; плейтестер-смоук; verify; итог вехи в progress.md по CLAUDE.md п. 4 и 11 (хрупкое, docs, ретро, что не нравится)",
     "acceptance": "npm run sim:balance: classic и fast без изменений в цифрах, open F1–F13 PASS, отчёт docs/evidence/balance-open.txt; tests/analytics: каждое новое событие в каталоге docs/06 с кратностью и в целях Метрики, main.ts шлёт его так же; docs/evidence/rg/playtest.md есть, пункты ниже 3 — в фичи или в progress.md с причиной; docs/evidence/rg/verify.txt — последняя строка EXIT=0; скриншоты 4.4 вехи RG открыты и просмотрены; git push origin HEAD:main",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
