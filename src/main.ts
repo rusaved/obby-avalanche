@@ -76,6 +76,10 @@ import { scaled, summitTrophies } from './sim/economy.ts';
 import type { GameHandles, BootState } from './app/handles.ts';
 import type { TestApi } from './test-api/index.ts';
 import type { DebugPanel } from './debug/index.ts';
+import { buildBase, type BasePortal } from './level/base-layout.ts';
+import { nextPlace, ownWorld, type FlowEvent, type FlowState, type Place } from './meta/base-flow.ts';
+import { basePortalEntered } from './sim/base-portals.ts';
+import { createBaseView, type BaseView } from './render/base-view.ts';
 
 const DEG = Math.PI / 180;
 /** «+N» above the hero at most 4 times a second (docs/01-gdd.md 10.3). */
@@ -170,6 +174,26 @@ async function boot(): Promise<void> {
   // Photo studio (docs/04-packaging.md 9): no bot names there (docs/01-gdd.md 7.12).
   const studio = __STUDIO__ && params.get('studio') === '1';
 
+  /**
+   * The base between the mountains (docs/01-gdd.md 19): base.json of the pace when enabled; the hero is on it (`onBase`),
+   * its portals; `replay` — the mountain now is one passed on this tier, run again (no window, chest or trophies at its
+   * summit, the save keeps the own mountain). A place to go after the tick (a base portal entered).
+   */
+  const baseCfg = content.base?.enabled ? content.base : null;
+  let onBase = false;
+  let replay = false;
+  let basePortals: BasePortal[] = [];
+  let pendingPlace: Place | null = null;
+  const flowState = (): FlowState => ({
+    base: baseCfg !== null && (g.baseEnabled ?? true),
+    startOnReturn: baseCfg?.startOnReturn ?? false,
+    baseOpen: save.flags?.['baseOpen'] ?? false,
+    worlds: content.worlds.worlds.length,
+    summits: summitsDone(save),
+    saveWorld: save.world ?? 1,
+    frontier: save.frontierWall ?? 0,
+  });
+
   // Mountain simulation (docs/02-tech.md 6.1): starts on mountain 1; the summit portal switches to the next one (M2-03).
   // Back after F5 or another day (docs/01-gdd.md 6.6): the mountain of the save, the hero at its farthest flag.
   let world = content.worlds.worlds.find((w) => w.index === save.world) ?? content.worlds.worlds[0];
@@ -237,6 +261,8 @@ async function boot(): Promise<void> {
     save.stat = sim.progress.stat;
     save.bestStat = Math.max(save.bestStat ?? 0, sim.progress.stat);
     save.coins = sim.coins;
+    // The base and a mountain run again (docs/01-gdd.md 19.4) never move the mountain, the flag or the record of the save.
+    if (onBase || replay) return;
     save.world = sim.level.worldIndex;
     save.frontierWall = frontierOf(sim);
     const r = sim.record;
@@ -245,7 +271,7 @@ async function boot(): Promise<void> {
   }
   /** Every change of the climb goes to the mirror at once; a new wall or mountain also to the cloud (SAV-01). */
   const saveClimb = (): void => {
-    const far = save.world !== sim.level.worldIndex || save.frontierWall !== frontierOf(sim);
+    const far = !onBase && !replay && (save.world !== sim.level.worldIndex || save.frontierWall !== frontierOf(sim));
     if (far || save.stat !== sim.progress.stat || save.coins !== sim.coins) persist(far);
   };
   let maxSpeed = sim.params.speed;
@@ -253,6 +279,7 @@ async function boot(): Promise<void> {
   let pendingPortal: number | null = null;
   /** Summit portal entered this tick: counted for the rebirth after the tick (M3-06). */
   let pendingSummit: number | null = null;
+
   /** The «Mountain cleared» window of the portal entered this tick (docs/01-gdd.md 10.2): chest, trophies, time. */
   let summitInfo: { from: number; chest: number; trophies: number; sec: number } | null = null;
   /** Play second the hero came onto this mountain (the time in the «Mountain cleared» window). */
@@ -296,6 +323,7 @@ async function boot(): Promise<void> {
   let wayView: WayView | null = null;
   let adsView: AdsView | null = null;
   let bossView: BossView | null = null;
+  let baseView: BaseView | null = null;
   let eventsView: EventsView | null = null;
   let decor: Decor | null = null;
   // Decor of the open slope (docs/01-gdd.md 18.7): placed by the seed and the mountain, its look picks penguins or birds.
@@ -493,6 +521,13 @@ async function boot(): Promise<void> {
     });
     // The switch happens after the tick, not inside the emitter (docs/06 step 21: mountain 1 done on tier 0).
     s.events.on('portal', ({ from, next }) => {
+      // A mountain passed on this tier, run again from the base (docs/01-gdd.md 19.4, Q-053): no window, chest or
+      // trophies — «Top again!» and back to the base.
+      if (replay && !(baseCfg?.replayRewards ?? false)) {
+        hud?.toast(t('toast.replaySummit'), 2);
+        pendingPlace = { kind: 'base' };
+        return;
+      }
       if (from === 1 && s.tier === 0) track('gameTutorialComplete', { levelComplete: 'world_1' });
       // The first summit: the trophy plaque and its buttons wait for the «Mountain cleared» window (6.4).
       if ((save.trophiesTotal ?? 0) === 0 && s.tier === 0) summitAt = Infinity;
@@ -630,6 +665,15 @@ async function boot(): Promise<void> {
       renderFrame(1, 0);
     },
     gateSign: (index) => levelMeshes?.gateSign(index) ?? { text: '', open: false },
+    get onBase() {
+      return onBase;
+    },
+    get basePortals() {
+      return basePortals;
+    },
+    get replay() {
+      return replay;
+    },
     showToast: (text, sec, gold) => hud?.toast(text, sec, gold),
     showFaces() {
       if (!characters || !cameraRig) return;
@@ -739,15 +783,22 @@ async function boot(): Promise<void> {
    * Portal → mountain `index` (docs/01-gdd.md 5.2): new level, colliders and meshes; the stat and the tier carry
    * over, the hero stands at the spawn of the new camp. The «Mountain done» window arrives with the meta (M3).
    */
-  const enterWorld = (index: number, reset?: { stat: number; coins: number; tier: number }): void => {
+  const enterWorld = (index: number, reset?: { stat: number; coins: number; tier: number }, how: { resume?: boolean; replay?: boolean } = {}): void => {
     const next = content.worlds.worlds.find((w) => w.index === index);
     if (!next) return;
     const stat = reset?.stat ?? sim.progress.stat;
     const coins = reset?.coins ?? sim.coins;
     const tier = reset?.tier ?? sim.tier;
     world = next;
+    onBase = false;
+    replay = how.replay === true;
+    basePortals = [];
+    baseView?.clear();
+    hud?.setMountainShown(true);
     level = buildLevel(world, { wallHeight: tuning.bounds?.wallHeight });
-    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world), walls: wallsOf(world), record: world.layout === 'openSlope' ? null : undefined, boss: game.threat.boss, events: eventsOptions(world) });
+    // From the base portal of the own mountain begun (docs/01-gdd.md 19.4): at the flag of its farthest ridge, as 6.6.
+    const resume = how.resume ? { frontierWall: save.frontierWall ?? 0 } : undefined;
+    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world), walls: wallsOf(world), record: replay ? undefined : world.layout === 'openSlope' ? recordOf(world) : undefined, boss: game.threat.boss, events: eventsOptions(world), resume });
     avalanche?.setLevel(level);
     wireSim(sim);
     g.sim = sim;
@@ -767,8 +818,79 @@ async function boot(): Promise<void> {
     maxSpeed = sim.params.speed;
     frame.controlYaw = 0;
     frame.viewYaw = 0;
-    g.teleport(level.spawn[0], level.spawn[1] + 0.05, level.spawn[2]);
+    if (resume) {
+      // createSim stood the hero at the flag: the camera follows him there.
+      const h = sim.hero.pos;
+      g.teleport(h.x, h.y + 0.05, h.z);
+    } else g.teleport(level.spawn[0], level.spawn[1] + 0.05, level.spawn[2]);
   };
+
+  /**
+   * The base between the mountains (docs/01-gdd.md 19.2–19.4): its level from base.json and the progress (portals of the
+   * passed mountains open, the own one lit, the rest iced), no avalanche, giant or events; the hero at its spawn facing
+   * the own portal. The first time: «This is your base», the save flag and base_first.
+   */
+  const enterBase = (reset?: { stat: number; coins: number; tier: number }): void => {
+    if (!baseCfg) return;
+    const own = ownWorld(flowState());
+    const ownW = content.worlds.worlds.find((w) => w.index === own);
+    const begun = ownW && save.world === own && (save.frontierWall ?? 0) > 0;
+    const ridges = ownW ? ownW.segments.filter((x) => x.type === 'gate' && x['kind'] === 'ridge').length : 0;
+    const b = buildBase(
+      baseCfg,
+      {
+        mountains: content.worlds.worlds.map((w) => ({ index: w.index, id: w.id })),
+        summits: summitsDone(save),
+        ridge: begun ? { b: Math.min(ridges, save.frontierWall ?? 0), c: ridges } : null,
+        treadMult: 1,
+      },
+      tuning.bounds?.wallHeight,
+    );
+    const stat = reset?.stat ?? sim.progress.stat;
+    const coins = reset?.coins ?? sim.coins;
+    const tier = reset?.tier ?? sim.tier;
+    onBase = true;
+    replay = false;
+    basePortals = b.portals;
+    world = b.world;
+    level = b.level;
+    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier });
+    avalanche?.setLevel(level);
+    wireSim(sim);
+    g.sim = sim;
+    meta?.apply();
+    g.level = level;
+    g.world = world;
+    melting.clear();
+    pendingGain = null;
+    if (gr && levelMeshes) {
+      gr.scene.remove(levelMeshes.group);
+      levelMeshes.dispose();
+      levelMeshes = createLevelMeshes(level, theme, (k) => t(`num.${k}`));
+      gr.scene.add(levelMeshes.group);
+      applyQualityNow();
+    }
+    baseView?.set(level, basePortals, t);
+    hud?.setMountainShown(false);
+    maxSpeed = sim.params.speed;
+    frame.controlYaw = b.spawnYaw;
+    frame.viewYaw = b.spawnYaw;
+    g.teleport(level.spawn[0], level.spawn[1] + 0.05, level.spawn[2]);
+    sim.hero.yaw = b.spawnYaw;
+    if (!(save.flags?.['baseOpen'] ?? false)) {
+      save.flags = { ...(save.flags ?? {}), baseOpen: true };
+      trackOnce('base_first');
+      hud?.toast(t('toast.baseFirst'), 3);
+      persist(true);
+    }
+  };
+
+  /** Goes to a place of base-flow (docs/01-gdd.md 19.2): the base or a mountain; `stay` — nothing. */
+  const go = (place: Place, reset?: { stat: number; coins: number; tier: number }): void => {
+    if (place.kind === 'base') enterBase(reset);
+    else if (place.kind === 'world') enterWorld(place.world, reset, { resume: place.resume, replay: place.replay });
+  };
+  const flow = (e: FlowEvent): Place => nextPlace(e, flowState());
 
   /**
    * «Mountain N cleared!» after the portal (docs/01-gdd.md 10.2, 6.3): the game stands while it is open; «Next», the
@@ -791,7 +913,7 @@ async function boot(): Promise<void> {
       next: t('btn.next'),
       onClose: () => {
         if (summitAt === Infinity) summitAt = save.totalPlaySec ?? 0;
-        enterWorld(next);
+        go(flow({ kind: 'summit', world: info.from, replay: false }));
       },
     });
     return true;
@@ -835,7 +957,8 @@ async function boot(): Promise<void> {
   const rebirth = (): void => {
     if (!rebirthView?.ready) return;
     const r = applyRebirth(save, balance, skins);
-    enterWorld(r.world, { stat: r.stat, coins: r.coins, tier: r.tier });
+    // With the base the rebirth leads there (docs/01-gdd.md 19.4): portal 1 lit, the rest iced.
+    go(flow({ kind: 'rebirth' }), { stat: r.stat, coins: r.coins, tier: r.tier });
     meta?.resetShoes();
     cosmeticsView?.syncHero();
     hud?.setCoins(formatNumber(r.coins, numSuffix));
@@ -903,7 +1026,23 @@ async function boot(): Promise<void> {
     if (pendingPortal !== null) {
       const next = pendingPortal;
       pendingPortal = null;
-      if (!openSummit(next)) enterWorld(next);
+      if (!openSummit(next)) go(flow({ kind: 'summit', world: next - 1, replay: false }));
+    }
+    // A portal of the base walked into (docs/01-gdd.md 19.4): the own mountain, or one passed — run again.
+    if (onBase && pendingPlace === null) {
+      const w = basePortalEntered(basePortals, prevPos.x, prevPos.z, sim.hero.pos.x, sim.hero.pos.z);
+      if (w !== null) {
+        const place = flow({ kind: 'portal', world: w });
+        if (place.kind === 'world') {
+          track('base_portal', { world: w, replay: place.replay });
+          pendingPlace = place;
+        }
+      }
+    }
+    if (pendingPlace !== null) {
+      const place = pendingPlace;
+      pendingPlace = null;
+      go(place);
     }
     saveClimb();
     playSec += dt;
@@ -1097,6 +1236,8 @@ async function boot(): Promise<void> {
   // The giant of the open slope and his silhouette (docs/01-gdd.md 17.6).
   bossView = createBossView({ theme, characters, scene: gr.scene, camera: () => cameraRig?.camera ?? null, numSuffix: (k) => t(`num.${k}`), skinId: skins.default, fadeAlpha: () => tuning.camera.fadeAlpha ?? 1 });
   bossView.wire(sim);
+  baseView = createBaseView(theme);
+  gr.scene.add(baseView.group);
   decor = createDecor(gr.scene, theme, pets.pets, { top: BOSS_SIGN_TOP, half: BOSS_SIGN_HALF });
   decorWire(sim);
   eventsView = createEventsView({ theme, scene: gr.scene, camera: () => cameraRig?.camera ?? null, snowflakes: () => quality.params.snowflakes });
@@ -1281,6 +1422,10 @@ async function boot(): Promise<void> {
   cosmeticsView.update();
   // Rebirth (docs/01-gdd.md 7.5): the button from the first summit, the window, «All mountains cleared!» at the last portal.
   rebirthView = createRebirthView({
+    // «Stay» in the All mountains cleared window: with the base — to the base (docs/01-gdd.md 19.4).
+    onStay: () => {
+      if (flow({ kind: 'stay' }).kind === 'base') pendingPlace = { kind: 'base' };
+    },
     balance,
     skins,
     eggs,
@@ -1337,6 +1482,7 @@ async function boot(): Promise<void> {
     field: () => field,
     touch: () => input.touchActive,
     shoes: () => ({ shown: meta?.shoesShown ?? false, level: meta?.shoeLevel ?? 0 }),
+    basePortal: () => (onBase ? (basePortals.find((p) => p.state === 'own') ?? null) : null),
   });
   ftueView.wire(sim);
   const skin = skins.skins.find((x) => x.id === skins.default) ?? skins.skins[0];
@@ -1348,6 +1494,11 @@ async function boot(): Promise<void> {
     getWorld: () => g.world,
     faceUrl: skin ? faceDataUrl(skin.colors.head, skin.face) : '',
     numSuffix,
+    baseGoal: () => {
+      if (!onBase) return null;
+      const own = basePortals.find((p) => p.state === 'own');
+      return own ? t('base.goal', { name: t(`world.${own.id}`) }) : t('base.name');
+    },
   });
   hudView.wire(sim);
   hud.setAutoRun(save.settings.autoRun);
@@ -1409,6 +1560,8 @@ async function boot(): Promise<void> {
     apply();
   }
 
+  // Entering the game after the first summit: the base (docs/01-gdd.md 19.4, startOnReturn), otherwise 6.6 as before.
+  if (flow({ kind: 'boot' }).kind === 'base') enterBase();
   // First frame drawn and controls live, then ready() (11.2, steps 6–7).
   gr.render();
   bootState.firstFrameAt = gr.info().frame;

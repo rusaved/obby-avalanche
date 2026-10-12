@@ -18,6 +18,7 @@ import { GIFT_HALF, GIFT_HEIGHT, touchesGift } from '../sim/gifts.ts';
 import { HERO_HEIGHT, HERO_RADIUS } from '../sim/controller.ts';
 import { GATE_SIDE, zoneOfStretch } from './generate.ts';
 import { CLASSIC_PACE } from '../content/pace.ts';
+import { validateBaseFile } from './validate-base.ts';
 import { isOpenWorlds, validateOpenBoss, validateOpenCount, validateOpenFairness, validateOpenFun, validateOpenGround, validateOpenShapes, validateOpenWorld } from './validate-open.ts';
 
 export const PACK_FILES = [
@@ -894,6 +895,11 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
       ...validateFirstIntervals(worlds, files['worlds-spec.json'] as WorldsSpecJson),
     );
   else errors.push(...validateContentCount(worlds, files['worlds-spec.json'] as WorldsSpecJson, (files['balance.json'] as BalanceJson).gifts.perZone));
+
+  // The base of the pace (docs/01a-content.md 18.1): pacePack adds its base.json when the pace has one.
+  const base = (files as Record<string, unknown>)['base.json'];
+  if (base !== undefined)
+    errors.push(...validateBaseFile(base, worlds, files['tuning.json'] as TuningJson, files['balance.json'] as BalanceJson, { ru: files['i18n/ru.json'] as Record<string, string>, en: files['i18n/en.json'] as Record<string, string> }));
 
   // Remote flags: every path resolves to a number or boolean inside its range (docs/02-tech.md 11.11).
   if (game.flags) {

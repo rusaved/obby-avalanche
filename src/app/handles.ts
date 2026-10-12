@@ -96,6 +96,12 @@ export interface GameHandles {
   renderOnce(): void;
   /** Eight characters in a row with the eight faces, camera on them (faces.png evidence). */
   showFaces(): void;
+  /** The base of the pace switched off for this run (FM-07 e2e: «enabled false — the game as before FM»); absent — on. */
+  baseEnabled?: boolean;
+  /** The hero is on the base (docs/01-gdd.md 19); its portals; the mountain now is one passed, run again. */
+  readonly onBase: boolean;
+  readonly basePortals: ReadonlyArray<{ world: number; x: number; z: number; yaw: number; width: number; state: string }>;
+  readonly replay: boolean;
   /** A toast as the game shows them (FM-04 e2e: its plaque and contrast). */
   showToast(text: string, sec?: number, gold?: boolean): void;
   /** Gate sign as rendered: text and open colour (M2-02 e2e). */

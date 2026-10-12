@@ -341,6 +341,8 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     });
   }
 
+  /** Boxes only the hero meets (invisible blocks of the base), kept with the invisible wall. */
+  const heroOnly: Aabb[] = [];
   for (const s of world.segments) {
     const y = num(s, 'y');
     switch (s.type) {
@@ -405,12 +407,22 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
       case 'treadmill':
         points.push({ type: 'treadmill', x: num(s, 'x'), y, z: s.z, mult: num(s, 'mult', 1) * mountainTreadmill, length: num(s, 'length', 10), width: num(s, 'width', 6), inNiche: false });
         break;
+      case 'block': {
+        // A box of the base (docs/01-gdd.md 19.2): the fence across the ends, a tent or the ice of a locked portal;
+        // `invisible` — a collider of the hero only (the bounds), never drawn.
+        const b: Aabb = { min: [num(s, 'x0'), num(s, 'y0'), s.z], max: [num(s, 'x1'), num(s, 'y1'), num(s, 'z1')] };
+        if (s['invisible'] === true) heroOnly.push(b);
+        else boxes.push(box(b.min, b.max, str(s, 'material', 'border'), str(s, 'kind', 'block'), s['solid'] !== false));
+        break;
+      }
       case 'eggStand':
       case 'chest':
       case 'portal':
       case 'zoneArch':
       case 'decor':
       case 'summit':
+      case 'basePortal':
+      case 'stand':
         points.push({ type: s.type, x: num(s, 'x'), y, z: s.z, ...Object.fromEntries(Object.entries(s).filter(([k]) => !['type', 'x', 'y', 'z'].includes(k))) });
         break;
       default:
@@ -421,7 +433,7 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
   for (const b of boxes) if (b.solid) pushBoxTriangles(tris, b);
   for (const r of ramps) pushRampTriangles(tris, r);
   const wallHeight = opts.wallHeight ?? 0;
-  const bounds = wallHeight > 0 ? boundsWalls(boxes, nicheSegs, floors, ramps, half, wallHeight) : [];
+  const bounds = [...(wallHeight > 0 ? boundsWalls(boxes, nicheSegs, floors, ramps, half, wallHeight) : []), ...heroOnly];
   const boundsTris: number[] = [];
   for (const b of bounds) pushBoxTriangles(boundsTris, b);
 

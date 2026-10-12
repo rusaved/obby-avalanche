@@ -338,5 +338,11 @@
   "boss.signPair": "Two giants: Speed ~{n}",
   "hud.slow": "×{n}",
   "toast.tunnel": "The tunnel shelters you",
-  "toast.chasm": "Gifts below and a ramp back up"
+  "toast.chasm": "Gifts below and a ramp back up",
+  "base.name": "Base",
+  "toast.baseFirst": "This is your base",
+  "base.goal": "To the portal: {name}",
+  "base.portalRidge": "ridge {b}/{c}",
+  "base.portalLocked": "Clear mountain {n}",
+  "toast.replaySummit": "Top again!"
 }

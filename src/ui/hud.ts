@@ -142,6 +142,8 @@ export interface Hud {
   flashStat(): void;
   /** Mountain bar: built once per mountain. */
   setMountain(bar: MountainBar): void;
+  /** The mountain bar on or off (docs/01-gdd.md 19.4: hidden on the base). */
+  setMountainShown(on: boolean): void;
   /** Per frame: «Mountain 1 · 7/12», hero position, the avalanche mark (null — none), the cave mark that blinks on warn (−1 — none). */
   updateMountain(label: string, hero: number, wave: number | null, blinkCave: number): void;
   /** Goal under the bar: «Wall 2K» with «1.2K/2K» and a fill bar; `progress` null — text only («Wall open!»). */
@@ -700,6 +702,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       });
       blinking = -1;
       mountainHero.src = bar.faceUrl;
+    },
+    setMountainShown(on) {
+      mountain.classList.toggle('off', !on);
     },
     updateMountain(label, hero, wave, blinkCave) {
       if (mountainLabel.textContent !== label) mountainLabel.textContent = label;

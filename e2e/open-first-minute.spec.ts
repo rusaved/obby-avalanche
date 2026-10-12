@@ -123,8 +123,9 @@ test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg
     }
     if (names.includes('gameTutorialComplete') || s.playSec > 240) break;
     if (s.caught) continue;
-    // A siren: into the grotto the game lights (the scripted one at the entry of section 2 included).
-    if (s.wave?.phase === 'warn' && !hiding) {
+    // A siren: into the grotto the game lights (the scripted one at the entry of section 2 included); past the giant's
+    // line none is lit (the summit is safe) — on to the portal.
+    if (s.wave?.phase === 'warn' && !hiding && shelters[s.wave.shelter]) {
       hiding = true;
       if (!s.inShelter) {
         const n = shelters[s.wave.shelter]!;

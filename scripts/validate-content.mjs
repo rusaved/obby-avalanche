@@ -33,7 +33,7 @@ export function paceNames(dir) {
     .sort();
 }
 
-/** The pack as a pace plays it: its worlds.json and worlds-spec.json, the shared balance.json and tuning.json with its patches merged in. */
+/** The pack as a pace plays it: its worlds.json, worlds-spec.json and base.json, the shared balance.json and tuning.json with its patches merged in. */
 export function pacePack(files, dir, pace) {
   const read = (name) => {
     const file = resolve(dir, 'pace', pace, name);
@@ -52,6 +52,8 @@ export function pacePack(files, dir, pace) {
     'tuning.json': feel === undefined ? files['tuning.json'] : mergePatch(files['tuning.json'], feel),
     'worlds.json': read('worlds.json'),
     'worlds-spec.json': read('worlds-spec.json'),
+    // The base between the mountains (docs/01a-content.md 18.1), absent for most paces.
+    ...(read('base.json') === undefined ? {} : { 'base.json': read('base.json') }),
   };
 }
 

@@ -26,6 +26,10 @@ export interface TestState {
   pace: string;
   /** Width of the slope of this mountain (open slope: 56, docs/01-gdd.md 17.2). */
   width: number;
+  /** The base (docs/01-gdd.md 19, FM-07): the hero is on it, its portals; the mountain is one passed, run again. */
+  onBase: boolean;
+  basePortals: Array<{ world: number; x: number; z: number; yaw: number; width: number; state: string }>;
+  replay: boolean;
   world: string;
   controllable: boolean;
   pauseReasons: string[];
@@ -222,6 +226,8 @@ export interface TestApi {
   signBox(index: number): { center: [number, number, number]; size: [number, number, number]; hidden: boolean };
   /** A toast as the game shows them (FM-04: its plaque and contrast). */
   showToast(text: string, sec?: number, gold?: boolean): void;
+  /** Switches the base of the pace off (or back on) for this run: «enabled false — the game as before FM» (FM-07). */
+  setBaseEnabled(on: boolean): void;
   /** Way marks of the open slope (FM-02): the arrows on the snow and the pillar of light of the summit portal. */
   wayMarks(): { marks: Array<{ x: number; y: number; z: number; to: string }>; pillar: { x: number; z: number; y0: number; y1: number } | null };
   /** Per rendered frame since the last reset (playtest M2): camera inside a collider (solid box, closed gate, ramp —
@@ -509,6 +515,9 @@ export function installTestApi(g: GameHandles): TestApi {
         pack: g.packId,
         pace,
         width: g.sim?.level.width ?? 0,
+        onBase: g.onBase,
+        basePortals: g.basePortals.map((b) => ({ world: b.world, x: b.x, z: b.z, yaw: b.yaw, width: b.width, state: b.state })),
+        replay: g.replay,
         world: g.world.id,
         controllable: g.boot.controllable,
         pauseReasons: g.pause.reasons,
@@ -793,6 +802,9 @@ export function installTestApi(g: GameHandles): TestApi {
       return { x: (p.x * 0.5 + 0.5) * g.field.width, y: (0.5 - p.y * 0.5) * g.field.height, ahead };
     },
     showToast: (text, sec, gold) => g.showToast(text, sec, gold),
+    setBaseEnabled(on) {
+      g.baseEnabled = on;
+    },
     wayMarks() {
       const w = g.levelMeshes?.wayMarks;
       return { marks: w ? w.marks.map((m) => ({ ...m })) : [], pillar: w?.pillar ? { ...w.pillar } : null };

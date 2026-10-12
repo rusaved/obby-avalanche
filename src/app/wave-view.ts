@@ -82,7 +82,24 @@ export function createWaveView(d: WaveViewDeps): WaveView {
     update(frameDt, timeSec) {
       const sim = d.getSim();
       const ts = sim.threat?.state;
-      if (!ts) return;
+      if (!ts) {
+        // No avalanche here (the base, docs/01-gdd.md 19.2): nothing of the last wave stays on the screen.
+        d.visual.group.visible = false;
+        view.banner = null;
+        view.arrow = false;
+        view.shot = false;
+        view.beltShot = false;
+        view.veil = false;
+        d.hud.setWaveBanner(null);
+        d.hud.setFrost(0);
+        d.hud.setCaveArrow(null);
+        d.hud.setVeil(false);
+        if (shotCave >= 0) d.camera.fixed = null;
+        shotCave = -1;
+        d.camera.shelter = null;
+        return;
+      }
+      d.visual.group.visible = true;
       const hero = sim.hero.pos;
       const running = ts.phase === 'run';
       const dz = running ? ts.frontZ - hero.z : Infinity;

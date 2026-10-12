@@ -410,7 +410,11 @@ export type SegmentType =
   | 'chasm'
   | 'throat'
   | 'tunnel'
-  | 'hump';
+  | 'hump'
+  // The base between the mountains (docs/01-gdd.md 19; src/level/base-layout.ts): a box, a portal of a mountain, a stand.
+  | 'block'
+  | 'basePortal'
+  | 'stand';
 
 export interface Segment {
   type: SegmentType;
@@ -673,6 +677,30 @@ export interface BotsJson {
 /** sfx.json (docs/02-tech.md 10): ZzFX parameters per sound event. */
 export type SfxJson = Record<string, number[]>;
 
+/**
+ * pace/<pace>/base.json (docs/01-gdd.md 19.2–19.4; docs/01a-content.md 18.1): the base between the mountains — a flat
+ * snow field `size` [x, z] fenced round, the arc of portals of every mountain of the pace, the base treadmill, the stands
+ * (shop, records board, daily gift), bots on the belt, decor. Absent or `enabled: false` — no base, the game as before FM.
+ */
+export interface BaseJson {
+  enabled: boolean;
+  /** Entering the game after the first summit: on the base (false — 6.6, at the flag of the mountain). */
+  startOnReturn: boolean;
+  /** The summit of a mountain already passed gives its window, chest and trophies again (false — a toast only, Q-053). */
+  replayRewards: boolean;
+  size: [number, number];
+  spawn: { x: number; z: number };
+  /** Arc of the portals: mountains 1…N from `toDeg` (left, as the hero faces +z) to `fromDeg`, angles from +z. */
+  portals: { center: [number, number]; radius: number; fromDeg: number; toDeg: number; width: number; height: number };
+  treadmill: { x: number; z: number; lanes: number; laneWidth: number; length: number; from: 'lastFinish' };
+  stands: { shop: { x: number; z: number; radius: number; standSec: number }; records: { x: number; z: number; radius: number }; daily: { x: number; z: number; radius: number } };
+  /** Bots running on the base treadmill; `low` on the low quality. */
+  bots: { count: number; low: number };
+  /** The model: seconds from the arrival on the base to a portal (F3, docs/01a-content.md 18.5). */
+  transitSec: number;
+  decor: { tents: Array<[number, number]>; trees: Array<[number, number]>; snowman: [number, number] };
+}
+
 export interface ContentPack {
   game: GameJson;
   theme: ThemeJson;
@@ -687,4 +715,6 @@ export interface ContentPack {
   auras: AurasJson;
   sfx: SfxJson;
   bots: BotsJson;
+  /** The base of the pace (pace/<pace>/base.json); absent — none (classic, fast). */
+  base?: BaseJson;
 }

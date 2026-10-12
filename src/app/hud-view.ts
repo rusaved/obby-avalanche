@@ -26,6 +26,8 @@ export interface HudViewDeps {
   getWorld(): World;
   faceUrl: string;
   numSuffix(k: string): string;
+  /** On the base (docs/01-gdd.md 19.4): the goal «To the portal: {mountain}» instead of the bar and the wall; null — off it. */
+  baseGoal?: () => string | null;
 }
 
 export interface HudView {
@@ -100,6 +102,11 @@ export function createHudView(d: HudViewDeps): HudView {
         lastPopAt = timeSec;
       }
 
+      const baseGoal = d.baseGoal?.() ?? null;
+      if (baseGoal !== null) {
+        d.hud.setGoal(baseGoal, null);
+        return;
+      }
       // Mountain bar: k/n = open walls of the mountain; the avalanche mark at the crack on warn and at the front while it runs.
       const open = sim.gatesOpen.filter(Boolean).length;
       const ts = sim.threat?.state;

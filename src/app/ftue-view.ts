@@ -41,6 +41,8 @@ export interface FtueViewDeps {
   field(): { width: number; height: number };
   touch(): boolean;
   shoes(): { shown: boolean; level: number };
+  /** On the base (docs/01-gdd.md 19.2): the own portal — «To the portal!» after its idle time as on a summit; null — off the base. */
+  basePortal?: () => { x: number; z: number } | null;
 }
 
 export interface FtueView {
@@ -131,8 +133,9 @@ export function createFtueView(d: FtueViewDeps): FtueView {
       const stuckWay =
         sg !== undefined && !sim.gatesOpen[stuckGate] && hero.pos.z <= sg.z && hero.pos.z >= Math.min(sg.z, sc ? sc.box.min[2] : sg.z) - d.balance.hints.stuckDist;
       const summitZone = sim.level.safeZones[sim.level.safeZones.length - 1];
-      const onSummit = sim.level.safeZones.length > 1 && summitZone !== undefined && hero.pos.z >= summitZone[0];
-      const portal = sim.level.points.find((x) => x.type === 'portal');
+      const own = d.basePortal?.() ?? null;
+      const onSummit = own !== null || (sim.level.safeZones.length > 1 && summitZone !== undefined && hero.pos.z >= summitZone[0]);
+      const portal = own ?? sim.level.points.find((x) => x.type === 'portal');
       const towardsPortal = portal !== undefined && hero.vel.x * (portal.x - hero.pos.x) + hero.vel.z * (portal.z - hero.pos.z) > 0 && hero.speed > MOVING_SPEED;
       const nearLedge =
         ledge !== null && !(sim.gifts[ledge.index]?.taken ?? true) && Math.hypot(hero.pos.x - ledge.x, hero.pos.z - ledge.z) < d.balance.hints.jumpNearDist && hero.pos.y < ledge.y - 0.5;

@@ -372,3 +372,5 @@ canvas.fallback {
 .sm-swatch { width: 26px; height: 26px; border-radius: 8px; border: 2px solid rgba(27, 42, 58, 0.25); flex: none; }
 .sm-box .rw-icon { width: 26px; height: 26px; }
 .sm-box .rw-icon svg { width: 24px; height: 24px; }
+/* The base (docs/01-gdd.md 19.4): no mountain bar there. */
+.hud-mountain.off { display: none; }

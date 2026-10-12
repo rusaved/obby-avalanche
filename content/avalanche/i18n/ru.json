@@ -338,5 +338,11 @@
   "boss.signPair": "Два великана: Скорость ~{n}",
   "hud.slow": "×{n}",
   "toast.tunnel": "Тоннель укрывает от лавины",
-  "toast.chasm": "Внизу подарки и горка наверх"
+  "toast.chasm": "Внизу подарки и горка наверх",
+  "base.name": "База",
+  "toast.baseFirst": "Это твоя база",
+  "base.goal": "В портал: {name}",
+  "base.portalRidge": "рубеж {b}/{c}",
+  "base.portalLocked": "Пройди гору {n}",
+  "toast.replaySummit": "Снова на вершине!"
 }

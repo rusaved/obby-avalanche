@@ -34,6 +34,8 @@ export interface RebirthViewDeps {
   lookFigure(kind: LookKind, id: string): HTMLElement;
   /** «Rebirth» pressed in a ready window: the caller runs the rebirth (the window is already closed). */
   onRebirth(): void;
+  /** «Stay» pressed in the All mountains cleared window (the window is closed): with a base the caller goes there. */
+  onStay?: () => void;
   /** «To eggs»: the shop tab «Eggs» (M3-09); absent — only the hint. */
   toEggs?: () => void;
 }
@@ -92,7 +94,13 @@ export function createRebirthView(d: RebirthViewDeps): RebirthView {
     },
     openAllDone() {
       d.windows.open('allDone', t('allDone.title'), (body) =>
-        renderAllDonePanel(body, { rebirth: () => view.openWindow(), stay: () => d.windows.close() }),
+        renderAllDonePanel(body, {
+          rebirth: () => view.openWindow(),
+          stay: () => {
+            d.windows.close();
+            d.onStay?.();
+          },
+        }),
         { next: false },
       );
     },
