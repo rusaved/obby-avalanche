@@ -282,6 +282,8 @@ export interface TestApi {
   cameraInsideAvalanche(): boolean;
   /** Sets the stat (docs/02-tech.md 17.3); gates whose number it reaches open on the next tick. */
   setStat(n: number): void;
+  /** SP-02: a number of tuning.json by its path («controller.maxSpeed»), applied as a ?debug=1 slider would. */
+  setTuning(path: string, value: number): void;
   /** SP-01: the record flag of this mountain at a point (it stands while the hero is RECORD_RETURN below it). */
   setRecord(x: number, y: number, z: number): void;
   /** Sets the coin balance (M3-02: the shoes button shows the first time coins reach the next pair). */
@@ -910,6 +912,13 @@ export function installTestApi(g: GameHandles): TestApi {
     giveBonus: () => g.sim?.giveBonus() ?? false,
     setStat(n) {
       if (g.sim) g.sim.progress.stat = n;
+    },
+    setTuning(path, value) {
+      const keys = path.split('.');
+      let o = content.tuning as unknown as Record<string, unknown>;
+      for (const k of keys.slice(0, -1)) o = o[k] as Record<string, unknown>;
+      o[keys[keys.length - 1]!] = value;
+      g.applyTuning();
     },
     setRecord(x, y, z) {
       if (g.sim) g.sim.record = { x, y, z };

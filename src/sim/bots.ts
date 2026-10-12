@@ -411,8 +411,10 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
   // Narrow places (docs/01-gdd.md 18.3): in a throat bots keep between its walls (closing in over its funnel); on the
   // side of a tunnel they keep inside its hall. Out on the track only, not in a cave.
   const narrows = (level.shapes ?? []).filter((n) => n.kind === 'throat' || n.kind === 'tunnel');
-  const squeeze = (b: Bot): void => {
-    if (inCave(b)) return;
+  /** Keeps the bot between the walls of a narrow place; true when it had to (it stood in a wall). */
+  const squeeze = (b: Bot): boolean => {
+    if (inCave(b)) return false;
+    const x0 = b.x;
     for (const n of narrows) {
       if (b.z < n.z0 || b.z > n.z1) continue;
       if (n.kind === 'throat') {
@@ -422,6 +424,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
         b.x = Math.max(-lim, Math.min(lim, b.x));
       } else if ((n.side === 'left') === b.x < 0) b.x = Math.max(n.x0 + LANE_MARGIN, Math.min(n.x1 - LANE_MARGIN, b.x));
     }
+    return b.x !== x0;
   };
   const move = (b: Bot, dt: number, speed: number): void => {
     const sl = slides.find((p) => on(p, b.x, b.z));
@@ -448,9 +451,10 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       if (k < 1) break;
       left -= d;
     }
-    if (narrows.length) {
-      squeeze(b);
-      // A step sideways into a wall of a narrow place never ends: past it.
+    // A step sideways into a wall of a narrow place never ends: past it. Only when a wall stopped him (SP-02: out of a
+    // cave anywhere on a mountain with a narrow place the step to the mouth was dropped, and the bot cut through the
+    // cave wall and out past the fence).
+    if (narrows.length && squeeze(b)) {
       const wp = b.path[0];
       if (wp && Math.abs(wp[1] - b.z) <= REACH && Math.abs(wp[0] - b.x) > REACH) b.path.shift();
     }

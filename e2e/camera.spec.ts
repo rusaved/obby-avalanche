@@ -154,3 +154,29 @@ test('walk of mountain 1 by botPath: the camera is never inside a collider and n
   // A line camera → hero chest may graze a border edge for a frame while the camera catches up (hero out of a cave).
   expect(st.heroBlocked, st.bad.join('\n')).toBeLessThanOrEqual(Math.ceil(st.frames * 0.01));
 });
+
+// SP-02 (docs/01-gdd.md 20.3): at 120 units/s (tuning.controller.maxSpeed 120, Speed at the cap) the velocity lead of
+// the camera never puts it within hideDistance of the hero's body — 600 rendered frames running up mountain 10 (open).
+test('open, mountain 10 at 120 units/s: in 600 frames the camera never within hideDistance of the hero', async ({ page, openGame }) => {
+  test.setTimeout(300_000);
+  await openGame('pace=open');
+  await page.evaluate(() => window.__TEST__!.gotoWorld(10));
+  await waitTicks(page, 20);
+  await page.evaluate(() => {
+    window.__TEST__!.holdWave(900);
+    window.__TEST__!.setTuning('controller.maxSpeed', 120);
+    window.__TEST__!.setStat(1e30);
+    window.__TEST__!.teleport(60, -12);
+    window.__TEST__!.resetCameraStats();
+    window.__TEST__!.setAutoRun(true);
+  });
+  let top = 0;
+  while ((await page.evaluate(() => window.__TEST__!.cameraStats().frames)) < 600) {
+    await waitTicks(page, 6);
+    top = Math.max(top, (await testState(page)).hero!.speed);
+  }
+  await page.evaluate(() => window.__TEST__!.setAutoRun(false));
+  const st = await page.evaluate(() => window.__TEST__!.cameraStats());
+  expect(top, 'ran at 120').toBeGreaterThan(110);
+  expect(st.heroNear, JSON.stringify(st.bad)).toBe(0);
+});
