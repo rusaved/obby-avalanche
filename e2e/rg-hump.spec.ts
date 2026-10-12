@@ -28,7 +28,8 @@ async function toMountain8(page: Page): Promise<void> {
   }, STAT);
 }
 
-/** Up the hump along the middle of its lane to the landing; returns the launch and landing ticks. */
+/** Up the hump along the middle of its lane to the landing; returns the launch and landing ticks of the sim and where
+ * he came down — from its land event, not from the moment the test looked (a slow runner looks late). */
 async function upAndOver(page: Page, onFlight?: () => Promise<void>): Promise<{ launch: number; land: number; landZ: number }> {
   await page.evaluate(([x, z]) => window.__TEST__!.teleport(z, x), [xm, hump.z - 12] as const);
   await waitTicks(page, 10);
@@ -39,11 +40,13 @@ async function upAndOver(page: Page, onFlight?: () => Promise<void>): Promise<{ 
   for (let k = 0; k < 600 && land < 0; k++) {
     const s = await testState(page);
     if (launch < 0 && s.fun.padFlight) {
-      launch = s.ticks;
+      launch = s.simTick;
       if (onFlight) await onFlight();
     } else if (launch >= 0 && !s.fun.padFlight && s.hero!.onGround) {
-      land = s.ticks;
-      landZ = s.hero!.z;
+      // The landing itself: the first land event of the sim after the launch (its tick and z).
+      const ev = (await page.evaluate((t) => window.__TEST__!.simEvents.find((e) => e.name === 'land' && e['world'] === 8 && (e.tick as number) > t), launch)) as { tick: number; z: number } | undefined;
+      land = ev?.tick ?? s.simTick;
+      landZ = ev?.z ?? s.hero!.z;
     }
     if (land < 0) await waitTicks(page, 1);
   }

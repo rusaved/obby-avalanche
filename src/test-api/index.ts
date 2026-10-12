@@ -47,6 +47,8 @@ export interface TestState {
   pauseReasons: string[];
   paused: boolean;
   ticks: number;
+  /** Ticks of the sim of this mountain (the clock of simEvents; ticks — of the loop over all mountains). */
+  simTick: number;
   timeSec: number;
   firstFrameAt: number | null;
   readyAt: number | null;
@@ -544,6 +546,7 @@ export function installTestApi(g: GameHandles): TestApi {
         pauseReasons: g.pause.reasons,
         paused: g.pause.paused,
         ticks: g.loop.ticks,
+        simTick: g.sim?.tick ?? 0,
         timeSec: g.loop.timeSec,
         firstFrameAt: g.boot.firstFrameAt,
         readyAt: g.boot.readyAt,

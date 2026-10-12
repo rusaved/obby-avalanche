@@ -49,7 +49,8 @@ export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, BossEvent
   fall: { tick: number; z: number };
   respawn: { tick: number; z: number; checkpoint: number };
   jump: { tick: number };
-  land: { tick: number; airTime: number };
+  /** `z` — where he came down (e2e: the landing of a flight, independent of how often the test looks). */
+  land: { tick: number; airTime: number; z: number };
   /** One step taken: the stat grew by `amount` (docs/01-gdd.md 3.3); `belt` — taken on a treadmill belt. */
   gain: StepGain & { tick: number; belt: boolean };
   /** A gate melted open: the stat reached its requirement (docs/01-gdd.md 3.3). */
@@ -444,7 +445,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         else if (r === 'hatch') events.emit('eggHatch', { tick: sim.tick, pet: sim.giftEgg.pet });
       }
       if (hero.jumpedThisTick) events.emit('jump', { tick: sim.tick });
-      if (hero.landedThisTick) events.emit('land', { tick: sim.tick, airTime: hero.airTime });
+      if (hero.landedThisTick) events.emit('land', { tick: sim.tick, airTime: hero.airTime, z: hero.pos.z });
       // Record flag (docs/01-gdd.md 17.7): follows the highest point on the ground off the camp and the summit; sent below
       // it (snowed in, caught), the hero passing it again hears «New height!».
       if (recordOn && hero.onGround && !sim.caught && !inSafeZone(level, hero.pos.z)) {
