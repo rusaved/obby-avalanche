@@ -256,13 +256,14 @@ export function pushShapes(seg: Segment[], c: ShapeContext): void {
     seg.push({ type: 'floor', z: hu.crest, length: H.top, y: yTop, x0, x1, thickness: round3(hu.rise + 2), material: 'ice', shape: 'hump' });
     seg.push({ type: 'slide', z: round3(hu.z0 + H.slideLength / 2), x: xm, y, width: w, length: H.slideLength, rise: hu.rise, stretch: j, shape: 'hump' });
     seg.push({ type: 'jumpPad', z: hu.padZ, x: xm, y: yTop, width: w, length: PAD_SIZE, forward: hu.forward, slide: true, stretch: j, shape: 'hump' });
-    // Six gifts along the flight at the minimum speed of the section (docs/01a-content.md 17.2).
+    // Six gifts along the flight at the minimum speed of the section (docs/01a-content.md 17.2), over the middle of the
+    // hump (SP-04: it is as wide as the bold half of its section).
     const arc = humpArc(hu.padZ - PAD_SIZE / 2, yTop, c.vmin, hu.forward, c.tuning, () => y);
     const T = arc.points[arc.points.length - 1]!.t;
     for (let k = 0; k < H.giftsAir; k++) {
       const t = T * (0.15 + (0.7 * k) / Math.max(1, H.giftsAir - 1));
       const p = arc.points.find((q) => q.t >= t) ?? arc.points[arc.points.length - 1]!;
-      seg.push(gift(p.z, sb * c.laneX, p.y - 0.3, { air: true }));
+      seg.push(gift(p.z, xm, p.y - 0.3, { air: true }));
     }
   }
 }

@@ -969,7 +969,8 @@ export function installTestApi(g: GameHandles): TestApi {
           y: n.y,
           side: n.side,
           treadmill: n.treadmill,
-          mouth: [entranceX(level, n) - sign * 4, n.z] as [number, number],
+          // A grotto in a rock (SP-04) opens towards the camp: 4 units below its mouth.
+          mouth: (n.kind === 'island' ? [entranceX(level, n), n.box.min[2] - 4] : [entranceX(level, n) - sign * 4, n.z]) as [number, number],
           inside: [(n.box.min[0] + n.box.max[0]) / 2, n.z] as [number, number],
           belt: belt ? ([belt.x, belt.z] as [number, number]) : null,
         };

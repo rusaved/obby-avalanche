@@ -44,6 +44,7 @@ export interface Bot {
   /** Seconds left in camp, wait, treadmill or away. */
   timer: number;
   speedFactor: number;
+  /** Its lane: a share 0…1 across the free width of the slope where it runs (SP-04: every section its own width). */
   lane: number;
   /** Cave the bot sits in or runs to (−1 none) and its place there (0 or 1). */
   cave: number;
@@ -117,6 +118,11 @@ export interface BotCrowd {
 export const CAVE_SPOTS = 2;
 /** A bot stops this far below the plane of a closed wall. */
 const GATE_STOP = 2.5;
+/** A bot moves over to its lane of the next band (section, SP-04) within this many units past its start. */
+const LANE_SHIFT = 16;
+/** ...through a change of width (SP-04, at most a passage and widthTaper 40 long) in steps this long. */
+const LANE_STEP = 4;
+const LANE_SHIFT_MAX = 64;
 /** Waypoint reached within this distance. */
 const REACH = 0.4;
 /** Half the width of a bot plus a margin: lanes keep this far from obstacles and the side borders. */
@@ -135,11 +141,14 @@ const ZONE_STOP = 3;
 /** Wait at a closed wall before the cave again, seconds. */
 const WAIT_SEC: [number, number] = [1, 4];
 
-/** Free x intervals across the track: the track minus every obstacle standing on it, with a margin. */
-export function laneIntervals(level: LevelData): Array<[number, number]> {
-  let free: Array<[number, number]> = [[-level.width / 2 + LANE_MARGIN, level.width / 2 - LANE_MARGIN]];
+/** Free x intervals across the track: the track minus every obstacle standing on it, with a margin; with [z0, z1] — the
+ * track as wide as it is there and the obstacles there only (SP-04), `inset` in from each border. */
+export function laneIntervals(level: LevelData, z0 = -Infinity, z1 = Infinity, inset = LANE_MARGIN): Array<[number, number]> {
+  const e = Number.isFinite(z1) ? level.halfAt(z1 - 1) : level.width / 2;
+  const m = Math.max(LANE_MARGIN, inset);
+  let free: Array<[number, number]> = [[-e + m, e - m]];
   for (const b of level.boxes) {
-    if (!b.solid || NOT_OBSTACLE.has(b.kind)) continue;
+    if (!b.solid || NOT_OBSTACLE.has(b.kind) || b.max[2] < z0 || b.min[2] > z1) continue;
     const lo = b.min[0] - LANE_MARGIN;
     const hi = b.max[0] + LANE_MARGIN;
     free = free.flatMap(([a, c]): Array<[number, number]> => {
@@ -164,20 +173,51 @@ export function caveSpot(n: LevelNiche, spot: number): { x: number; z: number } 
 export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
   const { cfg } = opts;
   const rng: Rng = createRng(opts.seed);
-  const lanes = laneIntervals(level);
-  const laneWidth = lanes.reduce((s, [a, b]) => s + (b - a), 0);
   const campTop = level.safeZones[0]?.[1] ?? 0;
   const summit = level.safeZones[level.safeZones.length - 1] ?? [level.length, level.length];
-  const halfW = level.width / 2;
-  const range = (r: readonly [number, number]): number => rng.range(r[0], r[1] + 1e-9);
-  const pickLane = (): number => {
-    let u = rng.next() * laneWidth;
-    for (const [a, b] of lanes) {
-      if (u <= b - a) return a + u;
-      u -= b - a;
+  // Bands of the slope (SP-04): the camp, every section, the summit — each its width and its free lanes; a bot keeps its
+  // share of the free width and moves over to it in the first LANE_SHIFT units of the next band.
+  const breaks = [...new Set([0, ...level.sections.map((s) => s.z0), ...level.sections.map((s) => s.z1), level.length])].sort((a, b) => a - b);
+  const bands = breaks.slice(0, -1).map((z0, k) => {
+    const lanes = laneIntervals(level, z0, breaks[k + 1]!, (cfg.laneSpread ?? 0) / 2);
+    return { z0, z1: breaks[k + 1]!, lanes, width: lanes.reduce((sum, [a, b]) => sum + (b - a), 0) };
+  });
+  /** x of the lane share u at z: inside the edge there (a band starts with its change of width, SP-04). */
+  const laneAt = (u: number, z: number): number => {
+    const band = bands.find((b) => z < b.z1) ?? bands[bands.length - 1]!;
+    const e = Math.max(0, level.halfAt(z) - LANE_MARGIN);
+    let t = u * band.width;
+    for (const [a, b] of band.lanes) {
+      if (t <= b - a) return Math.max(-e, Math.min(e, a + t));
+      t -= b - a;
     }
-    return lanes[0]![0];
+    return Math.max(-e, Math.min(e, band.lanes[0]![0]));
   };
+  /** Up lane u from z0 to z1: its x at z0, over to the next band's x past every band start — inside the edge of a
+   * change of width (it widens past the ridge's passages) — its x at z1. */
+  const laneWay = (u: number, z0: number, z1: number): Array<[number, number]> => {
+    // Down the slope: the same way back.
+    if (z1 < z0) return laneWay(u, z1, z0).reverse();
+    const pts: Array<[number, number]> = [[laneAt(u, z0), z0]];
+    for (const b of bands) {
+      if (b.z0 <= z0 || b.z0 >= z1) continue;
+      const xa = laneAt(u, b.z0 - 0.01);
+      const xb = laneAt(u, b.z0 + 0.01);
+      pts.push([xa, b.z0]);
+      const inEdge = (x: number, z: number): number => Math.sign(x) * Math.min(Math.abs(x), level.halfAt(z) - LANE_MARGIN);
+      for (let z = b.z0 + LANE_STEP; z < Math.min(z1, b.z0 + LANE_SHIFT_MAX); z += LANE_STEP) {
+        const want = xa + (xb - xa) * Math.min(1, (z - b.z0) / LANE_SHIFT);
+        const x = inEdge(want, z);
+        pts.push([x, z]);
+        if (x === want && z >= b.z0 + LANE_SHIFT) break;
+      }
+    }
+    pts.push([laneAt(u, z1), z1]);
+    return pts;
+  };
+  const halfAt = (z: number): number => level.halfAt(z);
+  const range = (r: readonly [number, number]): number => rng.range(r[0], r[1] + 1e-9);
+  const pickLane = (): number => rng.next();
   const look = (): BotLook => ({
     head: rng.pick(cfg.palette.heads),
     jacket: rng.pick(cfg.palette.jackets),
@@ -207,6 +247,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
   // Camp places: out of the hero's way up the middle, clear of tents, trees, the egg stand and the belt.
   const props = level.points.filter((p) => p.type === 'decor' || p.type === 'eggStand' || p.type === 'treadmill');
   const campSpot = (): { x: number; z: number } => {
+    const halfW = halfAt(campTop / 2);
     let best = { x: halfW - LANE_MARGIN, z: campTop - 4 };
     for (let k = 0; k < 30; k++) {
       const x = (rng.chance(0.5) ? -1 : 1) * rng.range(CAMP_CLEAR_MID, halfW - LANE_MARGIN);
@@ -256,7 +297,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       slowK: 1,
       slowLeft: 0,
     };
-    if (!inCamp) bot.x = bot.lane;
+    if (!inCamp) bot.x = laneAt(bot.lane, bot.z);
     const belt = opts.belts?.[i % opts.belts.length];
     if (belt) {
       bot.x = belt.x;
@@ -281,7 +322,14 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
     return stop;
   }
   const stretchOf = (z: number): number => level.gates.filter((g) => g.z <= z).length;
-  const inCave = (b: Bot): boolean => Math.abs(b.x) > halfW;
+  const inCave = (b: Bot): boolean => Math.abs(b.x) > halfAt(b.z);
+  const rocks = level.niches.filter((n) => n.kind === 'island');
+  /** Out of where he stands: a cave of the edge — to its mouth; a grotto in a rock (SP-04) — out of its mouth below. */
+  const exitPts = (b: Bot): Array<[number, number]> => {
+    if (inCave(b)) return [[Math.sign(b.x) * (halfAt(b.z) - MOUTH_INSET), b.z]];
+    const r = rocks.find((n) => b.x >= n.box.min[0] && b.x <= n.box.max[0] && b.z >= n.box.min[2] && b.z <= n.box.max[2]);
+    return r ? [[entranceX(level, r), r.box.min[2] - MOUTH_INSET]] : [];
+  };
   const occupied = (cave: number, except: Bot): number[] =>
     list.filter((o) => o !== except && o.cave === cave && (o.mode === 'treadmill' || o.mode === 'hide')).map((o) => o.spot);
 
@@ -295,7 +343,12 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       const mx = (n.box.min[0] + n.box.max[0]) / 2;
       const tz = Math.min(n.box.max[2] - 1, Math.max(n.box.min[2] + 1, b.z));
       const inside = b.x >= n.box.min[0] && b.x <= n.box.max[0] && b.z >= n.box.min[2] && b.z <= n.box.max[2];
-      b.path = inside ? [] : [...(inCave(b) ? [[Math.sign(b.x) * (halfW - MOUTH_INSET), b.z] as [number, number]] : []), [mx, b.z < tz ? b.z : tz], [mx, tz]];
+      b.path = inside ? [] : [...exitPts(b), [mx, b.z < tz ? b.z : tz], [mx, tz]];
+      return;
+    }
+    if (n?.kind === 'island' && b.x >= n.box.min[0] && b.x <= n.box.max[0] && b.z >= n.box.min[2] && b.z <= n.box.max[2]) {
+      // Already in this rock (SP-04): stay in its middle.
+      b.path = [[entranceX(level, n), n.z]];
       return;
     }
     if (n && inCave(b) && Math.abs(b.z - n.z) <= (n.box.max[2] - n.box.min[2]) / 2 && Math.sign(b.x) === nicheSign(n)) {
@@ -304,19 +357,21 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       b.path = [[s.x, s.z]];
       return;
     }
-    const pts: Array<[number, number]> = [];
-    if (inCave(b)) pts.push([Math.sign(b.x) * (halfW - MOUTH_INSET), b.z]);
-    pts.push([b.lane, b.z]);
+    const pts: Array<[number, number]> = [...exitPts(b)];
+    // A grotto in a rock (SP-04): along the lane up to the level of its mouth, not past the rock.
+    if (n?.kind === 'island') z = n.box.min[2] - MOUTH_INSET;
     const f = level.funnel;
     if (f && z > f.z0 && b.z < z) {
       // The summit funnel (docs/01-gdd.md 20.2): up the lane to its mouth, then on inside its walls.
       const lim = Math.max(0, f.x0 + (f.x1 - f.x0) * Math.min(1, (z - f.z0) / (f.z1 - f.z0)) - LANE_MARGIN);
-      if (b.z < f.z0) pts.push([b.lane, f.z0]);
-      pts.push([Math.max(-lim, Math.min(lim, b.lane)), z]);
-    } else pts.push([b.lane, z]);
+      if (b.z < f.z0) pts.push(...laneWay(b.lane, b.z, f.z0));
+      pts.push([Math.max(-lim, Math.min(lim, laneAt(b.lane, z))), z]);
+    } else pts.push(...laneWay(b.lane, b.z, z));
     if (n) {
       const s = caveSpot(n, spot);
-      pts.push([entranceX(level, n) - nicheSign(n) * MOUTH_INSET, n.z], [s.x, s.z]);
+      // A grotto in a rock (SP-04) opens towards the camp: in through its mouth, never through a side wall.
+      if (n.kind === 'island') pts.push([entranceX(level, n), n.box.min[2] - MOUTH_INSET], [entranceX(level, n), n.z]);
+      else pts.push([entranceX(level, n) - nicheSign(n) * MOUTH_INSET, n.z], [s.x, s.z]);
     }
     b.path = pts;
   };
@@ -331,10 +386,10 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
     if (!f || b.tunnelFork === f.z0 || cfg.tunnelShare === undefined) return;
     b.tunnelFork = f.z0;
     const want = rng.chance(cfg.tunnelShare) ? f.calm : -f.calm;
-    if (Math.sign(b.lane) === want) return;
-    b.lane = -b.lane;
+    if (Math.sign(laneAt(b.lane, f.z0 + 1)) === want) return;
+    b.lane = 1 - b.lane;
     const end = b.path[b.path.length - 1];
-    if (end) b.path = [[b.lane, Math.min(end[1], f.z0 - 1)], [b.lane, end[1]]];
+    if (end) b.path = laneWay(b.lane, Math.min(end[1], f.z0 - 1), end[1]);
   };
   const goUp = (b: Bot, gatesOpen: readonly boolean[]): void => {
     b.mode = 'up';
@@ -420,7 +475,8 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       if (n.kind === 'throat') {
         const f = n.funnel ?? 0;
         const k = f > 0 ? Math.min(1, (b.z - n.z0) / f, (n.z1 - b.z) / f) : 1;
-        const lim = halfW - (halfW - n.x1) * k - LANE_MARGIN;
+        const e = halfAt(b.z);
+        const lim = e - (e - n.x1) * k - LANE_MARGIN;
         b.x = Math.max(-lim, Math.min(lim, b.x));
       } else if ((n.side === 'left') === b.x < 0) b.x = Math.max(n.x0 + LANE_MARGIN, Math.min(n.x1 - LANE_MARGIN, b.x));
     }
@@ -491,9 +547,8 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
     const k = cfg.boss!.speedK;
     b.zoneSpeed = gz.speed * (rng.chance(cfg.boss!.passShare) ? k[1] : k[0]);
     b.cave = -1;
-    const pts: Array<[number, number]> = [];
-    if (inCave(b)) pts.push([Math.sign(b.x) * (halfW - MOUTH_INSET), b.z]);
-    pts.push([b.lane, gz.zone[0] - 1], [b.lane, gz.zone[1] + 8]);
+    const pts: Array<[number, number]> = [...exitPts(b)];
+    pts.push(...laneWay(b.lane, gz.zone[0] - 1, gz.zone[1] + 8));
     b.path = pts;
   };
 
@@ -572,7 +627,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
             if (b.timer <= 0) {
               b.name = takeName();
               b.lane = pickLane();
-              b.x = b.lane;
+              b.x = laneAt(b.lane, b.z);
               b.z = Math.min(ctx.flagZ, firstStop(ctx.flagZ, ctx.gatesOpen) - 1);
               b.y = level.floorYAt(b.z);
               b.hop = -1;

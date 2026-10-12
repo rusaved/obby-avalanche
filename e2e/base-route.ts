@@ -14,6 +14,17 @@ export function passX(r: Seg): number {
   return (r.passes ?? [0]).reduce((a, b) => (Math.abs(b) < Math.abs(a) ? b : a));
 }
 
+/** Points from `from` up to `to` through the pass nearest the middle of every ridge between (SP-04: on a section 110–200
+ * wide the axis can be the carniz). */
+export function upThroughRidges(w: Pick<OpenWorld, 'segments'>, from: [number, number], to: [number, number]): Array<[number, number]> {
+  const pts: Array<[number, number]> = [];
+  for (const r of w.segments.filter((s) => s.type === 'gate' && s.kind === 'ridge' && s.z > from[1] && s.z < to[1]).sort((a, b) => a.z - b.z)) {
+    const x = passX(r);
+    pts.push([x, r.z - 4], [x, r.z + (r.passLength ?? 0) + 4]);
+  }
+  return [...pts, to];
+}
+
 /** The hero of `w` (the current mountain) from below ridge `i` (0-based) up through its pass to past it, with its Speed × `k`. */
 export async function upPastRidge(page: Page, w: OpenWorld, i: number, k = 1.2): Promise<void> {
   const r = w.segments.filter((s) => s.type === 'gate' && s.kind === 'ridge')[i]!;

@@ -45,7 +45,8 @@ describe('SP-01: the summit funnel', () => {
       expect(f).toBeDefined();
       const portal = level.points.find((p) => p.type === 'portal')!;
       const portalHalf = (portal['width'] as number) / 2;
-      const half = level.width / 2;
+      // SP-04: the mouth is as wide as the giant's zone.
+      const half = level.halfAt(f.z0);
       expect(f.z1).toBe(portal.z);
       expect(f.z1 - f.z0).toBe(spec.summit!.funnelLength);
       expect(f.x0).toBe(half);
@@ -77,7 +78,7 @@ describe('SP-01: the summit funnel', () => {
       const f = level.funnel!;
       const portal = level.points.find((p) => p.type === 'portal')!;
       const portalHalf = (portal['width'] as number) / 2;
-      const half = level.width / 2;
+      const half = level.halfAt(f.z0);
       for (const stat of [0, 1e9]) {
         const s = createSim(level, tuning, { balance, speedCurve: curve, stat });
         let entered = 0;
@@ -88,7 +89,8 @@ describe('SP-01: the summit funnel', () => {
           const z0 = f.z0 - 6;
           s.teleport(x, level.floorYAt(z0) + 0.1, z0);
           let outside = 0;
-          for (let t = 0; t < 8 * 60 && entered === 0; t++) {
+          // SP-04: from the edge of a zone 160–200 wide at stat 0 (16 units/s) the slide along the snow wall takes ~9 s.
+          for (let t = 0; t < 15 * 60 && entered === 0; t++) {
             s.step({ moveX: 0, moveZ: 1, jump: t % 30 === 0, jumpHeld: t % 30 === 0 }, 1 / 60);
             if (s.hero.pos.z > portal.z && Math.abs(s.hero.pos.x) > portalHalf) outside++;
           }
@@ -99,7 +101,9 @@ describe('SP-01: the summit funnel', () => {
         for (const sign of [-1, 1]) {
           s.portalEntered = true;
           const z0 = f.z0 + 4;
-          s.teleport(sign * (half - 4), level.floorYAt(z0) + 0.1, z0);
+          // 4 units in from the snow line there (SP-04: from a zone 160–200 wide it is steep).
+          const edge = f.x0 + ((f.x1 - f.x0) * (z0 - f.z0)) / (f.z1 - f.z0);
+          s.teleport(sign * (edge - 4), level.floorYAt(z0) + 0.1, z0);
           let outside = 0;
           for (let t = 0; t < 6 * 60; t++) {
             const jump = t % 20 === 0;

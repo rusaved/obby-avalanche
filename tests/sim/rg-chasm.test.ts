@@ -33,8 +33,9 @@ describe('chasm and trampoline (RG-02)', () => {
   it('mountain 2: a chasm 18 wide and 3 deep across the whole slope, a trampoline on every lane before it', () => {
     expect(chasm.z1 - chasm.z0).toBe(18);
     expect(chasm.depth).toBe(3);
-    expect(chasm.x0).toBe(-w2.width / 2);
-    expect(chasm.x1).toBe(w2.width / 2);
+    // SP-04: across its section, as wide as the section is there.
+    expect(chasm.x0).toBe(-level.halfAt(chasm.z0));
+    expect(chasm.x1).toBe(level.halfAt(chasm.z0));
     const pads = level.points.filter((p) => p.type === 'jumpPad' && p.z < chasm.z0 && p.z > chasm.z0 - 20);
     expect(pads.map((p) => p.x).sort((a, b) => a - b)).toEqual([-18, 0, 18]);
   });

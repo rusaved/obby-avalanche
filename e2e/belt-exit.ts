@@ -21,7 +21,7 @@ const HEAD = 4.4;
 export const NEAR_HERO = 2.5;
 const RETURN_TICKS = Math.round((tuning.avalanche.shotReturnSec + 0.2) * 60);
 
-type Seg = { type: string; z: number; y: number; side?: string; depth?: number; requires?: number };
+type Seg = { type: string; z: number; y: number; side?: string; depth?: number; edge?: number; requires?: number };
 export type Cave = { index: number; side: number; z: number; y: number; mouthX: number; beltX: number; requires: number; nextGateZ: number };
 
 /** Caves of mountain 1 bottom up with the number of the gate right above each (the cave at gate i, docs/01-gdd.md 16.3). */
@@ -33,8 +33,10 @@ export function caves(pace: Pace): Cave[] {
     .sort((a, b) => a.z - b.z)
     .map((s, index) => {
       const side = s.side === 'right' ? 1 : -1;
-      const beltX = side * (w.width / 2 + BORDER + (s.depth ?? 4) - BELT_HALF);
-      return { index, side, z: s.z, y: s.y, mouthX: (side * w.width) / 2, beltX, requires: gates[index]!.requires ?? 0, nextGateZ: gates[index + 1]?.z ?? Infinity };
+      // SP-04: a grotto stands at the edge of its section (`edge`); classic — the track's.
+      const e = s.edge ?? w.width / 2;
+      const beltX = side * (e + BORDER + (s.depth ?? 4) - BELT_HALF);
+      return { index, side, z: s.z, y: s.y, mouthX: side * e, beltX, requires: gates[index]!.requires ?? 0, nextGateZ: gates[index + 1]?.z ?? Infinity };
     });
 }
 

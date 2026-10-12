@@ -20,6 +20,19 @@ const c = tuning.controller;
 const apex = Math.max(c.jumpSpeed, tuning.fun.padSpeed) ** 2 / (2 * c.gravity);
 
 const covers = (b: Aabb, x: number, z: number): boolean => x >= b.min[0] && x <= b.max[0] && z >= b.min[2] && z <= b.max[2];
+/** Is (x, z) inside a convex polygon (either winding). */
+function inside(pts: Array<[number, number]>, x: number, z: number): boolean {
+  let sign = 0;
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[i]!;
+    const b = pts[(i + 1) % pts.length]!;
+    const c = (b[0] - a[0]) * (z - a[1]) - (b[1] - a[1]) * (x - a[0]);
+    if (Math.abs(c) < 1e-9) continue;
+    if (sign === 0) sign = Math.sign(c);
+    else if (Math.sign(c) !== sign) return false;
+  }
+  return true;
+}
 
 describe('FM-01: the invisible wall of the open slope', () => {
   it('tuning of the open pace sets the wall; classic and fast have none', () => {
@@ -31,6 +44,9 @@ describe('FM-01: the invisible wall of the open slope', () => {
     it(`mountain ${w.index} (${w.id}): over both borders at every z the wall tops the highest flight + 1`, () => {
       const level = buildLevel(w, { wallHeight });
       const half = level.width / 2;
+      // Over the snow of a change of width and of the summit funnel (SP-01, SP-04) the wall stands on the snow.
+      const prisms = level.prisms ?? [];
+      const prismTop = (x: number, z: number): number => Math.max(-Infinity, ...prisms.filter((p) => inside(p.pts, x, z)).map((p) => p.y1 - 3 + wallHeight));
       // The highest standing place by the edge of this mountain: an ice cliff of a bold lane, a hump crest.
       const rise = Math.max(0, ...w.segments.filter((s) => s.type === 'cliff').map((s) => Number(s['height'])), ...w.segments.filter((s) => s.type === 'hump').map((s) => Number(s['rise'])));
       const need = rise + apex + 1;
@@ -38,11 +54,13 @@ describe('FM-01: the invisible wall of the open slope', () => {
       expect(bounds.length).toBeGreaterThan(0);
       let checked = 0;
       for (let z = 0.5; z < w.length; z += 1) {
+        // SP-04: the edge where the slope is at z.
+        const e = level.halfAt(z);
         for (const sign of [-1, 1]) {
-          const floor = level.floorAt(sign * (half - 0.5), z);
+          const floor = level.floorAt(sign * (e - 0.5), z);
           if (!Number.isFinite(floor)) continue;
-          const x = sign * (half + BORDER_WIDTH / 2);
-          const top = Math.max(-Infinity, ...bounds.filter((b) => covers(b, x, z)).map((b) => b.max[1]));
+          const x = sign * (e + BORDER_WIDTH / 2);
+          const top = Math.max(-Infinity, prismTop(x, z), ...bounds.filter((b) => covers(b, x, z)).map((b) => b.max[1]));
           expect(top - floor, `z ${z}, side ${sign}`).toBeGreaterThanOrEqual(need);
           checked++;
         }
@@ -53,7 +71,7 @@ describe('FM-01: the invisible wall of the open slope', () => {
       const end = Math.max(...w.segments.filter((s) => s.type === 'floor').map((s) => s.z + Number(s['length'])));
       expect(end).toBeGreaterThan(portal.z);
       for (let x = -half; x <= half; x += 2) {
-        const top = Math.max(-Infinity, ...bounds.filter((b) => covers(b, x, end + 1)).map((b) => b.max[1]));
+        const top = Math.max(-Infinity, prismTop(x, end + 1), ...bounds.filter((b) => covers(b, x, end + 1)).map((b) => b.max[1]));
         expect(top - level.floorAt(x, end - 1), `behind the portal, x ${x}`).toBeGreaterThanOrEqual(need);
       }
     });
@@ -64,14 +82,13 @@ describe('FM-01: the invisible wall of the open slope', () => {
     for (const i of [0, 4, 8]) {
       const w = worlds.worlds[i]!;
       const level = buildLevel(w, { wallHeight });
-      const half = level.width / 2;
       const s = createSim(level, tuning, { balance, speedCurve: curve, stat: 1e9 });
       let falls = 0;
       s.events.on('fall', () => falls++);
       for (const z of [60, w.length * 0.35, w.length * 0.7, w.length - 30]) {
         // The summit funnel (SP-01): its snow walls are the border there.
         const f = level.funnel;
-        const edge = f && z > f.z0 ? f.x0 + (f.x1 - f.x0) * Math.min(1, (z - f.z0) / (f.z1 - f.z0)) : half;
+        const edge = f && z > f.z0 ? f.x0 + (f.x1 - f.x0) * Math.min(1, (z - f.z0) / (f.z1 - f.z0)) : level.halfAt(z);
         for (const sign of [-1, 1]) {
           falls = 0;
           const y0 = level.floorYAt(z);

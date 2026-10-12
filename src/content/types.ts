@@ -434,6 +434,9 @@ export type SegmentType =
   | 'hump'
   // The funnel of the summit (docs/01-gdd.md 20.2): snow walls from the edges of the slope to the portal.
   | 'funnel'
+  // SP-04 (docs/01-gdd.md 20.4): the change of width past a ridge; a grotto in a rock in the middle of a wide section.
+  | 'taper'
+  | 'island'
   // The base between the mountains (docs/01-gdd.md 19; src/level/base-layout.ts): a box, a portal of a mountain, a stand.
   | 'block'
   | 'basePortal'
@@ -530,6 +533,9 @@ export interface World {
   look?: string;
   /** Open slope (docs/01-gdd.md 17.6): zones of giants before the summit; absent — no giant. */
   bosses?: WorldBoss[];
+  /** SP-04 (docs/01-gdd.md 20.4): half-width of the slope along it — [z, half] points, linear between, constant past the
+   * ends (two points at one z — a step); absent — `width` / 2 everywhere. */
+  profile?: Array<[number, number]>;
 }
 
 export type WorldLayout = 'classic' | 'gateSide' | 'openSlope';
@@ -583,6 +589,17 @@ export interface OpenSpecJson {
    * `funnelLength` units before it, and on beside it to the end; absent — an open summit as until SP. */
   summit?: { funnel: boolean; funnelLength: number };
   width: number;
+  /** SP-04 (docs/01-gdd.md 20.4): a change of width between sections goes over this many units past the ridge; absent — 0. */
+  widthTaper?: number;
+  /** SP-04: a ridge has one passage every `passEvery` units of its width (the nearest whole number, 3–7); absent — the 3 of 16.5. */
+  passEvery?: number;
+  /** Q-064: the number of passages the nearest odd one — a passage on the axis; absent or false — the nearest whole. */
+  passAxis?: boolean;
+  /** SP-04: the height of a ridge's digits — on the field (the widest section of a mountain) and on the others; absent — the renderer's. */
+  ridgeDigits?: { field: number; other: number };
+  /** SP-04: grottos in the middle of each half of a section wider than `minWidth` — a rock `size` across, every `every` ×
+   * shelterEvery (docs/01a-content.md 19.2); absent — none. */
+  island?: { size: number; every: number; minWidth: number };
   spawnZ: number;
   threat: WorldsSpecJson['threat'];
   rarities: string[];
@@ -618,10 +635,12 @@ export interface OpenSpecMountain {
   warnSec: number;
   speed: number;
   /** `shape` — the elements of the section by the slots of docs/01-gdd.md 18.6; absent or empty — as 16.5. */
-  sections: Array<{ length: number; stepMult: number; shelterEvery: number; gift: number; fork: boolean; shape?: ShapeKind[] }>;
+  /** `width` — of the section (docs/01-gdd.md 20.4, SP-04); absent — the spec's `width`. */
+  sections: Array<{ length: number; stepMult: number; shelterEvery: number; gift: number; fork: boolean; shape?: ShapeKind[]; width?: number }>;
   ridges: Array<{ requires: number }>;
-  /** The finish straight: its length, the advice number, the giant's speed V_b, step multiplier and gift there. */
-  boss: { stretch: number; requires: number; margin: number; stepMult: number; gift: number; speed: number; turnSec?: number; returnMult?: number; seeDist?: number; helpers?: Array<{ side: 'left' | 'right' }>; giants?: Array<{ phase: number }> };
+  /** The finish straight: its length, the advice number, the giant's speed V_b, step multiplier and gift there; `width` —
+   * of the giant's zone (SP-06), absent — of the last section. */
+  boss: { stretch: number; width?: number; requires: number; margin: number; stepMult: number; gift: number; speed: number; turnSec?: number; returnMult?: number; seeDist?: number; helpers?: Array<{ side: 'left' | 'right' }>; giants?: Array<{ phase: number }> };
 }
 
 export type I18nJson = Record<string, string>;
@@ -693,6 +712,8 @@ export interface BotsJson {
   label: { nearDist: number; fadeDist: number };
   /** Open slope (docs/01-gdd.md 18.3): the share of bots that take a tunnel at its fork; absent — the lane decides. */
   tunnelShare?: number;
+  /** SP-04 (docs/01a-content.md 19.2): the lanes spread over the width of a section less this many units; absent — to the borders. */
+  laneSpread?: number;
   /**
    * The giant's zone (docs/01-gdd.md 18.5): a bot waits `waitSec` in the grotto before it and runs it; `passShare` of
    * them run at the giant's speed × speedK[1] (past him), the rest × speedK[0] (caught). Absent — bots walk through.

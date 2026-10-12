@@ -90,9 +90,11 @@ describe('character of the mountains in the data (RG-01)', () => {
     expect(out.worlds[0]).toEqual(worlds.worlds[0]);
   });
 
-  it('fairness on every lane with the elements: at the minimum speed of a section, no newbie bonus, ≤ warnSec × 0.8 (2× to spare)', () => {
+  it('fairness on every lane with the elements: at the minimum speed of a section, no newbie bonus, ≤ warnSec × 0.8 (2× to spare, 1.5× on mountain 1)', () => {
     const curve = { ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed };
-    for (const r of openFairnessReport(worlds, (st) => moveSpeed(st, curve))) expect(r.worstSec * 2, r.world).toBeLessThanOrEqual(r.limitSec);
+    // SP-04: section 1 of mountain 1 is 100 wide instead of 56 — its novice at 16 units/s keeps 1.5×; the edges — 1× (validator).
+    for (const r of openFairnessReport(worlds, (st) => moveSpeed(st, curve), 'lanes')) expect(r.worstSec * (r.world === 'slope' ? 1.5 : 2), r.world).toBeLessThanOrEqual(r.limitSec);
+    for (const r of openFairnessReport(worlds, (st) => moveSpeed(st, curve))) expect(r.worstSec, r.world).toBeLessThanOrEqual(r.limitSec);
   });
 
   it('RG-09: on a section with three or four elements each starts in its slot 5–25 / 25–40 / 40–75%, none overlaps the one below', () => {

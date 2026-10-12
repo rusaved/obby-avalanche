@@ -54,7 +54,8 @@ export function decorPlan(level: LevelData, look: string, cfg: DecorCfg, seed: n
   const rng = createRng(seed);
   const plan: DecorPlan = { walkers: [], sitters: [], bird: null };
   const count = (r: [number, number]): number => r[0] + rng.int(r[1] - r[0] + 1);
-  const half = level.width / 2;
+  // The edge where a thing stands (SP-04: every section its own width).
+  const half = (z: number): number => level.halfAt(z);
   const p = cfg.walkers.patch;
   const clear = (side: number, z0: number, z1: number): boolean =>
     !level.niches.some((n) => (n.side === 'left' ? -1 : 1) === side && n.z > z0 - CLEAR && n.z < z1 + CLEAR) &&
@@ -69,7 +70,7 @@ export function decorPlan(level: LevelData, look: string, cfg: DecorCfg, seed: n
         const z = s.z0 + (0.15 + 0.7 * rng.next()) * (s.z1 - s.z0);
         const side = rng.chance(0.5) ? -1 : 1;
         if (!clear(side, z - p / 2, z + p / 2)) continue;
-        const cx = side * (half - p / 2 - EDGE);
+        const cx = side * (half(z) - p / 2 - EDGE);
         const patch: [number, number, number, number] = [cx - p / 2, z - p / 2, cx + p / 2, z + p / 2];
         for (let i = count(cfg.walkers.perSection); i > 0 && plan.walkers.length < MAX_WALKERS; i--)
           plan.walkers.push({ x: patch[0] + rng.next() * p, z: patch[1] + rng.next() * p, patch });
@@ -89,7 +90,7 @@ export function decorPlan(level: LevelData, look: string, cfg: DecorCfg, seed: n
     for (const g of level.gates)
       if (g.kind === 'ridge' && g.z > s.z0 && g.z <= s.z1 + 1)
         for (const side of [-1, 1]) {
-          const x = side * (half + 1);
+          const x = side * (half(g.z - UNDER_RIDGE) + 1);
           const y = borderTop(x, g.z - UNDER_RIDGE);
           if (y !== null) spots.push({ x, y, z: g.z - UNDER_RIDGE });
         }

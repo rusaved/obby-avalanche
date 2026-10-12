@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { test, expect, shot1080, testState, waitTicks } from './fixtures.ts';
+import { upThroughRidges, type OpenWorld as RouteWorld } from './base-route.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 
 // FM-03 (docs/01-gdd.md 19.8; playtest RG: camera 2 points). Runs of the physical bot: mountain 1 foot → summit,
@@ -62,7 +63,8 @@ test('mountain 1 foot → summit: the head is behind something opaque in ≤ 2% 
   await start(page, openGame, 1, w.bosses[0]!.requires * 1.3);
   const fork = w.segments.find((s) => s.type === 'fork')!;
   const portal = w.segments.find((s) => s.type === 'portal')!;
-  const s = await run(page, [[0, 24], [0, fork.z - 8], [-16, fork.z + 4], [-16, fork.z + fork.length! - 2], [0, fork.z + fork.length! + 10], [0, portal.z - 6]]);
+  const after: [number, number] = [0, fork.z + fork.length! + 10];
+  const s = await run(page, [[0, 24], [0, fork.z - 8], [-16, fork.z + 4], [-16, fork.z + fork.length! - 2], after, ...upThroughRidges(w as unknown as RouteWorld, after, [0, portal.z - 6])]);
   report.push(row('гора 1, подножие → вершина', s));
   expect(s.headFrames).toBeGreaterThan(300);
   expect(s.headBlocked / s.headFrames, JSON.stringify(s)).toBeLessThanOrEqual(SHARE);

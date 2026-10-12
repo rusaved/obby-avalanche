@@ -9,6 +9,18 @@
   "funnelLength": 40
  },
  "width": 56,
+ "widthTaper": 40,
+ "passEvery": 30,
+ "passAxis": false,
+ "island": {
+  "size": 12,
+  "every": 2,
+  "minWidth": 120
+ },
+ "ridgeDigits": {
+  "field": 8,
+  "other": 6
+ },
  "spawnZ": 20,
  "threat": {
   "spawnAhead": 160,
@@ -124,21 +136,24 @@
      "stepMult": 1,
      "shelterEvery": 63,
      "gift": 12,
-     "fork": false
+     "fork": false,
+     "width": 100
     },
     {
      "length": 310,
      "stepMult": 1.2,
      "shelterEvery": 88,
      "gift": 14,
-     "fork": true
+     "fork": true,
+     "width": 180
     },
     {
      "length": 400,
      "stepMult": 1.5,
      "shelterEvery": 138,
      "gift": 18,
-     "fork": false
+     "fork": false,
+     "width": 110
     }
    ],
    "ridges": [
@@ -158,7 +173,8 @@
     "margin": 0.05,
     "stepMult": 2,
     "gift": 20,
-    "speed": 43.4
+    "speed": 43.4,
+    "width": 160
    }
   },
   {
@@ -175,7 +191,8 @@
      "stepMult": 2.5,
      "shelterEvery": 65,
      "gift": 40,
-     "fork": false
+     "fork": false,
+     "width": 110
     },
     {
      "length": 380,
@@ -185,7 +202,8 @@
      "fork": false,
      "shape": [
       "chasm"
-     ]
+     ],
+     "width": 120
     },
     {
      "length": 420,
@@ -195,14 +213,16 @@
      "fork": true,
      "shape": [
       "chasm"
-     ]
+     ],
+     "width": 200
     },
     {
      "length": 470,
      "stepMult": 5,
      "shelterEvery": 176,
      "gift": 60,
-     "fork": true
+     "fork": true,
+     "width": 110
     }
    ],
    "ridges": [
@@ -225,7 +245,8 @@
     "margin": 0.05,
     "stepMult": 6,
     "gift": 80,
-    "speed": 54.9
+    "speed": 54.9,
+    "width": 170
    }
   },
   {
@@ -242,7 +263,8 @@
      "stepMult": 8,
      "shelterEvery": 68,
      "gift": 120,
-     "fork": false
+     "fork": false,
+     "width": 110
     },
     {
      "length": 430,
@@ -252,7 +274,8 @@
      "fork": true,
      "shape": [
       "throat"
-     ]
+     ],
+     "width": 120
     },
     {
      "length": 480,
@@ -262,7 +285,8 @@
      "fork": false,
      "shape": [
       "throat"
-     ]
+     ],
+     "width": 110
     },
     {
      "length": 530,
@@ -273,7 +297,8 @@
      "shape": [
       "throat",
       "chasm"
-     ]
+     ],
+     "width": 200
     }
    ],
    "ridges": [
@@ -296,7 +321,8 @@
     "margin": 0.05,
     "stepMult": 20,
     "gift": 250,
-    "speed": 62.3
+    "speed": 62.3,
+    "width": 170
    }
   },
   {
@@ -313,14 +339,16 @@
      "stepMult": 25,
      "shelterEvery": 68,
      "gift": 600,
-     "fork": false
+     "fork": false,
+     "width": 120
     },
     {
      "length": 490,
      "stepMult": 30,
      "shelterEvery": 100,
      "gift": 1000,
-     "fork": true
+     "fork": true,
+     "width": 200
     },
     {
      "length": 540,
@@ -330,7 +358,8 @@
      "fork": true,
      "shape": [
       "chasm"
-     ]
+     ],
+     "width": 110
     },
     {
      "length": 580,
@@ -340,7 +369,8 @@
      "fork": true,
      "shape": [
       "throat"
-     ]
+     ],
+     "width": 120
     }
    ],
    "ridges": [
@@ -368,7 +398,8 @@
      {
       "side": "left"
      }
-    ]
+    ],
+    "width": 180
    }
   },
   {
@@ -385,7 +416,8 @@
      "stepMult": 60,
      "shelterEvery": 69,
      "gift": 2400,
-     "fork": false
+     "fork": false,
+     "width": 100
     },
     {
      "length": 540,
@@ -395,7 +427,8 @@
      "fork": true,
      "shape": [
       "throat"
-     ]
+     ],
+     "width": 110
     },
     {
      "length": 590,
@@ -405,7 +438,8 @@
      "fork": false,
      "shape": [
       "chasm"
-     ]
+     ],
+     "width": 110
     },
     {
      "length": 640,
@@ -416,7 +450,8 @@
      "shape": [
       "throat",
       "chasm"
-     ]
+     ],
+     "width": 220
     }
    ],
    "ridges": [
@@ -444,7 +479,8 @@
      {
       "side": "left"
      }
-    ]
+    ],
+    "width": 180
    }
   },
   {
@@ -461,7 +497,8 @@
      "stepMult": 200,
      "shelterEvery": 71,
      "gift": 12000,
-     "fork": false
+     "fork": false,
+     "width": 120
     },
     {
      "length": 600,
@@ -471,7 +508,8 @@
      "fork": true,
      "shape": [
       "tunnel"
-     ]
+     ],
+     "width": 120
     },
     {
      "length": 650,
@@ -482,7 +520,8 @@
      "shape": [
       "chasm",
       "tunnel"
-     ]
+     ],
+     "width": 200
     },
     {
      "length": 690,
@@ -493,7 +532,8 @@
      "shape": [
       "throat",
       "tunnel"
-     ]
+     ],
+     "width": 110
     }
    ],
    "ridges": [
@@ -521,7 +561,8 @@
      {
       "side": "left"
      }
-    ]
+    ],
+    "width": 180
    }
   },
   {
@@ -538,7 +579,8 @@
      "stepMult": 600,
      "shelterEvery": 71,
      "gift": 120000,
-     "fork": false
+     "fork": false,
+     "width": 110
     },
     {
      "length": 650,
@@ -548,7 +590,8 @@
      "fork": true,
      "shape": [
       "tunnel"
-     ]
+     ],
+     "width": 200
     },
     {
      "length": 700,
@@ -558,7 +601,8 @@
      "fork": true,
      "shape": [
       "throat"
-     ]
+     ],
+     "width": 120
     },
     {
      "length": 750,
@@ -569,7 +613,8 @@
      "shape": [
       "chasm",
       "tunnel"
-     ]
+     ],
+     "width": 110
     }
    ],
    "ridges": [
@@ -600,7 +645,8 @@
      {
       "side": "right"
      }
-    ]
+    ],
+    "width": 190
    }
   },
   {
@@ -617,7 +663,8 @@
      "stepMult": 2000,
      "shelterEvery": 72,
      "gift": 1600000,
-     "fork": false
+     "fork": false,
+     "width": 120
     },
     {
      "length": 710,
@@ -627,7 +674,8 @@
      "fork": true,
      "shape": [
       "hump"
-     ]
+     ],
+     "width": 120
     },
     {
      "length": 760,
@@ -638,7 +686,8 @@
      "shape": [
       "tunnel",
       "hump"
-     ]
+     ],
+     "width": 110
     },
     {
      "length": 810,
@@ -649,7 +698,8 @@
      "shape": [
       "throat",
       "hump"
-     ]
+     ],
+     "width": 220
     }
    ],
    "ridges": [
@@ -680,7 +730,8 @@
      {
       "side": "right"
      }
-    ]
+    ],
+    "width": 190
    }
   },
   {
@@ -697,7 +748,8 @@
      "stepMult": 6000,
      "shelterEvery": 73,
      "gift": 24000000,
-     "fork": false
+     "fork": false,
+     "width": 110
     },
     {
      "length": 760,
@@ -709,7 +761,8 @@
       "throat",
       "chasm",
       "hump"
-     ]
+     ],
+     "width": 120
     },
     {
      "length": 810,
@@ -720,7 +773,8 @@
      "shape": [
       "chasm",
       "tunnel"
-     ]
+     ],
+     "width": 220
     },
     {
      "length": 870,
@@ -732,7 +786,8 @@
       "throat",
       "chasm",
       "hump"
-     ]
+     ],
+     "width": 120
     }
    ],
    "ridges": [
@@ -771,7 +826,8 @@
      {
       "phase": 0.5
      }
-    ]
+    ],
+    "width": 200
    }
   },
   {
@@ -788,7 +844,8 @@
      "stepMult": 20000,
      "shelterEvery": 77,
      "gift": 500000000,
-     "fork": false
+     "fork": false,
+     "width": 120
     },
     {
      "length": 870,
@@ -800,7 +857,8 @@
       "throat",
       "chasm",
       "tunnel"
-     ]
+     ],
+     "width": 110
     },
     {
      "length": 930,
@@ -812,7 +870,8 @@
       "throat",
       "chasm",
       "hump"
-     ]
+     ],
+     "width": 120
     },
     {
      "length": 1000,
@@ -825,7 +884,8 @@
       "chasm",
       "tunnel",
       "hump"
-     ]
+     ],
+     "width": 220
     }
    ],
    "ridges": [
@@ -864,7 +924,8 @@
      {
       "phase": 0.5
      }
-    ]
+    ],
+    "width": 200
    }
   }
  ]

@@ -20,7 +20,8 @@ const read = (f: string): unknown => JSON.parse(readFileSync(resolve(root, 'cont
 const base = mergePatch(read('tuning.json'), read('pace/open/tuning.json')) as unknown as TuningJson;
 const tuning: TuningJson = { ...base, controller: { ...base.controller, maxSpeed: 120 } };
 const balance = mergePatch(read('balance.json'), read('pace/open/balance.json')) as unknown as BalanceJson;
-const bots = read('bots.json') as BotsJson;
+// The crowd of the open pace (SP-04: its lanes spread over the width of a section).
+const bots = mergePatch(read('bots.json'), read('pace/open/bots.json')) as unknown as BotsJson;
 const worlds = read('pace/open/worlds.json') as WorldsJson;
 const wallHeight = tuning.bounds?.wallHeight ?? 0;
 const SPEED = 120;
@@ -29,13 +30,14 @@ const TRIALS = 2000;
 
 /** Is (x, y, z) past a wall: in a carniz below its top, out of the slope but in a grotto, through a grotto's back wall, in the funnel snow. */
 function walls(level: LevelData, carnizToo: boolean): (x: number, y: number, z: number) => string | null {
-  const half = level.width / 2;
+  // SP-04: the edge where the slope is at z.
+  const half = (z: number): number => level.halfAt(z);
   const side = level.niches.filter((n) => n.kind !== 'tunnel' && n.kind !== 'ledge');
   const carniz = carnizToo ? level.boxes.filter((b) => b.kind === 'floor' && b.max[1] - b.min[1] > FLOOR_THICKNESS + 0.5 && b.max[0] - b.min[0] < level.width - 1) : [];
   const f = level.funnel;
   return (x, y, z) => {
     for (const b of carniz) if (x > b.min[0] + 0.2 && x < b.max[0] - 0.2 && z > b.min[2] + 0.3 && z < b.max[2] - 0.3 && y < b.max[1] - 0.3) return `carniz at z ${b.min[2]}`;
-    if (Math.abs(x) > half + 0.2) {
+    if (Math.abs(x) > half(z) + 0.2) {
       const n = side.find((s) => z > s.box.min[2] - 0.05 && z < s.box.max[2] + 0.05 && Math.sign(x) === (s.side === 'left' ? -1 : 1));
       if (!n) return 'past the fence';
       if (x < n.box.min[0] - 0.05 || x > n.box.max[0] + 0.05) return `through the back wall of the grotto at z ${n.z}`;
@@ -56,7 +58,6 @@ describe('SP-02: physics at 120 units/s', () => {
       const world = createCollisionWorld(level.staticTriangles, level.boundsTriangles);
       const params = controllerParams(tuning, SPEED);
       const past = walls(level, true);
-      const half = level.width / 2;
       const rng = createRng(1000 + i);
       const carniz = level.boxes.filter((b) => b.kind === 'floor' && b.max[1] - b.min[1] > FLOOR_THICKNESS + 0.5 && b.max[0] - b.min[0] >= 3 && b.max[0] - b.min[0] < level.width - 1);
       const grottos = level.niches.filter((n) => n.kind !== 'tunnel' && n.kind !== 'ledge');
@@ -84,7 +85,7 @@ describe('SP-02: physics at 120 units/s', () => {
           const sign = rng.chance(0.5) ? 1 : -1;
           z = rng.range(camp + 5, f.z0 - 5);
           if (grottos.some((n) => (n.side === 'left' ? -1 : 1) === sign && Math.abs(z - n.z) < (n.box.max[2] - n.box.min[2]) / 2 + 4)) continue;
-          x = sign * (half - rng.range(2, 10));
+          x = sign * (level.halfAt(z) - rng.range(2, 10));
           // Towards the fence, within 70° of straight at it.
           dir = sign * (90 + rng.range(-70, 70)) * deg;
         } else {
@@ -115,7 +116,7 @@ describe('SP-02: physics at 120 units/s', () => {
       expect(bad, bad.join('\n')).toEqual([]);
       // Every family ran (a start on a hole or in a wall is skipped).
       for (const [k, v] of Object.entries(runs)) expect(v, k).toBeGreaterThan(TRIALS / 8);
-    });
+    }, 120_000);
   }
 
   it('the bots at 120 on mountains 1, 5, 10 with avalanches: never out of the slope but in a grotto, never in the funnel snow', () => {

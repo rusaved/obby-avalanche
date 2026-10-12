@@ -33,6 +33,7 @@ import type { ThemeJson, TuningJson } from '../../content/types.ts';
 import type { LevelData } from '../../level/types.ts';
 import type { WavePhase } from '../../sim/threat.ts';
 import { NICHE_HEIGHT } from '../../level/builder.ts';
+import { entranceX } from '../../sim/shelter.ts';
 
 const FRONT_SEGMENTS: [number, number] = [48, 12];
 /**
@@ -221,7 +222,9 @@ export function createAvalancheVisual(initial: LevelData, theme: ThemeJson, tuni
       marker.visible = (warn || run) && cave !== undefined;
       if (cave && marker.visible) {
         const sign = cave.side === 'left' ? -1 : 1;
-        marker.position.set(sign * (level.width / 2 + 0.2), cave.y, cave.z);
+        // At its mouth: the edge where it stands (SP-04), a rock grotto's face towards the camp.
+        if (cave.kind === 'island') marker.position.set((cave.box.min[0] + cave.box.max[0]) / 2, cave.y, cave.box.min[2] - 0.2);
+        else marker.position.set(entranceX(level, cave) + sign * 0.2, cave.y, cave.z);
         markerMat.opacity = 0.35 + 0.25 * (0.5 + 0.5 * Math.sin(timeSec * 6));
       }
     },

@@ -86,7 +86,7 @@ export function createEvents(level: LevelData, cfg: GameEvents, seed: number, ga
       return true;
     }
     const sb = cfg.snowball!;
-    const half = level.width / 2 - sb.trailWidth / 2 - TRAIL_INSET;
+    const half = level.halfAt(ctx.hero.z) - sb.trailWidth / 2 - TRAIL_INSET;
     const speed = sb.speedMult * ctx.run;
     const x = Math.max(-half, Math.min(half, ctx.hero.x));
     const ahead = (ctx.run + speed) * sb.aheadSec;

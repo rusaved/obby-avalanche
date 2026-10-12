@@ -19,8 +19,11 @@ export function nicheSign(n: LevelNiche): number {
   return n.side === 'left' ? -1 : 1;
 }
 
-/** x of the cave entrance: the track edge the cave opens onto. */
+/** x of the cave entrance: the track edge the cave opens onto — its box's inner face (SP-04: every section its own width);
+ * a grotto in a rock opens towards the camp: its middle. */
 export function entranceX(level: LevelData, n: LevelNiche): number {
+  if (n.kind === 'island') return (n.box.min[0] + n.box.max[0]) / 2;
+  if (n.box.max[0] - n.box.min[0] > 0) return n.side === 'left' ? n.box.max[0] : n.box.min[0];
   return nicheSign(n) * (level.width / 2);
 }
 
@@ -28,6 +31,8 @@ export function entranceX(level: LevelData, n: LevelNiche): number {
 export function inNiche(level: LevelData, n: LevelNiche, graceDist: number, x: number, y: number, z: number): boolean {
   // A ledge on a cliff and a tunnel (docs/01-gdd.md 18.3) shelter by their volume: the front passes over them.
   if (n.kind === 'ledge' || n.kind === 'tunnel') return x >= n.box.min[0] && x <= n.box.max[0] && z >= n.box.min[2] && z <= n.box.max[2] && y >= n.box.min[1] - FEET_SLACK && y <= n.box.max[1];
+  // A grotto in a rock (SP-04): its volume and graceDist out of its mouth towards the camp.
+  if (n.kind === 'island') return x >= n.box.min[0] && x <= n.box.max[0] && z >= n.box.min[2] - graceDist && z <= n.box.max[2] && y >= n.box.min[1] - FEET_SLACK && y <= n.box.max[1];
   const ex = entranceX(level, n);
   const lo = n.side === 'left' ? n.box.min[0] : ex - graceDist;
   const hi = n.side === 'left' ? ex + graceDist : n.box.max[0];
@@ -49,6 +54,17 @@ export function distToEntrance(level: LevelData, n: LevelNiche, x: number, z: nu
     const lo = { dist: groundPath(level, x, z, mx, n.box.min[2]), tx: mx, tz: n.box.min[2] };
     const hi = { dist: groundPath(level, x, z, mx, n.box.max[2]), tx: mx, tz: n.box.max[2] };
     return lo.dist <= hi.dist ? lo : hi;
+  }
+  if (n.kind === 'island') {
+    // Its mouth faces the camp: inside — 0, else to the nearest point of the mouth by the ground.
+    if (x >= n.box.min[0] && x <= n.box.max[0] && z >= n.box.min[2] && z <= n.box.max[2]) return { dist: 0, tx: x, tz: z };
+    const tx = Math.min(n.box.max[0] - 1, Math.max(n.box.min[0] + 1, x));
+    // Beside or above the rock: round its nearer corner first.
+    if (z > n.box.min[2]) {
+      const cx = x < (n.box.min[0] + n.box.max[0]) / 2 ? n.box.min[0] - 1 : n.box.max[0] + 1;
+      return { dist: groundPath(level, x, z, cx, n.box.min[2] - 1) + Math.hypot(cx - tx, 1), tx, tz: n.box.min[2] };
+    }
+    return { dist: groundPath(level, x, z, tx, n.box.min[2]), tx, tz: n.box.min[2] };
   }
   const ex = entranceX(level, n);
   const tz = Math.min(n.box.max[2], Math.max(n.box.min[2], z));

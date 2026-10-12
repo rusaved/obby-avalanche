@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { runCycle, type ModelPack } from '../../scripts/balance-model.ts';
 import { mergePatch } from '../../src/content/pace.ts';
@@ -13,7 +13,8 @@ const pack = (pace: string | null): ModelPack =>
   ({
     game: read('game.json'),
     balance: pace ? mergePatch(read('balance.json'), read(`pace/${pace}/balance.json`)) : read('balance.json'),
-    tuning: read('tuning.json'),
+    // With the tuning patch of the pace, as sim:balance runs it (SP-03).
+    tuning: pace && existsSync(resolve(root, 'content/avalanche', `pace/${pace}/tuning.json`)) ? mergePatch(read('tuning.json'), read(`pace/${pace}/tuning.json`)) : read('tuning.json'),
     pets: read('pets.json'),
     eggs: read('eggs.json'),
     trails: read('trails.json'),
@@ -31,9 +32,10 @@ describe('FM-05: rhythm of the first minutes in the model', () => {
     const marks = [0, ...greedy.rewards.filter((t) => t <= rhythm['sec']!), rhythm['sec']!];
     const gaps = marks.slice(1).map((t, i) => t - marks[i]!);
     expect(Math.max(...gaps)).toBeLessThanOrEqual(rhythm['maxGap']!);
-    // The rewards are sorted and the first ones are the shoes and ridge 1 (F1).
+    // The rewards are sorted and the first ones are the shoes and ridge 1 (F1: by its threshold in the data).
     expect(greedy.rewards).toEqual([...greedy.rewards].sort((a, b) => a - b));
-    expect(greedy.rewards[0]).toBeLessThanOrEqual(15);
+    const f1 = (open.balance.sim?.checks?.['early'] as Array<[number, number]> | undefined)?.[0]?.[1] ?? 15;
+    expect(greedy.rewards[0]).toBeLessThanOrEqual(f1);
   });
 
   it('open: the stand on a belt at every wall of mountain 1 — greedy ≤ standMax, novice ≤ noviceStandMax', () => {

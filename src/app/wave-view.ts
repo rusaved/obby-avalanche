@@ -19,7 +19,7 @@ import type { Hud } from '../ui/hud.ts';
 import type { ControlFrame } from '../input/control-frame.ts';
 import { t } from '../ui/i18n.ts';
 import { NICHE_WALL } from '../level/builder.ts';
-import { distToEntrance } from '../sim/shelter.ts';
+import { distToEntrance, entranceX } from '../sim/shelter.ts';
 
 /** Shake amplitude share while the front is far (0.05 of 0.3 units, docs/01-gdd.md 4.8) and the longest strong burst. */
 const FAR_SHAKE_SHARE = 0.17;
@@ -131,12 +131,11 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       const cave = sim.level.niches[ts.shelter];
       let arrow: { x: number; y: number; angle: number } | null = null;
       if (cave && (ts.phase === 'warn' || (running && ts.outcome === 'none')) && sim.shelterIndex() < 0) {
-        const sign = cave.side === 'left' ? -1 : 1;
-        // A tunnel (docs/01-gdd.md 18.3): its nearer mouth, not the track edge by its middle.
-        if (cave.kind === 'tunnel') {
+        // A tunnel (docs/01-gdd.md 18.3) and a grotto in a rock (SP-04): its nearer mouth, not the track edge by its middle.
+        if (cave.kind === 'tunnel' || cave.kind === 'island') {
           const e = distToEntrance(sim.level, cave, hero.x, hero.z);
           p.set(e.tx, cave.y + 4, e.tz);
-        } else p.set(sign * (sim.level.width / 2), cave.y + 4, cave.z);
+        } else p.set(entranceX(sim.level, cave), cave.y + 4, cave.z);
         p.project(d.camera.camera);
         const behind = p.z > 1;
         let nx = behind ? -p.x : p.x;
@@ -177,9 +176,11 @@ export function createWaveView(d: WaveViewDeps): WaveView {
         f.fov = gs.fov;
         f.look.set(hero.x, hero.y + 1.5, hero.z);
         if (sh.kind === 'tunnel') f.pos.set((sh.box.min[0] + sh.box.max[0]) / 2, sh.y + gs.height, Math.max(sh.box.min[2] + 1, hero.z - gs.back - gs.out));
+        // A grotto in a rock (SP-04): from out of its mouth towards the camp.
+        else if (sh.kind === 'island') f.pos.set((sh.box.min[0] + sh.box.max[0]) / 2, sh.y + gs.height, sh.box.min[2] - gs.back - gs.out);
         else {
           const sign = sh.side === 'left' ? -1 : 1;
-          f.pos.set(sign * (sim.level.width / 2 - gs.out), sh.y + gs.height, sh.z - gs.back);
+          f.pos.set(entranceX(sim.level, sh) - sign * gs.out, sh.y + gs.height, sh.z - gs.back);
         }
         d.camera.shelter = f;
       } else d.camera.shelter = null;
@@ -196,7 +197,7 @@ export function createWaveView(d: WaveViewDeps): WaveView {
         if (shotCave !== inCave) {
           const sign = c.side === 'left' ? -1 : 1;
           const r = d.tuning.camera.collisionRadius + WALL_CLEARANCE;
-          const mouth = sign * (sim.level.width / 2);
+          const mouth = entranceX(sim.level, c);
           const depth = c.box.max[0] - c.box.min[0];
           // Behind the back wall or over the roof: at least the camera radius off its outer face.
           const back = sign < 0 ? c.box.min[0] - NICHE_WALL - r : c.box.max[0] + NICHE_WALL + r;

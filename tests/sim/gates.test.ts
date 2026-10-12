@@ -46,6 +46,7 @@ describe('gate requirement and openness (docs/01-gdd.md 3.3, 8.1; M2-02)', () =>
       worldIndex: 1,
       length: 200,
       width: 40,
+      halfAt: () => 20,
       spawn: [0, 0.5, 0],
       killY: -50,
       staticTriangles: new Float32Array(tris),

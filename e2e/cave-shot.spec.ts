@@ -13,7 +13,7 @@ const HERO_HALF = 0.9;
 const BORDER = 3;
 const BELT_HALF = 1.5;
 
-type Seg = { type: string; z: number; y: number; side?: string; length?: number; depth?: number };
+type Seg = { type: string; z: number; y: number; side?: string; length?: number; depth?: number; edge?: number };
 type Cave = { side: number; z: number; y: number; z0: number; z1: number; mouthX: number; beltX: number };
 
 function caves(pace: Pace): Cave[] {
@@ -24,7 +24,9 @@ function caves(pace: Pace): Cave[] {
     .map((s) => {
       const side = s.side === 'right' ? 1 : -1;
       const len = s.length ?? 10;
-      return { side, z: s.z, y: s.y, z0: s.z - len / 2, z1: s.z + len / 2, mouthX: (side * w.width) / 2, beltX: side * (w.width / 2 + BORDER + (s.depth ?? 4) - BELT_HALF) };
+      // SP-04: a grotto stands at the edge of its section (`edge`); classic — the track's.
+      const e = s.edge ?? w.width / 2;
+      return { side, z: s.z, y: s.y, z0: s.z - len / 2, z1: s.z + len / 2, mouthX: side * e, beltX: side * (e + BORDER + (s.depth ?? 4) - BELT_HALF) };
     });
 }
 

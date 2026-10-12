@@ -20,7 +20,7 @@ import { PAD_SIZE, TICK, padArc } from './pad-arc.ts';
 import { HERO_HEIGHT, HERO_RADIUS } from '../sim/controller.ts';
 import { forkRange, OPEN_SLOPE } from './open-slope.ts';
 import { humpArc, SLOTS } from './open-shapes.ts';
-import { distToEntrance, groundPath } from '../sim/shelter.ts';
+import { distToEntrance, entranceX, groundPath } from '../sim/shelter.ts';
 
 const num = (s: Segment, key: string): number => (typeof s[key] === 'number' ? (s[key] as number) : NaN);
 const sorted = (w: World, type: string): Segment[] => w.segments.filter((s) => s.type === type).sort((a, b) => a.z - b.z);
@@ -317,13 +317,14 @@ export function validateOpenFun(worlds: WorldsJson, tuning: TuningJson, speedAt:
     const caveBoxes = level.boxes.filter((b) => b.kind.startsWith('niche'));
     // Nothing tall in a flight (docs/01-gdd.md 18.3: «not into a cliff»): fork cliffs, ledges, throat and tunnel walls.
     const tall = level.boxes.filter((b) => b.solid && ['cliff', 'ledgeCliff', 'throatWall', 'tunnelWall', 'tunnelRoof'].includes(b.kind));
-    const half = w.width / 2;
+    // The edge where it lies (SP-04: every section its own width).
+    const half = (z: number): number => level.halfAt(z);
     for (const p of w.segments.filter((s) => s.type === 'jumpPad')) {
       const below = gates.filter((g) => g.z <= p.z);
       const next = gates[below.length];
       const x = num(p, 'x');
       const where = `${at}: trampoline at z=${p.z}`;
-      if (Math.abs(x) + PAD_SIZE / 2 > half) errors.push(`${where} — off the track`);
+      if (Math.abs(x) + PAD_SIZE / 2 > half(p.z)) errors.push(`${where} — off the track`);
       if (!next) {
         errors.push(`${where} — no ridge above it`);
         continue;
@@ -385,7 +386,7 @@ export function validateOpenFun(worlds: WorldsJson, tuning: TuningJson, speedAt:
       const z0 = s.z - num(s, 'length') / 2;
       const z1 = s.z + num(s, 'length') / 2;
       const where = `${at}: ice slide at z=${s.z}`;
-      if (Math.abs(x) + num(s, 'width') / 2 > half) errors.push(`${where} — off the track`);
+      if (Math.abs(x) + num(s, 'width') / 2 > half(s.z)) errors.push(`${where} — off the track`);
       if (gates.some((g) => g.z > z0 && g.z < z1)) errors.push(`${where} — crosses a ridge`);
       // Flat, or up a hump at its `rise` (docs/01-gdd.md 18.3).
       const rise = typeof s['rise'] === 'number' ? (s['rise'] as number) : 0;
@@ -398,6 +399,8 @@ export function validateOpenFun(worlds: WorldsJson, tuning: TuningJson, speedAt:
 
 /** Share of warnSec the run to shelter may take (docs/02-tech.md 5.4; docs/01-gdd.md 4.3). */
 export const OPEN_FAIRNESS_SHARE = 0.8;
+/** The edge line of the fairness check stands this far in from the border (a hero's width). */
+const FAIR_EDGE = 1.5;
 
 export interface OpenFairnessRow {
   world: string;
@@ -408,12 +411,13 @@ export interface OpenFairnessRow {
 }
 
 /**
- * Fairness on every lane (docs/01a-content.md 16.3): points every unit along the lines x = ±laneX and x = 0 off the
- * fork cliffs, from the camp up to the start of the giant's zone. Reachable: grottos of the hero's section and of the
+ * Fairness on every lane (docs/01a-content.md 16.3, 19.2): points every unit along the middle, both edges and the lines
+ * halfway between of the slope as wide as it is there (SP-04) off the fork cliffs and the rocks, from the camp up to the
+ * start of the giant's zone; `lines: 'lanes'` — the old lines x = ±laneX and 0 only (the 2× margin of 16.3 is theirs). Reachable: grottos of the hero's section and of the
  * section below (its ridge is open), the camp from section 1, the safe line spawnMaxZ from the finish straight.
  * Speed: the stat of the ridge below (section 1 — the giant's advice of the mountain before, 0 on mountain 1).
  */
-export function openFairnessReport(worlds: WorldsJson, speedAt: (stat: number) => number): OpenFairnessRow[] {
+export function openFairnessReport(worlds: WorldsJson, speedAt: (stat: number) => number, lines: 'width' | 'lanes' = 'width'): OpenFairnessRow[] {
   let carried = 0;
   return worlds.worlds.map((w) => {
     const level = buildLevel(w);
@@ -421,7 +425,7 @@ export function openFairnessReport(worlds: WorldsJson, speedAt: (stat: number) =
     const camp = w.safeZones[0]?.[1] ?? 0;
     const safeLine = w.threat.spawnMaxZ ?? w.length;
     // Fork cliffs and the walls of throats and tunnels (docs/01-gdd.md 18.3): no one stands inside them.
-    const cliffs = level.boxes.filter((b) => b.kind === 'cliff' || b.kind === 'throatWall' || b.kind === 'tunnelWall');
+    const cliffs = level.boxes.filter((b) => b.kind === 'cliff' || b.kind === 'throatWall' || b.kind === 'tunnelWall' || b.kind === 'islandWall');
     const throats = (level.shapes ?? []).filter((t) => t.kind === 'throat');
     const slideMult = (z: number): number => {
       const p = level.points.find((q) => q.type === 'slide' && q['shape'] === 'throat' && Math.abs(q.z - z) <= (q['length'] as number) / 2);
@@ -437,7 +441,8 @@ export function openFairnessReport(worlds: WorldsJson, speedAt: (stat: number) =
       const speed = speedAt(i === 1 ? carried : num(gates[i - 2] as Segment, 'requires'));
       const caves = level.niches.filter((n) => n.kind !== 'ledge' && n.z > Math.max(zBelow, camp) && n.z < (gates[i - 1] as Segment).z);
       for (let z = zLo; z <= zHi; z += 1) {
-        for (const x of [-OPEN_SLOPE.laneX, 0, OPEN_SLOPE.laneX]) {
+        const e = level.halfAt(z) - FAIR_EDGE;
+        for (const x of lines === 'lanes' ? [-OPEN_SLOPE.laneX, 0, OPEN_SLOPE.laneX] : [-e, -e / 2, 0, e / 2, e]) {
           if (cliffs.some((c) => x >= c.min[0] && x <= c.max[0] && z >= c.min[2] && z <= c.max[2])) continue;
           let best = i === 1 ? Math.max(0, z - camp) : Infinity;
           if (z >= safeLine) best = 0;
@@ -464,8 +469,8 @@ export function openFairnessReport(worlds: WorldsJson, speedAt: (stat: number) =
 }
 
 function distToMouth(level: LevelData, n: LevelData['niches'][number], x: number, z: number): number {
-  if (n.kind === 'tunnel') return distToEntrance(level, n, x, z).dist;
-  const ex = (n.side === 'left' ? -1 : 1) * (level.width / 2);
+  if (n.kind === 'tunnel' || n.kind === 'island') return distToEntrance(level, n, x, z).dist;
+  const ex = entranceX(level, n);
   const tz = Math.min(n.box.max[2], Math.max(n.box.min[2], z));
   return groundPath(level, x, z, ex, tz);
 }
@@ -500,9 +505,24 @@ export function validateOpenGround(worlds: WorldsJson, tuning: TuningJson, speed
       if (num(gap, 'length') > reach) errors.push(`${at}: gap at z=${gap.z} — ${num(gap, 'length')} units, above 60% of the jump at ${v.toFixed(1)} units/s (${reach.toFixed(1)})`);
     }
     carried = num(gates[gates.length - 1] as Segment, 'requires');
-    for (const x of OPEN_SLOPE.passes) {
-      let prev = level.floorAt(x, 0);
-      for (let z = 0.5; z <= w.length; z += 0.5) {
+    // SP-04: every ridge has its own passages; a line runs through each from the ridge below (past a change of width, which
+    // begins at the top of the passages — a line wider than the section below starts where its ground does), the finish
+    // lines up the axis and halfway to the funnel mouth.
+    const lines: Array<[number, number, number]> = [];
+    let from = 0;
+    for (const g of level.gates.filter((x) => x.kind === 'ridge')) {
+      for (const x of g.passes ?? []) lines.push([x, from, g.z + (g.passLength ?? 0) + 1]);
+      from = g.z + (g.passLength ?? 0) + 0.5;
+    }
+    const mouth = (level.funnel?.x1 ?? 0) / 2;
+    for (const x of [-mouth, 0, mouth]) lines.push([x, from, w.length]);
+    // A change of width is at most this long (01a 19.2: 40).
+    const lead = 60;
+    for (const [x, z0, z1] of lines) {
+      let z = z0;
+      while (level.floorAt(x, z) === -Infinity && z < z0 + lead) z += 0.5;
+      let prev = level.floorAt(x, z);
+      for (z += 0.5; z <= z1; z += 0.5) {
         const y = level.floorAt(x, z);
         if (y === -Infinity) {
           errors.push(`${at}: hole in the ground at x=${x}, z=${z}`);
@@ -518,7 +538,7 @@ export function validateOpenGround(worlds: WorldsJson, tuning: TuningJson, speed
     }
     for (const n of level.niches) {
       if (n.kind === 'ledge') continue;
-      const ex = (n.side === 'left' ? -1 : 1) * (level.width / 2);
+      const ex = (n.side === 'left' ? -1 : 1) * level.halfAt(n.z);
       const ground = level.floorAt(ex, n.z);
       if (Math.abs(ground - n.y) > 0.01) errors.push(`${at}: grotto at z=${n.z} — floor ${n.y}, the ground at its mouth is ${ground}`);
     }

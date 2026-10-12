@@ -64,7 +64,8 @@ describe('tunnel (RG-06)', () => {
     for (let i = 0; i < 60 * 30 && s.threat!.state.phase !== 'gone'; i++) s.step(STAND, DT);
     expect(survived).toBe(1);
     expect(caught).toBe(0);
-  });
+    // A sim a point: ~1.5 s each to build its octree (13 s alone, over 20 s beside the rest of the suite).
+  }, 60_000);
 
   it('steps inside count with the multiplier of the section; a tunnel event as he walks in', () => {
     const s = createSim(level, tuning, { balance, speedCurve: curve, stat });

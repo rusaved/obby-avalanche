@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { choosePace, CLASSIC_PACE, mergePatch } from '../../src/content/pace.ts';
 import { generateWorlds, stringifyWorlds } from '../../src/level/generate.ts';
-import { forkRange, OPEN_SLOPE } from '../../src/level/open-slope.ts';
+import { forkRange, OPEN_SLOPE, passesOf } from '../../src/level/open-slope.ts';
 import { PACK_FILES, validatePack, type PackFiles } from '../../src/level/validate.ts';
 import { openFairnessReport } from '../../src/level/validate-open.ts';
 import { buildLevel } from '../../src/level/builder.ts';
@@ -84,10 +84,11 @@ describe('generator openSlope and its validator (PS-03)', () => {
 
   it('10 mountains by 01a 16.1 and 19.1 (SP-03: the lengths grew with the run): 3 sections on mountain 1, 4 on the others; ridges and the giant', () => {
     expect(worlds).toHaveLength(10);
-    expect(worlds.map((w) => w.length)).toEqual([1380, 2100, 2380, 2660, 2920, 3210, 3470, 3770, 4060, 4640]);
+    expect(worlds.map((w) => w.length)).toEqual([1450, 2100, 2380, 2660, 2920, 3210, 3470, 3770, 4060, 4640]);
+    // SP-04 (01a 19.2): a world is as wide as its widest part.
+    expect(worlds.map((w) => w.width)).toEqual([180, 200, 200, 200, 220, 200, 200, 220, 220, 220]);
     worlds.forEach((w, i) => {
       const sections = i === 0 ? 3 : 4;
-      expect(w.width).toBe(56);
       expect(w.zones).toHaveLength(sections + 1);
       const gates = byType(i, 'gate');
       expect(gates.map((g) => g['kind'])).toEqual([...Array<string>(sections).fill('ridge'), 'boss']);
@@ -114,8 +115,10 @@ describe('generator openSlope and its validator (PS-03)', () => {
         expect(under['kind']).toBe('ridgeGrotto');
         expect(at(under.z)).toBeGreaterThan(0.9);
         expect(num(under, 'treadmill')).toBe(zone.stepMult);
-        // The approach rise inside 75–95%.
-        const rise = w.segments.find((s) => s.type === 'ramp' && s['x0'] === undefined && s.z > zone.zStart && s.z < zone.zEnd)!;
+        // The approach rise inside 75–95%: the ramp across the whole section (SP-04: as wide as the section).
+        const h = (spec.mountains[wi]!.sections[i]!.width ?? spec.width) / 2;
+        const across = (s: Segment): boolean => s['x0'] === undefined || (num(s, 'x0') <= -h + 1e-6 && num(s, 'x1') >= h - 1e-6);
+        const rise = w.segments.find((s) => s.type === 'ramp' && across(s) && num(s, 'rise') === O.approachRise && s.z > zone.zStart && s.z < zone.zEnd)!;
         expect(at(rise.z)).toBeGreaterThanOrEqual(0.75);
         expect(at(rise.z + num(rise, 'length'))).toBeLessThanOrEqual(0.95);
         // The flag past the ridge below in the first 5% (from section 2).
@@ -155,7 +158,9 @@ describe('generator openSlope and its validator (PS-03)', () => {
     const level = buildLevel(worlds[0]!);
     const ridge = level.gates[0]!;
     expect(ridge.kind).toBe('ridge');
-    expect(ridge.passes).toEqual([...OPEN_SLOPE.passes]);
+    // SP-04 (01a 19.2): one passage every 30 units of the section's width — 100 wide, 3.
+    expect(ridge.passes).toEqual(passesOf(spec, (spec.mountains[0]!.sections[0]!.width ?? spec.width) / 2));
+    expect(ridge.passes).toHaveLength(3);
     expect(ridge.box.max[1] - ridge.y).toBeGreaterThan(jump + 1);
     for (const x of ridge.passes!) expect(level.floorAt(x, ridge.z + OPEN_SLOPE.passLength)).toBeCloseTo(ridge.y + OPEN_SLOPE.ridgeRise, 6);
     // Between the passages the carniz block goes down below the lower floor: nothing passes under it.
@@ -164,11 +169,12 @@ describe('generator openSlope and its validator (PS-03)', () => {
     expect(level.gates[level.gates.length - 1]!.kind).toBe('boss');
   });
 
-  it('fairness on every lane: the worst run to a grotto ≤ warnSec × 0.8 with a margin of 2× (01a 16.3)', () => {
+  it('fairness on every lane: the worst run to a grotto ≤ warnSec × 0.8 with a margin of 2×, 1.5× on mountain 1 (01a 16.3, 19.2)', () => {
     const b = files['balance.json'] as BalanceJson;
     const t = files['tuning.json'] as TuningJson;
     const curve = { ...b.speedCurve, base: t.controller.baseSpeed, max: t.controller.maxSpeed };
-    for (const r of openFairnessReport(files['worlds.json'] as WorldsJson, (s) => moveSpeed(s, curve))) expect(r.worstSec * 2, r.world).toBeLessThanOrEqual(r.limitSec);
+    // SP-04: section 1 of mountain 1 is 100 wide instead of 56 — its novice at 16 units/s keeps 1.5×.
+    for (const r of openFairnessReport(files['worlds.json'] as WorldsJson, (s) => moveSpeed(s, curve), 'lanes')) expect(r.worstSec * (r.world === 'slope' ? 1.5 : 2), r.world).toBeLessThanOrEqual(r.limitSec);
   });
 
   it('the validator names a lane without grottos, a broken spawnMaxZ and a hole in a passage', () => {

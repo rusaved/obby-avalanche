@@ -110,7 +110,8 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
   const spawnMax = threat.spawnMaxZ ?? Infinity;
   // The scripted wave comes at the first shelter of stretch `scriptedWaveWall` (the cave of that stretch in classic and
   // fast; the first grotto of section 2 on the open slope, 17.8).
-  const scriptedCave = level.niches.find((n) => n.stretch === balance.ftue.scriptedWaveWall) ?? null;
+  // A grotto in a rock (SP-04) is never it: the egg of that wave waits by a back wall at an edge.
+  const scriptedCave = level.niches.find((n) => n.stretch === balance.ftue.scriptedWaveWall && n.kind !== 'island') ?? null;
   // At a fork that first row has a grotto on each lane: the scripted wave lights the one nearer by run time and follows
   // the hero to the other lane (playtest PS: the arrow pointed at the grotto behind the cliff). One cave elsewhere.
   const scriptedRow = level.niches.flatMap((n, i) => (scriptedCave && n.stretch === scriptedCave.stretch && n.z === scriptedCave.z && n.kind !== 'ledge' ? [i] : []));

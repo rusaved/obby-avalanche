@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import type { Page } from '@playwright/test';
 import { test, expect, shot1080, testState } from './fixtures.ts';
+import { passX } from './base-route.ts';
 import type { TestState } from '../src/test-api/index.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 import balanceJson from '../content/avalanche/balance.json' with { type: 'json' };
@@ -12,7 +13,7 @@ import balanceJson from '../content/avalanche/balance.json' with { type: 'json' 
 // before the giant up to his advice, past him and into the portal. Times are play seconds. The rhythm of 19.6: on the belt
 // of ridge 2 at most 10 s of game time, and a reward (a ridge or the giant passed, «Phew, made it!» in a shelter, an egg,
 // shoes) at least every 25 s up to 180 s (fm-rhythm of docs/05 lives here: one run of the bot for both).
-type Seg = { type: string; z: number; kind?: string; requires?: number; length?: number };
+type Seg = { type: string; z: number; kind?: string; requires?: number; length?: number; passes?: number[] };
 type OpenWorld = { segments: Seg[]; bosses: Array<{ zone: [number, number]; requires: number }> };
 type Shelter = { kind: string; z: number; mouth: [number, number]; inside: [number, number]; belt: [number, number] | null };
 type Played = Array<{ name: string; playSec: number; params?: Record<string, unknown> }>;
@@ -35,7 +36,8 @@ const SAME_SEC = 2;
 /** Plaques allowed in the first 60 s: the shoes and the controls. */
 const EARLY_HINTS = new Set(['hint.move', 'hint.shoes', 'hint.jumpPc', 'hint.jumpTouch']);
 
-type Leg = { z: number; req: number; grotto: Shelter | null; past: number };
+/** A leg up to a ridge (through its pass nearest the middle, SP-04: on the field the axis is the carniz) or the giant. */
+type Leg = { z: number; x: number; req: number; grotto: Shelter | null; past: number };
 
 test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg, the ridges, the giant, the portal — 19.6 times and rhythm', async ({ page, openGame }) => {
   test.setTimeout(420_000);
@@ -45,8 +47,8 @@ test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg
   const beltGrotto = (kind: string, before: number): Shelter | null => shelters.find((n) => n.kind === kind && n.z < before && n.z > before - 30) ?? null;
   // Ridges 2–3 by their grotto belts if the stat is short, then the giant by the belt before his zone.
   const legs: Leg[] = [
-    ...ridges.slice(1).map((r) => ({ z: r.z, req: r.requires!, grotto: beltGrotto('ridgeGrotto', r.z), past: r.z + 10 })),
-    { z: boss.zone[0], req: boss.requires, grotto: shelters.find((n) => n.kind === 'bossLine') ?? null, past: portal + 2 },
+    ...ridges.slice(1).map((r) => ({ z: r.z, x: passX(r), req: r.requires!, grotto: beltGrotto('ridgeGrotto', r.z), past: r.z + 10 })),
+    { z: boss.zone[0], x: 0, req: boss.requires, grotto: shelters.find((n) => n.kind === 'bossLine') ?? null, past: portal + 2 },
   ];
 
   /** The path to the points from the hero: round the fork's cliff by the lane on the hero's side. */
@@ -85,7 +87,8 @@ test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg
   // Up to the siren of the scripted wave (17.8): triggerDist below the first grotto of section 2, from the data.
   const firstOf2 = shelters.filter((n) => n.kind === 'grotto' && n.z > ridges[0]!.z).sort((a, b) => a.z - b.z)[0]!;
   const sirenZ = firstOf2.z - balanceJson.ftue.triggerDist + 2;
-  await go([[0, ridges[0]!.z - 4], [0, ridges[0]!.z + 12], [-16, Math.max(ridges[0]!.z + 24, sirenZ)]]);
+  const x1 = passX(ridges[0]!);
+  await go([[x1, ridges[0]!.z - 4], [x1, ridges[0]!.z + 12], [-16, Math.max(ridges[0]!.z + 24, sirenZ)]]);
   await page.evaluate(() => window.__TEST__!.setTimeScale(3));
 
   // Set in resume() too: typed wide, so the loop's checks are not narrowed away.
@@ -101,8 +104,8 @@ test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg
     if (st.stat >= l.req || !l.grotto) {
       stage = 'leg';
       const out: Array<[number, number]> = inIt ? [l.grotto!.mouth] : [];
-      const finish: Array<[number, number]> = leg === legs.length - 1 ? [[0, boss.zone[1] + 4], [0, portal + 2]] : [[0, l.z + 10]];
-      await go(route(st, [...out, [0, l.z - 4], ...finish]));
+      const finish: Array<[number, number]> = leg === legs.length - 1 ? [[0, boss.zone[1] + 4], [0, portal + 2]] : [[l.x, l.z + 10]];
+      await go(route(st, [...out, [l.x, l.z - 4], ...finish]));
     } else {
       stage = 'belt';
       const belt = l.grotto.belt ?? l.grotto.inside;

@@ -22,6 +22,7 @@ function level(): LevelData {
     worldIndex: 1,
     length: 200,
     width: 40,
+    halfAt: () => 20,
     spawn: [0, 0.5, 0],
     killY: -50,
     staticTriangles: new Float32Array(tris),

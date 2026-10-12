@@ -130,9 +130,10 @@ function boundsWalls(boxes: LevelBox[], nicheSegs: Segment[], floors: Segment[],
   for (const n of nicheSegs) {
     const sign = str(n, 'side') === 'right' ? 1 : -1;
     const y = num(n, 'y');
-    const xOut = sign * (half + BORDER_WIDTH + num(n, 'depth') + NICHE_WALL);
+    const e = num(n, 'edge', half);
+    const xOut = sign * (e + BORDER_WIDTH + num(n, 'depth') + NICHE_WALL);
     const len = num(n, 'length');
-    out.push({ min: [Math.min(sign * half, xOut), y + NICHE_HEIGHT, n.z - len / 2 - NICHE_WALL], max: [Math.max(sign * half, xOut), y + h, n.z + len / 2 + NICHE_WALL] });
+    out.push({ min: [Math.min(sign * e, xOut), y + NICHE_HEIGHT, n.z - len / 2 - NICHE_WALL], max: [Math.max(sign * e, xOut), y + h, n.z + len / 2 + NICHE_WALL] });
   }
   const pieces = [
     ...floors.map((f) => ({ z0: f.z, z1: f.z + num(f, 'length'), y: num(f, 'y') })),
@@ -150,9 +151,28 @@ function boundsWalls(boxes: LevelBox[], nicheSegs: Segment[], floors: Segment[],
   return out;
 }
 
+/** Half-width of the slope at z (SP-04, docs/01-gdd.md 20.4): world.profile linear between its points, constant past
+ * its ends, at a step (two points at one z) the upper one from that z on; without a profile — width / 2. */
+export function profileHalf(world: Pick<World, 'width' | 'profile'>, z: number): number {
+  const p = world.profile;
+  if (!p || p.length === 0) return world.width / 2;
+  if (z < p[0]![0]) return p[0]![1];
+  for (let i = p.length - 1; i >= 0; i--) {
+    const [za, ha] = p[i]!;
+    if (z < za) continue;
+    const next = p[i + 1];
+    if (!next || next[0] === za) return ha;
+    return ha + ((next[1] - ha) * (z - za)) / (next[0] - za);
+  }
+  return p[0]![1];
+}
+
 export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
   const W = world.width;
   const half = W / 2;
+  const halfAt = (z: number): number => profileHalf(world, z);
+  // The changes of width (SP-04): their floor is the wider one, snow at an angle along their edges, no box borders there.
+  const tapers = world.segments.filter((s) => s.type === 'taper').map((t) => [t.z, t.z + num(t, 'length')] as [number, number]);
   const boxes: LevelBox[] = [];
   const ramps: LevelRamp[] = [];
   const gates: LevelGate[] = [];
@@ -183,23 +203,30 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     if (cur < z1) spans.push([cur, z1]);
     return spans;
   };
-  // A piece narrower than the track (open slope: carniz blocks and passage ramps) has a border only on the edge it touches.
+  /** The spans of [z0, z1] off the changes of width. */
+  const offTapers = (z0: number, z1: number): Array<[number, number]> => {
+    let spans: Array<[number, number]> = [[z0, z1]];
+    for (const [a, b] of tapers)
+      spans = spans.flatMap(([p, q]): Array<[number, number]> => (b <= p || a >= q ? [[p, q]] : [...(a > p ? [[p, a] as [number, number]] : []), ...(b < q ? [[b, q] as [number, number]] : [])]));
+    return spans;
+  };
+  // A piece narrower than the track (open slope: carniz blocks and passage ramps) has a border only on the edge it touches;
+  // the edge is the slope's at that z (SP-04: every section its own width).
   const addBorders = (z0: number, z1: number, yTop: number, x0 = -half, x1 = half): void => {
-    for (const side of ['left', 'right'] as const) {
-      if ((side === 'left' && x0 > -half) || (side === 'right' && x1 < half)) continue;
-      const sign = side === 'left' ? -1 : 1;
-      for (const [a, b] of nicheGap(side, z0, z1)) {
-        const xIn = sign * half;
-        const xOut = sign * (half + BORDER_WIDTH);
-        boxes.push(
-          box(
-            [Math.min(xIn, xOut), yTop - FLOOR_THICKNESS, a],
-            [Math.max(xIn, xOut), yTop + BORDER_HEIGHT, b],
-            'border',
-            'border',
-          ),
-        );
+    for (const [za, zb] of offTapers(z0, z1)) {
+      const e = halfAt((za + zb) / 2);
+      for (const side of ['left', 'right'] as const) {
+        if ((side === 'left' && x0 > -e + 1e-6) || (side === 'right' && x1 < e - 1e-6)) continue;
+        addSide(side, za, zb, yTop, e);
       }
+    }
+  };
+  const addSide = (side: 'left' | 'right', z0: number, z1: number, yTop: number, e: number): void => {
+    const sign = side === 'left' ? -1 : 1;
+    for (const [a, b] of nicheGap(side, z0, z1)) {
+      const xIn = sign * e;
+      const xOut = sign * (e + BORDER_WIDTH);
+      boxes.push(box([Math.min(xIn, xOut), yTop - FLOOR_THICKNESS, a], [Math.max(xIn, xOut), yTop + BORDER_HEIGHT, b], 'border', 'border'));
     }
   };
 
@@ -263,22 +290,38 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     const x0 = num(f, 'from');
     const x1 = num(f, 'to');
     const y = num(f, 'y');
-    const out = Math.max(x0, half) + BORDER_WIDTH;
+    const out = x0 + BORDER_WIDTH;
     for (const sign of [-1, 1]) {
       const pts: Array<[number, number]> = [[sign * x0, f.z], [sign * x1, z1], [sign * x1, zEnd], [sign * out, zEnd], [sign * out, f.z]];
       prisms.push({ pts: clockwise(pts), y0: y - FLOOR_THICKNESS, y1: y + BORDER_HEIGHT, material: 'border', kind: 'funnel' });
     }
     funnel = { z0: f.z, z1, x0, x1 };
   }
+  // The change of width past a ridge (SP-04, docs/01-gdd.md 20.4): the floor as wide as the wider side, on each side snow
+  // from the slanted edge out to the outer border line — the edge goes from `from` to `to` over its length.
+  const taperFloors: Array<{ z0: number; z1: number; a: number; b: number; y: number }> = [];
+  for (const t of world.segments.filter((s) => s.type === 'taper')) {
+    const z1 = t.z + num(t, 'length');
+    const a = num(t, 'from');
+    const b = num(t, 'to');
+    const y = num(t, 'y');
+    const m = Math.max(a, b);
+    taperFloors.push({ z0: t.z, z1, a, b, y });
+    boxes.push(box([-m, y - FLOOR_THICKNESS, t.z], [m, y, z1], 'track', 'floor'));
+    for (const sign of [-1, 1]) {
+      const pts: Array<[number, number]> = [[sign * a, t.z], [sign * b, z1], [sign * (m + BORDER_WIDTH), z1], [sign * (m + BORDER_WIDTH), t.z]];
+      prisms.push({ pts: clockwise(pts), y0: y - FLOOR_THICKNESS, y1: y + BORDER_HEIGHT, material: 'border', kind: 'taper' });
+    }
+  }
 
   // Elements of the open slope (docs/01-gdd.md 18.3): the walls of a throat (stepping in over `funnel` at each end), the
   // ice hall of a tunnel on the calm lane of its fork (its inner wall is the fork cliff) — a shelter at every point.
   const shapes: LevelShape[] = [];
-  const outer = half + BORDER_WIDTH;
   for (const t of world.segments.filter((s) => s.type === 'throat')) {
     const z0 = t.z;
     const z1 = t.z + num(t, 'length');
     const y = num(t, 'y');
+    const outer = halfAt((z0 + z1) / 2) + BORDER_WIDTH;
     const w = num(t, 'width') / 2;
     const f = num(t, 'funnel');
     const h = num(t, 'height');
@@ -304,6 +347,7 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     const a = num(t, 'inner');
     const b = a + num(t, 'width');
     const h = num(t, 'height');
+    const outer = halfAt((z0 + z1) / 2) + BORDER_WIDTH;
     const span = (p: number, q: number): [number, number] => [Math.min(sign * p, sign * q), Math.max(sign * p, sign * q)];
     const [wx0, wx1] = span(b, outer);
     const [rx0, rx1] = span(a, outer);
@@ -334,7 +378,7 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     shapes.push({ kind: 'tunnel', z0, z1, y, x0: hx0, x1: hx1, side, section: num(t, 'section') });
   }
   for (const c of world.segments.filter((s) => s.type === 'chasm'))
-    shapes.push({ kind: 'chasm', z0: c.z, z1: c.z + num(c, 'length'), y: num(c, 'y'), x0: -half, x1: half, depth: num(c, 'depth'), section: num(c, 'section') });
+    shapes.push({ kind: 'chasm', z0: c.z, z1: c.z + num(c, 'length'), y: num(c, 'y'), x0: -halfAt(c.z), x1: halfAt(c.z), depth: num(c, 'depth'), section: num(c, 'section') });
   for (const c of world.segments.filter((s) => s.type === 'hump')) {
     const land = c['land'] as [number, number];
     shapes.push({ kind: 'hump', z0: c.z, z1: c.z + num(c, 'length'), y: num(c, 'y'), x0: num(c, 'x0'), x1: num(c, 'x1'), side: str(c, 'side') === 'left' ? 'left' : 'right', land: [land[0], num(c, 'landEnd')], section: num(c, 'section') });
@@ -349,8 +393,10 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     const y = num(n, 'y');
     const zA = n.z - len / 2;
     const zB = n.z + len / 2;
-    const xIn = sign * half;
-    const xOut = sign * (half + BORDER_WIDTH + depth);
+    // At the edge of the slope where it stands (SP-04: `edge`, the half-width of its section).
+    const e = num(n, 'edge', half);
+    const xIn = sign * e;
+    const xOut = sign * (e + BORDER_WIDTH + depth);
     const lo = Math.min(xIn, xOut);
     const hi = Math.max(xIn, xOut);
     boxes.push(box([lo, y - FLOOR_THICKNESS, zA - NICHE_WALL], [hi, y, zB + NICHE_WALL], 'cave', 'nicheFloor'));
@@ -374,7 +420,7 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     if (lane === 'calm' || lane === 'bold') niches[niches.length - 1]!.lane = lane;
     // A grotto of the open slope has no belt (docs/01-gdd.md 17.5): sheltering costs steps.
     if (!(num(n, 'treadmill', 1) > 0)) continue;
-    const beltX = sign * (half + BORDER_WIDTH + depth - NICHE_BELT_WIDTH / 2);
+    const beltX = sign * (e + BORDER_WIDTH + depth - NICHE_BELT_WIDTH / 2);
     points.push({
       type: 'treadmill',
       x: beltX,
@@ -386,6 +432,33 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
       inNiche: true,
       niche: niches.length - 1,
     });
+  }
+
+  // A grotto in a rock (SP-04, docs/01a-content.md 19.2): walls on three sides and a roof, open towards the camp (−z); a
+  // shelter by its volume, like a tunnel hall. After the grottos of the edges: their indices stay as they were.
+  for (const r of world.segments.filter((s) => s.type === 'island')) {
+    const x = num(r, 'x');
+    const y = num(r, 'y');
+    const a = num(r, 'size') / 2;
+    const z0 = r.z - a;
+    const z1 = r.z + a;
+    boxes.push(box([x - a, y, z0], [x - a + NICHE_WALL, y + NICHE_HEIGHT, z1], 'cave', 'islandWall'));
+    boxes.push(box([x + a - NICHE_WALL, y, z0], [x + a, y + NICHE_HEIGHT, z1], 'cave', 'islandWall'));
+    boxes.push(box([x - a + NICHE_WALL, y, z1 - NICHE_WALL], [x + a - NICHE_WALL, y + NICHE_HEIGHT, z1], 'cave', 'islandWall'));
+    boxes.push(box([x - a, y + NICHE_HEIGHT, z0], [x + a, y + NICHE_HEIGHT + NICHE_WALL, z1], 'cave', 'islandRoof'));
+    niches.push({
+      stretch: num(r, 'stretch'),
+      z: r.z,
+      y,
+      side: x < 0 ? 'left' : 'right',
+      box: { min: [x - a + NICHE_WALL, y, z0], max: [x + a - NICHE_WALL, y + NICHE_HEIGHT, z1 - NICHE_WALL] },
+      treadmill: 0,
+      zone: num(r, 'zone', 0),
+      kind: 'island',
+    });
+    // On a fork (SP-04): a rock of one lane, like its grottos (the ball never rolls through the cliff to it).
+    const lane = str(r, 'lane');
+    if (lane === 'calm' || lane === 'bold') niches[niches.length - 1]!.lane = lane;
   }
 
   /** Boxes only the hero meets (invisible blocks of the base), kept with the invisible wall. */
@@ -402,7 +475,7 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
           y,
           requires: num(s, 'requires'),
           rewardCoins: reward,
-          box: { min: [-half, y, s.z - GATE_THICKNESS / 2], max: [half, y + height, s.z + GATE_THICKNESS / 2] },
+          box: { min: [-halfAt(s.z - 0.5), y, s.z - GATE_THICKNESS / 2], max: [halfAt(s.z - 0.5), y + height, s.z + GATE_THICKNESS / 2] },
           height,
           signHeight: num(s, 'signHeight', 7),
           rarity: str(s, 'rarity', 'common'),
@@ -415,6 +488,7 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
           gate.passLength = num(s, 'passLength');
           gate.rise = num(s, 'rise');
         }
+        if (typeof s['digits'] === 'number') gate.digits = s['digits'];
         gates.push(gate);
         break;
       }
@@ -503,6 +577,8 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     let top = -Infinity;
     for (const r of ramps) if (z >= r.z0 && z <= r.z1 && x >= r.x0 && x <= r.x1) top = Math.max(top, r.y0 + ((r.y1 - r.y0) * (z - r.z0)) / (r.z1 - r.z0));
     for (const f of floors) if (z >= f.z && z <= f.z + num(f, 'length') && x >= num(f, 'x0', -half) && x <= num(f, 'x1', half)) top = Math.max(top, num(f, 'y'));
+    // A change of width (SP-04): its floor up to the slanted edge.
+    for (const t of taperFloors) if (z >= t.z0 && z <= t.z1 && Math.abs(x) <= t.a + ((t.b - t.a) * (z - t.z0)) / (t.z1 - t.z0)) top = Math.max(top, t.y);
     return top;
   };
 
@@ -532,5 +608,6 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     sections: world.zones.filter((z) => typeof z.stepMult === 'number').map((z) => ({ z0: z.zStart, z1: z.zEnd, mult: z.stepMult as number })),
     floorYAt,
     floorAt,
+    halfAt,
   };
 }

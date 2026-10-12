@@ -8,7 +8,7 @@ import ru from '../content/avalanche/i18n/ru.json' with { type: 'json' };
 const DEG = Math.PI / 180;
 const wrap = (a: number): number => Math.atan2(Math.sin(a), Math.cos(a));
 
-type Seg = { type: string; z: number; y: number; side?: string; depth?: number };
+type Seg = { type: string; z: number; y: number; side?: string; depth?: number; edge?: number };
 /** Mountain 1 of the pace: gates and caves bottom up, and the belt of a cave (flush with its back wall, 3 units wide,
  * src/level/builder.ts). */
 function mountain1(pace: Pace): { gates: Seg[]; niches: Seg[]; beltX: (n: Seg) => number } {
@@ -16,7 +16,7 @@ function mountain1(pace: Pace): { gates: Seg[]; niches: Seg[]; beltX: (n: Seg) =
   return {
     gates: world.segments.filter((s) => s.type === 'gate').sort((a, b) => a.z - b.z),
     niches: world.segments.filter((s) => s.type === 'niche').sort((a, b) => a.z - b.z),
-    beltX: (n) => (n.side === 'right' ? 1 : -1) * (world.width / 2 + 3 + (n.depth ?? 4) - 1.5),
+    beltX: (n) => (n.side === 'right' ? 1 : -1) * ((n.edge ?? world.width / 2) + 3 + (n.depth ?? 4) - 1.5),
   };
 }
 

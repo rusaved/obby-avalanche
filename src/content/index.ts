@@ -32,6 +32,7 @@ const byPace = (files: Record<string, unknown>): Record<string, unknown> =>
 const paceWorlds = byPace(import.meta.glob('@content/pace/*/worlds.json', { eager: true, import: 'default' }));
 const paceBalance = byPace(import.meta.glob('@content/pace/*/balance.json', { eager: true, import: 'default' }));
 const paceTuning = byPace(import.meta.glob('@content/pace/*/tuning.json', { eager: true, import: 'default' }));
+const paceBots = byPace(import.meta.glob('@content/pace/*/bots.json', { eager: true, import: 'default' }));
 // The base between the mountains (docs/01-gdd.md 19): a file of the pace folder, none for classic.
 const paceBase = byPace(import.meta.glob('@content/pace/*/base.json', { eager: true, import: 'default' }));
 
@@ -58,7 +59,8 @@ function packOf(p: string): ContentPack {
     trails: trails as unknown as ContentPack['trails'],
     auras: auras as unknown as ContentPack['auras'],
     sfx: sfx as unknown as ContentPack['sfx'],
-    bots: bots as unknown as ContentPack['bots'],
+    // The crowd of a pace (SP-04: lanes on the width of its sections): the same deep merge.
+    bots: (classic ? bots : mergePatch(bots, paceBots[p])) as unknown as ContentPack['bots'],
     ...(classic || !paceBase[p] ? {} : { base: paceBase[p] as unknown as BaseJson }),
   };
 }

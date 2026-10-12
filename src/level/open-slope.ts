@@ -122,7 +122,25 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
   const S = m.sections.length;
   if (m.ridges.length !== S) throw new Error(`${m.id}: ${S} sections need ${S} ridges, found ${m.ridges.length}`);
   const camp = spec.campLength;
-  const half = spec.width / 2;
+  // SP-04 (docs/01-gdd.md 20.4): every section its own width, the finish straight the width of the giant's zone; the
+  // change past a ridge goes over widthTaper units (a `taper`), the world is as wide as its widest part.
+  const halves = m.sections.map((s) => (s.width ?? spec.width) / 2);
+  const finishHalf = (m.boss.width ?? m.sections[S - 1]?.width ?? spec.width) / 2;
+  const maxHalf = Math.max(...halves, finishHalf);
+  const T = spec.widthTaper ?? 0;
+  const profile: Array<[number, number]> = [[0, halves[0] ?? spec.width / 2]];
+  let half = halves[0] ?? spec.width / 2;
+  /** Floors and ramps of a part as wide as that part (the builder's default is the widest part of the world). */
+  const fit = (from: number): void => {
+    if (half === maxHalf) return;
+    for (let k = from; k < seg.length; k++) {
+      const p = seg[k] as Segment;
+      if ((p.type === 'floor' || p.type === 'ramp') && p['x0'] === undefined) {
+        p['x0'] = -half;
+        p['x1'] = half;
+      }
+    }
+  };
   const K = S + 1;
   const zones: WorldZone[] = [];
   let z = camp;
@@ -136,6 +154,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
 
   const seg: Segment[] = [];
   pushOpenCamp(seg, spec, m);
+  fit(0);
 
   // Grottos 10 long from mountain 2 (docs/01-gdd.md 18.8 item 3: the camera has room; mountain 1 stays as built).
   const G = spec.shapes?.grotto && index >= spec.shapes.grotto.fromWorld ? spec.shapes.grotto.width : O.grotto.length;
@@ -147,6 +166,9 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
     const z0 = zone.zStart;
     const L = sec.length;
     const z1 = zone.zEnd;
+    const below = half;
+    half = halves[i] ?? half;
+    const from = seg.length;
     const zA = round3(z0 + O.approach.start * L);
     const zB = round3(zA + O.approach.length);
     const yTop = y + O.approachRise;
@@ -154,8 +176,14 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
     let zFlat = z0;
     if (j >= 2) {
       zFlat = z0 + O.passLength;
-      pushPassages(seg, z0, y - O.ridgeRise, y, half);
+      pushPassages(seg, z0, y - O.ridgeRise, y, below, passesOf(spec, below));
     }
+    // The change of width (SP-04): from the top of the passages over widthTaper; no grotto stands on it.
+    const taper: [number, number] | null = j >= 2 && T > 0 && below !== half ? [zFlat, round3(zFlat + T)] : null;
+    if (taper) {
+      seg.push({ type: 'taper', z: taper[0], length: T, y, from: below, to: half });
+      profile.push([taper[0], below], [taper[1], half]);
+    } else if (below !== half) profile.push([zFlat, below], [zFlat, half]);
     seg.push({ type: 'ramp', z: zA, length: round3(zB - zA), y, rise: O.approachRise });
     seg.push({ type: 'floor', z: zB, length: round3(z1 - zB), y: yTop });
 
@@ -198,7 +226,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
     const zRidgeGrotto = round3(z1 - big.exit - big.length / 2);
     const side = (n: number): 'left' | 'right' => (n % 2 === 1 ? 'left' : 'right');
     const base = j === 1 ? z0 : z0 - big.exit - big.length / 2;
-    const flatLo = (j === 1 ? z0 : zFlat) + G / 2 + O.grottoClear;
+    const flatLo = (taper ? taper[1] : j === 1 ? z0 : zFlat) + G / 2 + O.grottoClear;
     const flatHi = zA - G / 2 - O.grottoClear;
     const topLo = zB + G / 2 + O.grottoClear;
     const topHi = zRidgeGrotto - big.length / 2 - G / 2 - O.grottoClear;
@@ -214,6 +242,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       treadmill: 0,
       zone: j,
       stretch: j,
+      edge: half,
     });
     // Evenly from the shelter below to the ridge grotto, never more than shelterEvery apart; a grotto never stands on the
     // rise: it moves down to the flat before it, or up onto the top floor when there is room and the gap allows.
@@ -305,6 +334,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       treadmill: sec.stepMult,
       zone: j,
       stretch: j,
+      edge: half,
     });
 
     // The bold lane of the fork (docs/01-gdd.md 17.7; docs/01a-content.md 16.5): the ice slide, the trampoline over the
@@ -362,7 +392,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       if (!chestDone && (H.sections as readonly number[]).includes(j)) {
         for (let zc = fork[1] + H.after + H.length / 2; zc + H.length / 2 <= flatHi; zc += 1) {
           if (!free(zc - H.length / 2, zc + H.length / 2)) continue;
-          seg.push({ type: 'chestGrotto', z: round3(zc), y, side: bold, length: H.length, depth: H.depth, coins: H.gifts * sec.gift, zone: j, rarity: zone.rarity, stretch: j });
+          seg.push({ type: 'chestGrotto', z: round3(zc), y, side: bold, length: H.length, depth: H.depth, coins: H.gifts * sec.gift, zone: j, rarity: zone.rarity, stretch: j, edge: half });
           chestDone = true;
           break;
         }
@@ -444,13 +474,44 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       height: O.gateHeight,
       signHeight: O.signHeight,
       rise: O.ridgeRise,
-      passes: [...O.passes],
+      passes: passesOf(spec, half),
+      ...(spec.ridgeDigits ? { digits: j === fieldOf(m) ? spec.ridgeDigits.field : spec.ridgeDigits.other } : {}),
       passWidth: O.passWidth,
       passLength: O.passLength,
       wall: j,
       zone: j,
       rarity: zone.rarity,
     });
+    // Grottos in rocks (SP-04, docs/01a-content.md 19.2): on a section wider than island.minWidth, in the middle of each
+    // half by turns, every `every` × shelterEvery — off the elements, the bold lane of a fork, the change of width and the
+    // rise: a rock that falls on one goes to the nearest free place of its half or of the other, at least one a section.
+    const isl = spec.island;
+    if (isl && 2 * half > isl.minWidth) {
+      const step = isl.every * sec.shelterEvery;
+      const lo = (taper ? taper[1] : zFlat) + isl.size;
+      const hi = zA - isl.size;
+      const busyOn = (side: 'left' | 'right'): Array<[number, number]> => [
+        ...(plan ? blockedFor(plan, side, bold, isl.size) : []),
+        ...(fork && plainFork && side === bold ? [[fork[0] - isl.size, fork[1] + isl.size] as [number, number]] : []),
+      ];
+      const placed: number[] = [];
+      const freeAt = (zi: number, side: 'left' | 'right'): boolean =>
+        zi >= lo && zi <= hi && !busyOn(side).some(([a, b]) => zi > a && zi < b) && placed.every((q) => Math.abs(q - zi) >= step / 2);
+      for (let zc = z0 + step / 2, k = 0; zc <= hi + step / 2; zc += step) {
+        const pref: 'left' | 'right' = k % 2 === 0 ? 'left' : 'right';
+        let at: [number, 'left' | 'right'] | null = null;
+        for (let d = 0; d <= step / 2 && !at; d += 1)
+          for (const zi of d === 0 ? [zc] : [zc - d, zc + d])
+            for (const side of [pref, pref === 'left' ? 'right' : 'left'] as const) if (!at && freeAt(zi, side)) at = [zi, side];
+        if (!at) continue;
+        k++;
+        placed.push(at[0]);
+        const sx = at[1] === 'left' ? -1 : 1;
+        const onFork = fork && at[0] + isl.size / 2 > fork[0] && at[0] - isl.size / 2 < fork[1];
+        seg.push({ type: 'island', z: round3(at[0]), x: round3(sx * (half / 2 + isl.size / 2)), y, size: isl.size, zone: j, stretch: j, ...(onFork ? { lane: at[1] === bold ? 'bold' : 'calm' } : {}) });
+      }
+    }
+    fit(from);
     y = yTop + O.ridgeRise;
   });
 
@@ -459,8 +520,19 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
   const finish = zones[S] as WorldZone;
   const big = O.bigGrotto;
   const zZone = round3(zLast + spec.boss.zoneGap);
-  pushPassages(seg, zLast, y - O.ridgeRise, y, half);
-  seg.push({ type: 'floor', z: zLast + O.passLength, length: round3(zSummit - zLast - O.passLength), y });
+  const fromFinish = seg.length;
+  pushPassages(seg, zLast, y - O.ridgeRise, y, half, passesOf(spec, half));
+  // SP-04: the grotto with the belt before the line stands at the last section's width; the giant's zone changes it.
+  seg.push({ type: 'floor', z: zLast + O.passLength, length: round3(zZone - zLast - O.passLength), y });
+  fit(fromFinish);
+  const lastHalf = half;
+  half = finishHalf;
+  if (T > 0 && lastHalf !== finishHalf) {
+    seg.push({ type: 'taper', z: zZone, length: T, y, from: lastHalf, to: finishHalf });
+    profile.push([zZone, lastHalf], [round3(zZone + T), finishHalf]);
+  } else if (lastHalf !== finishHalf) profile.push([zZone, lastHalf], [zZone, finishHalf]);
+  const fromZone = seg.length;
+  seg.push({ type: 'floor', z: zZone, length: round3(zSummit - zZone), y });
   seg.push({ type: 'checkpoint', z: zLast + O.flag, y, x: 0, zone: K, rarity: finish.rarity, wall: S });
   seg.push({
     type: 'niche',
@@ -473,6 +545,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
     treadmill: m.boss.stepMult,
     zone: K,
     stretch: K,
+    edge: lastHalf,
   });
   for (let g = 0; g < O.bossGifts; g++) {
     const zg = round3(zZone + ((zSummit - zZone) * (g + 0.5)) / O.bossGifts);
@@ -508,6 +581,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
   // The funnel (docs/01-gdd.md 20.2): snow walls from the edges of the slope to the portal pillars over funnelLength.
   const fl = spec.summit?.funnel ? spec.summit.funnelLength : 0;
   if (fl > 0) seg.push({ type: 'funnel', z: round3(portal.z - fl), length: fl, y, from: half, to: (spec.portalWidth ?? PORTAL_WIDTH) / 2, end: zSummit + spec.summitLength });
+  fit(fromZone);
 
   const b = spec.boss;
   const boss: WorldBoss = {
@@ -520,13 +594,14 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
   if (m.boss.giants) boss.giants = m.boss.giants.map((g) => ({ ...boss.giants[0]!, phase: g.phase }));
   // Helpers with snowballs on the borders of the zone (docs/01-gdd.md 18.5; docs/01a-content.md 17.4).
   const hp = b.helper;
-  if (m.boss.helpers?.length && hp) boss.helpers = m.boss.helpers.map((h) => ({ side: h.side, x: (h.side === 'left' ? -1 : 1) * hp.x, throwEverySec: hp.throwEverySec, flightSec: hp.flightSec, slow: hp.slow, slowSec: hp.slowSec, hitRadius: hp.hitRadius }));
+  // At the edge of the zone as wide as it is (SP-04: hp.x is that inset on the spec's width).
+  if (m.boss.helpers?.length && hp) boss.helpers = m.boss.helpers.map((h) => ({ side: h.side, x: (h.side === 'left' ? -1 : 1) * round3(finishHalf - (spec.width / 2 - hp.x)), throwEverySec: hp.throwEverySec, flightSec: hp.flightSec, slow: hp.slow, slowSec: hp.slowSec, hitRadius: hp.hitRadius }));
   const length = zSummit + spec.summitLength;
   const world: World = {
     id: m.id,
     index,
     length,
-    width: spec.width,
+    width: round3(2 * maxHalf),
     spawnZ: spec.spawnZ,
     egg: m.egg,
     stretch: Math.max(...m.sections.map((s) => s.length)),
@@ -553,6 +628,8 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
     bosses: [boss],
   };
   if (m.look !== undefined) world.look = m.look;
+  // The width along the slope (SP-04): written only when it changes, so a spec of one width keeps its worlds.json.
+  if (profile.some(([, h]) => h !== maxHalf)) world.profile = profile;
   return world;
 }
 
@@ -560,16 +637,40 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
  * The step of a ridge at z0 (docs/01-gdd.md 17.3): the carniz top of the upper terrace (a block from the lower floor up,
  * so nothing passes under it) with three passages where a ramp climbs `ridgeRise` over `passLength`.
  */
-function pushPassages(seg: Segment[], z0: number, yLow: number, yHigh: number, half: number): void {
+function pushPassages(seg: Segment[], z0: number, yLow: number, yHigh: number, half: number, passes: readonly number[]): void {
   const O = OPEN_SLOPE;
   const w = O.passWidth / 2;
   let x = -half;
-  for (const px of O.passes) {
+  for (const px of passes) {
     if (px - w > x) seg.push({ type: 'floor', z: z0, length: O.passLength, y: yHigh, x0: round3(x), x1: round3(px - w), thickness: round3(yHigh - yLow + 2) });
     seg.push({ type: 'ramp', z: z0, length: O.passLength, y: yLow, rise: round3(yHigh - yLow), x0: round3(px - w), x1: round3(px + w) });
     x = px + w;
   }
   if (x < half) seg.push({ type: 'floor', z: z0, length: O.passLength, y: yHigh, x0: round3(x), x1: half, thickness: round3(yHigh - yLow + 2) });
+}
+
+/** The field of a mountain (SP-04, docs/01a-content.md 19.2): its widest section, the first of equals; 1-based. */
+export function fieldOf(m: Pick<Mountain, 'sections'>): number {
+  let best = 0;
+  m.sections.forEach((s, k) => {
+    if ((s.width ?? 0) > (m.sections[best]?.width ?? 0)) best = k;
+  });
+  return best + 1;
+}
+
+/**
+ * The passages of a ridge as wide as 2 × half (SP-04, docs/01a-content.md 19.2): one every `passEvery` units of width,
+ * the nearest whole number from 3 to 7, evenly (an even number leaves the axis to the carniz; `passAxis` — the nearest odd
+ * one); without passEvery — 16.5.
+ */
+export function passesOf(spec: Pick<Spec, 'passEvery' | 'passAxis'>, half: number): number[] {
+  if (!spec.passEvery) return [...OPEN_SLOPE.passes];
+  const f = (2 * half) / spec.passEvery;
+  let n = Math.min(7, Math.max(3, Math.round(f)));
+  // Q-064: with passAxis the nearest odd number — a passage on the axis, where the run goes straight up.
+  if (spec.passAxis && n % 2 === 0) n = f >= n ? Math.min(7, n + 1) : n - 1;
+  const step = (2 * half) / n;
+  return Array.from({ length: n }, (_, k) => round3((k - (n - 1) / 2) * step));
 }
 
 /** Camp of the open slope: as 5.2 — spawn, treadmill of section 1, egg stand, tents, a snowman, arrows up the slope. */

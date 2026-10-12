@@ -53,6 +53,8 @@ export interface LevelGate {
   passWidth?: number;
   passLength?: number;
   rise?: number;
+  /** Ridge (SP-04): the height of its digits; absent — the renderer's. */
+  digits?: number;
   z: number;
   y: number;
   requires: number;
@@ -150,4 +152,6 @@ export interface LevelData {
   floorYAt(z: number): number;
   /** Top of the ground at (x, z): floors and ramps of any width; −Infinity over a hole (open slope: passages, lanes). */
   floorAt(x: number, z: number): number;
+  /** Half-width of the slope at z (SP-04: every section its own width, docs/01-gdd.md 20.4); `width` / 2 without a profile. */
+  halfAt(z: number): number;
 }

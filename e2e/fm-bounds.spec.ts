@@ -31,7 +31,8 @@ async function jumpSideways(page: Page, key: 'KeyA' | 'KeyD', n: number): Promis
 }
 
 test('jumps sideways at both borders of mountains 1, 5 and 9 — no fall; screenshot', async ({ page, openGame }) => {
-  test.setTimeout(300_000);
+  // 4.6 min on the narrow slope, over 5 beside another worker on the wide one (SP-04).
+  test.setTimeout(480_000);
   mkdirSync(EVIDENCE, { recursive: true });
   await openGame('pace=open&quality=high');
   await page.evaluate(() => window.__TEST__!.setPlaySec(400));
@@ -94,7 +95,9 @@ for (const side of [-1, 1]) {
     let outside = 0;
     for (let i = 0; i < 12; i++) {
       await page.evaluate(() => window.__TEST__!.jump());
-      await waitTicks(page, 10);
+      // 10 ticks, or the portal: its window pauses the game (the ticks stop).
+      const t0 = (await testState(page)).ticks;
+      await page.waitForFunction((t) => window.__TEST__!.state().ticks >= t || window.__TEST__!.simEvents.some((e) => e.name === 'portal'), t0 + 10, { timeout: 60_000 });
       const s = await testState(page);
       if (s.world !== 'slope') break;
       expect(s.respawning).toBe(false);

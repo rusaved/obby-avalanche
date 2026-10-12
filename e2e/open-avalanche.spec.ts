@@ -5,7 +5,7 @@ import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type:
 // PS-06: the avalanche on the open slope (docs/01-gdd.md 17.5, 17.8). The physical bot runs up from the camp; at the
 // entry of section 2 the scripted siren, the bot runs into the lit grotto — «Phew, made it!» within 46 s of the start.
 // A normal wave with the hero in the giant's zone (above spawnMaxZ) never catches him.
-type Seg = { type: string; z: number; side?: string; kind?: string; length?: number };
+type Seg = { type: string; z: number; side?: string; kind?: string; length?: number; edge?: number };
 type OpenWorld = { segments: Seg[]; bosses: Array<{ zone: [number, number] }>; threat: { spawnMaxZ: number } };
 const world = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds[0]!;
 const niches = world.segments.filter((s) => s.type === 'niche');
@@ -27,9 +27,11 @@ test('scripted wave at the entry of section 2: the bot in its grotto, «Phew, ma
   const cave = niches[s.wave!.shelter]!;
   expect(cave.z).toBeGreaterThan(ridge1);
   const sign = cave.side === 'right' ? 1 : -1;
+  // SP-04: the grotto stands at the edge of its section.
+  const e = cave.edge ?? 28;
   await page.evaluate(
     ([x1, x2, z]) => window.__TEST__!.botPath([[x1, z], [x2, z]]),
-    [sign * 24, sign * 30, cave.z] as const,
+    [sign * (e - 4), sign * (e + 2), cave.z] as const,
   );
   await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'run', undefined, { timeout: 60_000 });
   await page.evaluate(() => window.__TEST__!.setTimeScale(1));

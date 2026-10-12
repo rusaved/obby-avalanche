@@ -253,4 +253,4 @@ sim:balance — модель экономики docs/01-gdd.md 8.5 (порт doc
    wallScale[8]: 820K → 970K
    wallScale[9]: 2.5M → 3M
 
-Итог: 15 PASS, 0 FAIL из 15; 0.28 с
+Итог: 15 PASS, 0 FAIL из 15; 0.83 с

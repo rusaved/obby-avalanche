@@ -15,7 +15,7 @@ const BORDER = 3;
 const BELT_HALF = 1.5;
 const BACK_TICKS = Math.ceil(tuning.avalanche.shotReturnSec * 60) + 2;
 
-type Seg = { type: string; z: number; y: number; side?: string; length?: number; depth?: number; requires?: number };
+type Seg = { type: string; z: number; y: number; side?: string; length?: number; depth?: number; edge?: number; requires?: number };
 type Cave = { side: number; z: number; y: number; mouthX: number; beltX: number };
 
 function mountain(pace: Pace): { gates: Seg[]; caves: Cave[] } {
@@ -26,7 +26,9 @@ function mountain(pace: Pace): { gates: Seg[]; caves: Cave[] } {
     .sort((a, b) => a.z - b.z)
     .map((s) => {
       const side = s.side === 'right' ? 1 : -1;
-      return { side, z: s.z, y: s.y, mouthX: (side * w.width) / 2, beltX: side * (w.width / 2 + BORDER + (s.depth ?? 4) - BELT_HALF) };
+      // SP-04: a grotto stands at the edge of its section (`edge`); classic — the track's.
+      const e = s.edge ?? w.width / 2;
+      return { side, z: s.z, y: s.y, mouthX: side * e, beltX: side * (e + BORDER + (s.depth ?? 4) - BELT_HALF) };
     });
   return { gates, caves };
 }

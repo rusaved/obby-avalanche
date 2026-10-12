@@ -47,6 +47,10 @@ const RIDGE_PLAQUE = 6.5;
 const RIDGE_PLUG_OVER = 1;
 const RIDGE_CREST_OPACITY = 0.22;
 const RIDGE_CREST_THICK = 0.6;
+/** The glyph height of a gate's number: a ridge's own from the data (SP-04: larger on the field), else the defaults. */
+function signText(g: LevelData['gates'][number]): number {
+  return g.kind === 'ridge' ? (g.digits ?? RIDGE_TEXT) : SIGN_TEXT;
+}
 /** A plug starts at the front face of the gate slab. */
 const GATE_HALF = GATE_THICKNESS / 2;
 /** Fun parts (docs/01-gdd.md 16.4): plate and ribbon thickness, the pattern bars, chevrons a slide, the plate's spring. */
@@ -202,8 +206,9 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   for (const p of level.prisms ?? []) bucketOf(p.pts.reduce((z, q) => z + q[1], 0) / p.pts.length).push(prismGeometry(p, theme));
   // Checkpoint flags and simple decor as boxes (grey slope at M1).
   for (const c of level.checkpoints) {
-    const pole: LevelBox = { min: [-level.width / 2 + 1.5, c.y, c.z - 0.15], max: [-level.width / 2 + 1.8, c.y + 4, c.z + 0.15], material: 'pole', kind: 'flagPole', solid: false };
-    const flag: LevelBox = { min: [-level.width / 2 + 1.8, c.y + 3, c.z - 0.1], max: [-level.width / 2 + 3.6, c.y + 4, c.z + 0.1], material: 'flag', kind: 'flag', solid: false };
+    const e = level.halfAt(c.z);
+    const pole: LevelBox = { min: [-e + 1.5, c.y, c.z - 0.15], max: [-e + 1.8, c.y + 4, c.z + 0.15], material: 'pole', kind: 'flagPole', solid: false };
+    const flag: LevelBox = { min: [-e + 1.8, c.y + 3, c.z - 0.1], max: [-e + 3.6, c.y + 4, c.z + 0.1], material: 'flag', kind: 'flag', solid: false };
     const g1 = boxGeometry(pole, theme);
     const g2 = boxGeometry(flag, theme);
     colorGeometry(g2, new Color(theme.rarity[c.rarity] ?? '#ffffff'));
@@ -364,12 +369,12 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       return;
     }
     const ridge = g.kind === 'ridge';
-    const size = ridge ? RIDGE_TEXT : SIGN_TEXT;
+    const size = signText(g);
     digits.setLabel(i, st.text, 0, g.y + g.signHeight, g.z - d / 2 - 0.52, size, '#ffffff');
     // The plaque fits the text it shows now, «4,2K/12K» included (playtest M2: the text ran past it).
     dummy.position.set(0, g.y + g.signHeight, g.z - d / 2 - 0.3);
     dummy.rotation.set(0, 0, 0);
-    dummy.scale.set(Math.max(SIGN_MIN_WIDTH, digits.measure(st.text, size) + SIGN_PAD * (ridge ? 2 : 1)), ridge ? RIDGE_PLAQUE : 3, 0.4);
+    dummy.scale.set(Math.max(SIGN_MIN_WIDTH, digits.measure(st.text, size) + SIGN_PAD * (ridge ? 2 : 1)), ridge ? (size * RIDGE_PLAQUE) / RIDGE_TEXT : 3, 0.4);
     dummy.updateMatrix();
     signs.setMatrixAt(i, dummy.matrix);
     signs.instanceMatrix.needsUpdate = true;
@@ -521,8 +526,9 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       if (!g || !st) return { center: [0, 0, 0], size: [0, 0, 0] };
       const d = g.box.max[2] - g.box.min[2];
       const ridge = g.kind === 'ridge';
-      const width = Math.max(SIGN_MIN_WIDTH, digits.measure(st.text, ridge ? RIDGE_TEXT : SIGN_TEXT) + SIGN_PAD * (ridge ? 2 : 1));
-      return { center: [0, g.y + g.signHeight, g.z - d / 2 - 0.3], size: [width, ridge ? RIDGE_PLAQUE : 3, 0.4] };
+      const size = signText(g);
+      const width = Math.max(SIGN_MIN_WIDTH, digits.measure(st.text, size) + SIGN_PAD * (ridge ? 2 : 1));
+      return { center: [0, g.y + g.signHeight, g.z - d / 2 - 0.3], size: [width, ridge ? (size * RIDGE_PLAQUE) / RIDGE_TEXT : 3, 0.4] };
     },
     setSignHidden(index, hidden) {
       const st = signState[index];

@@ -66,7 +66,7 @@ const curve = v.object({ base: positive, k: nonNeg, max: positive });
 export const STAT_EFFECTS = ['moveSpeed', 'jumpPower', 'gateOnly'] as const;
 export const SEGMENT_TYPES = [
   'floor', 'wall', 'gate', 'niche', 'gap', 'ramp', 'steps', 'treadmill', 'checkpoint', 'coins', 'chest',
-  'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit', 'jumpPad', 'slide', 'fork', 'cliff', 'chestGrotto', 'chasm', 'throat', 'tunnel', 'hump', 'funnel',
+  'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit', 'jumpPad', 'slide', 'fork', 'cliff', 'chestGrotto', 'chasm', 'throat', 'tunnel', 'hump', 'funnel', 'taper', 'island',
 ] as const;
 /** Mountain layouts of the generator (docs/01-gdd.md 5.2, 16.3). */
 export const WORLD_LAYOUTS = ['classic', 'gateSide', 'openSlope'] as const;
@@ -441,6 +441,7 @@ const worldSchema = v.object({
   treadmillMult: positive,
   layout: v.optional(v.picklist(WORLD_LAYOUTS)),
   look: v.optional(id),
+  profile: v.optional(v.array(v.tuple([nonNeg, positive]))),
   // The giant's zones (docs/01a-content.md 16.4): several zones and several giants a zone — data only.
   bosses: v.optional(
     v.array(
@@ -500,6 +501,11 @@ const openSpecSchema = v.object({
   portalWidth: v.optional(positive),
   summit: v.optional(v.object({ funnel: v.boolean(), funnelLength: positive })),
   width: positive,
+  widthTaper: v.optional(nonNeg),
+  passEvery: v.optional(positive),
+  passAxis: v.optional(v.boolean()),
+  ridgeDigits: v.optional(v.object({ field: positive, other: positive })),
+  island: v.optional(v.object({ size: positive, every: positive, minWidth: positive })),
   spawnZ: nonNeg,
   threat: v.object({
     spawnAhead: positive,
@@ -545,6 +551,7 @@ const openSpecSchema = v.object({
               gift: positive,
               fork: v.boolean(),
               shape: v.optional(v.array(v.picklist(['chasm', 'throat', 'tunnel', 'hump']))),
+              width: v.optional(positive),
             }),
           ),
           v.minLength(1),
@@ -552,6 +559,7 @@ const openSpecSchema = v.object({
         ridges: v.pipe(v.array(v.object({ requires: positive })), v.minLength(1)),
         boss: v.object({
           stretch: positive,
+          width: v.optional(positive),
           requires: positive,
           margin: nonNeg,
           stepMult: positive,
@@ -652,6 +660,7 @@ const botsSchema = v.object({
   campReleaseSec: range,
   label: v.object({ nearDist: positive, fadeDist: nonNeg }),
   tunnelShare: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
+  laneSpread: v.optional(v.pipe(v.number(), v.minValue(0))),
   boss: v.optional(v.object({ waitSec: range, passShare: v.pipe(v.number(), v.minValue(0), v.maxValue(1)), speedK: range })),
 });
 
