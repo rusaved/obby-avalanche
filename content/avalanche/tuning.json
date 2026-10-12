@@ -43,7 +43,9 @@
     "raiseMaxDeg": 75,
     "raiseStepDeg": 7.5,
     "raiseReturnRate": 1.5,
-    "occludeRadius": 1.1
+    "occludeRadius": 1.1,
+    "fadeAlpha": 0.3,
+    "bossKeepDeg": 35
   },
   "avalanche": {
     "shakeStrength": 1.0,

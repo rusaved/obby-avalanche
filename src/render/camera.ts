@@ -60,6 +60,9 @@ export interface CameraRig {
   shelter: { pos: Vector3; look: Vector3; fov: number } | null;
   /** The grotto frame is on now (tests). */
   readonly tight: boolean;
+  /** A point kept in the view (the giant ahead in his zone, docs/01-gdd.md 19.8): the view never turns from it by more
+   * than camera.bossKeepDeg; a turn by hand while it is set leaves the view to the player until it is cleared. */
+  keep: Vector3 | null;
   update(dt: number, target: CameraTarget, input: CameraInputInfo, collision: CollisionWorld | null): void;
   snapTo(target: CameraTarget): void;
   /** Is the camera inside level geometry (sphere test) — for tests. */
@@ -84,6 +87,8 @@ const PIVOT_STEPS = 8;
 const LEAD_MARGIN = 0.5;
 /** Head centre of a character over its feet: legs and torso 1.9 each, head 1.24 (src/render/characters.ts PART). */
 const HEAD = 4.4;
+/** How fast the view turns to keep the giant in it (rad/s). */
+const KEEP_RATE = 3;
 /** A turn by hand this recent when the fixed frame ends keeps the player's yaw (docs/02-tech.md 7: «a turn in the last 0.5 s»). */
 const MANUAL_RECENT_SEC = 0.5;
 
@@ -129,6 +134,8 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
   const tightLook = new Vector3();
   let tightFov = c.fov;
   let retFollow = true;
+  /** The player turned the camera by hand while a point is kept: the view is his until the point is cleared. */
+  let keepOff = false;
   /** Distance from a point to the hero's body axis, chest to head (the camera keeps hideDistance off it; PR-13). */
   const bodyDistance = (p: Vector3): number => {
     const y = Math.min(heroHead.y, Math.max(heroChest.y, p.y));
@@ -171,6 +178,7 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       return fixedK;
     },
     view: null,
+    keep: null,
     get viewBlend() {
       return viewK;
     },
@@ -287,6 +295,19 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
             frame.viewYaw += step;
             yaw = frame.viewYaw;
           }
+        }
+      }
+
+      // The giant ahead in his zone stays in the view (FM-03), until the player turns the camera himself.
+      if (!rig.keep) keepOff = false;
+      else if (input.manualCamera) keepOff = true;
+      if (rig.keep && !keepOff && !rig.shot && !rig.fixed && c.bossKeepDeg !== undefined && dt > 0) {
+        const want = Math.atan2(rig.keep.x - target.pos.x, rig.keep.z - target.pos.z);
+        const d = angleDiff(frame.viewYaw, want);
+        const lim = (c.bossKeepDeg * Math.PI) / 180;
+        if (Math.abs(d) > lim) {
+          frame.viewYaw = wrapAngle(frame.viewYaw + Math.sign(d) * Math.min(Math.abs(d) - lim, KEEP_RATE * dt));
+          yaw = frame.viewYaw;
         }
       }
 

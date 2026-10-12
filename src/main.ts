@@ -90,6 +90,9 @@ const GATE_FUNNEL_WALLS = [1, 2, 3, 4, 6, 9];
 const SESSION_MARKS = [60, 180, 300, 600];
 /** Play time goes into the save at most this often (seconds of play). */
 const PLAY_PERSIST_SEC = 5;
+/** A giant this far ahead of the hero in his zone is kept in the view (FM-03); the point it is kept by. */
+const BOSS_KEEP_AHEAD = 2;
+const bossKeep = new Vector3();
 
 /**
  * Boot order (docs/02-tech.md 11.2): SDK init without a timeout → language → texts → save → world → first frame →
@@ -972,6 +975,10 @@ async function boot(): Promise<void> {
     ftueView?.update(gameDt, playSec, renderPos);
     hudView?.update(playSec);
     if (cameraRig) {
+      // FM-03 (docs/01-gdd.md 19.8): running up a giant's zone, the giant ahead stays in the view.
+      const zone = sim.boss?.zones.find((z) => renderPos.z >= z.zone[0] && renderPos.z <= z.zone[1]);
+      const ahead = zone?.giants.find((x) => x.z > renderPos.z + BOSS_KEEP_AHEAD);
+      cameraRig.keep = ahead && hero.vel.z > 0.5 ? bossKeep.set(0, sim.level.floorAt(0, ahead.z) + (theme.boss?.height ?? 0) / 2, ahead.z) : null;
       cameraRig.update(
         frameDt,
         { pos: renderPos, vel: hero.vel, speed: hero.speed, maxSpeed },
@@ -1087,7 +1094,7 @@ async function boot(): Promise<void> {
   gr.scene.add(characters.group);
   heroChar = characters.create(skins.default);
   // The giant of the open slope and his silhouette (docs/01-gdd.md 17.6).
-  bossView = createBossView({ theme, characters, scene: gr.scene, camera: () => cameraRig?.camera ?? null, numSuffix: (k) => t(`num.${k}`), skinId: skins.default });
+  bossView = createBossView({ theme, characters, scene: gr.scene, camera: () => cameraRig?.camera ?? null, numSuffix: (k) => t(`num.${k}`), skinId: skins.default, fadeAlpha: () => tuning.camera.fadeAlpha ?? 1 });
   bossView.wire(sim);
   decor = createDecor(gr.scene, theme, pets.pets, { top: BOSS_SIGN_TOP, half: BOSS_SIGN_HALF });
   decorWire(sim);

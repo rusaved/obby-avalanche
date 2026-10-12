@@ -92,10 +92,10 @@ export function createWayMarks(level: LevelData, theme: ThemeJson): WayMarks {
   // The open slope only (its sections): the classic and fast summits keep their look.
   const portal = level.sections.length > 0 ? level.points.find((p) => p.type === 'portal') : undefined;
   if (!cfg || !portal) return { group, marks, pillar, dispose: () => {} };
-  const color = (key: string, fallback: string): Color => new Color(theme.materials[key]?.emissive ?? theme.materials[key]?.color ?? fallback);
+  const color = (key: string): Color => new Color(theme.materials[key]?.emissive ?? theme.materials[key]?.color ?? '#ffffff');
 
   const width = typeof portal['width'] === 'number' ? (portal['width'] as number) : PORTAL_WIDTH;
-  const { pos, col } = portalGlowGeometry(portal.x, portal.y, portal.z, cfg.fill ? width : 0, cfg.pillar, color('portal', '#7CC8F0'), color('portalLight', '#FFE27A'));
+  const { pos, col } = portalGlowGeometry(portal.x, portal.y, portal.z, cfg.fill ? width : 0, cfg.pillar, color('portal'), color('portalLight'));
   const glowGeo = new BufferGeometry();
   glowGeo.setAttribute('position', new Float32BufferAttribute(pos, 3));
   glowGeo.setAttribute('color', new Float32BufferAttribute(col, 3));
@@ -126,7 +126,7 @@ export function createWayMarks(level: LevelData, theme: ThemeJson): WayMarks {
   }
 
   const arrowGeo = chevronGeometry();
-  const arrowMat = new MeshBasicMaterial({ color: color('wayArrow', '#1E8FE6'), side: DoubleSide, transparent: true, opacity: 0.95, depthWrite: false });
+  const arrowMat = new MeshBasicMaterial({ color: color('wayArrow'), side: DoubleSide, transparent: true, opacity: 0.95, depthWrite: false });
   const arrows = new InstancedMesh(arrowGeo, arrowMat, Math.max(1, marks.length));
   arrows.count = marks.length;
   arrows.name = 'way-arrows';

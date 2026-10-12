@@ -299,6 +299,11 @@ export interface TuningJson {
     occludeRadius: number;
     /** Pace open (docs/01-gdd.md 17.9): the FOV on a phone is this much wider. */
     mobileFovAdd?: number;
+    /** FM-03 (docs/01-gdd.md 19.8): a giant between the camera and the hero is drawn see-through at this share. */
+    fadeAlpha?: number;
+    /** FM-03: in a giant's zone running up the view never turns from the giant ahead by more than this (deg), until the
+     * player turns the camera by hand. */
+    bossKeepDeg?: number;
   };
   input: {
     stickRadiusFrac: number;

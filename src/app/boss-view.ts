@@ -17,6 +17,7 @@ import type { CharacterInstance, Characters } from '../render/characters.ts';
 import { HERO_HEIGHT } from '../sim/controller.ts';
 import { formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
+import { segmentMeetsBox } from './banner-signs.ts';
 
 /** At most this many giants on a mountain are drawn (data may have more; docs/01a-content.md 16.4). */
 const MAX_GIANTS = 2;
@@ -44,6 +45,8 @@ export interface BossViewDeps {
   numSuffix(k: string): string;
   /** Any skin of the pack: the giant is painted over it. */
   skinId: string;
+  /** A giant between the camera and the hero is drawn see-through at this share (tuning camera.fadeAlpha, a ?debug=1 slider; 1 — never). */
+  fadeAlpha: () => number;
 }
 
 export interface BossView {
@@ -63,6 +66,11 @@ export interface BossView {
 const GIANT_WIDTH = 3.8;
 const GIANT_DEPTH = 1.2;
 
+/** Heights over the hero's feet the camera must see (chest, head) and the pad of the giant's box for that line. */
+const SIGHT = [1.5, 4.4];
+const SIGHT_PAD = 0.3;
+const _eye = new Vector3();
+
 /** A blocky figure of 5 units as flat rectangles: legs, torso, arms, head (src/render/characters.ts proportions). */
 function silhouetteGeometry(height: number): PlaneGeometry | ReturnType<typeof mergeGeometries> {
   const k = height / HERO_HEIGHT;
@@ -76,6 +84,11 @@ function silhouetteGeometry(height: number): PlaneGeometry | ReturnType<typeof m
 export function createBossView(d: BossViewDeps): BossView {
   const look = d.theme.boss;
   const giants: CharacterInstance[] = [];
+  const giantBox = (ch: CharacterInstance): { center: [number, number, number]; size: [number, number, number] } => {
+    const h = look?.height ?? 0;
+    const k = h / HERO_HEIGHT;
+    return { center: [ch.position.x, ch.position.y + h / 2, ch.position.z], size: [GIANT_WIDTH * k, h, GIANT_DEPTH * k] };
+  };
   const helpers: CharacterInstance[] = [];
   // The snowballs in the air: one instanced mesh, a draw call only while one flies (docs/01-gdd.md 18.9).
   const balls = new InstancedMesh(new IcosahedronGeometry(SNOWBALL, 1), new MeshLambertMaterial({ color: new Color(look?.helper?.snowball ?? '#ffffff') }), MAX_HELPERS);
@@ -135,10 +148,7 @@ export function createBossView(d: BossViewDeps): BossView {
       return shownCount;
     },
     giantBoxes() {
-      const k = (look?.height ?? 0) / HERO_HEIGHT;
-      return giants
-        .filter((ch) => ch.visible)
-        .map((ch) => ({ center: [ch.position.x, ch.position.y + (look?.height ?? 0) / 2, ch.position.z] as [number, number, number], size: [GIANT_WIDTH * k, look?.height ?? 0, GIANT_DEPTH * k] as [number, number, number], faded: false }));
+      return giants.filter((ch) => ch.visible).map((ch) => ({ ...giantBox(ch), faded: ch.fade < 1 }));
     },
     silhouetteChest() {
       if (!shown) return null;
@@ -163,11 +173,17 @@ export function createBossView(d: BossViewDeps): BossView {
         g.scale = look.height / HERO_HEIGHT;
         giants.push(g);
       }
+      const camNow = d.camera();
       giants.forEach((ch, i) => {
         const g = all[i];
         ch.visible = !!g;
         if (!g) return;
         ch.position.set(0, sim.level.floorAt(0, g.z), g.z);
+        // Between the camera and the hero (his chest or head) — see-through until it no longer is (docs/01-gdd.md 19.8).
+        const box = giantBox(ch);
+        const hero = sim.hero.pos;
+        ch.fade =
+          camNow && SIGHT.some((h) => segmentMeetsBox(camNow.position, _eye.set(hero.x, hero.y + h, hero.z), box.center, box.size, SIGHT_PAD)) ? d.fadeAlpha() : 1;
         ch.yaw = g.dir > 0 ? 0 : Math.PI;
         ch.pose = g.mode === 'sit' ? 'win' : g.mode === 'turn' ? 'idle' : 'run';
         ch.speedFactor = g.mode === 'chase' ? 1 : 0.6;

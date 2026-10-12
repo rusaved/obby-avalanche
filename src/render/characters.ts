@@ -75,6 +75,9 @@ export interface CharacterInstance {
   carry: boolean;
   /** Size of the figure (1 — the hero; the giant of the open slope is about 4, docs/01-gdd.md 17.6). */
   scale: number;
+  /** See-through share (1 — solid; tuning camera.fadeAlpha — the giant between the camera and the hero, docs/01-gdd.md
+   * 19.8): drawn as a screen-door dither of its body parts, no blending, no extra draw call. */
+  fade: number;
 }
 
 export interface Characters {
@@ -231,6 +234,19 @@ const _mat = new Matrix4();
 const _color = new Color();
 const HIDDEN = new Matrix4().makeScale(0.0001, 0.0001, 0.0001);
 
+/**
+ * Screen-door see-through for a body part (docs/01-gdd.md 19.8): with its instance `fade` under 1 a pixel is dropped
+ * by an interleaved-gradient threshold, so `fade` of the pixels stay — the hero shows through, depth and draw calls as before.
+ */
+function dither(shader: { vertexShader: string; fragmentShader: string }): void {
+  shader.vertexShader = shader.vertexShader
+    .replace('#include <common>', '#include <common>\nattribute float fade;\nvarying float vFade;')
+    .replace('#include <begin_vertex>', '#include <begin_vertex>\nvFade = fade;');
+  shader.fragmentShader = shader.fragmentShader
+    .replace('#include <common>', '#include <common>\nvarying float vFade;')
+    .replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\nif (vFade < 0.999 && fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715)))) >= vFade) discard;');
+}
+
 export function createCharacters(skins: SkinsJson, accessories: AccessoriesJson, maxCharacters = 16): Characters {
   const group = new Group();
   group.name = 'characters';
@@ -243,11 +259,15 @@ export function createCharacters(skins: SkinsJson, accessories: AccessoriesJson,
   faceAtlas.generateMipmaps = false;
 
   const meshes = new Map<string, InstancedMesh>();
+  const fadeAttrs = new Map<string, InstancedBufferAttribute>();
   let faceIndexAttr: InstancedBufferAttribute | null = null;
   for (const spec of PARTS) {
     const geo = spec.geometry();
     const mat = new MeshLambertMaterial({ color: 0xffffff });
     const count = maxCharacters * spec.perCharacter;
+    const fadeAttr = new InstancedBufferAttribute(new Float32Array(count).fill(1), 1);
+    geo.setAttribute('fade', fadeAttr);
+    fadeAttrs.set(spec.name, fadeAttr);
     const mesh = new InstancedMesh(geo, mat, count);
     mesh.instanceMatrix.setUsage(DynamicDrawUsage);
     mesh.name = `char-${spec.name}`;
@@ -278,8 +298,9 @@ if (vObjNormal.z > 0.6) {
   diffuseColor.rgb = mix(diffuseColor.rgb, face.rgb, face.a);
 }`,
           );
+        dither(shader);
       };
-    }
+    } else mat.onBeforeCompile = dither;
     meshes.set(spec.name, mesh);
     group.add(mesh);
   }
@@ -382,6 +403,7 @@ if (vObjNormal.z > 0.6) {
         wingsId: null,
         carry: false,
         scale: 1,
+        fade: 1,
       };
       instances.push(ch);
       applySkin(ch);
@@ -426,6 +448,16 @@ if (vObjNormal.z > 0.6) {
         if (faceIndexAttr) {
           faceIndexAttr.setX(ch.index, ch.face);
           faceIndexAttr.needsUpdate = true;
+        }
+        for (const spec of PARTS) {
+          const attr = fadeAttrs.get(spec.name);
+          if (!attr) continue;
+          for (let k = 0; k < spec.perCharacter; k++) {
+            const i = ch.index * spec.perCharacter + k;
+            if (attr.getX(i) === ch.fade) continue;
+            attr.setX(i, ch.fade);
+            attr.needsUpdate = true;
+          }
         }
         if (!ch.visible) {
           for (const spec of PARTS) {

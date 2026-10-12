@@ -343,6 +343,8 @@ const tuningSchema = v.object({
     raiseReturnRate: positive,
     mobileFovAdd: v.optional(v.number()),
     occludeRadius: nonNeg,
+    fadeAlpha: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
+    bossKeepDeg: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(90))),
   }),
   input: v.object({
     stickRadiusFrac: v.pipe(v.number(), v.minValue(0.05), v.maxValue(0.3)),
