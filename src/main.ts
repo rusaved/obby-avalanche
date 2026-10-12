@@ -295,7 +295,13 @@ async function boot(): Promise<void> {
       summit: (save.trophiesTotal ?? 0) > 0 || (save.tier ?? 0) > 0,
       summitAt,
       payments: game.payments?.enabled ?? false,
+      summits: (save.tier ?? 0) > 0 ? Infinity : summitsDone(save),
     });
+  /** The summit of mountain `n` on tier 0 brings elements of the summit group (6.4: the first; FM-08: by `ui.summitGroup`). */
+  const summitBrings = (n: number): boolean => {
+    const group = balance.ui.summitGroup;
+    return group ? n > summitsDone(save) && Object.values(group).includes(n) : (save.trophiesTotal ?? 0) === 0;
+  };
   const frame = createControlFrame(tuning.camera.pitchDeg * DEG, tuning.camera.distance);
   const inputOpts = {
     stickRadiusFrac: tuning.input.stickRadiusFrac,
@@ -529,8 +535,9 @@ async function boot(): Promise<void> {
         return;
       }
       if (from === 1 && s.tier === 0) track('gameTutorialComplete', { levelComplete: 'world_1' });
-      // The first summit: the trophy plaque and its buttons wait for the «Mountain cleared» window (6.4).
-      if ((save.trophiesTotal ?? 0) === 0 && s.tier === 0) summitAt = Infinity;
+      // The first summit (FM-08: a summit of ui.summitGroup): the trophy plaque and its buttons wait for the «Mountain
+      // cleared» window (6.4).
+      if (s.tier === 0 && summitBrings(from)) summitAt = Infinity;
       // Trophies of the summit g × (1 + n) (docs/01-gdd.md 8.1): to spend and over all time (the leaderboard, 7.9).
       const trophies = summitTrophies(balance, from, s.tier);
       addTrophies(save, trophies);

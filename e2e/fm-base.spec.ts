@@ -1,54 +1,14 @@
-import type { Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { test, expect, shot1080, testState, waitTicks } from './fixtures.ts';
-import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
+import { intoPortal, intoSummit, toFirstBase, worlds } from './base-route.ts';
 import ru from '../content/avalanche/i18n/ru.json' with { type: 'json' };
 
 // FM-07: the base between the mountains (docs/01-gdd.md 19.2–19.4): the first summit → the window → «Next» → the base
 // (base_first) → the portal of mountain 2 → its camp; F5 on mountain 3 after ridge 2 → the base → portal 3 → the flag of
 // ridge 2; mountain 1 run again — its summit with no window and no trophies; base.json off — the camp of mountain 2.
-type Seg = { type: string; z: number; x?: number; kind?: string; requires?: number; passLength?: number };
-type OpenWorld = { id: string; index: number; segments: Seg[]; bosses: Array<{ zone: [number, number]; requires: number }> };
-const worlds = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds;
 const dict = ru as Record<string, string>;
 const EVIDENCE = 'docs/evidence/fm';
 const CALLS = 30;
-
-/** The hero of `w` (the current mountain) from past its giant into its summit portal, fast enough for every wall. */
-async function intoSummit(page: Page, w: OpenWorld): Promise<void> {
-  const portal = w.segments.find((s) => s.type === 'portal')!;
-  await page.evaluate(([st, z]) => {
-    window.__TEST__!.holdWave(900);
-    window.__TEST__!.setStat(st);
-    window.__TEST__!.teleport(z, 0);
-  }, [w.bosses[0]!.requires * 1.3, w.bosses[0]!.zone[1] + 4] as const);
-  await waitTicks(page, 10);
-  await page.evaluate((p) => window.__TEST__!.botPath(p), [[portal.x ?? 0, portal.z + 4]] as Array<[number, number]>);
-}
-
-/** Walks from where the hero stands on the base into the portal of mountain `world`; game seconds it took. */
-async function intoPortal(page: Page, world: number): Promise<number> {
-  const s = await testState(page);
-  const p = s.basePortals.find((b) => b.world === world)!;
-  const [sn, cs] = [Math.sin(p.yaw), Math.cos(p.yaw)];
-  const t0 = s.ticks;
-  await page.evaluate((path) => window.__TEST__!.botPath(path), [
-    [p.x - 4 * sn, p.z - 4 * cs],
-    [p.x + 3 * sn, p.z + 3 * cs],
-  ] as Array<[number, number]>);
-  await page.waitForFunction(() => !window.__TEST__!.state().onBase, undefined, { timeout: 60_000 });
-  return ((await testState(page)).ticks - t0) / 60;
-}
-
-async function toFirstBase(page: Page, openGame: (q?: string) => Promise<void>): Promise<void> {
-  await openGame('pace=open&quality=high');
-  await intoSummit(page, worlds[0]!);
-  await page.waitForFunction(() => window.__TEST__!.state().window === 'summit', undefined, { timeout: 60_000 });
-  await page.locator('[data-hud="win-next"]').click();
-  await page.waitForFunction(() => window.__TEST__!.state().onBase, undefined, { timeout: 60_000 });
-  // The bot's point on the summit is left over: the hero stands at the spawn.
-  await page.evaluate(() => window.__TEST__!.botPath(null));
-}
 
 test('mountain 1 → «Mountain 1 cleared!» → «Next» → the base (base_first) → portal 2 within 10 s → the camp of mountain 2; screenshots; draw calls', async ({ page, openGame }) => {
   test.setTimeout(180_000);

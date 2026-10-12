@@ -1,4 +1,4 @@
-// What: Decides which HUD buttons and the shop tab are due by play time and first-summit progress (time group, then summit group, one after another).
+// What: Decides which HUD buttons and the shop tab are due by play time and summit progress (time group, then summit group, one after another; by summit number with ui.summitGroup).
 // Called by: main.ts; tests/meta/hud-schedule.test.ts.
 // Keep: Pure function of save-derived state, no DOM; every delay comes from balance.json ui; ids in TIME_GROUP/SUMMIT_GROUP must match the HUD element ids.
 
@@ -15,6 +15,8 @@ import type { BalanceJson } from '../content/types.ts';
 export const TIME_GROUP = ['shop', 'pets', 'daily'] as const;
 /** After the first summit, in the order they come (the records button only with the leaderboard, M4-06). */
 export const SUMMIT_GROUP = ['trophies', 'wardrobe', 'quests', 'rebirth', 'records'] as const;
+/** With `ui.summitGroup` (docs/01-gdd.md 19.5; docs/01a-content.md 18.4): the same in this order, and the shortcut. */
+const SUMMIT_ORDER = ['trophies', 'records', 'wardrobe', 'quests', 'rebirth', 'shortcut'] as const;
 
 export interface HudScheduleState {
   /** Play seconds of the player over all sessions. */
@@ -23,9 +25,12 @@ export interface HudScheduleState {
   summit: boolean;
   /**
    * Play second when the «Mountain cleared» window of the first summit closed: the summit group comes from it;
-   * Infinity — the window is still open; null — the summit was before this load (everything at once).
+   * Infinity — the window is still open; null — the summit was before this load (everything at once). With
+   * `ui.summitGroup` — the window of the latest summit that brings something.
    */
   summitAt: number | null;
+  /** Summits done, for `ui.summitGroup` (FM-08): on tier 0 those of the save, after a rebirth Infinity (all came). */
+  summits?: number;
   /** Purchases on (game.json payments.enabled): the shop tab «Special». */
   payments: boolean;
 }
@@ -42,9 +47,21 @@ export function hudDue(ui: BalanceJson['ui'], s: HudScheduleState): Set<string> 
   }
   if (s.summit) {
     const from = s.summitAt ?? -Infinity;
-    SUMMIT_GROUP.forEach((id, i) => {
-      if (s.playSec >= from + i * ui.menuStepSec) due.add(id);
-    });
+    const group = ui.summitGroup;
+    if (!group)
+      SUMMIT_GROUP.forEach((id, i) => {
+        if (s.playSec >= from + i * ui.menuStepSec) due.add(id);
+      });
+    else {
+      // Those of the summits before — there; those of the latest one after its window, one after another.
+      const n = s.summits ?? 1;
+      let i = 0;
+      for (const id of SUMMIT_ORDER) {
+        const k = group[id];
+        if (k === undefined || k > n) continue;
+        if (k < n || s.playSec >= from + i++ * ui.menuStepSec) due.add(id);
+      }
+    }
   }
   return due;
 }
