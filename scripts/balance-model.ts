@@ -55,6 +55,9 @@ export interface ModelPack {
   trails?: TrailsJson;
   auras?: AurasJson;
   worlds: World[];
+  /** The base between the mountains (docs/01-gdd.md 19.2; base.json of the pace when enabled): after every summit the
+   * bot spends `transitSec` on it before the next portal (FM-14); absent — straight on (classic, fast). */
+  base?: { transitSec: number } | undefined;
 }
 
 /** What stays between cycles (the reference: %meta): pet bonuses, trophies, how many trails and auras are bought. */
@@ -683,6 +686,8 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
     }
     mountains.push(T - tw0);
     eggsAt.push(eggsBought);
+    // Through the base to the next portal (the next mountain, or mountain 1 after the rebirth).
+    T += pack.base?.transitSec ?? 0;
   }
   spendTrophies(pack, meta);
   return { sec: T, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, caughtAt, eggsAt, goldTaken, coins: C, meta, trophiesGot, seedOut: rnd.state(), fitted, rewards: rewards.sort((a, b) => a - b) };

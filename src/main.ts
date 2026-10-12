@@ -991,7 +991,7 @@ async function boot(): Promise<void> {
       if (save.flags?.['shortcutDone']) return;
       save.flags = { ...(save.flags ?? {}), shortcutDone: true };
       save.trophies = (save.trophies ?? 0) + shortcutCfg.reward.trophies;
-      track('shortcut_ok');
+      trackOnce('shortcut_ok');
       hud?.toast(t('toast.shortcutOk', { n: shortcutCfg.reward.trophies }), 3, true);
       persist(true);
     });

@@ -53,6 +53,16 @@
 | покатился шар | `event_snowball`, параметр `world` | шина `eventStart` с `id: snowball`: на участке 2–4 с горы 5 по полосе героя покатился шар (`01` 18.4) | always | около четверти участков 2–4; возврат на день 2 у сессий с шаром не ниже, чем без него |
 | начался буран | `event_blizzard`, параметр `world` | шина `eventStart` с `id: blizzard`: на участке 2–4 с горы 7 буран — все ×0,7, шаг героя ×2 (`01` 18.4) | always | около пятой части участков 2–4 гор 7–10; возврат на день 2 у сессий с бураном не ниже, чем без него |
 
+**База между горами (`open`, `01` 19.13; веха FM).**
+
+| Шаг игрока | Событие | Где вызывается | Раз | Ориентир (`01` 19.2, 19.6) |
+|---|---|---|---|---|
+| первая база | `base_first` | `main.ts`: первый приход на базу после окна первой вершины | player | около 1:40 у живого игрока (Q-056) |
+| вход в портал базы | `base_portal`, параметры `world`, `replay` | `main.ts`: герой прошёл в портал своей или пройденной горы | always | от `base_first` до `base_portal` горы 2 ≤ 15 с у 90% игроков |
+| подарок дня у базы | `daily_claim`, параметр `from`: `base` или `window` | «Забрать» у коробки на базе или в окне календаря (строка 18 таблицы выше, тот же `day`) | always | доля `base` растёт у вернувшихся |
+| ярлык на рабочий стол | `shortcut_ok` | `main.ts`: награда за ярлык при согласии игрока (`03` SDK-08) | player | доля от показов кнопки |
+| сообщество игры | `community_open` | `main.ts`: нажатие «Сообщество игры» в окне паузы (`03` 4.1) | always | — |
+
 Имена `gameReady`, `gameTutorialStart`, `gameTutorialComplete` и `params.levelComplete` — стандартные из документации Яндекса, остальные — наши.
 
 Параметры прогресса без отдельных целей (`always`): `params({ levelComplete: 'world_N' })` на каждой горе, `params({ waveCaught: 'wN_gM' })` на каждой поимке лавиной (гора и номер ближайшей стены выше), `params({ rebirth: n })` на каждом перерождении, `params({ goldGift: 'take' | 'saved' | 'lost' })` на каждом золотом подарке (`01`, 4.9; фича M2-12): в буфере и `__TEST__.events` это события `gold_take`, `gold_saved`, `gold_lost`, в Метрику — только параметр, без `reachGoal`. Доля `saved` от `take` — тянет ли подарок из пещеры и честно ли успеть.
@@ -113,8 +123,9 @@ ym(counterId, 'reachGoal', name, {
    - техника (1): `sdk_init_slow`;
    - реклама (11): `gameRewardedRequest`, `gameRewardedOpen`, `gameRewardedEarned`, `gameRewardedClose`, `gameRewardedError`, `ad_resume_ok`, `gameFullscreenRequest`, `gameFullscreenOpen`, `gameFullscreenClose`, `gameFullscreenError`, `quit_after_inter`;
    - простор (11, темп `open`): `ridge_1`, `ridge_2`, `ridge_3`, `boss_enter`, `boss_passed`, `boss_caught`, `record_up`, `boss_bot_caught`, `helper_hit`, `event_snowball`, `event_blizzard`;
+   - база (4, темп `open`): `base_first`, `base_portal`, `shortcut_ok`, `community_open` (`daily_claim` уже в воронке);
    - покупки (4, только если они включены): `gameOfferView`, `gamePurchaseStart`, `gamePurchaseSuccess`, `gamePurchaseError`;
-   - итого 48 целей, с покупками 52.
+   - итого 52 цели, с покупками 56.
 4. Отчёты «Воронка»: «Отчёты» → «Создать отчёт» → «Воронка», условие шага — «Достижение JS-цели», окно 30 минут, сегмент — только новые посетители. В воронке Метрики не больше 10 шагов, и шаги засчитываются по порядку: если шаг 3 случился раньше шага 2, игрок из воронки выпадает. Поэтому отчётов три, и в каждом только шаги, порядок которых держит сама игра:
    - «Первая минута»: `load_start` → `gameReady` → `first_input` → `gameTutorialStart` → `gate_1` → `gate_2` → `gate_3` → `first_wave_survived` → `treadmill_first` → `gate_4`;
    - «Гора 1»: `gate_4` → `gate_6` → `gate_9` → `gameTutorialComplete`;
@@ -161,6 +172,7 @@ ym(counterId, 'reachGoal', name, {
 | защитный | доход с рекламы на сессию | `gameRewardedRequest` и `gameFullscreenAdv`-показы на сессию × eCPM Консоли | не ниже `fast` больше чем на 10% |
 | справочно | первый великан | `boss_enter` (гора 1): медиана секунды от `gameReady`; `boss_passed` к `boss_enter` | медиана ≤ 3 мин; проход с первой попытки ≥ 60% |
 | справочно | рубежи | `ridge_1` … `ridge_3` горы 1: время и обрывы между ними | как `gate_N` в разделе 2 |
+| защитный | на базе не теряются (`01` 19.13) | доля игроков с `base_first`, у которых в ту же сессию есть `base_portal` с `world: 2`; секунды между ними | ≥ 90% доходят до портала горы 2, у 90% — за 15 с |
 
 Решение по итогам: оба главных показателя у `open` не хуже и ни один защитный не просел — `open` остаётся для всех, `fast` выключается. Главный просел — назад на `fast` флагом, разбор по шагам воронки. Защитный просел при росте главных — правка данными (`01a`, 16) и ещё неделя.
 

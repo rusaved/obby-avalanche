@@ -54,6 +54,7 @@ const t0 = performance.now();
 const packDir = resolve(root, 'content', packName);
 // The data of the pace: worlds-spec.json, worlds.json and the balance.json patch of content/<pack>/pace/<pace>/.
 const paceDir = classic ? packDir : paceDirArg ? resolve(root, paceDirArg) : resolve(paceRoot, pace);
+const baseOf = (b) => (b.enabled ? { transitSec: b.transitSec } : undefined);
 const readPack = () => {
   const read = (f) => JSON.parse(readFileSync(resolve(packDir, f), 'utf8'));
   const balance = classic ? read('balance.json') : mergePatch(read('balance.json'), JSON.parse(readFileSync(resolve(paceDir, 'balance.json'), 'utf8')));
@@ -66,6 +67,8 @@ const readPack = () => {
     trails: read('trails.json'),
     auras: read('auras.json'),
     worlds: JSON.parse(readFileSync(resolve(paceDir, 'worlds.json'), 'utf8')).worlds,
+    // The base of the pace (FM-14): the transit through it after every summit.
+    base: !classic && existsSync(resolve(paceDir, 'base.json')) ? baseOf(JSON.parse(readFileSync(resolve(paceDir, 'base.json'), 'utf8'))) : undefined,
   };
 };
 let pack = readPack();
@@ -477,6 +480,7 @@ const lines = [];
 const L = (s = '') => lines.push(s);
 L(`sim:balance — модель экономики docs/01-gdd.md 8.5 (порт docs/references/balance-model.pl), пакет ${packName}${classic ? '' : `, темп ${pace} (01-gdd 16.8: worlds.json и заплатка balance.json из pace/${pace}/)`}`);
 L(`Профили: жадный (ступени 0–${TIERS}), ленивый, активный день, спамер яиц (${SPAM_SEEDS} зёрен)${gold ? ', золотоискатель' : ''}; без рекламы и покупок, зерно 12345 (генератор эталона)`);
+if (pack.base) L(`База между горами (01-gdd 19.2): после каждой вершины ${pack.base.transitSec} с от появления на базе до портала (base.json transitSec)`);
 L();
 L(classic ? 'Проверки 8.5:' : `Проверки 16.8 (темп ${pace}):`);
 for (const c of checks) L(` ${String(c.id).padStart(classic ? 2 : 3)}. [${c.status}] ${c.title} — ${c.detail}`);

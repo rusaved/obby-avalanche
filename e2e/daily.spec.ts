@@ -47,7 +47,7 @@ test('calendar: claim day 1, F5 keeps it, 19 h later still locked, 20 h later da
   await expect(page.locator('[data-hud="daily-claim"]')).toHaveCount(0);
   await expect(page.locator('[data-role="daily-next"]')).toHaveText(/^Следующая награда через 19:59:5\d$/);
   const claims = (await page.evaluate(() => window.__TEST__!.analytics())).filter((e) => e.name === 'daily_claim');
-  expect(claims.map((e) => e.params)).toEqual([{ day: 1 }]);
+  expect(claims.map((e) => e.params)).toEqual([{ day: 1, from: 'window' }]);
   await page.screenshot({ path: 'docs/evidence/M3/daily_claimed_1920x1080_ru.png' });
   await page.locator('[data-hud="win-close"]').click();
   await expect(btn.locator('.hud-menu-badge')).toHaveText(/^через 19:5\d:\d\d$/);
