@@ -17,8 +17,9 @@ export const NICHE_WALL = 1;
 export const GATE_THICKNESS = 1.5;
 export const LEDGE_SIZE = 4;
 export const KILL_DEPTH = 20;
-/** Half width of the summit portal opening: the arch is 10 units wide with 1-unit pillars (docs/01-gdd.md 5.2). */
-export const PORTAL_HALF_WIDTH = 4;
+/** Width of the summit portal arch with its 1-unit pillars when its segment has no `width` (docs/01-gdd.md 5.2); the hero
+ * enters across all of it, pillars too (docs/01-gdd.md 19.8). */
+export const PORTAL_WIDTH = 10;
 /** Treadmill belt inside a cave (docs/01-gdd.md 4.3): 3 units wide, flush with the back wall and as long as the cave
  * (playtest M2: running forward the hero hit the side wall past a 5-unit belt and lost it), room in front of it. */
 export const NICHE_BELT_WIDTH = 3;
@@ -235,8 +236,9 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     const f = num(t, 'funnel');
     const h = num(t, 'height');
     const wall = (a: number, b: number, xin: number): void => {
-      boxes.push(box([-outer, y - FLOOR_THICKNESS, a], [-xin, y + h, b], 'rock', 'throatWall'));
-      boxes.push(box([xin, y - FLOOR_THICKNESS, a], [outer, y + h, b], 'rock', 'throatWall'));
+      // Lighter than a cliff (docs/01-gdd.md 19.8): the way between them reads from afar.
+      boxes.push(box([-outer, y - FLOOR_THICKNESS, a], [-xin, y + h, b], 'throatWall', 'throatWall'));
+      boxes.push(box([xin, y - FLOOR_THICKNESS, a], [outer, y + h, b], 'throatWall', 'throatWall'));
     };
     for (let k = 0; k < THROAT_STEPS; k++) {
       const xin = half - ((half - w) * (k + 1)) / THROAT_STEPS;

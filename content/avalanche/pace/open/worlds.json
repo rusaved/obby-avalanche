@@ -1350,7 +1350,8 @@
           "z": 1020,
           "x": 0,
           "y": 24,
-          "next": 2
+          "next": 2,
+          "width": 24
         }
       ],
       "treadmillMult": 1,
@@ -3539,7 +3540,8 @@
           "z": 1460,
           "x": 0,
           "y": 32,
-          "next": 3
+          "next": 3,
+          "width": 24
         }
       ],
       "treadmillMult": 1,
@@ -5587,7 +5589,8 @@
           "z": 1610,
           "x": 0,
           "y": 32,
-          "next": 4
+          "next": 4,
+          "width": 24
         }
       ],
       "treadmillMult": 1,
@@ -7927,7 +7930,8 @@
           "z": 1760,
           "x": 0,
           "y": 32,
-          "next": 5
+          "next": 5,
+          "width": 24
         }
       ],
       "treadmillMult": 1,
@@ -10131,7 +10135,8 @@
           "z": 1910,
           "x": 0,
           "y": 32,
-          "next": 6
+          "next": 6,
+          "width": 24
         }
       ],
       "treadmillMult": 1,
@@ -12109,7 +12114,8 @@
           "z": 2060,
           "x": 0,
           "y": 32,
-          "next": 7
+          "next": 7,
+          "width": 24
         }
       ],
       "treadmillMult": 1,
@@ -14235,7 +14241,8 @@
           "z": 2210,
           "x": 0,
           "y": 32,
-          "next": 8
+          "next": 8,
+          "width": 24
         }
       ],
       "treadmillMult": 1,
@@ -16588,7 +16595,8 @@
           "z": 2360,
           "x": 0,
           "y": 32,
-          "next": 9
+          "next": 9,
+          "width": 24
         }
       ],
       "treadmillMult": 1,
@@ -19309,7 +19317,8 @@
           "z": 2510,
           "x": 0,
           "y": 32,
-          "next": 10
+          "next": 10,
+          "width": 24
         }
       ],
       "treadmillMult": 1,
@@ -22058,7 +22067,8 @@
           "z": 2660,
           "x": 0,
           "y": 32,
-          "next": null
+          "next": null,
+          "width": 24
         }
       ],
       "treadmillMult": 1,

@@ -484,7 +484,10 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
   seg.push({ type: 'checkpoint', z: zSummit + 3, y, x: 0, zone: K, rarity: finish.rarity, wall: K });
   seg.push({ type: 'treadmill', z: zSummit + 12, x: -8, y, length: 10, width: 6, mult: ceilToSeries(1.5 * m.boss.stepMult) });
   seg.push({ type: 'chest', z: zSummit + 30, x: 0, y, coins: balance.coins.chest * m.boss.gift });
-  seg.push({ type: 'portal', z: zSummit + 50, x: 0, y, next: index + 1 <= spec.mountains.length ? index + 1 : null });
+  // The portal arch as wide as the spec says (docs/01-gdd.md 19.8): running up near the middle never misses it.
+  const portal: Segment = { type: 'portal', z: zSummit + 50, x: 0, y, next: index + 1 <= spec.mountains.length ? index + 1 : null };
+  if (spec.portalWidth) portal['width'] = spec.portalWidth;
+  seg.push(portal);
 
   const b = spec.boss;
   const boss: WorldBoss = {

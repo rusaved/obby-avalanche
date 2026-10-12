@@ -27,7 +27,7 @@ import { createBots, type BotContext, type BotCrowd, type BotsOptions } from './
 import { placeBonus, touchesBonus, zoneAt, type BonusConfig, type BonusState } from './bonus.ts';
 import { createRng } from '../core/rng.ts';
 import { inSafeZone } from './shelter.ts';
-import { BORDER_HEIGHT, BORDER_WIDTH, PORTAL_HALF_WIDTH } from '../level/builder.ts';
+import { BORDER_HEIGHT, BORDER_WIDTH, PORTAL_WIDTH } from '../level/builder.ts';
 import { createHero, placeHero, stepHero, type ControllerParams, type HeroInput, type HeroState, NO_INPUT } from './controller.ts';
 import { createFun, funInput, resetFun, stepFun, type FunState } from './fun.ts';
 import { createBoss, type Boss, type BossEvents } from './boss.ts';
@@ -252,6 +252,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   const prev = { x: hero.pos.x, z: hero.pos.z, onGround: hero.onGround };
   const portal = level.points.find((p) => p.type === 'portal');
   const portalNext = typeof portal?.['next'] === 'number' ? (portal['next'] as number) : null;
+  const portalHalf = (typeof portal?.['width'] === 'number' ? (portal['width'] as number) : PORTAL_WIDTH) / 2;
   const beltList = belts(level);
   const heroView = { x: 0, y: 0, z: 0, vx: 0, vz: 0 };
   const graceDist = opts.balance.niche?.graceDist ?? 0;
@@ -380,7 +381,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       if (fun.pad >= 0) events.emit('padLaunch', { tick: sim.tick, index: fun.pad, x: hero.pos.x, y: hero.pos.y, z: hero.pos.z });
       if (fun.slide >= 0) events.emit('slideEnter', { tick: sim.tick, index: fun.slide });
       // Portal: the hero crosses the arch plane inside its opening (docs/01-gdd.md 5.2).
-      if (portal && !sim.portalEntered && zBefore < portal.z && hero.pos.z >= portal.z && Math.abs(hero.pos.x - portal.x) <= PORTAL_HALF_WIDTH) {
+      if (portal && !sim.portalEntered && zBefore < portal.z && hero.pos.z >= portal.z && Math.abs(hero.pos.x - portal.x) <= portalHalf) {
         sim.portalEntered = true;
         if (sim.bonus?.carried) saveBonus('portal');
         events.emit('portal', { tick: sim.tick, from: level.worldIndex, next: portalNext });

@@ -147,6 +147,7 @@ const themeSchema = v.object({
     screenFrame: v.picklist(FX_VALUES.screenFrame),
     shelterMesh: v.picklist(FX_VALUES.shelterMesh),
     treadmill: v.picklist(FX_VALUES.treadmill),
+    portal: v.optional(v.object({ fill: v.boolean(), pillar: nonNeg, arrows: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(6)) })),
   }),
   sky: v.object({ top: hex, mid: v.optional(hex), bottom: hex }),
   fog: v.object({ color: hex, near: nonNeg, far: positive }),
@@ -465,6 +466,7 @@ const openSpecSchema = v.object({
   layout: v.literal('openSlope'),
   campLength: positive,
   summitLength: positive,
+  portalWidth: v.optional(positive),
   width: positive,
   spawnZ: nonNeg,
   threat: v.object({

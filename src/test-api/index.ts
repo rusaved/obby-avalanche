@@ -220,11 +220,13 @@ export interface TestApi {
   project(x: number, y: number, z: number): { x: number; y: number; ahead: boolean };
   /** Gate sign plaque as a world box and whether it is hidden now (PR-08: never under the avalanche banner). */
   signBox(index: number): { center: [number, number, number]; size: [number, number, number]; hidden: boolean };
+  /** Way marks of the open slope (FM-02): the arrows on the snow and the pillar of light of the summit portal. */
+  wayMarks(): { marks: Array<{ x: number; y: number; z: number; to: string }>; pillar: { x: number; z: number; y0: number; y1: number } | null };
   /** Per rendered frame since the last reset (playtest M2): camera inside a collider (solid box, closed gate, ramp —
    * with the near plane), hero hidden by the camera while he should be seen, camera closer than 2.5 units to the hero's
    * body from chest to head (PR-13), hero behind level geometry, a drawn gate sign between the camera and the hero or
    * around the camera (PR-11); frames of the grotto frame (RG-13); first bad frames. */
-  cameraStats(): { frames: number; inside: number; heroHidden: number; heroNear: number; heroBlocked: number; signBlocked: number; tight: number; bad: string[] };
+  cameraStats(): { frames: number; inside: number; heroHidden: number; heroNear: number; heroBlocked: number; signBlocked: number; tight: number; bad: string[]; headFrames: number; headBlocked: number; headBy: Record<string, number>; bossFrames: number; bossSeen: number };
   resetCameraStats(): void;
   forceSlowFrames(sec: number): boolean;
   setQuality(level: QualityLevel | 'auto'): void;
@@ -348,7 +350,58 @@ export function installTestApi(g: GameHandles): TestApi {
       for (const b of sim.bots?.list ?? []) if (b.mode !== 'away' && b.mode !== 'off') overClosed = Math.max(overClosed, b.z - gate.z);
     });
   };
-  const cam = { frames: 0, inside: 0, heroHidden: 0, heroNear: 0, heroBlocked: 0, signBlocked: 0, tight: 0, bad: [] as string[] };
+  const cam = { frames: 0, inside: 0, heroHidden: 0, heroNear: 0, heroBlocked: 0, signBlocked: 0, tight: 0, bad: [] as string[], headFrames: 0, headBlocked: 0, headBy: {} as Record<string, number>, bossFrames: 0, bossSeen: 0 };
+  const headRay = new Ray();
+  const headAt = new Vector3();
+  const ndc = new Vector3();
+  /**
+   * FM-03 (docs/01-gdd.md 19.8): what drawn and opaque the line camera → hero's head meets first, null — nothing: level
+   * geometry (cave parts cut away by the cave frame skipped), the drawn ice of a closed gate (a ridge: its plugs, the
+   * crest is see-through), a drawn gate sign, a giant not faded.
+   */
+  const lineBlock = (sim: NonNullable<GameHandles['sim']>, from: Vector3, to: Vector3): string | null => {
+    const len0 = from.distanceTo(to);
+    headRay.set(from.clone(), to.clone().sub(from).normalize());
+    let len = len0;
+    const cut = g.levelMeshes?.cutBoxes() ?? [];
+    for (let k = 0; k < cut.length; k++) {
+      const first = sim.collision.static.rayIntersect(headRay);
+      if (!first || first.distance >= len - 0.3) break;
+      const at = headRay.origin.clone().addScaledVector(headRay.direction, first.distance + 0.01);
+      const box = cut.find((b) => [at.x, at.y, at.z].every((v, a) => v > b.min[a]! - 0.05 && v < b.max[a]! + 0.05));
+      if (!box) break;
+      let exit = Infinity;
+      const o = [headRay.origin.x, headRay.origin.y, headRay.origin.z];
+      const dir = [headRay.direction.x, headRay.direction.y, headRay.direction.z];
+      for (let a = 0; a < 3; a++) if (Math.abs(dir[a]!) > 1e-9) exit = Math.min(exit, ((dir[a]! > 0 ? box.max[a]! : box.min[a]!) - o[a]!) / dir[a]!);
+      headRay.origin.addScaledVector(headRay.direction, exit + 0.05);
+      len -= exit + 0.05;
+    }
+    const hitS = sim.collision.static.rayIntersect(headRay);
+    if (hitS && hitS.distance < len - 0.3) return 'wall';
+    for (let i = 0; i < sim.level.gates.length; i++) {
+      const gate = sim.level.gates[i]!;
+      if (sim.gatesOpen[i] || gate.kind === 'boss') continue;
+      const boxes: Array<{ c: number[]; s: number[] }> = [];
+      if (gate.kind === 'ridge') {
+        const top = (gate.rise ?? 0) + 1;
+        for (const px of gate.passes ?? []) boxes.push({ c: [px, gate.y + top / 2, gate.z], s: [gate.passWidth ?? 0, top, 2] });
+      } else {
+        const b = gate.box;
+        boxes.push({ c: [(b.min[0] + b.max[0]) / 2, (b.min[1] + b.max[1]) / 2, (b.min[2] + b.max[2]) / 2], s: [b.max[0] - b.min[0], b.max[1] - b.min[1], b.max[2] - b.min[2]] });
+      }
+      if (boxes.some((b) => segmentMeetsBox(from, to, b.c, b.s, 0))) return 'gate';
+    }
+    const meshes = g.levelMeshes;
+    if (meshes)
+      for (let i = 0; i < sim.level.gates.length; i++) {
+        if (meshes.signHidden(i) || Math.abs(sim.level.gates[i]!.z - to.z) > SIGN_RANGE) continue;
+        const b = meshes.signBox(i);
+        if (segmentMeetsBox(from, to, b.center, b.size, 0)) return 'sign';
+      }
+    for (const box of g.bossView?.giantBoxes() ?? []) if (!box.faded && segmentMeetsBox(from, to, box.center, box.size, 0)) return 'giant';
+    return null;
+  };
   const ray = new Ray();
   const chest = new Vector3();
   g.onFrame = () => {
@@ -418,6 +471,26 @@ export function installTestApi(g: GameHandles): TestApi {
     if (d < len - 0.3) {
       cam.heroBlocked++;
       note('hero blocked');
+    }
+    // FM-03: the line to the head against everything drawn opaque; the giant in the frame while the hero runs up to him.
+    if (rig.fixedBlend > 0 || rig.tight) return;
+    cam.headFrames++;
+    headAt.set(h.x, h.y + HEAD, h.z);
+    const by = lineBlock(sim, p, headAt);
+    if (by) {
+      cam.headBlocked++;
+      cam.headBy[by] = (cam.headBy[by] ?? 0) + 1;
+      note(`head: ${by}`);
+    }
+    const zone = sim.boss?.zones.find((z) => h.z >= z.zone[0] && h.z <= z.zone[1]);
+    const giant = zone?.giants.find((x) => x.z > h.z + 2);
+    if (giant && sim.hero.vel.z > 1) {
+      cam.bossFrames++;
+      const top = content.theme.boss?.height ?? 20;
+      ndc.set(0, sim.level.floorAt(0, giant.z) + top * 0.5, giant.z).project(rig.camera);
+      const ahead = new Vector3(0, 0, giant.z).sub(p).dot(rig.camera.getWorldDirection(new Vector3())) > 0;
+      if (ahead && Math.abs(ndc.x) <= 1 && Math.abs(ndc.y) <= 1) cam.bossSeen++;
+      else note('giant out of frame');
     }
   };
   const advanceMock = (ms: number): void => {
@@ -717,12 +790,16 @@ export function installTestApi(g: GameHandles): TestApi {
       const p = new Vector3(x, y, z).project(c);
       return { x: (p.x * 0.5 + 0.5) * g.field.width, y: (0.5 - p.y * 0.5) * g.field.height, ahead };
     },
+    wayMarks() {
+      const w = g.levelMeshes?.wayMarks;
+      return { marks: w ? w.marks.map((m) => ({ ...m })) : [], pillar: w?.pillar ? { ...w.pillar } : null };
+    },
     signBox(index) {
       const m = g.levelMeshes;
       if (!m) return { center: [0, 0, 0], size: [0, 0, 0], hidden: false };
       return { ...m.signBox(index), hidden: m.signHidden(index) };
     },
-    cameraStats: () => ({ ...cam, bad: [...cam.bad] }),
+    cameraStats: () => ({ ...cam, bad: [...cam.bad], headBy: { ...cam.headBy } }),
     resetCameraStats() {
       cam.frames = 0;
       cam.inside = 0;
@@ -732,6 +809,11 @@ export function installTestApi(g: GameHandles): TestApi {
       cam.signBlocked = 0;
       cam.tight = 0;
       cam.bad = [];
+      cam.headFrames = 0;
+      cam.headBlocked = 0;
+      cam.headBy = {};
+      cam.bossFrames = 0;
+      cam.bossSeen = 0;
     },
     forceSlowFrames: (sec) => g.quality.forceSlow(sec),
     setQuality: (level) => g.setQualitySetting(level),

@@ -34,7 +34,8 @@ describe('throat and field (RG-03)', () => {
     const walls = level.boxes.filter((b) => b.kind === 'throatWall' && b.min[2] >= throat.z0 - 1e-6 && b.max[2] <= throat.z1 + 1e-6);
     expect(walls.length).toBeGreaterThanOrEqual(2);
     for (const b of walls) {
-      expect(b.material).toBe('rock');
+      // FM-02 (docs/01-gdd.md 19.8): the walls are lighter than a cliff — a material of their own.
+      expect(b.material).toBe('throatWall');
       expect(b.min[0]).toBeGreaterThanOrEqual(-half - BORDER_WIDTH - 1e-6);
       expect(b.max[0]).toBeLessThanOrEqual(half + BORDER_WIDTH + 1e-6);
       expect(b.max[1] - throat.y).toBeGreaterThanOrEqual(10);

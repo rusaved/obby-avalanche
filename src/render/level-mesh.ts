@@ -27,7 +27,8 @@ import {
 } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { LevelBox, LevelData, LevelRamp } from '../level/types.ts';
-import { GATE_THICKNESS } from '../level/builder.ts';
+import { GATE_THICKNESS, PORTAL_WIDTH } from '../level/builder.ts';
+import { createWayMarks, PORTAL_HEIGHT, type WayMarks } from './way-marks.ts';
 import type { ThemeJson } from '../content/types.ts';
 import { createDigitLabels, type DigitLabels } from './digits.ts';
 import { formatNumber } from '../ui/format.ts';
@@ -63,6 +64,8 @@ export interface LevelMeshes {
   gates: InstancedMesh;
   signs: InstancedMesh;
   digits: DigitLabels;
+  /** The portal light and the arrows on the snow of the open slope (docs/01-gdd.md 19.8). */
+  wayMarks: WayMarks;
   /** Scale a gate slab (1 = closed, 0 = gone); M2 melts gates with this. */
   setGateOpen(index: number, openness: number): void;
   /** How far gate `index` has melted (0 — whole, 1 — gone; tests). */
@@ -213,9 +216,11 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       const ch: LevelBox = { min: [p.x - 2, p.y, p.z - 1.5], max: [p.x + 2, p.y + 2.5, p.z + 1.5], material: 'chest', kind: 'chest', solid: false };
       bucketOf(p.z).push(boxGeometry(ch, theme));
     } else if (p.type === 'portal') {
-      const l: LevelBox = { min: [p.x - 5, p.y, p.z - 0.5], max: [p.x - 4, p.y + 10, p.z + 0.5], material: 'portal', kind: 'portal', solid: false };
-      const r: LevelBox = { min: [p.x + 4, p.y, p.z - 0.5], max: [p.x + 5, p.y + 10, p.z + 0.5], material: 'portal', kind: 'portal', solid: false };
-      const top: LevelBox = { min: [p.x - 5, p.y + 9, p.z - 0.5], max: [p.x + 5, p.y + 10, p.z + 0.5], material: 'portal', kind: 'portal', solid: false };
+      // As wide as its data (docs/01-gdd.md 19.8), 1-unit pillars; the light inside it — render/way-marks.ts.
+      const hw = (typeof p['width'] === 'number' ? (p['width'] as number) : PORTAL_WIDTH) / 2;
+      const l: LevelBox = { min: [p.x - hw, p.y, p.z - 0.5], max: [p.x - hw + 1, p.y + PORTAL_HEIGHT, p.z + 0.5], material: 'portal', kind: 'portal', solid: false };
+      const r: LevelBox = { min: [p.x + hw - 1, p.y, p.z - 0.5], max: [p.x + hw, p.y + PORTAL_HEIGHT, p.z + 0.5], material: 'portal', kind: 'portal', solid: false };
+      const top: LevelBox = { min: [p.x - hw, p.y + PORTAL_HEIGHT - 1, p.z - 0.5], max: [p.x + hw, p.y + PORTAL_HEIGHT, p.z + 0.5], material: 'portal', kind: 'portal', solid: false };
       bucketOf(p.z).push(boxGeometry(l, theme), boxGeometry(r, theme), boxGeometry(top, theme));
     } else if (p.type === 'eggStand') {
       const st: LevelBox = { min: [p.x - 0.8, p.y, p.z - 0.8], max: [p.x + 0.8, p.y + 1.2, p.z + 0.8], material: 'eggStand', kind: 'eggStand', solid: false };
@@ -453,6 +458,8 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   fun.visible = funParts.length > 0;
   group.add(fun);
   const pressedAt = new Map<number, number>();
+  const wayMarks = createWayMarks(level, theme);
+  group.add(wayMarks.group);
 
   return {
     group,
@@ -460,6 +467,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     gates,
     signs,
     digits,
+    wayMarks,
     setGateSign(index, text, open) {
       const st = signState[index];
       if (!st || (st.text === text && st.open === open)) return;
@@ -557,6 +565,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       giftMat.dispose();
       funGeo.dispose();
       digits.dispose();
+      wayMarks.dispose();
     },
   };
 }

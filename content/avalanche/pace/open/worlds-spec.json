@@ -3,6 +3,7 @@
  "layout": "openSlope",
  "campLength": 40,
  "summitLength": 60,
+ "portalWidth": 24,
  "width": 56,
  "spawnZ": 20,
  "threat": {

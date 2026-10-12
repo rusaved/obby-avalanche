@@ -1346,7 +1346,8 @@
       "z": 1020,
       "x": 0,
       "y": 24,
-      "next": 2
+      "next": 2,
+      "width": 24
     }
   ],
   "treadmillMult": 1,

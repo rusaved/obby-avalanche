@@ -6,7 +6,8 @@
     "weather": "snow",
     "screenFrame": "frost",
     "shelterMesh": "cave",
-    "treadmill": "snowWhirl"
+    "treadmill": "snowWhirl",
+    "portal": { "fill": true, "pillar": 30, "arrows": 3 }
   },
   "sky": { "top": "#8FD3FF", "bottom": "#E8F6FF" },
   "fog": { "color": "#E8F6FF", "near": 60, "far": 220 },
@@ -21,6 +22,7 @@
     "track": { "color": "#F4F8FC", "roughness": 0.95 },
     "border": { "color": "#DDE9F5", "roughness": 0.95 },
     "rock": { "color": "#6E7F94", "roughness": 0.9 },
+    "throatWall": { "color": "#A9BCD2", "roughness": 0.9 },
     "ice": { "color": "#9ED8FF", "roughness": 0.35 },
     "gateClosed": { "color": "#A8DFFF", "roughness": 0.3 },
     "gateSign": { "color": "#FF4D4D" },
@@ -35,8 +37,10 @@
     "trunk": { "color": "#6B4A2B" },
     "chest": { "color": "#FFB800" },
     "portal": { "color": "#7CC8F0", "emissive": "#7CC8F0" },
+    "portalLight": { "color": "#FFE27A" },
     "snowman": { "color": "#FFFFFF" },
     "arrow": { "color": "#FFFFFF" },
+    "wayArrow": { "color": "#1E8FE6" },
     "eggStand": { "color": "#9ED8FF" },
     "giftEgg": { "color": "#FFFFFF", "emissive": "#7FD8FF" },
     "petEye": { "color": "#1B2A3A" },

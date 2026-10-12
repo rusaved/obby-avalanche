@@ -76,6 +76,9 @@ export interface ThemeJson {
     screenFrame: string;
     shelterMesh: string;
     treadmill: string;
+    /** The summit portal and the portals of the base (docs/01a-content.md 18.6): its arch filled with light, a pillar of
+     * light `pillar` units tall, `arrows` arrows on the snow to it (and to the way into each element of the slope). */
+    portal?: { fill: boolean; pillar: number; arrows: number };
   };
   sky: { top: string; mid?: string; bottom: string };
   fog: { color: string; near: number; far: number };
@@ -522,6 +525,8 @@ export interface OpenSpecJson {
   layout: 'openSlope';
   campLength: number;
   summitLength: number;
+  /** Width of the summit portal arch (docs/01-gdd.md 19.8, FM-02): the hero enters across all of it; absent — 10. */
+  portalWidth?: number;
   width: number;
   spawnZ: number;
   threat: WorldsSpecJson['threat'];

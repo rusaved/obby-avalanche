@@ -55,7 +55,13 @@ export interface BossView {
   readonly silhouettesShown: number;
   /** World point of the silhouette's chest as drawn now, null when hidden (tests: its pixel on the screen). */
   silhouetteChest(): [number, number, number] | null;
+  /** The giants as drawn: their boxes (centre, size) and whether one is faded now (tests, FM-03). */
+  giantBoxes(): Array<{ center: [number, number, number]; size: [number, number, number]; faded: boolean }>;
 }
+
+/** The blocky figure across its arms and its depth at the hero's size (src/render/characters.ts PART). */
+const GIANT_WIDTH = 3.8;
+const GIANT_DEPTH = 1.2;
 
 /** A blocky figure of 5 units as flat rectangles: legs, torso, arms, head (src/render/characters.ts proportions). */
 function silhouetteGeometry(height: number): PlaneGeometry | ReturnType<typeof mergeGeometries> {
@@ -127,6 +133,12 @@ export function createBossView(d: BossViewDeps): BossView {
     },
     get silhouettesShown() {
       return shownCount;
+    },
+    giantBoxes() {
+      const k = (look?.height ?? 0) / HERO_HEIGHT;
+      return giants
+        .filter((ch) => ch.visible)
+        .map((ch) => ({ center: [ch.position.x, ch.position.y + (look?.height ?? 0) / 2, ch.position.z] as [number, number, number], size: [GIANT_WIDTH * k, look?.height ?? 0, GIANT_DEPTH * k] as [number, number, number], faded: false }));
     },
     silhouetteChest() {
       if (!shown) return null;
