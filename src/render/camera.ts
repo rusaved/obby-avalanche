@@ -459,6 +459,15 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
         rig.shakeAmount = Math.max(0, rig.shakeAmount - dt * 2);
         if (collision && blocked(_desired, c.collisionRadius * 0.5, collision)) _desired.copy(_tmp);
       }
+      // Never inside the hero (PR-13; playtest FM: «flies into the hero in the grotto after the avalanche»): whatever moved
+      // the point this frame (a blend on a slow frame, the shake, a pull off a wall), closer than hideDistance to his chest
+      // it goes out to it along the same line, unless a wall is there.
+      _seg.copy(_desired).sub(heroChest);
+      if (_seg.length() < c.hideDistance) {
+        if (_seg.lengthSq() < 1e-6) _seg.set(-Math.sin(frame.viewYaw), 0.5, -Math.cos(frame.viewYaw));
+        _tmp.copy(heroChest).addScaledVector(_seg.normalize(), c.hideDistance * 1.05);
+        if (!collision || !blocked(_tmp, c.collisionRadius * 0.5, collision)) _desired.copy(_tmp);
+      }
       camera.position.copy(_desired);
       if (_desired.distanceToSquared(_look) > 1e-6) camera.lookAt(_look);
       // Projections later in this frame (HUD arrows, signs under the banner) use this view, not the last one.
