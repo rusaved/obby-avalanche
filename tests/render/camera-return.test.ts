@@ -14,7 +14,16 @@ import type { TuningJson, World } from '../../src/content/types.ts';
 // recorded on the camera as it was before SP and must not change. A hand-made slope with one grotto, so the later
 // changes of worlds.json do not touch it.
 const base = mergePatch(tuningJson, openTuning) as unknown as TuningJson;
-const tuningWith = (backBehind: 'run' | 'before'): TuningJson => ({ ...base, camera: { ...base.camera, backBehind } });
+/** «before» — the camera of the open pace as it was before SP: no run share (SP-03), FOV add of the shared tuning. */
+const tuningWith = (backBehind: 'run' | 'before'): TuningJson => {
+  const camera = { ...base.camera, backBehind };
+  if (backBehind === 'before') {
+    delete camera.speedPow;
+    delete camera.speedDistanceAdd;
+    camera.fovSpeedAdd = (tuningJson as TuningJson).camera.fovSpeedAdd;
+  }
+  return { ...base, camera };
+};
 const DT = 1 / 60;
 const HALF = 28;
 const world: World = {

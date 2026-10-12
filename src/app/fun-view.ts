@@ -1,4 +1,4 @@
-// What: Sound, snow puffs and confetti for trampolines, ice slides, gifts and passed gates, including the coin fountain and the rising chime streaks.
+// What: Sound, snow puffs and confetti for trampolines, ice slides, gifts and passed gates, including the coin fountain and the rising chime streaks; the wind lines past a fast run.
 // Called by: main.ts (createFunView); app/handles.ts (type).
 // Keep: Reads the sim, never changes it: gate coins are paid once by the sim (gatePass), this only shows them; streak windows come from tuning (fun, gateReward).
 
@@ -14,7 +14,7 @@
 import { Vector3 } from 'three';
 import type { ThemeJson, TuningJson } from '../content/types.ts';
 import type { Sim } from '../sim/world.ts';
-import type { CameraRig } from '../render/camera.ts';
+import { runShare, type CameraRig } from '../render/camera.ts';
 import type { LevelMeshes } from '../render/level-mesh.ts';
 import type { FxParticles } from '../render/fx.ts';
 import type { GameAudio } from '../audio/index.ts';
@@ -36,6 +36,13 @@ const CONFETTI = 60;
  * a few units behind the hero who has just walked through: higher would be over the top of the frame). */
 const COINS_AT = 0.4;
 const CONFETTI_AT = 0.3;
+/** Wind lines (docs/01-gdd.md 20.3): this many a second at the top of the run, this far ahead of the hero and this
+ * high, in a box this wide, streaming past at this share of his speed. */
+const WIND_RATE = 40;
+const WIND_AHEAD = 10;
+const WIND_HIGH = 3;
+const WIND_SPREAD = 14;
+const WIND_SPEED = 0.6;
 
 /** A run of events in a row: the step grows by one when the next comes within `withinSec`, up to `steps` − 1. */
 export interface Streak {
@@ -89,6 +96,7 @@ export function createFunView(d: FunViewDeps): FunView {
   let giftStreak: Streak = { step: 0, at: -Infinity };
   let now = 0;
   let trailAcc = 0;
+  let windAcc = 0;
   let sim: Sim | null = null;
   const p = new Vector3();
   const color = (key: string, def: string): string => d.theme.materials[key]?.color ?? def;
@@ -152,6 +160,16 @@ export function createFunView(d: FunViewDeps): FunView {
           d.fx.burst('trail', heroRender.x - h.vel.x * back, heroRender.y + 0.15, heroRender.z - h.vel.z * back, [color('slideTrail', '#ffffff'), '#ffffff'], 3, 2.5, 0.5);
         }
       } else trailAcc = 0;
+      // SP-03: wind lines past the hero above tuning fx.windFrom of the run share (on a belt he does not move: none).
+      const from = d.tuning.fx?.windFrom;
+      const v = h ? Math.hypot(h.vel.x, h.vel.z) : 0;
+      const k = from === undefined || !h ? 0 : (runShare(d.tuning, v) - from) / Math.max(1e-3, 1 - from);
+      if (h && k > 0 && v > 2) {
+        windAcc += gameDt * WIND_RATE * k;
+        const n = Math.floor(windAcc);
+        windAcc -= n;
+        if (n > 0) d.fx.wind(heroRender.x + (h.vel.x / v) * WIND_AHEAD, heroRender.y + WIND_HIGH, heroRender.z + (h.vel.z / v) * WIND_AHEAD, -h.vel.x, -h.vel.z, v * WIND_SPEED, n, WIND_SPREAD);
+      } else windAcc = 0;
       d.meshes()?.update(timeSec);
       d.fx.update(gameDt);
     },

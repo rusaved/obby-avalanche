@@ -244,6 +244,8 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       for (const f of fixed)
         if (f.z > flatHi && f.z < topLo) throw new Error(`${m.id}: section ${j} — the grotto at z=${f.z} falls on the approach rise (the elements need a longer section)`);
       const ridgeRoom = zRidgeGrotto - big.length / 2 - G / 2 - O.grottoClear;
+      /** The last grotto of each side so far (a taken side moves its grotto to the edge of the stretch, not before it). */
+      const last = { left: base, right: base };
       for (let cursor = base; ; ) {
         const anchor = fixed.find((f) => f.z > cursor + 1e-9);
         const rest = (anchor ? anchor.z : zRidgeGrotto) - cursor;
@@ -274,8 +276,22 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
         const onFork = fork !== null && zg >= fork[0] && zg <= fork[1];
         if (sides) for (const s of sides) seg.push(onFork ? { ...grottoAt(zg, s), lane: lane(s) } : grottoAt(zg, s));
         else if (onFork) {
-          for (const s of ['left', 'right'] as const) if (free(s)) seg.push({ ...grottoAt(zg, s), lane: lane(s) });
+          for (const s of ['left', 'right'] as const) {
+            if (free(s)) {
+              seg.push({ ...grottoAt(zg, s), lane: lane(s) });
+              continue;
+            }
+            // SP-03 (docs/01-gdd.md 20.3): a side taken here (a hump crest) gets its grotto at the near edge of that stretch,
+            // so its lane keeps its spacing on the longer sections.
+            const [p, q] = per[s].find(([a, b]) => zg > a && zg < b)!;
+            const at = round3(p > last[s] + 1 && p >= flatLo ? p : q);
+            if (at < zRidgeGrotto - big.length / 2 - G) {
+              seg.push({ ...grottoAt(at, s), lane: lane(s) });
+              last[s] = at;
+            }
+          }
         } else seg.push(grottoAt(zg, side(++nth)));
+        for (const s of ['left', 'right'] as const) if (sides?.includes(s) || (onFork && free(s)) || (!sides && !onFork)) last[s] = zg;
       }
     }
     seg.push({

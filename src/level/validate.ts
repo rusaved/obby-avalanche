@@ -369,6 +369,8 @@ const tuningSchema = v.object({
     fadeAlpha: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
     bossKeepDeg: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(90))),
     flagHide: v.optional(nonNeg),
+    speedDistanceAdd: v.optional(nonNeg),
+    speedPow: v.optional(positive),
     backBehind: v.optional(v.picklist(['run', 'before'])),
   }),
   input: v.object({
@@ -402,6 +404,7 @@ const tuningSchema = v.object({
   bossShot: v.optional(v.object({ side: positive, rise: nonNeg, back: nonNeg, sec: positive })),
   boss: v.optional(v.object({ stompShake: nonNeg })),
   far: v.optional(v.object({ pc: positive, mobile: positive })),
+  fx: v.optional(v.object({ windFrom: v.pipe(v.number(), v.minValue(0), v.maxValue(1)) })),
   bounds: v.optional(v.object({ wallHeight: positive })),
   gateReward: v.object({
     fountain: v.pipe(v.tuple([v.pipe(v.number(), v.integer(), v.minValue(1)), v.pipe(v.number(), v.integer(), v.minValue(1))]), v.check((r) => r[0] <= r[1], 'expected [min, max]')),

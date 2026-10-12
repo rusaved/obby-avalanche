@@ -28,6 +28,13 @@ import {
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import type { AccessoriesJson, SkinsJson } from '../content/types.ts';
 
+
+/** SP-03 (docs/01-gdd.md 20.3): the stride rate of a run at `speed` — √(speed / baseSpeed), 1…3, with the run share of
+ * camera.speedPow on (the open pace); 1 without it (classic and fast as before). */
+export function runCadence(tuning: { controller: { baseSpeed: number }; camera: { speedPow?: number } }, speed: number): number {
+  if (tuning.camera.speedPow === undefined) return 1;
+  return Math.max(1, Math.min(3, Math.sqrt(Math.max(0, speed) / Math.max(1, tuning.controller.baseSpeed))));
+}
 export const FACES = ['neutral', 'happy', 'wow', 'scared', 'determined', 'laugh', 'wink', 'sleep'] as const;
 export type FaceName = (typeof FACES)[number];
 
@@ -62,6 +69,8 @@ export interface CharacterInstance {
   pose: CharacterPose;
   /** Run phase advance per frame from speed; 0–1 speed factor. */
   speedFactor: number;
+  /** Strides a second × this (SP-03, docs/01-gdd.md 20.3: the legs go faster as the run does; 1 — as before). */
+  cadence: number;
   phase: number;
   face: number;
   /** Landing squash timer (seconds left). */
@@ -394,6 +403,7 @@ if (vObjNormal.z > 0.6) {
         yaw: 0,
         pose: 'idle',
         speedFactor: 0,
+        cadence: 1,
         phase: 0,
         face: 0,
         squash: 0,
@@ -470,7 +480,7 @@ if (vObjNormal.z > 0.6) {
         }
         // Animation (docs/02-tech.md 9.2): sine-based run, breathing idle, jump/fall poses, landing squash.
         const running = ch.pose === 'run' && ch.speedFactor > 0.05;
-        ch.phase += dt * (running ? 6 + 8 * ch.speedFactor : 1.2);
+        ch.phase += dt * (running ? (6 + 8 * ch.speedFactor) * ch.cadence : 1.2);
         if (ch.squash > 0) ch.squash = Math.max(0, ch.squash - dt);
         const sq = ch.squash > 0 ? 1 - 0.15 * (ch.squash / 0.1) : 1;
         const swing = running ? Math.sin(ch.phase) * (0.5 + 0.5 * ch.speedFactor) : 0;

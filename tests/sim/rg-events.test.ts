@@ -206,10 +206,11 @@ describe('the blizzard (RG-07)', () => {
     expect(o.rare!.state.blizzard).not.toBeNull();
     expect(o.params.speed).toBeCloseTo(v(1000), 6);
     expect(o.rare!.stepMultAt(o.hero.pos.z)).toBe(1);
-    // Steps × 2 at × 0.7 the speed: a second of the run gives about 1.4 of the plain one.
+    // Steps × 2 at × 0.7 the speed: a run gives about 1.4 of the plain one (3 s: whole steps of the faster run of SP-03
+    // round off less).
     const gain = (s2: Sim): number => {
       const before = s2.progress.stat;
-      for (let i = 0; i < 60; i++) s2.step(RUN, DT);
+      for (let i = 0; i < 180; i++) s2.step(RUN, DT);
       return s2.progress.stat - before;
     };
     const plain = sim7();

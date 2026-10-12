@@ -29,8 +29,9 @@ const vmin = moveSpeed(stat, curve);
 const sim = (): ReturnType<typeof createSim> => createSim(level, tuning, { balance, speedCurve: curve, stat });
 
 describe('chasm and trampoline (RG-02)', () => {
-  it('mountain 2: a chasm 10 wide and 3 deep across the whole slope, a trampoline on every lane before it', () => {
-    expect(chasm.z1 - chasm.z0).toBe(10);
+  // SP-03 (docs/01a-content.md 19.5): 18 wide — at the run of «Размах» a hero would run over the 10 of RG.
+  it('mountain 2: a chasm 18 wide and 3 deep across the whole slope, a trampoline on every lane before it', () => {
+    expect(chasm.z1 - chasm.z0).toBe(18);
     expect(chasm.depth).toBe(3);
     expect(chasm.x0).toBe(-w2.width / 2);
     expect(chasm.x1).toBe(w2.width / 2);

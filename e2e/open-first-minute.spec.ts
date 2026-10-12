@@ -1,8 +1,9 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import type { Page } from '@playwright/test';
 import { test, expect, shot1080, testState } from './fixtures.ts';
 import type { TestState } from '../src/test-api/index.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
+import balanceJson from '../content/avalanche/balance.json' with { type: 'json' };
 
 // PS-10, rewritten for FM-05 (docs/01-gdd.md 19.6, decision FM): the first minutes on the slope on a fresh save, on a PC
 // (the file name keeps it off the phone project of playwright.config.ts). The physical bot (controller and collisions in
@@ -27,6 +28,10 @@ const SLACK = 5;
 /** The rhythm of 19.6 for the physical bot: belt of ridge 2, the longest gap between rewards up to 180 s (FM-05). */
 const RIDGE2_BELT_SEC = 10;
 const REWARD_GAP_SEC = 25;
+/** SP-03 (docs/01-gdd.md 20.3): the run of «Размах» keeps the seconds of the first minute of «База» (FM) — ridge «50», «Phew,
+ * made it!» of the scripted wave, the giant — within this many seconds of docs/evidence/fm/rhythm-m1.txt. */
+const FM_RHYTHM = 'docs/evidence/fm/rhythm-m1.txt';
+const SAME_SEC = 2;
 /** Plaques allowed in the first 60 s: the shoes and the controls. */
 const EARLY_HINTS = new Set(['hint.move', 'hint.shoes', 'hint.jumpPc', 'hint.jumpTouch']);
 
@@ -77,7 +82,10 @@ test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg
       rewards.push([st.playSec, key.split('@')[0]!]);
     }
   };
-  await go([[0, ridges[0]!.z - 4], [0, ridges[0]!.z + 12], [-16, ridges[0]!.z + 24]]);
+  // Up to the siren of the scripted wave (17.8): triggerDist below the first grotto of section 2, from the data.
+  const firstOf2 = shelters.filter((n) => n.kind === 'grotto' && n.z > ridges[0]!.z).sort((a, b) => a.z - b.z)[0]!;
+  const sirenZ = firstOf2.z - balanceJson.ftue.triggerDist + 2;
+  await go([[0, ridges[0]!.z - 4], [0, ridges[0]!.z + 12], [-16, Math.max(ridges[0]!.z + 24, sirenZ)]]);
   await page.evaluate(() => window.__TEST__!.setTimeScale(3));
 
   // Set in resume() too: typed wide, so the loop's checks are not narrowed away.
@@ -165,10 +173,23 @@ test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg
   const end = Math.min(180, s.playSec);
   const marks = [0, ...rewards.map(([t]) => t).filter((t) => t <= end), end];
   const gaps = marks.slice(1).map((t, k) => t - marks[k]!);
+  // The seconds of «База» (FM) to keep: read before this run's file is written (SP writes its own).
+  const fmTimes = (name: string): number[] =>
+    (existsSync(FM_RHYTHM) ? readFileSync(FM_RHYTHM, 'utf8') : '')
+      .split('\n')
+      .map((l) => /^\s*([\d.]+) s\s+(\S+)/.exec(l))
+      .flatMap((m) => (m && m[2] === name ? [Number(m[1])] : []));
+  const ours = (name: string): number[] => rewards.filter(([, n]) => n === name).map(([t]) => t);
+  mkdirSync('docs/evidence/sp', { recursive: true });
   writeFileSync(
-    'docs/evidence/fm/rhythm-m1.txt',
+    'docs/evidence/sp/rhythm-m1.txt',
     `Физический бот горы 1 (FM-05, 01 19.6), секунды игры\nСтоянка на дорожке у рубежа 2: ${beltSec.toFixed(1)} с (≤ ${RIDGE2_BELT_SEC})\nСамый долгий промежуток между наградами до ${end.toFixed(0)} с: ${Math.max(...gaps).toFixed(1)} с (≤ ${REWARD_GAP_SEC})\n${rewards.map(([t, n]) => `${t.toFixed(1).padStart(6)} s  ${n}`).join('\n')}\n`,
   );
+  for (const [what, name, k] of [['ridge «50»', 'gatePass', 0], ['«Phew, made it!» of the scripted wave', 'waveSurvived', 0], ['the giant', 'gatePass', 3]] as const) {
+    const fm = fmTimes(name)[k];
+    if (fm === undefined) continue;
+    expect(Math.abs((ours(name)[k] ?? Infinity) - fm), `${what}: ${ours(name)[k]} s, FM ${fm} s`).toBeLessThanOrEqual(SAME_SEC);
+  }
   expect(beltSec, 'belt of ridge 2, s').toBeLessThanOrEqual(RIDGE2_BELT_SEC);
   expect(Math.max(...gaps), `gaps ${gaps.map((g) => g.toFixed(0)).join(' ')}`).toBeLessThanOrEqual(REWARD_GAP_SEC);
   // 19.6 with ±5 s for the bot.

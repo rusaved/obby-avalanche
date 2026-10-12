@@ -1,9 +1,15 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { test, expect, testState, waitTicks } from './fixtures.ts';
+import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 
 // «Размах» (SP) budgets (docs/01-gdd.md 20.11; docs/02-tech.md 9.5). SP-02: a simulation step on mountain 10 at CPU ×4
 // with 6 bots at 120 units/s (tuning.controller.maxSpeed 120, Speed at the cap) stays within 2 ms.
 const EVIDENCE = 'docs/evidence/sp';
+type Seg = { type: string; z: number; kind?: string };
+type OpenWorld = { id: string; segments: Seg[]; bosses: Array<{ zone: [number, number] }> };
+const worlds = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds;
+/** SP-03 (docs/01-gdd.md 20.11): draw calls on the longer, wider mountains of «Размах» with far 800 — the target 45. */
+const CALLS = 45;
 
 test('SP-02: a simulation step on mountain 10 at CPU ×4 with 6 bots at 120 units/s stays within 2 ms', async ({ page, openGame }) => {
   test.setTimeout(240_000);
@@ -44,4 +50,27 @@ test('SP-02: a simulation step on mountain 10 at CPU ×4 with 6 bots at 120 unit
   expect(top, 'ran at 120').toBeGreaterThan(110);
   // The mean: CPU throttling stops the page in quanta, a single tick that meets one is ~15 ms (docs/допущения.md).
   expect(mean, line).toBeLessThanOrEqual(2);
+});
+
+test('SP-03: draw calls at the foot, ridge 2 and the giant’s line of mountains 1, 5, 10 ≤ 45 (far 800)', async ({ page, openGame }) => {
+  test.setTimeout(240_000);
+  mkdirSync(EVIDENCE, { recursive: true });
+  await openGame('pace=open&quality=high');
+  const rows: string[] = [];
+  for (const n of [1, 5, 10]) {
+    const w = worlds[n - 1]!;
+    await page.evaluate((i) => window.__TEST__!.gotoWorld(i), n);
+    await waitTicks(page, 20);
+    await page.evaluate(() => window.__TEST__!.holdWave(900));
+    const ridges = w.segments.filter((s) => s.type === 'gate' && s.kind === 'ridge').map((s) => s.z);
+    for (const [name, z] of [['подножие', 20], ['рубеж 2', ridges[1]! - 6], ['начало зоны великана', w.bosses[0]!.zone[0] - 4]] as Array<[string, number]>) {
+      await page.evaluate((zz) => window.__TEST__!.teleport(zz), z);
+      await waitTicks(page, 30);
+      const info = (await page.evaluate(() => window.__TEST__!.renderInfo()))!;
+      rows.push(`| ${n} ${w.id} | ${name} | ${info.calls} | ${info.triangles} |`);
+      const what = info.calls > CALLS ? JSON.stringify(await page.evaluate(() => window.__TEST__!.drawList())) : '';
+      expect(info.calls, `mountain ${n}, ${name} ${what}`).toBeLessThanOrEqual(CALLS);
+    }
+  }
+  writeFileSync(`${EVIDENCE}/perf.md`, ['# Размах: draw calls (SP-03)', '', `\`?pace=open&quality=high\`, 960×540, far 800; цель ${CALLS}.`, '', '| Гора | Точка | Draw calls | Треугольники |', '|---|---|---|---|', ...rows, ''].join('\n'));
 });

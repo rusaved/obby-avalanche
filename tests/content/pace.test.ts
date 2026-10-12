@@ -18,6 +18,8 @@ function pacePack(pack: string, pace: string): PackFiles {
   const files: Partial<PackFiles> = {};
   for (const f of PACK_FILES) files[f] = json(pack, f);
   files['balance.json'] = mergePatch(files['balance.json'], json(pack, 'pace', pace, 'balance.json'));
+  // The tuning patch of the pace as the game and gen:worlds take it (SP-03: its controller ceiling shapes the elements).
+  if (existsSync(resolve(root, 'content', pack, 'pace', pace, 'tuning.json'))) files['tuning.json'] = mergePatch(files['tuning.json'], json(pack, 'pace', pace, 'tuning.json'));
   files['worlds.json'] = json(pack, 'pace', pace, 'worlds.json');
   files['worlds-spec.json'] = json(pack, 'pace', pace, 'worlds-spec.json');
   return files as PackFiles;

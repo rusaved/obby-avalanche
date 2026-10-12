@@ -41,6 +41,8 @@ export interface BotsViewDeps {
   /** HUD mode of the shots and the promo video, and the photo studio: names hidden. */
   hudMode(): HudMode;
   studio: boolean;
+  /** Strides a second × this at a run speed (SP-03: render/characters.ts runCadence); absent — 1. */
+  cadence?(speed: number): number;
 }
 
 export interface BotLabelState {
@@ -125,6 +127,8 @@ export function createBotsView(d: BotsViewDeps): BotsView {
         s.ch.yaw = b.yaw;
         s.ch.pose = b.moving ? 'run' : 'idle';
         s.ch.speedFactor = b.moving ? 1 : 0;
+        // The legs by the bot's own speed: its way from the last tick to this one.
+        s.ch.cadence = d.cadence && b.moving ? d.cadence(Math.hypot(s.cur.x - s.prev.x, s.cur.z - s.prev.z) * 60) : 1;
         // Hit by the rolling snowball (docs/01-gdd.md 18.4): the same ball round him on the spot.
         const tumbleSec = sim.rare?.cfg.snowball?.tumbleSec ?? 0;
         s.ball.update(b.ball ?? (b.tumble > 0 && tumbleSec > 0 ? tumbleClip(tumbleSec - b.tumble, tumbleSec, pos) : null), pos, s.ch, timeSec);

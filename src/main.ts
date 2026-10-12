@@ -22,7 +22,7 @@ import { mountLabel } from './ui/label.ts';
 import { icon } from './ui/icons.ts';
 import { createGameRenderer, createWebGL2Context, type GameRenderer } from './render/renderer.ts';
 import { createLevelMeshes, type LevelMeshes } from './render/level-mesh.ts';
-import { createCharacters, type CharacterInstance, type Characters } from './render/characters.ts';
+import { createCharacters, runCadence, type CharacterInstance, type Characters } from './render/characters.ts';
 import { createBlobShadow } from './render/blob.ts';
 import { createRecordFlag } from './render/record-flag.ts';
 import { createSnowball, tumbleClip } from './render/threat/snowball.ts';
@@ -1160,6 +1160,7 @@ async function boot(): Promise<void> {
       // On a belt the hero runs in place by himself (docs/01-gdd.md 3.4).
       heroChar.pose = hero.onGround ? (hero.speed > 0.5 || sim.onBelt ? 'run' : 'idle') : hero.vel.y > 2 ? 'jump' : 'fall';
       if (sim.onBelt) heroChar.speedFactor = 1;
+      heroChar.cadence = runCadence(tuning, hero.speed);
       heroChar.carry = (sim.bonus?.carried ?? false) && !sim.caught;
       // The tumble of the rolling snowball (docs/01-gdd.md 18.4): the same ball round the hero, on the spot.
       const tb = sim.tumble;
@@ -1324,6 +1325,7 @@ async function boot(): Promise<void> {
   decorWire(sim);
   eventsView = createEventsView({ theme, scene: gr.scene, camera: () => cameraRig?.camera ?? null, snowflakes: () => quality.params.snowflakes });
   botsView = createBotsView({
+    cadence: (v) => runCadence(tuning, v),
     cfg: bots,
     characters,
     scene: gr.scene,
@@ -1424,7 +1426,7 @@ async function boot(): Promise<void> {
   // Fun between the gates and the reward of every gate (docs/01-gdd.md 16.4, 16.5): sounds, particles, the fountain.
   fx = createFx();
   fx.setShare(quality.params.particles);
-  gr.scene.add(fx.points);
+  gr.scene.add(fx.points, fx.lines);
   funView = createFunView({ tuning, theme, hud, camera: cameraRig, fx, audio: () => audio, meshes: () => levelMeshes, field: () => field, numSuffix });
   funView.wire(sim);
   const ftueVisual = createFtueVisual(theme);

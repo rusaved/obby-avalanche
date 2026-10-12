@@ -54,16 +54,21 @@
    "fromWorld": 2
   },
   "chasm": {
-   "width": 12,
+   "width": 18,
    "depth": 3,
    "giftsAir": 2,
    "giftsBottom": 3,
-   "ramp": 12,
+   "ramp": 6,
    "padBefore": 6,
    "widthByWorld": {
-    "2": 10,
-    "9": 14,
-    "10": 14
+    "2": 18,
+    "4": 22,
+    "5": 22,
+    "6": 22,
+    "7": 26,
+    "8": 26,
+    "9": 28,
+    "10": 28
    }
   },
   "throat": {
@@ -115,23 +120,23 @@
    "speed": 45,
    "sections": [
     {
-     "length": 200,
+     "length": 280,
      "stepMult": 1,
-     "shelterEvery": 45,
+     "shelterEvery": 63,
      "gift": 12,
      "fork": false
     },
     {
-     "length": 230,
+     "length": 310,
      "stepMult": 1.2,
-     "shelterEvery": 65,
+     "shelterEvery": 88,
      "gift": 14,
      "fork": true
     },
     {
-     "length": 260,
+     "length": 400,
      "stepMult": 1.5,
-     "shelterEvery": 90,
+     "shelterEvery": 138,
      "gift": 18,
      "fork": false
     }
@@ -141,19 +146,19 @@
      "requires": 50
     },
     {
-     "requires": 420
+     "requires": 520
     },
     {
-     "requires": 1100
+     "requires": 1500
     }
    ],
    "boss": {
-    "stretch": 240,
-    "requires": 1700,
+    "stretch": 360,
+    "requires": 2300,
     "margin": 0.05,
     "stepMult": 2,
     "gift": 20,
-    "speed": 30
+    "speed": 43.4
    }
   },
   {
@@ -166,16 +171,16 @@
    "speed": 46,
    "sections": [
     {
-     "length": 230,
+     "length": 330,
      "stepMult": 2.5,
-     "shelterEvery": 45,
+     "shelterEvery": 65,
      "gift": 40,
      "fork": false
     },
     {
-     "length": 260,
+     "length": 380,
      "stepMult": 3,
-     "shelterEvery": 65,
+     "shelterEvery": 95,
      "gift": 40,
      "fork": false,
      "shape": [
@@ -183,9 +188,9 @@
      ]
     },
     {
-     "length": 290,
+     "length": 420,
      "stepMult": 4,
-     "shelterEvery": 90,
+     "shelterEvery": 130,
      "gift": 50,
      "fork": true,
      "shape": [
@@ -193,34 +198,34 @@
      ]
     },
     {
-     "length": 320,
+     "length": 470,
      "stepMult": 5,
-     "shelterEvery": 120,
+     "shelterEvery": 176,
      "gift": 60,
      "fork": true
     }
    ],
    "ridges": [
     {
-     "requires": 4900
+     "requires": 7100
     },
     {
-     "requires": 9300
+     "requires": 13000
     },
     {
-     "requires": 16000
+     "requires": 23000
     },
     {
-     "requires": 24000
+     "requires": 36000
     }
    ],
    "boss": {
-    "stretch": 270,
-    "requires": 37000,
+    "stretch": 400,
+    "requires": 55000,
     "margin": 0.05,
     "stepMult": 6,
     "gift": 80,
-    "speed": 36.1
+    "speed": 54.9
    }
   },
   {
@@ -233,16 +238,16 @@
    "speed": 48,
    "sections": [
     {
-     "length": 260,
+     "length": 390,
      "stepMult": 8,
-     "shelterEvery": 45,
+     "shelterEvery": 68,
      "gift": 120,
      "fork": false
     },
     {
-     "length": 290,
+     "length": 430,
      "stepMult": 10,
-     "shelterEvery": 65,
+     "shelterEvery": 96,
      "gift": 150,
      "fork": true,
      "shape": [
@@ -250,9 +255,9 @@
      ]
     },
     {
-     "length": 320,
+     "length": 480,
      "stepMult": 12,
-     "shelterEvery": 90,
+     "shelterEvery": 135,
      "gift": 200,
      "fork": false,
      "shape": [
@@ -260,9 +265,9 @@
      ]
     },
     {
-     "length": 350,
+     "length": 530,
      "stepMult": 15,
-     "shelterEvery": 120,
+     "shelterEvery": 182,
      "gift": 200,
      "fork": false,
      "shape": [
@@ -273,25 +278,25 @@
    ],
    "ridges": [
     {
-     "requires": 61000
-    },
-    {
-     "requires": 96000
+     "requires": 92000
     },
     {
      "requires": 140000
     },
     {
-     "requires": 170000
+     "requires": 210000
+    },
+    {
+     "requires": 290000
     }
    ],
    "boss": {
-    "stretch": 300,
-    "requires": 260000,
+    "stretch": 450,
+    "requires": 420000,
     "margin": 0.05,
     "stepMult": 20,
     "gift": 250,
-    "speed": 39.9
+    "speed": 62.3
    }
   },
   {
@@ -304,23 +309,23 @@
    "speed": 50,
    "sections": [
     {
-     "length": 290,
+     "length": 440,
      "stepMult": 25,
-     "shelterEvery": 45,
+     "shelterEvery": 68,
      "gift": 600,
      "fork": false
     },
     {
-     "length": 320,
+     "length": 490,
      "stepMult": 30,
-     "shelterEvery": 65,
+     "shelterEvery": 100,
      "gift": 1000,
      "fork": true
     },
     {
-     "length": 350,
+     "length": 540,
      "stepMult": 40,
-     "shelterEvery": 90,
+     "shelterEvery": 139,
      "gift": 1200,
      "fork": true,
      "shape": [
@@ -328,9 +333,9 @@
      ]
     },
     {
-     "length": 380,
+     "length": 580,
      "stepMult": 40,
-     "shelterEvery": 120,
+     "shelterEvery": 183,
      "gift": 1500,
      "fork": true,
      "shape": [
@@ -340,25 +345,25 @@
    ],
    "ridges": [
     {
-     "requires": 400000
+     "requires": 650000
     },
     {
-     "requires": 590000
+     "requires": 940000
     },
     {
-     "requires": 830000
+     "requires": 1300000
     },
     {
-     "requires": 1100000
+     "requires": 1700000
     }
    ],
    "boss": {
-    "stretch": 330,
-    "requires": 1900000,
+    "stretch": 510,
+    "requires": 3000000,
     "margin": 0.05,
     "stepMult": 60,
     "gift": 2000,
-    "speed": 37.3,
+    "speed": 59,
     "helpers": [
      {
       "side": "left"
@@ -376,16 +381,16 @@
    "speed": 52,
    "sections": [
     {
-     "length": 320,
+     "length": 490,
      "stepMult": 60,
-     "shelterEvery": 45,
+     "shelterEvery": 69,
      "gift": 2400,
      "fork": false
     },
     {
-     "length": 350,
+     "length": 540,
      "stepMult": 80,
-     "shelterEvery": 65,
+     "shelterEvery": 100,
      "gift": 3000,
      "fork": true,
      "shape": [
@@ -393,9 +398,9 @@
      ]
     },
     {
-     "length": 380,
+     "length": 590,
      "stepMult": 100,
-     "shelterEvery": 90,
+     "shelterEvery": 140,
      "gift": 4000,
      "fork": false,
      "shape": [
@@ -403,9 +408,9 @@
      ]
     },
     {
-     "length": 410,
+     "length": 640,
      "stepMult": 150,
-     "shelterEvery": 120,
+     "shelterEvery": 187,
      "gift": 5000,
      "fork": false,
      "shape": [
@@ -416,25 +421,25 @@
    ],
    "ridges": [
     {
-     "requires": 2700000
+     "requires": 4200000
     },
     {
-     "requires": 3700000
+     "requires": 5800000
     },
     {
-     "requires": 4900000
+     "requires": 7800000
     },
     {
-     "requires": 6800000
+     "requires": 11000000
     }
    ],
    "boss": {
-    "stretch": 360,
-    "requires": 9200000,
+    "stretch": 560,
+    "requires": 15000000,
     "margin": 0.05,
     "stepMult": 150,
     "gift": 6000,
-    "speed": 40,
+    "speed": 64,
     "helpers": [
      {
       "side": "left"
@@ -452,16 +457,16 @@
    "speed": 54,
    "sections": [
     {
-     "length": 350,
+     "length": 550,
      "stepMult": 200,
-     "shelterEvery": 45,
+     "shelterEvery": 71,
      "gift": 12000,
      "fork": false
     },
     {
-     "length": 380,
+     "length": 600,
      "stepMult": 250,
-     "shelterEvery": 65,
+     "shelterEvery": 103,
      "gift": 20000,
      "fork": true,
      "shape": [
@@ -469,9 +474,9 @@
      ]
     },
     {
-     "length": 410,
+     "length": 650,
      "stepMult": 300,
-     "shelterEvery": 90,
+     "shelterEvery": 143,
      "gift": 30000,
      "fork": true,
      "shape": [
@@ -480,9 +485,9 @@
      ]
     },
     {
-     "length": 440,
+     "length": 690,
      "stepMult": 400,
-     "shelterEvery": 120,
+     "shelterEvery": 188,
      "gift": 40000,
      "fork": true,
      "shape": [
@@ -493,25 +498,25 @@
    ],
    "ridges": [
     {
-     "requires": 13000000
+     "requires": 21000000
     },
     {
-     "requires": 20000000
-    },
-    {
-     "requires": 25000000
+     "requires": 32000000
     },
     {
      "requires": 41000000
+    },
+    {
+     "requires": 63000000
     }
    ],
    "boss": {
-    "stretch": 390,
-    "requires": 63000000,
+    "stretch": 620,
+    "requires": 100000000,
     "margin": 0.05,
     "stepMult": 500,
     "gift": 60000,
-    "speed": 43.2,
+    "speed": 69.9,
     "helpers": [
      {
       "side": "left"
@@ -529,16 +534,16 @@
    "speed": 56,
    "sections": [
     {
-     "length": 380,
+     "length": 600,
      "stepMult": 600,
-     "shelterEvery": 45,
+     "shelterEvery": 71,
      "gift": 120000,
      "fork": false
     },
     {
-     "length": 410,
+     "length": 650,
      "stepMult": 800,
-     "shelterEvery": 65,
+     "shelterEvery": 103,
      "gift": 200000,
      "fork": true,
      "shape": [
@@ -546,9 +551,9 @@
      ]
     },
     {
-     "length": 440,
+     "length": 700,
      "stepMult": 1000,
-     "shelterEvery": 90,
+     "shelterEvery": 143,
      "gift": 300000,
      "fork": true,
      "shape": [
@@ -556,9 +561,9 @@
      ]
     },
     {
-     "length": 470,
+     "length": 750,
      "stepMult": 1200,
-     "shelterEvery": 120,
+     "shelterEvery": 191,
      "gift": 400000,
      "fork": true,
      "shape": [
@@ -569,25 +574,25 @@
    ],
    "ridges": [
     {
-     "requires": 90000000
+     "requires": 150000000
     },
     {
-     "requires": 140000000
+     "requires": 230000000
     },
     {
-     "requires": 220000000
+     "requires": 350000000
     },
     {
-     "requires": 300000000
+     "requires": 490000000
     }
    ],
    "boss": {
-    "stretch": 420,
-    "requires": 430000000,
+    "stretch": 670,
+    "requires": 700000000,
     "margin": 0.05,
     "stepMult": 1500,
     "gift": 600000,
-    "speed": 46.4,
+    "speed": 75.9,
     "helpers": [
      {
       "side": "left"
@@ -608,16 +613,16 @@
    "speed": 58,
    "sections": [
     {
-     "length": 410,
+     "length": 660,
      "stepMult": 2000,
-     "shelterEvery": 45,
+     "shelterEvery": 72,
      "gift": 1600000,
      "fork": false
     },
     {
-     "length": 440,
+     "length": 710,
      "stepMult": 2500,
-     "shelterEvery": 65,
+     "shelterEvery": 105,
      "gift": 2400000,
      "fork": true,
      "shape": [
@@ -625,9 +630,9 @@
      ]
     },
     {
-     "length": 470,
+     "length": 760,
      "stepMult": 3000,
-     "shelterEvery": 90,
+     "shelterEvery": 146,
      "gift": 4000000,
      "fork": true,
      "shape": [
@@ -636,9 +641,9 @@
      ]
     },
     {
-     "length": 500,
+     "length": 810,
      "stepMult": 4000,
-     "shelterEvery": 120,
+     "shelterEvery": 194,
      "gift": 6000000,
      "fork": true,
      "shape": [
@@ -649,25 +654,25 @@
    ],
    "ridges": [
     {
-     "requires": 680000000
-    },
-    {
-     "requires": 990000000
+     "requires": 1100000000
     },
     {
      "requires": 1600000000
     },
     {
-     "requires": 2400000000
+     "requires": 2500000000
+    },
+    {
+     "requires": 3800000000
     }
    ],
    "boss": {
-    "stretch": 450,
-    "requires": 3800000000,
+    "stretch": 730,
+    "requires": 5900000000,
     "margin": 0.05,
     "stepMult": 5000,
     "gift": 8000000,
-    "speed": 50.1,
+    "speed": 82.5,
     "helpers": [
      {
       "side": "left"
@@ -688,16 +693,16 @@
    "speed": 60,
    "sections": [
     {
-     "length": 440,
+     "length": 710,
      "stepMult": 6000,
-     "shelterEvery": 45,
+     "shelterEvery": 73,
      "gift": 24000000,
      "fork": false
     },
     {
-     "length": 470,
+     "length": 760,
      "stepMult": 8000,
-     "shelterEvery": 65,
+     "shelterEvery": 105,
      "gift": 40000000,
      "fork": true,
      "shape": [
@@ -707,9 +712,9 @@
      ]
     },
     {
-     "length": 500,
+     "length": 810,
      "stepMult": 10000,
-     "shelterEvery": 90,
+     "shelterEvery": 146,
      "gift": 60000000,
      "fork": true,
      "shape": [
@@ -718,9 +723,9 @@
      ]
     },
     {
-     "length": 530,
+     "length": 870,
      "stepMult": 12000,
-     "shelterEvery": 120,
+     "shelterEvery": 197,
      "gift": 100000000,
      "fork": true,
      "shape": [
@@ -732,25 +737,25 @@
    ],
    "ridges": [
     {
-     "requires": 5900000000
+     "requires": 9400000000
     },
     {
-     "requires": 8800000000
+     "requires": 14000000000
     },
     {
-     "requires": 12000000000
+     "requires": 20000000000
     },
     {
-     "requires": 19000000000
+     "requires": 31000000000
     }
    ],
    "boss": {
-    "stretch": 480,
-    "requires": 29000000000,
+    "stretch": 810,
+    "requires": 49000000000,
     "margin": 0.05,
     "stepMult": 15000,
     "gift": 160000000,
-    "speed": 51.8,
+    "speed": 89.1,
     "helpers": [
      {
       "side": "left"
@@ -779,16 +784,16 @@
    "speed": 60,
    "sections": [
     {
-     "length": 470,
+     "length": 800,
      "stepMult": 20000,
-     "shelterEvery": 45,
+     "shelterEvery": 77,
      "gift": 500000000,
      "fork": false
     },
     {
-     "length": 500,
+     "length": 870,
      "stepMult": 25000,
-     "shelterEvery": 65,
+     "shelterEvery": 113,
      "gift": 800000000,
      "fork": true,
      "shape": [
@@ -798,9 +803,9 @@
      ]
     },
     {
-     "length": 530,
+     "length": 930,
      "stepMult": 30000,
-     "shelterEvery": 90,
+     "shelterEvery": 158,
      "gift": 1200000000,
      "fork": true,
      "shape": [
@@ -810,9 +815,9 @@
      ]
     },
     {
-     "length": 560,
+     "length": 1000,
      "stepMult": 40000,
-     "shelterEvery": 120,
+     "shelterEvery": 214,
      "gift": 2400000000,
      "fork": true,
      "shape": [
@@ -825,25 +830,25 @@
    ],
    "ridges": [
     {
-     "requires": 50000000000
+     "requires": 86000000000
     },
     {
-     "requires": 77000000000
+     "requires": 130000000000
     },
     {
-     "requires": 110000000000
+     "requires": 200000000000
     },
     {
-     "requires": 230000000000
+     "requires": 360000000000
     }
    ],
    "boss": {
-    "stretch": 510,
-    "requires": 400000000000,
+    "stretch": 940,
+    "requires": 710000000000,
     "margin": 0.05,
     "stepMult": 40000,
     "gift": 4000000000,
-    "speed": 51.8,
+    "speed": 97.1,
     "helpers": [
      {
       "side": "left"

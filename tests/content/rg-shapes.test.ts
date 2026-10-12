@@ -129,7 +129,8 @@ describe('character of the mountains in the data (RG-01)', () => {
     }
     expect(fresh).toEqual({ 1: [], 2: ['chasm'], 3: ['throat'], 4: [], 5: [], 6: ['tunnel'], 7: [], 8: ['hump'], 9: [], 10: [] });
     const size = (wi: number, t: string): number => worlds.worlds[wi]!.segments.find((s) => s.type === t)!['length'] as number;
-    expect([size(1, 'chasm'), size(4, 'chasm'), size(8, 'chasm'), size(9, 'chasm')]).toEqual([10, 12, 14, 14]);
+    // SP-03 (docs/01a-content.md 19.5): wider for the faster run, still growing up the mountains.
+    expect([size(1, 'chasm'), size(4, 'chasm'), size(8, 'chasm'), size(9, 'chasm')]).toEqual([18, 22, 28, 28]);
     expect([size(2, 'throat'), size(4, 'throat'), size(8, 'throat'), size(9, 'throat')]).toEqual([60, 80, 100, 100]);
     expect([size(5, 'tunnel'), size(6, 'tunnel'), size(9, 'tunnel')]).toEqual([80, 110, 140]);
   });

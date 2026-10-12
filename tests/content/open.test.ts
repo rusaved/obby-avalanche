@@ -33,11 +33,13 @@ describe('pace open by default (PS-02)', () => {
   it('the tuning.json patch of a pace merges deep like balance.json: the camera of the open slope, the rest shared', () => {
     const shared = json<TuningJson>('avalanche', 'tuning.json');
     const open = files['tuning.json'] as TuningJson;
-    expect(open.camera).toEqual({ ...shared.camera, distance: 13, height: 4.5, pitchDeg: 24, fov: 76, zoomMax: 26, mobileFovAdd: 4, flagHide: 2, backBehind: 'run' });
-    expect(open.controller).toEqual(shared.controller);
+    expect(open.camera).toEqual({ ...shared.camera, distance: 13, height: 4.5, pitchDeg: 24, fov: 76, fovSpeedAdd: 18, speedDistanceAdd: 7, speedPow: 0.4, zoomMax: 26, mobileFovAdd: 4, flagHide: 2, backBehind: 'run' });
+    // SP-03: the ceiling of the run 120 (docs/01a-content.md 19.7), the rest of the controller shared.
+    expect(open.controller).toEqual({ ...shared.controller, maxSpeed: 120 });
     expect(open.ridgeShot).toEqual({ rise: 6, back: 4, sec: 1.5 });
     expect(open.bossShot).toEqual({ side: 10, rise: 2, back: 2, sec: 1 });
-    expect(open.far).toEqual({ pc: 600, mobile: 450 });
+    expect(open.far).toEqual({ pc: 800, mobile: 600 });
+    expect(open.fx).toEqual({ windFrom: 0.4 });
     expect(shared.camera.distance).toBe(10);
   });
 
@@ -80,9 +82,9 @@ describe('generator openSlope and its validator (PS-03)', () => {
     expect(validatePack(files, { paces: PACES }).errors).toEqual([]);
   });
 
-  it('10 mountains by 01a 16.1: 3 sections on mountain 1, 4 on the others; the lengths; ridges and the giant', () => {
+  it('10 mountains by 01a 16.1 and 19.1 (SP-03: the lengths grew with the run): 3 sections on mountain 1, 4 on the others; ridges and the giant', () => {
     expect(worlds).toHaveLength(10);
-    expect(worlds.map((w) => w.length)).toEqual([1030, 1470, 1620, 1770, 1920, 2070, 2220, 2370, 2520, 2670]);
+    expect(worlds.map((w) => w.length)).toEqual([1380, 2100, 2380, 2660, 2920, 3210, 3470, 3770, 4060, 4640]);
     worlds.forEach((w, i) => {
       const sections = i === 0 ? 3 : 4;
       expect(w.width).toBe(56);

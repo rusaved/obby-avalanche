@@ -94,6 +94,16 @@ const KEEP_RATE = 3;
 /** A turn by hand this recent when the fixed frame ends keeps the player's yaw (docs/02-tech.md 7: «a turn in the last 0.5 s»). */
 const MANUAL_RECENT_SEC = 0.5;
 
+/** SP-03 (docs/01-gdd.md 20.3): the share of a run speed over the ceiling of the controller, ((v − base) / (max − base))
+ * to the power camera.speedPow; 0 without speedPow. The camera and the wind lines grow by it. */
+export function runShare(tuning: TuningJson, speed: number): number {
+  const p = tuning.camera.speedPow;
+  const lo = tuning.controller.baseSpeed;
+  const hi = tuning.controller.maxSpeed;
+  if (p === undefined || hi <= lo) return 0;
+  return Math.pow(Math.max(0, Math.min(1, (speed - lo) / (hi - lo))), p);
+}
+
 function smooth01(k: number): number {
   return k * k * (3 - 2 * k);
 }
@@ -144,6 +154,14 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
   let runBack = false;
   let hadShelter = false;
   const runYaw = (vel: Vector3): number => (Math.hypot(vel.x, vel.z) > 1 ? Math.atan2(vel.x, vel.z) : 0);
+  /** SP-03 (docs/01-gdd.md 20.3, camera.speedPow): the share of the run speed over the ceiling of the controller, so the
+   * FOV and the distance grow as the run does; without speedPow — the speed over the stat's own run speed, as before. */
+  const shareOf = (t: CameraTarget): number => {
+    if (c.speedPow === undefined) return t.maxSpeed > 0 ? Math.min(1, t.speed / t.maxSpeed) : 0;
+    return runShare(tuning, t.speed);
+  };
+  /** The share above, smoothed over fovSmoothSec: the distance backs off with it. */
+  let speedK = 0;
   /** Distance from a point to the hero's body axis, chest to head (the camera keeps hideDistance off it; PR-13). */
   const bodyDistance = (p: Vector3): number => {
     const y = Math.min(heroHead.y, Math.max(heroChest.y, p.y));
@@ -305,7 +323,8 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       // tuning camera.autoTurn (docs/01-gdd.md 16.7: running down the slope the view stays where the player left it).
       let yaw = frame.viewYaw;
       let pitch = frame.pitch;
-      let wantDist = frame.distance + (rig.view ? rig.view.back * viewK : 0);
+      if (c.speedDistanceAdd) speedK += (shareOf(target) - speedK) * (dt > 0 ? 1 - Math.exp(-dt / Math.max(1e-3, c.fovSmoothSec)) : 1);
+      let wantDist = frame.distance + (rig.view ? rig.view.back * viewK : 0) + (c.speedDistanceAdd ?? 0) * speedK;
       if (rig.shot) {
         yaw = rig.shot.yaw;
         pitch = rig.shot.pitch;
@@ -510,7 +529,7 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       rig.heroHidden = camera.position.distanceTo(heroChest) < c.hideDistance;
 
       // FOV from speed, smoothed.
-      const ratio = target.maxSpeed > 0 ? Math.min(1, target.speed / target.maxSpeed) : 0;
+      const ratio = shareOf(target);
       let wantFov = baseFov() + c.fovSpeedAdd * ratio;
       if (fixedK > 0) wantFov += (fixedFov - wantFov) * smooth01(fixedK);
       else if (tightK > 0) wantFov += (tightFov - wantFov) * (tight ? 1 : smooth01(tightK));

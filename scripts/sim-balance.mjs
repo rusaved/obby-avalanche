@@ -61,7 +61,8 @@ const readPack = () => {
   return {
     game: read('game.json'),
     balance,
-    tuning: read('tuning.json'),
+    // With the tuning patch of the pace (SP-03: its controller.maxSpeed 120 is the ceiling of the run), as the game plays it.
+    tuning: classic || !existsSync(resolve(paceDir, 'tuning.json')) ? read('tuning.json') : mergePatch(read('tuning.json'), JSON.parse(readFileSync(resolve(paceDir, 'tuning.json'), 'utf8'))),
     pets: read('pets.json'),
     eggs: read('eggs.json'),
     trails: read('trails.json'),
@@ -280,7 +281,8 @@ const lastWall = wallsPerMountain.reduce((a, b) => a + b, 0);
   const m = (greedy.mountains[0] ?? Infinity) / 60;
   check(2, `жадный, ступень 0: гора 1 — ${ru(LIM.m1[0])}–${ru(LIM.m1[1])} мин`, m >= LIM.m1[0] && m <= LIM.m1[1], `${m.toFixed(2)} мин`);
 }
-// 3. Greedy, tier 0: every mountain in 28–34 min; every profile: mountain k ≥ 0.8 × mountain k−1 (egg spammer: medians of 20 seeds).
+// 3. Greedy, tier 0: every mountain in 28–34 min (a pace: sim.checks.m1to10, «Размах» 28–38); every profile: mountain k ≥ 0.8 ×
+// mountain k−1 (egg spammer: medians of 20 seeds).
 const profiles = [
   ['жадный', greedy.mountains],
   ['ленивый', lazy.mountains],
@@ -290,8 +292,9 @@ const profiles = [
 ];
 {
   const m = greedy.sec / 60;
-  const ok = m >= 28 && m <= 34 && profiles.every(([, ms]) => ratioOk(ms));
-  check(3, `ступень 0: жадный, горы 1–${wallsPerMountain.length} — 28–34 мин; каждый профиль: гора k ≥ ${ru(LIM.ratio ?? 0.8).replace(',0', '')} × гора k−1`, ok, `жадный ${m.toFixed(1)} мин; худшее отношение соседних гор: ${profiles.map(([n, ms]) => `${n} ${worstRatio(ms).toFixed(2)}`).join(', ')}`);
+  const [lo, hi] = LIM.m1to10 ?? [28, 34];
+  const ok = m >= lo && m <= hi && profiles.every(([, ms]) => ratioOk(ms));
+  check(3, `ступень 0: жадный, горы 1–${wallsPerMountain.length} — ${lo}–${hi} мин; каждый профиль: гора k ≥ ${ru(LIM.ratio ?? 0.8).replace(',0', '')} × гора k−1`, ok, `жадный ${m.toFixed(1)} мин; худшее отношение соседних гор: ${profiles.map(([n, ms]) => `${n} ${worstRatio(ms).toFixed(2)}`).join(', ')}`);
 }
 // 4. Greedy, tier 0: the longest wall ≤ 75 s (fast: the longest gate ≤ 30 s, the mean of mountains 1–3 ≤ 10 s).
 {

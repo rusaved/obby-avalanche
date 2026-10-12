@@ -330,6 +330,11 @@ export interface TuningJson {
     /** FM-03: in a giant's zone running up the view never turns from the giant ahead by more than this (deg), until the
      * player turns the camera by hand. */
     bossKeepDeg?: number;
+    /** SP-03 (docs/01-gdd.md 20.3): the camera backs off this much at the top of the run (distance + add × share). */
+    speedDistanceAdd?: number;
+    /** SP-03: set — the share of speed for the FOV and the distance is ((v − baseSpeed) / (maxSpeed − baseSpeed))^speedPow over
+     * the ceiling of the controller (the run grows on the eye); absent — v over the run speed of the stat now, as before. */
+    speedPow?: number;
     /** SP-01 (docs/01-gdd.md 20.2): the record flag is not drawn on the line camera → hero nor nearer than
      * hideDistance × flagHide to the camera; absent — always drawn. */
     flagHide?: number;
@@ -396,6 +401,8 @@ export interface TuningJson {
   /** Pace open (docs/01-gdd.md 19.9, Q-048): an invisible wall over the side borders, along the summit and behind its
    * portal, `wallHeight` units over the floor; only the hero meets it (not the camera). Absent — no wall. */
   bounds?: { wallHeight: number };
+  /** SP-03 (docs/01-gdd.md 20.3): wind lines past the hero from this share of the run speed (camera.speedPow); absent — none. */
+  fx?: { windFrom: number };
 }
 
 export type SegmentType =

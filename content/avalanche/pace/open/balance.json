@@ -1,4 +1,5 @@
 {
+  "speedCurve": { "k": 0.55, "max": 120 },
   "coins": {
     "gatePass": 5
   },
@@ -14,7 +15,7 @@
       { "id": "puffy_kicks", "mult": 8, "price": 4000 },
       { "id": "snowflakes", "mult": 12, "price": 18000 },
       { "id": "frost_bolts", "mult": 20, "price": 80000 },
-      { "id": "ice_rockets", "mult": 30, "price": 350000 },
+      { "id": "ice_rockets", "mult": 30, "price": 220000 },
       { "id": "blizzard_boots", "mult": 50, "price": 1500000 },
       { "id": "comets", "mult": 80, "price": 6500000 },
       { "id": "north_wind", "mult": 120, "price": 28000000 },
@@ -41,7 +42,7 @@
     "continueShowSec": 6
   },
   "rebirth": {
-    "wallScale": [1, 37, 180, 700, 5200, 18000, 54000, 210000, 820000, 2500000],
+    "wallScale": [1, 38, 190, 860, 5900, 20000, 62000, 240000, 970000, 3000000],
     "unlock": "summitWorld10",
     "lateEase": {
       "fromWall": 30
@@ -67,7 +68,7 @@
       "early": [
         [
           1,
-          15
+          20
         ]
       ],
       "m1": [
@@ -87,6 +88,7 @@
       "ratio": 0.6,
       "before": [2.0, 2.2, 2.5, 2.7, 3.0, 3.4, 3.6, 4.0, 4.1, 4.7],
       "growth": 0.1,
+      "m1to10": [28, 38],
       "rhythm": { "sec": 180, "maxGap": 20, "standMax": 10, "noviceStandMax": 15, "noviceDelaySec": 15, "noviceSpeed": 0.8 },
       "buyer": { "fromSec": 300, "vip": true, "starter": true, "minShare": 0.5 }
     },
