@@ -121,6 +121,10 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
   /** RG-13: the grotto frame on; its share on the way back out (1 → 0); the way back does not turn the movement frame. */
   let tight = false;
   let tightK = 0;
+  /** The player's yaw when the grotto frame cut in and the way out of its mouth (±X, across the slope): leaving the frame
+   * not by running out of the mouth (a teleport, along a wall, the avalanche shot) the view goes back to that yaw. */
+  let tightYaw0 = 0;
+  const tightOut = { x: 0, z: 0 };
   const tightPos = new Vector3();
   const tightLook = new Vector3();
   let tightFov = c.fov;
@@ -337,21 +341,33 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       }
       // The grotto frame (RG-13): pressed into a wall in a shelter — a cut to the wide shot from the mouth, held while the
       // hero is in the shelter; out of it the camera blends back and turns behind him (where he runs), the movement frame
-      // stays the player's. Not over a fixed frame (the avalanche and belt shots keep theirs).
-      if (rig.shelter && !rig.fixed && !tight && collision && (rig.currentDistance < Math.min(wantDist, c.grottoShot.pressed) || bodyDistance(_desired) < c.minDist)) {
+      // stays the player's. Not over a fixed frame (the avalanche and belt shots keep theirs), nor while the view is coming
+      // back after one (PR-13: the way back to the player's yaw comes first).
+      if (rig.shelter && !rig.fixed && !tight && backYaw === null && collision && (rig.currentDistance < Math.min(wantDist, c.grottoShot.pressed) || bodyDistance(_desired) < c.minDist)) {
         tight = true;
         tightK = 1;
+        tightYaw0 = frame.viewYaw;
+        // Out of a side shelter is across the slope towards its middle (the frame point also stands downhill of the mouth).
+        tightOut.x = Math.sign(rig.shelter.pos.x - rig.shelter.look.x);
+        tightOut.z = 0;
       }
       if (tight && (!rig.shelter || rig.fixed)) {
         tight = false;
-        const moving = Math.hypot(target.vel.x, target.vel.z) > 1;
-        if (!rig.fixed && moving && !input.manualCamera) {
-          backYaw = Math.atan2(target.vel.x, target.vel.z);
+        // Running out of the mouth: behind him where he runs. Otherwise (a teleport, sliding along a wall, a fixed shot
+        // taking over): back to the player's yaw from before the frame — never the frame's look across the slope.
+        // A fixed shot taking over (a belt, the avalanche) brings the view back to it when it ends, a resting thumb or not.
+        const v = Math.hypot(target.vel.x, target.vel.z);
+        const out = v > 1 && target.vel.x * tightOut.x + target.vel.z * tightOut.z > 0.5 * v;
+        if (rig.fixed) backYaw = tightYaw0;
+        else if (!input.manualCamera) {
+          backYaw = out ? Math.atan2(target.vel.x, target.vel.z) : tightYaw0;
           retFrom = frame.viewYaw;
           retK = 0;
-          retFollow = false;
+          retFollow = !out;
         }
       }
+      // In the grotto frame a move started keeps the player's movement frame, not the frame's look into the grotto.
+      frame.scripted = tight;
       if (tight && rig.shelter) {
         tightPos.copy(rig.shelter.pos);
         tightLook.copy(rig.shelter.look);
