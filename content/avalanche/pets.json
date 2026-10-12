@@ -185,7 +185,7 @@
     {
       "id": "gold_penguin",
       "rarity": "legendary",
-      "bonus": 1.0,
+      "bonus": 0.5,
       "color": "#FFC933",
       "accent": "#FFF2B3"
     }

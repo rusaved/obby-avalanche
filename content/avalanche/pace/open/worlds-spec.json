@@ -137,19 +137,19 @@
      "requires": 50
     },
     {
-     "requires": 1100
+     "requires": 420
     },
     {
-     "requires": 2200
+     "requires": 1100
     }
    ],
    "boss": {
     "stretch": 240,
-    "requires": 4100,
+    "requires": 1700,
     "margin": 0.05,
     "stepMult": 2,
     "gift": 20,
-    "speed": 31.7
+    "speed": 30
    }
   },
   {
@@ -198,25 +198,25 @@
    ],
    "ridges": [
     {
-     "requires": 7400
+     "requires": 4900
     },
     {
-     "requires": 12000
+     "requires": 9300
     },
     {
-     "requires": 18000
+     "requires": 16000
     },
     {
-     "requires": 27000
+     "requires": 24000
     }
    ],
    "boss": {
     "stretch": 270,
-    "requires": 40000,
+    "requires": 37000,
     "margin": 0.05,
     "stepMult": 6,
     "gift": 80,
-    "speed": 36.2
+    "speed": 36.1
    }
   },
   {
@@ -269,25 +269,25 @@
    ],
    "ridges": [
     {
-     "requires": 64000
+     "requires": 61000
     },
     {
-     "requires": 98000
+     "requires": 96000
     },
     {
-     "requires": 150000
+     "requires": 140000
     },
     {
-     "requires": 190000
+     "requires": 170000
     }
    ],
    "boss": {
     "stretch": 300,
-    "requires": 280000,
+    "requires": 260000,
     "margin": 0.05,
     "stepMult": 20,
     "gift": 250,
-    "speed": 40.1
+    "speed": 39.9
    }
   },
   {
@@ -336,13 +336,13 @@
    ],
    "ridges": [
     {
-     "requires": 420000
+     "requires": 400000
     },
     {
-     "requires": 610000
+     "requires": 590000
     },
     {
-     "requires": 860000
+     "requires": 830000
     },
     {
      "requires": 1100000
@@ -421,7 +421,7 @@
      "requires": 4900000
     },
     {
-     "requires": 6900000
+     "requires": 6800000
     }
    ],
    "boss": {
@@ -430,7 +430,7 @@
     "margin": 0.05,
     "stepMult": 150,
     "gift": 6000,
-    "speed": 40.0,
+    "speed": 40,
     "helpers": [
      {
       "side": "left"
@@ -495,7 +495,7 @@
      "requires": 20000000
     },
     {
-     "requires": 26000000
+     "requires": 25000000
     },
     {
      "requires": 41000000

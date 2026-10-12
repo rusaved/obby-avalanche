@@ -20,8 +20,8 @@ describe('economy formulas (M3-01)', () => {
     { m: { tier: 0, shoeLevel: 1, pets: ['bunny'] }, belt: 1, want: 2.4 },
     // Tier 2 (×9), ice spikes ×5, seal + fox (1 + 0.35 + 0.6), ice trail ×1.25, sparks aura ×1.2: 9 × 5 × 1.95 × 1.25 × 1.2.
     { m: { tier: 2, shoeLevel: 3, pets: ['seal', 'fox'], trail: 1.25, aura: 1.2 }, belt: 1, want: 131.625 },
-    // Tier 1 (×3), slope legend ×1200, best 3 of 4 pets (8 + 5.5 + 5 → ×19.5), comet tail ×5, ice crown ×6, boost ×2, VIP ×2.
-    { m: { tier: 1, shoeLevel: 15, pets: ['crystal_hedgehog', 'ice_griffin', 'phoenix', 'penguin'], trail: 5, aura: 6, boost: true, vip: true }, belt: 1, want: 8_424_000 },
+    // Tier 1 (×3), slope legend ×1200, best 3 of 4 pets (8 + 5.5 + 5 → ×19.5), comet tail ×5, ice crown ×6, boost ×2, VIP ×1.5 (Q-057).
+    { m: { tier: 1, shoeLevel: 15, pets: ['crystal_hedgehog', 'ice_griffin', 'phoenix', 'penguin'], trail: 5, aura: 6, boost: true, vip: true }, belt: 1, want: 6_318_000 },
     // Tier 9 (×19 683), comets ×80, owl + polar bear + walrus (×6), boost ×2, on the ×2.5K treadmill: 19 683 × 80 × 6 × 2 × 2500.
     { m: { tier: 9, shoeLevel: 9, pets: ['owl', 'polar_bear', 'walrus'], boost: true }, belt: 2500, want: 47_239_200_000 },
   ];
@@ -59,7 +59,7 @@ describe('economy formulas (M3-01)', () => {
   it('a change of balance.json changes the result with no code change', () => {
     const m = { tier: 1, shoeLevel: 1, pets: ['bunny'], boost: true, vip: true };
     const base = metaGain(balance, pets, m);
-    expect(base).toBeCloseTo(3 * 2 * 1.2 * 2 * 2, 9);
+    expect(base).toBeCloseTo(3 * 2 * 1.2 * 2 * 1.5, 9);
     const b = clone();
     b.rebirth.stepMult = 4;
     expect(metaGain(b, pets, m)).toBeCloseTo((base * 4) / 3, 9);

@@ -829,7 +829,7 @@
       "z": 470,
       "y": 12,
       "kind": "ridge",
-      "requires": 1100,
+      "requires": 420,
       "reward": {
         "coins": 70
       },
@@ -1130,7 +1130,7 @@
       "z": 730,
       "y": 20,
       "kind": "ridge",
-      "requires": 2200,
+      "requires": 1100,
       "reward": {
         "coins": 90
       },
@@ -1292,11 +1292,11 @@
       "y": 24,
       "kind": "boss",
       "boss": true,
-      "requires": 4100,
+      "requires": 1700,
       "reward": {
         "coins": 100
       },
-      "speed": 31.7,
+      "speed": 30,
       "margin": 0.05,
       "height": 0,
       "signHeight": 7.5,
@@ -1358,11 +1358,11 @@
         760,
         970
       ],
-      "requires": 4100,
+      "requires": 1700,
       "returnMult": 1.5,
       "giants": [
         {
-          "speed": 31.7,
+          "speed": 30,
           "patrol": "alongZ",
           "seeDist": 0,
           "turnSec": 0.5

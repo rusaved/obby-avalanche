@@ -58,7 +58,7 @@
     "skipFirstPortal": true,
     "wheelCooldownSec": 600
   },
-  "iap": { "showAfterPlaySec": 300, "vipMult": 2 },
+  "iap": { "showAfterPlaySec": 300, "vipMult": 1.5, "starter": { "pet": "gold_penguin", "trophies": 10 } },
   "daily": {
     "resetHours": 20,
     "days": [

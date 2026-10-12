@@ -833,7 +833,7 @@
           "z": 470,
           "y": 12,
           "kind": "ridge",
-          "requires": 1100,
+          "requires": 420,
           "reward": {
             "coins": 70
           },
@@ -1134,7 +1134,7 @@
           "z": 730,
           "y": 20,
           "kind": "ridge",
-          "requires": 2200,
+          "requires": 1100,
           "reward": {
             "coins": 90
           },
@@ -1296,11 +1296,11 @@
           "y": 24,
           "kind": "boss",
           "boss": true,
-          "requires": 4100,
+          "requires": 1700,
           "reward": {
             "coins": 100
           },
-          "speed": 31.7,
+          "speed": 30,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -1362,11 +1362,11 @@
             760,
             970
           ],
-          "requires": 4100,
+          "requires": 1700,
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 31.7,
+              "speed": 30,
               "patrol": "alongZ",
               "seeDist": 0,
               "turnSec": 0.5
@@ -1758,7 +1758,7 @@
           "z": 270,
           "y": 4,
           "kind": "ridge",
-          "requires": 7400,
+          "requires": 4900,
           "reward": {
             "coins": 200
           },
@@ -2002,7 +2002,7 @@
         },
         {
           "type": "gift",
-          "z": 338.641,
+          "z": 338.405,
           "x": 0,
           "y": 18.9,
           "height": 0,
@@ -2015,7 +2015,7 @@
         },
         {
           "type": "gift",
-          "z": 342.189,
+          "z": 341.881,
           "x": 0,
           "y": 20.213,
           "height": 0,
@@ -2214,7 +2214,7 @@
           "z": 530,
           "y": 12,
           "kind": "ridge",
-          "requires": 12000,
+          "requires": 9300,
           "reward": {
             "coins": 200
           },
@@ -2600,7 +2600,7 @@
         },
         {
           "type": "gift",
-          "z": 606.418,
+          "z": 606.272,
           "x": 0,
           "y": 26.9,
           "height": 0,
@@ -2613,9 +2613,9 @@
         },
         {
           "type": "gift",
-          "z": 609.323,
+          "z": 609.859,
           "x": 0,
-          "y": 28.033,
+          "y": 28.213,
           "height": 0,
           "zone": 3,
           "rarity": "epic",
@@ -2841,7 +2841,7 @@
           "z": 820,
           "y": 20,
           "kind": "ridge",
-          "requires": 18000,
+          "requires": 16000,
           "reward": {
             "coins": 250
           },
@@ -3324,7 +3324,7 @@
           "z": 1140,
           "y": 28,
           "kind": "ridge",
-          "requires": 27000,
+          "requires": 24000,
           "reward": {
             "coins": 300
           },
@@ -3486,11 +3486,11 @@
           "y": 32,
           "kind": "boss",
           "boss": true,
-          "requires": 40000,
+          "requires": 37000,
           "reward": {
             "coins": 400
           },
-          "speed": 36.2,
+          "speed": 36.1,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -3552,11 +3552,11 @@
             1170,
             1410
           ],
-          "requires": 40000,
+          "requires": 37000,
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 36.2,
+              "speed": 36.1,
               "patrol": "alongZ",
               "seeDist": 0,
               "turnSec": 0.5
@@ -3972,7 +3972,7 @@
           "z": 300,
           "y": 4,
           "kind": "ridge",
-          "requires": 64000,
+          "requires": 61000,
           "reward": {
             "coins": 600
           },
@@ -4529,7 +4529,7 @@
           "z": 590,
           "y": 12,
           "kind": "ridge",
-          "requires": 98000,
+          "requires": 96000,
           "reward": {
             "coins": 750
           },
@@ -4883,7 +4883,7 @@
           "z": 910,
           "y": 20,
           "kind": "ridge",
-          "requires": 150000,
+          "requires": 140000,
           "reward": {
             "coins": 1000
           },
@@ -5161,7 +5161,7 @@
         },
         {
           "type": "gift",
-          "z": 1004.052,
+          "z": 1004.015,
           "x": 0,
           "y": 34.513,
           "height": 0,
@@ -5174,7 +5174,7 @@
         },
         {
           "type": "gift",
-          "z": 1008.122,
+          "z": 1008.073,
           "x": 0,
           "y": 36.033,
           "height": 0,
@@ -5373,7 +5373,7 @@
           "z": 1260,
           "y": 28,
           "kind": "ridge",
-          "requires": 190000,
+          "requires": 170000,
           "reward": {
             "coins": 1000
           },
@@ -5535,11 +5535,11 @@
           "y": 32,
           "kind": "boss",
           "boss": true,
-          "requires": 280000,
+          "requires": 260000,
           "reward": {
             "coins": 1250
           },
-          "speed": 40.1,
+          "speed": 39.9,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -5601,11 +5601,11 @@
             1290,
             1560
           ],
-          "requires": 280000,
+          "requires": 260000,
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 40.1,
+              "speed": 39.9,
               "patrol": "alongZ",
               "seeDist": 0,
               "turnSec": 0.5
@@ -6033,7 +6033,7 @@
           "z": 330,
           "y": 4,
           "kind": "ridge",
-          "requires": 420000,
+          "requires": 400000,
           "reward": {
             "coins": 3000
           },
@@ -6554,7 +6554,7 @@
           "z": 650,
           "y": 12,
           "kind": "ridge",
-          "requires": 610000,
+          "requires": 590000,
           "reward": {
             "coins": 5000
           },
@@ -6940,7 +6940,7 @@
         },
         {
           "type": "gift",
-          "z": 741.944,
+          "z": 741.928,
           "x": 0,
           "y": 26.083,
           "height": 0,
@@ -6953,7 +6953,7 @@
         },
         {
           "type": "gift",
-          "z": 746.258,
+          "z": 746.236,
           "x": 0,
           "y": 27.813,
           "height": 0,
@@ -7208,7 +7208,7 @@
           "z": 1000,
           "y": 20,
           "kind": "ridge",
-          "requires": 860000,
+          "requires": 830000,
           "reward": {
             "coins": 6000
           },
@@ -9919,7 +9919,7 @@
           "z": 1500,
           "y": 28,
           "kind": "ridge",
-          "requires": 6900000,
+          "requires": 6800000,
           "reward": {
             "coins": 25000
           },
@@ -11515,7 +11515,7 @@
           "z": 1180,
           "y": 20,
           "kind": "ridge",
-          "requires": 26000000,
+          "requires": 25000000,
           "reward": {
             "coins": 150000
           },

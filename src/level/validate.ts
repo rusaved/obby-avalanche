@@ -253,7 +253,7 @@ const balanceSchema = v.object({
     skipFirstPortal: v.boolean(),
     wheelCooldownSec: nonNeg,
   }),
-  iap: v.object({ showAfterPlaySec: nonNeg, vipMult: positive }),
+  iap: v.object({ showAfterPlaySec: nonNeg, vipMult: positive, starter: v.optional(v.object({ pet: id, trophies: v.pipe(v.number(), v.integer(), v.minValue(0)) })) }),
   daily: v.object({ resetHours: positive, days: v.pipe(v.array(dailyRewardSchema), v.length(7)) }),
   quests: v.object({
     perDay: v.pipe(v.number(), v.integer(), v.minValue(1)),
@@ -300,7 +300,7 @@ const balanceSchema = v.object({
       keep: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
       roundDigits: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
       // Thresholds of F1–F8, the F11 egg rows and the words of the report (pace open, docs/01-gdd.md 17.12).
-      checks: v.optional(v.record(v.string(), v.union([v.number(), v.array(v.union([v.number(), v.array(v.number())]))]))),
+      checks: v.optional(v.record(v.string(), v.union([v.number(), v.array(v.union([v.number(), v.array(v.number())])), v.record(v.string(), v.union([v.number(), v.boolean()]))]))),
       eggsByMountain: v.optional(v.array(v.object({ mountain: v.pipe(v.number(), v.integer(), v.minValue(1)), min: nonNeg }))),
       words: v.optional(v.object({ one: v.string(), gen: v.string(), many: v.string(), manyGen: v.string() })),
     }),
@@ -773,6 +773,8 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
   const pets = files['pets.json'] as { pets: Array<{ id: string; rarity: string }> };
   const freePet = (files['balance.json'] as { ftue: { freeEggPet: string } }).ftue.freeEggPet;
   if (!pets.pets.some((p) => p.id === freePet)) errors.push(`balance.json: ftue.freeEggPet — unknown pet "${freePet}" (pets.json)`);
+  const starterPet = (files['balance.json'] as { iap?: { starter?: { pet: string } } }).iap?.starter?.pet;
+  if (starterPet !== undefined && !pets.pets.some((p) => p.id === starterPet)) errors.push(`balance.json: iap.starter.pet — unknown pet "${starterPet}" (pets.json)`);
   for (const [i, p] of pets.pets.entries()) if (!theme.rarity[p.rarity]) errors.push(`pets.json: pets[${i}].rarity — no colour "${p.rarity}" in theme.json rarity`);
   // Decor of the open slope (docs/01a-content.md 17.5): its walkers and sitters are pets of pets.json.
   const decor = (files['theme.json'] as { decor?: { walkers: { look: string }; sitters: { looks: string[] } } }).decor;

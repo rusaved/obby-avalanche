@@ -268,7 +268,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       const at = g.box.min[2] - GATE_STOP;
       if (g.z > z && at < stop) stop = at;
     });
-    if (cfg.boss) for (const gz of guarded) if (gz.active && gz.zone[0] - ZONE_STOP > z + REACH && gz.zone[0] - ZONE_STOP < stop) stop = gz.zone[0] - ZONE_STOP;
+    if (cfg.boss) for (const gz of guarded) if (gz.active && gz.zone[0] - ZONE_STOP > z - REACH && gz.zone[0] - ZONE_STOP < stop) stop = gz.zone[0] - ZONE_STOP;
     return stop;
   }
   const stretchOf = (z: number): number => level.gates.filter((g) => g.z <= z).length;

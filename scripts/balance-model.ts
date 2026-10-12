@@ -17,6 +17,13 @@
  * the reference starts every mountain with intervalSec.
  * - activeDay — greedy + the calendar, 3 quests and the time rewards of one game day every `ACTIVE_DAY_SEC` of play;
  * - eggSpammer — the best open egg whenever it can pay, shoes second (the reference with SPAM=1).
+ * - novice — greedy that runs × `novice.speed` and buys shoes and eggs `novice.delaySec` after it can pay (docs/01-gdd.md
+ *   19.6, F14: the stand on a belt at a ridge of mountain 1 for a player who is slower to buy).
+ * - buyer — greedy that buys with yans from `buyer.fromSec` of play (docs/01-gdd.md 19.7, F15): VIP × iap.vipMult on every
+ *   step, and the starter pack once (its pet of balance.iap.starter, its trophies spendable only, not «of all time»).
+ * Rewards by seconds (docs/01-gdd.md 19.6, F14): every cycle second of a passed wall (a ridge, the giant with the summit),
+ * a pair of shoes, a bought egg and a wave the bot sheltered from («Phew, made it!»; the scripted one brings the free egg);
+ * the seconds on the belt of a wall's grotto waiting for its number are `standSec` of its row.
  * `reference: true` runs the assumptions of balance-model.pl instead of the game ones: the first wave of a mountain after
  * intervalSec and the unrounded treadmill curve of the reference (the data keep the rounded one, docs/01a-content.md 3).
  * With it the port repeats the reference wall by wall (column «Бот модели» of docs/01a-content.md 3).
@@ -36,7 +43,7 @@ import type { AurasJson, BalanceJson, EggsJson, GameJson, PetsJson, Reward, Segm
 import { moveSpeed } from '../src/sim/effects/moveSpeed.ts';
 import { scaled, stepGain } from '../src/sim/economy.ts';
 
-export type Profile = 'greedy' | 'goldSeeker' | 'lazy' | 'activeDay' | 'eggSpammer';
+export type Profile = 'greedy' | 'goldSeeker' | 'lazy' | 'activeDay' | 'eggSpammer' | 'novice' | 'buyer';
 
 export interface ModelPack {
   game: GameJson;
@@ -77,6 +84,8 @@ export interface WallRow {
   boss: boolean;
   /** Seconds of the final open run from the shelter to the wall (for the giant — the run through his zone). */
   runSec: number;
+  /** Seconds on the belt of the wall's grotto waiting for its number (not hiding from a wave, F14). */
+  standSec: number;
 }
 
 export interface CycleRun {
@@ -106,6 +115,8 @@ export interface CycleRun {
   seedOut: number;
   /** Fit mode: requirements of tier 0 by through number (index p − 1). */
   fitted: number[];
+  /** Cycle seconds of every reward (F14, docs/01-gdd.md 19.6): walls, shoes, bought eggs, waves sheltered from; sorted. */
+  rewards: number[];
 }
 
 export interface CycleOpts {
@@ -122,6 +133,10 @@ export interface CycleOpts {
   fit?: { keep: number; targetSec: number[]; round?: Rounding };
   /** `wallScale[n]` to try instead of the table (the bisection of sim:balance --fit). */
   wallScale?: number;
+  /** Profile novice (F14): run × `speed`, buy `delaySec` after the coins are there; default 0.8 and 15 s. */
+  novice?: { speed: number; delaySec: number };
+  /** Profile buyer (F15): from `fromSec` of the cycle VIP (`vip`) and the starter pack (`starter`). */
+  buyer?: { fromSec: number; vip: boolean; starter: boolean };
 }
 
 /** Model step, seconds (the reference: $dt = 0.25). */
@@ -242,12 +257,17 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
   const lazyRnd = lcg(LAZY_SEED);
   const lazy = profile === 'lazy';
   const spammer = profile === 'eggSpammer';
+  const novice = profile === 'novice' ? (opts.novice ?? { speed: 0.8, delaySec: 15 }) : null;
+  const buyer = profile === 'buyer' ? (opts.buyer ?? { fromSec: balance.iap.showAfterPlaySec, vip: true, starter: true }) : null;
+  let starterGiven = false;
   const activeDay = profile === 'activeDay';
   const reference = opts.reference === true;
   const fit = opts.fit;
   const fitted: number[] = [];
   const curve = { ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed };
-  const vel = (s: number): number => moveSpeed(s, curve);
+  const vel = (s: number): number => moveSpeed(s, curve) * (novice ? novice.speed : 1);
+  /** A belt runs under the hero at his full run speed whatever the stick (src/sim/world.ts): the novice too. */
+  const beltVel = (s: number): number => moveSpeed(s, curve);
   const stepLen = balance.stepLength;
   const shoes = balance.upgrade.tiers;
   const Wn = opts.wallScale ?? wallScale(balance, n);
@@ -288,8 +308,13 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
     return 1 + s;
   };
   let eggsBought = 0;
+  const rewards: number[] = [];
+  /** Novice: the cycle second it first could pay for the next shoes / egg (−1 — not yet). */
+  let shoeSince = -1;
+  let eggSince = -1;
   const hatch = (e: (typeof eggs)[number]): void => {
     eggsBought++;
+    rewards.push(T);
     const r = rnd();
     let acc = 0;
     for (const slot of e.pool) {
@@ -411,6 +436,8 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
     let warnAge = 0;
     let caughtThisWave = 0;
     let isScriptedWave = false;
+    /** The bot hid from this wave (a reward «Phew, made it!» only then: above the giant's line the wave never comes). */
+    let hidWave = false;
     let lastWallT = T;
 
     for (let i = 1; i <= gates.length; i++) {
@@ -440,6 +467,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
       const reward = ((gate['reward'] as { coins?: number } | undefined)?.coins ?? 0) * Wn;
       let readySince = -1;
       let runSec = 0;
+      let standSec = 0;
       if (scripted && i === scriptedWall) {
         phase = 'warn';
         phT = balance.ftue.warnSec;
@@ -479,8 +507,16 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
       };
       for (;;) {
         // The step of the game (docs/01-gdd.md 8.1): the same formula module as the simulation.
-        const g = stepGain(balance, { tier: n, shoe: shoes[shoe]?.mult ?? 1, pets: petMult(), trail: trailMult, aura: auraMult, boost: T < boostUntil });
+        // Buyer: the purchases with yans from fromSec (the «Special» tab opens at iap.showAfterPlaySec, docs/01-gdd.md 9.3).
+        if (buyer && T >= buyer.fromSec && buyer.starter && !starterGiven && balance.iap.starter) {
+          starterGiven = true;
+          meta.pets.push(petBonus(balance.iap.starter.pet));
+          prunePets();
+          meta.trophies += balance.iap.starter.trophies;
+        }
+        const g = stepGain(balance, { tier: n, shoe: shoes[shoe]?.mult ?? 1, pets: petMult(), trail: trailMult, aura: auraMult, boost: T < boostUntil, vip: !!buyer && buyer.vip && T >= buyer.fromSec });
         const v = vel(S);
+        const vBelt = novice ? beltVel(S) : v;
         phT -= DT;
         if (phase === 'warn') warnAge += DT;
         if (phase === 'idle' && phT <= 0) {
@@ -490,6 +526,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
           isScriptedWave = false;
           caughtThisWave = 0;
           normalWaves++;
+          hidWave = false;
           ignoring = lazy && lazyRnd() < LAZY_IGNORE;
           if (ignoring) ignoredWaves++;
           // Golden gift (docs/01-gdd.md 8.5): there and back during the warning, steps on the way.
@@ -507,6 +544,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
         const reacting = !lazy || (!ignoring && warnAge >= LAZY_REACT_SEC);
         const safeAbove = spawnMaxZ !== null && z >= spawnMaxZ;
         const hiding = !safeAbove && ((phase === 'warn' && reacting) || (phase === 'run' && front > z && (!lazy || !ignoring)));
+        if (hiding) hidWave = true;
         if (phase === 'run') {
           const was = front;
           front -= th.speed * DT;
@@ -517,7 +555,10 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
             phT = th.intervalSec;
             giftsLeft = giftsPerZone;
             for (const pg of pathGifts) pg.taken = false;
-            if (caughtThisWave === 0 || isScriptedWave) C += balance.coins.waveSurvived * gift;
+            if (caughtThisWave === 0 || isScriptedWave) {
+              C += balance.coins.waveSurvived * gift;
+              if (hidWave || isScriptedWave) rewards.push(T);
+            }
             if (carrying && bonus && caughtThisWave === 0) {
               C += bonus.mult * gift;
               goldTaken++;
@@ -531,13 +572,14 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
         if (hiding) {
           const s = shelterAt(z);
           walkTo(s, v, g);
-          S += (v / stepLen) * g * treadAt(s) * DT;
+          S += (vBelt / stepLen) * g * treadAt(s) * DT;
           z = s;
         } else if (ready) {
           const c = cross(z, gz, v, g, zm);
           runSec = Math.max(MIN_RUN_SEC, c.sec);
           S += (c.dist / stepLen) * g * zm;
           T += runSec;
+          rewards.push(T);
           exposedMove(gz + PAST_WALL);
           takePath(z, gz + PAST_WALL);
           z = gz + PAST_WALL;
@@ -553,8 +595,9 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
           continue;
         } else {
           walkTo(grotto, v, g);
-          S += (v / stepLen) * g * treadAt(grotto) * DT;
+          S += (vBelt / stepLen) * g * treadAt(grotto) * DT;
           z = grotto;
+          standSec += DT;
         }
         T += DT;
         // Active day: rewards of the day as their second of play comes (coins are k × the gift of the hero's zone).
@@ -582,21 +625,31 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
             hatch(best);
           }
         }
-        while (shoe < shoes.length - 1 && C >= shoes[shoe + 1]!.price * Wn) {
+        // Novice: a purchase waits delaySec from the moment the coins are there (each kind its own clock).
+        const canShoe = shoe < shoes.length - 1 && C >= shoes[shoe + 1]!.price * Wn;
+        if (canShoe && shoeSince < 0) shoeSince = T;
+        if (!canShoe) shoeSince = -1;
+        while ((!novice || (shoeSince >= 0 && T - shoeSince >= novice.delaySec)) && shoe < shoes.length - 1 && C >= shoes[shoe + 1]!.price * Wn) {
           C -= shoes[shoe + 1]!.price * Wn;
           shoe++;
           shoeBuys.push(T);
+          rewards.push(T);
+          shoeSince = -1;
         }
         // The best open egg, as many times as wanted, while the next shoes cost 4+ times more (the reference).
         if (best && !spammer) {
           const next = shoe < shoes.length - 1 ? shoes[shoe + 1]!.price * Wn : Infinity;
-          for (let k = 0; k < EGG_BATCH && C >= best.price * Wn && next >= EGG_VS_SHOES * best.price * Wn; k++) {
+          const canEgg = C >= best.price * Wn && next >= EGG_VS_SHOES * best.price * Wn;
+          if (canEgg && eggSince < 0) eggSince = T;
+          if (!canEgg) eggSince = -1;
+          for (let k = 0; k < EGG_BATCH && (!novice || (eggSince >= 0 && T - eggSince >= novice.delaySec)) && C >= best.price * Wn && next >= EGG_VS_SHOES * best.price * Wn; k++) {
             C -= best.price * Wn;
             hatch(best);
+            eggSince = -1;
           }
         }
         if (T > LIMIT_SEC) {
-          return { sec: Infinity, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, caughtAt, eggsAt, goldTaken, coins: C, meta, trophiesGot, seedOut: rnd.state(), fitted };
+          return { sec: Infinity, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, caughtAt, eggsAt, goldTaken, coins: C, meta, trophiesGot, seedOut: rnd.state(), fitted, rewards: rewards.sort((a, b) => a - b) };
         }
       }
       // The free egg of the first minute hatches after wall 3 of the reference (docs/01-gdd.md 6.2).
@@ -612,7 +665,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
         if (fitAt !== null && prev !== undefined && x <= prev) x = round.up(prev);
         fitted[p - 1] = x;
       }
-      walls.push({ mountain: w, wall: i, p, sec: T - tw0, total: T, took: T - lastWallT, stat: S, shoe, petMult: petMult(), coins: C, boss: gate['boss'] === true, runSec });
+      walls.push({ mountain: w, wall: i, p, sec: T - tw0, total: T, took: T - lastWallT, stat: S, shoe, petMult: petMult(), coins: C, boss: gate['boss'] === true, runSec, standSec });
       lastWallT = T;
     }
     T += TO_PORTAL / vel(S);
@@ -632,7 +685,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
     eggsAt.push(eggsBought);
   }
   spendTrophies(pack, meta);
-  return { sec: T, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, caughtAt, eggsAt, goldTaken, coins: C, meta, trophiesGot, seedOut: rnd.state(), fitted };
+  return { sec: T, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, caughtAt, eggsAt, goldTaken, coins: C, meta, trophiesGot, seedOut: rnd.state(), fitted, rewards: rewards.sort((a, b) => a - b) };
 }
 
 /**

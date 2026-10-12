@@ -151,6 +151,31 @@ function currentMilestone() {
   const list = JSON.parse(readFileSync(resolve(root, 'feature_list.json'), 'utf8'));
   return (Array.isArray(list) ? list : list.features ?? []).find((f) => !f.passes && !f.deferred)?.milestone ?? 'M?';
 }
+/**
+ * A fitted advice moves the giant with it (docs/01a-content.md 16.4, допущение 58): V_b = v(advice) × the helpers' slow
+ * (a zone with helpers, 18.5) / (1 + margin), down to 0.1, strictly under the threshold of validateOpenBoss. Only the
+ * `speed` of every mountain's boss block of an open-slope spec changes; the text keeps its formatting.
+ */
+function fitGiants(text) {
+  const spec = JSON.parse(text);
+  if (spec.layout !== 'openSlope') return text;
+  const curve = { ...pack.balance.speedCurve, base: pack.tuning.controller.baseSpeed, max: pack.tuning.controller.maxSpeed };
+  let at = text.indexOf('"mountains"');
+  for (const m of spec.mountains) {
+    const b = m.boss;
+    at = text.indexOf('"boss": {', at);
+    if (!b || at < 0) break;
+    const end = text.indexOf('}', text.indexOf('"speed"', at));
+    const slow = b.helpers?.length ? (spec.boss.helper?.slow ?? 1) : 1;
+    const v = moveSpeed(b.requires, curve) * slow;
+    let vb = Math.floor((v / (1 + b.margin)) * 10) / 10;
+    while (!(v > vb * (1 + b.margin))) vb = Math.round((vb - 0.1) * 10) / 10;
+    text = text.slice(0, at) + text.slice(at, end).replace(/"speed": [\d.]+/, `"speed": ${vb}`) + text.slice(end);
+    at = end;
+  }
+  return text;
+}
+
 function runFit(dry) {
   const targets = classic ? referenceTargets(wallsPerMountain) : pack.balance.sim ? paceTargets(pack.balance.sim, wallsPerMountain) : null;
   if (!targets) {
@@ -188,8 +213,9 @@ function runFit(dry) {
   // worlds-spec.json: the «requires» of the walls in order of mountains (the file keeps its formatting).
   const specFile = resolve(paceDir, 'worlds-spec.json');
   let k = 0;
-  const spec = readFileSync(specFile, 'utf8').replace(/"requires": [\d.e+]+/g, () => `"requires": ${f.walls[k++]}`);
+  let spec = readFileSync(specFile, 'utf8').replace(/"requires": [\d.e+]+/g, () => `"requires": ${f.walls[k++]}`);
   if (k !== f.walls.length) throw new Error(`worlds-spec.json: ${k} walls, the fit has ${f.walls.length}`);
+  spec = fitGiants(spec);
   const balFile = resolve(paceDir, 'balance.json');
   const worldsFile = resolve(paceDir, 'worlds.json');
   const old = [specFile, balFile, worldsFile].map((f) => [f, readFileSync(f, 'utf8')]);
@@ -369,6 +395,54 @@ if (LIM.before) {
   check(13, `жадный, ступень 0: гора k не длиннее прежней больше чем на ${Math.round(growth * 100)}%`, rows.every(([, m, b]) => m <= b * (1 + growth) + 1e-9), `${rows.map(([w, m, b]) => `${w}: ${m.toFixed(1)}/${b.toFixed(1)}`).join(', ')}; худшая — гора ${worst[0]}, ×${(worst[1] / worst[2]).toFixed(2)}`);
 }
 
+// 14. Rhythm of the first minutes (docs/01-gdd.md 19.6; 01a 18.3): in the first `sec` seconds of the cycle the greedy bot
+// gets a reward (a wall, shoes, an egg, «Phew, made it!») at least every `maxGap` s, and stands on a belt waiting for
+// the number of a wall of mountain 1 (its ridges and the giant) at most `standMax` s; the novice (runs × noviceSpeed,
+// buys noviceDelaySec after it can pay) at most `noviceStandMax` s. Only a pace whose patch names `sim.checks.rhythm`.
+let rhythm = null;
+if (LIM.rhythm) {
+  const r = LIM.rhythm;
+  const nov = runCycle(pack, { profile: 'novice', mountains: 1, novice: { speed: r.noviceSpeed ?? 0.8, delaySec: r.noviceDelaySec ?? 15 } });
+  const within = greedy.rewards.filter((t) => t <= r.sec);
+  const marks = [0, ...within, r.sec];
+  let gap = 0;
+  let gapAt = 0;
+  for (let i = 1; i < marks.length; i++)
+    if (marks[i] - marks[i - 1] > gap) {
+      gap = marks[i] - marks[i - 1];
+      gapAt = marks[i - 1];
+    }
+  const m1 = (run) => run.walls.filter((w) => w.mountain === 1);
+  const stand = Math.max(0, ...m1(greedy).map((w) => w.standSec));
+  const nStand = Math.max(0, ...m1(nov).map((w) => w.standSec));
+  rhythm = { within, novice: nov };
+  check(
+    14,
+    `ритм первых ${r.sec} с: награда у жадного не реже раза в ${r.maxGap} с; стоянка на дорожке у рубежей горы 1 — жадный ≤ ${r.standMax} с, новичок ≤ ${r.noviceStandMax} с`,
+    gap <= r.maxGap && stand <= r.standMax && nStand <= r.noviceStandMax,
+    `награды на ${within.map((t) => t.toFixed(0)).join(', ')} с; самый долгий промежуток ${gap.toFixed(0)} с (с ${gapAt.toFixed(0)}-й); стоянка у ${W.gen} горы 1 — жадный ${m1(greedy).map((w) => w.standSec.toFixed(0)).join(' / ')} с, новичок ${m1(nov).map((w) => w.standSec.toFixed(0)).join(' / ')} с (гора 1 новичка — ${min(nov.mountains[0] ?? Infinity)} мин)`,
+  );
+}
+
+// 15. The buyer (docs/01-gdd.md 19.7, P1): VIP and the starter pack from `fromSec` speed the game up but never skip it —
+// every mountain of tier 0 and the cycle take at least `minShare` of the greedy bot's; the first fromSec seconds are the
+// greedy bot's second by second. Only a pace whose patch names `sim.checks.buyer`.
+let buyerRun = null;
+if (LIM.buyer) {
+  const b = LIM.buyer;
+  buyerRun = runCycle(pack, { profile: 'buyer', buyer: { fromSec: b.fromSec, vip: b.vip !== false, starter: b.starter !== false } });
+  const share = (b.minShare ?? 0.5);
+  const worst = greedy.mountains.map((m, i) => [i + 1, buyerRun.mountains[i] / m]).reduce((a, r) => (r[1] < a[1] ? r : a), [0, Infinity]);
+  const early = (r) => r.rewards.filter((t) => t < b.fromSec).map((t) => t.toFixed(6)).join(',');
+  const same = early(buyerRun) === early(greedy);
+  check(
+    15,
+    `покупатель (VIP и стартовый набор с ${b.fromSec} с): каждая гора и цикл ступени 0 ≥ ${share} × жадного; первые ${b.fromSec} с — как у жадного`,
+    worst[1] >= share && buyerRun.sec >= share * greedy.sec && same,
+    `цикл ${min(buyerRun.sec)} мин (×${(buyerRun.sec / greedy.sec).toFixed(2)} жадного); худшая гора — ${worst[0]}, ×${worst[1].toFixed(2)}; первые ${b.fromSec} с ${same ? 'совпадают' : 'расходятся'}`,
+  );
+}
+
 // ---------- M3-10: the port repeats the reference; the gold seeker thresholds ----------
 const gates = [];
 let fidelity = null;
@@ -421,6 +495,8 @@ L(sumLine('ленивый', lazy));
 L(sumLine('активный день', active));
 L(` ${'спамер яиц'.padEnd(16)} ${min(spamMed.sec).padStart(5)} мин — горы ${spamMed.mountains.map(min).join(' / ')} (медиана ${SPAM_SEEDS} зёрен 12345 + 7919·k; зерно 12345 — ${min(spam[0].sec)} мин)`);
 if (gold) L(sumLine('золотоискатель', gold) + `; золотых подарков ${gold.goldTaken}`);
+if (buyerRun) L(sumLine('покупатель', buyerRun) + ` (VIP и стартовый набор с ${LIM.buyer.fromSec} с)`);
+if (rhythm) L(` новичок (F14)       ${min(rhythm.novice.sec).padStart(5)} мин — гора 1; кроссовки на секундах ${rhythm.novice.shoeBuys.slice(0, 3).map((t) => t.toFixed(0)).join(', ')}`);
 if (lazy.caughtAt.length) L(` ленивый: «Накрыло» на секундах цикла ${lazy.caughtAt.slice(0, 12).map((t) => t.toFixed(0)).join(', ')}${lazy.caughtAt.length > 12 ? ', …' : ''}`);
 if (greedy.eggsAt.some((n) => n > 0)) L(` жадный: яиц к вершине горы 1…${greedy.eggsAt.length} — ${greedy.eggsAt.join(' / ')}`);
 L(` жадный: кроссовки куплены на секундах цикла ${greedy.shoeBuys.map((t) => t.toFixed(0)).join(', ')}`);

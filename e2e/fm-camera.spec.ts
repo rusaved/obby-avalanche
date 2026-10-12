@@ -66,7 +66,9 @@ test('mountain 1 foot → summit: the head is behind something opaque in ≤ 2% 
   report.push(row('гора 1, подножие → вершина', s));
   expect(s.headFrames).toBeGreaterThan(300);
   expect(s.headBlocked / s.headFrames, JSON.stringify(s)).toBeLessThanOrEqual(SHARE);
-  expect(s.bossFrames).toBeGreaterThan(8);
+  // The giant comes down at the hero and they meet within a few seconds (FM-05: zone of 210 units): a short sample here,
+  // the long one is the run along x = −14 below.
+  expect(s.bossFrames).toBeGreaterThanOrEqual(3);
   expect(s.bossSeen / s.bossFrames, JSON.stringify(s)).toBeGreaterThanOrEqual(0.9);
 });
 

@@ -186,7 +186,9 @@ export interface BalanceJson {
     wheelCooldownSec: number;
   };
   /** `vipMult`: the step multiplier of the VIP purchase (docs/01-gdd.md 8.1, 9.3). */
-  iap: { showAfterPlaySec: number; vipMult: number };
+  /** `starter`: what the starter pack gives (docs/01-gdd.md 9.3): its pet and trophies (spendable only); its look is the
+   * skin of source «starter» in skins.json. */
+  iap: { showAfterPlaySec: number; vipMult: number; starter?: { pet: string; trophies: number } };
   /** The 7-day calendar (docs/01-gdd.md 7.6, docs/01a-content.md 10): one reward a day, `alt` after the first circle when owned. */
   daily: { resetHours: number; days: DailyReward[] };
   /**
@@ -221,8 +223,10 @@ export interface BalanceJson {
     gateCurve: number;
     keep?: number;
     roundDigits?: number;
-    /** Thresholds of F1–F8 (pace open, docs/01-gdd.md 17.12); absent — the numbers of 8.5. */
-    checks?: Record<string, number | Array<number | number[]>>;
+    /** Thresholds of F1–F8 (pace open, docs/01-gdd.md 17.12); absent — the numbers of 8.5. `rhythm` — F14 (docs/01-gdd.md
+     * 19.6: the first `sec` seconds, the longest gap between rewards, the stand on a belt at a ridge of mountain 1 for the
+     * greedy bot and the novice); `buyer` — F15 (19.7). */
+    checks?: Record<string, number | Array<number | number[]> | Record<string, number | boolean>>;
     /** F11: eggs bought by the summit of a mountain (decision 07.10). */
     eggsByMountain?: Array<{ mountain: number; min: number }>;
     /** Words of the report for a wall of the pace: one, of one, many, of many. */

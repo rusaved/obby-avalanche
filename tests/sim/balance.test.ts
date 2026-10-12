@@ -66,10 +66,11 @@ describe('balance model (M2-11)', () => {
 const openPack: ModelPack = { ...pack, balance: mergePatch(balance as BalanceJson, openBalance), worlds: (openWorlds as unknown as WorldsJson).worlds };
 
 describe('balance model, pace open (PS-12)', () => {
-  it('greedy, tier 0: mountain 1 in 1.6–2.2 min, its giant the last check — the run through his zone ≤ 10 s', () => {
+  it('greedy, tier 0: mountain 1 within F2 of the data (1.1–2.2 min since FM-05, Q-056), its giant the last check — the run through his zone ≤ 10 s', () => {
     const r = runCycle(openPack, { profile: 'greedy', mountains: 1 });
-    expect(r.mountains[0]! / 60).toBeGreaterThanOrEqual(1.6);
-    expect(r.mountains[0]! / 60).toBeLessThanOrEqual(2.2);
+    const [lo, hi] = openPack.balance.sim!.checks!['m1'] as number[];
+    expect(r.mountains[0]! / 60).toBeGreaterThanOrEqual(lo!);
+    expect(r.mountains[0]! / 60).toBeLessThanOrEqual(hi!);
     const m1 = r.walls.filter((w) => w.mountain === 1);
     expect(m1[m1.length - 1]!.boss).toBe(true);
     expect(m1[m1.length - 1]!.runSec).toBeLessThanOrEqual(10);
