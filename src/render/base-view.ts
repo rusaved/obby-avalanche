@@ -1,4 +1,4 @@
-// What: How the base looks (docs/01-gdd.md 19.2–19.3): the arches of the mountains by state (passed — open with a flag and a cup, own — filled with light under a pillar, locked — iced with a lock), their signs and the «×N» of the base treadmill in one atlas, 3 arrows on the snow to the own portal, the shop counter with sneakers and an egg, the snowman.
+// What: How the base looks (docs/01-gdd.md 19.2–19.3): the arches of the mountains by state (passed — open with a flag and a cup, own — filled with light under a pillar, locked — iced with a lock), their signs and the «×N» of the base treadmill in one atlas, 3 arrows on the snow to the own portal, the shop counter with sneakers and an egg, the gift of the day (lit while it waits), the snowman.
 // Called by: main.ts (createBaseView; set on every entry to the base, clear on a mountain); test-api (drawn).
 // Keep: Render only, nothing in the sim (the ice of a locked arch is a hero collider of the level); at most 6 draw calls; colours from theme.json, texts through the caller's t().
 
@@ -22,6 +22,9 @@ const FILL_OPACITY = 0.6;
 /** The sign of the base treadmill: its height and how far before the front of its belts (units). */
 const TREAD_SIGN_Y = 3;
 const TREAD_SIGN_BACK = 1;
+/** The gift of the day: the height of its stand and the size of its box (units). */
+const GIFT_STAND = 0.8;
+const GIFT_BOX = 1.1;
 /** The shop counter: width, height, depth (units). */
 const COUNTER: [number, number, number] = [3, 1.2, 1.4];
 
@@ -35,6 +38,10 @@ export interface BaseView {
   readonly drawn: boolean;
   /** The text on the sign of the base treadmill now; null — none. */
   readonly treadSign: string | null;
+  /** The gift of the day waits (docs/01-gdd.md 19.3): its box lit; closed otherwise. */
+  setGiftReady(ready: boolean): void;
+  /** Its box is lit now. */
+  readonly giftReady: boolean;
   dispose(): void;
 }
 
@@ -47,6 +54,8 @@ export function createBaseView(theme: ThemeJson): BaseView {
   const dummy = new Object3D();
   let drawn = false;
   let treadSign: string | null = null;
+  /** The box of the gift of the day: its instance in the marks, its two colours, the state shown. */
+  let gift: { mesh: InstancedMesh; index: number; lit: Color; closed: Color; ready: boolean | null } | null = null;
 
   const clear = (): void => {
     for (const p of parts) p.dispose();
@@ -54,6 +63,7 @@ export function createBaseView(theme: ThemeJson): BaseView {
     group.clear();
     drawn = false;
     treadSign = null;
+    gift = null;
   };
 
   const view: BaseView = {
@@ -63,6 +73,9 @@ export function createBaseView(theme: ThemeJson): BaseView {
     },
     get treadSign() {
       return treadSign;
+    },
+    get giftReady() {
+      return gift?.ready === true;
     },
     clear,
     set(level, portals, t, tread) {
@@ -223,7 +236,9 @@ export function createBaseView(theme: ThemeJson): BaseView {
       const boxMat = new MeshLambertMaterial({ color: 0xffffff });
       // The shop counter (docs/01-gdd.md 19.3): the counter and a pair of sneakers on its showcase (the egg — a ball below).
       const shop = level.points.find((p) => p.type === 'stand' && p['kind'] === 'shop');
-      const count = passed.length * 3 + locked.length * 2 + (shop ? 2 : 0);
+      // The gift of the day by the spawn: a box on a stand, lit while the reward waits (setGiftReady).
+      const daily = level.points.find((p) => p.type === 'stand' && p['kind'] === 'daily');
+      const count = passed.length * 3 + locked.length * 2 + (shop ? 2 : 0) + (daily ? 2 : 0);
       const marks = new InstancedMesh(boxGeo, boxMat, Math.max(1, count));
       marks.name = 'base-marks';
       marks.count = count;
@@ -249,6 +264,12 @@ export function createBaseView(theme: ThemeJson): BaseView {
         const at = { world: 0, id: '', x: shop.x, z: shop.z, yaw: 0, width: 0, height: 0, state: 'passed', ridge: null } as BasePortal;
         place(at, 0, COUNTER[1] / 2, 0, COUNTER[0], COUNTER[1], COUNTER[2], color('eggStand'));
         place(at, -COUNTER[0] / 4, COUNTER[1] + 0.25, 0, 0.9, 0.45, 0.45, new Color(theme.ui.stat));
+      }
+      if (daily) {
+        const at = { world: 0, id: '', x: daily.x, z: daily.z, yaw: 0, width: 0, height: 0, state: 'passed', ridge: null } as BasePortal;
+        place(at, 0, GIFT_STAND / 2, 0, 1.4, GIFT_STAND, 1.4, color('eggStand'));
+        gift = { mesh: marks, index: k, lit: lit('portalLight'), closed: color('chest'), ready: null };
+        place(at, 0, GIFT_STAND + GIFT_BOX / 2, 0, GIFT_BOX, GIFT_BOX, GIFT_BOX, gift.closed);
       }
       for (const p of locked) {
         place(p, 0, p.height * 0.45, -0.6, 1.4, 1.2, 0.4, new Color(theme.ui.plaque));
@@ -279,6 +300,12 @@ export function createBaseView(theme: ThemeJson): BaseView {
         group.add(mesh);
         parts.push(ballGeo, ballMat);
       }
+    },
+    setGiftReady(ready) {
+      if (!gift || gift.ready === ready) return;
+      gift.ready = ready;
+      gift.mesh.setColorAt(gift.index, ready ? gift.lit : gift.closed);
+      if (gift.mesh.instanceColor) gift.mesh.instanceColor.needsUpdate = true;
     },
     dispose() {
       clear();

@@ -104,6 +104,8 @@ export interface GameHandles {
   readonly replay: boolean;
   /** The sign of the base treadmill («×6», FM-09); null — not on the base. */
   readonly baseTreadSign: string | null;
+  /** The box of the gift of the day is lit (FM-11). */
+  readonly baseGiftReady: boolean;
   /** A toast as the game shows them (FM-04 e2e: its plaque and contrast). */
   showToast(text: string, sec?: number, gold?: boolean): void;
   /** Gate sign as rendered: text and open colour (M2-02 e2e). */

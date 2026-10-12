@@ -38,7 +38,8 @@ export interface DailyView {
   /** Rolls the game day by server time: call every frame, it reads the clock about once a second (`force` — now). */
   tick(force?: boolean): void;
   openWindow(): void;
-  claim(): boolean;
+  /** `from` — where it was claimed, for daily_claim (`base` — the gift box of the base, docs/01-gdd.md 19.3). */
+  claim(from?: string): boolean;
   menuItem(): MenuItem | null;
   /** Name of a calendar card (index 0…6) for the claim number of the given circle. */
   cardName(index: number, circle: number): string;
@@ -133,13 +134,13 @@ export function createDailyView(d: DailyViewDeps): DailyView {
       if (k >= days) return null;
       return { name: view.cardName(k, 0), icon: REWARD_ICON[pick(k, 0).reward.kind] };
     },
-    claim() {
+    claim(from) {
       const c = circle();
       clock = d.now();
       const got = claimDaily(d.save, clock, days);
       if (!got) return false;
       d.rewards.give(pick(got.index, c).reward);
-      d.track('daily_claim', { day: got.day });
+      d.track('daily_claim', from ? { day: got.day, from } : { day: got.day });
       // «Tomorrow: …» — the next card (docs/01-gdd.md 7.6: the reward of tomorrow is seen in the first session).
       const next = (got.index + 1) % days;
       d.hud.toast(t('toast.reward'), 3, false, t('toast.tomorrow', { name: view.cardName(next, Math.floor(d.save.daily!.n / days)) }));

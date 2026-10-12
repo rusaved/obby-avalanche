@@ -160,6 +160,8 @@ export interface Hud {
   setStandButton(state: { text: string; x: number; y: number } | null): void;
   /** The hand over a point of the base with something to take there (the shop: enough coins); null hides it. */
   setStandHand(pos: { x: number; y: number } | null): void;
+  /** A plaque over a point of the base (the gift of the day: «!» or «in 14:20»), not a button; null hides it. */
+  setStandLabel(state: { text: string; x: number; y: number } | null): void;
   /** «▶ Ad: …» buttons shown now (docs/01-gdd.md 9.1, 10.1: PC — left middle, touch — top centre under the goal);
    * `busy` — waiting for the ad, the button is locked. An empty list hides the row. */
   setAdButtons(list: ReadonlyArray<{ id: string; text: string; busy: boolean }>): void;
@@ -366,6 +368,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   standBtn.style.setProperty('--ok', opts.okColor);
   onPress(standBtn, () => opts.onStand?.());
   root.appendChild(standBtn);
+  const standLabel = el('div', 'hud-egg');
+  standLabel.dataset['role'] = 'stand-label';
+  standLabel.style.pointerEvents = 'none';
+  root.appendChild(standLabel);
 
   // Avalanche (docs/01-gdd.md 4.8): banner, frost frame, arrow to the cave, toast, veil. Never red (docs/03, 3.2).
   root.style.setProperty('--threat', opts.threatColor);
@@ -824,6 +830,12 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (!state) return;
       if (standBtn.textContent !== state.text) standBtn.textContent = state.text;
       standBtn.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
+    },
+    setStandLabel(state) {
+      standLabel.classList.toggle('shown', state !== null);
+      if (!state) return;
+      if (standLabel.textContent !== state.text) standLabel.textContent = state.text;
+      standLabel.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
     },
     setStandHand(pos) {
       standHand.classList.toggle('shown', pos !== null);

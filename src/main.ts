@@ -690,6 +690,9 @@ async function boot(): Promise<void> {
     get baseTreadSign() {
       return baseView?.treadSign ?? null;
     },
+    get baseGiftReady() {
+      return baseView?.giftReady ?? false;
+    },
     showToast: (text, sec, gold) => hud?.toast(text, sec, gold),
     showFaces() {
       if (!characters || !cameraRig) return;
@@ -1130,6 +1133,7 @@ async function boot(): Promise<void> {
     meta?.update();
     petsView?.update(gameDt, playSec, renderPos, hero.yaw, hero.speed > 1.5 || sim.onBelt);
     standsView?.update(gameDt);
+    if (onBase) baseView?.setGiftReady((dailyView?.canClaim ?? false) && hudDueNow().has('daily'));
     cosmeticsView?.update();
     if (cosmeticsVisual) {
       cosmeticsVisual.group.visible = heroChar?.visible ?? false;
@@ -1484,6 +1488,16 @@ async function boot(): Promise<void> {
           cosmeticsView?.openShop(a.shoes ? 'shoes' : a.egg ? 'eggs' : 'shoes');
         },
       },
+      // The gift of the day (P1): with «Calendar» of the HUD; «Claim» while the reward of the calendar waits, else the
+      // timer of the «Calendar» button over the closed box.
+      daily: {
+        due: () => hudDueNow().has('daily'),
+        text: () => (dailyView?.canClaim ? t('btn.claim') : null),
+        // Lit with «!» instead of a hand (19.3).
+        hand: () => false,
+        label: () => (dailyView ? (dailyView.canClaim ? '!' : t('daily.soon', { time: formatTimer(dailyView.nextSec) })) : null),
+        press: () => void dailyView?.claim('base'),
+      },
     },
   });
   if (heroChar.skinId !== cosmeticsView.skin) characters.setSkin(heroChar, cosmeticsView.skin);
@@ -1630,7 +1644,12 @@ async function boot(): Promise<void> {
   }
 
   // Entering the game after the first summit: the base (docs/01-gdd.md 19.4, startOnReturn), otherwise 6.6 as before.
-  if (flow({ kind: 'boot' }).kind === 'base') enterBase();
+  if (flow({ kind: 'boot' }).kind === 'base') {
+    enterBase();
+    // Back in the game with the gift of the day waiting (docs/01-gdd.md 19.2): it says so, by the box at the spawn.
+    dailyView.tick(true);
+    if (dailyView.canClaim && hudDueNow().has('daily')) hud.toast(t('toast.welcomeGift'), 3);
+  }
   // First frame drawn and controls live, then ready() (11.2, steps 6–7).
   gr.render();
   bootState.firstFrameAt = gr.info().frame;

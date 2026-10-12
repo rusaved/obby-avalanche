@@ -345,5 +345,6 @@
   "base.portalRidge": "ridge {b}/{c}",
   "base.portalLocked": "Clear mountain {n}",
   "toast.replaySummit": "Top again!",
-  "toast.baseTreadmill": "Base treadmill ×{n}!"
+  "toast.baseTreadmill": "Base treadmill ×{n}!",
+  "toast.welcomeGift": "Your daily gift is waiting!"
 }

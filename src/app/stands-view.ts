@@ -1,4 +1,4 @@
-// What: The points of the base in the world (docs/01-gdd.md 19.3): the hero near a stand and standing — its button over it; the hand over a stand with something to take; one button at a time, at the nearest stand.
+// What: The points of the base in the world (docs/01-gdd.md 19.3): the hero near a stand and standing — its button over it; the hand over a stand with something to take; a plaque over a stand (the gift's timer); one button at a time, at the nearest stand.
 // Called by: main.ts (createStandsView, per frame; the HUD stand button calls press); app/handles.ts (type).
 // Keep: Reads the sim, never changes it; what a stand does and when it is there comes from its behaviour in main.ts; a window opens only by the button (10.2).
 
@@ -21,6 +21,8 @@ export interface StandBehaviour {
   text(): string | null;
   /** Something to take there now: the hand over it. */
   hand(): boolean;
+  /** A plaque over it while its button is not up (the gift: «!» or «in 14:20»); absent or null — none. */
+  label?(): string | null;
   press(): void;
 }
 
@@ -41,6 +43,8 @@ export interface StandsView {
   /** For __TEST__.state(): the kind of the stand whose button is up, and the stands with a hand. */
   readonly button: string | null;
   readonly hands: string[];
+  /** The text of the stand plaque up now (null — none). */
+  readonly label: string | null;
 }
 
 export function createStandsView(d: StandsViewDeps): StandsView {
@@ -53,9 +57,10 @@ export function createStandsView(d: StandsViewDeps): StandsView {
     const f = d.field();
     return { x: (p.x * 0.5 + 0.5) * f.width, y: (0.5 - p.y * 0.5) * f.height };
   };
-  const view: StandsView & { button: string | null; hands: string[] } = {
+  const view: StandsView & { button: string | null; hands: string[]; label: string | null } = {
     button: null,
     hands: [],
+    label: null,
     update(dt) {
       const sim = d.getSim();
       const stands = d.onBase() ? sim.level.points.filter((q) => q.type === 'stand' && d.stands[String(q['kind'])]?.due()) : [];
@@ -79,6 +84,19 @@ export function createStandsView(d: StandsViewDeps): StandsView {
       const pos = text && near ? project(near.x, BUTTON_ABOVE, near.z) : null;
       view.button = text && pos ? kind : null;
       d.hud.setStandButton(text && pos ? { text, x: pos.x, y: pos.y } : null);
+      // The plaque of a stand (one: the first with one), not under its own button.
+      let label: { text: string; x: number; y: number } | null = null;
+      for (const q of stands) {
+        const k = String(q['kind']);
+        const l = busy || k === view.button ? null : (d.stands[k]!.label?.() ?? null);
+        const lp = l ? project(q.x, BUTTON_ABOVE, q.z) : null;
+        if (l && lp) {
+          label = { text: l, ...lp };
+          break;
+        }
+      }
+      view.label = label?.text ?? null;
+      d.hud.setStandLabel(label);
     },
     press() {
       if (view.button) d.stands[view.button]?.press();

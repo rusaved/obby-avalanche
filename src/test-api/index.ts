@@ -35,6 +35,8 @@ export interface TestState {
   /** The points of the base (FM-10…FM-12): the stand whose button is up, the stands with a hand over them. */
   standButton: string | null;
   standHands: string[];
+  standLabel: string | null;
+  giftReady: boolean;
   world: string;
   controllable: boolean;
   pauseReasons: string[];
@@ -526,6 +528,8 @@ export function installTestApi(g: GameHandles): TestApi {
         baseTread: g.baseTreadSign,
         standButton: g.standsView?.button ?? null,
         standHands: [...(g.standsView?.hands ?? [])],
+        standLabel: g.standsView?.label ?? null,
+        giftReady: g.baseGiftReady,
         world: g.world.id,
         controllable: g.boot.controllable,
         pauseReasons: g.pause.reasons,

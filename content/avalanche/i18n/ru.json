@@ -345,5 +345,6 @@
   "base.portalRidge": "рубеж {b}/{c}",
   "base.portalLocked": "Пройди гору {n}",
   "toast.replaySummit": "Снова на вершине!",
-  "toast.baseTreadmill": "Дорожка базы ×{n}!"
+  "toast.baseTreadmill": "Дорожка базы ×{n}!",
+  "toast.welcomeGift": "Подарок дня ждёт!"
 }
