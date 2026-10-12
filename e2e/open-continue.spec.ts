@@ -86,6 +86,15 @@ test('?mock_ad=ok: back on the record flag, the threat at rest, ad_resume_ok; ag
   const record = (await testState(page)).record!;
   expect(record.z).toBeGreaterThan(zone[0]);
   await page.waitForFunction(() => window.__TEST__!.state().adButtons.includes('continue_here'), undefined, { timeout: 10_000 });
+  // Every toast shown from here on (a hint may take the place of the reward's toast before the test looks, under load).
+  await page.evaluate(() => {
+    const el = document.querySelector('[data-role="toast"]')!;
+    const seen: string[] = [];
+    (window as unknown as { __toasts: string[] }).__toasts = seen;
+    new MutationObserver(() => {
+      if (el.classList.contains('shown') && seen[seen.length - 1] !== el.textContent) seen.push(el.textContent ?? '');
+    }).observe(el, { attributes: true, childList: true, subtree: true, characterData: true });
+  });
   await page.locator(BUTTON).click();
   await page.waitForFunction(() => window.__TEST__!.state().adBusy === null && window.__TEST__!.analytics().some((e) => e.name === 'ad_resume_ok'), undefined, { timeout: 30_000 });
   const s = await testState(page);
@@ -94,7 +103,7 @@ test('?mock_ad=ok: back on the record flag, the threat at rest, ad_resume_ok; ag
   expect(s.caught).toBeNull();
   expect(['idle', 'gone']).toContain(s.wave!.phase);
   expect(s.boss!.zones[0]!.giants.every((gi) => gi.mode !== 'chase')).toBe(true);
-  expect(s.waveHud.toast).toBe('Награда получена');
+  expect(await page.evaluate(() => (window as unknown as { __toasts: string[] }).__toasts)).toContain('Награда получена');
   const resume = await page.evaluate(() => window.__TEST__!.analytics().filter((e) => e.name === 'ad_resume_ok').map((e) => e.params));
   expect(resume).toEqual([{ placement: 'continue_here', type: 'rewarded' }]);
   // Caught again well within 2 min: no offer.
