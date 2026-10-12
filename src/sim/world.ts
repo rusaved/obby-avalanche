@@ -236,7 +236,7 @@ export function controllerParams(tuning: TuningJson, speed: number): ControllerP
 }
 
 export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions): Sim {
-  const collision = createCollisionWorld(level.staticTriangles);
+  const collision = createCollisionWorld(level.staticTriangles, level.boundsTriangles);
   const gatesOpen = level.gates.map(() => false);
   const tier = opts.tier ?? 0;
   // The giant's check (gate of kind boss, docs/01-gdd.md 17.6) is a line, never a collider.

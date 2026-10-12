@@ -24,5 +24,8 @@
   "far": {
     "pc": 600,
     "mobile": 450
+  },
+  "bounds": {
+    "wallHeight": 24
   }
 }

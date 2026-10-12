@@ -373,6 +373,7 @@ const tuningSchema = v.object({
   bossShot: v.optional(v.object({ side: positive, rise: nonNeg, back: nonNeg, sec: positive })),
   boss: v.optional(v.object({ stompShake: nonNeg })),
   far: v.optional(v.object({ pc: positive, mobile: positive })),
+  bounds: v.optional(v.object({ wallHeight: positive })),
   gateReward: v.object({
     fountain: v.pipe(v.tuple([v.pipe(v.number(), v.integer(), v.minValue(1)), v.pipe(v.number(), v.integer(), v.minValue(1))]), v.check((r) => r[0] <= r[1], 'expected [min, max]')),
     streakSec: positive,

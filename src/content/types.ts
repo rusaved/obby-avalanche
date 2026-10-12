@@ -351,6 +351,9 @@ export interface TuningJson {
   boss?: { stompShake: number };
   /** Draw distance of the slope parts on a PC and a phone (docs/01-gdd.md 17.10). */
   far?: { pc: number; mobile: number };
+  /** Pace open (docs/01-gdd.md 19.9, Q-048): an invisible wall over the side borders, along the summit and behind its
+   * portal, `wallHeight` units over the floor; only the hero meets it (not the camera). Absent — no wall. */
+  bounds?: { wallHeight: number };
 }
 
 export type SegmentType =

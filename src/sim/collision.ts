@@ -1,6 +1,6 @@
-// What: Static Octree from triangle arrays plus a small dynamic Octree for gates; capsule and sphere hit queries for the controller.
+// What: Static Octree from triangle arrays plus a small dynamic Octree for gates and the invisible-wall Octree; capsule and sphere hit queries for the controller.
 // Called by: sim/controller.ts, sim/world.ts, render/blob.ts, render/camera.ts; tests/sim/collision.test.ts, controller.test.ts, gates.test.ts, steps.test.ts
-// Keep: From three only the math whitelist plus Capsule/Octree addons (architecture test); keep the padded Octree retry that checks no triangle is lost on splits.
+// Keep: From three only the math whitelist plus Capsule/Octree addons (architecture test); keep the padded Octree retry; the bounds tree answers capsules only, never spheres (camera).
 
 /** Static Octree from triangle arrays (docs/02-tech.md 6.1); gates and other movers live in a second small Octree. */
 import { Triangle, Vector3, Sphere } from 'three';
@@ -16,6 +16,8 @@ export interface Hit {
 export interface CollisionWorld {
   readonly static: Octree;
   dynamic: Octree | null;
+  /** The invisible wall of the slope (docs/01-gdd.md 19.9): capsules (the hero) meet it, spheres (the camera) do not. */
+  readonly bounds: Octree | null;
   capsuleHit(capsule: Capsule): Hit | null;
   sphereHit(sphere: Sphere): Hit | null;
   setDynamicBoxes(boxes: Aabb[]): void;
@@ -68,22 +70,25 @@ export function boxTriangles(b: Aabb, out: number[] = []): number[] {
   return out;
 }
 
-export function createCollisionWorld(staticTriangles: Float32Array | number[]): CollisionWorld {
+export function createCollisionWorld(staticTriangles: Float32Array | number[], boundsTriangles?: Float32Array | number[]): CollisionWorld {
   const staticTree = octreeFromTriangles(staticTriangles);
+  const boundsTree = boundsTriangles && boundsTriangles.length > 0 ? octreeFromTriangles(boundsTriangles) : null;
   const world: CollisionWorld = {
     static: staticTree,
     dynamic: null,
+    bounds: boundsTree,
     capsuleHit(capsule) {
-      const a = staticTree.capsuleIntersect(capsule);
-      const b = world.dynamic ? world.dynamic.capsuleIntersect(capsule) : false;
-      if (!a && !b) return null;
-      if (a && b) {
-        const n = a.normal.clone().multiplyScalar(a.depth).add(b.normal.clone().multiplyScalar(b.depth));
-        const depth = n.length();
-        return depth > 0 ? { normal: n.normalize(), depth } : null;
+      const hits: Array<{ normal: Vector3; depth: number }> = [];
+      for (const tree of [staticTree, world.dynamic, boundsTree]) {
+        const h = tree ? tree.capsuleIntersect(capsule) : false;
+        if (h) hits.push(h);
       }
-      const hit = (a || b) as { normal: Vector3; depth: number };
-      return { normal: hit.normal.clone(), depth: hit.depth };
+      if (hits.length === 0) return null;
+      if (hits.length === 1) return { normal: hits[0]!.normal.clone(), depth: hits[0]!.depth };
+      const n = new Vector3();
+      for (const h of hits) n.addScaledVector(h.normal, h.depth);
+      const depth = n.length();
+      return depth > 0 ? { normal: n.normalize(), depth } : null;
     },
     sphereHit(sphere) {
       const a = staticTree.sphereIntersect(sphere);

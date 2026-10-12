@@ -1,4 +1,4 @@
-// What: Builds LevelData (boxes, ramps, gates, caves, checkpoints, points, collider triangles) from one worlds.json world; pure and deterministic.
+// What: Builds LevelData (boxes, ramps, gates, caves, checkpoints, points, collider triangles, the invisible wall) from one worlds.json world; pure and deterministic.
 // Called by: main.ts, sim/world.ts, sim/bots.ts, level/validate.ts, app/wave-view.ts, render/threat/avalanche.ts; tests/level/*, tests/sim/*, tests/meta/*
 // Keep: Pure TS, no DOM/three; staticTriangles = 9 numbers per triangle with outward normals; GATE_THICKNESS and NICHE_* are shared with validate.ts and meshes.
 
@@ -81,7 +81,47 @@ function pushRampTriangles(out: number[], r: LevelRamp): void {
   quad([x0, y0 - t, z0], [x0, y1 - t, z1], [x0, y1, z1], [x0, y0, z0]);
 }
 
-export function buildLevel(world: World): LevelData {
+/** Build options from tuning.json (docs/01-gdd.md 19.9): `wallHeight` — the invisible wall over the borders; 0 or absent — none. */
+export interface BuildOptions {
+  wallHeight?: number | undefined;
+}
+
+/**
+ * The invisible wall of the slope (docs/01-gdd.md 19.9, Q-048): over every border up to `h` above the floor it borders,
+ * over the roof of every grotto in a border, and across both ends of the track (behind the camp, behind the summit portal).
+ * Only the hero's capsule meets it: nothing draws it, the camera and the shadow do not see it.
+ */
+function boundsWalls(boxes: LevelBox[], nicheSegs: Segment[], floors: Segment[], ramps: LevelRamp[], half: number, h: number): Aabb[] {
+  const out: Aabb[] = [];
+  for (const b of boxes) {
+    if (b.kind !== 'border') continue;
+    const floorY = b.max[1] - BORDER_HEIGHT;
+    out.push({ min: [b.min[0], b.max[1], b.min[2]], max: [b.max[0], floorY + h, b.max[2]] });
+  }
+  for (const n of nicheSegs) {
+    const sign = str(n, 'side') === 'right' ? 1 : -1;
+    const y = num(n, 'y');
+    const xOut = sign * (half + BORDER_WIDTH + num(n, 'depth') + NICHE_WALL);
+    const len = num(n, 'length');
+    out.push({ min: [Math.min(sign * half, xOut), y + NICHE_HEIGHT, n.z - len / 2 - NICHE_WALL], max: [Math.max(sign * half, xOut), y + h, n.z + len / 2 + NICHE_WALL] });
+  }
+  const pieces = [
+    ...floors.map((f) => ({ z0: f.z, z1: f.z + num(f, 'length'), y: num(f, 'y') })),
+    ...ramps.map((r) => ({ z0: r.z0, z1: r.z1, y: Math.max(r.y0, r.y1) })),
+  ];
+  if (pieces.length === 0) return out;
+  const x0 = -half - BORDER_WIDTH;
+  const x1 = half + BORDER_WIDTH;
+  const zStart = Math.min(...pieces.map((p) => p.z0));
+  const zEnd = Math.max(...pieces.map((p) => p.z1));
+  const yStart = Math.max(...pieces.filter((p) => p.z0 === zStart).map((p) => p.y));
+  const yEnd = Math.max(...pieces.filter((p) => p.z1 === zEnd).map((p) => p.y));
+  out.push({ min: [x0, yStart - FLOOR_THICKNESS, zStart - BORDER_WIDTH], max: [x1, yStart + h, zStart] });
+  out.push({ min: [x0, yEnd - FLOOR_THICKNESS, zEnd], max: [x1, yEnd + h, zEnd + BORDER_WIDTH] });
+  return out;
+}
+
+export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
   const W = world.width;
   const half = W / 2;
   const boxes: LevelBox[] = [];
@@ -378,6 +418,10 @@ export function buildLevel(world: World): LevelData {
 
   for (const b of boxes) if (b.solid) pushBoxTriangles(tris, b);
   for (const r of ramps) pushRampTriangles(tris, r);
+  const wallHeight = opts.wallHeight ?? 0;
+  const bounds = wallHeight > 0 ? boundsWalls(boxes, nicheSegs, floors, ramps, half, wallHeight) : [];
+  const boundsTris: number[] = [];
+  for (const b of bounds) pushBoxTriangles(boundsTris, b);
 
   // The centre line only: pieces that cover x = 0 (open slope: the side blocks of a carniz do not).
   const centreFloors = floors.filter((f) => num(f, 'x0', -half) <= 0 && num(f, 'x1', half) >= 0);
@@ -407,6 +451,8 @@ export function buildLevel(world: World): LevelData {
     spawn: [0, floorYAt(world.spawnZ), world.spawnZ],
     killY: minY - KILL_DEPTH,
     staticTriangles: new Float32Array(tris),
+    bounds,
+    boundsTriangles: new Float32Array(boundsTris),
     boxes,
     ramps,
     gates,

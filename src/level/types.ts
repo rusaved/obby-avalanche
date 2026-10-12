@@ -111,6 +111,9 @@ export interface LevelData {
   killY: number;
   /** Static triangles for the Octree: 9 numbers per triangle. */
   staticTriangles: Float32Array;
+  /** The invisible wall (docs/01-gdd.md 19.9): boxes and their triangles, met by the hero only; absent or empty — none. */
+  bounds?: Aabb[];
+  boundsTriangles?: Float32Array;
   boxes: LevelBox[];
   ramps: LevelRamp[];
   gates: LevelGate[];

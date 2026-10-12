@@ -171,7 +171,7 @@ async function boot(): Promise<void> {
   // Back after F5 or another day (docs/01-gdd.md 6.6): the mountain of the save, the hero at its farthest flag.
   let world = content.worlds.worlds.find((w) => w.index === save.world) ?? content.worlds.worlds[0];
   if (!world) throw new Error('worlds.json has no worlds');
-  let level = buildLevel(world);
+  let level = buildLevel(world, { wallHeight: tuning.bounds?.wallHeight });
   // Feel values (base and ceiling) come from tuning.json sliders; the curve shape from balance.json.
   const speedCurve = () => ({ ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed });
   // The avalanche (docs/02-tech.md 8.1): live world threat (debug sliders change it), save counters.
@@ -742,7 +742,7 @@ async function boot(): Promise<void> {
     const coins = reset?.coins ?? sim.coins;
     const tier = reset?.tier ?? sim.tier;
     world = next;
-    level = buildLevel(world);
+    level = buildLevel(world, { wallHeight: tuning.bounds?.wallHeight });
     sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world), walls: wallsOf(world), record: world.layout === 'openSlope' ? null : undefined, boss: game.threat.boss, events: eventsOptions(world) });
     avalanche?.setLevel(level);
     wireSim(sim);
