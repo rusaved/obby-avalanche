@@ -48,9 +48,12 @@ test('no window before 180 s of play; HUD buttons come by the schedule of 6.4 in
     expect(s.menu).toEqual([]);
   }
   // The delta is taken and run in one evaluate: between two round trips the game goes on in real time and, under CPU
-  // load, overshoots the 0.1 s margins below.
+  // load, overshoots the 0.1 s margins below — so real time stands still here (time scale 0) and only runSim steps;
+  // two frames draw the HUD of that moment.
+  await page.evaluate(() => window.__TEST__!.setTimeScale(0));
   const to = async (sec: number): Promise<void> => {
     await page.evaluate((target) => window.__TEST__!.runSim(target - window.__TEST__!.state().playSec), sec);
+    await page.evaluate(() => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r()))));
   };
   await to(ui.unlockMenusSec - 0.1);
   s = await testState(page);
@@ -72,6 +75,7 @@ test('no window before 180 s of play; HUD buttons come by the schedule of 6.4 in
   s = await testState(page);
   expect(s.menu).toEqual(['shop', 'pets', 'daily', 'timeRewards']);
   expect(s.trophyPlaque.shown).toBe(false);
+  await page.evaluate(() => window.__TEST__!.setTimeScale(1));
   // Purchases off: no «Special» tab.
   await page.locator('[data-hud="menu-shop"]').dispatchEvent('pointerdown');
   await expect(page.locator('[data-hud="shop-tab-special"]')).toHaveCount(0);
