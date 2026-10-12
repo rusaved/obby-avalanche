@@ -922,7 +922,7 @@
     "milestone": "FM",
     "description": "Баланс с базой, события воронки и итог вехи FM (docs/01-gdd.md 19.13–19.14; docs/06 разделы 2, 6, 8.2): модель учитывает переход через базу (base.transitSec); события base_first (player), base_portal (always, world, replay), параметр from у daily_claim, shortcut_ok (player, P1) — в каталоге docs/06 и целях раздела 6; защитный показатель «на базе не теряются» в 8.2; плейтестер-смоук с отдельным прогоном «первая база»; verify; итог вехи в progress.md по CLAUDE.md п. 4 и 11 (хрупкое, docs, ретро, что не нравится)",
     "acceptance": "npm run sim:balance: open F1–F14 PASS с переходом через базу (F3 28–34 мин), classic и fast без изменений в цифрах; tests/analytics: каждое новое событие в каталоге docs/06 с кратностью и в целях Метрики, main.ts шлёт его так же; docs/evidence/fm/playtest.md есть, пункты ниже 3 — в фичи или в progress.md с причиной, в отчёте отдельный блок «первая база» (секунды от появления до портала горы 2); docs/evidence/fm/verify.txt — последняя строка EXIT=0; скриншоты 4.4 вехи FM открыты и просмотрены; git push origin HEAD:main",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
