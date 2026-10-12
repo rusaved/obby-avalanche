@@ -166,7 +166,8 @@ export function laneIntervals(level: LevelData, z0 = -Infinity, z1 = Infinity, i
  * (playtest M2: the belt runs the whole cave; the egg stands off it on the mouth side). */
 export function caveSpot(n: LevelNiche, spot: number): { x: number; z: number } {
   const half = (n.box.max[2] - n.box.min[2]) / 2;
-  const x = n.side === 'left' ? n.box.min[0] + NICHE_BELT_WIDTH / 2 : n.box.max[0] - NICHE_BELT_WIDTH / 2;
+  // A grotto in a rock (SP-04): its belt runs along its middle.
+  const x = n.kind === 'island' ? (n.box.min[0] + n.box.max[0]) / 2 : n.side === 'left' ? n.box.min[0] + NICHE_BELT_WIDTH / 2 : n.box.max[0] - NICHE_BELT_WIDTH / 2;
   return { x, z: n.z + (spot === 0 ? -1 : 1) * (half - 1.8) };
 }
 
@@ -358,15 +359,17 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       return;
     }
     const pts: Array<[number, number]> = [...exitPts(b)];
+    // On along the lane from where he is out (a rock's mouth is below him, SP-04).
+    const from = pts.length > 0 ? pts[pts.length - 1]![1] : b.z;
     // A grotto in a rock (SP-04): along the lane up to the level of its mouth, not past the rock.
     if (n?.kind === 'island') z = n.box.min[2] - MOUTH_INSET;
     const f = level.funnel;
     if (f && z > f.z0 && b.z < z) {
       // The summit funnel (docs/01-gdd.md 20.2): up the lane to its mouth, then on inside its walls.
       const lim = Math.max(0, f.x0 + (f.x1 - f.x0) * Math.min(1, (z - f.z0) / (f.z1 - f.z0)) - LANE_MARGIN);
-      if (b.z < f.z0) pts.push(...laneWay(b.lane, b.z, f.z0));
+      if (b.z < f.z0) pts.push(...laneWay(b.lane, from, f.z0));
       pts.push([Math.max(-lim, Math.min(lim, laneAt(b.lane, z))), z]);
-    } else pts.push(...laneWay(b.lane, b.z, z));
+    } else pts.push(...laneWay(b.lane, from, z));
     if (n) {
       const s = caveSpot(n, spot);
       // A grotto in a rock (SP-04) opens towards the camp: in through its mouth, never through a side wall.
@@ -548,7 +551,9 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
     b.zoneSpeed = gz.speed * (rng.chance(cfg.boss!.passShare) ? k[1] : k[0]);
     b.cave = -1;
     const pts: Array<[number, number]> = [...exitPts(b)];
-    pts.push(...laneWay(b.lane, gz.zone[0] - 1, gz.zone[1] + 8));
+    // Over to the lane where he is out (below a rock's mouth, SP-04), then up it through the zone.
+    const from = pts.length > 0 ? Math.min(pts[pts.length - 1]![1], gz.zone[0] - 1) : gz.zone[0] - 1;
+    pts.push(...laneWay(b.lane, from, gz.zone[1] + 8));
     b.path = pts;
   };
 

@@ -47,6 +47,8 @@ export function caughtTarget(level: LevelData, z: number, x = 0): { niche: numbe
   });
   const n = level.niches[best];
   if (!n) return { niche: -1, x: level.spawn[0], y: level.spawn[1], z: level.spawn[2] };
+  // A grotto in a rock (SP-04): its middle, the ball rolls in through its mouth (createCaught).
+  if (n.kind === 'island') return { niche: best, x: entranceX(level, n), y: n.y, z: n.z };
   return { niche: best, x: entranceX(level, n) + nicheSign(n) * INSIDE_ENTRANCE, y: n.y, z: n.z };
 }
 
@@ -64,7 +66,7 @@ export function createCaught(
   const rollSec = Math.min(caught.rollSec, caught.maxSec - formSec);
   const popSec = Math.max(0, Math.min(avalanche.caughtPopSec, caught.maxSec - formSec - rollSec));
   const n = level.niches[target.niche];
-  const via = n ? { x: entranceX(level, n) - nicheSign(n) * MOUTH_INSET, z: n.z } : { x: target.x, z: target.z };
+  const via = n ? (n.kind === 'island' ? { x: entranceX(level, n), z: n.box.min[2] - MOUTH_INSET } : { x: entranceX(level, n) - nicheSign(n) * MOUTH_INSET, z: n.z }) : { x: target.x, z: target.z };
   return { t: 0, from: { ...from }, to: { x: target.x, y: target.y, z: target.z }, via, niche: target.niche, formSec, rollSec, popSec };
 }
 

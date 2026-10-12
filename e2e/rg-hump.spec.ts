@@ -91,7 +91,9 @@ test('mountain 8: the siren in the flight — into the landing grotto before the
   expect(lit.side).toBe(hump.side);
   expect(Math.abs(lit.z - s.hero!.z)).toBeLessThan(30);
   await page.evaluate(([mx, mz, ix, iz]) => window.__TEST__!.botPath([[mx, mz], [ix, iz]]), [lit.mouth[0], lit.mouth[1], lit.inside[0], lit.inside[1]] as const);
-  await page.waitForFunction(() => ['survived', 'caught'].includes(window.__TEST__!.state().wave?.outcome ?? ''), undefined, { timeout: 60_000 });
+  // At the run of «Размах» (SP-03) the flight can carry him past where the front starts: «safe» in the grotto then.
+  await page.waitForFunction(() => ['survived', 'caught', 'safe'].includes(window.__TEST__!.state().wave?.outcome ?? ''), undefined, { timeout: 60_000 });
   s = await testState(page);
-  expect(s.wave!.outcome).toBe('survived');
+  expect(['survived', 'safe']).toContain(s.wave!.outcome);
+  expect(s.inShelter).toBe(true);
 });

@@ -254,10 +254,12 @@ function shelterSpacing(w: World, i: number, every: number, at: string): string[
   const camp = w.safeZones[0]?.[1] ?? 0;
   const z0 = i === 1 ? camp : (gates[i - 2] as Segment).z;
   const z1 = (gates[i - 1] as Segment).z;
-  const niches = sorted(w, 'niche');
+  // Grottos in rocks (SP-04) shelter too: a rock on a fork serves its lane (its side by x).
+  const rocks = sorted(w, 'island').map((r) => ({ ...r, side: num(r, 'x') < 0 ? 'left' : 'right' }));
+  const niches = [...sorted(w, 'niche'), ...rocks].sort((a, b) => a.z - b.z);
   const inSection = (s: Segment): boolean => num(s, 'section') === i;
   const tunnels = w.segments.filter((s) => s.type === 'tunnel' && inSection(s));
-  const g = num(niches.find((n) => n['kind'] === 'grotto') ?? ({ length: OPEN_SLOPE.grotto.length } as unknown as Segment), 'length') / 2 + 1;
+  const g = num(sorted(w, 'niche').find((n) => n['kind'] === 'grotto') ?? ({ length: OPEN_SLOPE.grotto.length } as unknown as Segment), 'length') / 2 + 1;
   const holes = w.segments
     .filter((s) => (s.type === 'throat' || s.type === 'chasm' || s.type === 'hump') && inSection(s))
     .map((s) => ({ a: s.z - g, b: s.z + num(s, 'length') + g, side: s.type === 'hump' ? (s['side'] as string) : null }));

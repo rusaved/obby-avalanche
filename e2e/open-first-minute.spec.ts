@@ -44,11 +44,12 @@ test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg
   mkdirSync(EVIDENCE, { recursive: true });
   await openGame('pace=open&quality=high');
   const shelters = (await page.evaluate(() => window.__TEST__!.shelters())) as Shelter[];
-  const beltGrotto = (kind: string, before: number): Shelter | null => shelters.find((n) => n.kind === kind && n.z < before && n.z > before - 30) ?? null;
+  // The grotto with the belt right below `before` (SP-04: on mountain 1 a rock by the run, nearRun — its kind is island).
+  const beltGrotto = (before: number): Shelter | null => shelters.find((n) => n.belt !== null && n.z < before && n.z > before - 30) ?? null;
   // Ridges 2–3 by their grotto belts if the stat is short, then the giant by the belt before his zone.
   const legs: Leg[] = [
-    ...ridges.slice(1).map((r) => ({ z: r.z, x: passX(r), req: r.requires!, grotto: beltGrotto('ridgeGrotto', r.z), past: r.z + 10 })),
-    { z: boss.zone[0], x: 0, req: boss.requires, grotto: shelters.find((n) => n.kind === 'bossLine') ?? null, past: portal + 2 },
+    ...ridges.slice(1).map((r) => ({ z: r.z, x: passX(r), req: r.requires!, grotto: beltGrotto(r.z), past: r.z + 10 })),
+    { z: boss.zone[0], x: 0, req: boss.requires, grotto: beltGrotto(boss.zone[0]), past: portal + 2 },
   ];
 
   /** The path to the points from the hero: round the fork's cliff by the lane on the hero's side. */
@@ -56,8 +57,17 @@ test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg
     const h = s.hero!;
     const z = to[0]![1];
     const lane = h.x < 0 ? -16 : 16;
-    if (h.z > forkEnd || z < fork.z) return to;
-    return [[lane, Math.max(h.z, fork.z) + 2], [lane, Math.min(z, forkEnd + 4)], ...to];
+    // Out of the shelter he stands in by its mouth first (SP-04: a rock by the lane has walls on three sides; a canopy
+    // with the belt is open to the sides).
+    const here = s.shelter >= 0 ? shelters[s.shelter] : undefined;
+    const out: Array<[number, number]> = here && here.kind === 'island' && here.belt === null ? [here.mouth] : [];
+    // Its mouth once (a leg out of its belt starts with it too).
+    const rest = out.length && to[0] && to[0][0] === out[0]![0] && to[0][1] === out[0]![1] ? to.slice(1) : to;
+    // Out of a rock: sideways below it to the next point's line first, then up (never through its side walls).
+    if (h.z > forkEnd || z < fork.z) return [...out, ...(out.length && rest[0] ? [[rest[0][0], out[0]![1]] as [number, number]] : []), ...rest];
+    // Past the fork back to the middle, where the gifts of the path lead up (SP-04: the field is wide, «up the middle»).
+    const middle: Array<[number, number]> = z > forkEnd + 14 ? [[0, forkEnd + 10]] : [];
+    return [...out, [lane, Math.max(out[0]?.[1] ?? h.z, fork.z) + 2], [lane, Math.min(z, forkEnd + 4)], ...middle, ...rest];
   };
   const go = (path: Array<[number, number]>): Promise<void> => page.evaluate((p) => window.__TEST__!.botPath(p), path);
   const played = (): Promise<Played> => page.evaluate(() => window.__TEST__!.analyticsPlay());
@@ -85,11 +95,14 @@ test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg
     }
   };
   // Up to the siren of the scripted wave (17.8): triggerDist below the first grotto of section 2, from the data.
-  const firstOf2 = shelters.filter((n) => n.kind === 'grotto' && n.z > ridges[0]!.z).sort((a, b) => a.z - b.z)[0]!;
+  // SP-04: on mountain 1 that row is rocks by the lanes (kind island).
+  const firstOf2 = shelters.filter((n) => (n.kind === 'grotto' || n.kind === 'island') && n.z > ridges[0]!.z).sort((a, b) => a.z - b.z)[0]!;
   const sirenZ = firstOf2.z - balanceJson.ftue.triggerDist + 2;
   const x1 = passX(ridges[0]!);
   await go([[x1, ridges[0]!.z - 4], [x1, ridges[0]!.z + 12], [-16, Math.max(ridges[0]!.z + 24, sirenZ)]]);
-  await page.evaluate(() => window.__TEST__!.setTimeScale(3));
+  // ×2, not ×3 (SP-04): the bot decides by polling, and beside another worker a late look at ×3 cost seconds of play on a
+  // belt — the times compared with FM are play seconds.
+  await page.evaluate(() => window.__TEST__!.setTimeScale(2));
 
   // Set in resume() too: typed wide, so the loop's checks are not narrowed away.
   let stage = 'up' as 'up' | 'hide' | 'egg' | 'hatch' | 'leg' | 'belt';
@@ -103,7 +116,8 @@ test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg
     const inIt = l.grotto !== null && st.shelter === shelters.indexOf(l.grotto);
     if (st.stat >= l.req || !l.grotto) {
       stage = 'leg';
-      const out: Array<[number, number]> = inIt ? [l.grotto!.mouth] : [];
+      // A canopy with the belt (SP-04) is open to the sides: straight on to the passage.
+      const out: Array<[number, number]> = inIt && l.grotto!.kind !== 'island' ? [l.grotto!.mouth] : [];
       const finish: Array<[number, number]> = leg === legs.length - 1 ? [[0, boss.zone[1] + 4], [0, portal + 2]] : [[l.x, l.z + 10]];
       await go(route(st, [...out, [l.x, l.z - 4], ...finish]));
     } else {

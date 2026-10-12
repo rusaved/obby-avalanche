@@ -5,7 +5,6 @@ import type { HeroInput } from '../../src/sim/controller.ts';
 import { createSim } from '../../src/sim/world.ts';
 import { buildLevel } from '../../src/level/builder.ts';
 import { mergePatch } from '../../src/content/pace.ts';
-import { NICHE_BELT_WIDTH, BORDER_WIDTH } from '../../src/level/builder.ts';
 import type { BalanceJson, TuningJson, World, WorldsJson } from '../../src/content/types.ts';
 
 // PS-05: the section multiplier of the open slope (docs/01-gdd.md 17.4; Q-033, A).
@@ -52,7 +51,8 @@ describe('section multiplier (PS-05)', () => {
     for (const [, a] of run) expect(a).toBeCloseTo(1.2, 9);
     // On the belt of the grotto under ridge 2.
     const level = buildLevel(w);
-    const grotto = level.niches.findIndex((n) => n.kind === 'ridgeGrotto' && n.zone === 2);
+    // The grotto with the belt of section 2 (SP-04: on mountain 1 a rock by the run, nearRun).
+    const grotto = level.niches.findIndex((n) => n.treadmill > 0 && n.zone === 2);
     const belt = level.points.find((p) => p.type === 'treadmill' && p['niche'] === grotto)!;
     expect(belt['mult']).toBe(1.2);
     const s = createSim(level, tuning, { balance, speedCurve: curve });
@@ -62,7 +62,9 @@ describe('section multiplier (PS-05)', () => {
     for (let i = 0; i < 240; i++) s.step({ moveX: 0, moveZ: 0, jump: false, jumpHeld: false }, DT);
     expect(amounts.length).toBeGreaterThan(3);
     for (const a of amounts) expect(a).toBeCloseTo(1.2, 9);
-    expect(Math.abs(belt.x)).toBe(w.width / 2 + BORDER_WIDTH + 6 - NICHE_BELT_WIDTH / 2);
+    const n = level.niches[grotto]!;
+    expect(belt.x).toBeGreaterThan(n.box.min[0]);
+    expect(belt.x).toBeLessThan(n.box.max[0]);
   });
 
   it('classic and fast have no section multipliers: ×1 on the whole slope', () => {

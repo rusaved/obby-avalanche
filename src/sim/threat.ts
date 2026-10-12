@@ -11,7 +11,7 @@
  */
 import type { BalanceJson, TuningJson, WorldThreat } from '../content/types.ts';
 import type { LevelData } from '../level/types.ts';
-import { distToEntrance, inSafeZone, shelterIndex } from './shelter.ts';
+import { distToEntrance, firstShelter, inSafeZone, shelterIndex } from './shelter.ts';
 
 export type WavePhase = 'idle' | 'warn' | 'run' | 'gone';
 /** How the current wave ended for the hero: in a cave, caught, in the camp or on the summit, or dusted (scripted miss). */
@@ -110,8 +110,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
   const spawnMax = threat.spawnMaxZ ?? Infinity;
   // The scripted wave comes at the first shelter of stretch `scriptedWaveWall` (the cave of that stretch in classic and
   // fast; the first grotto of section 2 on the open slope, 17.8).
-  // A grotto in a rock (SP-04) is never it: the egg of that wave waits by a back wall at an edge.
-  const scriptedCave = level.niches.find((n) => n.stretch === balance.ftue.scriptedWaveWall && n.kind !== 'island') ?? null;
+  const scriptedCave = level.niches[firstShelter(level, balance.ftue.scriptedWaveWall)] ?? null;
   // At a fork that first row has a grotto on each lane: the scripted wave lights the one nearer by run time and follows
   // the hero to the other lane (playtest PS: the arrow pointed at the grotto behind the cliff). One cave elsewhere.
   const scriptedRow = level.niches.flatMap((n, i) => (scriptedCave && n.stretch === scriptedCave.stretch && n.z === scriptedCave.z && n.kind !== 'ledge' ? [i] : []));

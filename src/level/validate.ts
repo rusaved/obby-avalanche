@@ -506,6 +506,7 @@ const openSpecSchema = v.object({
   passAxis: v.optional(v.boolean()),
   ridgeDigits: v.optional(v.object({ field: positive, other: positive })),
   island: v.optional(v.object({ size: positive, every: positive, minWidth: positive })),
+  nearRun: v.optional(v.object({ mountain: positive, section: positive, gap: nonNeg })),
   spawnZ: nonNeg,
   threat: v.object({
     spawnAhead: positive,

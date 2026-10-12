@@ -5,6 +5,8 @@ import { buildLevel, BORDER_WIDTH } from '../../src/level/builder.ts';
 import { fieldOf, OPEN_SLOPE, passesOf } from '../../src/level/open-slope.ts';
 import { openFairnessReport } from '../../src/level/validate-open.ts';
 import { laneIntervals } from '../../src/sim/bots.ts';
+import { entranceX, firstShelter } from '../../src/sim/shelter.ts';
+import { giftEggSpot } from '../../src/sim/gift-egg.ts';
 import { createSim } from '../../src/sim/world.ts';
 import { moveSpeed } from '../../src/sim/effects/moveSpeed.ts';
 import { mergePatch } from '../../src/content/pace.ts';
@@ -131,7 +133,8 @@ describe('SP-04: the width of the slope by sections', () => {
       const level = buildLevel(w);
       spec.mountains[wi]!.sections.forEach((s, j) => {
         const zone = w.zones[j]!;
-        const rocks = level.niches.filter((n) => n.kind === 'island' && n.z > zone.zStart && n.z < zone.zEnd);
+        // The rocks of 19.2 (no belt; the rocks with the belt by the run of mountain 1 are nearRun's).
+        const rocks = level.niches.filter((n) => n.kind === 'island' && n.treadmill === 0 && n.z > zone.zStart && n.z < zone.zEnd);
         if (s.width! > spec.island!.minWidth) expect(rocks.length, `mountain ${wi + 1}, section ${j + 1}`).toBeGreaterThan(0);
         else expect(rocks, `mountain ${wi + 1}, section ${j + 1}`).toEqual([]);
         for (const r of rocks) {
@@ -165,6 +168,25 @@ describe('SP-04: the width of the slope by sections', () => {
         expect(g['digits']).toBe(j + 1 === fieldOf(m) ? 8 : 6);
       });
     }
+  });
+
+  it('the first avalanche of mountain 1 (20.4): its grottos are rocks by the lanes, their mouths ≤ 30 units off the lane lines', () => {
+    const w = worlds.worlds[0]!;
+    const level = buildLevel(w);
+    const first = firstShelter(level, balance.ftue.scriptedWaveWall);
+    const row = level.niches.filter((n) => n.stretch === level.niches[first]!.stretch && n.z === level.niches[first]!.z);
+    expect(row.map((n) => n.kind)).toEqual(['island', 'island']);
+    expect(row.map((n) => n.lane).sort()).toEqual(['bold', 'calm']);
+    for (const n of row) {
+      const lane = Math.sign(n.box.min[0]) * OPEN_SLOPE.laneX;
+      const mouth = entranceX(level, n);
+      expect(Math.abs(mouth - lane)).toBeLessThanOrEqual(30);
+      expect(Math.min(Math.abs(n.box.min[0]), Math.abs(n.box.max[0]))).toBeGreaterThan(OPEN_SLOPE.laneX + 1);
+    }
+    // The free egg of that wave stands in the rock by its back wall.
+    const egg = giftEggSpot(level, balance.ftue.scriptedWaveWall)!;
+    expect(egg.niche).toBe(first);
+    expect(egg.z).toBeGreaterThan(level.niches[first]!.z);
   });
 
   it('Q-064: passAxis — the nearest odd number, a passage on the axis; off — the nearest whole (the criterion)', () => {
@@ -228,6 +250,8 @@ describe('SP-04: the width of the slope by sections', () => {
       for (const b of w2.bots!.list) {
         if (b.mode === 'away' || b.mode === 'off') continue;
         if (rocks.has(b.cave) && b.mode === 'hide') inRock++;
+        // The snowball hops over obstacles (docs/01-gdd.md 4.5): over a rock by its roof.
+        if (b.mode === 'ball') continue;
         if (walls.some((wb) => b.x > wb.min[0] + 0.1 && b.x < wb.max[0] - 0.1 && b.z > wb.min[2] + 0.1 && b.z < wb.max[2] - 0.1) && inWall.length < 5) inWall.push(`bot ${b.index} (${b.mode}) at (${b.x.toFixed(1)}, ${b.z.toFixed(1)})`);
       }
     }

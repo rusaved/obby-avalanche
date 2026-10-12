@@ -8,7 +8,6 @@ import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type:
 type Seg = { type: string; z: number; side?: string; kind?: string; length?: number; edge?: number };
 type OpenWorld = { segments: Seg[]; bosses: Array<{ zone: [number, number] }>; threat: { spawnMaxZ: number } };
 const world = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds[0]!;
-const niches = world.segments.filter((s) => s.type === 'niche');
 const ridge1 = world.segments.find((s) => s.type === 'gate' && s.kind === 'ridge')!.z;
 const EVIDENCE = 'docs/evidence/open';
 
@@ -24,15 +23,10 @@ test('scripted wave at the entry of section 2: the bot in its grotto, «Phew, ma
   await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'warn', undefined, { timeout: 90_000 });
   let s = await testState(page);
   expect(s.wave!.scripted).toBe(true);
-  const cave = niches[s.wave!.shelter]!;
+  // The lit shelter as the game has it (SP-04: on mountain 1 a rock by the lane): to its mouth, then in.
+  const cave = (await page.evaluate(() => window.__TEST__!.shelters()))[s.wave!.shelter]!;
   expect(cave.z).toBeGreaterThan(ridge1);
-  const sign = cave.side === 'right' ? 1 : -1;
-  // SP-04: the grotto stands at the edge of its section.
-  const e = cave.edge ?? 28;
-  await page.evaluate(
-    ([x1, x2, z]) => window.__TEST__!.botPath([[x1, z], [x2, z]]),
-    [sign * (e - 4), sign * (e + 2), cave.z] as const,
-  );
+  await page.evaluate(([m, i]) => window.__TEST__!.botPath([m, i]), [cave.mouth, cave.inside] as const);
   await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'run', undefined, { timeout: 60_000 });
   await page.evaluate(() => window.__TEST__!.setTimeScale(1));
   let shot = false;

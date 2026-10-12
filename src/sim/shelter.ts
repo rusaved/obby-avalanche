@@ -27,6 +27,17 @@ export function entranceX(level: LevelData, n: LevelNiche): number {
   return nicheSign(n) * (level.width / 2);
 }
 
+/** The first shelter of stretch `stretch` up the slope (the lowest, the lower index on a tie), ledges aside; −1 none. The
+ * grottos in rocks (SP-04) come after the grottos of the edges in level.niches, so the order there is not the slope's. */
+export function firstShelter(level: LevelData, stretch: number): number {
+  let best = -1;
+  level.niches.forEach((n, i) => {
+    if (n.stretch !== stretch || n.kind === 'ledge') return;
+    if (best < 0 || n.z < level.niches[best]!.z) best = i;
+  });
+  return best;
+}
+
 /** Is the point inside cave `n` or within `graceDist` past its entrance onto the slope; on a ledge — on its top. */
 export function inNiche(level: LevelData, n: LevelNiche, graceDist: number, x: number, y: number, z: number): boolean {
   // A ledge on a cliff and a tunnel (docs/01-gdd.md 18.3) shelter by their volume: the front passes over them.

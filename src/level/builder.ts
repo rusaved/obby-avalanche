@@ -185,12 +185,15 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
   const rampSegs = world.segments.filter((s) => s.type === 'ramp');
   // A grotto with a chest (open slope, docs/01-gdd.md 17.7) is a niche of kind chestGrotto with the chest inside.
   const nicheSegs = world.segments.filter((s) => s.type === 'niche' || s.type === 'chestGrotto');
+  // A grotto with the belt in a rock by the run (SP-04, docs/01-gdd.md 20.4: the first minutes of mountain 1): no gap in the
+  // border for it.
+  const edgeNiches = nicheSegs.filter((s) => s['rock'] === undefined);
   // Multiplier of every treadmill of the mountain (flag w1_treadmillMult, docs/01a-content.md 1).
   const mountainTreadmill = world.treadmillMult ?? 1;
 
   // Floors and ramps with side borders; borders leave a gap where a niche sits.
   const nicheGap = (side: 'left' | 'right', z0: number, z1: number): Array<[number, number]> => {
-    const gaps = nicheSegs
+    const gaps = edgeNiches
       .filter((n) => str(n, 'side') === side)
       .map((n) => [n.z - num(n, 'length') / 2, n.z + num(n, 'length') / 2] as [number, number])
       .filter(([a, b]) => b > z0 && a < z1);
@@ -384,8 +387,29 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     shapes.push({ kind: 'hump', z0: c.z, z1: c.z + num(c, 'length'), y: num(c, 'y'), x0: num(c, 'x0'), x1: num(c, 'x1'), side: str(c, 'side') === 'left' ? 'left' : 'right', land: [land[0], num(c, 'landEnd')], section: num(c, 'section') });
   }
 
+  /** A grotto in a rock: walls on three sides and a roof, open towards the camp (−z); `a` half its width, z0–z1 its length;
+   * `sides` false — a canopy: the back wall and the roof only, open to the sides too. */
+  const rock = (x: number, y: number, a: number, z0: number, z1: number, sides = true): LevelNiche['box'] => {
+    if (sides) boxes.push(box([x - a, y, z0], [x - a + NICHE_WALL, y + NICHE_HEIGHT, z1], 'cave', 'islandWall'));
+    if (sides) boxes.push(box([x + a - NICHE_WALL, y, z0], [x + a, y + NICHE_HEIGHT, z1], 'cave', 'islandWall'));
+    boxes.push(box([x - a + NICHE_WALL, y, z1 - NICHE_WALL], [x + a - NICHE_WALL, y + NICHE_HEIGHT, z1], 'cave', 'islandWall'));
+    boxes.push(box([x - a, y + NICHE_HEIGHT, z0], [x + a, y + NICHE_HEIGHT + NICHE_WALL, z1], 'cave', 'islandRoof'));
+    return { min: [x - a + NICHE_WALL, y, z0], max: [x + a - NICHE_WALL, y + NICHE_HEIGHT, z1 - NICHE_WALL] };
+  };
+
   // Niches: recess outside the track edge, open towards the track (docs/02-tech.md 8.2).
   for (const n of nicheSegs) {
+    if (n['rock'] !== undefined) {
+      // The grotto with the belt by the run (SP-04): a canopy (the back wall and the roof) — off the belt straight to the
+      // passage beside it; its belt along the middle, the hero runs in place up the slope.
+      const x = num(n, 'rock');
+      const y = num(n, 'y');
+      const len = num(n, 'length');
+      const b = rock(x, y, num(n, 'width') / 2, n.z - len / 2, n.z + len / 2, false);
+      niches.push({ stretch: num(n, 'stretch'), z: n.z, y, side: x < 0 ? 'left' : 'right', box: b, treadmill: num(n, 'treadmill', 1) * mountainTreadmill, zone: num(n, 'zone', 0), kind: 'island' });
+      points.push({ type: 'treadmill', x, y, z: (b.min[2] + b.max[2]) / 2, mult: num(n, 'treadmill', 1) * mountainTreadmill, length: b.max[2] - b.min[2] - 1, width: NICHE_BELT_WIDTH, inNiche: true, niche: niches.length - 1 });
+      continue;
+    }
     const side = str(n, 'side') === 'right' ? 'right' : 'left';
     const sign = side === 'left' ? -1 : 1;
     const len = num(n, 'length');
@@ -440,18 +464,13 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     const x = num(r, 'x');
     const y = num(r, 'y');
     const a = num(r, 'size') / 2;
-    const z0 = r.z - a;
-    const z1 = r.z + a;
-    boxes.push(box([x - a, y, z0], [x - a + NICHE_WALL, y + NICHE_HEIGHT, z1], 'cave', 'islandWall'));
-    boxes.push(box([x + a - NICHE_WALL, y, z0], [x + a, y + NICHE_HEIGHT, z1], 'cave', 'islandWall'));
-    boxes.push(box([x - a + NICHE_WALL, y, z1 - NICHE_WALL], [x + a - NICHE_WALL, y + NICHE_HEIGHT, z1], 'cave', 'islandWall'));
-    boxes.push(box([x - a, y + NICHE_HEIGHT, z0], [x + a, y + NICHE_HEIGHT + NICHE_WALL, z1], 'cave', 'islandRoof'));
+    const b = rock(x, y, a, r.z - a, r.z + a);
     niches.push({
       stretch: num(r, 'stretch'),
       z: r.z,
       y,
       side: x < 0 ? 'left' : 'right',
-      box: { min: [x - a + NICHE_WALL, y, z0], max: [x + a - NICHE_WALL, y + NICHE_HEIGHT, z1 - NICHE_WALL] },
+      box: b,
       treadmill: 0,
       zone: num(r, 'zone', 0),
       kind: 'island',
@@ -555,7 +574,7 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
   for (const r of ramps) pushRampTriangles(tris, r);
   for (const p of prisms) prismTriangles(tris, p);
   const wallHeight = opts.wallHeight ?? 0;
-  const bounds = [...(wallHeight > 0 ? boundsWalls(boxes, nicheSegs, floors, ramps, half, wallHeight) : []), ...heroOnly];
+  const bounds = [...(wallHeight > 0 ? boundsWalls(boxes, edgeNiches, floors, ramps, half, wallHeight) : []), ...heroOnly];
   const boundsTris: number[] = [];
   for (const b of bounds) pushBoxTriangles(boundsTris, b);
   // Over a prism the invisible wall stands on it as over a border (docs/01-gdd.md 19.9).

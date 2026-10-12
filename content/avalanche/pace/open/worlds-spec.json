@@ -17,6 +17,11 @@
   "every": 2,
   "minWidth": 120
  },
+ "nearRun": {
+  "mountain": 1,
+  "section": 2,
+  "gap": 4
+ },
  "ridgeDigits": {
   "field": 8,
   "other": 6

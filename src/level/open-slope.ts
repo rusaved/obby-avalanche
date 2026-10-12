@@ -256,7 +256,16 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
         zg = round3(Math.max(zg, flatLo));
         if (zg <= cursor) throw new Error(`${m.id}: section ${j} has no room for a grotto after z=${cursor} (shelterEvery ${sec.shelterEvery})`);
         cursor = zg;
-        if (fork && zg >= fork[0] && zg <= fork[1]) {
+        const fw = spec.nearRun;
+        if (fork && zg >= fork[0] && zg <= fork[1] && fw && spec.island && fw.mountain === index && fw.section === j && !seg.some((x) => x.type === 'island' && x['first'] === true)) {
+          // The first avalanche of the game (docs/01-gdd.md 20.4): its grottos by the lanes, not at the edges of the field —
+          // a rock on each lane `gap` off its line, open towards the camp.
+          const a = spec.island.size;
+          for (const s of ['left', 'right'] as const) {
+            const sx = s === 'left' ? -1 : 1;
+            seg.push({ type: 'island', z: round3(zg), x: round3(sx * (O.laneX + fw.gap + a / 2)), y, size: a, zone: j, stretch: j, lane: s === bold ? 'bold' : 'calm', first: true });
+          }
+        } else if (fork && zg >= fork[0] && zg <= fork[1]) {
           // On a fork each lane needs its own grotto at its edge.
           seg.push({ ...grottoAt(zg, 'left'), lane: bold === 'left' ? 'bold' : 'calm' });
           seg.push({ ...grottoAt(zg, 'right'), lane: bold === 'right' ? 'bold' : 'calm' });
@@ -323,11 +332,18 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
         for (const s of ['left', 'right'] as const) if (sides?.includes(s) || (onFork && free(s)) || (!sides && !onFork)) last[s] = zg;
       }
     }
+    // By the run (nearRun): in a rock under the carniz between the two passages nearest the axis.
+    const near = spec.nearRun && spec.island && spec.nearRun.mountain === index && j >= spec.nearRun.section;
+    const ps = passesOf(spec, half);
+    const mid = ps.findIndex((x) => x >= 0);
+    const rockX = ps[mid] === 0 ? round3((ps[mid]! + (ps[mid + 1] ?? ps[mid]!)) / 2) : 0;
+    const ridgeRock = near ? { rock: rockX, width: spec.island!.size } : {};
     seg.push({
       type: 'niche',
       z: zRidgeGrotto,
       y: yTop,
-      side: side(j),
+      side: near ? (rockX < 0 ? 'left' : 'right') : side(j),
+      ...ridgeRock,
       kind: 'ridgeGrotto',
       length: big.length,
       depth: big.depth,
@@ -460,7 +476,8 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
         // Not over the crevasse and its trampoline: there the hero flies.
         if (!overHole.some(([a, b]) => zg >= a && zg <= b)) seg.push(pathGift(sb * O.laneX, boldCoins, { lane: 'bold' }, boldY));
       } else if (field) seg.push(pathGift(0, Math.round(spec.shapes!.throat.fieldGifts * sec.gift), { field: true }));
-      else seg.push(pathGift(0, sec.gift));
+      // Not in the rock of the belt under the ridge (nearRun): on the line of the passage nearest the axis.
+      else seg.push(pathGift(near && Math.abs(zg - zRidgeGrotto) < big.length / 2 + 2 && Math.abs(rockX) < spec.island!.size / 2 + 1 ? (ps[mid - 1] ?? ps[mid]!) : 0, sec.gift));
     }
 
     const ridge = m.ridges[i] as { requires: number };
@@ -534,11 +551,15 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
   const fromZone = seg.length;
   seg.push({ type: 'floor', z: zZone, length: round3(zSummit - zZone), y });
   seg.push({ type: 'checkpoint', z: zLast + O.flag, y, x: 0, zone: K, rarity: finish.rarity, wall: S });
+  const nearBoss = spec.nearRun && spec.island && spec.nearRun.mountain === index;
+  const bossSide: 'left' | 'right' = S % 2 === 0 ? 'left' : 'right';
   seg.push({
     type: 'niche',
     z: round3(zZone - big.exit - big.length / 2),
     y,
-    side: S % 2 === 0 ? 'left' : 'right',
+    side: bossSide,
+    // By the run (nearRun): a rock beside the axis, `gap` off it.
+    ...(nearBoss ? { rock: (bossSide === 'left' ? -1 : 1) * (spec.island!.size / 2 + spec.nearRun!.gap), width: spec.island!.size } : {}),
     kind: 'bossLine',
     length: big.length,
     depth: big.depth,

@@ -10,6 +10,7 @@
  * (docs/01-gdd.md 16.6, playtest M3). Pure TS, no DOM.
  */
 import type { LevelData } from '../level/types.ts';
+import { firstShelter } from './shelter.ts';
 
 /** Gap between the belt edge and the egg, units: the egg sits off the belt on the mouth side, in the downhill corner
  * (clear of the way from the mouth to the belt centre). */
@@ -40,7 +41,7 @@ export interface GiftEggState {
 
 /** Where the egg stands: in the first cave of stretch `wall` (the cave of the scripted wave); null — no such cave. */
 export function giftEggSpot(level: LevelData, wall: number): { x: number; y: number; z: number; niche: number } | null {
-  const niche = level.niches.findIndex((n) => n.stretch === wall && n.kind !== 'ledge');
+  const niche = firstShelter(level, wall);
   return niche < 0 ? null : eggSpotIn(level, niche);
 }
 
@@ -50,6 +51,8 @@ export function eggSpotIn(level: LevelData, niche: number): { x: number; y: numb
   const n = level.niches[niche];
   if (!n || n.kind === 'ledge') return null;
   const belt = level.points.find((p) => p.type === 'treadmill' && p['inNiche'] === true && p['niche'] === niche);
+  // A grotto in a rock (SP-04): its back wall faces the summit.
+  if (!belt && n.kind === 'island') return { x: (n.box.min[0] + n.box.max[0]) / 2, y: n.y, z: n.box.max[2] - EGG_BACK, niche };
   if (!belt) {
     const x = n.side === 'right' ? n.box.max[0] - EGG_BACK : n.box.min[0] + EGG_BACK;
     return { x, y: n.y, z: n.box.min[2] + EGG_CORNER, niche };

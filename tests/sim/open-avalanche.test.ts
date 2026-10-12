@@ -5,7 +5,7 @@ import type { HeroInput } from '../../src/sim/controller.ts';
 import { createSim, RECORD_RETURN } from '../../src/sim/world.ts';
 import { createThreat, nearestShelter, type ThreatEvents } from '../../src/sim/threat.ts';
 import { createCaught } from '../../src/sim/caught.ts';
-import { distToEntrance } from '../../src/sim/shelter.ts';
+import { distToEntrance, firstShelter } from '../../src/sim/shelter.ts';
 import { buildLevel } from '../../src/level/builder.ts';
 import { mergePatch } from '../../src/content/pace.ts';
 import { parseSave } from '../../src/meta/save.ts';
@@ -115,7 +115,8 @@ describe('avalanche on the open slope (PS-06)', () => {
     const threat = createThreat(level, { threat: { ...w1.threat }, balance, avalanche: tuning.avalanche, scriptedPending: true, normalWavesDone: 0 }, (name, payload) =>
       events.push({ name, payload }),
     );
-    const first2 = level.niches.find((n) => n.stretch === 2)!;
+    // The lowest shelter of section 2 (SP-04: on mountain 1 its row is rocks by the lanes, listed after the edge grottos).
+    const first2 = level.niches[firstShelter(level, 2)]!;
     const open = level.gates.map(() => true);
     // Up section 1: nothing; at the entry of section 2 — the warning, the shelter is that grotto.
     for (const z of [80, 150, 200]) threat.step(DT, { x: 0, y: 0, z, vx: 0, vz: 0 }, open, 1);
@@ -149,7 +150,8 @@ describe('avalanche on the open slope (PS-06)', () => {
 
   it('at the fork the scripted wave lights the grotto of the hero’s lane and follows him to the other one (playtest PS)', () => {
     const threat = createThreat(level, { threat: { ...w1.threat }, balance, avalanche: tuning.avalanche, scriptedPending: true, normalWavesDone: 0 }, () => {});
-    const first2 = level.niches.find((n) => n.stretch === 2)!;
+    // The lowest shelter of section 2 (SP-04: on mountain 1 its row is rocks by the lanes, listed after the edge grottos).
+    const first2 = level.niches[firstShelter(level, 2)]!;
     const row = level.niches.flatMap((n, i) => (n.stretch === 2 && n.z === first2.z ? [i] : []));
     expect(row).toHaveLength(2);
     const open = level.gates.map(() => true);

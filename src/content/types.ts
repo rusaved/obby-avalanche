@@ -600,6 +600,10 @@ export interface OpenSpecJson {
   /** SP-04: grottos in the middle of each half of a section wider than `minWidth` — a rock `size` across, every `every` ×
    * shelterEvery (docs/01a-content.md 19.2); absent — none. */
   island?: { size: number; every: number; minWidth: number };
+  /** SP-04 (docs/01-gdd.md 20.4: the first minute of the game on the same seconds): on `mountain`, the first grotto row of
+   * `section` (the first avalanche) — rocks by the lanes `gap` off their lines — and from that section the grottos with the
+   * belt under the ridges and before the giant — rocks by the run, not at the edges of a wide field; absent — at the edges. */
+  nearRun?: { mountain: number; section: number; gap: number };
   spawnZ: number;
   threat: WorldsSpecJson['threat'];
   rarities: string[];

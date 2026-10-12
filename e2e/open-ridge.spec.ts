@@ -15,8 +15,12 @@ const grottos = world.segments.filter((s) => s.type === 'niche' && s.kind === 'r
 const flag1 = world.segments.find((s) => s.type === 'checkpoint' && s.wall === 1)!;
 const TIME_SCALE = 4;
 const EVIDENCE = 'docs/evidence/open';
-/** The belt of a side grotto: at its back wall (src/level/builder.ts: half 28 + border 3 + depth − belt 3 / 2). */
-const beltX = (g: Seg): number => (g.side === 'right' ? 1 : -1) * (28 + 3 + (g.depth ?? 0) - 1.5);
+/** The belt of the grotto right below ridge z as the game has it (SP-04: at the edge of its section, or a canopy by the run). */
+async function beltBelow(page: Page, z: number): Promise<[number, number]> {
+  const list = await page.evaluate(() => window.__TEST__!.shelters());
+  const n = list.find((g) => g.belt !== null && g.z < z && g.z > z - 30)!;
+  return n.belt!;
+}
 
 async function walk(page: Page, points: Array<[number, number]>): Promise<void> {
   await page.evaluate((p) => window.__TEST__!.botPath(p), points);
@@ -72,11 +76,12 @@ test('ridge 1 opens on the approach of the physical bot; all passages melt at on
 
   // On to the closed ridge 2: off the fork cliff on the right, into the grotto under the ridge, onto its belt.
   const g2 = grottos[1]!;
+  const b2 = await beltBelow(page, ridges[1]!);
   await page.evaluate((k) => window.__TEST__!.setTimeScale(k), TIME_SCALE);
   await walk(page, [
     [16, flag1.z + 6],
     [16, g2.z - 4],
-    [beltX(g2), g2.z],
+    b2,
   ]);
   // The bot is off the flag where the test held it for the camera check.
   await page.waitForFunction((z) => window.__TEST__!.state().hero!.z > z + 2, flag1.z + 3, { timeout: 30_000 });
@@ -108,14 +113,14 @@ test('no «▶ Ad: open the wall» at any ridge; «▶ Ad: +N speed» in the rid
   await page.evaluate(() => window.__TEST__!.triggerWave());
   await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'idle' && window.__TEST__!.state().wave?.scriptedPending === false, undefined, { timeout: 90_000 });
   await page.evaluate(() => window.__TEST__!.setTimeScale(1));
-  const g1 = grottos[0]!;
   for (const z of ridges) {
     await page.evaluate((zz) => window.__TEST__!.teleport(zz - 6), z);
     await waitTicks(page, 120);
     await expect(page.locator('[data-role="ads"]')).not.toContainText('открыть стену');
   }
   // In the grotto of ridge 1 on its belt: the button with the number of the reward.
-  await page.evaluate(([x, z]) => window.__TEST__!.teleport(z, x), [beltX(g1), g1.z] as const);
+  const b1 = await beltBelow(page, ridges[0]!);
+  await page.evaluate(([x, z]) => window.__TEST__!.teleport(z, x), b1);
   await page.waitForFunction(() => window.__TEST__!.state().adButtons.includes('stat_now'), undefined, { timeout: 15_000 });
   const btn = page.locator('[data-hud="ad-stat_now"]');
   await expect(btn).toHaveText(/^▶ Реклама: \+.+ скорости$/);
