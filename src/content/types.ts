@@ -20,6 +20,9 @@ export interface GameJson {
     boss?: { kind: 'giant'; margin: number; catch: 'roll'; reach: number; run?: number };
   };
   leaderboard: { name: string; score: string } | null;
+  /** The desktop shortcut for a reward (docs/01-gdd.md 19.10; docs/01a-content.md 18.7): spendable trophies once, the
+   * button on the base from summit `fromSummit`; absent or `enabled` false — no button and no shortcut call. */
+  shortcut?: { enabled: boolean; reward: { trophies: number }; fromSummit: number; place: 'base' };
   metrikaCounterId: number;
   mobileOrientation: 'landscape' | 'portrait';
   payments: { enabled: boolean };

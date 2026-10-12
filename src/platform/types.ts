@@ -1,4 +1,4 @@
-// What: The Platform facade interface (init, ready, gameplay, ads, save, leaderboard, review, flags), PlatformOptions and language mapping.
+// What: The Platform facade interface (init, ready, gameplay, ads, save, leaderboard, review, desktop shortcut, flags), PlatformOptions and language mapping.
 // Called by: platform/{index,null,yandex}.ts, app/handles.ts; tests/platform/yandex.test.ts.
 // Keep: Contract shared by Yandex and Null platforms (docs/02-tech.md 11.1): change both implementations together; types plus mapLang only, no SDK calls.
 
@@ -34,6 +34,10 @@ export interface Platform {
   submitScore(score: number): Promise<void>;
   topScores(n: number): Promise<LeaderEntry[] | null>;
   maybeRequestReview(trigger: string): Promise<void>;
+  /** Desktop shortcut (docs/01-gdd.md 19.10; 03 SDK-08): the platform can offer it now. Never throws (false). */
+  shortcutCanShow(): Promise<boolean>;
+  /** Its dialog: `accepted` only when the player added it; `rejected` — declined or an error. Never throws. */
+  shortcutShow(): Promise<'accepted' | 'rejected'>;
   serverTime(): number;
   getFlags(defaults: Record<string, string>): Promise<Record<string, string>>;
 }

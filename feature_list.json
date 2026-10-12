@@ -904,7 +904,7 @@
     "milestone": "FM",
     "description": "Ярлык на рабочий стол за награду вместо Telegram — обязателен, решение продюсера 12.10 (Q-052; docs/01-gdd.md 19.10; docs/01a-content.md 18.7): game.json.shortcut; только на базе, со 2-й вершины, если shortcut.canShowPrompt() вернул true и награда ещё не получена — кнопка «Ярлык на рабочий стол: +5» с иконкой кубка; нажатие → shortcut.showPrompt(); награда только при outcome accepted, один раз за жизнь игрока, кубки только в тратимые; отказ — кнопки нет до следующей сессии; метод в фасаде платформы (Яндекс и без SDK), мок ?mock_shortcut=; строка SDK-08 в docs/03; событие shortcut_ok",
     "acceptance": "e2e (open) на моке: ?mock_shortcut=accepted — после 2-й вершины на базе кнопка есть, нажатие даёт +5 тратимых кубков ровно один раз (trophiesTotal не меняется), кнопка исчезает навсегда (флаг в сохранении переживает F5), событие shortcut_ok; rejected — награды нет, кнопки нет до перезагрузки; unavailable — кнопки нет; на горе (не на базе) кнопки нет; enabled false — ни кнопки, ни вызовов shortcut; NullPlatform — кнопки нет, ошибок нет; docs/03 содержит строку SDK-08",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

@@ -352,5 +352,7 @@
   "records.trophiesTotal": "Trophies total",
   "records.summits": "Summits {a}/{b}",
   "records.tier": "Tier {n}",
-  "records.loading": "Loading"
+  "records.loading": "Loading",
+  "btn.shortcut": "Desktop shortcut: +{n}",
+  "toast.shortcutOk": "Shortcut added! +{n} trophies"
 }

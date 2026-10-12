@@ -10,6 +10,7 @@
     "boss": { "kind": "giant", "margin": 0.05, "catch": "roll", "reach": 4, "run": 0.5 }
   },
   "leaderboard": null,
+  "shortcut": { "enabled": true, "reward": { "trophies": 5 }, "fromSummit": 2, "place": "base" },
   "metrikaCounterId": 0,
   "mobileOrientation": "landscape",
   "payments": { "enabled": false },

@@ -31,6 +31,7 @@
   var device = cfg.mock_device || 'desktop';
   var authorized = cfg.mock_auth === '1' && cfg.mock_player !== 'lite';
   var adMode = cfg.mock_ad || 'ok';
+  var shortcutMode = cfg.mock_shortcut || 'unavailable';
   var initDelay = Number(cfg.mock_init_delay || 0) || 0;
   var timeOffset = Number(cfg.mock_time_offset || 0) || 0;
   var mocks = parseJson(cfg.mocks, {});
@@ -294,16 +295,17 @@
     },
     leaderboards: leaderboards,
     getLeaderboards: function () { record('getLeaderboards'); return Promise.resolve(leaderboards); },
+    // ?mock_shortcut=accepted|rejected|unavailable (FM-13): the desktop shortcut of 03 SDK-08.
+    shortcut: {
+      canShowPrompt: function () { record('shortcut.canShowPrompt'); return Promise.resolve({ canShow: shortcutMode !== 'unavailable' }); },
+      showPrompt: function () { record('shortcut.showPrompt'); return Promise.resolve({ outcome: shortcutMode === 'accepted' ? 'accepted' : 'rejected' }); },
+    },
     feedback: {
       canReview: function () { record('feedback.canReview'); return Promise.resolve({ value: true }); },
       requestReview: function () { record('feedback.requestReview'); return Promise.resolve({ feedbackSent: true }); },
     },
     clipboard: { writeText: function (text) { record('clipboard.writeText', [text]); } },
     screen: { fullscreen: { STATUS_ON: 'on', STATUS_OFF: 'off', status: 'off', request: function () { record('screen.fullscreen.request'); return Promise.resolve(); }, exit: function () { record('screen.fullscreen.exit'); return Promise.resolve(); } } },
-    shortcut: {
-      canShowPrompt: function () { record('shortcut.canShowPrompt'); return Promise.resolve({ canShow: false }); },
-      showPrompt: function () { record('shortcut.showPrompt'); return Promise.resolve({ outcome: 'rejected' }); },
-    },
     serverTime: function () { record('serverTime'); return now(); },
     isAvailableMethod: function (name) { record('isAvailableMethod', [name]); return Promise.resolve(true); },
     gameplayState: function () { return gameplayState; },

@@ -83,6 +83,14 @@ export class NullPlatform implements Platform {
     /* no review outside Yandex */
   }
 
+  async shortcutCanShow(): Promise<boolean> {
+    return false;
+  }
+
+  async shortcutShow(): Promise<'accepted' | 'rejected'> {
+    return 'rejected';
+  }
+
   serverTime(): number {
     return Date.now();
   }

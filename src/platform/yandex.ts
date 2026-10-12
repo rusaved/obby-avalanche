@@ -287,6 +287,26 @@ export class YandexPlatform implements Platform {
     }
   }
 
+  async shortcutCanShow(): Promise<boolean> {
+    if (!this.sdk) return false;
+    try {
+      return (await this.sdk.shortcut.canShowPrompt()).canShow === true;
+    } catch (err) {
+      log.warn('shortcut.canShowPrompt failed', err);
+      return false;
+    }
+  }
+
+  async shortcutShow(): Promise<'accepted' | 'rejected'> {
+    if (!this.sdk) return 'rejected';
+    try {
+      return (await this.sdk.shortcut.showPrompt()).outcome === 'accepted' ? 'accepted' : 'rejected';
+    } catch (err) {
+      log.warn('shortcut.showPrompt failed', err);
+      return 'rejected';
+    }
+  }
+
   serverTime(): number {
     try {
       const t = this.sdk?.serverTime();

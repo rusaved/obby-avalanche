@@ -84,6 +84,7 @@ import { createStandsView, type StandsView } from './app/stands-view.ts';
 import { createRecordsView, type RecordsView } from './app/records-view.ts';
 import { nextShoes, shoesPrice } from './meta/shoes.ts';
 import { eggPrice, type Egg } from './meta/pets.ts';
+import { shortcutWanted } from './meta/shortcut.ts';
 
 const DEG = Math.PI / 180;
 /** «+N» above the hero at most 4 times a second (docs/01-gdd.md 10.3). */
@@ -960,8 +961,42 @@ async function boot(): Promise<void> {
 
   /** A button of the HUD column (docs/01-gdd.md 10.1); «More» lists them all with captions on a short window. */
   let menuShown: MenuItem[] = [];
+  /**
+   * The desktop shortcut (FM-13; docs/01-gdd.md 19.10, 03 SDK-08): on the base from summit `fromSummit` with the
+   * summit group, when the platform can offer it (asked once a session) and its reward was never given; declined —
+   * gone until the next session. Accepted — spendable trophies once (not the records count), `shortcut_ok`.
+   */
+  const shortcutCfg = game.shortcut?.enabled ? game.shortcut : null;
+  let shortcutCan: boolean | null = null;
+  let shortcutAsked = false;
+  let shortcutOff = false;
+  const shortcutItem = (due: Set<string>): MenuItem | null => {
+    const want = shortcutWanted({ cfg: shortcutCfg, onBase, done: save.flags?.['shortcutDone'] ?? false, off: shortcutOff, due: due.has('shortcut'), tier: save.tier ?? 0, summits: summitsDone(save) });
+    if (!want || !shortcutCfg) return null;
+    if (!shortcutAsked) {
+      shortcutAsked = true;
+      void platform.shortcutCanShow().then((ok) => void (shortcutCan = ok));
+    }
+    return shortcutCan ? { id: 'shortcut', label: t('btn.shortcut', { n: shortcutCfg.reward.trophies }), icon: 'trophy' } : null;
+  };
+  const addShortcut = (): void => {
+    if (!shortcutCfg) return;
+    void platform.shortcutShow().then((outcome) => {
+      if (outcome !== 'accepted') {
+        shortcutOff = true;
+        return;
+      }
+      if (save.flags?.['shortcutDone']) return;
+      save.flags = { ...(save.flags ?? {}), shortcutDone: true };
+      save.trophies = (save.trophies ?? 0) + shortcutCfg.reward.trophies;
+      track('shortcut_ok');
+      hud?.toast(t('toast.shortcutOk', { n: shortcutCfg.reward.trophies }), 3, true);
+      persist(true);
+    });
+  };
   const openMenuWindow = (id: string): void => {
     if (id === 'pets') petsView?.openWindow();
+    else if (id === 'shortcut') addShortcut();
     else if (id === 'shop') cosmeticsView?.openShop();
     else if (id === 'wardrobe') cosmeticsView?.openWardrobe();
     else if (id === 'rebirth') rebirthView?.openWindow();
@@ -1149,7 +1184,7 @@ async function boot(): Promise<void> {
     const cm = cosmeticsView?.menuItems();
     dailyView?.tick();
     const due = hudDueNow();
-    menuShown = [cm?.shop, petsView?.menuItem(), cm?.wardrobe, dailyView?.menuItem(), questsView?.questsItem(), questsView?.timeItem(), rebirthView?.menuItem()].filter(
+    menuShown = [cm?.shop, petsView?.menuItem(), cm?.wardrobe, dailyView?.menuItem(), questsView?.questsItem(), questsView?.timeItem(), rebirthView?.menuItem(), shortcutItem(due)].filter(
       (x): x is MenuItem => !!x && due.has(x.id),
     );
     hud?.setMenu(menuShown);
