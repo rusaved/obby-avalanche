@@ -96,6 +96,8 @@ export interface GameHandles {
   renderOnce(): void;
   /** Eight characters in a row with the eight faces, camera on them (faces.png evidence). */
   showFaces(): void;
+  /** A toast as the game shows them (FM-04 e2e: its plaque and contrast). */
+  showToast(text: string, sec?: number, gold?: boolean): void;
   /** Gate sign as rendered: text and open colour (M2-02 e2e). */
   gateSign(index: number): { text: string; open: boolean };
   showAd(kind: 'interstitial' | 'rewarded'): Promise<{ shown?: boolean; rewarded?: boolean; error?: string }>;

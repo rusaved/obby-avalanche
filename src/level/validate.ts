@@ -163,7 +163,19 @@ const themeSchema = v.object({
     v.object({ color: hex, roughness: v.optional(v.number()), metalness: v.optional(v.number()), emissive: v.optional(hex) }),
   ),
   rarity: v.record(id, hex),
-  ui: v.object({ stat: hex, coins: hex, trophies: hex, ok: hex, no: hex, statIcon: name, plaque: hex, plaqueAlpha: v.pipe(v.number(), v.minValue(0.5), v.maxValue(1)), plaqueText: hex }),
+  ui: v.object({
+    stat: hex,
+    coins: hex,
+    trophies: hex,
+    ok: hex,
+    no: hex,
+    statIcon: name,
+    plaque: hex,
+    plaqueAlpha: v.pipe(v.number(), v.minValue(0.5), v.maxValue(1)),
+    plaqueText: hex,
+    toastPlate: v.optional(v.object({ bg: hex, alpha: v.pipe(v.number(), v.minValue(0.5), v.maxValue(1)), radius: nonNeg, padX: nonNeg, padY: nonNeg })),
+    gainText: v.optional(v.object({ scale: v.pipe(v.number(), v.minValue(1), v.maxValue(3)), outline: nonNeg })),
+  }),
   threat: v.object({ front: v.tuple([hex, hex]), edge: hex, body: hex, dust: hex, height: positive }),
   bonus: v.optional(v.object({ color: hex })),
   boss: v.optional(
@@ -369,6 +381,7 @@ const tuningSchema = v.object({
     caughtFormSec: nonNeg,
     caughtPopSec: nonNeg,
     ballBounce: nonNeg,
+    arrowScale: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(4))),
   }),
   fun: v.object({ padSpeed: positive, padForward: nonNeg, slideMult: v.pipe(v.number(), v.minValue(1)), slideSec: nonNeg, giftStreakSec: nonNeg }),
   // Pace open (docs/01a-content.md 16.7): the ridge view, the giant-zone shot, the giant's stomp, draw distance.

@@ -220,6 +220,8 @@ export interface TestApi {
   project(x: number, y: number, z: number): { x: number; y: number; ahead: boolean };
   /** Gate sign plaque as a world box and whether it is hidden now (PR-08: never under the avalanche banner). */
   signBox(index: number): { center: [number, number, number]; size: [number, number, number]; hidden: boolean };
+  /** A toast as the game shows them (FM-04: its plaque and contrast). */
+  showToast(text: string, sec?: number, gold?: boolean): void;
   /** Way marks of the open slope (FM-02): the arrows on the snow and the pillar of light of the summit portal. */
   wayMarks(): { marks: Array<{ x: number; y: number; z: number; to: string }>; pillar: { x: number; z: number; y0: number; y1: number } | null };
   /** Per rendered frame since the last reset (playtest M2): camera inside a collider (solid box, closed gate, ramp —
@@ -790,6 +792,7 @@ export function installTestApi(g: GameHandles): TestApi {
       const p = new Vector3(x, y, z).project(c);
       return { x: (p.x * 0.5 + 0.5) * g.field.width, y: (0.5 - p.y * 0.5) * g.field.height, ahead };
     },
+    showToast: (text, sec, gold) => g.showToast(text, sec, gold),
     wayMarks() {
       const w = g.levelMeshes?.wayMarks;
       return { marks: w ? w.marks.map((m) => ({ ...m })) : [], pillar: w?.pillar ? { ...w.pillar } : null };

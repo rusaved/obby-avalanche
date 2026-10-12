@@ -97,7 +97,7 @@ canvas.fallback {
 /* «Slowed» (docs/01-gdd.md 18.5): a frosty badge under the Speed while a snowball or the blizzard holds the hero back. */
 .hud-stat-slow { display: none; margin-top: 3px; margin-left: 4px; align-self: flex-start; padding: 1px 6px; border-radius: 6px; background: #e8f4ff; color: #1b4a7a; font-size: 12px; font-weight: 800; white-space: nowrap; }
 .hud-stat-slow.shown { display: inline-block; }
-.hud-stat-gain { position: absolute; left: calc(100% + 6px); top: 20%; white-space: nowrap; opacity: 0; font-size: 18px; font-weight: 800; color: #fff; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35); pointer-events: none; }
+.hud-stat-gain { position: absolute; left: calc(100% + 6px); top: 20%; white-space: nowrap; opacity: 0; font-size: calc(18px * var(--gain-scale, 1)); font-weight: 800; color: #fff; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35); pointer-events: none; }
 .hud-stat-gain.show { animation: stat-gain 0.6s ease-out forwards; }
 @keyframes stat-gain { 0% { opacity: 0; transform: translateY(0); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateY(-22px); } }
 /* Round number of Speed (docs/01-gdd.md 10.3, M2-13): white glow over the ice plaque, the number bounces. */
@@ -144,7 +144,7 @@ canvas.fallback {
 .hud-fly-coin { position: absolute; left: 0; top: 0; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; background: var(--coins); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.18), 0 1px 3px rgba(0, 0, 0, 0.3); pointer-events: none; will-change: transform; display: none; }
 .hud-fly-coin.on { display: block; }
 .hud-coin-icon { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--coins); color: #fff; font-size: 16px; box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2); }
-.hud-gain { position: absolute; left: 0; top: 0; transform: translate(-50%, -100%); opacity: 0; pointer-events: none; font-size: 22px; font-weight: 800; color: #fff; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35), 0 0 8px rgba(0, 0, 0, 0.25); white-space: nowrap; }
+.hud-gain { position: absolute; left: 0; top: 0; transform: translate(-50%, -100%); opacity: 0; pointer-events: none; font-size: calc(22px * var(--gain-scale, 1)); font-weight: 800; color: #fff; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35), 0 0 8px rgba(0, 0, 0, 0.25); white-space: nowrap; }
 .hud-gain.show { animation: gain-pop 0.7s ease-out forwards; }
 @keyframes gain-pop { 0% { opacity: 0; transform: translate(-50%, -100%) scale(0.6); } 20% { opacity: 1; transform: translate(-50%, -120%) scale(1.1); } 100% { opacity: 0; transform: translate(-50%, -220%) scale(1); } }
 .dim { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(10, 25, 45, 0.5); }
@@ -170,7 +170,7 @@ canvas.fallback {
 /* The banner on a dark see-through plaque (theme.json ui.plaque*; docs/01-gdd.md 16.7: contrast ≥ 4.5:1, above every gate sign). */
 .hud-wave { position: absolute; left: 50%; top: 25%; z-index: 5; transform: translateX(-50%); padding: 0.18em 0.7em; border-radius: 0.5em; background: var(--plaque); color: var(--plaque-text); border: 2px solid var(--threat); font-size: clamp(22px, 4.2vmin, 44px); font-weight: 800; white-space: nowrap; pointer-events: none; opacity: 0; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35); transition: opacity 0.2s; }
 .hud-wave.shown { opacity: 1; }
-.hud-cave-arrow { position: absolute; left: 0; top: 0; font-size: 40px; line-height: 1; color: #ffffff; pointer-events: none; opacity: 0; text-shadow: 0 0 6px var(--threat), 0 0 2px var(--threat); }
+.hud-cave-arrow { position: absolute; left: 0; top: 0; font-size: calc(40px * var(--arrow-scale, 1)); line-height: 1; color: #ffffff; pointer-events: none; opacity: 0; text-shadow: 0 0 6px var(--threat), 0 0 2px var(--threat); }
 .hud-cave-arrow.shown { opacity: 1; }
 /* «Wrong way» (docs/01-gdd.md 16.7): a small white arrow on a dark round plaque by the hero, no text. */
 .hud-way { position: absolute; left: 0; top: 0; width: 44px; height: 44px; padding: 8px; box-sizing: border-box; border-radius: 50%; background: var(--plaque); color: var(--plaque-text); pointer-events: none; opacity: 0; transition: opacity 0.12s; }
@@ -183,6 +183,10 @@ canvas.fallback {
 .hud.urgent .hud-toast.shown { opacity: 0; }
 /* Golden gift saved (docs/01-gdd.md 4.9): bigger and golden, colour from theme.json bonus.color. */
 .hud-toast.gold { color: var(--gold, #ffffff); font-size: clamp(26px, 5.6vmin, 58px); }
+/* Readability (FM-04, docs/01-gdd.md 19.8): the dark plaque of theme.json ui.toastPlate under the toasts; «+N» in the
+   Speed colour with the dark outline of ui.gainText. */
+.hud.plated .hud-toast { background: var(--toast-plate); border-radius: var(--toast-radius); padding: var(--toast-pad); text-shadow: none; }
+.hud.gain-outlined .hud-gain, .hud.gain-outlined .hud-stat-gain { --o: var(--gain-outline); --oc: var(--gain-outline-color); color: var(--stat-goal); text-shadow: calc(-1 * var(--o)) 0 0 var(--oc), var(--o) 0 0 var(--oc), 0 calc(-1 * var(--o)) 0 var(--oc), 0 var(--o) 0 var(--oc), calc(-1 * var(--o)) calc(-1 * var(--o)) 0 var(--oc), var(--o) var(--o) 0 var(--oc), calc(-1 * var(--o)) var(--o) 0 var(--oc), var(--o) calc(-1 * var(--o)) 0 var(--oc); }
 .hud.short .hud-hint { flex-direction: row; gap: 8px; padding: 4px 10px; }
 .hud.short .hud-pict-stick { width: 24px; height: 24px; border-width: 2px; box-shadow: inset 0 0 0 5px rgba(27, 42, 58, 0.25); }
 .hud.short .hud-key { min-width: 16px; height: 16px; font-size: 10px; }

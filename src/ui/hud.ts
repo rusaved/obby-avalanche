@@ -48,6 +48,12 @@ export interface HudOptions {
   plaqueColor: string;
   plaqueAlpha: number;
   plaqueText: string;
+  /** FM-04 (docs/01-gdd.md 19.8): the plaque under the toasts (theme.json ui.toastPlate); absent — no plaque. */
+  toastPlate?: { bg: string; alpha: number; radius: number; padX: number; padY: number } | undefined;
+  /** FM-04: «+N» size and dark outline (theme.json ui.gainText), in the Speed colour; absent — as before. */
+  gainText?: { scale: number; outline: number } | undefined;
+  /** FM-04: the arrow to the shelter this many times its old size (tuning avalanche.arrowScale); absent — 1. */
+  arrowScale?: number | undefined;
 }
 
 /** A button of the right column: id, caption under the icon, icon id, optional counter on it («2/27»). */
@@ -353,6 +359,21 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   root.style.setProperty('--stat-goal', opts.statColor);
   root.style.setProperty('--plaque', rgba(opts.plaqueColor, opts.plaqueAlpha));
   root.style.setProperty('--plaque-text', opts.plaqueText);
+  // Readability (FM-04): the toast plaque, «+N» in the Speed colour with a dark outline, the bigger shelter arrow.
+  if (opts.toastPlate) {
+    const tp = opts.toastPlate;
+    root.classList.add('plated');
+    root.style.setProperty('--toast-plate', rgba(tp.bg, tp.alpha));
+    root.style.setProperty('--toast-radius', `${tp.radius}px`);
+    root.style.setProperty('--toast-pad', `${tp.padY}px ${tp.padX}px`);
+  }
+  if (opts.gainText) {
+    root.classList.add('gain-outlined');
+    root.style.setProperty('--gain-scale', String(opts.gainText.scale));
+    root.style.setProperty('--gain-outline', `${opts.gainText.outline}px`);
+    root.style.setProperty('--gain-outline-color', opts.plaqueColor);
+  }
+  root.style.setProperty('--arrow-scale', String(opts.arrowScale ?? 1));
   const frost = el('div', 'hud-frost');
   frost.dataset['role'] = 'frost';
   const veil = el('div', 'hud-veil');

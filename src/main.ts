@@ -630,6 +630,7 @@ async function boot(): Promise<void> {
       renderFrame(1, 0);
     },
     gateSign: (index) => levelMeshes?.gateSign(index) ?? { text: '', open: false },
+    showToast: (text, sec, gold) => hud?.toast(text, sec, gold),
     showFaces() {
       if (!characters || !cameraRig) return;
       const base = sim.hero.pos;
@@ -1146,6 +1147,9 @@ async function boot(): Promise<void> {
     plaqueColor: theme.ui.plaque,
     plaqueAlpha: theme.ui.plaqueAlpha,
     plaqueText: theme.ui.plaqueText,
+    toastPlate: theme.ui.toastPlate,
+    gainText: theme.ui.gainText,
+    arrowScale: tuning.avalanche.arrowScale,
     okColor: theme.ui.ok,
     statColor: theme.ui.stat,
     statIcon: theme.ui.statIcon,

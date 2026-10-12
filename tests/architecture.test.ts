@@ -206,6 +206,15 @@ describe('architecture', () => {
     expect(problems).toEqual([]);
   });
 
+  // FM-04 (docs/01-gdd.md 19.8): colours live in theme.json; the hex literals of src are the neutral ones there before FM.
+  it('no new colours in src/**/*.ts and src/styles.css (theme.json carries them)', () => {
+    const before = new Set('#000000 #1b2a3a #1b4a7a #1d2230 #222 #2f6fb3 #3a1a66 #3a4a5c #3ba4ff #3c3f46 #4cd964 #5cc8ff #9aa7b4 #9f9 #c8d6e5 #c9d1da #cccccc #d3dde8 #dde9f5 #dff1ff #e3f7e7 #e53935 #e8f4ff #eef3f8 #f4f9ff #f6d3b3 #ff7a00 #ffb800 #ffd34d #fff #fff4d6 #ffffff'.split(' '));
+    const found = new Set<string>();
+    for (const f of [...tsFiles('src'), resolve(root, 'src/styles.css')])
+      for (const m of readFileSync(f, 'utf8').matchAll(/#[0-9a-f]{6}\b|#[0-9a-f]{3}\b/gi)) found.add(m[0].toLowerCase());
+    expect([...found].filter((c) => !before.has(c)).sort()).toEqual([]);
+  });
+
   it('every src module of 10+ lines opens with the three-line header (What / Called by / Keep)', () => {
     const problems: string[] = [];
     for (const f of tsFiles('src')) problems.push(...checkHeader(f, readFileSync(f, 'utf8')));

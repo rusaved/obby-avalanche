@@ -61,7 +61,8 @@
     "nearDist": 60,
     "caughtFormSec": 0.3,
     "caughtPopSec": 0.4,
-    "ballBounce": 0.8
+    "ballBounce": 0.8,
+    "arrowScale": 2
   },
   "input": {
     "stickRadiusFrac": 0.12,

@@ -87,7 +87,21 @@ export interface ThemeJson {
   rarity: Record<string, string>;
   /** `plaque`, `plaqueAlpha`, `plaqueText`: the dark see-through plaque under the avalanche banner and the small HUD
    * arrows («wrong way», the way to the belt) with its text colour (docs/01-gdd.md 16.7: contrast ≥ 4.5:1). */
-  ui: { stat: string; coins: string; trophies: string; ok: string; no: string; statIcon: string; plaque: string; plaqueAlpha: number; plaqueText: string };
+  ui: {
+    stat: string;
+    coins: string;
+    trophies: string;
+    ok: string;
+    no: string;
+    statIcon: string;
+    plaque: string;
+    plaqueAlpha: number;
+    plaqueText: string;
+    /** FM-04 (docs/01-gdd.md 19.8): the dark see-through plaque under the toasts (text contrast over snow ≥ 4.5:1). */
+    toastPlate?: { bg: string; alpha: number; radius: number; padX: number; padY: number };
+    /** FM-04: «+N» `scale` times its old size, in the Speed plaque colour with a dark `outline` (px). */
+    gainText?: { scale: number; outline: number };
+  };
   threat: { front: [string, string]; edge: string; body: string; dust: string; height: number };
   bonus?: { color: string };
   /** The giant (docs/01a-content.md 16.4): height, colours of the parts and the hat, the face, the horizon silhouette. */
@@ -339,6 +353,8 @@ export interface TuningJson {
     caughtFormSec: number;
     caughtPopSec: number;
     ballBounce: number;
+    /** FM-04 (docs/01-gdd.md 19.8): the arrow to the shelter on the warning is this many times its old size; absent — 1. */
+    arrowScale?: number;
   };
   /**
    * Fun between the gates (docs/01-gdd.md 16.4; docs/01a-content.md 15.5): the trampoline throws up at `padSpeed` and
