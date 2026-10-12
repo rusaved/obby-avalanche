@@ -346,5 +346,11 @@
   "base.portalLocked": "Пройди гору {n}",
   "toast.replaySummit": "Снова на вершине!",
   "toast.baseTreadmill": "Дорожка базы ×{n}!",
-  "toast.welcomeGift": "Подарок дня ждёт!"
+  "toast.welcomeGift": "Подарок дня ждёт!",
+  "records.title": "Мои рекорды",
+  "records.bestStat": "Лучшая Скорость",
+  "records.trophiesTotal": "Кубков всего",
+  "records.summits": "Вершины {a}/{b}",
+  "records.tier": "Ступень {n}",
+  "records.loading": "Загрузка"
 }

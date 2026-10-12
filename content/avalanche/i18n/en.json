@@ -346,5 +346,11 @@
   "base.portalLocked": "Clear mountain {n}",
   "toast.replaySummit": "Top again!",
   "toast.baseTreadmill": "Base treadmill ×{n}!",
-  "toast.welcomeGift": "Your daily gift is waiting!"
+  "toast.welcomeGift": "Your daily gift is waiting!",
+  "records.title": "My records",
+  "records.bestStat": "Best Speed",
+  "records.trophiesTotal": "Trophies total",
+  "records.summits": "Summits {a}/{b}",
+  "records.tier": "Tier {n}",
+  "records.loading": "Loading"
 }

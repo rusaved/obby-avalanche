@@ -81,6 +81,7 @@ import { nextPlace, ownWorld, type FlowEvent, type FlowState, type Place } from 
 import { basePortalEntered } from './sim/base-portals.ts';
 import { createBaseView, type BaseView } from './render/base-view.ts';
 import { createStandsView, type StandsView } from './app/stands-view.ts';
+import { createRecordsView, type RecordsView } from './app/records-view.ts';
 import { nextShoes, shoesPrice } from './meta/shoes.ts';
 import { eggPrice, type Egg } from './meta/pets.ts';
 
@@ -116,7 +117,8 @@ async function boot(): Promise<void> {
   const events: string[] = [];
   const bootState: BootState = { firstFrameAt: null, readyAt: null, controllable: false, glRenderer: '' };
 
-  const platformOpts: PlatformOptions = { packId: game.id, leaderboardName: game.leaderboard?.name ?? '', track };
+  // `?leaderboard=` (debug builds): a leaderboard name for the e2e of the records (game.json has none yet, M4-06).
+  const platformOpts: PlatformOptions = { packId: game.id, leaderboardName: debugParams.get('leaderboard') ?? game.leaderboard?.name ?? '', track };
   const platform = await createPlatform(platformOpts);
   // The remote flag `pace` (docs/06 8.1–8.2) picks the pace before the save is read; each pace keeps its own progress
   // (docs/01-gdd.md 16.1): classic in the old place, other paces in their slot.
@@ -347,6 +349,7 @@ async function boot(): Promise<void> {
   let meta: MetaView | null = null;
   let petsView: PetsView | null = null;
   let standsView: StandsView | null = null;
+  let recordsView: RecordsView | null = null;
   let cosmeticsView: CosmeticsView | null = null;
   let rebirthView: RebirthView | null = null;
   let dailyView: DailyView | null = null;
@@ -693,6 +696,9 @@ async function boot(): Promise<void> {
     get baseGiftReady() {
       return baseView?.giftReady ?? false;
     },
+    get baseBoard() {
+      return baseView?.board ?? [];
+    },
     showToast: (text, sec, gold) => hud?.toast(text, sec, gold),
     showFaces() {
       if (!characters || !cameraRig) return;
@@ -896,7 +902,7 @@ async function boot(): Promise<void> {
       gr.scene.add(levelMeshes.group);
       applyQualityNow();
     }
-    baseView?.set(level, basePortals, t, `×${formatNumber(treadMult, numSuffix)}`);
+    baseView?.set(level, basePortals, t, `×${formatNumber(treadMult, numSuffix)}`, recordsView?.boardLines(save, summits, content.worlds.worlds.length));
     hud?.setMountainShown(false);
     maxSpeed = sim.params.speed;
     frame.controlYaw = b.spawnYaw;
@@ -1468,6 +1474,7 @@ async function boot(): Promise<void> {
       egg: egg !== null && sim.coins >= eggPrice(egg, sim.tier, balance.rebirth),
     };
   };
+  recordsView = createRecordsView({ windows, leaderboard: platformOpts.leaderboardName !== '', topScores: (n) => platform.topScores(n), numSuffix });
   standsView = createStandsView({
     getSim: () => sim,
     hud,
@@ -1497,6 +1504,13 @@ async function boot(): Promise<void> {
         hand: () => false,
         label: () => (dailyView ? (dailyView.canClaim ? '!' : t('daily.soon', { time: formatTimer(dailyView.nextSec) })) : null),
         press: () => void dailyView?.claim('base'),
+      },
+      // The «My records» board (P1, Q-051): its numbers from the first base; «Records» by it with a leaderboard on.
+      records: {
+        due: () => true,
+        text: () => (recordsView?.available ? t('btn.records') : null),
+        hand: () => false,
+        press: () => recordsView?.open(),
       },
     },
   });

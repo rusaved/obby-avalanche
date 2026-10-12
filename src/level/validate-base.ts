@@ -11,7 +11,7 @@ import { createSim } from '../sim/world.ts';
 import { basePortalEntered } from '../sim/base-portals.ts';
 
 /** Texts the base shows (docs/01a-content.md 18.8). */
-export const BASE_KEYS = ['base.name', 'toast.baseFirst', 'base.goal', 'base.portalRidge', 'base.portalLocked', 'toast.replaySummit', 'toast.baseTreadmill', 'toast.welcomeGift'] as const;
+export const BASE_KEYS = ['base.name', 'toast.baseFirst', 'base.goal', 'base.portalRidge', 'base.portalLocked', 'toast.replaySummit', 'toast.baseTreadmill', 'toast.welcomeGift', 'records.title', 'records.bestStat', 'records.trophiesTotal', 'records.summits', 'records.tier', 'records.loading'] as const;
 /** The hero walks from the spawn into a portal within this many seconds. */
 const REACH_SEC = 12;
 /** A point of the base keeps this far from an arch's opening and from the treadmill (units). */

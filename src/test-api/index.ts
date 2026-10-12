@@ -15,6 +15,8 @@ import { Ray, Vector3, type Object3D } from 'three';
 import type { LevelData } from '../level/types.ts';
 import { segmentMeetsBox } from '../app/banner-signs.ts';
 import { entranceX, nicheSign } from '../sim/shelter.ts';
+import { formatNumber } from '../ui/format.ts';
+import { t } from '../ui/i18n.ts';
 
 export type { BootState as TestBootState } from '../app/handles.ts';
 
@@ -37,6 +39,9 @@ export interface TestState {
   standHands: string[];
   standLabel: string | null;
   giftReady: boolean;
+  baseBoard: string[];
+  /** Best Speed of the save (the records board, FM-12). */
+  bestStat: number;
   world: string;
   controllable: boolean;
   pauseReasons: string[];
@@ -263,6 +268,8 @@ export interface TestApi {
   gotoWorld(index: number): void;
   /** Summits done on this tier, as after walking the portals of mountains 1…n (M3-06: the rebirth opens at the last). */
   setSummits(n: number): void;
+  /** A number as the game writes it (formatNumber with the suffixes of the language). */
+  fmt(n: number): string;
   /** The hero carries a golden gift now (threat.bonus in the data, on warn or run); false otherwise (docs/02-tech.md 17). */
   giveBonus(): boolean;
   /** Is the camera inside the snow body of the avalanche (docs/02-tech.md 7). */
@@ -530,6 +537,8 @@ export function installTestApi(g: GameHandles): TestApi {
         standHands: [...(g.standsView?.hands ?? [])],
         standLabel: g.standsView?.label ?? null,
         giftReady: g.baseGiftReady,
+        baseBoard: [...g.baseBoard],
+        bestStat: g.save.bestStat ?? 0,
         world: g.world.id,
         controllable: g.boot.controllable,
         pauseReasons: g.pause.reasons,
@@ -861,6 +870,7 @@ export function installTestApi(g: GameHandles): TestApi {
       if (t && t.phase === 'idle') t.timer = Math.max(t.timer, sec);
     },
     gotoWorld: (index) => g.gotoWorld(index),
+    fmt: (n) => formatNumber(n, (k) => t(`num.${k}`)),
     setSummits(n) {
       g.save.summits = n;
     },

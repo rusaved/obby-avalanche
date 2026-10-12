@@ -895,7 +895,7 @@
     "milestone": "FM",
     "description": "Доска рекордов на базе (идея продюсера, Q-051; docs/01-gdd.md 19.3; docs/01a-content.md 18.8): «Мои рекорды» — лучшая Скорость, кубков всего, вершины «a/b», ступень; при заполненном game.json.leaderboard и входе — кнопка «Рекорды» у доски открывает окно 7.9 (M4-06); без лидерборда — только личные числа, вызовов лидерборда нет, строк других игроков и ботов нет",
     "acceptance": "e2e (open): числа на доске равны сохранению после вершины горы 2 (bestStat, trophiesTotal, вершин 2/10, ступень 0) и формату formatNumber; без поля leaderboard ни одного вызова ysdk.leaderboards и кнопки «Рекорды» у доски нет; с ?mock_auth=1 и полем leaderboard — кнопка у доски открывает окно рекордов; скриншот docs/evidence/fm/records_board_1920x1080_ru.png",
-    "passes": false,
+    "passes": true,
     "priority": "P1",
     "deferred": false
   },

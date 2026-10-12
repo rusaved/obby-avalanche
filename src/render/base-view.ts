@@ -1,4 +1,4 @@
-// What: How the base looks (docs/01-gdd.md 19.2–19.3): the arches of the mountains by state (passed — open with a flag and a cup, own — filled with light under a pillar, locked — iced with a lock), their signs and the «×N» of the base treadmill in one atlas, 3 arrows on the snow to the own portal, the shop counter with sneakers and an egg, the gift of the day (lit while it waits), the snowman.
+// What: How the base looks (docs/01-gdd.md 19.2–19.3): the arches of the mountains by state (passed — open with a flag and a cup, own — filled with light under a pillar, locked — iced with a lock), their signs and the «×N» of the base treadmill in one atlas, 3 arrows on the snow to the own portal, the shop counter with sneakers and an egg, the gift of the day (lit while it waits), the «My records» board, the snowman.
 // Called by: main.ts (createBaseView; set on every entry to the base, clear on a mountain); test-api (drawn).
 // Keep: Render only, nothing in the sim (the ice of a locked arch is a hero collider of the level); at most 6 draw calls; colours from theme.json, texts through the caller's t().
 
@@ -22,6 +22,11 @@ const FILL_OPACITY = 0.6;
 /** The sign of the base treadmill: its height and how far before the front of its belts (units). */
 const TREAD_SIGN_Y = 3;
 const TREAD_SIGN_BACK = 1;
+/** The records board: its width, the height of a line, its top, how far out from its point towards the fence (units). */
+const BOARD_W = 8;
+const BOARD_ROW = 1.3;
+const BOARD_TOP = 8;
+const BOARD_OUT = 1.5;
 /** The gift of the day: the height of its stand and the size of its box (units). */
 const GIFT_STAND = 0.8;
 const GIFT_BOX = 1.1;
@@ -31,8 +36,10 @@ const COUNTER: [number, number, number] = [3, 1.2, 1.4];
 export interface BaseView {
   group: Group;
   /** The base of `level` with its portals (a new entry: the states may have changed); `t` — the game's texts; `tread` —
-   * the sign over the base treadmill («×6»). */
-  set(level: LevelData, portals: readonly BasePortal[], t: (key: string, p?: Record<string, string | number>) => string, tread?: string): void;
+   * the sign over the base treadmill («×6»); `board` — the lines of the «My records» board (FM-12). */
+  set(level: LevelData, portals: readonly BasePortal[], t: (key: string, p?: Record<string, string | number>) => string, tread?: string, board?: readonly string[]): void;
+  /** The lines on the records board now. */
+  readonly board: readonly string[];
   /** Off the base: nothing drawn. */
   clear(): void;
   readonly drawn: boolean;
@@ -54,6 +61,7 @@ export function createBaseView(theme: ThemeJson): BaseView {
   const dummy = new Object3D();
   let drawn = false;
   let treadSign: string | null = null;
+  let board: readonly string[] = [];
   /** The box of the gift of the day: its instance in the marks, its two colours, the state shown. */
   let gift: { mesh: InstancedMesh; index: number; lit: Color; closed: Color; ready: boolean | null } | null = null;
 
@@ -64,6 +72,7 @@ export function createBaseView(theme: ThemeJson): BaseView {
     drawn = false;
     treadSign = null;
     gift = null;
+    board = [];
   };
 
   const view: BaseView = {
@@ -74,11 +83,14 @@ export function createBaseView(theme: ThemeJson): BaseView {
     get treadSign() {
       return treadSign;
     },
+    get board() {
+      return board;
+    },
     get giftReady() {
       return gift?.ready === true;
     },
     clear,
-    set(level, portals, t, tread) {
+    set(level, portals, t, tread, boardLines) {
       clear();
       if (portals.length === 0) return;
       drawn = true;
@@ -135,7 +147,7 @@ export function createBaseView(theme: ThemeJson): BaseView {
 
       // Signs: the name of the mountain, under it «ridge b/c» on the own one begun or «Clear mountain N» on a locked one;
       // the step of the base treadmill over its belts (docs/01-gdd.md 19.3), facing the spawn. One atlas, one mesh.
-      const rows: Array<{ x: number; z: number; yaw: number; y: number; text: string; sub: string }> = portals.map((p) => ({
+      const rows: Array<{ x: number; z: number; yaw: number; y: number; text: string; sub: string; w?: number; h?: number }> = portals.map((p) => ({
         x: p.x,
         z: p.z,
         yaw: p.yaw,
@@ -149,6 +161,12 @@ export function createBaseView(theme: ThemeJson): BaseView {
         const len = Number(belts[0]!['length'] ?? 0);
         treadSign = tread;
         rows.push({ x, z: Math.min(...belts.map((b) => b.z)) - len / 2 - TREAD_SIGN_BACK, yaw: 0, y: TREAD_SIGN_Y, text: tread, sub: '' });
+      }
+      // The «My records» board by the east fence, facing the field (docs/01-gdd.md 19.3): its lines top down.
+      const rec = level.points.find((p) => p.type === 'stand' && p['kind'] === 'records');
+      if (rec && boardLines?.length) {
+        board = [...boardLines];
+        boardLines.forEach((line, i) => rows.push({ x: rec.x + BOARD_OUT, z: rec.z, yaw: Math.PI / 2, y: BOARD_TOP - (i + 1) * BOARD_ROW, text: line, sub: '', w: BOARD_W, h: BOARD_ROW }));
       }
       const canvas = document.createElement('canvas');
       canvas.width = ATLAS_W;
@@ -183,10 +201,12 @@ export function createBaseView(theme: ThemeJson): BaseView {
         const s = Math.sin(g.yaw);
         // Facing the field (back to the way in): screen left of the reader is +across of the arch.
         const corner = (u: number, yy: number): number[] => [g.x - u * c - 0.6 * s, yy, g.z + u * s - 0.6 * c];
-        const a = corner(-SIGN_W / 2, g.y);
-        const b = corner(SIGN_W / 2, g.y);
-        const cc = corner(SIGN_W / 2, g.y + SIGN_H);
-        const d = corner(-SIGN_W / 2, g.y + SIGN_H);
+        const w = g.w ?? SIGN_W;
+        const hh = g.h ?? SIGN_H;
+        const a = corner(-w / 2, g.y);
+        const b = corner(w / 2, g.y);
+        const cc = corner(w / 2, g.y + hh);
+        const d = corner(-w / 2, g.y + hh);
         sPos.push(...a, ...b, ...cc, ...a, ...cc, ...d);
         sUv.push(0, v0, 1, v0, 1, v1, 0, v0, 1, v1, 0, v1);
       });
@@ -238,7 +258,8 @@ export function createBaseView(theme: ThemeJson): BaseView {
       const shop = level.points.find((p) => p.type === 'stand' && p['kind'] === 'shop');
       // The gift of the day by the spawn: a box on a stand, lit while the reward waits (setGiftReady).
       const daily = level.points.find((p) => p.type === 'stand' && p['kind'] === 'daily');
-      const count = passed.length * 3 + locked.length * 2 + (shop ? 2 : 0) + (daily ? 2 : 0);
+      const recs = boardLines?.length ? level.points.find((p) => p.type === 'stand' && p['kind'] === 'records') : undefined;
+      const count = passed.length * 3 + locked.length * 2 + (shop ? 2 : 0) + (daily ? 2 : 0) + (recs ? 2 : 0);
       const marks = new InstancedMesh(boxGeo, boxMat, Math.max(1, count));
       marks.name = 'base-marks';
       marks.count = count;
@@ -270,6 +291,12 @@ export function createBaseView(theme: ThemeJson): BaseView {
         place(at, 0, GIFT_STAND / 2, 0, 1.4, GIFT_STAND, 1.4, color('eggStand'));
         gift = { mesh: marks, index: k, lit: lit('portalLight'), closed: color('chest'), ready: null };
         place(at, 0, GIFT_STAND + GIFT_BOX / 2, 0, GIFT_BOX, GIFT_BOX, GIFT_BOX, gift.closed);
+      }
+      if (recs) {
+        // Two posts under the records board.
+        const at = { world: 0, id: '', x: recs.x + BOARD_OUT + 0.3, z: recs.z, yaw: Math.PI / 2, width: 0, height: 0, state: 'passed', ridge: null } as BasePortal;
+        const top = BOARD_TOP - (boardLines?.length ?? 0) * BOARD_ROW;
+        for (const u of [-BOARD_W / 2 + 0.3, BOARD_W / 2 - 0.3]) place(at, u, top / 2, 0, 0.3, top, 0.3, color('pole'));
       }
       for (const p of locked) {
         place(p, 0, p.height * 0.45, -0.6, 1.4, 1.2, 0.4, new Color(theme.ui.plaque));
