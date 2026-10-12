@@ -39,7 +39,7 @@ import { BOSS_SIGN_HALF, BOSS_SIGN_TOP, createBossView, type BossView } from './
 import { createEventsView, type EventsView } from './app/events-view.ts';
 import { createFunView, type FunView } from './app/fun-view.ts';
 import { createFx, type FxParticles } from './render/fx.ts';
-import { guardBannerSigns } from './app/banner-signs.ts';
+import { guardBannerSigns, guardRecordFlag } from './app/banner-signs.ts';
 import { createMetaView, type MetaView } from './app/meta-view.ts';
 import { createPetsView, type PetsView } from './app/pets-view.ts';
 import { createRebirthView, type RebirthView } from './app/rebirth-view.ts';
@@ -761,6 +761,7 @@ async function boot(): Promise<void> {
     get levelMeshes() {
       return levelMeshes;
     },
+    recordFlag,
     get pets() {
       return petsView;
     },
@@ -1230,7 +1231,10 @@ async function boot(): Promise<void> {
         levelMeshes!.setGateSign(i, open ? req : `${statText}/${req}`, open);
       });
       if (hud && cameraRig) guardBannerSigns(hud, levelMeshes, level, cameraRig.camera, field, renderPos, sim.gatesPassed);
+      if (cameraRig) levelMeshes.wayMarks.guard(cameraRig.camera.position);
     }
+    // SP-01: the record flag is never drawn in the way of the camera (docs/01-gdd.md 20.2).
+    if (cameraRig) guardRecordFlag(recordFlag, cameraRig.camera, renderPos, tuning.camera.hideDistance * (tuning.camera.flagHide ?? 0));
     // Test hooks see the frame as it is drawn: camera, hero and the signs hidden for it (PR-11).
     g.onFrame?.();
     gr.follow(renderPos);

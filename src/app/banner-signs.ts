@@ -1,5 +1,5 @@
-// What: Hides gate signs that sit under the avalanche banner or between the camera and the hero (back when the overlap ends), and for good once the hero has passed the gate.
-// Called by: main.ts (guardBannerSigns each frame); test-api/index.ts (segmentMeetsBox).
+// What: Hides gate signs that sit under the avalanche banner or between the camera and the hero (back when the overlap ends), and for good once the hero has passed the gate; hides the record flag in the way of the camera.
+// Called by: main.ts (guardBannerSigns, guardRecordFlag each frame); test-api/index.ts (segmentMeetsBox, flagInTheWay).
 // Keep: Only toggles sign visibility - reads the camera, never changes sim or level data; the banner must never end up under a sign (docs/01-gdd.md 16.7, PR-11).
 
 /**
@@ -13,6 +13,7 @@ import { Vector3, type PerspectiveCamera } from 'three';
 import type { LevelData } from '../level/types.ts';
 import type { LevelMeshes } from '../render/level-mesh.ts';
 import type { Hud } from '../ui/hud.ts';
+import type { RecordFlag } from '../render/record-flag.ts';
 import { HERO_HEIGHT } from '../sim/controller.ts';
 
 /** A sign this close to the banner box (px) counts as under it. */
@@ -107,4 +108,20 @@ export function guardBannerSigns(hud: Hud, meshes: LevelMeshes, level: LevelData
     }
     meshes.setSignHidden(i, hide);
   }
+}
+
+/** Is a box on the line camera → hero (chest or head) or nearer than `near` to the camera. */
+export function flagInTheWay(camera: Vector3, hero: Vector3, box: { center: readonly number[]; size: readonly number[] }, near: number): boolean {
+  if (near > 0 && segmentMeetsBox(camera, camera, box.center, box.size, near)) return true;
+  return SIGHT_HEIGHTS.some((h) => segmentMeetsBox(camera, _eye.set(hero.x, hero.y + h, hero.z), box.center, box.size, SIGHT_PAD));
+}
+
+/**
+ * SP-01 (docs/01-gdd.md 20.2; playtest FM: the record flagpole a quarter of the screen in front of the camera on a grotto
+ * belt): after the flag got its place this frame, it is not drawn on the line camera → hero nor nearer than
+ * hideDistance × camera.flagHide to the camera; it comes back when that ends. `near` 0 — never hidden.
+ */
+export function guardRecordFlag(flag: RecordFlag, camera: PerspectiveCamera, hero: Vector3, near: number): void {
+  const box = flag.box();
+  if (box && near > 0 && flagInTheWay(camera.position, hero, box, near)) flag.mesh.visible = false;
 }

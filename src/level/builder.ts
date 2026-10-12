@@ -7,7 +7,7 @@
  * colliders, niches as shelter volumes, checkpoints, spawn. Pure, runs in Node (validator, bot, tests).
  */
 import type { Segment, World } from '../content/types.ts';
-import type { Aabb, LevelBox, LevelCheckpoint, LevelData, LevelGate, LevelNiche, LevelPoint, LevelRamp, LevelShape, Vec3 } from './types.ts';
+import type { Aabb, LevelBox, LevelCheckpoint, LevelData, LevelGate, LevelNiche, LevelPoint, LevelPrism, LevelRamp, LevelShape, Vec3 } from './types.ts';
 
 export const FLOOR_THICKNESS = 2;
 export const BORDER_HEIGHT = 3;
@@ -80,6 +80,34 @@ function pushRampTriangles(out: number[], r: LevelRamp): void {
   // sides
   quad([x1, y0 - t, z0], [x1, y0, z0], [x1, y1, z1], [x1, y1 - t, z1]);
   quad([x0, y0 - t, z0], [x0, y1 - t, z1], [x0, y1, z1], [x0, y0, z0]);
+}
+
+/** A convex polygon in XZ turned clockwise seen from above (x right, z up), as prismTriangles needs it. */
+export function clockwise(pts: Array<[number, number]>): Array<[number, number]> {
+  let area = 0;
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[i]!;
+    const b = pts[(i + 1) % pts.length]!;
+    area += a[0] * b[1] - b[0] * a[1];
+  }
+  return area > 0 ? [...pts].reverse() : pts;
+}
+
+/** Pushes the triangles of a prism (outward normals): its polygon on top and under it (a fan), a quad per edge. */
+export function prismTriangles(out: number[], p: Pick<LevelPrism, 'pts' | 'y0' | 'y1'>): void {
+  const { pts, y0, y1 } = p;
+  for (let i = 1; i + 1 < pts.length; i++) {
+    const a = pts[0]!;
+    const b = pts[i]!;
+    const c = pts[i + 1]!;
+    out.push(a[0], y1, a[1], b[0], y1, b[1], c[0], y1, c[1]);
+    out.push(a[0], y0, a[1], c[0], y0, c[1], b[0], y0, b[1]);
+  }
+  for (let i = 0; i < pts.length; i++) {
+    const a = pts[i]!;
+    const b = pts[(i + 1) % pts.length]!;
+    out.push(a[0], y0, a[1], b[0], y0, b[1], b[0], y1, b[1], a[0], y0, a[1], b[0], y1, b[1], a[0], y1, a[1]);
+  }
 }
 
 /** Build options from tuning.json (docs/01-gdd.md 19.9): `wallHeight` — the invisible wall over the borders; 0 or absent — none. */
@@ -222,6 +250,25 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     const w = num(f, 'width') / 2;
     const y = num(f, 'y');
     boxes.push(box([num(f, 'x') - w, y - FLOOR_THICKNESS, f.z], [num(f, 'x') + w, y + num(f, 'height'), f.z + num(f, 'length')], 'ice', 'cliff'));
+  }
+
+  // The funnel of the summit (docs/01-gdd.md 20.2): on each side a snow solid from the edge of the slope to the portal
+  // pillar and on beside the portal to the end — running up anywhere across leads into the portal; its walls are at an
+  // angle, so the hero slides along them.
+  const prisms: LevelPrism[] = [];
+  let funnel: LevelData['funnel'];
+  for (const f of world.segments.filter((s) => s.type === 'funnel')) {
+    const z1 = f.z + num(f, 'length');
+    const zEnd = num(f, 'end');
+    const x0 = num(f, 'from');
+    const x1 = num(f, 'to');
+    const y = num(f, 'y');
+    const out = Math.max(x0, half) + BORDER_WIDTH;
+    for (const sign of [-1, 1]) {
+      const pts: Array<[number, number]> = [[sign * x0, f.z], [sign * x1, z1], [sign * x1, zEnd], [sign * out, zEnd], [sign * out, f.z]];
+      prisms.push({ pts: clockwise(pts), y0: y - FLOOR_THICKNESS, y1: y + BORDER_HEIGHT, material: 'border', kind: 'funnel' });
+    }
+    funnel = { z0: f.z, z1, x0, x1 };
   }
 
   // Elements of the open slope (docs/01-gdd.md 18.3): the walls of a throat (stepping in over `funnel` at each end), the
@@ -432,10 +479,13 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
 
   for (const b of boxes) if (b.solid) pushBoxTriangles(tris, b);
   for (const r of ramps) pushRampTriangles(tris, r);
+  for (const p of prisms) prismTriangles(tris, p);
   const wallHeight = opts.wallHeight ?? 0;
   const bounds = [...(wallHeight > 0 ? boundsWalls(boxes, nicheSegs, floors, ramps, half, wallHeight) : []), ...heroOnly];
   const boundsTris: number[] = [];
   for (const b of bounds) pushBoxTriangles(boundsTris, b);
+  // Over a prism the invisible wall stands on it as over a border (docs/01-gdd.md 19.9).
+  if (wallHeight > 0) for (const p of prisms) prismTriangles(boundsTris, { pts: p.pts, y0: p.y1, y1: p.y1 - BORDER_HEIGHT + wallHeight });
 
   // The centre line only: pieces that cover x = 0 (open slope: the side blocks of a carniz do not).
   const centreFloors = floors.filter((f) => num(f, 'x0', -half) <= 0 && num(f, 'x1', half) >= 0);
@@ -469,6 +519,8 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     boundsTriangles: new Float32Array(boundsTris),
     boxes,
     ramps,
+    ...(prisms.length > 0 ? { prisms } : {}),
+    ...(funnel ? { funnel } : {}),
     gates,
     niches,
     checkpoints: checkpoints.sort((a, b) => a.z - b.z),

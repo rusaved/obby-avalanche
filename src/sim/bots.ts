@@ -306,7 +306,14 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
     }
     const pts: Array<[number, number]> = [];
     if (inCave(b)) pts.push([Math.sign(b.x) * (halfW - MOUTH_INSET), b.z]);
-    pts.push([b.lane, b.z], [b.lane, z]);
+    pts.push([b.lane, b.z]);
+    const f = level.funnel;
+    if (f && z > f.z0 && b.z < z) {
+      // The summit funnel (docs/01-gdd.md 20.2): up the lane to its mouth, then on inside its walls.
+      const lim = Math.max(0, f.x0 + (f.x1 - f.x0) * Math.min(1, (z - f.z0) / (f.z1 - f.z0)) - LANE_MARGIN);
+      if (b.z < f.z0) pts.push([b.lane, f.z0]);
+      pts.push([Math.max(-lim, Math.min(lim, b.lane)), z]);
+    } else pts.push([b.lane, z]);
     if (n) {
       const s = caveSpot(n, spot);
       pts.push([entranceX(level, n) - nicheSign(n) * MOUTH_INSET, n.z], [s.x, s.z]);

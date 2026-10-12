@@ -136,6 +136,8 @@ export interface GameHandles {
   readonly fun: FunView | null;
   /** Meshes of the mountain: gate signs and the cave back walls as drawn (e2e of PR-07, PR-08). */
   readonly levelMeshes: LevelMeshes | null;
+  /** The record flag of the open slope (SP-01: never drawn in the way of the camera). */
+  readonly recordFlag: import('../render/record-flag.ts').RecordFlag | null;
   /** Eggs, pets and the «Pets» window (M3-03); the window frame (docs/01-gdd.md 10.2). */
   readonly pets: PetsView | null;
   readonly windows: WindowFrame | null;

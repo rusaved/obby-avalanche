@@ -5,7 +5,8 @@ import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type:
 
 // FM-01 (docs/01-gdd.md 19.9, Q-048): the invisible wall over the side borders, along the summit and behind its portal.
 // The hero jumps sideways at both borders of mountains 1, 5 and 9 (20 jumps a side) and runs past the summit portal of
-// mountain 1 — not one fall (no `fall` event, no white screen). The chasm of mountain 2 stays a way: rg-chasm.spec.ts.
+// mountain 1 — not one fall (no `fall` event, no white screen); since SP-01 the summit is a funnel (see below). The chasm
+// of mountain 2 stays a way: rg-chasm.spec.ts.
 type OpenWorld = { length: number; segments: Array<{ type: string; z: number; x?: number }> };
 const worlds = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds;
 const EVIDENCE = 'docs/evidence/fm';
@@ -69,33 +70,40 @@ test('jumps sideways at both borders of mountains 1, 5 and 9 — no fall; screen
   }
 });
 
-test('mountain 1: running past the summit portal beside it — the wall behind stops the hero, no fall', async ({ page, openGame }) => {
-  test.setTimeout(150_000);
-  await openGame('pace=open');
-  await page.evaluate(() => window.__TEST__!.setPlaySec(400));
-  await pastScriptedWave(page);
-  const w = worlds[0]!;
-  const portal = w.segments.find((s) => s.type === 'portal')!;
-  const end = w.length;
-  await page.evaluate(() => {
-    window.__TEST__!.holdWave(600);
-    window.__TEST__!.setStat(1e12);
-  });
-  for (const x of [-16, 16, -26, 26]) {
-    await page.evaluate(([zz, xx]) => window.__TEST__!.teleport(zz, xx), [portal.z - 20, x] as const);
+// SP-01 (docs/01-gdd.md 20.2): the summit is a funnel now — the way past the portal beside it is closed by its snow
+// walls. Running and jumping up along each wall: not one fall, never past the portal plane outside its opening (he
+// slides along the wall into the portal).
+for (const side of [-1, 1]) {
+  test(`mountain 1: up along the ${side < 0 ? 'left' : 'right'} funnel wall of the summit, jumping — no fall, never past the portal beside it`, async ({ page, openGame }) => {
+    test.setTimeout(150_000);
+    await openGame('pace=open');
+    await page.evaluate(() => window.__TEST__!.setPlaySec(400));
+    await pastScriptedWave(page);
+    const w = worlds[0]!;
+    const portal = w.segments.find((s) => s.type === 'portal')!;
+    const funnel = w.segments.find((s) => s.type === 'funnel') as unknown as { z: number; from: number; to: number };
+    await page.evaluate(() => {
+      window.__TEST__!.holdWave(600);
+      window.__TEST__!.setStat(1e12);
+    });
+    const z0 = funnel.z + 6;
+    const edge = funnel.from + ((funnel.to - funnel.from) * 6) / (portal.z - funnel.z);
+    await page.evaluate(([zz, xx]) => window.__TEST__!.teleport(zz, xx), [z0, side * (edge - 2)] as const);
     await waitTicks(page, 10);
     await page.evaluate(() => window.__TEST__!.keyDown('KeyW'));
-    for (let i = 0; i < 6; i++) {
+    let outside = 0;
+    for (let i = 0; i < 12; i++) {
       await page.evaluate(() => window.__TEST__!.jump());
-      await waitTicks(page, 30);
+      await waitTicks(page, 10);
+      const s = await testState(page);
+      if (s.world !== 'slope') break;
+      expect(s.respawning).toBe(false);
+      if (s.hero!.z > portal.z && Math.abs(s.hero!.x) > (portal as { width?: number }).width! / 2) outside++;
+      if (await page.evaluate(() => window.__TEST__!.simEvents.some((e) => e.name === 'portal'))) break;
     }
     await page.evaluate(() => window.__TEST__!.keyUp('KeyW'));
-    const s = await testState(page);
-    expect(s.respawning, `x ${x}`).toBe(false);
-    expect(s.world, `x ${x}: still mountain 1`).toBe('slope');
-    expect(s.hero!.z, `x ${x}`).toBeLessThan(end);
-    expect(s.hero!.z, `x ${x}`).toBeGreaterThan(portal.z);
-  }
-  expect(await falls(page)).toBe(0);
-  expect(await page.evaluate(() => window.__TEST__!.simEvents.filter((e) => e.name === 'portal').length)).toBe(0);
-});
+    expect(outside).toBe(0);
+    expect(await falls(page)).toBe(0);
+    expect(await page.evaluate(() => window.__TEST__!.simEvents.filter((e) => e.name === 'portal').length), 'slid into the portal').toBe(1);
+  });
+}

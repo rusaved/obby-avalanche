@@ -330,6 +330,12 @@ export interface TuningJson {
     /** FM-03: in a giant's zone running up the view never turns from the giant ahead by more than this (deg), until the
      * player turns the camera by hand. */
     bossKeepDeg?: number;
+    /** SP-01 (docs/01-gdd.md 20.2): the record flag is not drawn on the line camera → hero nor nearer than
+     * hideDistance × flagHide to the camera; absent — always drawn. */
+    flagHide?: number;
+    /** SP-01: after the grotto frame and the avalanche frame the view comes back «run» — behind the hero where he runs
+     * (up the slope when he stands), or «before» — to the yaw from before the frame (as until SP); absent — «before». */
+    backBehind?: 'run' | 'before';
   };
   input: {
     stickRadiusFrac: number;
@@ -419,6 +425,8 @@ export type SegmentType =
   | 'throat'
   | 'tunnel'
   | 'hump'
+  // The funnel of the summit (docs/01-gdd.md 20.2): snow walls from the edges of the slope to the portal.
+  | 'funnel'
   // The base between the mountains (docs/01-gdd.md 19; src/level/base-layout.ts): a box, a portal of a mountain, a stand.
   | 'block'
   | 'basePortal'
@@ -564,6 +572,9 @@ export interface OpenSpecJson {
   summitLength: number;
   /** Width of the summit portal arch (docs/01-gdd.md 19.8, FM-02): the hero enters across all of it; absent — 10. */
   portalWidth?: number;
+  /** SP-01 (docs/01-gdd.md 20.2): the summit is a funnel — snow walls from the edges of the slope to the portal over
+   * `funnelLength` units before it, and on beside it to the end; absent — an open summit as until SP. */
+  summit?: { funnel: boolean; funnelLength: number };
   width: number;
   spawnZ: number;
   threat: WorldsSpecJson['threat'];

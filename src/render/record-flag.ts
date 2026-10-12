@@ -17,6 +17,8 @@ const CLOTH: [number, number, number] = [2.4, 1.4, 0.12];
 export interface RecordFlag {
   mesh: Mesh;
   update(record: { x: number; y: number; z: number } | null, heroZ: number): void;
+  /** Its box (pole and cloth) while it stands, null — not drawn (SP-01: the camera hides it when it is in the way). */
+  box(): { center: [number, number, number]; size: [number, number, number] } | null;
   dispose(): void;
 }
 
@@ -42,6 +44,11 @@ export function createRecordFlag(clothColor: string, poleColor: string): RecordF
     update(record, heroZ) {
       mesh.visible = record !== null && record.z - heroZ > RECORD_RETURN;
       if (record && mesh.visible) mesh.position.set(record.x, record.y, record.z);
+    },
+    box() {
+      if (!mesh.visible) return null;
+      const p = mesh.position;
+      return { center: [p.x + CLOTH[0] / 2, p.y + POLE_HEIGHT / 2, p.z], size: [CLOTH[0] + 0.25, POLE_HEIGHT, 0.25] };
     },
     dispose() {
       geo.dispose();

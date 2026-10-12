@@ -26,8 +26,8 @@ import {
   Vector3,
 } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import type { LevelBox, LevelData, LevelRamp } from '../level/types.ts';
-import { GATE_THICKNESS, PORTAL_WIDTH } from '../level/builder.ts';
+import type { LevelBox, LevelData, LevelPrism, LevelRamp } from '../level/types.ts';
+import { GATE_THICKNESS, PORTAL_WIDTH, prismTriangles } from '../level/builder.ts';
 import { createWayMarks, PORTAL_HEIGHT, type WayMarks } from './way-marks.ts';
 import type { ThemeJson } from '../content/types.ts';
 import { createDigitLabels, type DigitLabels } from './digits.ts';
@@ -147,6 +147,18 @@ function rampGeometry(r: LevelRamp, theme: ThemeJson): BufferGeometry {
   return geo;
 }
 
+/** A solid at an angle (the summit funnel, docs/01-gdd.md 20.2): the collider's own triangles, flat-shaded. */
+function prismGeometry(p: LevelPrism, theme: ThemeJson): BufferGeometry {
+  const v: number[] = [];
+  prismTriangles(v, p);
+  const geo = new BufferGeometry();
+  geo.setAttribute('position', new Float32BufferAttribute(v, 3));
+  geo.setAttribute('uv', new Float32BufferAttribute(new Array((v.length / 3) * 2).fill(0), 2));
+  geo.computeVertexNormals();
+  colorGeometry(geo, materialColor(theme, p.material));
+  return geo;
+}
+
 const _m = new Matrix4();
 const _p = new Vector3();
 const _q = new Quaternion();
@@ -187,6 +199,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     else bucketOf((b.min[2] + b.max[2]) / 2).push(boxGeometry(b, theme));
   }
   for (const r of level.ramps) bucketOf((r.z0 + r.z1) / 2).push(rampGeometry(r, theme));
+  for (const p of level.prisms ?? []) bucketOf(p.pts.reduce((z, q) => z + q[1], 0) / p.pts.length).push(prismGeometry(p, theme));
   // Checkpoint flags and simple decor as boxes (grey slope at M1).
   for (const c of level.checkpoints) {
     const pole: LevelBox = { min: [-level.width / 2 + 1.5, c.y, c.z - 0.15], max: [-level.width / 2 + 1.8, c.y + 4, c.z + 0.15], material: 'pole', kind: 'flagPole', solid: false };

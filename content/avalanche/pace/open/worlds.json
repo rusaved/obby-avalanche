@@ -1351,7 +1351,16 @@
           "x": 0,
           "y": 24,
           "next": 2,
-          "width": 24
+          "width": 32
+        },
+        {
+          "type": "funnel",
+          "z": 980,
+          "length": 40,
+          "y": 24,
+          "from": 28,
+          "to": 16,
+          "end": 1030
         }
       ],
       "treadmillMult": 1,
@@ -3541,7 +3550,16 @@
           "x": 0,
           "y": 32,
           "next": 3,
-          "width": 24
+          "width": 32
+        },
+        {
+          "type": "funnel",
+          "z": 1420,
+          "length": 40,
+          "y": 32,
+          "from": 28,
+          "to": 16,
+          "end": 1470
         }
       ],
       "treadmillMult": 1,
@@ -5590,7 +5608,16 @@
           "x": 0,
           "y": 32,
           "next": 4,
-          "width": 24
+          "width": 32
+        },
+        {
+          "type": "funnel",
+          "z": 1570,
+          "length": 40,
+          "y": 32,
+          "from": 28,
+          "to": 16,
+          "end": 1620
         }
       ],
       "treadmillMult": 1,
@@ -7931,7 +7958,16 @@
           "x": 0,
           "y": 32,
           "next": 5,
-          "width": 24
+          "width": 32
+        },
+        {
+          "type": "funnel",
+          "z": 1720,
+          "length": 40,
+          "y": 32,
+          "from": 28,
+          "to": 16,
+          "end": 1770
         }
       ],
       "treadmillMult": 1,
@@ -10136,7 +10172,16 @@
           "x": 0,
           "y": 32,
           "next": 6,
-          "width": 24
+          "width": 32
+        },
+        {
+          "type": "funnel",
+          "z": 1870,
+          "length": 40,
+          "y": 32,
+          "from": 28,
+          "to": 16,
+          "end": 1920
         }
       ],
       "treadmillMult": 1,
@@ -12115,7 +12160,16 @@
           "x": 0,
           "y": 32,
           "next": 7,
-          "width": 24
+          "width": 32
+        },
+        {
+          "type": "funnel",
+          "z": 2020,
+          "length": 40,
+          "y": 32,
+          "from": 28,
+          "to": 16,
+          "end": 2070
         }
       ],
       "treadmillMult": 1,
@@ -14242,7 +14296,16 @@
           "x": 0,
           "y": 32,
           "next": 8,
-          "width": 24
+          "width": 32
+        },
+        {
+          "type": "funnel",
+          "z": 2170,
+          "length": 40,
+          "y": 32,
+          "from": 28,
+          "to": 16,
+          "end": 2220
         }
       ],
       "treadmillMult": 1,
@@ -16596,7 +16659,16 @@
           "x": 0,
           "y": 32,
           "next": 9,
-          "width": 24
+          "width": 32
+        },
+        {
+          "type": "funnel",
+          "z": 2320,
+          "length": 40,
+          "y": 32,
+          "from": 28,
+          "to": 16,
+          "end": 2370
         }
       ],
       "treadmillMult": 1,
@@ -19318,7 +19390,16 @@
           "x": 0,
           "y": 32,
           "next": 10,
-          "width": 24
+          "width": 32
+        },
+        {
+          "type": "funnel",
+          "z": 2470,
+          "length": 40,
+          "y": 32,
+          "from": 28,
+          "to": 16,
+          "end": 2520
         }
       ],
       "treadmillMult": 1,
@@ -22068,7 +22149,16 @@
           "x": 0,
           "y": 32,
           "next": null,
-          "width": 24
+          "width": 32
+        },
+        {
+          "type": "funnel",
+          "z": 2620,
+          "length": 40,
+          "y": 32,
+          "from": 28,
+          "to": 16,
+          "end": 2670
         }
       ],
       "treadmillMult": 1,

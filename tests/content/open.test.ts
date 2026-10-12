@@ -33,7 +33,7 @@ describe('pace open by default (PS-02)', () => {
   it('the tuning.json patch of a pace merges deep like balance.json: the camera of the open slope, the rest shared', () => {
     const shared = json<TuningJson>('avalanche', 'tuning.json');
     const open = files['tuning.json'] as TuningJson;
-    expect(open.camera).toEqual({ ...shared.camera, distance: 13, height: 4.5, pitchDeg: 24, fov: 76, zoomMax: 26, mobileFovAdd: 4 });
+    expect(open.camera).toEqual({ ...shared.camera, distance: 13, height: 4.5, pitchDeg: 24, fov: 76, zoomMax: 26, mobileFovAdd: 4, flagHide: 2, backBehind: 'run' });
     expect(open.controller).toEqual(shared.controller);
     expect(open.ridgeShot).toEqual({ rise: 6, back: 4, sec: 1.5 });
     expect(open.bossShot).toEqual({ side: 10, rise: 2, back: 2, sec: 1 });

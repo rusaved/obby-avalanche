@@ -3,7 +3,11 @@
  "layout": "openSlope",
  "campLength": 40,
  "summitLength": 60,
- "portalWidth": 24,
+ "portalWidth": 32,
+ "summit": {
+  "funnel": true,
+  "funnelLength": 40
+ },
  "width": 56,
  "spawnZ": 20,
  "threat": {

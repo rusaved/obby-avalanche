@@ -66,7 +66,7 @@ const curve = v.object({ base: positive, k: nonNeg, max: positive });
 export const STAT_EFFECTS = ['moveSpeed', 'jumpPower', 'gateOnly'] as const;
 export const SEGMENT_TYPES = [
   'floor', 'wall', 'gate', 'niche', 'gap', 'ramp', 'steps', 'treadmill', 'checkpoint', 'coins', 'chest',
-  'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit', 'jumpPad', 'slide', 'fork', 'cliff', 'chestGrotto', 'chasm', 'throat', 'tunnel', 'hump',
+  'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit', 'jumpPad', 'slide', 'fork', 'cliff', 'chestGrotto', 'chasm', 'throat', 'tunnel', 'hump', 'funnel',
 ] as const;
 /** Mountain layouts of the generator (docs/01-gdd.md 5.2, 16.3). */
 export const WORLD_LAYOUTS = ['classic', 'gateSide', 'openSlope'] as const;
@@ -368,6 +368,8 @@ const tuningSchema = v.object({
     occludeRadius: nonNeg,
     fadeAlpha: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
     bossKeepDeg: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(90))),
+    flagHide: v.optional(nonNeg),
+    backBehind: v.optional(v.picklist(['run', 'before'])),
   }),
   input: v.object({
     stickRadiusFrac: v.pipe(v.number(), v.minValue(0.05), v.maxValue(0.3)),
@@ -493,6 +495,7 @@ const openSpecSchema = v.object({
   campLength: positive,
   summitLength: positive,
   portalWidth: v.optional(positive),
+  summit: v.optional(v.object({ funnel: v.boolean(), funnelLength: positive })),
   width: positive,
   spawnZ: nonNeg,
   threat: v.object({

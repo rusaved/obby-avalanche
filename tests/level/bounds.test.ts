@@ -69,10 +69,13 @@ describe('FM-01: the invisible wall of the open slope', () => {
       let falls = 0;
       s.events.on('fall', () => falls++);
       for (const z of [60, w.length * 0.35, w.length * 0.7, w.length - 30]) {
+        // The summit funnel (SP-01): its snow walls are the border there.
+        const f = level.funnel;
+        const edge = f && z > f.z0 ? f.x0 + (f.x1 - f.x0) * Math.min(1, (z - f.z0) / (f.z1 - f.z0)) : half;
         for (const sign of [-1, 1]) {
           falls = 0;
           const y0 = level.floorYAt(z);
-          s.teleport(sign * (half - 3), y0 + 0.1, z);
+          s.teleport(sign * (edge - 3), y0 + 0.1, z);
           let low = 0;
           for (let t = 0; t < 4 * 60; t++) {
             const jump = t % 20 === 0;

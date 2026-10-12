@@ -14,6 +14,7 @@ import type { Segment, World, WorldBoss, WorldZone, WorldsSpecJson, OpenSpecJson
 import { PAD_SIZE, SLIDE_LENGTH, SLIDE_WIDTH } from './pad-arc.ts';
 import { blockedFor, chasmFloorY, planSection, pushChasmFloor, pushShapes, type SectionPlan } from './open-shapes.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
+import { PORTAL_WIDTH } from './builder.ts';
 
 /** Rounding series for treadmill multipliers (docs/01a-content.md, section 2): 1; 1.2; 1.5; 2; 2.5; 3; 4; 5; 6; 8 × 10^k. */
 const SERIES = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8];
@@ -488,6 +489,9 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
   const portal: Segment = { type: 'portal', z: zSummit + 50, x: 0, y, next: index + 1 <= spec.mountains.length ? index + 1 : null };
   if (spec.portalWidth) portal['width'] = spec.portalWidth;
   seg.push(portal);
+  // The funnel (docs/01-gdd.md 20.2): snow walls from the edges of the slope to the portal pillars over funnelLength.
+  const fl = spec.summit?.funnel ? spec.summit.funnelLength : 0;
+  if (fl > 0) seg.push({ type: 'funnel', z: round3(portal.z - fl), length: fl, y, from: half, to: (spec.portalWidth ?? PORTAL_WIDTH) / 2, end: zSummit + spec.summitLength });
 
   const b = spec.boss;
   const boss: WorldBoss = {

@@ -34,6 +34,10 @@ export interface WayMarks {
   marks: WayMark[];
   /** The pillar of light of the summit portal (centre x, z; bottom and top y); null — none. */
   pillar: { x: number; z: number; y0: number; y1: number } | null;
+  /** SP-01 (docs/01-gdd.md 20.2): the light is not drawn while the camera is inside the pillar; back when it is out. */
+  guard(camera: { x: number; y: number; z: number }): void;
+  /** Is a point inside the pillar of light (tests: the camera never is). */
+  insidePillar(p: { x: number; y: number; z: number }): boolean;
   dispose(): void;
 }
 
@@ -91,7 +95,7 @@ export function createWayMarks(level: LevelData, theme: ThemeJson): WayMarks {
   let pillar: WayMarks['pillar'] = null;
   // The open slope only (its sections): the classic and fast summits keep their look.
   const portal = level.sections.length > 0 ? level.points.find((p) => p.type === 'portal') : undefined;
-  if (!cfg || !portal) return { group, marks, pillar, dispose: () => {} };
+  if (!cfg || !portal) return { group, marks, pillar, guard: () => {}, insidePillar: () => false, dispose: () => {} };
   const color = (key: string): Color => new Color(theme.materials[key]?.emissive ?? theme.materials[key]?.color ?? '#ffffff');
 
   const width = typeof portal['width'] === 'number' ? (portal['width'] as number) : PORTAL_WIDTH;
@@ -145,6 +149,12 @@ export function createWayMarks(level: LevelData, theme: ThemeJson): WayMarks {
     group,
     marks,
     pillar,
+    guard(camera) {
+      glow.visible = !this.insidePillar(camera);
+    },
+    insidePillar(p) {
+      return !!pillar && Math.abs(p.x - pillar.x) <= PILLAR_WIDTH / 2 && Math.abs(p.z - pillar.z) <= PILLAR_WIDTH / 2 && p.y >= pillar.y0 && p.y <= pillar.y1;
+    },
     dispose() {
       glowGeo.dispose();
       glowMat.dispose();

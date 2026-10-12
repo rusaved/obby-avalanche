@@ -13,7 +13,9 @@ import type { QualityLevel } from '../render/quality.ts';
 import { content, pace } from '../content/index.ts';
 import { Ray, Vector3, type Object3D } from 'three';
 import type { LevelData } from '../level/types.ts';
-import { segmentMeetsBox } from '../app/banner-signs.ts';
+import { flagInTheWay, segmentMeetsBox } from '../app/banner-signs.ts';
+import { PORTAL_WIDTH } from '../level/builder.ts';
+import { PORTAL_HEIGHT } from '../render/way-marks.ts';
 import { entranceX, nicheSign } from '../sim/shelter.ts';
 import { formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
@@ -163,6 +165,8 @@ export interface TestState {
   controlYaw: number;
   viewYaw: number;
   cameraDistance: number;
+  /** Extra pitch of the camera over a wall behind the hero, rad (SP-01: none after the way back from a grotto). */
+  cameraRaise: number;
   cameraFov: number;
   cameraPos: [number, number, number];
   /** Share of the fixed cave frame in the view (1 — the frame, 0 — the player's camera; PR-07). */
@@ -248,7 +252,7 @@ export interface TestApi {
    * with the near plane), hero hidden by the camera while he should be seen, camera closer than 2.5 units to the hero's
    * body from chest to head (PR-13), hero behind level geometry, a drawn gate sign between the camera and the hero or
    * around the camera (PR-11); frames of the grotto frame (RG-13); first bad frames. */
-  cameraStats(): { frames: number; inside: number; heroHidden: number; heroNear: number; heroBlocked: number; signBlocked: number; tight: number; bad: string[]; headFrames: number; headBlocked: number; headBy: Record<string, number>; bossFrames: number; bossSeen: number };
+  cameraStats(): { frames: number; inside: number; heroHidden: number; heroNear: number; heroBlocked: number; signBlocked: number; tight: number; bad: string[]; headFrames: number; headBlocked: number; headBy: Record<string, number>; bossFrames: number; bossSeen: number; portal: number; flagBlocked: number; flagFrames: number };
   resetCameraStats(): void;
   forceSlowFrames(sec: number): boolean;
   setQuality(level: QualityLevel | 'auto'): void;
@@ -278,6 +282,8 @@ export interface TestApi {
   cameraInsideAvalanche(): boolean;
   /** Sets the stat (docs/02-tech.md 17.3); gates whose number it reaches open on the next tick. */
   setStat(n: number): void;
+  /** SP-01: the record flag of this mountain at a point (it stands while the hero is RECORD_RETURN below it). */
+  setRecord(x: number, y: number, z: number): void;
   /** Sets the coin balance (M3-02: the shoes button shows the first time coins reach the next pair). */
   setCoins(n: number): void;
   /** Sets the play time of the player (save.totalPlaySec): the HUD buttons due by time (docs/01-gdd.md 6.4). */
@@ -374,7 +380,7 @@ export function installTestApi(g: GameHandles): TestApi {
       for (const b of sim.bots?.list ?? []) if (b.mode !== 'away' && b.mode !== 'off') overClosed = Math.max(overClosed, b.z - gate.z);
     });
   };
-  const cam = { frames: 0, inside: 0, heroHidden: 0, heroNear: 0, heroBlocked: 0, signBlocked: 0, tight: 0, bad: [] as string[], headFrames: 0, headBlocked: 0, headBy: {} as Record<string, number>, bossFrames: 0, bossSeen: 0 };
+  const cam = { frames: 0, inside: 0, heroHidden: 0, heroNear: 0, heroBlocked: 0, signBlocked: 0, tight: 0, bad: [] as string[], headFrames: 0, headBlocked: 0, headBy: {} as Record<string, number>, bossFrames: 0, bossSeen: 0, portal: 0, flagBlocked: 0, flagFrames: 0 };
   const headRay = new Ray();
   const headAt = new Vector3();
   const ndc = new Vector3();
@@ -443,6 +449,26 @@ export function installTestApi(g: GameHandles): TestApi {
     if (inside) {
       cam.inside++;
       note(`inside ${inside}`);
+    }
+    // SP-01 (docs/01-gdd.md 20.2): the camera inside the summit portal arch (pillars, lintel) or its pillar of light.
+    const arch = sim.level.points.find((x) => x.type === 'portal');
+    if (arch) {
+      const hw = (typeof arch['width'] === 'number' ? (arch['width'] as number) : PORTAL_WIDTH) / 2;
+      const inArch = Math.abs(p.z - arch.z) <= 0.5 + NEAR && p.y >= arch.y - NEAR && p.y <= arch.y + PORTAL_HEIGHT + NEAR && (Math.abs(Math.abs(p.x - arch.x) - (hw - 0.5)) <= 0.5 + NEAR || p.y >= arch.y + PORTAL_HEIGHT - 1 - NEAR) && Math.abs(p.x - arch.x) <= hw + NEAR;
+      if (inArch || g.levelMeshes?.wayMarks.insidePillar(p)) {
+        cam.portal++;
+        note(inArch ? 'inside the portal arch' : 'inside the pillar of light');
+      }
+    }
+    // SP-01: the record flag drawn on the line camera → hero or by the camera (hideDistance × flagHide).
+    const flagBox = g.recordFlag?.box();
+    if (flagBox) {
+      cam.flagFrames++;
+      const near = content.tuning.camera.hideDistance * (content.tuning.camera.flagHide ?? 0);
+      if (flagInTheWay(p, g.hero.position, flagBox, near)) {
+        cam.flagBlocked++;
+        note('record flag in the way');
+      }
     }
     if (sim.caught || sim.respawnTicksLeft >= 0) return;
     // A drawn gate sign on the line camera → hero chest or around the camera (PR-11: the sign is not drawn then).
@@ -651,6 +677,7 @@ export function installTestApi(g: GameHandles): TestApi {
         controlYaw: g.frame.controlYaw,
         viewYaw: g.frame.viewYaw,
         cameraDistance: cam?.currentDistance ?? 0,
+        cameraRaise: cam?.raise ?? 0,
         cameraFov: cam?.camera.fov ?? 0,
         cameraPos: cam ? [cam.camera.position.x, cam.camera.position.y, cam.camera.position.z] : [0, 0, 0],
         cameraFixedBlend: cam?.fixedBlend ?? 0,
@@ -853,6 +880,9 @@ export function installTestApi(g: GameHandles): TestApi {
       cam.headBy = {};
       cam.bossFrames = 0;
       cam.bossSeen = 0;
+      cam.portal = 0;
+      cam.flagBlocked = 0;
+      cam.flagFrames = 0;
     },
     forceSlowFrames: (sec) => g.quality.forceSlow(sec),
     setQuality: (level) => g.setQualitySetting(level),
@@ -880,6 +910,9 @@ export function installTestApi(g: GameHandles): TestApi {
     giveBonus: () => g.sim?.giveBonus() ?? false,
     setStat(n) {
       if (g.sim) g.sim.progress.stat = n;
+    },
+    setRecord(x, y, z) {
+      if (g.sim) g.sim.record = { x, y, z };
     },
     setCoins(n) {
       if (g.sim) g.sim.coins = n;

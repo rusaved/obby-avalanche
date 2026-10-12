@@ -60,6 +60,8 @@ export interface CameraRig {
   shelter: { pos: Vector3; look: Vector3; fov: number } | null;
   /** The grotto frame is on now (tests). */
   readonly tight: boolean;
+  /** Extra pitch over a wall right behind the hero now, rad (tests: SP-01, none after the way back). */
+  readonly raise: number;
   /** A point kept in the view (the giant ahead in his zone, docs/01-gdd.md 19.8): the view never turns from it by more
    * than camera.bossKeepDeg; a turn by hand while it is set leaves the view to the player until it is cleared. */
   keep: Vector3 | null;
@@ -136,6 +138,12 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
   let retFollow = true;
   /** The player turned the camera by hand while a point is kept: the view is his until the point is cleared. */
   let keepOff = false;
+  /** SP-01 (docs/01-gdd.md 20.2, camera.backBehind «run»): the way back after a frame goes behind the hero where he runs
+   * (up the slope, +Z, while he stands), following his run until it is done; the distance comes back with it. */
+  const behindRun = c.backBehind === 'run';
+  let runBack = false;
+  let hadShelter = false;
+  const runYaw = (vel: Vector3): number => (Math.hypot(vel.x, vel.z) > 1 ? Math.atan2(vel.x, vel.z) : 0);
   /** Distance from a point to the hero's body axis, chest to head (the camera keeps hideDistance off it; PR-13). */
   const bodyDistance = (p: Vector3): number => {
     const y = Math.min(heroHead.y, Math.max(heroChest.y, p.y));
@@ -185,6 +193,9 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
     shelter: null,
     get tight() {
       return tight;
+    },
+    get raise() {
+      return raise;
     },
     snapTo(target) {
       pivot.copy(target.pos).y += c.height;
@@ -257,20 +268,36 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
         if (backYaw !== null && rig.sinceManual >= MANUAL_RECENT_SEC) {
           retFrom = frame.viewYaw;
           retK = 0;
-          retFollow = true;
+          retFollow = !behindRun;
+          runBack = behindRun;
+          if (behindRun) backYaw = runYaw(target.vel);
         } else backYaw = null;
       }
       wasFixed = rig.fixed !== null;
+      // SP-01: out of a shelter without the grotto frame (a roomy grotto) — behind him where he runs as well.
+      if (behindRun && hadShelter && !rig.shelter && !tight && !rig.fixed && backYaw === null && rig.sinceManual >= MANUAL_RECENT_SEC && dt > 0) {
+        backYaw = runYaw(target.vel);
+        retFrom = frame.viewYaw;
+        retK = 0;
+        retFollow = false;
+        runBack = true;
+      }
+      hadShelter = rig.shelter !== null;
       if (!rig.fixed && backYaw !== null) {
         if (input.manualCamera) {
           backYaw = null;
           retK = 1;
+          runBack = false;
         } else if (dt > 0) {
+          if (runBack && Math.hypot(target.vel.x, target.vel.z) > 1) backYaw = runYaw(target.vel);
           const follow = retFollow && Math.abs(angleDiff(frame.controlYaw, frame.viewYaw)) < 1e-4;
           retK = Math.min(1, retK + dt / Math.max(1e-3, tuning.avalanche.shotReturnSec));
           frame.viewYaw = wrapAngle(retFrom + angleDiff(retFrom, backYaw) * smooth01(retK));
           if (follow) frame.controlYaw = frame.viewYaw;
-          if (retK >= 1) backYaw = null;
+          if (retK >= 1) {
+            backYaw = null;
+            runBack = false;
+          }
         }
       }
 
@@ -341,7 +368,9 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       // Out at retreatSpeed, but never lingering inside minDistance when there is room (the hero would hide).
       // The view frame backs off in its first 20% (docs/01-gdd.md 17.9), faster than the plain retreat.
       else {
-        const out = c.retreatSpeed + (rig.view ? rig.view.back / (0.2 * rig.view.sec) : 0);
+        let out = c.retreatSpeed + (rig.view ? rig.view.back / (0.2 * rig.view.sec) : 0);
+        // SP-01: on the way back behind him the distance is back in shotReturnSec too, never left «short».
+        if (runBack) out = Math.max(out, wantDist / Math.max(1e-3, tuning.avalanche.shotReturnSec));
         rig.currentDistance = Math.min(allowed, Math.max(rig.currentDistance + out * dt, Math.min(allowed, c.minDistance)));
       }
 
@@ -380,7 +409,13 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
         const v = Math.hypot(target.vel.x, target.vel.z);
         const out = v > 1 && target.vel.x * tightOut.x + target.vel.z * tightOut.z > 0.5 * v;
         if (rig.fixed) backYaw = tightYaw0;
-        else if (!input.manualCamera) {
+        else if (!input.manualCamera && behindRun) {
+          backYaw = runYaw(target.vel);
+          retFrom = frame.viewYaw;
+          retK = 0;
+          retFollow = false;
+          runBack = true;
+        } else if (!input.manualCamera) {
           backYaw = out ? Math.atan2(target.vel.x, target.vel.z) : tightYaw0;
           retFrom = frame.viewYaw;
           retK = 0;

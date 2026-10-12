@@ -1347,7 +1347,16 @@
       "x": 0,
       "y": 24,
       "next": 2,
-      "width": 24
+      "width": 32
+    },
+    {
+      "type": "funnel",
+      "z": 980,
+      "length": 40,
+      "y": 24,
+      "from": 28,
+      "to": 16,
+      "end": 1030
     }
   ],
   "treadmillMult": 1,

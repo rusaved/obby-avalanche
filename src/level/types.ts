@@ -31,6 +31,18 @@ export interface LevelRamp {
   material: string;
 }
 
+/**
+ * A solid of snow over a convex polygon in XZ (open slope, docs/01-gdd.md 20.2): the walls of the summit funnel, at an
+ * angle to the axes, so the hero slides along them. `pts` go clockwise seen from above (x right, z up), y0 to y1.
+ */
+export interface LevelPrism {
+  pts: Array<[number, number]>;
+  y0: number;
+  y1: number;
+  material: string;
+  kind: string;
+}
+
 export interface LevelGate {
   index: number;
   /** Open slope (docs/01-gdd.md 17.3, 17.6): «ridge» — ice in three passages of a low carniz; «boss» — the giant's
@@ -116,6 +128,11 @@ export interface LevelData {
   boundsTriangles?: Float32Array;
   boxes: LevelBox[];
   ramps: LevelRamp[];
+  /** Solids at an angle (docs/01-gdd.md 20.2): colliders of the hero and the camera, drawn with the boxes; absent — none. */
+  prisms?: LevelPrism[];
+  /** The funnel of the summit (docs/01-gdd.md 20.2): from z0 (half-width x0) to the portal plane z1 (half-width x1); bots
+   * on the summit keep inside it. Absent — an open summit. */
+  funnel?: { z0: number; z1: number; x0: number; x1: number };
   gates: LevelGate[];
   niches: LevelNiche[];
   checkpoints: LevelCheckpoint[];
