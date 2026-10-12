@@ -18,6 +18,8 @@ export interface HudOptions {
   onJumpDown: () => void;
   onPause: () => void;
   onContinue: () => void;
+  /** «Game community» in the pause window (docs/01-gdd.md 19.10); absent — no such button (no address). */
+  onCommunity?: () => void;
   onAutoRun: (on: boolean) => void;
   onQuality: (level: 'auto' | 'low' | 'medium' | 'high') => void;
   /** Coin plaque colour (theme.json ui.coins). */
@@ -524,6 +526,13 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const howto = el('div', 'howto');
   howto.append(el('p', '', t('howto.goal')), el('p', '', t('howto.pc')), el('p', '', t('howto.touch')));
   pausePanel.appendChild(howto);
+
+  if (opts.onCommunity) {
+    const community = el('button', 'card-btn community', t('btn.community'));
+    community.dataset['hud'] = 'community';
+    community.addEventListener('click', () => opts.onCommunity?.());
+    pausePanel.appendChild(community);
+  }
 
   const cont = el('button', 'btn-primary', t('btn.continue'));
   cont.dataset['hud'] = 'continue';

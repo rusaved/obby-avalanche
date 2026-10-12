@@ -11,6 +11,7 @@
   },
   "leaderboard": null,
   "shortcut": { "enabled": true, "reward": { "trophies": 5 }, "fromSummit": 2, "place": "base" },
+  "community": { "url": "" },
   "metrikaCounterId": 0,
   "mobileOrientation": "landscape",
   "payments": { "enabled": false },

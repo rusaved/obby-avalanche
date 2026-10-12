@@ -95,6 +95,7 @@ const gameSchema = v.object({
   }),
   // The leaderboard scores by a whole counter of the save (trophies over all time), never by the stat (docs/01-gdd.md 7.9, 8.4).
   leaderboard: v.nullable(v.object({ name: v.string(), score: v.picklist(LEADERBOARD_SCORES) })),
+  community: v.optional(v.object({ url: v.union([v.literal(''), v.pipe(v.string(), v.regex(/^https:\/\/[^\s"'<>]+$/, 'expected an https address or empty'))]) })),
   shortcut: v.optional(
     v.object({ enabled: v.boolean(), reward: v.object({ trophies: v.pipe(v.number(), v.integer(), v.minValue(0)) }), fromSummit: v.pipe(v.number(), v.integer(), v.minValue(1)), place: v.literal('base') }),
   ),

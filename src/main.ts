@@ -118,6 +118,8 @@ async function boot(): Promise<void> {
   const events: string[] = [];
   const bootState: BootState = { firstFrameAt: null, readyAt: null, controllable: false, glRenderer: '' };
 
+  // `?community=` (debug builds): a stand-in address of the community for its e2e (game.json has none yet, Q-054).
+  const communityUrl = debugParams.get('community') ?? game.community?.url ?? '';
   // `?leaderboard=` (debug builds): a leaderboard name for the e2e of the records (game.json has none yet, M4-06).
   const platformOpts: PlatformOptions = { packId: game.id, leaderboardName: debugParams.get('leaderboard') ?? game.leaderboard?.name ?? '', track };
   const platform = await createPlatform(platformOpts);
@@ -1351,6 +1353,8 @@ async function boot(): Promise<void> {
     onJumpDown: () => input.jumpButtonDown(),
     onPause: () => g.toggleMenu(true),
     onContinue: () => g.toggleMenu(false),
+    // The community of the game (P1, Q-054): the only window.open of the code, by the player's press, no reward.
+    ...(communityUrl ? { onCommunity: () => void (window.open(communityUrl, '_blank', 'noopener,noreferrer'), track('community_open')) } : {}),
     onAutoRun: (on) => g.setAutoRun(on),
     onQuality: (level) => g.setQualitySetting(level),
     coinColor: theme.ui.coins,

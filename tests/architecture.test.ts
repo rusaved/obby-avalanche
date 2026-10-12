@@ -215,6 +215,12 @@ describe('architecture', () => {
     expect([...found].filter((c) => !before.has(c)).sort()).toEqual([]);
   });
 
+  // FM-15 (03 CNT-05, 4.1): the community of the game is the only link, opened by the player — one window.open in src.
+  it('window.open appears in src/** once (the community button of the pause window)', () => {
+    const hits = tsFiles('src').flatMap((f) => [...stripComments(readFileSync(f, 'utf8')).matchAll(/window\.open\(/g)].map(() => relative(root, f)));
+    expect(hits).toEqual(['src/main.ts']);
+  });
+
   it('every src module of 10+ lines opens with the three-line header (What / Called by / Keep)', () => {
     const problems: string[] = [];
     for (const f of tsFiles('src')) problems.push(...checkHeader(f, readFileSync(f, 'utf8')));

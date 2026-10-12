@@ -353,6 +353,7 @@ canvas.fallback {
 .hud.short ~ .win .win-foot { padding-top: 4px; }
 .pause-body { max-width: 520px; margin: 0 auto; }
 .pause-body .panel-sub { margin-top: 0; }
+.pause-body .community { display: block; width: 100%; margin-top: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 /* A new HUD button shines once (docs/01-gdd.md 6.4). */
 .hud-menu-btn.glow { animation: menu-glow 1.4s ease-out 1; }
 @keyframes menu-glow { 0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.95); filter: brightness(1.5); } 100% { box-shadow: 0 0 0 14px rgba(255, 255, 255, 0); filter: none; } }

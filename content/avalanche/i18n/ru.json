@@ -354,5 +354,6 @@
   "records.tier": "Ступень {n}",
   "records.loading": "Загрузка",
   "btn.shortcut": "Ярлык на рабочий стол: +{n}",
-  "toast.shortcutOk": "Ярлык готов! +{n} кубков"
+  "toast.shortcutOk": "Ярлык готов! +{n} кубков",
+  "btn.community": "Сообщество игры"
 }

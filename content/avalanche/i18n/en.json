@@ -354,5 +354,6 @@
   "records.tier": "Tier {n}",
   "records.loading": "Loading",
   "btn.shortcut": "Desktop shortcut: +{n}",
-  "toast.shortcutOk": "Shortcut added! +{n} trophies"
+  "toast.shortcutOk": "Shortcut added! +{n} trophies",
+  "btn.community": "Game community"
 }
