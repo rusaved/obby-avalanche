@@ -506,6 +506,7 @@ const openSpecSchema = v.object({
   passAxis: v.optional(v.boolean()),
   ridgeDigits: v.optional(v.object({ field: positive, other: positive })),
   island: v.optional(v.object({ size: positive, every: positive, minWidth: positive })),
+  forkSplit: v.optional(v.object({ depth: positive, rampEvery: positive, converge: nonNeg, bottomGifts: nonNeg })),
   nearRun: v.optional(v.object({ mountain: positive, section: positive, gap: nonNeg })),
   spawnZ: nonNeg,
   threat: v.object({
@@ -550,7 +551,7 @@ const openSpecSchema = v.object({
               stepMult: positive,
               shelterEvery: positive,
               gift: positive,
-              fork: v.boolean(),
+              fork: v.union([v.boolean(), v.object({ kind: v.picklist(['split', 'cliff']), track: positive, between: positive, length: v.tuple([positive, positive]) })]),
               shape: v.optional(v.array(v.picklist(['chasm', 'throat', 'tunnel', 'hump']))),
               width: v.optional(positive),
             }),
@@ -662,6 +663,7 @@ const botsSchema = v.object({
   label: v.object({ nearDist: positive, fadeDist: nonNeg }),
   tunnelShare: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
   laneSpread: v.optional(v.pipe(v.number(), v.minValue(0))),
+  boldShare: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
   boss: v.optional(v.object({ waitSec: range, passShare: v.pipe(v.number(), v.minValue(0), v.maxValue(1)), speedK: range })),
 });
 

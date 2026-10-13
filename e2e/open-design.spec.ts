@@ -1,12 +1,13 @@
 import type { Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
+import { forkLaneX } from './base-route.ts';
 import { test, expect, shot1080, testState, waitTicks } from './fixtures.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 
 // PS-08: sections of the open slope (docs/01-gdd.md 17.7, 17.8). The physical bot takes the bold lane of section 2 of
 // mountain 2 — the slide, the trampoline over the crevasse (or down and out of it), past the ice cliff — up to ridge 2.
 // «Two ways: pick one» never shows while the hero runs, and shows once when he first stands at a fork for 2 s.
-type Seg = { type: string; z: number; x?: number; x0?: number; x1?: number; length?: number; kind?: string; section?: number; bold?: string; wall?: number };
+type Seg = { type: string; z: number; x?: number; x0?: number; x1?: number; length?: number; kind?: string; section?: number; bold?: string; wall?: number; between?: number; track?: number };
 type OpenWorld = { segments: Seg[]; zones: Array<{ zStart: number; zEnd: number }> };
 const worlds = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds;
 const EVIDENCE = 'docs/evidence/open';
@@ -31,7 +32,8 @@ test('the bot takes the bold lane of section 3 on mountain 2: over the crevasse,
   const gap = w.segments.find((s) => s.type === 'gap' && s.z > fork.z && s.z < fork.z + fork.length!)!;
   const ridge2 = w.segments.filter((s) => s.type === 'gate' && s.kind === 'ridge')[2]!.z;
   const sx = fork.bold === 'left' ? -1 : 1;
-  const xb = sx * 16;
+  // SP-05: the middle of the lane of a split fork.
+  const xb = sx * forkLaneX(fork);
   // The ridges of the mountain open by the stat: the run is about the lane.
   await page.evaluate(([z, s]) => {
     window.__TEST__!.setStat(s);
@@ -76,18 +78,18 @@ test('«Two ways: pick one»: not while the hero runs through a fork; once after
   await page.evaluate(([x, z, s]) => {
     window.__TEST__!.setStat(s);
     window.__TEST__!.teleport(z, x);
-  }, [sx * 16, fork.z - 20, 60] as const);
-  await page.evaluate(([x, z]) => window.__TEST__!.botPath([[x, z]]), [sx * 16, fork.z + fork.length! - 5] as const);
+  }, [sx * forkLaneX(fork), fork.z - 20, 60] as const);
+  await page.evaluate(([x, z]) => window.__TEST__!.botPath([[x, z]]), [sx * forkLaneX(fork), fork.z + fork.length! - 5] as const);
   for (let i = 0; i < 40; i++) {
     expect((await testState(page)).hint).not.toBe('hint.fork');
     await waitTicks(page, 4);
   }
   await page.evaluate(() => window.__TEST__!.botPath(null));
   // Standing at the fork: after 2 s the plaque, once.
-  await page.evaluate(([x, z]) => window.__TEST__!.teleport(z, x), [sx * 16, fork.z + 10] as const);
+  await page.evaluate(([x, z]) => window.__TEST__!.teleport(z, x), [sx * forkLaneX(fork), fork.z + 10] as const);
   await page.waitForFunction(() => window.__TEST__!.state().hint === 'hint.fork', undefined, { timeout: 15_000 });
   await expect(page.locator('[data-role="hint"].shown .hud-hint-text')).toHaveText('Две дороги: выбирай');
-  await page.evaluate(([x, z]) => window.__TEST__!.botPath([[x, z]]), [sx * 16, fork.z + 30] as const);
+  await page.evaluate(([x, z]) => window.__TEST__!.botPath([[x, z]]), [sx * forkLaneX(fork), fork.z + 30] as const);
   await page.waitForFunction(() => window.__TEST__!.state().hint !== 'hint.fork', undefined, { timeout: 15_000 });
   await page.evaluate(() => window.__TEST__!.botPath(null));
   for (let i = 0; i < 30; i++) {

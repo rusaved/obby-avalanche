@@ -600,6 +600,9 @@ export interface OpenSpecJson {
   /** SP-04: grottos in the middle of each half of a section wider than `minWidth` — a rock `size` across, every `every` ×
    * shelterEvery (docs/01a-content.md 19.2); absent — none. */
   island?: { size: number; every: number; minWidth: number };
+  /** SP-05 (docs/01-gdd.md 20.5): a split fork — the crevasse between its two lanes this deep, a slope up to both every
+   * `rampEvery` units, the lanes meet `converge` units before the ridge, `bottomGifts` on its bottom; absent — no split. */
+  forkSplit?: { depth: number; rampEvery: number; converge: number; bottomGifts: number };
   /** SP-04 (docs/01-gdd.md 20.4: the first minute of the game on the same seconds): on `mountain`, the first grotto row of
    * `section` (the first avalanche) — rocks by the lanes `gap` off their lines — and from that section the grottos with the
    * belt under the ridges and before the giant — rocks by the run, not at the edges of a wide field; absent — at the edges. */
@@ -618,6 +621,15 @@ export interface OpenSpecJson {
 }
 
 /** An element of a section of the open slope (docs/01-gdd.md 18.3): chasm, throat, tunnel, hump. */
+/** SP-05 (docs/01a-content.md 19.3): a fork of two lanes `track` wide with a crevasse `between` wide down the middle,
+ * `length` [min, max] long; kind «cliff» — the fork as before SP (a cliff down the middle). */
+export interface OpenFork {
+  kind: 'split' | 'cliff';
+  track: number;
+  between: number;
+  length: [number, number];
+}
+
 export type ShapeKind = 'chasm' | 'throat' | 'tunnel' | 'hump';
 
 /** Sizes of the elements (docs/01a-content.md 17.2); `…ByWorld` — the value on that mountain (key: its number). */
@@ -640,7 +652,7 @@ export interface OpenSpecMountain {
   speed: number;
   /** `shape` — the elements of the section by the slots of docs/01-gdd.md 18.6; absent or empty — as 16.5. */
   /** `width` — of the section (docs/01-gdd.md 20.4, SP-04); absent — the spec's `width`. */
-  sections: Array<{ length: number; stepMult: number; shelterEvery: number; gift: number; fork: boolean; shape?: ShapeKind[]; width?: number }>;
+  sections: Array<{ length: number; stepMult: number; shelterEvery: number; gift: number; fork: boolean | OpenFork; shape?: ShapeKind[]; width?: number }>;
   ridges: Array<{ requires: number }>;
   /** The finish straight: its length, the advice number, the giant's speed V_b, step multiplier and gift there; `width` —
    * of the giant's zone (SP-06), absent — of the last section. */
@@ -718,6 +730,8 @@ export interface BotsJson {
   tunnelShare?: number;
   /** SP-04 (docs/01a-content.md 19.2): the lanes spread over the width of a section less this many units; absent — to the borders. */
   laneSpread?: number;
+  /** SP-05 (docs/01a-content.md 19.3): the share of bots that take the bold lane of a split fork; absent — the lane decides. */
+  boldShare?: number;
   /**
    * The giant's zone (docs/01-gdd.md 18.5): a bot waits `waitSec` in the grotto before it and runs it; `passShare` of
    * them run at the giant's speed × speedK[1] (past him), the rest × speedK[0] (caught). Absent — bots walk through.

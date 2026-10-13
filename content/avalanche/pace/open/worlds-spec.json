@@ -26,6 +26,12 @@
   "field": 8,
   "other": 6
  },
+ "forkSplit": {
+  "depth": 3,
+  "rampEvery": 60,
+  "converge": 40,
+  "bottomGifts": 3
+ },
  "spawnZ": 20,
  "threat": {
   "spawnAhead": 160,
@@ -149,7 +155,15 @@
      "stepMult": 1.2,
      "shelterEvery": 88,
      "gift": 14,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 30,
+      "length": [
+       150,
+       300
+      ]
+     },
      "width": 180
     },
     {
@@ -215,7 +229,15 @@
      "stepMult": 4,
      "shelterEvery": 130,
      "gift": 50,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 36,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "chasm"
      ],
@@ -226,8 +248,16 @@
      "stepMult": 5,
      "shelterEvery": 176,
      "gift": 60,
-     "fork": true,
-     "width": 110
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 36,
+      "length": [
+       150,
+       300
+      ]
+     },
+     "width": 124
     }
    ],
    "ridges": [
@@ -276,11 +306,19 @@
      "stepMult": 10,
      "shelterEvery": 96,
      "gift": 150,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 36,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "throat"
      ],
-     "width": 120
+     "width": 124
     },
     {
      "length": 480,
@@ -352,7 +390,15 @@
      "stepMult": 30,
      "shelterEvery": 100,
      "gift": 1000,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 44,
+      "length": [
+       150,
+       300
+      ]
+     },
      "width": 200
     },
     {
@@ -360,22 +406,38 @@
      "stepMult": 40,
      "shelterEvery": 139,
      "gift": 1200,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 44,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "chasm"
      ],
-     "width": 110
+     "width": 132
     },
     {
      "length": 580,
      "stepMult": 40,
      "shelterEvery": 183,
      "gift": 1500,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 44,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "throat"
      ],
-     "width": 120
+     "width": 132
     }
    ],
    "ridges": [
@@ -429,11 +491,19 @@
      "stepMult": 80,
      "shelterEvery": 100,
      "gift": 3000,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 44,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "throat"
      ],
-     "width": 110
+     "width": 132
     },
     {
      "length": 590,
@@ -510,18 +580,34 @@
      "stepMult": 250,
      "shelterEvery": 103,
      "gift": 20000,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 44,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "tunnel"
      ],
-     "width": 120
+     "width": 132
     },
     {
      "length": 650,
      "stepMult": 300,
      "shelterEvery": 143,
      "gift": 30000,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 44,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "chasm",
       "tunnel"
@@ -533,12 +619,20 @@
      "stepMult": 400,
      "shelterEvery": 188,
      "gift": 40000,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 44,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "throat",
       "tunnel"
      ],
-     "width": 110
+     "width": 132
     }
    ],
    "ridges": [
@@ -592,7 +686,15 @@
      "stepMult": 800,
      "shelterEvery": 103,
      "gift": 200000,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 52,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "tunnel"
      ],
@@ -603,23 +705,39 @@
      "stepMult": 1000,
      "shelterEvery": 143,
      "gift": 300000,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 52,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "throat"
      ],
-     "width": 120
+     "width": 140
     },
     {
      "length": 750,
      "stepMult": 1200,
      "shelterEvery": 191,
      "gift": 400000,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 52,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "chasm",
       "tunnel"
      ],
-     "width": 110
+     "width": 140
     }
    ],
    "ridges": [
@@ -676,30 +794,54 @@
      "stepMult": 2500,
      "shelterEvery": 105,
      "gift": 2400000,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 52,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "hump"
      ],
-     "width": 120
+     "width": 140
     },
     {
      "length": 760,
      "stepMult": 3000,
      "shelterEvery": 146,
      "gift": 4000000,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 52,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "tunnel",
       "hump"
      ],
-     "width": 110
+     "width": 140
     },
     {
      "length": 810,
      "stepMult": 4000,
      "shelterEvery": 194,
      "gift": 6000000,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 52,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "throat",
       "hump"
@@ -761,20 +903,36 @@
      "stepMult": 8000,
      "shelterEvery": 105,
      "gift": 40000000,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 60,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "throat",
       "chasm",
       "hump"
      ],
-     "width": 120
+     "width": 148
     },
     {
      "length": 810,
      "stepMult": 10000,
      "shelterEvery": 146,
      "gift": 60000000,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 60,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "chasm",
       "tunnel"
@@ -786,13 +944,21 @@
      "stepMult": 12000,
      "shelterEvery": 197,
      "gift": 100000000,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 60,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "throat",
       "chasm",
       "hump"
      ],
-     "width": 120
+     "width": 148
     }
    ],
    "ridges": [
@@ -857,33 +1023,57 @@
      "stepMult": 25000,
      "shelterEvery": 113,
      "gift": 800000000,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 60,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "throat",
       "chasm",
       "tunnel"
      ],
-     "width": 110
+     "width": 148
     },
     {
      "length": 930,
      "stepMult": 30000,
      "shelterEvery": 158,
      "gift": 1200000000,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 60,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "throat",
       "chasm",
       "hump"
      ],
-     "width": 120
+     "width": 148
     },
     {
      "length": 1000,
      "stepMult": 40000,
      "shelterEvery": 214,
      "gift": 2400000000,
-     "fork": true,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 60,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "throat",
       "chasm",

@@ -12,7 +12,7 @@
  * along the arc of tuning fun.padSpeed, an ice slide speeds him × fun.slideMult (docs/01-gdd.md 16.4). Pure TS, no DOM.
  */
 import type { BalanceJson, BotsJson, TuningJson } from '../content/types.ts';
-import type { LevelData, LevelNiche, LevelPoint } from '../level/types.ts';
+import type { Aabb, LevelData, LevelNiche, LevelPoint, Vec3 } from '../level/types.ts';
 import { NICHE_BELT_WIDTH } from '../level/builder.ts';
 import { createRng, type Rng } from '../core/rng.ts';
 import { caughtPosition, caughtTotalSec, createCaught, type CaughtState } from './caught.ts';
@@ -147,8 +147,10 @@ export function laneIntervals(level: LevelData, z0 = -Infinity, z1 = Infinity, i
   const e = Number.isFinite(z1) ? level.halfAt(z1 - 1) : level.width / 2;
   const m = Math.max(LANE_MARGIN, inset);
   let free: Array<[number, number]> = [[-e + m, e - m]];
-  for (const b of level.boxes) {
-    if (!b.solid || NOT_OBSTACLE.has(b.kind) || b.max[2] < z0 || b.min[2] > z1) continue;
+  // The crevasse of a split fork (SP-05) in this stretch: no lane down it.
+  const holes: Aabb[] = level.forks.flatMap((f) => (f.x0 !== undefined && f.x1 !== undefined && f.z1 >= z0 && f.z0 <= z1 ? [{ min: [f.x0, 0, f.z0] as Vec3, max: [f.x1, 0, f.z1] as Vec3 }] : []));
+  for (const b of [...level.boxes.filter((x) => x.solid && !NOT_OBSTACLE.has(x.kind)), ...holes]) {
+    if (b.max[2] < z0 || b.min[2] > z1) continue;
     const lo = b.min[0] - LANE_MARGIN;
     const hi = b.max[0] + LANE_MARGIN;
     free = free.flatMap(([a, c]): Array<[number, number]> => {
@@ -193,6 +195,14 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       t -= b - a;
     }
     return Math.max(-e, Math.min(e, band.lanes[0]![0]));
+  };
+  /** The lane share u moved onto side `side` (−1 left, +1 right) of the band at z, keeping its place within the side
+   * (the lanes of a band are not symmetric: rocks cut them, SP-04). */
+  const toSide = (u: number, z: number, side: number): number => {
+    const band = bands.find((b) => z < b.z1) ?? bands[bands.length - 1]!;
+    const left = band.lanes.reduce((sum, [a, b]) => sum + Math.max(0, Math.min(b, -LANE_MARGIN) - a), 0);
+    const f = band.width > 0 ? left / band.width : 0.5;
+    return side < 0 ? u * f * 0.98 : f + (1 - f) * (0.02 + 0.98 * u);
   };
   /** Up lane u from z0 to z1: its x at z0, over to the next band's x past every band start — inside the edge of a
    * change of width (it widens past the ridge's passages) — its x at z1. */
@@ -384,13 +394,25 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
     const f = t.kind === 'tunnel' ? level.forks.find((x) => t.z0 >= x.z0 && t.z0 <= x.z1) : undefined;
     return f && t.side ? [{ z0: f.z0, calm: t.side === 'left' ? -1 : 1 }] : [];
   });
+  // A split fork without a tunnel (SP-05): its bold lane with bots.boldShare, else the calm one.
+  const splitForks = level.forks.flatMap((f) => (f.x0 !== undefined && f.bold && !tunnelForks.some((t) => t.z0 === f.z0) ? [{ z0: f.z0, calm: f.bold === 'left' ? 1 : -1 }] : []));
+  const pickSide = (b: Bot): void => {
+    const f = splitForks.find((x) => b.z > x.z0 - TUNNEL_PICK && b.z < x.z0 - 2);
+    if (!f || b.tunnelFork === f.z0 || cfg.boldShare === undefined) return;
+    b.tunnelFork = f.z0;
+    const want = rng.chance(cfg.boldShare) ? -f.calm : f.calm;
+    if (Math.sign(laneAt(b.lane, f.z0 + 1)) === want) return;
+    b.lane = toSide(b.lane, f.z0 + 1, want);
+    const end = b.path[b.path.length - 1];
+    if (end) b.path = laneWay(b.lane, Math.min(end[1], f.z0 - 1), end[1]);
+  };
   const pickTunnel = (b: Bot): void => {
     const f = tunnelForks.find((x) => b.z > x.z0 - TUNNEL_PICK && b.z < x.z0 - 2);
     if (!f || b.tunnelFork === f.z0 || cfg.tunnelShare === undefined) return;
     b.tunnelFork = f.z0;
     const want = rng.chance(cfg.tunnelShare) ? f.calm : -f.calm;
     if (Math.sign(laneAt(b.lane, f.z0 + 1)) === want) return;
-    b.lane = 1 - b.lane;
+    b.lane = toSide(b.lane, f.z0 + 1, want);
     const end = b.path[b.path.length - 1];
     if (end) b.path = laneWay(b.lane, Math.min(end[1], f.z0 - 1), end[1]);
   };
@@ -649,6 +671,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
           }
           case 'up': {
             if (tunnelForks.length) pickTunnel(b);
+            if (splitForks.length) pickSide(b);
             const stop = firstStop(b.z, ctx.gatesOpen);
             // A wall opened on the way: the stop point moves up with it.
             const end = b.path[b.path.length - 1];

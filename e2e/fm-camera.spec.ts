@@ -1,14 +1,14 @@
 import type { Page } from '@playwright/test';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { test, expect, shot1080, testState, waitTicks } from './fixtures.ts';
-import { upThroughRidges, type OpenWorld as RouteWorld } from './base-route.ts';
+import { forkLaneX, upThroughRidges, type OpenWorld as RouteWorld } from './base-route.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 
 // FM-03 (docs/01-gdd.md 19.8; playtest RG: camera 2 points). Runs of the physical bot: mountain 1 foot → summit,
 // mountain 3 through the throat, mountain 9 section 3 — frames where the line camera → hero's head meets something
 // drawn and opaque (wall, closed gate, sign, giant) ≤ 2%; in the giant's zone of mountain 1 running up the giant is in
 // the frame ≥ 90% of the frames; a turn by hand in the zone is the player's.
-type Seg = { type: string; z: number; kind?: string; length?: number; passLength?: number; side?: string; inner?: number; width?: number };
+type Seg = { type: string; z: number; kind?: string; length?: number; passLength?: number; side?: string; inner?: number; width?: number; between?: number; track?: number };
 type OpenWorld = { length: number; segments: Seg[]; bosses: Array<{ zone: [number, number]; requires: number }> };
 const worlds = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds;
 const EVIDENCE = 'docs/evidence/fm';
@@ -64,7 +64,7 @@ test('mountain 1 foot → summit: the head is behind something opaque in ≤ 2% 
   const fork = w.segments.find((s) => s.type === 'fork')!;
   const portal = w.segments.find((s) => s.type === 'portal')!;
   const after: [number, number] = [0, fork.z + fork.length! + 10];
-  const s = await run(page, [[0, 24], [0, fork.z - 8], [-16, fork.z + 4], [-16, fork.z + fork.length! - 2], after, ...upThroughRidges(w as unknown as RouteWorld, after, [0, portal.z - 6])]);
+  const s = await run(page, [[0, 24], [0, fork.z - 8], [-forkLaneX(fork), fork.z + 4], [-forkLaneX(fork), fork.z + fork.length! - 2], after, ...upThroughRidges(w as unknown as RouteWorld, after, [0, portal.z - 6])]);
   report.push(row('гора 1, подножие → вершина', s));
   expect(s.headFrames).toBeGreaterThan(300);
   expect(s.headBlocked / s.headFrames, JSON.stringify(s)).toBeLessThanOrEqual(SHARE);

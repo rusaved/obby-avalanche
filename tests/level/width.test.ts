@@ -41,17 +41,18 @@ function inside(pts: Array<[number, number]>, x: number, z: number): boolean {
 
 describe('SP-04: the width of the slope by sections', () => {
   it('the spec: the widths of 01a 19.2, a change over 40, a passage every 30, rocks 12 across every 2 × shelterEvery past 120', () => {
+    // 19.2, a section with a split fork no narrower than 2 × 44 + its crevasse (19.3, SP-05): 124 / 132 / 140 / 148.
     expect(spec.mountains.map((m) => m.sections.map((s) => s.width))).toEqual([
       [100, 180, 110],
-      [110, 120, 200, 110],
-      [110, 120, 110, 200],
-      [120, 200, 110, 120],
-      [100, 110, 110, 220],
-      [120, 120, 200, 110],
-      [110, 200, 120, 110],
-      [120, 120, 110, 220],
-      [110, 120, 220, 120],
-      [120, 110, 120, 220],
+      [110, 120, 200, 124],
+      [110, 124, 110, 200],
+      [120, 200, 132, 132],
+      [100, 132, 110, 220],
+      [120, 132, 200, 132],
+      [110, 200, 140, 140],
+      [120, 140, 140, 220],
+      [110, 148, 220, 148],
+      [120, 148, 148, 220],
     ]);
     expect(spec.mountains.map((m) => m.boss.width)).toEqual([160, 170, 170, 180, 180, 180, 190, 190, 200, 200]);
     expect(T).toBe(40);
@@ -177,11 +178,14 @@ describe('SP-04: the width of the slope by sections', () => {
     const row = level.niches.filter((n) => n.stretch === level.niches[first]!.stretch && n.z === level.niches[first]!.z);
     expect(row.map((n) => n.kind)).toEqual(['island', 'island']);
     expect(row.map((n) => n.lane).sort()).toEqual(['bold', 'calm']);
+    // SP-05: the lanes of the split fork there, their middles.
+    const f = level.forks.find((x) => x.z0 <= row[0]!.z && x.z1 >= row[0]!.z)!;
+    const laneX = f.x1 !== undefined ? f.x1 + f.track! / 2 : OPEN_SLOPE.laneX;
     for (const n of row) {
-      const lane = Math.sign(n.box.min[0]) * OPEN_SLOPE.laneX;
+      const lane = Math.sign(n.box.min[0]) * laneX;
       const mouth = entranceX(level, n);
       expect(Math.abs(mouth - lane)).toBeLessThanOrEqual(30);
-      expect(Math.min(Math.abs(n.box.min[0]), Math.abs(n.box.max[0]))).toBeGreaterThan(OPEN_SLOPE.laneX + 1);
+      expect(Math.min(Math.abs(n.box.min[0]), Math.abs(n.box.max[0]))).toBeGreaterThan(laneX + 1);
     }
     // The free egg of that wave stands in the rock by its back wall.
     const egg = giftEggSpot(level, balance.ftue.scriptedWaveWall)!;

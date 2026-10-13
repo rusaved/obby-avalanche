@@ -54,6 +54,8 @@ export interface PlanInput {
   index: number;
   shape: readonly ShapeKind[];
   fork: boolean;
+  /** SP-05: the fork is split (a crevasse, no cliff down the middle to land before). */
+  split?: boolean;
   z0: number;
   L: number;
   y: number;
@@ -88,7 +90,7 @@ export function planSection(p: PlanInput): SectionPlan {
     // Nothing tall right past it: the middle trampoline at the ceiling of the run lands before the fork cliff.
     const rear = z0 - S.chasm.padBefore - PAD_SIZE / 2;
     const landMax = padArc(rear, p.y, p.tuning.controller.maxSpeed, p.tuning, () => p.y).landZ;
-    after = Math.max(plan.chasm.z1 + p.grotto / 2 + 1, landMax + CHASM_LAND_CLEAR);
+    after = p.split ? plan.chasm.z1 + p.grotto / 2 + 1 : Math.max(plan.chasm.z1 + p.grotto / 2 + 1, landMax + CHASM_LAND_CLEAR);
   }
   const tunnel = has('tunnel');
   const hump = has('hump');
@@ -155,6 +157,8 @@ export interface ShapeContext {
   half: number;
   bold: 'left' | 'right';
   laneX: number;
+  /** x of the side trampolines before a chasm; absent — laneX + 2 (SP-05: on a split fork the middles of its lanes). */
+  padX?: number;
   forkWidth: number;
   gift: number;
   rarity: string;
@@ -219,7 +223,8 @@ export function pushShapes(seg: Segment[], c: ShapeContext): void {
     const W = round3(ch.z1 - ch.z0);
     seg.push({ type: 'chasm', z: ch.z0, length: W, y, depth: ch.depth, section: j });
     const pz = round3(ch.z0 - c.shapes.chasm.padBefore);
-    for (const x of [-c.laneX - 2, 0, c.laneX + 2]) seg.push({ type: 'jumpPad', z: pz, x, y, width: PAD_SIZE, length: PAD_SIZE, stretch: j, shape: 'chasm' });
+    const px = c.padX ?? c.laneX + 2;
+    for (const x of [-px, 0, px]) seg.push({ type: 'jumpPad', z: pz, x, y, width: PAD_SIZE, length: PAD_SIZE, stretch: j, shape: 'chasm' });
     // Gifts in the air over the middle trampoline at the minimum speed, and on the bottom (docs/01a-content.md 17.2).
     const rear = pz - PAD_SIZE / 2 + (c.vmin / 60) / 2;
     const arc = padArc(rear, y, c.vmin, c.tuning, () => y);

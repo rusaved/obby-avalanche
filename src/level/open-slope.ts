@@ -14,7 +14,7 @@ import type { Segment, World, WorldBoss, WorldZone, WorldsSpecJson, OpenSpecJson
 import { PAD_SIZE, SLIDE_LENGTH, SLIDE_WIDTH } from './pad-arc.ts';
 import { blockedFor, chasmFloorY, planSection, pushChasmFloor, pushShapes, type SectionPlan } from './open-shapes.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
-import { PORTAL_WIDTH } from './builder.ts';
+import { FLOOR_THICKNESS, PORTAL_WIDTH } from './builder.ts';
 
 /** Rounding series for treadmill multipliers (docs/01a-content.md, section 2): 1; 1.2; 1.5; 2; 2.5; 3; 4; 5; 6; 8 × 10^k. */
 const SERIES = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8];
@@ -41,6 +41,9 @@ export function round3(x: number): number {
  * rise, the ridge with three passages (ramps of `passLength` up the step, ice `gateHeight` over the lower floor, out of
  * a jump's reach), grottos, the fork of 5–40%, gifts on the path.
  */
+/** A split fork's bridge from a pit's slope to the next pit, units along the run (both lanes meet on it). */
+const SPLIT_BRIDGE = 4;
+
 export const OPEN_SLOPE = {
   flag: 12,
   /** The approach rise (16.5: 75–95% of the section) starts at 80% and is 20 long: shorter than any shelterEvery. */
@@ -200,7 +203,8 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
         shapes: spec.shapes,
         index,
         shape,
-        fork: sec.fork,
+        fork: !!sec.fork,
+        split: typeof sec.fork === 'object' && sec.fork.kind === 'split',
         z0,
         L,
         y,
@@ -215,11 +219,23 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
     const plainFork = !plan?.tunnel && !plan?.hump;
 
     // Fork (docs/01-gdd.md 17.7): a cliff down the middle; the bold lane alternates sides by section. Over a tunnel the
-    // cliff is as tall as the tunnel's roof (its inner wall).
-    const fork = plan ? plan.fork : sec.fork ? forkRange(z0, L) : null;
+    // cliff is as tall as the tunnel's roof (its inner wall). Split (SP-05, 20.5): two lanes `track` wide either side of a
+    // crevasse `between` wide, `length` long up to `converge` before the ridge and the approach rise.
+    const fs = typeof sec.fork === 'object' && sec.fork.kind === 'split' && spec.forkSplit ? sec.fork : null;
+    /** The inner edge of a lane (the cliff's face, the crevasse's edge) and the middle of a lane, units off the axis. */
+    const innerX = fs ? fs.between / 2 : O.fork.width / 2;
+    const laneX = fs ? fs.between / 2 + fs.track / 2 : O.laneX;
+    let fork = plan ? plan.fork : sec.fork ? forkRange(z0, L) : null;
+    if (fork && fs) {
+      const lim = Math.min(zA - 4, z1 - spec.forkSplit!.converge);
+      const end = plan && (plan.tunnel || plan.hump) ? Math.max(fork[1], fork[0] + fs.length[0]) : fork[0] + fs.length[1];
+      fork = [fork[0], round3(Math.min(end, lim))];
+    }
     const bold: 'left' | 'right' = j % 2 === 0 ? 'right' : 'left';
     const forkHeight = plan?.tunnel ? plan.tunnel.height + 2 : O.fork.height;
-    if (fork) seg.push({ type: 'fork', z: fork[0], length: round3(fork[1] - fork[0]), x: 0, y, width: O.fork.width, height: forkHeight, bold, section: j });
+    if (fork && fs)
+      seg.push({ type: 'fork', z: fork[0], length: round3(fork[1] - fork[0]), x: 0, y, kind: 'split', between: fs.between, track: fs.track, depth: spec.forkSplit!.depth, bold, section: j });
+    else if (fork) seg.push({ type: 'fork', z: fork[0], length: round3(fork[1] - fork[0]), x: 0, y, width: O.fork.width, height: forkHeight, bold, section: j });
 
     // The grotto under the ridge closes the section; grottos between it and the flag below are spread evenly.
     const big = O.bigGrotto;
@@ -263,7 +279,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
           const a = spec.island.size;
           for (const s of ['left', 'right'] as const) {
             const sx = s === 'left' ? -1 : 1;
-            seg.push({ type: 'island', z: round3(zg), x: round3(sx * (O.laneX + fw.gap + a / 2)), y, size: a, zone: j, stretch: j, lane: s === bold ? 'bold' : 'calm', first: true });
+            seg.push({ type: 'island', z: round3(zg), x: round3(sx * (laneX + fw.gap + a / 2)), y, size: a, zone: j, stretch: j, lane: s === bold ? 'bold' : 'calm', first: true });
           }
         } else if (fork && zg >= fork[0] && zg <= fork[1]) {
           // On a fork each lane needs its own grotto at its edge.
@@ -377,7 +393,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
     // The bold lane of a fork with a tunnel or a hump is that element alone (docs/01-gdd.md 18.3): no slide, crevasse, cliff.
     if (fork && plainFork) {
       const C = O.crevasse;
-      const xb = sb * O.laneX;
+      const xb = sb * laneX;
       seg.push({ type: 'slide', z: round3(fork[0] + C.slideAt + SLIDE_LENGTH / 2), x: xb, y, width: SLIDE_WIDTH, length: SLIDE_LENGTH, stretch: j });
       for (let c0 = fork[0] + C.from; c0 + C.width <= fork[1] - 4; c0 += 1) {
         if (!free(c0, c0 + C.width)) continue;
@@ -386,7 +402,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       }
       if (crevasse) {
         const [c0, c1] = crevasse;
-        const inner = (O.fork.width / 2) * sb;
+        const inner = innerX * sb;
         seg.push({ type: 'gap', z: c0, length: C.width, x0: Math.min(inner, sb * half), x1: Math.max(inner, sb * half), y, depth: C.depth, lane: 'bold' });
         seg.push({ type: 'jumpPad', z: round3(c0 - C.padBefore), x: xb, y, width: PAD_SIZE, length: PAD_SIZE, stretch: j });
         seg.push(gift(c0 + C.bottom / 2, xb, y - C.depth, sec.gift, { detour: true }));
@@ -397,8 +413,11 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       if (index >= 2) {
         for (let k0 = (crevasse ? crevasse[1] : fork[0] + C.from) + K.gap; k0 + span <= zA - 2; k0 += 1) {
           if (!free(k0, k0 + span)) continue;
-          seg.push({ type: 'cliff', z: round3(k0), length: K.ramp, top: K.top, height: K.height, x0: Math.min(sb * K.x0, sb * K.x1), x1: Math.max(sb * K.x0, sb * K.x1), y, side: bold, zone: j, stretch: j });
-          seg.push(gift(k0 + K.ramp + K.top / 2, (sb * (K.x0 + K.x1)) / 2, y + K.height, 2 * sec.gift, { detour: true }));
+          // As far off the middle of its lane as before SP (split, SP-05): beside the run, not on it.
+          const kx0 = K.x0 + laneX - O.laneX;
+          const kx1 = K.x1 + laneX - O.laneX;
+          seg.push({ type: 'cliff', z: round3(k0), length: K.ramp, top: K.top, height: K.height, x0: Math.min(sb * kx0, sb * kx1), x1: Math.max(sb * kx0, sb * kx1), y, side: bold, zone: j, stretch: j });
+          seg.push(gift(k0 + K.ramp + K.top / 2, (sb * (kx0 + kx1)) / 2, y + K.height, 2 * sec.gift, { detour: true }));
           break;
         }
       }
@@ -406,8 +425,13 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
     if (fork) {
       const H = O.chest;
       if (!chestDone && (H.sections as readonly number[]).includes(j)) {
-        for (let zc = fork[1] + H.after + H.length / 2; zc + H.length / 2 <= flatHi; zc += 1) {
+        // On a split fork (SP-05) the grotto stands at the edge past the bold lane inside the fork: past its end there is no room.
+        const zFrom = fs ? (crevasse ? crevasse[1] : fork[0] + O.crevasse.from) + H.after + H.length / 2 : fork[1] + H.after + H.length / 2;
+        // Never on a hump's side between its slope and its landing (the ground there is its ice).
+        const hu = plan?.hump;
+        for (let zc = zFrom; zc + H.length / 2 <= flatHi; zc += 1) {
           if (!free(zc - H.length / 2, zc + H.length / 2)) continue;
+          if (hu && zc + H.length / 2 > hu.z0 - 2 && zc - H.length / 2 < hu.landEnd + 2) continue;
           seg.push({ type: 'chestGrotto', z: round3(zc), y, side: bold, length: H.length, depth: H.depth, coins: H.gifts * sec.gift, zone: j, rarity: zone.rarity, stretch: j, edge: half });
           chestDone = true;
           break;
@@ -418,7 +442,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
     // bottom and up its slope; with a chasm (docs/01-gdd.md 18.3) round it too — steps down, its bottom, a ramp up.
     const crevasseFloor = (c0: number, c1: number): void => {
       const C = O.crevasse;
-      const inner = (O.fork.width / 2) * sb;
+      const inner = innerX * sb;
       const calm: [number, number] = [Math.min(-sb * half, inner), Math.max(-sb * half, inner)];
       const boldX: [number, number] = [Math.min(inner, sb * half), Math.max(inner, sb * half)];
       seg.push({ type: 'floor', z: c0, length: C.width, y, x0: calm[0], x1: calm[1] });
@@ -437,13 +461,14 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
         cur = b;
       }
       seg.push({ type: 'floor', z: round3(cur), length: round3(zA - cur), y });
-      pushShapes(seg, { plan, section: j, index, y, half, bold, laneX: O.laneX, forkWidth: O.fork.width, gift: sec.gift, rarity: zone.rarity, vmin: speedOf(balance, tuning, j >= 2 ? (m.ridges[j - 2] as { requires: number }).requires : carried), shapes: spec.shapes!, tuning: tuning! });
+      pushShapes(seg, { plan, section: j, index, y, half, bold, laneX, ...(fs ? { padX: laneX } : {}), forkWidth: 2 * innerX, gift: sec.gift, rarity: zone.rarity, vmin: speedOf(balance, tuning, j >= 2 ? (m.ridges[j - 2] as { requires: number }).requires : carried), shapes: spec.shapes!, tuning: tuning! });
     } else if (crevasse) {
       const [c0, c1] = crevasse;
       seg.push({ type: 'floor', z: zFlat, length: round3(c0 - zFlat), y });
       crevasseFloor(c0, c1);
       seg.push({ type: 'floor', z: c1, length: round3(zA - c1), y });
     } else seg.push({ type: 'floor', z: zFlat, length: round3(zA - zFlat), y });
+    if (fork && fs) pushSplit(seg, from, fork, innerX, y, half, spec.forkSplit!, (zg, gx, gy) => gift(zg, gx, gy, sec.gift, { bottom: true, detour: true }));
 
     // Gifts on the path (docs/01a-content.md 16.2): 12 a section, taken on the run; on a fork one on each lane, the bold one ×2.
     // With elements (docs/01-gdd.md 18.3): on the bottom of a chasm, ×fieldGifts on the field past a throat, none inside
@@ -469,12 +494,12 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       });
       if (fork && zg >= fork[0] && zg <= fork[1]) {
         const inTunnel = plan?.tunnel && zg >= plan.tunnel.z0 && zg <= plan.tunnel.z1;
-        if (!inTunnel) seg.push(pathGift(-sb * O.laneX, sec.gift, { lane: 'calm' }));
+        if (!inTunnel) seg.push(pathGift(-sb * laneX, sec.gift, { lane: 'calm' }));
         const hu = plan?.hump;
         const boldY = hu && zg >= hu.z0 && zg <= hu.topEnd ? round3(y + hu.rise * Math.min(1, (zg - hu.z0) / (hu.crest - hu.z0))) : yg;
         const boldCoins = plan?.tunnel ? spec.shapes!.tunnel.openGifts * sec.gift : 2 * sec.gift;
         // Not over the crevasse and its trampoline: there the hero flies.
-        if (!overHole.some(([a, b]) => zg >= a && zg <= b)) seg.push(pathGift(sb * O.laneX, boldCoins, { lane: 'bold' }, boldY));
+        if (!overHole.some(([a, b]) => zg >= a && zg <= b)) seg.push(pathGift(sb * laneX, boldCoins, { lane: 'bold' }, boldY));
       } else if (field) seg.push(pathGift(0, Math.round(spec.shapes!.throat.fieldGifts * sec.gift), { field: true }));
       // Not in the rock of the belt under the ridge (nearRun): on the line of the passage nearest the axis.
       else seg.push(pathGift(near && Math.abs(zg - zRidgeGrotto) < big.length / 2 + 2 && Math.abs(rockX) < spec.island!.size / 2 + 1 ? (ps[mid - 1] ?? ps[mid]!) : 0, sec.gift));
@@ -512,8 +537,14 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
         ...(fork && plainFork && side === bold ? [[fork[0] - isl.size, fork[1] + isl.size] as [number, number]] : []),
       ];
       const placed: number[] = [];
+      // No room past a split fork's lane: not on the fork.
+      const room = !fs || innerX + fs.track + 2 + isl.size + 2 <= half;
       const freeAt = (zi: number, side: 'left' | 'right'): boolean =>
-        zi >= lo && zi <= hi && !busyOn(side).some(([a, b]) => zi > a && zi < b) && placed.every((q) => Math.abs(q - zi) >= step / 2);
+        zi >= lo &&
+        zi <= hi &&
+        !busyOn(side).some(([a, b]) => zi > a && zi < b) &&
+        (room || !fork || zi + isl.size / 2 < fork[0] || zi - isl.size / 2 > fork[1]) &&
+        placed.every((q) => Math.abs(q - zi) >= step / 2);
       for (let zc = z0 + step / 2, k = 0; zc <= hi + step / 2; zc += step) {
         const pref: 'left' | 'right' = k % 2 === 0 ? 'left' : 'right';
         let at: [number, 'left' | 'right'] | null = null;
@@ -525,7 +556,9 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
         placed.push(at[0]);
         const sx = at[1] === 'left' ? -1 : 1;
         const onFork = fork && at[0] + isl.size / 2 > fork[0] && at[0] - isl.size / 2 < fork[1];
-        seg.push({ type: 'island', z: round3(at[0]), x: round3(sx * (half / 2 + isl.size / 2)), y, size: isl.size, zone: j, stretch: j, ...(onFork ? { lane: at[1] === bold ? 'bold' : 'calm' } : {}) });
+        // On a split fork (SP-05) the rock stands on the free snow past its lane, not on it.
+        const ax = onFork && fs ? innerX + fs.track + 2 + isl.size / 2 : half / 2 + isl.size / 2;
+        seg.push({ type: 'island', z: round3(at[0]), x: round3(sx * ax), y, size: isl.size, zone: j, stretch: j, ...(onFork ? { lane: at[1] === bold ? 'bold' : 'calm' } : {}) });
       }
     }
     fit(from);
@@ -668,6 +701,48 @@ function pushPassages(seg: Segment[], z0: number, yLow: number, yHigh: number, h
     x = px + w;
   }
   if (x < half) seg.push({ type: 'floor', z: z0, length: O.passLength, y: yHigh, x0: round3(x), x1: half, thickness: round3(yHigh - yLow + 2) });
+}
+
+/**
+ * The crevasse of a split fork (SP-05, docs/01-gdd.md 20.5): the floors of the section across its middle are cut on
+ * [f0, f1] — each lane's floor thick down to the crevasse bottom; in it pits at most `rampEvery` long, each a flat bottom
+ * `depth` down, a slope up along the run and a bridge at the top level to both lanes; `bottomGifts` on the bottoms.
+ */
+function pushSplit(seg: Segment[], from: number, fork: [number, number], inner: number, y: number, half: number, cfg: NonNullable<Spec['forkSplit']>, gift: (z: number, x: number, y: number) => Segment): void {
+  const [f0, f1] = fork;
+  const thick = round3(cfg.depth + FLOOR_THICKNESS);
+  const out: Segment[] = [];
+  const n0 = (p: Segment, key: string, def: number): number => (typeof p[key] === 'number' ? (p[key] as number) : def);
+  for (let k = from; k < seg.length; k++) {
+    const p = seg[k] as Segment;
+    const a = p.z;
+    const b = p.z + n0(p, 'length', 0);
+    const x0 = n0(p, 'x0', -half);
+    const x1 = n0(p, 'x1', half);
+    if (p.type !== 'floor' || p['y'] !== y || b <= f0 || a >= f1 || x0 > -inner || x1 < inner) continue;
+    seg.splice(k--, 1);
+    if (a < f0) out.push({ ...p, z: a, length: round3(f0 - a), thickness: thick });
+    const lo = Math.max(a, f0);
+    const hi = Math.min(b, f1);
+    out.push({ ...p, z: round3(lo), length: round3(hi - lo), x0, x1: -inner, thickness: thick });
+    out.push({ ...p, z: round3(lo), length: round3(hi - lo), x0: inner, x1, thickness: thick });
+    if (b > f1) out.push({ ...p, z: f1, length: round3(b - f1), thickness: thick });
+  }
+  seg.push(...out);
+  const n = Math.ceil((f1 - f0) / cfg.rampEvery - 1e-9);
+  const P = (f1 - f0) / n;
+  const R = 2 * cfg.depth;
+  const bottom = P - R - SPLIT_BRIDGE;
+  for (let k = 0; k < n; k++) {
+    const za = f0 + k * P;
+    seg.push({ type: 'floor', z: round3(za), length: round3(bottom), y: round3(y - cfg.depth), x0: -inner, x1: inner, material: 'ice', split: true });
+    seg.push({ type: 'ramp', z: round3(za + bottom), length: R, y: round3(y - cfg.depth), rise: cfg.depth, x0: -inner, x1: inner, material: 'ice', split: true });
+    seg.push({ type: 'floor', z: round3(za + bottom + R), length: SPLIT_BRIDGE, y, x0: -inner, x1: inner, thickness: thick, split: true });
+  }
+  for (let g = 0; g < cfg.bottomGifts; g++) {
+    const k = Math.min(n - 1, Math.floor(((g + 0.5) * n) / cfg.bottomGifts));
+    seg.push(gift(f0 + k * P + bottom / 2 + ((g % 2) - 0.5) * Math.min(8, bottom / 3), 0, round3(y - cfg.depth)));
+  }
 }
 
 /** The field of a mountain (SP-04, docs/01a-content.md 19.2): its widest section, the first of equals; 1-based. */

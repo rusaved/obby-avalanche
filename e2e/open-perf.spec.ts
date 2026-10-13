@@ -1,9 +1,10 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { forkLaneX } from './base-route.ts';
 import { test, expect, testState, waitTicks } from './fixtures.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 
 // PS-09: the camera of the open slope and its budgets (docs/01-gdd.md 17.9–17.10; docs/02-tech.md 9.5).
-type Seg = { type: string; z: number; kind?: string; section?: number; length?: number };
+type Seg = { type: string; z: number; kind?: string; section?: number; length?: number; between?: number; track?: number };
 type OpenWorld = { id: string; segments: Seg[]; bosses: Array<{ zone: [number, number] }> };
 const worlds = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds;
 const EVIDENCE = 'docs/evidence/open';
@@ -165,7 +166,7 @@ test('640×360: both lanes of the fork of section 2 of mountain 4 are in the fra
   }, [fork.z - 8] as const);
   await waitTicks(page, 40);
   const mid = fork.z + fork.length! / 2;
-  for (const x of [-16, 16]) {
+  for (const x of [-forkLaneX(fork), forkLaneX(fork)]) {
     const p = await page.evaluate(([xx, zz]) => window.__TEST__!.project(xx, 2, zz), [x, mid] as const);
     expect(p.ahead, `lane x ${x}`).toBe(true);
     expect(p.x, `lane x ${x}`).toBeGreaterThan(0);

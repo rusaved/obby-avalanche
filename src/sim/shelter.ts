@@ -27,12 +27,13 @@ export function entranceX(level: LevelData, n: LevelNiche): number {
   return nicheSign(n) * (level.width / 2);
 }
 
-/** The first shelter of stretch `stretch` up the slope (the lowest, the lower index on a tie), ledges aside; −1 none. The
+/** The first shelter of stretch `stretch` up the slope (the lowest, the lower index on a tie), ledges and chests aside; −1 none. The
  * grottos in rocks (SP-04) come after the grottos of the edges in level.niches, so the order there is not the slope's. */
 export function firstShelter(level: LevelData, stretch: number): number {
   let best = -1;
   level.niches.forEach((n, i) => {
-    if (n.stretch !== stretch || n.kind === 'ledge') return;
+    // A ledge, and the grotto with a chest (a detour of the bold lane, docs/01-gdd.md 17.7), are never it.
+    if (n.stretch !== stretch || n.kind === 'ledge' || n.kind === 'chestGrotto') return;
     if (best < 0 || n.z < level.niches[best]!.z) best = i;
   });
   return best;
@@ -107,6 +108,8 @@ export function groundPath(level: LevelData, x: number, z: number, tx: number, t
   let cliffs = cliffCache.get(level);
   if (!cliffs) {
     cliffs = level.boxes.filter((b) => b.kind === 'cliff').map((b) => ({ x0: b.min[0], x1: b.max[0], z0: b.min[2], z1: b.max[2] }));
+    // The crevasse of a split fork (SP-05): its bottom is no way to a shelter (docs/01-gdd.md 20.5) — round its ends.
+    for (const f of level.forks) if (f.x0 !== undefined && f.x1 !== undefined) cliffs.push({ x0: f.x0, x1: f.x1, z0: f.z0, z1: f.z1 });
     cliffCache.set(level, cliffs);
   }
   const straight = Math.hypot(tx - x, tz - z);

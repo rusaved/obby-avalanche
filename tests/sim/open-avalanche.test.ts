@@ -57,9 +57,12 @@ describe('avalanche on the open slope (PS-06)', () => {
   });
 
   it('the nearest shelter by run time on a fork is on the hero’s lane, whatever his speed', () => {
-    const fork = level.boxes.find((b) => b.kind === 'cliff')!;
+    // SP-05: the fork of mountain 1 is split — its crevasse down the middle, the lanes' middles either side.
+    const f = level.forks[0]!;
+    const fork = { min: [f.x0!, 0, f.z0] as const, max: [f.x1!, 0, f.z1] as const };
+    const lane = f.x1! + f.track! / 2;
     const z = (fork.min[2] + fork.max[2]) / 2;
-    for (const x of [-16, 16]) {
+    for (const x of [-lane, lane]) {
       const i = nearestShelter(level, level.gates.map(() => true), x, z);
       const n = level.niches[i]!;
       // Not through the cliff: a grotto of this side of it.
@@ -71,10 +74,12 @@ describe('avalanche on the open slope (PS-06)', () => {
   });
 
   it('snowed in on lane B of a fork the ball rolls into a grotto of lane B, never through the cliff', () => {
-    const fork = level.boxes.find((b) => b.kind === 'cliff')!;
+    const f = level.forks[0]!;
+    const fork = { min: [f.x0!, 0, f.z0] as const, max: [f.x1!, 0, f.z1] as const };
+    const lane = f.x1! + f.track! / 2;
     const bold = level.niches.filter((n) => n.lane !== undefined && n.z < fork.max[2]);
     expect(bold.length).toBeGreaterThan(0);
-    for (const x of [-16, 16]) {
+    for (const x of [-lane, lane]) {
       const c = createCaught(level, { x, y: 0, z: fork.max[2] - 2 }, balance.caught, tuning.avalanche);
       const n = level.niches[c.niche]!;
       expect(n.side, `x ${x}`).toBe(x < 0 ? 'left' : 'right');

@@ -42,7 +42,8 @@ describe('character of the mountains in the data (RG-01)', () => {
       m.sections.forEach((sec, i) => {
         const want = rows[i]!;
         expect([...(sec.shape ?? [])].sort(), `${m.id} ${i + 1}`).toEqual(want.filter((k) => k !== 'fork').sort());
-        expect(sec.fork, `${m.id} ${i + 1}`).toBe(want.some((k) => k === 'fork' || k === 'tunnel' || k === 'hump'));
+        // SP-05: a fork is a split one now (01a 19.3) — an object, not true.
+        expect(!!sec.fork, `${m.id} ${i + 1}`).toBe(want.some((k) => k === 'fork' || k === 'tunnel' || k === 'hump'));
       });
     }
   });
@@ -84,7 +85,9 @@ describe('character of the mountains in the data (RG-01)', () => {
       expect(w.segments.filter((s) => ['chasm', 'throat', 'tunnel', 'hump'].includes(s.type) || s['shape'] !== undefined), w.id).toEqual([]);
       for (const f of w.segments.filter((s) => s.type === 'fork')) {
         const zone = w.zones[(f['section'] as number) - 1]!;
-        expect([f.z, f.z + (f['length'] as number)]).toEqual(forkRange(zone.zStart, zone.zEnd - zone.zStart));
+        // SP-05: a split fork starts where the fork of 16.5 does and runs 150–300 (tests/level/fork.test.ts).
+        if (f['kind'] === 'split') expect(f.z).toBe(forkRange(zone.zStart, zone.zEnd - zone.zStart)[0]);
+        else expect([f.z, f.z + (f['length'] as number)]).toEqual(forkRange(zone.zStart, zone.zEnd - zone.zStart));
       }
     }
     expect(out.worlds[0]).toEqual(worlds.worlds[0]);

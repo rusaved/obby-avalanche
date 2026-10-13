@@ -275,8 +275,9 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
       lane: 'bold',
     });
   }
-  // Fork (docs/01-gdd.md 17.7): an ice cliff down the middle splits the slope into two lanes.
-  for (const f of world.segments.filter((s) => s.type === 'fork')) {
+  // Fork (docs/01-gdd.md 17.7): an ice cliff down the middle splits the slope into two lanes; a split one (SP-05) is a
+  // crevasse there, its floors come from the generator.
+  for (const f of world.segments.filter((s) => s.type === 'fork' && s['kind'] !== 'split')) {
     const w = num(f, 'width') / 2;
     const y = num(f, 'y');
     boxes.push(box([num(f, 'x') - w, y - FLOOR_THICKNESS, f.z], [num(f, 'x') + w, y + num(f, 'height'), f.z + num(f, 'length')], 'ice', 'cliff'));
@@ -621,7 +622,9 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     checkpoints: checkpoints.sort((a, b) => a.z - b.z),
     points,
     safeZones: world.safeZones,
-    forks: world.segments.filter((s) => s.type === 'fork').map((f) => ({ z0: f.z, z1: f.z + num(f, 'length') })),
+    forks: world.segments
+      .filter((s) => s.type === 'fork')
+      .map((f) => ({ z0: f.z, z1: f.z + num(f, 'length'), ...(f['kind'] === 'split' ? { x0: -num(f, 'between') / 2, x1: num(f, 'between') / 2, track: num(f, 'track'), bold: str(f, 'bold') === 'left' ? 'left' : 'right' } : {}) })),
     bosses: (world.bosses ?? []).map((b) => ({ ...b, zone: [b.zone[0], b.zone[1]] as [number, number], giants: b.giants.map((g) => ({ ...g })) })),
     shapes,
     sections: world.zones.filter((z) => typeof z.stepMult === 'number').map((z) => ({ z0: z.zStart, z1: z.zEnd, mult: z.stepMult as number })),

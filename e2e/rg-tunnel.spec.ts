@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
+import { forkLaneX } from './base-route.ts';
 import { test, expect, shot1080, testState, waitTicks } from './fixtures.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 import openSpec from '../content/avalanche/pace/open/worlds-spec.json' with { type: 'json' };
@@ -8,13 +9,13 @@ import ru from '../content/avalanche/i18n/ru.json' with { type: 'json' };
 // RG-06: the tunnel of mountain 6 (docs/01-gdd.md 18.3; docs/01a-content.md 17.2). The avalanche passes over the hero in
 // the tunnel; on the open lane he hides in a grotto; the camera inside never in the roof nor in the hero; ≤ 40 draw
 // calls; «The tunnel shelters you» once.
-type Seg = { type: string; z: number; y?: number; length?: number; section?: number; side?: string; inner?: number; width?: number; height?: number; bold?: string };
+type Seg = { type: string; z: number; y?: number; length?: number; section?: number; side?: string; inner?: number; width?: number; height?: number; bold?: string; kind?: string; between?: number; track?: number };
 const w6 = (openWorlds as unknown as { worlds: Array<{ segments: Seg[]; threat: { warnSec: number } }> }).worlds[5]!;
 const tunnel = w6.segments.find((s) => s.type === 'tunnel' && s.section === 2)!;
 const fork = w6.segments.find((s) => s.type === 'fork' && s.section === 2)!;
 const sc = tunnel.side === 'left' ? -1 : 1;
 const hallX = sc * (tunnel.inner! + tunnel.width! / 2);
-const boldX = -sc * 16;
+const boldX = -sc * forkLaneX(fork);
 const roofY = tunnel.y! + tunnel.height!;
 const STAT = (openSpec as unknown as { mountains: Array<{ ridges: Array<{ requires: number }> }> }).mountains[5]!.ridges[0]!.requires;
 const EVIDENCE = 'docs/evidence/rg';

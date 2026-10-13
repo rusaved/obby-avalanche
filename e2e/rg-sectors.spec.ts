@@ -1,12 +1,13 @@
 import type { Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
+import { forkLaneX } from './base-route.ts';
 import { test, expect, shot1080, testState, waitTicks } from './fixtures.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 
 // RG-09: big sectors of mountains 8–10 (docs/01-gdd.md 18.2–18.3, 18.6; docs/01a-content.md 17.1). The physical bot runs
 // section 2 of each — up the middle through the throat and over the chasm, the calm lane of the fork (the tunnel where it
 // is) to the ridge — without getting stuck; draw calls ≤ 40 and triangles ≤ 100k at 3 points of each; screenshot.
-type Seg = { type: string; z: number; y?: number; length?: number; section?: number; kind?: string; bold?: string; wall?: number };
+type Seg = { type: string; z: number; y?: number; length?: number; section?: number; kind?: string; bold?: string; wall?: number; between?: number; track?: number };
 type OpenWorld = { segments: Seg[]; zones: Array<{ k: number; zStart: number; zEnd: number }> };
 const worlds = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds;
 const EVIDENCE = 'docs/evidence/rg';
@@ -34,7 +35,7 @@ for (const index of [8, 9, 10]) {
     const w = worlds[index - 1]!;
     const zone = w.zones.find((z) => z.k === 2)!;
     const fork = w.segments.find((s) => s.type === 'fork' && s.section === 2)!;
-    const calm = fork.bold === 'left' ? 16 : -16;
+    const calm = (fork.bold === 'left' ? 1 : -1) * forkLaneX(fork);
     const ridge = w.segments.filter((s) => s.type === 'gate' && s.kind === 'ridge')[1]!;
     // Draw calls and triangles at the start of the section, in the fork, under the ridge.
     for (const [x, z] of [[0, zone.zStart + 14], [calm, fork.z + fork.length! / 2], [0, ridge.z - 10]] as const) {

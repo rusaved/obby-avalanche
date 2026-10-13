@@ -1,14 +1,17 @@
 import { mkdirSync } from 'node:fs';
+import { forkLaneX } from './base-route.ts';
 import { test, expect, shot1080, testState, waitTicks } from './fixtures.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 
 // PS-06: the avalanche on the open slope (docs/01-gdd.md 17.5, 17.8). The physical bot runs up from the camp; at the
 // entry of section 2 the scripted siren, the bot runs into the lit grotto — «Phew, made it!» within 46 s of the start.
 // A normal wave with the hero in the giant's zone (above spawnMaxZ) never catches him.
-type Seg = { type: string; z: number; side?: string; kind?: string; length?: number; edge?: number };
+type Seg = { type: string; z: number; side?: string; kind?: string; length?: number; edge?: number; between?: number; track?: number };
 type OpenWorld = { segments: Seg[]; bosses: Array<{ zone: [number, number] }>; threat: { spawnMaxZ: number } };
 const world = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds[0]!;
 const ridge1 = world.segments.find((s) => s.type === 'gate' && s.kind === 'ridge')!.z;
+// SP-05: the middle of the calm lane of the split fork of section 2.
+const lane = forkLaneX(world.segments.find((s) => s.type === 'fork')!);
 const EVIDENCE = 'docs/evidence/open';
 
 test('scripted wave at the entry of section 2: the bot in its grotto, «Phew, made it!» within 46 s', async ({ page, openGame }) => {
@@ -19,7 +22,7 @@ test('scripted wave at the entry of section 2: the bot in its grotto, «Phew, ma
   const t0 = (await testState(page)).timeSec;
   await page.evaluate((k) => window.__TEST__!.setTimeScale(k), 3);
   // Up the middle, then the left lane of the fork of section 2 (the cliff stands on the axis).
-  await page.evaluate((z) => window.__TEST__!.botPath([[0, z + 14], [-16, z + 60]]), ridge1);
+  await page.evaluate((z) => window.__TEST__!.botPath([[0, z + 14], [-lane, z + 60]]), ridge1);
   await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'warn', undefined, { timeout: 90_000 });
   let s = await testState(page);
   expect(s.wave!.scripted).toBe(true);

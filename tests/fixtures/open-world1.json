@@ -500,18 +500,20 @@
     {
       "type": "fork",
       "z": 344.8,
-      "length": 99.2,
+      "length": 219.2,
       "x": 0,
       "y": 8,
-      "width": 8,
-      "height": 10,
+      "kind": "split",
+      "between": 30,
+      "track": 44,
+      "depth": 3,
       "bold": "right",
       "section": 2
     },
     {
       "type": "island",
       "z": 387.5,
-      "x": -26,
+      "x": -47,
       "y": 8,
       "size": 12,
       "zone": 2,
@@ -522,7 +524,7 @@
     {
       "type": "island",
       "z": 387.5,
-      "x": 26,
+      "x": 47,
       "y": 8,
       "size": 12,
       "zone": 2,
@@ -541,7 +543,36 @@
       "treadmill": 0,
       "zone": 2,
       "stretch": 2,
-      "edge": 90
+      "edge": 90,
+      "lane": "calm"
+    },
+    {
+      "type": "niche",
+      "z": 465,
+      "y": 8,
+      "side": "right",
+      "kind": "grotto",
+      "length": 8,
+      "depth": 4,
+      "treadmill": 0,
+      "zone": 2,
+      "stretch": 2,
+      "edge": 90,
+      "lane": "bold"
+    },
+    {
+      "type": "niche",
+      "z": 542.5,
+      "y": 8,
+      "side": "left",
+      "kind": "grotto",
+      "length": 8,
+      "depth": 4,
+      "treadmill": 0,
+      "zone": 2,
+      "stretch": 2,
+      "edge": 90,
+      "lane": "calm"
     },
     {
       "type": "niche",
@@ -554,7 +585,8 @@
       "treadmill": 0,
       "zone": 2,
       "stretch": 2,
-      "edge": 90
+      "edge": 90,
+      "lane": "bold"
     },
     {
       "type": "niche",
@@ -574,7 +606,7 @@
     {
       "type": "slide",
       "z": 354.8,
-      "x": 16,
+      "x": 37,
       "y": 8,
       "width": 4,
       "length": 16,
@@ -584,7 +616,7 @@
       "type": "gap",
       "z": 370.8,
       "length": 5,
-      "x0": 4,
+      "x0": 15,
       "x1": 90,
       "y": 8,
       "depth": 2,
@@ -593,7 +625,7 @@
     {
       "type": "jumpPad",
       "z": 365.8,
-      "x": 16,
+      "x": 37,
       "y": 8,
       "width": 4,
       "length": 4,
@@ -602,7 +634,7 @@
     {
       "type": "gift",
       "z": 372.05,
-      "x": 16,
+      "x": 37,
       "y": 6,
       "height": 0,
       "zone": 2,
@@ -613,7 +645,7 @@
     },
     {
       "type": "chestGrotto",
-      "z": 454,
+      "z": 385.8,
       "y": 8,
       "side": "right",
       "length": 8,
@@ -626,24 +658,10 @@
     },
     {
       "type": "floor",
-      "z": 328,
-      "length": 42.8,
-      "y": 8
-    },
-    {
-      "type": "floor",
-      "z": 370.8,
-      "length": 5,
-      "y": 8,
-      "x0": -90,
-      "x1": 4
-    },
-    {
-      "type": "floor",
       "z": 370.8,
       "length": 2.5,
       "y": 6,
-      "x0": 4,
+      "x0": 15,
       "x1": 90
     },
     {
@@ -652,14 +670,239 @@
       "length": 2.5,
       "y": 6,
       "rise": 2,
-      "x0": 4,
+      "x0": 15,
       "x1": 90
     },
     {
       "type": "floor",
+      "z": 328,
+      "length": 16.8,
+      "y": 8,
+      "thickness": 5
+    },
+    {
+      "type": "floor",
+      "z": 344.8,
+      "length": 26,
+      "y": 8,
+      "x0": -90,
+      "x1": -15,
+      "thickness": 5
+    },
+    {
+      "type": "floor",
+      "z": 344.8,
+      "length": 26,
+      "y": 8,
+      "x0": 15,
+      "x1": 90,
+      "thickness": 5
+    },
+    {
+      "type": "floor",
+      "z": 370.8,
+      "length": 5,
+      "y": 8,
+      "x0": -90,
+      "x1": -15,
+      "thickness": 5
+    },
+    {
+      "type": "floor",
+      "z": 370.8,
+      "length": 5,
+      "y": 8,
+      "x0": 15,
+      "x1": 15,
+      "thickness": 5
+    },
+    {
+      "type": "floor",
       "z": 375.8,
-      "length": 192.2,
-      "y": 8
+      "length": 188.2,
+      "y": 8,
+      "x0": -90,
+      "x1": -15,
+      "thickness": 5
+    },
+    {
+      "type": "floor",
+      "z": 375.8,
+      "length": 188.2,
+      "y": 8,
+      "x0": 15,
+      "x1": 90,
+      "thickness": 5
+    },
+    {
+      "type": "floor",
+      "z": 564,
+      "length": 4,
+      "y": 8,
+      "thickness": 5
+    },
+    {
+      "type": "floor",
+      "z": 344.8,
+      "length": 44.8,
+      "y": 5,
+      "x0": -15,
+      "x1": 15,
+      "material": "ice",
+      "split": true
+    },
+    {
+      "type": "ramp",
+      "z": 389.6,
+      "length": 6,
+      "y": 5,
+      "rise": 3,
+      "x0": -15,
+      "x1": 15,
+      "material": "ice",
+      "split": true
+    },
+    {
+      "type": "floor",
+      "z": 395.6,
+      "length": 4,
+      "y": 8,
+      "x0": -15,
+      "x1": 15,
+      "thickness": 5,
+      "split": true
+    },
+    {
+      "type": "floor",
+      "z": 399.6,
+      "length": 44.8,
+      "y": 5,
+      "x0": -15,
+      "x1": 15,
+      "material": "ice",
+      "split": true
+    },
+    {
+      "type": "ramp",
+      "z": 444.4,
+      "length": 6,
+      "y": 5,
+      "rise": 3,
+      "x0": -15,
+      "x1": 15,
+      "material": "ice",
+      "split": true
+    },
+    {
+      "type": "floor",
+      "z": 450.4,
+      "length": 4,
+      "y": 8,
+      "x0": -15,
+      "x1": 15,
+      "thickness": 5,
+      "split": true
+    },
+    {
+      "type": "floor",
+      "z": 454.4,
+      "length": 44.8,
+      "y": 5,
+      "x0": -15,
+      "x1": 15,
+      "material": "ice",
+      "split": true
+    },
+    {
+      "type": "ramp",
+      "z": 499.2,
+      "length": 6,
+      "y": 5,
+      "rise": 3,
+      "x0": -15,
+      "x1": 15,
+      "material": "ice",
+      "split": true
+    },
+    {
+      "type": "floor",
+      "z": 505.2,
+      "length": 4,
+      "y": 8,
+      "x0": -15,
+      "x1": 15,
+      "thickness": 5,
+      "split": true
+    },
+    {
+      "type": "floor",
+      "z": 509.2,
+      "length": 44.8,
+      "y": 5,
+      "x0": -15,
+      "x1": 15,
+      "material": "ice",
+      "split": true
+    },
+    {
+      "type": "ramp",
+      "z": 554,
+      "length": 6,
+      "y": 5,
+      "rise": 3,
+      "x0": -15,
+      "x1": 15,
+      "material": "ice",
+      "split": true
+    },
+    {
+      "type": "floor",
+      "z": 560,
+      "length": 4,
+      "y": 8,
+      "x0": -15,
+      "x1": 15,
+      "thickness": 5,
+      "split": true
+    },
+    {
+      "type": "gift",
+      "z": 363.2,
+      "x": 0,
+      "y": 5,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 14,
+      "n": 0,
+      "bottom": true,
+      "detour": true
+    },
+    {
+      "type": "gift",
+      "z": 480.8,
+      "x": 0,
+      "y": 5,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 14,
+      "n": 0,
+      "bottom": true,
+      "detour": true
+    },
+    {
+      "type": "gift",
+      "z": 527.6,
+      "x": 0,
+      "y": 5,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 14,
+      "n": 0,
+      "bottom": true,
+      "detour": true
     },
     {
       "type": "gift",
@@ -676,7 +919,7 @@
     {
       "type": "gift",
       "z": 360.864,
-      "x": -16,
+      "x": -37,
       "y": 8,
       "height": 0,
       "zone": 2,
@@ -689,7 +932,7 @@
     {
       "type": "gift",
       "z": 360.864,
-      "x": 16,
+      "x": 37,
       "y": 8,
       "height": 0,
       "zone": 2,
@@ -702,7 +945,7 @@
     {
       "type": "gift",
       "z": 386.227,
-      "x": -16,
+      "x": -37,
       "y": 8,
       "height": 0,
       "zone": 2,
@@ -715,7 +958,7 @@
     {
       "type": "gift",
       "z": 386.227,
-      "x": 16,
+      "x": 37,
       "y": 8,
       "height": 0,
       "zone": 2,
@@ -728,7 +971,7 @@
     {
       "type": "gift",
       "z": 411.591,
-      "x": -16,
+      "x": -37,
       "y": 8,
       "height": 0,
       "zone": 2,
@@ -741,7 +984,7 @@
     {
       "type": "gift",
       "z": 411.591,
-      "x": 16,
+      "x": 37,
       "y": 8,
       "height": 0,
       "zone": 2,
@@ -754,7 +997,7 @@
     {
       "type": "gift",
       "z": 436.955,
-      "x": -16,
+      "x": -37,
       "y": 8,
       "height": 0,
       "zone": 2,
@@ -767,7 +1010,7 @@
     {
       "type": "gift",
       "z": 436.955,
-      "x": 16,
+      "x": 37,
       "y": 8,
       "height": 0,
       "zone": 2,
@@ -780,62 +1023,132 @@
     {
       "type": "gift",
       "z": 462.318,
-      "x": 0,
+      "x": -37,
       "y": 8,
       "height": 0,
       "zone": 2,
       "rarity": "rare",
       "coins": 14,
       "n": 6,
-      "path": true
+      "path": true,
+      "lane": "calm"
+    },
+    {
+      "type": "gift",
+      "z": 462.318,
+      "x": 37,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 28,
+      "n": 6,
+      "path": true,
+      "lane": "bold"
     },
     {
       "type": "gift",
       "z": 487.682,
-      "x": 0,
+      "x": -37,
       "y": 8,
       "height": 0,
       "zone": 2,
       "rarity": "rare",
       "coins": 14,
       "n": 7,
-      "path": true
+      "path": true,
+      "lane": "calm"
+    },
+    {
+      "type": "gift",
+      "z": 487.682,
+      "x": 37,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 28,
+      "n": 7,
+      "path": true,
+      "lane": "bold"
     },
     {
       "type": "gift",
       "z": 513.045,
-      "x": 0,
+      "x": -37,
       "y": 8,
       "height": 0,
       "zone": 2,
       "rarity": "rare",
       "coins": 14,
       "n": 8,
-      "path": true
+      "path": true,
+      "lane": "calm"
+    },
+    {
+      "type": "gift",
+      "z": 513.045,
+      "x": 37,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 28,
+      "n": 8,
+      "path": true,
+      "lane": "bold"
     },
     {
       "type": "gift",
       "z": 538.409,
-      "x": 0,
+      "x": -37,
       "y": 8,
       "height": 0,
       "zone": 2,
       "rarity": "rare",
       "coins": 14,
       "n": 9,
-      "path": true
+      "path": true,
+      "lane": "calm"
+    },
+    {
+      "type": "gift",
+      "z": 538.409,
+      "x": 37,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 28,
+      "n": 9,
+      "path": true,
+      "lane": "bold"
     },
     {
       "type": "gift",
       "z": 563.773,
-      "x": 0,
+      "x": -37,
       "y": 8,
       "height": 0,
       "zone": 2,
       "rarity": "rare",
       "coins": 14,
       "n": 10,
-      "path": true
+      "path": true,
+      "lane": "calm"
+    },
+    {
+      "type": "gift",
+      "z": 563.773,
+      "x": 37,
+      "y": 8,
+      "height": 0,
+      "zone": 2,
+      "rarity": "rare",
+      "coins": 28,
+      "n": 10,
+      "path": true,
+      "lane": "bold"
     },
     {
       "type": "gift",
@@ -891,7 +1204,7 @@
     {
       "type": "island",
       "z": 408,
-      "x": -51,
+      "x": -67,
       "y": 8,
       "size": 12,
       "zone": 2,
@@ -901,11 +1214,12 @@
     {
       "type": "island",
       "z": 556,
-      "x": 51,
+      "x": -67,
       "y": 8,
       "size": 12,
       "zone": 2,
-      "stretch": 2
+      "stretch": 2,
+      "lane": "calm"
     },
     {
       "type": "floor",

@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import type { Page } from '@playwright/test';
 import { test, expect, shot1080, testState } from './fixtures.ts';
-import { passX } from './base-route.ts';
+import { forkLaneX, passX } from './base-route.ts';
 import type { TestState } from '../src/test-api/index.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 import balanceJson from '../content/avalanche/balance.json' with { type: 'json' };
@@ -13,7 +13,7 @@ import balanceJson from '../content/avalanche/balance.json' with { type: 'json' 
 // before the giant up to his advice, past him and into the portal. Times are play seconds. The rhythm of 19.6: on the belt
 // of ridge 2 at most 10 s of game time, and a reward (a ridge or the giant passed, «Phew, made it!» in a shelter, an egg,
 // shoes) at least every 25 s up to 180 s (fm-rhythm of docs/05 lives here: one run of the bot for both).
-type Seg = { type: string; z: number; kind?: string; requires?: number; length?: number; passes?: number[] };
+type Seg = { type: string; z: number; kind?: string; requires?: number; length?: number; passes?: number[]; between?: number; track?: number };
 type OpenWorld = { segments: Seg[]; bosses: Array<{ zone: [number, number]; requires: number }> };
 type Shelter = { kind: string; z: number; mouth: [number, number]; inside: [number, number]; belt: [number, number] | null };
 type Played = Array<{ name: string; playSec: number; params?: Record<string, unknown> }>;
@@ -56,7 +56,7 @@ test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg
   const route = (s: TestState, to: Array<[number, number]>): Array<[number, number]> => {
     const h = s.hero!;
     const z = to[0]![1];
-    const lane = h.x < 0 ? -16 : 16;
+    const lane = (h.x < 0 ? -1 : 1) * forkLaneX(fork);
     // Out of the shelter he stands in by its mouth first (SP-04: a rock by the lane has walls on three sides; a canopy
     // with the belt is open to the sides).
     const here = s.shelter >= 0 ? shelters[s.shelter] : undefined;
@@ -99,7 +99,7 @@ test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg
   const firstOf2 = shelters.filter((n) => (n.kind === 'grotto' || n.kind === 'island') && n.z > ridges[0]!.z).sort((a, b) => a.z - b.z)[0]!;
   const sirenZ = firstOf2.z - balanceJson.ftue.triggerDist + 2;
   const x1 = passX(ridges[0]!);
-  await go([[x1, ridges[0]!.z - 4], [x1, ridges[0]!.z + 12], [-16, Math.max(ridges[0]!.z + 24, sirenZ)]]);
+  await go([[x1, ridges[0]!.z - 4], [x1, ridges[0]!.z + 12], [-forkLaneX(fork), Math.max(ridges[0]!.z + 24, sirenZ)]]);
   // ×2, not ×3 (SP-04): the bot decides by polling, and beside another worker a late look at ×3 cost seconds of play on a
   // belt — the times compared with FM are play seconds.
   await page.evaluate(() => window.__TEST__!.setTimeScale(2));
@@ -248,8 +248,8 @@ async function hideInGrotto(page: Page, side: 'left' | 'right'): Promise<void> {
   await page.evaluate(([z, x]) => {
     window.__TEST__!.setStat(1000);
     window.__TEST__!.teleport(z, x);
-  }, [ridges[0]!.z + 6, Math.sign(n.mouth[0]) * 16] as const);
-  await page.evaluate((p) => window.__TEST__!.botPath(p), [[Math.sign(n.mouth[0]) * 16, n.z - 6], n.mouth, n.inside] as Array<[number, number]>);
+  }, [ridges[0]!.z + 6, Math.sign(n.mouth[0]) * forkLaneX(fork)] as const);
+  await page.evaluate((p) => window.__TEST__!.botPath(p), [[Math.sign(n.mouth[0]) * forkLaneX(fork), n.z - 6], n.mouth, n.inside] as Array<[number, number]>);
   await page.evaluate(() => window.__TEST__!.setTimeScale(3));
   await page.waitForFunction(() => window.__TEST__!.state().egg?.shown === true, undefined, { timeout: 90_000 });
   await page.evaluate(() => window.__TEST__!.setTimeScale(1));

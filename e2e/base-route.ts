@@ -5,13 +5,18 @@ import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type:
 // The way about the base of the open pace for the FM e2e (docs/01-gdd.md 19.2–19.4): a summit, a base portal, the first base.
 // Every point comes from worlds.json and the base state (SP, docs/01-gdd.md 20.11): no x or z literals, so the widths,
 // passes and lengths of «Размах» move the way with them.
-export type Seg = { type: string; z: number; x?: number; kind?: string; requires?: number; passLength?: number; passes?: number[] };
+export type Seg = { type: string; z: number; x?: number; kind?: string; requires?: number; passLength?: number; passes?: number[]; between?: number; track?: number; length?: number; bold?: string };
 export type OpenWorld = { id: string; index: number; segments: Seg[]; bosses: Array<{ zone: [number, number]; requires: number }> };
 export const worlds = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds;
 
 /** The x of the pass of ridge `r` nearest the middle of the slope (worlds.json `passes`). */
 export function passX(r: Seg): number {
   return (r.passes ?? [0]).reduce((a, b) => (Math.abs(b) < Math.abs(a) ? b : a));
+}
+
+/** The middle of a lane of fork `f` off the axis (SP-05: a split fork's lanes either side of its crevasse; before — 16). */
+export function forkLaneX(f: Pick<Seg, 'kind' | 'between' | 'track'>): number {
+  return f.kind === 'split' ? f.between! / 2 + f.track! / 2 : 16;
 }
 
 /** Points from `from` up to `to` through the pass nearest the middle of every ridge between (SP-04: on a section 110–200

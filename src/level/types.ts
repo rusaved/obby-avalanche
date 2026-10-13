@@ -142,8 +142,9 @@ export interface LevelData {
   safeZones: Array<[number, number]>;
   /** Open slope (docs/01-gdd.md 17.4): sections with a step multiplier — every step on [z0, z1) gives × mult. Empty — ×1. */
   sections: Array<{ z0: number; z1: number; mult: number }>;
-  /** Open slope (docs/01-gdd.md 17.7): forks of the slope, [z0, z1] of each cliff down the middle; empty — none. */
-  forks: Array<{ z0: number; z1: number }>;
+  /** Open slope (docs/01-gdd.md 17.7): forks of the slope, [z0, z1] of each cliff down the middle; a split one (SP-05) —
+   * also x0–x1 of its crevasse; empty — none. */
+  forks: Array<{ z0: number; z1: number; x0?: number; x1?: number; track?: number; bold?: 'left' | 'right' }>;
   /** Open slope (docs/01-gdd.md 17.6): zones of giants (worlds.json bosses[]); empty — none. */
   bosses: import('../content/types.ts').WorldBoss[];
   /** Open slope (docs/01-gdd.md 18.3): elements of the sections — chasm, throat, tunnel, hump; absent or empty — none. */

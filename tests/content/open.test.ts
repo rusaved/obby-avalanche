@@ -128,7 +128,13 @@ describe('generator openSlope and its validator (PS-03)', () => {
         const fork = w.segments.find((s) => s.type === 'fork' && num(s, 'section') === i + 1);
         const shaped = (spec.mountains[wi]!.sections[i]!.shape ?? []).length > 0;
         if (wi === 0) expect(!!fork).toBe(i === 1);
-        if (fork && !shaped) {
+        if (fork && !shaped && fork['kind'] === 'split') {
+          // SP-05 (01a 19.3): from 5–8% as before, 150–300 long, the lanes meet before the approach rise.
+          expect(fork.z).toBe(forkRange(zone.zStart, L)[0]);
+          expect(num(fork, 'length')).toBeGreaterThanOrEqual(150);
+          expect(num(fork, 'length')).toBeLessThanOrEqual(300);
+          expect(at(fork.z + num(fork, 'length'))).toBeLessThan(O.approach.start);
+        } else if (fork && !shaped) {
           expect([fork.z, fork.z + num(fork, 'length')]).toEqual(forkRange(zone.zStart, L));
           expect(at(fork.z)).toBeGreaterThanOrEqual(0.05);
           expect(at(fork.z + num(fork, 'length'))).toBeLessThanOrEqual(0.4 + 1e-9);

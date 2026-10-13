@@ -119,8 +119,23 @@ export function validateOpenCount(worlds: WorldsJson, spec: OpenSpecJson): strin
         if (num(s, 'coins') !== want) errors.push(`${at}: gift at z=${s.z} — ${num(s, 'coins')} coins, expected ${want}`);
       }
       const forks = w.segments.filter((s) => s.type === 'fork' && num(s, 'section') === i + 1);
-      if (sec.fork !== forks.length > 0) errors.push(`${at}: section ${i + 1} — fork ${forks.length > 0}, worlds-spec.json has ${sec.fork}`);
+      if (!!sec.fork !== forks.length > 0) errors.push(`${at}: section ${i + 1} — fork ${forks.length > 0}, worlds-spec.json has ${JSON.stringify(sec.fork)}`);
+      const split = typeof sec.fork === 'object' && sec.fork.kind === 'split' && spec.forkSplit ? sec.fork : null;
       for (const f of forks) {
+        if (split) {
+          // SP-05 (docs/01-gdd.md 20.5): a split fork starts in its slot, is length[0]–length[1] long (a tunnel or a hump
+          // takes what it needs), the lanes meet `converge` before the ridge and before the approach rise.
+          const len = num(f, 'length');
+          const lo = zone.zStart + (shaped ? SLOTS.fork[0] : OPEN_SLOPE.fork.start) * sec.length - 1e-6;
+          const hi = zone.zStart + (shaped ? SLOTS.fork[1] : SLOTS.fork[1]) * sec.length + 1e-6;
+          const plain = !(sec.shape ?? []).some((k) => k === 'tunnel' || k === 'hump');
+          const zA = zone.zStart + OPEN_SLOPE.approach.start * sec.length;
+          if (f.z < lo || f.z > hi) errors.push(`${at}: fork of section ${i + 1} — starts at z ${f.z}, outside its slot`);
+          if (len < split.length[0] - 1e-6 || (plain && len > split.length[1] + 1e-6)) errors.push(`${at}: fork of section ${i + 1} — ${len} units long, not ${split.length[0]}–${split.length[1]} (docs/01a-content.md 19.3)`);
+          if (f.z + len > Math.min(zA - 4, zone.zEnd - spec.forkSplit!.converge) + 1e-6) errors.push(`${at}: fork of section ${i + 1} — its lanes meet at z ${f.z + len}, not ${spec.forkSplit!.converge} before the ridge and before the approach rise`);
+          if (num(f, 'between') !== split.between) errors.push(`${at}: fork of section ${i + 1} — crevasse ${num(f, 'between')} wide, worlds-spec.json has ${split.between}`);
+          continue;
+        }
         if (shaped) {
           // With elements the fork stands in its slot 40–75% (docs/01-gdd.md 18.6); a tunnel or a hump makes it longer.
           const lo = zone.zStart + SLOTS.fork[0] * sec.length - 1e-6;
@@ -444,8 +459,12 @@ export function openFairnessReport(worlds: WorldsJson, speedAt: (stat: number) =
       const caves = level.niches.filter((n) => n.kind !== 'ledge' && n.z > Math.max(zBelow, camp) && n.z < (gates[i - 1] as Segment).z);
       for (let z = zLo; z <= zHi; z += 1) {
         const e = level.halfAt(z) - FAIR_EDGE;
-        for (const x of lines === 'lanes' ? [-OPEN_SLOPE.laneX, 0, OPEN_SLOPE.laneX] : [-e, -e / 2, 0, e / 2, e]) {
+        // A split fork (SP-05): its lanes' middles; its crevasse is no place to stand in (its bottom is not a way, 20.5).
+        const split = level.forks.find((f) => f.x1 !== undefined && z >= f.z0 && z <= f.z1);
+        const lane = split ? split.x1! + split.track! / 2 : OPEN_SLOPE.laneX;
+        for (const x of lines === 'lanes' ? [-lane, 0, lane] : [-e, -e / 2, 0, e / 2, e]) {
           if (cliffs.some((c) => x >= c.min[0] && x <= c.max[0] && z >= c.min[2] && z <= c.max[2])) continue;
+          if (split && x > split.x0! && x < split.x1!) continue;
           let best = i === 1 ? Math.max(0, z - camp) : Infinity;
           if (z >= safeLine) best = 0;
           else if (i === gates.length) best = Math.min(best, safeLine - z);
