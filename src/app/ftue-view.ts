@@ -41,6 +41,8 @@ export interface FtueViewDeps {
   field(): { width: number; height: number };
   touch(): boolean;
   shoes(): { shown: boolean; level: number };
+  /** «Pets speed up your steps» is due (app/pets-view.ts petsHint). */
+  petsOffered?: () => boolean;
   /** On the base (docs/01-gdd.md 19.2): the own portal — «To the portal!» after its idle time as on a summit; null — off the base. */
   basePortal?: () => { x: number; z: number } | null;
 }
@@ -147,6 +149,7 @@ export function createFtueView(d: FtueViewDeps): FtueView {
         nearLedge,
         shoesOffered: shoes.shown && shoes.level === 0,
         shoesBought: shoes.level > 0,
+        petsOffered: d.petsOffered?.() ?? false,
         waveWarnId: warn ? waveId : 0,
         waveActive: active,
         goldOnGround: sim.bonus !== null && !sim.bonus.carried,

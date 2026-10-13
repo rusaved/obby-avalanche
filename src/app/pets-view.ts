@@ -22,7 +22,7 @@ import type { CameraRig } from '../render/camera.ts';
 import type { PetsVisual } from '../render/pets.ts';
 import type { WindowFrame } from '../ui/window.ts';
 import type { Rng } from '../core/rng.ts';
-import { addPet, collected, eggPrice, equipBest, equipPet, equipped, equippedIds, petsOnMult, releasePet, rollEgg, unequipPet, type Egg } from '../meta/pets.ts';
+import { addPet, collected, eggPrice, equipBest, equipPet, equipped, equippedIds, hintEgg, petsOnMult, releasePet, rollEgg, unequipPet, type Egg } from '../meta/pets.ts';
 import { petFace, renderPetsPanel, type PetCard } from '../ui/pets-panel.ts';
 import type { ShopCard } from '../ui/shop-panel.ts';
 import { formatMult, formatNumber } from '../ui/format.ts';
@@ -70,6 +70,9 @@ export interface PetsView {
   hatched(pet: string, from: Vector3 | null, gift?: boolean, egg?: Egg, quiet?: boolean): number | null;
   /** Cards of the shop tab «Eggs». */
   shopCards(): ShopCard[];
+  /** «Pets speed up your steps» is due: an egg open on this tier by balance.hints.pets (meta/pets.ts hintEgg); never
+   * with no room in the inventory. */
+  petsHint(): boolean;
   /** «Buy» on an egg card: the egg hatches at once into the «New pet!» window; no room — the «Pets» window. */
   buyFromShop(egg: string): boolean;
   /** The egg button pressed: buys the egg of the stand (or opens the window when there is no room). */
@@ -246,6 +249,14 @@ export function createPetsView(d: PetsViewDeps): PetsView {
       d.persist(true);
       d.windows.refresh();
       return res.index;
+    },
+    petsHint() {
+      const rule = d.balance.hints.pets;
+      if (!rule || full()) return false;
+      const sim = d.getSim();
+      const world = (e: Egg): number => d.eggWorlds?.[e.id] ?? 1;
+      const open = d.eggs.eggs.filter((e) => world(e) <= (d.openWorld?.() ?? 1)).sort((a, b) => world(a) - world(b));
+      return hintEgg(d.save, d.pets, slots, open, (e) => eggPrice(e, sim.tier, d.balance.rebirth), sim.coins, rule) !== null;
     },
     shopCards() {
       const sim = d.getSim();

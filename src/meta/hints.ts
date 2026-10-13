@@ -17,6 +17,7 @@ export type HintId =
   | 'hint.fork'
   | 'hint.treadmill'
   | 'hint.shoes'
+  | 'hint.pets'
   | 'hint.jumpPc'
   | 'hint.jumpTouch'
   | 'hint.portal'
@@ -35,6 +36,8 @@ export interface HintFrame {
   /** The shoes button is on screen, and the player bought a pair. */
   shoesOffered: boolean;
   shoesBought: boolean;
+  /** An open egg is worth its coins now by balance.hints.pets (meta/pets.ts hintEgg, docs/01-gdd.md 20.9). */
+  petsOffered?: boolean;
   /** Id of the avalanche on its warning (0 when none), and whether that wave is still coming (warn or run, not resolved). */
   waveWarnId: number;
   waveActive: boolean;
@@ -78,6 +81,8 @@ interface HintsState {
   forkIdleSec: number;
   lastWaveId: number;
   caughtPending: boolean;
+  /** hint.pets may show: no egg was worth it since it last showed. */
+  petsArmed: boolean;
 }
 
 /** Order = priority: the first rule wins when two want the plaque. */
@@ -127,6 +132,14 @@ const RULES: Rule[] = [
     hide: (f, e, s) => f.shoesBought || e >= s.t.shoesSec,
   },
   {
+    // «Pets speed up your steps» (docs/01-gdd.md 20.9, Q-065): an egg is worth its coins now; gone on buying it. Timed
+    // out, it waits until no egg is worth it and one is again (a purchase, new coins), not up again at once.
+    id: 'hint.pets',
+    max: (t) => t.pets?.max ?? 0,
+    show: (f, s) => !!f.petsOffered && s.petsArmed,
+    hide: (f, e, s) => !f.petsOffered || e >= (s.t.pets?.sec ?? 0),
+  },
+  {
     id: 'hint.jumpPc',
     max: () => 1,
     show: (f) => f.nearLedge && !f.touch,
@@ -164,7 +177,7 @@ export interface Hints {
 
 /** `counts` is the live object from the save: the controller increments it when a hint shows. */
 export function createHints(timing: HintsTiming, counts: Record<string, number>): Hints {
-  const s: HintsState = { t: timing, counts, idleSec: 0, movedSec: 0, stuckSec: 0, portalIdleSec: 0, forkIdleSec: 0, lastWaveId: 0, caughtPending: false };
+  const s: HintsState = { t: timing, counts, idleSec: 0, movedSec: 0, stuckSec: 0, portalIdleSec: 0, forkIdleSec: 0, lastWaveId: 0, caughtPending: false, petsArmed: true };
   let current: Rule | null = null;
   let elapsed = 0;
   const left = (r: Rule): boolean => (counts[r.id] ?? 0) < r.max(timing);
@@ -185,6 +198,7 @@ export function createHints(timing: HintsTiming, counts: Record<string, number>)
       s.stuckSec = f.nearClosedGate && !f.moving && !f.inShelter ? s.stuckSec + dt : 0;
       s.portalIdleSec = f.onSummit && !f.towardsPortal ? s.portalIdleSec + dt : 0;
       s.forkIdleSec = f.atFork && !f.moving && !f.inShelter ? s.forkIdleSec + dt : 0;
+      if (!f.petsOffered) s.petsArmed = true;
       const caughtRule = RULES.find((r) => r.id === 'hint.caught')!;
       if (f.caughtNow && left(caughtRule)) s.caughtPending = true;
 
@@ -205,6 +219,7 @@ export function createHints(timing: HintsTiming, counts: Record<string, number>)
         counts[r.id] = (counts[r.id] ?? 0) + 1;
         if (r.id === 'wave.cave' || r.id === 'hint.gold') s.lastWaveId = f.waveWarnId;
         if (r.id === 'hint.move') s.movedSec = 0;
+        if (r.id === 'hint.pets') s.petsArmed = false;
         break;
       }
       // A wave that came and went without its hint (the hero was already in a cave) is not hinted later.

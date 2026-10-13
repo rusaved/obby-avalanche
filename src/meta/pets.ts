@@ -57,6 +57,26 @@ export function bestIndices(list: readonly string[], pets: PetsJson, slots: numb
     .map((x) => x.i);
 }
 
+/**
+ * The egg of the pets hint (docs/01-gdd.md 20.9, Q-065; balance.json hints.pets): the latest of `open` with `rule.coins` ×
+ * its price in hand whose average pet is more than `rule.better` × the weakest pet on (0 while a slot is free). The
+ * profiles of the model take the same egg (scripts/balance-model.ts). Null — no such egg.
+ */
+export function hintEgg(
+  bag: PetBag,
+  pets: PetsJson,
+  slots: number,
+  open: readonly Egg[],
+  price: (egg: Egg) => number,
+  coins: number,
+  rule: { better: number; coins: number },
+): Egg | null {
+  const on = equippedIds(bag, pets, slots).map((id) => bonusOf(pets, id));
+  const weakest = on.length >= slots ? Math.min(...on) : 0;
+  const mean = (egg: Egg): number => egg.pool.reduce((a, s) => a + bonusOf(pets, s.pet) * s.chance, 0);
+  return [...open].reverse().find((egg) => coins >= rule.coins * price(egg) && mean(egg) > rule.better * weakest) ?? null;
+}
+
 /** Pet multiplier of the pets on: 1 + their bonuses (docs/01-gdd.md 7.2: +35% +20% +10% → ×1.65). */
 export function petsOnMult(bag: PetBag, pets: PetsJson, slots: number): number {
   return 1 + equippedIds(bag, pets, slots).reduce((a, id) => a + bonusOf(pets, id), 0);

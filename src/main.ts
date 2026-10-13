@@ -1631,6 +1631,8 @@ async function boot(): Promise<void> {
     field: () => field,
     touch: () => input.touchActive,
     shoes: () => ({ shown: meta?.shoesShown ?? false, level: meta?.shoeLevel ?? 0 }),
+    // Only with the «Shop» button on screen (its tab «Eggs»): a hint the player can act on (docs/01-gdd.md 20.9).
+    petsOffered: () => (petsView?.petsHint() ?? false) && hudDueNow().has('shop'),
     basePortal: () => (onBase ? (basePortals.find((p) => p.state === 'own') ?? null) : null),
   });
   ftueView.wire(sim);
