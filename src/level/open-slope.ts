@@ -227,6 +227,8 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
     const laneX = fs ? fs.between / 2 + fs.track / 2 : O.laneX;
     let fork = plan ? plan.fork : sec.fork ? forkRange(z0, L) : null;
     if (fork && fs) {
+      // Past a change of width (its floor is one slab across): the crevasse is open from its start.
+      if (taper && fork[0] < taper[1] + 2) fork = [round3(taper[1] + 2), fork[1]];
       const lim = Math.min(zA - 4, z1 - spec.forkSplit!.converge);
       const end = plan && (plan.tunnel || plan.hump) ? Math.max(fork[1], fork[0] + fs.length[0]) : fork[0] + fs.length[1];
       fork = [fork[0], round3(Math.min(end, lim))];

@@ -133,6 +133,7 @@ export function validateOpenCount(worlds: WorldsJson, spec: OpenSpecJson): strin
           if (f.z < lo || f.z > hi) errors.push(`${at}: fork of section ${i + 1} — starts at z ${f.z}, outside its slot`);
           if (len < split.length[0] - 1e-6 || (plain && len > split.length[1] + 1e-6)) errors.push(`${at}: fork of section ${i + 1} — ${len} units long, not ${split.length[0]}–${split.length[1]} (docs/01a-content.md 19.3)`);
           if (f.z + len > Math.min(zA - 4, zone.zEnd - spec.forkSplit!.converge) + 1e-6) errors.push(`${at}: fork of section ${i + 1} — its lanes meet at z ${f.z + len}, not ${spec.forkSplit!.converge} before the ridge and before the approach rise`);
+          if (w.segments.some((t) => t.type === 'taper' && f.z < t.z + num(t, 'length') && f.z + len > t.z)) errors.push(`${at}: fork of section ${i + 1} — its crevasse starts on a change of width (its floor is one slab)`);
           if (num(f, 'between') !== split.between) errors.push(`${at}: fork of section ${i + 1} — crevasse ${num(f, 'between')} wide, worlds-spec.json has ${split.between}`);
           continue;
         }

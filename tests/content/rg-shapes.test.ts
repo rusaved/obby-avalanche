@@ -86,7 +86,9 @@ describe('character of the mountains in the data (RG-01)', () => {
       for (const f of w.segments.filter((s) => s.type === 'fork')) {
         const zone = w.zones[(f['section'] as number) - 1]!;
         // SP-05: a split fork starts where the fork of 16.5 does and runs 150–300 (tests/level/fork.test.ts).
-        if (f['kind'] === 'split') expect(f.z).toBe(forkRange(zone.zStart, zone.zEnd - zone.zStart)[0]);
+        const taper = w.segments.find((t) => t.type === 'taper' && t.z >= zone.zStart && t.z < zone.zEnd);
+        const start = Math.max(forkRange(zone.zStart, zone.zEnd - zone.zStart)[0], taper ? taper.z + (taper['length'] as number) + 2 : -Infinity);
+        if (f['kind'] === 'split') expect(f.z).toBe(start);
         else expect([f.z, f.z + (f['length'] as number)]).toEqual(forkRange(zone.zStart, zone.zEnd - zone.zStart));
       }
     }

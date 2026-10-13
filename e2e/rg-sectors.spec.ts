@@ -35,7 +35,9 @@ for (const index of [8, 9, 10]) {
     const w = worlds[index - 1]!;
     const zone = w.zones.find((z) => z.k === 2)!;
     const fork = w.segments.find((s) => s.type === 'fork' && s.section === 2)!;
-    const calm = (fork.bold === 'left' ? 1 : -1) * forkLaneX(fork);
+    // The calm lane: the middle of its tunnel hall where it has one (SP-05: the rest of that side is its ice), else of the lane.
+    const tunnel = w.segments.find((s) => s.type === 'tunnel' && s.section === 2) as (Seg & { inner?: number; width?: number }) | undefined;
+    const calm = (fork.bold === 'left' ? 1 : -1) * (tunnel ? tunnel.inner! + tunnel.width! / 2 : forkLaneX(fork));
     const ridge = w.segments.filter((s) => s.type === 'gate' && s.kind === 'ridge')[1]!;
     // Draw calls and triangles at the start of the section, in the fork, under the ridge.
     for (const [x, z] of [[0, zone.zStart + 14], [calm, fork.z + fork.length! / 2], [0, ridge.z - 10]] as const) {
@@ -50,10 +52,20 @@ for (const index of [8, 9, 10]) {
     // The pass of ridge 2 on the calm lane's side nearest it (SP-04: the passes go by the width).
     const passes = ((ridge as { passes?: number[] }).passes ?? [0]).filter((x) => Math.sign(x) === Math.sign(calm));
     const passX = passes.reduce((a, b) => (Math.abs(b - calm) < Math.abs(a - calm) ? b : a), passes[0] ?? 0);
-    await page.evaluate(
-      ([fz, cx, fe, px, rz]) => window.__TEST__!.botPath([[0, fz - 6], [cx, fz + 6], [cx, fe], [px, rz - 12], [px, rz + 8]]),
-      [fork.z, calm, fork.z + fork.length!, passX, ridge.z] as const,
-    );
+    // Up the middle through the throat, then onto the calm lane well before the chasm and the crevasse (SP-05: the
+    // trampolines of the chasm stand on the lanes; at 120 units/s a late turn ends on the crevasse bottom), along the lane,
+    // through a pass of the ridge.
+    const throat = w.segments.find((s) => s.type === 'throat' && s.section === 2);
+    const chasm = w.segments.find((s) => s.type === 'chasm' && s.section === 2);
+    const z0 = throat ? throat.z + throat.length! + 6 : zone.zStart + 20;
+    const z1 = chasm ? chasm.z - 12 : fork.z - 6;
+    await page.evaluate((p) => window.__TEST__!.botPath(p), [
+      [0, z0],
+      [calm, z1],
+      [calm, fork.z + fork.length!],
+      [passX, ridge.z - 12],
+      [passX, ridge.z + 8],
+    ] as Array<[number, number]>);
     let prevZ = -Infinity;
     let back = 0;
     for (let k = 0; k < 900; k++) {

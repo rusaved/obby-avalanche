@@ -74,6 +74,8 @@ describe('SP-05: forks on two lanes', () => {
           }
         }
         expect(deepest).toBeCloseTo(cfg.depth, 6);
+        // Open from its start: nothing over its first pit (a change of width's slab, a floor across).
+        expect(level.floorAt(0, z0 + 2), 'open at its start').toBeCloseTo(y - cfg.depth, 6);
         // Gifts on its bottom.
         const bottom = w.segments.filter((s) => s.type === 'gift' && s['bottom'] === true && s.z > z0 && s.z < z1 && Math.abs(s['x'] as number) < N / 2);
         expect(bottom).toHaveLength(cfg.bottomGifts);
