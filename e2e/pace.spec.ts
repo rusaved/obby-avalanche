@@ -5,7 +5,7 @@ import fastWorlds from '../content/avalanche/pace/fast/worlds.json' with { type:
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 
 // PR-01, PS-02: the pace flag (docs/01-gdd.md 16.1, 17.1). Without ?pace — game.json `pace` (open: ridge 50 first on
-// mountain 1, the slope 56 wide), ?pace=fast — 15 gates, ?pace=classic — the M3 game (12 walls); each pace keeps its own
+// mountain 1, the slope as wide as its data), ?pace=fast — 15 gates, ?pace=classic — the M3 game (12 walls); each pace keeps its own
 // progress: classic at the root of the save as before, fast and open in their own slots; F5 brings each to its own flag.
 type Seg = { type: string; z: number; requires?: number };
 const gateSegs = (w: unknown): Seg[] => (w as { worlds: Array<{ segments: Seg[] }> }).worlds[0]!.segments.filter((s) => s.type === 'gate');
@@ -37,12 +37,13 @@ async function passGate(page: Page, gates: number[], wall: number, stat: number)
   await waitTicks(page, 30);
 }
 
-test('without ?pace the pace of game.json (open: ridge 50, 56 wide); ?pace=fast — 15 gates; ?pace=classic — 12 walls; unknown pace — game.json', async ({ page, openGame }) => {
+test('without ?pace the pace of game.json (open: ridge 50, the width of the data); ?pace=fast — 15 gates; ?pace=classic — 12 walls; unknown pace — game.json', async ({ page, openGame }) => {
   await open(page, '');
   let s = await testState(page);
   expect(s.pace).toBe('open');
   expect(s.world).toBe('slope');
-  expect(s.width).toBe(56);
+  // The widest section of mountain 1 (SP-04: the width by section, docs/01a-content.md 19.2).
+  expect(s.width).toBe((openWorlds as { worlds: Array<{ width: number }> }).worlds[0]!.width);
   expect(s.gatesOpen).toHaveLength(4);
   expect((await page.evaluate(() => window.__TEST__!.gateSign(0))).text).toBe('0/50');
 

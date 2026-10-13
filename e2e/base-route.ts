@@ -84,9 +84,11 @@ export async function toFirstBase(page: Page, openGame: (q?: string) => Promise<
   await prep?.();
   await intoSummit(page, worlds[0]!);
   await page.waitForFunction(() => window.__TEST__!.state().window === 'summit', undefined, { timeout: 60_000 });
+  // The bot's point on the summit is left over: off before «Next», or the first ticks on the base walk the hero off the
+  // spawn (verify SP: 2.4 units).
+  await page.evaluate(() => window.__TEST__!.botPath(null));
   await page.locator('[data-hud="win-next"]').click();
   await page.waitForFunction(() => window.__TEST__!.state().onBase, undefined, { timeout: 60_000 });
-  // The bot's point on the summit is left over: the hero stands at the spawn.
   await page.evaluate(() => window.__TEST__!.botPath(null));
 }
 

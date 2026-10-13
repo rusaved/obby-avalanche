@@ -42,7 +42,9 @@ test('the gift of the day: «!», «Claim» once (daily_claim from: base), the c
   expect(s.giftReady).toBe(false);
   const badge = await page.locator('[data-hud="menu-daily"] .hud-menu-badge').textContent();
   expect(s.standLabel).toMatch(/^через \d+:\d\d:\d\d$/);
-  expect(s.standLabel!.slice(0, -2)).toBe(badge!.slice(0, -2));
+  // The same clock: read a moment apart, the two may straddle a second (and with it 20:00:00 → 19:59:59).
+  const secs = (x: string): number => x.match(/(\d+):(\d\d):(\d\d)$/)!.slice(1).reduce((a, d) => a * 60 + Number(d), 0);
+  expect(Math.abs(secs(s.standLabel!) - secs(badge!))).toBeLessThanOrEqual(2);
   // The calendar marks this day.
   await page.locator('[data-hud="menu-daily"]').dispatchEvent('pointerdown');
   await expect(page.locator('[data-role="daily-card"]').nth(0)).toHaveAttribute('data-state', 'past');
