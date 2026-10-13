@@ -52,15 +52,18 @@ function fly(stat: number): { land: number; landX: number; airTaken: number; air
 }
 
 describe('hump (RG-08)', () => {
-  it('mountain 8: up 10 over 40 on the bold lane, the trampoline the width of the lane on the crest', () => {
+  // SP-07 (docs/01a-content.md 19.5): up 20 (was 10).
+  const H = spec.shapes!.hump;
+  it(`mountain 8: up ${H.rise} over ${H.slideLength} on the bold lane, the trampoline the width of the lane on the crest`, () => {
+    expect(H.rise).toBe(20);
     expect(hump.side).toBe(w8.segments.find((s) => s.type === 'fork' && s['section'] === 2)!['bold']);
     const ramp = level.ramps.find((r) => r.z0 === hump.z0 && r.x0 === hump.x0)!;
-    expect(ramp.y1 - ramp.y0).toBe(10);
-    expect(ramp.z1 - ramp.z0).toBe(40);
+    expect(ramp.y1 - ramp.y0).toBe(H.rise);
+    expect(ramp.z1 - ramp.z0).toBe(H.slideLength);
     expect(ramp.material).toBe('ice');
     const pad = level.points.find((p) => p.type === 'jumpPad' && p.z > hump.z0 && p.z < hump.z1)!;
     expect(pad['width']).toBe(hump.x1 - hump.x0);
-    expect(pad.y).toBe(hump.y + 10);
+    expect(pad.y).toBe(hump.y + H.rise);
   });
 
   it('at the minimum speed of the section: into the landing, all 6 gifts of the flight taken, no steps in the air', () => {

@@ -618,6 +618,9 @@ export interface OpenSpecJson {
   /** SP-05 (docs/01-gdd.md 20.5): a split fork — the crevasse between its two lanes this deep, a slope up to both every
    * `rampEvery` units, the lanes meet `converge` units before the ridge, `bottomGifts` on its bottom; absent — no split. */
   forkSplit?: { depth: number; rampEvery: number; converge: number; bottomGifts: number };
+  /** SP-07 (docs/01-gdd.md 20.7): the approach rise and the ridge passages climb at these slopes (rise / length); absent —
+   * the approach 20 long, the passages 8. The trampoline of a bold lane's crevasse from mountain `padFrom` (absent — 1). */
+  relief?: { approachSlope: number; passSlope: number; padFrom?: number };
   /** SP-04 (docs/01-gdd.md 20.4: the first minute of the game on the same seconds): on `mountain`, the first grotto row of
    * `section` (the first avalanche) — rocks by the lanes `gap` off their lines — and from that section the grottos with the
    * belt under the ridges and before the giant — rocks by the run, not at the edges of a wide field; absent — at the edges. */
@@ -672,6 +675,11 @@ export interface OpenSpecMountain {
   id: string;
   look?: string;
   egg: string;
+  /** SP-07 (docs/01a-content.md 19.5): the rise of a terrace (approach and carniz), of the ridge's carniz, of the ice cliff
+   * of the bold lane; absent — 8, 4 and 9 as before. */
+  terraceRise?: number;
+  ridgeRise?: number;
+  cliffHeight?: number;
   intervalSec: number;
   firstIntervalSec?: number;
   warnSec: number;

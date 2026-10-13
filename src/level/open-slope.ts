@@ -123,6 +123,15 @@ export function forkRange(z0: number, L: number): [number, number] {
 function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: number, m: Mountain, tuning: OpenInput['tuning'], carried: number): World {
   const O = OPEN_SLOPE;
   const S = m.sections.length;
+  // SP-07 (docs/01-gdd.md 20.7; docs/01a-content.md 19.5): the rise of a terrace and of its ridge's carniz by mountain; the
+  // approach rise takes the rest of the terrace at the slope `relief.approachSlope`, the passages climb at `passSlope`, the
+  // ice cliff of the bold lane at its old slope; absent — the terraces of 16.5 (4 + 4).
+  const ridgeRise = m.ridgeRise ?? O.ridgeRise;
+  const approachRise = (m.terraceRise ?? O.ridgeRise + O.approachRise) - ridgeRise;
+  const approachLength = spec.relief ? round3(approachRise / spec.relief.approachSlope) : O.approach.length;
+  const passLength = spec.relief ? round3(ridgeRise / spec.relief.passSlope) : O.passLength;
+  const cliffHeight = m.cliffHeight ?? O.cliff.height;
+  const cliffRamp = round3((cliffHeight * O.cliff.ramp) / O.cliff.height);
   if (m.ridges.length !== S) throw new Error(`${m.id}: ${S} sections need ${S} ridges, found ${m.ridges.length}`);
   const camp = spec.campLength;
   // SP-04 (docs/01-gdd.md 20.4): every section its own width, the finish straight the width of the giant's zone; the
@@ -172,14 +181,19 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
     const below = half;
     half = halves[i] ?? half;
     const from = seg.length;
-    const zA = round3(z0 + O.approach.start * L);
-    const zB = round3(zA + O.approach.length);
-    const yTop = y + O.approachRise;
+    // SP-07: the approach rise at its slope ends with room on the top floor for a grotto before the grotto under the ridge
+    // (a short section starts it before 80%).
+    const topRoom = O.bigGrotto.length + O.bigGrotto.exit + G + 2 * O.grottoClear + 4;
+    // Grottos either side of it stay within shelterEvery (a short shelterEvery: a steeper rise).
+    const rampLen = Math.min(approachLength, sec.shelterEvery - G - 2 * O.grottoClear - 2);
+    const zA = round3(Math.min(z0 + O.approach.start * L, z1 - topRoom - rampLen));
+    const zB = round3(zA + rampLen);
+    const yTop = y + approachRise;
     // Floors: the carniz top with the passage ramps (from section 2), the slope, the approach rise, the top before the ridge.
     let zFlat = z0;
     if (j >= 2) {
-      zFlat = z0 + O.passLength;
-      pushPassages(seg, z0, y - O.ridgeRise, y, below, passesOf(spec, below));
+      zFlat = z0 + passLength;
+      pushPassages(seg, z0, y - ridgeRise, y, below, passesOf(spec, below), passLength);
     }
     // The change of width (SP-04): from the top of the passages over widthTaper; no grotto stands on it.
     const taper: [number, number] | null = j >= 2 && T > 0 && below !== half ? [zFlat, round3(zFlat + T)] : null;
@@ -187,7 +201,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       seg.push({ type: 'taper', z: taper[0], length: T, y, from: below, to: half });
       profile.push([taper[0], below], [taper[1], half]);
     } else if (below !== half) profile.push([zFlat, below], [zFlat, half]);
-    seg.push({ type: 'ramp', z: zA, length: round3(zB - zA), y, rise: O.approachRise });
+    seg.push({ type: 'ramp', z: zA, length: round3(zB - zA), y, rise: approachRise, approach: true });
     seg.push({ type: 'floor', z: zB, length: round3(z1 - zB), y: yTop });
 
     if (j >= 2) seg.push({ type: 'checkpoint', z: z0 + O.flag, y, x: 0, zone: j, rarity: zone.rarity, wall: j - 1 });
@@ -406,20 +420,21 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
         const [c0, c1] = crevasse;
         const inner = innerX * sb;
         seg.push({ type: 'gap', z: c0, length: C.width, x0: Math.min(inner, sb * half), x1: Math.max(inner, sb * half), y, depth: C.depth, lane: 'bold' });
-        seg.push({ type: 'jumpPad', z: round3(c0 - C.padBefore), x: xb, y, width: PAD_SIZE, length: PAD_SIZE, stretch: j });
+        // SP-07 (docs/01-gdd.md 20.7): no trampoline before mountain relief.padFrom — the crevasse is a dip to run through.
+        if (index >= (spec.relief?.padFrom ?? 1)) seg.push({ type: 'jumpPad', z: round3(c0 - C.padBefore), x: xb, y, width: PAD_SIZE, length: PAD_SIZE, stretch: j });
         seg.push(gift(c0 + C.bottom / 2, xb, y - C.depth, sec.gift, { detour: true }));
         overHole.push([c0 - C.padBefore - PAD_SIZE / 2 - 1, c1 + 1]);
       }
       const K = O.cliff;
-      const span = K.ramp + K.top;
+      const span = cliffRamp + K.top;
       if (index >= 2) {
         for (let k0 = (crevasse ? crevasse[1] : fork[0] + C.from) + K.gap; k0 + span <= zA - 2; k0 += 1) {
           if (!free(k0, k0 + span)) continue;
           // As far off the middle of its lane as before SP (split, SP-05): beside the run, not on it.
           const kx0 = K.x0 + laneX - O.laneX;
           const kx1 = K.x1 + laneX - O.laneX;
-          seg.push({ type: 'cliff', z: round3(k0), length: K.ramp, top: K.top, height: K.height, x0: Math.min(sb * kx0, sb * kx1), x1: Math.max(sb * kx0, sb * kx1), y, side: bold, zone: j, stretch: j });
-          seg.push(gift(k0 + K.ramp + K.top / 2, (sb * (kx0 + kx1)) / 2, y + K.height, 2 * sec.gift, { detour: true }));
+          seg.push({ type: 'cliff', z: round3(k0), length: cliffRamp, top: K.top, height: cliffHeight, x0: Math.min(sb * kx0, sb * kx1), x1: Math.max(sb * kx0, sb * kx1), y, side: bold, zone: j, stretch: j });
+          seg.push(gift(k0 + cliffRamp + K.top / 2, (sb * (kx0 + kx1)) / 2, y + cliffHeight, 2 * sec.gift, { detour: true }));
           break;
         }
       }
@@ -478,7 +493,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
     const fieldEnd = plan?.throat ? Math.min(plan.chasm?.z0 ?? Infinity, fork?.[0] ?? Infinity, zA) : -Infinity;
     for (let g = 0; g < O.pathGifts; g++) {
       const zg = round3(z0 + L * (O.giftSpan[0] + ((O.giftSpan[1] - O.giftSpan[0]) * g) / (O.pathGifts - 1)));
-      let yg = zg < zA ? y : zg < zB ? round3(y + (O.approachRise * (zg - zA)) / (zB - zA)) : yTop;
+      let yg = zg < zA ? y : zg < zB ? round3(y + (approachRise * (zg - zA)) / (zB - zA)) : yTop;
       if (plan?.chasm && zg >= plan.chasm.z0 && zg <= plan.chasm.z1) yg = round3(chasmFloorY(plan.chasm, zg, y, spec.shapes!));
       const field = plan?.throat && zg > plan.throat.z1 && zg < fieldEnd;
       const pathGift = (x: number, coins: number, extra: Record<string, unknown> = {}, gy = yg): Segment => ({
@@ -517,11 +532,11 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       reward: { coins: balance.coins.gatePass * sec.gift },
       height: O.gateHeight,
       signHeight: O.signHeight,
-      rise: O.ridgeRise,
+      rise: ridgeRise,
       passes: passesOf(spec, half),
       ...(spec.ridgeDigits ? { digits: j === fieldOf(m) ? spec.ridgeDigits.field : spec.ridgeDigits.other } : {}),
       passWidth: O.passWidth,
-      passLength: O.passLength,
+      passLength,
       wall: j,
       zone: j,
       rarity: zone.rarity,
@@ -564,7 +579,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       }
     }
     fit(from);
-    y = yTop + O.ridgeRise;
+    y = yTop + ridgeRise;
   });
 
   // The finish straight (docs/01-gdd.md 17.6): passage ramps up the last ridge, the grotto with the belt before the line,
@@ -573,9 +588,9 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
   const big = O.bigGrotto;
   const zZone = round3(zLast + spec.boss.zoneGap);
   const fromFinish = seg.length;
-  pushPassages(seg, zLast, y - O.ridgeRise, y, half, passesOf(spec, half));
+  pushPassages(seg, zLast, y - ridgeRise, y, half, passesOf(spec, half), passLength);
   // SP-04: the grotto with the belt before the line stands at the last section's width; the giant's zone changes it.
-  seg.push({ type: 'floor', z: zLast + O.passLength, length: round3(zZone - zLast - O.passLength), y });
+  seg.push({ type: 'floor', z: zLast + passLength, length: round3(zZone - zLast - passLength), y });
   fit(fromFinish);
   const lastHalf = half;
   half = finishHalf;
@@ -712,16 +727,16 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
  * The step of a ridge at z0 (docs/01-gdd.md 17.3): the carniz top of the upper terrace (a block from the lower floor up,
  * so nothing passes under it) with three passages where a ramp climbs `ridgeRise` over `passLength`.
  */
-function pushPassages(seg: Segment[], z0: number, yLow: number, yHigh: number, half: number, passes: readonly number[]): void {
+function pushPassages(seg: Segment[], z0: number, yLow: number, yHigh: number, half: number, passes: readonly number[], len: number): void {
   const O = OPEN_SLOPE;
   const w = O.passWidth / 2;
   let x = -half;
   for (const px of passes) {
-    if (px - w > x) seg.push({ type: 'floor', z: z0, length: O.passLength, y: yHigh, x0: round3(x), x1: round3(px - w), thickness: round3(yHigh - yLow + 2) });
-    seg.push({ type: 'ramp', z: z0, length: O.passLength, y: yLow, rise: round3(yHigh - yLow), x0: round3(px - w), x1: round3(px + w) });
+    if (px - w > x) seg.push({ type: 'floor', z: z0, length: len, y: yHigh, x0: round3(x), x1: round3(px - w), thickness: round3(yHigh - yLow + 2) });
+    seg.push({ type: 'ramp', z: z0, length: len, y: yLow, rise: round3(yHigh - yLow), x0: round3(px - w), x1: round3(px + w) });
     x = px + w;
   }
-  if (x < half) seg.push({ type: 'floor', z: z0, length: O.passLength, y: yHigh, x0: round3(x), x1: half, thickness: round3(yHigh - yLow + 2) });
+  if (x < half) seg.push({ type: 'floor', z: z0, length: len, y: yHigh, x0: round3(x), x1: half, thickness: round3(yHigh - yLow + 2) });
 }
 
 /**

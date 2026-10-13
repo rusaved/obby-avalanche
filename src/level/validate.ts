@@ -519,6 +519,7 @@ const openSpecSchema = v.object({
   ridgeDigits: v.optional(v.object({ field: positive, other: positive })),
   island: v.optional(v.object({ size: positive, every: positive, minWidth: positive })),
   forkSplit: v.optional(v.object({ depth: positive, rampEvery: positive, converge: nonNeg, bottomGifts: nonNeg })),
+  relief: v.optional(v.object({ approachSlope: v.pipe(v.number(), v.gtValue(0), v.maxValue(0.5)), passSlope: v.pipe(v.number(), v.gtValue(0), v.maxValue(1)), padFrom: v.optional(positive) })),
   nearRun: v.optional(v.object({ mountain: positive, section: positive, gap: nonNeg })),
   spawnZ: nonNeg,
   threat: v.object({
@@ -555,6 +556,9 @@ const openSpecSchema = v.object({
         id: id,
         look: v.optional(id),
         egg: id,
+        terraceRise: v.optional(positive),
+        ridgeRise: v.optional(positive),
+        cliffHeight: v.optional(positive),
         intervalSec: positive,
         firstIntervalSec: v.optional(positive),
         warnSec: positive,

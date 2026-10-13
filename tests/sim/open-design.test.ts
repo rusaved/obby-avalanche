@@ -33,7 +33,8 @@ describe('sections of the open slope (PS-08)', () => {
       const count = (t: string): number => w.segments.filter((s) => s.type === t && s['shape'] === undefined).length;
       expect(count('slide'), w.id).toBe(forks);
       expect(count('gap'), w.id).toBe(forks);
-      expect(count('jumpPad'), w.id).toBe(forks);
+      // SP-07 (docs/01-gdd.md 20.7): mountain 1 has no trampoline — its crevasse is a dip to run through.
+      expect(count('jumpPad'), w.id).toBe(w.index >= 2 ? forks : 0);
       expect(count('cliff'), w.id).toBe(w.index >= 2 ? forks : 0);
       expect(count('chestGrotto'), w.id).toBe(1);
     }

@@ -115,11 +115,17 @@ describe('generator openSlope and its validator (PS-03)', () => {
         expect(under['kind']).toBe('ridgeGrotto');
         expect(at(under.z)).toBeGreaterThan(0.9);
         expect(num(under, 'treadmill')).toBe(zone.stepMult);
-        // The approach rise inside 75–95%: the ramp across the whole section (SP-04: as wide as the section).
+        // The approach rise inside 75–95%: the ramp across the whole section (SP-04: as wide as the section). SP-07 (01a
+        // 19.5): the rest of the terrace over the carniz, at the slope of relief (≤ 0.3 where shelterEvery is short); a
+        // short section starts it a little before 75%, the top floor keeps room for a grotto.
         const h = (spec.mountains[wi]!.sections[i]!.width ?? spec.width) / 2;
         const across = (s: Segment): boolean => s['x0'] === undefined || (num(s, 'x0') <= -h + 1e-6 && num(s, 'x1') >= h - 1e-6);
-        const rise = w.segments.find((s) => s.type === 'ramp' && across(s) && num(s, 'rise') === O.approachRise && s.z > zone.zStart && s.z < zone.zEnd)!;
-        expect(at(rise.z)).toBeGreaterThanOrEqual(0.75);
+        const m = spec.mountains[wi]!;
+        const rise = w.segments.find((s) => s.type === 'ramp' && across(s) && s['approach'] === true && s.z > zone.zStart && s.z < zone.zEnd)!;
+        expect(num(rise, 'rise')).toBe(m.terraceRise! - m.ridgeRise!);
+        expect(num(rise, 'rise') / num(rise, 'length')).toBeGreaterThanOrEqual(spec.relief!.approachSlope - 1e-9);
+        expect(num(rise, 'rise') / num(rise, 'length')).toBeLessThanOrEqual(0.3);
+        expect(at(rise.z)).toBeGreaterThanOrEqual(0.74);
         expect(at(rise.z + num(rise, 'length'))).toBeLessThanOrEqual(0.95);
         // The flag past the ridge below in the first 5% (from section 2).
         if (i > 0) expect(at(w.segments.find((s) => s.type === 'checkpoint' && num(s, 'wall') === i)!.z)).toBeLessThanOrEqual(0.06);
@@ -134,7 +140,7 @@ describe('generator openSlope and its validator (PS-03)', () => {
           expect(fork.z).toBe(Math.max(forkRange(zone.zStart, L)[0], taper ? taper.z + num(taper, 'length') + 2 : -Infinity));
           expect(num(fork, 'length')).toBeGreaterThanOrEqual(150);
           expect(num(fork, 'length')).toBeLessThanOrEqual(300);
-          expect(at(fork.z + num(fork, 'length'))).toBeLessThan(O.approach.start);
+          expect(fork.z + num(fork, 'length')).toBeLessThan(rise.z);
         } else if (fork && !shaped) {
           expect([fork.z, fork.z + num(fork, 'length')]).toEqual(forkRange(zone.zStart, L));
           expect(at(fork.z)).toBeGreaterThanOrEqual(0.05);

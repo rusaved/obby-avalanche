@@ -38,10 +38,14 @@ async function toMountain(page: Page, i: number, stat = 1e12): Promise<void> {
   }, stat);
 }
 
-/** Side grottos of this mountain with no ridge within 40 units up the slope (the way out runs up and across). */
+/** Side grottos of this mountain with no ridge within 40 units up the slope (the way out runs up and across) and no rock
+ * of the field on that way (SP-07 moved the grottos: one exit ran past a rock, and the view went round it). */
 function grottos(list: Shelter[], w: OpenWorld): Shelter[] {
   const ridges = w.segments.filter((s) => s.type === 'gate' && s.kind === 'ridge').map((s) => s.z);
-  return list.filter((n) => n.kind === 'grotto' && !ridges.some((z) => z > n.z - 4 && z < n.z + 40));
+  const rocks = list.filter((n) => n.kind === 'island');
+  return list.filter(
+    (n) => n.kind === 'grotto' && !ridges.some((z) => z > n.z - 4 && z < n.z + 40) && !rocks.some((r) => Math.sign(r.mouth[0]) === (n.side === 'left' ? -1 : 1) && r.z > n.z - 20 && r.z < n.z + 40),
+  );
 }
 
 /** Into the grotto, (an avalanche frame there,) out of it up and across the slope: the view shotReturnSec later. */

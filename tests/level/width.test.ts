@@ -73,7 +73,9 @@ describe('SP-04: the width of the slope by sections', () => {
       const S = halves.length;
       // The changes the spec asks for: past the passages of a ridge into a section of another width, at the giant's zone.
       const want: Array<{ z: number; from: number; to: number }> = [];
-      for (let j = 1; j < S; j++) if (halves[j] !== halves[j - 1]) want.push({ z: w.zones[j]!.zStart + OPEN_SLOPE.passLength, from: halves[j - 1]!, to: halves[j]! });
+      // SP-07: the passages as long as the carniz of the mountain asks.
+      const passLength = (j: number): number => w.segments.find((s) => s.type === 'gate' && s.z === w.zones[j]!.zStart)!['passLength'] as number;
+      for (let j = 1; j < S; j++) if (halves[j] !== halves[j - 1]) want.push({ z: w.zones[j]!.zStart + passLength(j), from: halves[j - 1]!, to: halves[j]! });
       if (finishHalf !== halves[S - 1]) want.push({ z: w.bosses![0]!.zone[0], from: halves[S - 1]!, to: finishHalf });
       const tapers = w.segments.filter((s) => s.type === 'taper');
       expect(tapers.map((t) => ({ z: t.z, from: t['from'], to: t['to'] }))).toEqual(want);

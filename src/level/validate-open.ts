@@ -129,7 +129,9 @@ export function validateOpenCount(worlds: WorldsJson, spec: OpenSpecJson): strin
           const lo = zone.zStart + (shaped ? SLOTS.fork[0] : OPEN_SLOPE.fork.start) * sec.length - 1e-6;
           const hi = zone.zStart + (shaped ? SLOTS.fork[1] : SLOTS.fork[1]) * sec.length + 1e-6;
           const plain = !(sec.shape ?? []).some((k) => k === 'tunnel' || k === 'hump');
-          const zA = zone.zStart + OPEN_SLOPE.approach.start * sec.length;
+          // The approach rise of the section (SP-07: a short one starts it before 80%).
+          const rise = w.segments.find((x) => x.type === 'ramp' && x['approach'] === true && x.z > zone.zStart && x.z < zone.zEnd);
+          const zA = rise ? rise.z : zone.zStart + OPEN_SLOPE.approach.start * sec.length;
           if (f.z < lo || f.z > hi) errors.push(`${at}: fork of section ${i + 1} — starts at z ${f.z}, outside its slot`);
           if (len < split.length[0] - 1e-6 || (plain && len > split.length[1] + 1e-6)) errors.push(`${at}: fork of section ${i + 1} — ${len} units long, not ${split.length[0]}–${split.length[1]} (docs/01a-content.md 19.3)`);
           if (f.z + len > Math.min(zA - 4, zone.zEnd - spec.forkSplit!.converge) + 1e-6) errors.push(`${at}: fork of section ${i + 1} — its lanes meet at z ${f.z + len}, not ${spec.forkSplit!.converge} before the ridge and before the approach rise`);

@@ -63,7 +63,8 @@ test('penguins of mountain 1 walk within their patch; a bird of mountain 3 turns
   const far = (await testState(page)).decor!.sitters[0]!.yaw;
   expect(Math.abs(Math.atan2(Math.sin(far - Math.PI), Math.cos(far - Math.PI)))).toBeLessThan(0.05);
   // On the slope next to it: a bird on a border sits over the track edge.
-  const sideX = bird.x > 0 ? Math.min(bird.x - 3, 22) : Math.max(bird.x + 3, -22);
+  // SP-04: the edge of a wide section is far off the axis — 3 units in from the bird, whatever the width.
+  const sideX = bird.x - Math.sign(bird.x) * 3;
   await page.evaluate(([z, x]) => window.__TEST__!.teleport(z, x), [bird.z - 3, sideX] as const);
   await waitTicks(page, 30);
   const near = (await testState(page)).decor!.sitters[0]!.yaw;

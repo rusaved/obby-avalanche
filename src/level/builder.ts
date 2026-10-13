@@ -250,7 +250,9 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     const x0 = num(r, 'x0', -half);
     const x1 = num(r, 'x1', half);
     ramps.push({ x0, x1, z0, z1, y0, y1, thickness: FLOOR_THICKNESS, material: str(r, 'material', 'track') });
-    addBorders(z0, z1, y1, x0, x1);
+    // Along the rise in steps of at most FLOOR_THICKNESS (SP-07: a rise of 8–18 left room under one border at its foot).
+    const n = Math.max(1, Math.ceil(Math.abs(y1 - y0) / FLOOR_THICKNESS));
+    for (let k = 0; k < n; k++) addBorders(z0 + ((z1 - z0) * k) / n, z0 + ((z1 - z0) * (k + 1)) / n, y0 + ((y1 - y0) * (k + 1)) / n, x0, x1);
   }
   // Ice cliff on a bold lane (docs/01-gdd.md 17.5, 17.7): a winding way up (a ramp the width of the cliff), the cliff, and
   // on top the ledge — a shelter the front passes under (a niche of kind ledge without walls).
