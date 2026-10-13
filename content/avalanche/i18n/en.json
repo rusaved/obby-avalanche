@@ -315,6 +315,7 @@
   "hud.sectionMult": "×{n} this section",
   "hint.stuckRidge": "Build speed: run or treadmill",
   "hint.fork": "Two ways: pick one",
+  "hint.cover": "Duck behind a rock!",
   "boss.name": "Giant",
   "boss.nameNorth": "Northern Giant",
   "boss.sign": "Giant: Speed ~{n}",

@@ -7,7 +7,7 @@
     "kind": "wave",
     "visual": "avalanche",
     "bonus": { "kind": "goldGift", "fromWave": 2, "mult": 10, "distMin": 20, "distMax": 50 },
-    "boss": { "kind": "giant", "margin": 0.05, "catch": "roll", "reach": 4, "run": 0.5 }
+    "boss": { "kind": "giant", "margin": 0.05, "catch": "roll", "reach": 4, "run": 0.5, "coverBonus": 0.15, "cover": { "hideSec": 1.5, "pad": 4 } }
   },
   "leaderboard": null,
   "shortcut": { "enabled": true, "reward": { "trophies": 5 }, "fromSummit": 2, "place": "base" },

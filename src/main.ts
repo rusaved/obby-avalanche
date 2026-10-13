@@ -428,14 +428,21 @@ async function boot(): Promise<void> {
       const shot = tuning.bossShot;
       if (shot && cameraRig) cameraRig.view = { rise: shot.rise, back: shot.back, side: shot.side, sec: shot.sec, t: 0 };
     });
-    s.events.on('bossPassed', () => {
+    // SP-06 (docs/01-gdd.md 20.13): `cover` — past him behind a rock or straight.
+    s.events.on('bossPassed', ({ cover }) => {
       hud?.toast(t('boss.passed'), 3);
       audio?.play('gate');
-      if (firstGiant()) trackOnce('boss_passed');
+      if (firstGiant()) trackOnce('boss_passed', { cover });
     });
-    s.events.on('bossCaught', () => {
-      hud?.toast(t('boss.caught'));
-      track('boss_caught', { world: s.level.worldIndex });
+    s.events.on('bossCaught', ({ zone, cover }) => {
+      // The first catch in a zone with rocks (docs/01-gdd.md 20.6): «Duck behind a rock!» instead, 3 s, once a player.
+      const flags = (save.flags ??= {});
+      if ((s.level.bosses[zone]?.covers?.length ?? 0) > 0 && !flags['hint.cover']) {
+        flags['hint.cover'] = true;
+        hud?.toast(t('hint.cover'), 3);
+        persist();
+      } else hud?.toast(t('boss.caught'));
+      track('boss_caught', { world: s.level.worldIndex, cover });
     });
     // The giant slapped a bot (docs/01-gdd.md 18.5): nothing on screen but the slap; the funnel counts it (docs/06).
     s.events.on('bossBotCaught', () => track('boss_bot_caught', { world: s.level.worldIndex }));
@@ -1198,7 +1205,7 @@ async function boot(): Promise<void> {
       // FM-03 (docs/01-gdd.md 19.8): running up a giant's zone, the giant ahead stays in the view.
       const zone = sim.boss?.zones.find((z) => renderPos.z >= z.zone[0] && renderPos.z <= z.zone[1]);
       const ahead = zone?.giants.find((x) => x.z > renderPos.z + BOSS_KEEP_AHEAD);
-      cameraRig.keep = ahead && hero.vel.z > 0.5 ? bossKeep.set(0, sim.level.floorAt(0, ahead.z) + (theme.boss?.height ?? 0) / 2, ahead.z) : null;
+      cameraRig.keep = ahead && hero.vel.z > 0.5 ? bossKeep.set(ahead.x, sim.level.floorAt(ahead.x, ahead.z) + (theme.boss?.height ?? 0) / 2, ahead.z) : null;
       cameraRig.update(
         frameDt,
         { pos: renderPos, vel: hero.vel, speed: hero.speed, maxSpeed },

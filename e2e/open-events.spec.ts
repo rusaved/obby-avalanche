@@ -54,7 +54,8 @@ test('the giant’s catch sends boss_caught {world: 1}; back above the record fl
   await page.evaluate(() => window.__TEST__!.botPath(null));
   const names = (): Promise<Array<{ name: string; params: Record<string, unknown> | undefined }>> =>
     page.evaluate(() => window.__TEST__!.analytics().filter((e) => e.name === 'boss_caught' || e.name === 'record_up').map((e) => ({ name: e.name, params: e.params })));
-  expect(await names()).toEqual([{ name: 'boss_caught', params: { world: 1 } }]);
+  // SP-06: `cover` — whether the giant lost him behind a rock.
+  expect(await names()).toEqual([{ name: 'boss_caught', params: { world: 1, cover: false } }]);
   // Back up past the record (the point of the catch) and on past the giant: «New height!», record_up.
   const record = (await testState(page)).record!;
   expect(record.z).toBeGreaterThan(zone[0]);

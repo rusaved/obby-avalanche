@@ -10,7 +10,7 @@
  * `shelterEvery` without one; the grotto under the ridge and the one before the giant's zone carry the belt of their
  * section's multiplier. A fork splits the slope by a cliff into a calm and a bold lane; each lane has its grottos.
  */
-import type { Segment, World, WorldBoss, WorldZone, WorldsSpecJson, OpenSpecJson, OpenSpecMountain, TuningJson } from '../content/types.ts';
+import type { Segment, World, WorldBoss, WorldCover, WorldZone, WorldsSpecJson, OpenSpecJson, OpenSpecMountain, TuningJson } from '../content/types.ts';
 import { PAD_SIZE, SLIDE_LENGTH, SLIDE_WIDTH } from './pad-arc.ts';
 import { blockedFor, chasmFloorY, planSection, pushChasmFloor, pushShapes, type SectionPlan } from './open-shapes.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
@@ -586,27 +586,42 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
   const fromZone = seg.length;
   seg.push({ type: 'floor', z: zZone, length: round3(zSummit - zZone), y });
   seg.push({ type: 'checkpoint', z: zLast + O.flag, y, x: 0, zone: K, rarity: finish.rarity, wall: S });
-  const nearBoss = spec.nearRun && spec.island && spec.nearRun.mountain === index;
+  const nearBoss = spec.nearRun && spec.island && (spec.nearRun.mountain === index || spec.boss.cover);
   const bossSide: 'left' | 'right' = S % 2 === 0 ? 'left' : 'right';
-  seg.push({
-    type: 'niche',
-    z: round3(zZone - big.exit - big.length / 2),
-    y,
-    side: bossSide,
-    // By the run (nearRun): a rock beside the axis, `gap` off it.
-    ...(nearBoss ? { rock: (bossSide === 'left' ? -1 : 1) * (spec.island!.size / 2 + spec.nearRun!.gap), width: spec.island!.size } : {}),
-    kind: 'bossLine',
-    length: big.length,
-    depth: big.depth,
-    treadmill: m.boss.stepMult,
-    zone: K,
-    stretch: K,
-    edge: lastHalf,
-  });
+  // SP-06 (docs/01a-content.md 19.4): by the axis on every mountain, at both edges too from mountain edgeGrottos.
+  const lineSides: Array<'left' | 'right'> = [bossSide];
+  if (spec.boss.edgeGrottos !== undefined && index >= spec.boss.edgeGrottos) lineSides.push('left', 'right');
+  lineSides.forEach((side, k) =>
+    seg.push({
+      type: 'niche',
+      z: round3(zZone - big.exit - big.length / 2),
+      y,
+      side,
+      // By the run (nearRun): a rock beside the axis, `gap` off it.
+      ...(nearBoss && k === 0 ? { rock: (side === 'left' ? -1 : 1) * (spec.island!.size / 2 + spec.nearRun!.gap), width: spec.island!.size } : {}),
+      kind: 'bossLine',
+      length: big.length,
+      depth: big.depth,
+      treadmill: m.boss.stepMult,
+      zone: K,
+      stretch: K,
+      edge: lastHalf,
+    }),
+  );
   for (let g = 0; g < O.bossGifts; g++) {
     const zg = round3(zZone + ((zSummit - zZone) * (g + 0.5)) / O.bossGifts);
     seg.push({ type: 'gift', z: zg, x: 0, y, height: 0, zone: K, rarity: finish.rarity, coins: m.boss.gift, n: g + 1, path: true });
   }
+  // Rocks to hide behind (SP-06, docs/01a-content.md 19.4): by the count of 19.2 at shares `at` of the zone, x = ±width × `x`
+  // by turns (off the portal's axis); a box 2r × 2r × h.
+  const cv = spec.boss.cover;
+  const covers: WorldCover[] = [];
+  if (cv)
+    for (let k = 0; k < Math.min(m.boss.covers ?? 0, cv.at.length); k++) {
+      const c = { x: round3((k % 2 === 0 ? 1 : -1) * cv.x * 2 * finishHalf), z: round3(zZone + cv.at[k]! * (zSummit - zZone)), r: cv.r, h: cv.h };
+      covers.push(c);
+      seg.push({ type: 'cover', z: c.z, x: c.x, y, r: c.r, h: c.h, zone: K });
+    }
   seg.push({
     type: 'gate',
     z: zSummit,
@@ -644,8 +659,12 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
     zone: [zZone, zSummit],
     requires: m.boss.requires,
     returnMult: m.boss.returnMult ?? b.returnMult,
-    giants: [{ speed: m.boss.speed, patrol: 'alongZ', seeDist: m.boss.seeDist ?? b.seeDist, turnSec: m.boss.turnSec ?? b.turnSec }],
+    giants: [{ speed: m.boss.speed, patrol: b.patrol ?? 'alongZ', seeDist: m.boss.seeDist ?? b.seeDist, turnSec: m.boss.turnSec ?? b.turnSec }],
   };
+  if (cv) {
+    boss.width = round3(2 * finishHalf);
+    boss.covers = covers;
+  }
   // Two giants (docs/01-gdd.md 18.5): the same giant at each phase of its patrol.
   if (m.boss.giants) boss.giants = m.boss.giants.map((g) => ({ ...boss.giants[0]!, phase: g.phase }));
   // Helpers with snowballs on the borders of the zone (docs/01-gdd.md 18.5; docs/01a-content.md 17.4).

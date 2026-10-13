@@ -328,6 +328,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         const moving = Math.hypot(hero.vel.x, hero.vel.z);
         const run = opts.boss?.run;
         bossHero.speed = run !== undefined && moving >= sim.params.speed * run ? Math.max(moving, sim.params.speed) : moving;
+        bossHero.top = sim.params.speed;
         boss.step(dt, bossHero, !sim.caught && sim.respawnTicksLeft < 0, sim.tick, bots ? bots.runners() : undefined);
       }
       if (bots) {
@@ -667,7 +668,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   // Giants (docs/01-gdd.md 17.6): speeds of the tier — the run speed of the scaled advice over the one of tier 0; the
   // zone passed opens the giant's check at its end (the summit line), the slap rolls the hero back to the zone's start.
   const bossGate = level.gates.findIndex((g) => g.kind === 'boss');
-  const bossHero = { x: 0, y: 0, z: 0, speed: 0, vx: 0, vz: 0 };
+  const bossHero = { x: 0, y: 0, z: 0, speed: 0, top: 0, vx: 0, vz: 0 };
   const boss =
     opts.boss && level.bosses.length > 0 && opts.balance.caught
       ? createBoss(

@@ -23,6 +23,9 @@ test('mountain 1: the giant chases and slaps a bot within 90 s; then the hero wi
   mkdirSync(EVIDENCE, { recursive: true });
   await openGame('pace=open&seed=4&quality=high');
   await page.evaluate(() => window.__TEST__!.setPlaySec(400));
+  // Every run of the zone by a slow bot (passShare 0.8 is a draw: SP-06 changed the draws, and with seed 4 six fast runs
+  // in a row came within the 90 s).
+  await page.evaluate(() => window.__TEST__!.botsPassShare(0));
   await pastScriptedWave(page);
   // The Speed of the advice opens every ridge for the bots; the hero stands below the zone line.
   await page.evaluate(([st, z]) => {

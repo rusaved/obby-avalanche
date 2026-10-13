@@ -17,7 +17,9 @@ export interface GameJson {
     /** The giant of the open slope (docs/01-gdd.md 17.6; docs/01a-content.md 16.4): the hero slips past when he runs
      * faster than the giant × (1 + margin); `reach` — how close the giant's slap gets him; `catch: roll` — back to the line. */
     /** `run`: a hero moving at least this share of his run speed meets the giant at his run speed (absent — as he moves). */
-    boss?: { kind: 'giant'; margin: number; catch: 'roll'; reach: number; run?: number };
+    /** SP-06 (docs/01-gdd.md 20.6): `coverBonus` — a hero faster than the slip speed × (1 − coverBonus) loses a chasing giant
+     * behind a rock for `cover.hideSec`; `cover.pad` — how far off a rock's face the giant goes round it. */
+    boss?: { kind: 'giant'; margin: number; catch: 'roll'; reach: number; run?: number; coverBonus?: number; cover?: { hideSec: number; pad: number } };
   };
   leaderboard: { name: string; score: string } | null;
   /** The desktop shortcut for a reward (docs/01-gdd.md 19.10; docs/01a-content.md 18.7): spendable trophies once, the
@@ -437,6 +439,8 @@ export type SegmentType =
   // SP-04 (docs/01-gdd.md 20.4): the change of width past a ridge; a grotto in a rock in the middle of a wide section.
   | 'taper'
   | 'island'
+  // SP-06 (docs/01-gdd.md 20.6): a rock of the giant's zone to hide behind.
+  | 'cover'
   // The base between the mountains (docs/01-gdd.md 19; src/level/base-layout.ts): a box, a portal of a mountain, a stand.
   | 'block'
   | 'basePortal'
@@ -479,7 +483,8 @@ export interface WorldZone {
  */
 export interface WorldGiant {
   speed: number;
-  patrol: 'alongZ';
+  /** `alongZ` — walks at the hero along the slope (PS); `chase` — runs at him in the plane of the slope, round the rocks (SP-06). */
+  patrol: 'alongZ' | 'chase';
   seeDist: number;
   turnSec: number;
   /** Where on its patrol (up the zone and back) it starts, a share of the round (docs/01a-content.md 17.4: 0 — at the
@@ -510,6 +515,16 @@ export interface WorldBoss {
   giants: WorldGiant[];
   /** From mountain 4 (docs/01-gdd.md 18.5): helpers with snowballs on the borders; absent — none. */
   helpers?: WorldHelper[];
+  /** SP-06 (docs/01a-content.md 19.4): the zone's width and its rocks to hide behind (a box 2r × 2r × h); absent — none. */
+  width?: number;
+  covers?: WorldCover[];
+}
+
+export interface WorldCover {
+  x: number;
+  z: number;
+  r: number;
+  h: number;
 }
 
 export interface World {
@@ -612,7 +627,18 @@ export interface OpenSpecJson {
   rarities: string[];
   /** Defaults of every giant zone (docs/01a-content.md 16.4); a mountain's `boss` may override them. `helper` — the
    * numbers of every helper (docs/01a-content.md 17.4). */
-  boss: { turnSec: number; returnMult: number; seeDist: number; zoneGap: number; helper?: Omit<WorldHelper, 'side'> };
+  /** SP-06: `patrol` of the giants; `cover` — rocks at shares `at` of the zone, x = ±width × `x` by turns; edge grottos
+   * before the zone from mountain `edgeGrottos`. */
+  boss: {
+    turnSec: number;
+    returnMult: number;
+    seeDist: number;
+    zoneGap: number;
+    helper?: Omit<WorldHelper, 'side'>;
+    patrol?: 'alongZ' | 'chase';
+    cover?: { at: number[]; x: number; r: number; h: number };
+    edgeGrottos?: number;
+  };
   /** Elements of the slope (docs/01-gdd.md 18.3; docs/01a-content.md 17.1): from which mountain each is allowed. */
   shapeFrom?: Record<ShapeKind, number>;
   /** Sizes of the elements (docs/01a-content.md 17.2), read by the generator. */
@@ -656,7 +682,7 @@ export interface OpenSpecMountain {
   ridges: Array<{ requires: number }>;
   /** The finish straight: its length, the advice number, the giant's speed V_b, step multiplier and gift there; `width` —
    * of the giant's zone (SP-06), absent — of the last section. */
-  boss: { stretch: number; width?: number; requires: number; margin: number; stepMult: number; gift: number; speed: number; turnSec?: number; returnMult?: number; seeDist?: number; helpers?: Array<{ side: 'left' | 'right' }>; giants?: Array<{ phase: number }> };
+  boss: { stretch: number; width?: number; covers?: number; requires: number; margin: number; stepMult: number; gift: number; speed: number; turnSec?: number; returnMult?: number; seeDist?: number; helpers?: Array<{ side: 'left' | 'right' }>; giants?: Array<{ phase: number }> };
 }
 
 export type I18nJson = Record<string, string>;

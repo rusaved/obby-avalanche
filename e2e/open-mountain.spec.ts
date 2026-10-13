@@ -6,7 +6,7 @@ import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type:
 // by teleport without console errors — the camp, the ridges, the grotto before the giant's zone, the summit; evidence
 // screenshots of mountain 1 at 1920×1080: the camp, ridge 2 seen from section 2, the line of the giant's zone.
 type Seg = { type: string; z: number; x?: number; side?: string; kind?: string; length?: number; wall?: number };
-type OpenWorld = { id: string; length: number; wallCount: number; segments: Seg[]; bosses: Array<{ zone: [number, number] }> };
+type OpenWorld = { id: string; length: number; width: number; wallCount: number; segments: Seg[]; bosses: Array<{ zone: [number, number] }> };
 const worlds = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds;
 const EVIDENCE = 'docs/evidence/open';
 
@@ -18,7 +18,8 @@ test('open slope: every one of the 10 mountains loads by teleport (camp, ridges,
   await waitTicks(page, 20);
   let s = await testState(page);
   expect(s.pace).toBe('open');
-  expect(s.width).toBe(56);
+  // SP-04: the widest section of the mountain.
+  expect(s.width).toBe(worlds[0]!.width);
   await page.screenshot({ path: `${EVIDENCE}/mountain1_camp_1920x1080_ru.png` });
   // Ridge 2 from the middle of section 2: the low carniz with its number, the next terrace over it.
   const m1 = worlds[0]!;
@@ -39,7 +40,7 @@ test('open slope: every one of the 10 mountains loads by teleport (camp, ridges,
     await waitTicks(page, 30);
     s = await testState(page);
     expect(s.world).toBe(w.id);
-    expect(s.width).toBe(56);
+    expect(s.width).toBe(w.width);
     expect(s.gatesOpen).toHaveLength(w.wallCount);
     expect(s.hero!.z).toBeLessThan(40);
     expect(s.hero!.onGround).toBe(true);

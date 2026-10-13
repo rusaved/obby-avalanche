@@ -107,7 +107,7 @@ export interface BotCrowd {
   readonly stats: { hid: number; dawdled: number; caught: number };
   step(dt: number, ctx: BotContext): void;
   /** Bots running a giant's zone now (docs/01-gdd.md 18.5), for the giants to go at. */
-  runners(): Array<{ bot: number; z: number; speed: number }>;
+  runners(): Array<{ bot: number; x: number; z: number; speed: number }>;
   /** The giant slapped bot `index`: it rolls back as a snowball to `toZ` (below the start of the zone) and tries again. */
   giantSlap(index: number, toZ: number): void;
   /** A rolling snowball hit bot `index` (docs/01-gdd.md 18.4): it stands for `sec`, then runs × slow for slowSec. */
@@ -584,8 +584,8 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
     limit: opts.count,
     stats,
     runners() {
-      const out: Array<{ bot: number; z: number; speed: number }> = [];
-      for (const b of list) if (b.mode === 'zone' && b.zoneSpeed > 0 && b.index < crowd.limit) out.push({ bot: b.index, z: b.z, speed: b.zoneSpeed });
+      const out: Array<{ bot: number; x: number; z: number; speed: number }> = [];
+      for (const b of list) if (b.mode === 'zone' && b.zoneSpeed > 0 && b.index < crowd.limit) out.push({ bot: b.index, x: b.x, z: b.z, speed: b.zoneSpeed });
       return out;
     },
     tumble(index, sec, slow, slowSec) {

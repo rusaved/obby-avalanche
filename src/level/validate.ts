@@ -66,7 +66,7 @@ const curve = v.object({ base: positive, k: nonNeg, max: positive });
 export const STAT_EFFECTS = ['moveSpeed', 'jumpPower', 'gateOnly'] as const;
 export const SEGMENT_TYPES = [
   'floor', 'wall', 'gate', 'niche', 'gap', 'ramp', 'steps', 'treadmill', 'checkpoint', 'coins', 'chest',
-  'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit', 'jumpPad', 'slide', 'fork', 'cliff', 'chestGrotto', 'chasm', 'throat', 'tunnel', 'hump', 'funnel', 'taper', 'island',
+  'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit', 'jumpPad', 'slide', 'fork', 'cliff', 'chestGrotto', 'chasm', 'throat', 'tunnel', 'hump', 'funnel', 'taper', 'island', 'cover',
 ] as const;
 /** Mountain layouts of the generator (docs/01-gdd.md 5.2, 16.3). */
 export const WORLD_LAYOUTS = ['classic', 'gateSide', 'openSlope'] as const;
@@ -91,7 +91,17 @@ const gameSchema = v.object({
     bonus: v.optional(
       v.object({ kind: v.literal('goldGift'), fromWave: v.pipe(v.number(), v.integer(), v.minValue(1)), mult: positive, distMin: nonNeg, distMax: positive }),
     ),
-    boss: v.optional(v.object({ kind: v.literal('giant'), margin: nonNeg, catch: v.literal('roll'), reach: positive, run: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))) })),
+    boss: v.optional(
+      v.object({
+        kind: v.literal('giant'),
+        margin: nonNeg,
+        catch: v.literal('roll'),
+        reach: positive,
+        run: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
+        coverBonus: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
+        cover: v.optional(v.object({ hideSec: nonNeg, pad: nonNeg })),
+      }),
+    ),
   }),
   // The leaderboard scores by a whole counter of the save (trophies over all time), never by the stat (docs/01-gdd.md 7.9, 8.4).
   leaderboard: v.nullable(v.object({ name: v.string(), score: v.picklist(LEADERBOARD_SCORES) })),
@@ -449,7 +459,9 @@ const worldSchema = v.object({
         zone: v.tuple([nonNeg, nonNeg]),
         requires: positive,
         returnMult: positive,
-        giants: v.pipe(v.array(v.object({ speed: positive, patrol: v.literal('alongZ'), seeDist: nonNeg, turnSec: nonNeg, phase: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))) })), v.minLength(1)),
+        giants: v.pipe(v.array(v.object({ speed: positive, patrol: v.picklist(['alongZ', 'chase']), seeDist: nonNeg, turnSec: nonNeg, phase: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))) })), v.minLength(1)),
+        width: v.optional(positive),
+        covers: v.optional(v.array(v.object({ x: v.number(), z: nonNeg, r: positive, h: positive }))),
       }),
     ),
   ),
@@ -523,6 +535,9 @@ const openSpecSchema = v.object({
     seeDist: nonNeg,
     zoneGap: positive,
     helper: v.optional(v.object({ throwEverySec: positive, flightSec: positive, slow: v.pipe(v.number(), v.gtValue(0), v.maxValue(1)), slowSec: positive, hitRadius: positive, x: positive })),
+    patrol: v.optional(v.picklist(['alongZ', 'chase'])),
+    cover: v.optional(v.object({ at: v.array(v.pipe(v.number(), v.gtValue(0), v.ltValue(1))), x: v.pipe(v.number(), v.gtValue(0), v.ltValue(0.5)), r: positive, h: positive })),
+    edgeGrottos: v.optional(positive),
   }),
   shapeFrom: v.optional(v.object({ chasm: positive, throat: positive, tunnel: positive, hump: positive })),
   shapes: v.optional(
@@ -562,6 +577,7 @@ const openSpecSchema = v.object({
         boss: v.object({
           stretch: positive,
           width: v.optional(positive),
+          covers: v.optional(nonNeg),
           requires: positive,
           margin: nonNeg,
           stepMult: positive,

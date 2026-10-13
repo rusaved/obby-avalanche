@@ -481,6 +481,13 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     if (lane === 'calm' || lane === 'bold') niches[niches.length - 1]!.lane = lane;
   }
 
+  // Rocks of the giant's zone (SP-06, docs/01a-content.md 19.4): a box 2r × 2r × h to hide behind.
+  for (const c of world.segments.filter((s) => s.type === 'cover')) {
+    const r = num(c, 'r');
+    const x = num(c, 'x');
+    boxes.push(box([x - r, num(c, 'y'), c.z - r], [x + r, num(c, 'y') + num(c, 'h'), c.z + r], 'rock', 'cover'));
+  }
+
   /** Boxes only the hero meets (invisible blocks of the base), kept with the invisible wall. */
   const heroOnly: Aabb[] = [];
   for (const s of world.segments) {

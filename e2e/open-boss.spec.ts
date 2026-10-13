@@ -58,7 +58,8 @@ test('at half the advice the giant catches the bot: back at the start of the zon
   await page.evaluate((z) => window.__TEST__!.botPath([[0, z]]), zone[1] + 20);
   await page.waitForFunction(() => window.__TEST__!.simEvents.some((e) => e.name === 'bossCaught'), undefined, { timeout: 60_000 });
   await page.evaluate(() => window.__TEST__!.botPath(null));
-  await expect.poll(async () => (await testState(page)).waveHud.toast).toContain('Великан поймал');
+  // The first catch in a zone with rocks (SP-06): «Duck behind a rock!» instead of «The giant caught you!».
+  await expect.poll(async () => (await testState(page)).waveHud.toast).toContain('Спрячься за камень');
   await page.waitForFunction(() => window.__TEST__!.state().caught === null, undefined, { timeout: 30_000 });
   const s = await testState(page);
   expect(s.hero!.z).toBeLessThan(zone[0]);

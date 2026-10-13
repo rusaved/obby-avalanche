@@ -178,13 +178,13 @@ export function createBossView(d: BossViewDeps): BossView {
         const g = all[i];
         ch.visible = !!g;
         if (!g) return;
-        ch.position.set(0, sim.level.floorAt(0, g.z), g.z);
+        ch.position.set(g.x, sim.level.floorAt(g.x, g.z), g.z);
         // Between the camera and the hero (his chest or head) — see-through until it no longer is (docs/01-gdd.md 19.8).
         const box = giantBox(ch);
         const hero = sim.hero.pos;
         ch.fade =
           camNow && SIGHT.some((h) => segmentMeetsBox(camNow.position, _eye.set(hero.x, hero.y + h, hero.z), box.center, box.size, SIGHT_PAD)) ? d.fadeAlpha() : 1;
-        ch.yaw = g.dir > 0 ? 0 : Math.PI;
+        ch.yaw = g.face;
         ch.pose = g.mode === 'sit' ? 'win' : g.mode === 'turn' ? 'idle' : 'run';
         ch.speedFactor = g.mode === 'chase' ? 1 : 0.6;
       });
@@ -224,7 +224,7 @@ export function createBossView(d: BossViewDeps): BossView {
         const g = all[i];
         let on = false;
         if (cam && g && look) {
-          _to.set(0, sim.level.floorAt(0, g.z), g.z);
+          _to.set(g.x, sim.level.floorAt(g.x, g.z), g.z);
           const dist = _to.distanceTo(cam.position);
           on = dist > cam.far * SILHOUETTE_FROM;
           if (on) {

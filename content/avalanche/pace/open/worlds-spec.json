@@ -62,8 +62,21 @@
    "slow": 0.85,
    "slowSec": 1,
    "hitRadius": 1.5,
-   "x": 26
-  }
+   "x": 24
+  },
+  "patrol": "chase",
+  "cover": {
+   "at": [
+    0.3,
+    0.55,
+    0.75,
+    0.9
+   ],
+   "x": 0.25,
+   "r": 4,
+   "h": 6
+  },
+  "edgeGrottos": 4
  },
  "shapeFrom": {
   "chasm": 2,
@@ -193,7 +206,8 @@
     "stepMult": 2,
     "gift": 20,
     "speed": 43.4,
-    "width": 160
+    "width": 160,
+    "covers": 2
    }
   },
   {
@@ -281,7 +295,8 @@
     "stepMult": 6,
     "gift": 80,
     "speed": 54.9,
-    "width": 170
+    "width": 170,
+    "covers": 2
    }
   },
   {
@@ -365,7 +380,8 @@
     "stepMult": 20,
     "gift": 250,
     "speed": 62.3,
-    "width": 170
+    "width": 170,
+    "covers": 2
    }
   },
   {
@@ -466,7 +482,8 @@
       "side": "left"
      }
     ],
-    "width": 180
+    "width": 180,
+    "covers": 3
    }
   },
   {
@@ -555,7 +572,8 @@
       "side": "left"
      }
     ],
-    "width": 180
+    "width": 180,
+    "covers": 3
    }
   },
   {
@@ -661,7 +679,8 @@
       "side": "left"
      }
     ],
-    "width": 180
+    "width": 180,
+    "covers": 3
    }
   },
   {
@@ -769,7 +788,8 @@
       "side": "right"
      }
     ],
-    "width": 190
+    "width": 190,
+    "covers": 4
    }
   },
   {
@@ -878,7 +898,8 @@
       "side": "right"
      }
     ],
-    "width": 190
+    "width": 190,
+    "covers": 4
    }
   },
   {
@@ -998,7 +1019,8 @@
       "phase": 0.5
      }
     ],
-    "width": 200
+    "width": 200,
+    "covers": 4
    }
   },
   {
@@ -1120,7 +1142,8 @@
       "phase": 0.5
      }
     ],
-    "width": 200
+    "width": 200,
+    "covers": 4
    }
   }
  ]

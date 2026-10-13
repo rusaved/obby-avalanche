@@ -32,7 +32,8 @@ const TRIALS = 2000;
 function walls(level: LevelData, carnizToo: boolean): (x: number, y: number, z: number) => string | null {
   // SP-04: the edge where the slope is at z.
   const half = (z: number): number => level.halfAt(z);
-  const side = level.niches.filter((n) => n.kind !== 'tunnel' && n.kind !== 'ledge');
+  // Grottos at the edges (a rock by the axis is on the slope, SP-06: one stands level with the edge grottos).
+  const side = level.niches.filter((n) => n.kind !== 'tunnel' && n.kind !== 'ledge' && n.kind !== 'island');
   const carniz = carnizToo ? level.boxes.filter((b) => b.kind === 'floor' && b.max[1] - b.min[1] > FLOOR_THICKNESS + 0.5 && b.max[0] - b.min[0] < level.width - 1) : [];
   const f = level.funnel;
   return (x, y, z) => {

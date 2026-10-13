@@ -178,7 +178,12 @@ export interface TestState {
   /** Record flag of the open slope (docs/01-gdd.md 17.7): the highest point of this life on the mountain, null — none. */
   record: { x: number; y: number; z: number } | null;
   /** Giants of the mountain (docs/01-gdd.md 17.6): the hero's state per zone, every giant's z and mode; the silhouette. */
-  boss: { zones: Array<{ zone: [number, number]; hero: string; giants: Array<{ z: number; mode: string }> }>; silhouette: boolean; silhouettes: number; silhouetteChest: [number, number, number] | null } | null;
+  boss: {
+    zones: Array<{ zone: [number, number]; hero: string; giants: Array<{ x: number; z: number; mode: string; sight: string; search: number }> }>;
+    silhouette: boolean;
+    silhouettes: number;
+    silhouetteChest: [number, number, number] | null;
+  } | null;
   /** How far each gate has melted on screen (0 — whole, 1 — gone; a ridge melts all its passages at once). */
   gateMelt: number[];
   adBusy: string | null;
@@ -270,6 +275,8 @@ export interface TestApi {
   triggerWave(): void;
   /** The next wave no sooner than `sec` from now when the avalanche is idle (tests that need no wave meanwhile). */
   holdWave(sec: number): void;
+  /** The giants' zones as before the hero came (SP-06: runs of one zone in a row): out, patrol, on the axis. */
+  resetGiants(): void;
   /** To the camp of mountain `index` (1…5) as through a portal (M3-05: every mountain loads without errors). */
   gotoWorld(index: number): void;
   /** Summits done on this tier, as after walking the portals of mountains 1…n (M3-06: the rebirth opens at the last). */
@@ -317,6 +324,8 @@ export interface TestApi {
   setHudMode(mode: 'normal' | 'shots' | 'promo'): void;
   /** Flips bots.json showNames live (the e2e check of `showNames: false`). */
   botsShowNames(on: boolean): void;
+  /** Sets bots.json boss.passShare live (SP-06: a run of the giant's zone by a slow bot, not a draw of luck). */
+  botsPassShare(share: number): void;
 }
 
 declare global {
@@ -539,8 +548,8 @@ export function installTestApi(g: GameHandles): TestApi {
     if (giant && sim.hero.vel.z > 1) {
       cam.bossFrames++;
       const top = content.theme.boss?.height ?? 20;
-      ndc.set(0, sim.level.floorAt(0, giant.z) + top * 0.5, giant.z).project(rig.camera);
-      const ahead = new Vector3(0, 0, giant.z).sub(p).dot(rig.camera.getWorldDirection(new Vector3())) > 0;
+      ndc.set(giant.x, sim.level.floorAt(giant.x, giant.z) + top * 0.5, giant.z).project(rig.camera);
+      const ahead = new Vector3(giant.x, 0, giant.z).sub(p).dot(rig.camera.getWorldDirection(new Vector3())) > 0;
       if (ahead && Math.abs(ndc.x) <= 1 && Math.abs(ndc.y) <= 1) cam.bossSeen++;
       else note('giant out of frame');
     }
@@ -688,7 +697,7 @@ export function installTestApi(g: GameHandles): TestApi {
         record: g.sim?.record ? { ...g.sim.record } : null,
         boss: g.sim?.boss
           ? {
-              zones: g.sim.boss.zones.map((z) => ({ zone: [z.zone[0], z.zone[1]] as [number, number], hero: z.hero, giants: z.giants.map((x) => ({ z: x.z, mode: x.mode })) })),
+              zones: g.sim.boss.zones.map((z) => ({ zone: [z.zone[0], z.zone[1]] as [number, number], hero: z.hero, giants: z.giants.map((x) => ({ x: x.x, z: x.z, mode: x.mode, sight: x.sight, search: x.search })) })),
               silhouette: g.bossView?.silhouetteShown ?? false,
               silhouettes: g.bossView?.silhouettesShown ?? 0,
               silhouetteChest: g.bossView?.silhouetteChest() ?? null,
@@ -904,6 +913,14 @@ export function installTestApi(g: GameHandles): TestApi {
       const t = g.sim?.threat?.state;
       if (t && t.phase === 'idle') t.timer = Math.max(t.timer, sec);
     },
+    resetGiants() {
+      for (const z of g.sim?.boss?.zones ?? []) {
+        z.hero = 'out';
+        z.cover = false;
+        for (const x of z.giants) Object.assign(x, { mode: 'patrol', x: 0, sight: 'sees', search: -1 });
+        for (const h of z.helpers) h.wave = false;
+      }
+    },
     gotoWorld: (index) => g.gotoWorld(index),
     fmt: (n) => formatNumber(n, (k) => t(`num.${k}`)),
     setSummits(n) {
@@ -982,6 +999,9 @@ export function installTestApi(g: GameHandles): TestApi {
     setHudMode: (mode) => g.setHudMode(mode),
     botsShowNames(on) {
       content.bots.showNames = on;
+    },
+    botsPassShare(share) {
+      if (content.bots.boss) content.bots.boss.passShare = share;
     },
     cameraInsideAvalanche() {
       const cam = g.camera?.camera.position;

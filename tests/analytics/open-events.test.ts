@@ -11,7 +11,8 @@ const main = readFileSync(resolve(root, 'src/main.ts'), 'utf8');
 const EVENTS: Array<{ names: string[]; times: 'player' | 'always'; code: RegExp }> = [
   { names: ['ridge_1', 'ridge_2', 'ridge_3'], times: 'player', code: /trackOnce\(`ridge_\$\{wall\}`\)/ },
   { names: ['boss_enter'], times: 'player', code: /trackOnce\('boss_enter'\)/ },
-  { names: ['boss_passed'], times: 'player', code: /trackOnce\('boss_passed'\)/ },
+  // SP-06: with `cover`.
+  { names: ['boss_passed'], times: 'player', code: /trackOnce\('boss_passed', \{ cover \}\)/ },
   { names: ['boss_caught'], times: 'always', code: /[^e]track\('boss_caught'/ },
   { names: ['record_up'], times: 'always', code: /[^e]track\('record_up'\)/ },
   // RG-10: the giant slapped a bot.

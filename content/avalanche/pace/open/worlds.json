@@ -1765,6 +1765,24 @@
           "path": true
         },
         {
+          "type": "cover",
+          "z": 1159,
+          "x": 40,
+          "y": 24,
+          "r": 4,
+          "h": 6,
+          "zone": 4
+        },
+        {
+          "type": "cover",
+          "z": 1241.5,
+          "x": -40,
+          "y": 24,
+          "r": 4,
+          "h": 6,
+          "zone": 4
+        },
+        {
           "type": "gate",
           "z": 1390,
           "y": 24,
@@ -1852,9 +1870,24 @@
           "giants": [
             {
               "speed": 43.4,
-              "patrol": "alongZ",
+              "patrol": "chase",
               "seeDist": 0,
               "turnSec": 0.5
+            }
+          ],
+          "width": 160,
+          "covers": [
+            {
+              "x": 40,
+              "z": 1159,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": -40,
+              "z": 1241.5,
+              "r": 4,
+              "h": 6
             }
           ]
         }
@@ -4739,6 +4772,8 @@
           "z": 1660,
           "y": 32,
           "side": "left",
+          "rock": -10,
+          "width": 12,
           "kind": "bossLine",
           "length": 16,
           "depth": 6,
@@ -4794,6 +4829,24 @@
           "coins": 80,
           "n": 4,
           "path": true
+        },
+        {
+          "type": "cover",
+          "z": 1781,
+          "x": 42.5,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 1873.5,
+          "x": -42.5,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
         },
         {
           "type": "gate",
@@ -4883,9 +4936,24 @@
           "giants": [
             {
               "speed": 54.9,
-              "patrol": "alongZ",
+              "patrol": "chase",
               "seeDist": 0,
               "turnSec": 0.5
+            }
+          ],
+          "width": 170,
+          "covers": [
+            {
+              "x": 42.5,
+              "z": 1781,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": -42.5,
+              "z": 1873.5,
+              "r": 4,
+              "h": 6
             }
           ]
         }
@@ -7276,6 +7344,8 @@
           "z": 1890,
           "y": 32,
           "side": "left",
+          "rock": -10,
+          "width": 12,
           "kind": "bossLine",
           "length": 16,
           "depth": 6,
@@ -7331,6 +7401,24 @@
           "coins": 250,
           "n": 4,
           "path": true
+        },
+        {
+          "type": "cover",
+          "z": 2026,
+          "x": 42.5,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 2131,
+          "x": -42.5,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
         },
         {
           "type": "gate",
@@ -7420,9 +7508,24 @@
           "giants": [
             {
               "speed": 62.3,
-              "patrol": "alongZ",
+              "patrol": "chase",
               "seeDist": 0,
               "turnSec": 0.5
+            }
+          ],
+          "width": 170,
+          "covers": [
+            {
+              "x": 42.5,
+              "z": 2026,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": -42.5,
+              "z": 2131,
+              "r": 4,
+              "h": 6
             }
           ]
         }
@@ -10712,6 +10815,34 @@
           "z": 2110,
           "y": 32,
           "side": "left",
+          "rock": -10,
+          "width": 12,
+          "kind": "bossLine",
+          "length": 16,
+          "depth": 6,
+          "treadmill": 60,
+          "zone": 5,
+          "stretch": 5,
+          "edge": 66
+        },
+        {
+          "type": "niche",
+          "z": 2110,
+          "y": 32,
+          "side": "left",
+          "kind": "bossLine",
+          "length": 16,
+          "depth": 6,
+          "treadmill": 60,
+          "zone": 5,
+          "stretch": 5,
+          "edge": 66
+        },
+        {
+          "type": "niche",
+          "z": 2110,
+          "y": 32,
+          "side": "right",
           "kind": "bossLine",
           "length": 16,
           "depth": 6,
@@ -10767,6 +10898,33 @@
           "coins": 2000,
           "n": 4,
           "path": true
+        },
+        {
+          "type": "cover",
+          "z": 2264,
+          "x": 45,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 2384,
+          "x": -45,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 2480,
+          "x": 45,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
         },
         {
           "type": "gate",
@@ -10856,15 +11014,36 @@
           "giants": [
             {
               "speed": 59,
-              "patrol": "alongZ",
+              "patrol": "chase",
               "seeDist": 0,
               "turnSec": 0.5
+            }
+          ],
+          "width": 180,
+          "covers": [
+            {
+              "x": 45,
+              "z": 2264,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": -45,
+              "z": 2384,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": 45,
+              "z": 2480,
+              "r": 4,
+              "h": 6
             }
           ],
           "helpers": [
             {
               "side": "left",
-              "x": -88,
+              "x": -86,
               "throwEverySec": 2.5,
               "flightSec": 1,
               "slow": 0.85,
@@ -13422,6 +13601,34 @@
           "z": 2320,
           "y": 32,
           "side": "left",
+          "rock": -10,
+          "width": 12,
+          "kind": "bossLine",
+          "length": 16,
+          "depth": 6,
+          "treadmill": 150,
+          "zone": 5,
+          "stretch": 5,
+          "edge": 110
+        },
+        {
+          "type": "niche",
+          "z": 2320,
+          "y": 32,
+          "side": "left",
+          "kind": "bossLine",
+          "length": 16,
+          "depth": 6,
+          "treadmill": 150,
+          "zone": 5,
+          "stretch": 5,
+          "edge": 110
+        },
+        {
+          "type": "niche",
+          "z": 2320,
+          "y": 32,
+          "side": "right",
           "kind": "bossLine",
           "length": 16,
           "depth": 6,
@@ -13477,6 +13684,33 @@
           "coins": 6000,
           "n": 4,
           "path": true
+        },
+        {
+          "type": "cover",
+          "z": 2489,
+          "x": 45,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 2621.5,
+          "x": -45,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 2727.5,
+          "x": 45,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
         },
         {
           "type": "gate",
@@ -13566,15 +13800,36 @@
           "giants": [
             {
               "speed": 64,
-              "patrol": "alongZ",
+              "patrol": "chase",
               "seeDist": 0,
               "turnSec": 0.5
+            }
+          ],
+          "width": 180,
+          "covers": [
+            {
+              "x": 45,
+              "z": 2489,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": -45,
+              "z": 2621.5,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": 45,
+              "z": 2727.5,
+              "r": 4,
+              "h": 6
             }
           ],
           "helpers": [
             {
               "side": "left",
-              "x": -88,
+              "x": -86,
               "throwEverySec": 2.5,
               "flightSec": 1,
               "slow": 0.85,
@@ -16279,6 +16534,34 @@
           "z": 2550,
           "y": 32,
           "side": "left",
+          "rock": -10,
+          "width": 12,
+          "kind": "bossLine",
+          "length": 16,
+          "depth": 6,
+          "treadmill": 500,
+          "zone": 5,
+          "stretch": 5,
+          "edge": 66
+        },
+        {
+          "type": "niche",
+          "z": 2550,
+          "y": 32,
+          "side": "left",
+          "kind": "bossLine",
+          "length": 16,
+          "depth": 6,
+          "treadmill": 500,
+          "zone": 5,
+          "stretch": 5,
+          "edge": 66
+        },
+        {
+          "type": "niche",
+          "z": 2550,
+          "y": 32,
+          "side": "right",
           "kind": "bossLine",
           "length": 16,
           "depth": 6,
@@ -16334,6 +16617,33 @@
           "coins": 60000,
           "n": 4,
           "path": true
+        },
+        {
+          "type": "cover",
+          "z": 2737,
+          "x": 45,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 2884.5,
+          "x": -45,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 3002.5,
+          "x": 45,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
         },
         {
           "type": "gate",
@@ -16423,15 +16733,36 @@
           "giants": [
             {
               "speed": 69.9,
-              "patrol": "alongZ",
+              "patrol": "chase",
               "seeDist": 0,
               "turnSec": 0.5
+            }
+          ],
+          "width": 180,
+          "covers": [
+            {
+              "x": 45,
+              "z": 2737,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": -45,
+              "z": 2884.5,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": 45,
+              "z": 3002.5,
+              "r": 4,
+              "h": 6
             }
           ],
           "helpers": [
             {
               "side": "left",
-              "x": -88,
+              "x": -86,
               "throwEverySec": 2.5,
               "flightSec": 1,
               "slow": 0.85,
@@ -19393,6 +19724,34 @@
           "z": 2760,
           "y": 32,
           "side": "left",
+          "rock": -10,
+          "width": 12,
+          "kind": "bossLine",
+          "length": 16,
+          "depth": 6,
+          "treadmill": 1500,
+          "zone": 5,
+          "stretch": 5,
+          "edge": 70
+        },
+        {
+          "type": "niche",
+          "z": 2760,
+          "y": 32,
+          "side": "left",
+          "kind": "bossLine",
+          "length": 16,
+          "depth": 6,
+          "treadmill": 1500,
+          "zone": 5,
+          "stretch": 5,
+          "edge": 70
+        },
+        {
+          "type": "niche",
+          "z": 2760,
+          "y": 32,
+          "side": "right",
           "kind": "bossLine",
           "length": 16,
           "depth": 6,
@@ -19448,6 +19807,42 @@
           "coins": 600000,
           "n": 4,
           "path": true
+        },
+        {
+          "type": "cover",
+          "z": 2962,
+          "x": 47.5,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 3122,
+          "x": -47.5,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 3250,
+          "x": 47.5,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 3346,
+          "x": -47.5,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
         },
         {
           "type": "gate",
@@ -19537,15 +19932,42 @@
           "giants": [
             {
               "speed": 75.9,
-              "patrol": "alongZ",
+              "patrol": "chase",
               "seeDist": 0,
               "turnSec": 0.5
+            }
+          ],
+          "width": 190,
+          "covers": [
+            {
+              "x": 47.5,
+              "z": 2962,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": -47.5,
+              "z": 3122,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": 47.5,
+              "z": 3250,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": -47.5,
+              "z": 3346,
+              "r": 4,
+              "h": 6
             }
           ],
           "helpers": [
             {
               "side": "left",
-              "x": -93,
+              "x": -91,
               "throwEverySec": 2.5,
               "flightSec": 1,
               "slow": 0.85,
@@ -19554,7 +19976,7 @@
             },
             {
               "side": "right",
-              "x": 93,
+              "x": 91,
               "throwEverySec": 2.5,
               "flightSec": 1,
               "slow": 0.85,
@@ -22583,6 +23005,34 @@
           "z": 3000,
           "y": 32,
           "side": "left",
+          "rock": -10,
+          "width": 12,
+          "kind": "bossLine",
+          "length": 16,
+          "depth": 6,
+          "treadmill": 5000,
+          "zone": 5,
+          "stretch": 5,
+          "edge": 110
+        },
+        {
+          "type": "niche",
+          "z": 3000,
+          "y": 32,
+          "side": "left",
+          "kind": "bossLine",
+          "length": 16,
+          "depth": 6,
+          "treadmill": 5000,
+          "zone": 5,
+          "stretch": 5,
+          "edge": 110
+        },
+        {
+          "type": "niche",
+          "z": 3000,
+          "y": 32,
+          "side": "right",
           "kind": "bossLine",
           "length": 16,
           "depth": 6,
@@ -22638,6 +23088,42 @@
           "coins": 8000000,
           "n": 4,
           "path": true
+        },
+        {
+          "type": "cover",
+          "z": 3220,
+          "x": 47.5,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 3395,
+          "x": -47.5,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 3535,
+          "x": 47.5,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 3640,
+          "x": -47.5,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
         },
         {
           "type": "gate",
@@ -22727,15 +23213,42 @@
           "giants": [
             {
               "speed": 82.5,
-              "patrol": "alongZ",
+              "patrol": "chase",
               "seeDist": 0,
               "turnSec": 0.5
+            }
+          ],
+          "width": 190,
+          "covers": [
+            {
+              "x": 47.5,
+              "z": 3220,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": -47.5,
+              "z": 3395,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": 47.5,
+              "z": 3535,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": -47.5,
+              "z": 3640,
+              "r": 4,
+              "h": 6
             }
           ],
           "helpers": [
             {
               "side": "left",
-              "x": -93,
+              "x": -91,
               "throwEverySec": 2.5,
               "flightSec": 1,
               "slow": 0.85,
@@ -22744,7 +23257,7 @@
             },
             {
               "side": "right",
-              "x": 93,
+              "x": 91,
               "throwEverySec": 2.5,
               "flightSec": 1,
               "slow": 0.85,
@@ -26175,6 +26688,34 @@
           "z": 3210,
           "y": 32,
           "side": "left",
+          "rock": -10,
+          "width": 12,
+          "kind": "bossLine",
+          "length": 16,
+          "depth": 6,
+          "treadmill": 15000,
+          "zone": 5,
+          "stretch": 5,
+          "edge": 74
+        },
+        {
+          "type": "niche",
+          "z": 3210,
+          "y": 32,
+          "side": "left",
+          "kind": "bossLine",
+          "length": 16,
+          "depth": 6,
+          "treadmill": 15000,
+          "zone": 5,
+          "stretch": 5,
+          "edge": 74
+        },
+        {
+          "type": "niche",
+          "z": 3210,
+          "y": 32,
+          "side": "right",
           "kind": "bossLine",
           "length": 16,
           "depth": 6,
@@ -26230,6 +26771,42 @@
           "coins": 160000000,
           "n": 4,
           "path": true
+        },
+        {
+          "type": "cover",
+          "z": 3454,
+          "x": 50,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 3649,
+          "x": -50,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 3805,
+          "x": 50,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 3922,
+          "x": -50,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
         },
         {
           "type": "gate",
@@ -26319,23 +26896,50 @@
           "giants": [
             {
               "speed": 89.1,
-              "patrol": "alongZ",
+              "patrol": "chase",
               "seeDist": 0,
               "turnSec": 0.5,
               "phase": 0
             },
             {
               "speed": 89.1,
-              "patrol": "alongZ",
+              "patrol": "chase",
               "seeDist": 0,
               "turnSec": 0.5,
               "phase": 0.5
             }
           ],
+          "width": 200,
+          "covers": [
+            {
+              "x": 50,
+              "z": 3454,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": -50,
+              "z": 3649,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": 50,
+              "z": 3805,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": -50,
+              "z": 3922,
+              "r": 4,
+              "h": 6
+            }
+          ],
           "helpers": [
             {
               "side": "left",
-              "x": -98,
+              "x": -96,
               "throwEverySec": 2.5,
               "flightSec": 1,
               "slow": 0.85,
@@ -26344,7 +26948,7 @@
             },
             {
               "side": "right",
-              "x": 98,
+              "x": 96,
               "throwEverySec": 2.5,
               "flightSec": 1,
               "slow": 0.85,
@@ -29828,6 +30432,34 @@
           "z": 3660,
           "y": 32,
           "side": "left",
+          "rock": -10,
+          "width": 12,
+          "kind": "bossLine",
+          "length": 16,
+          "depth": 6,
+          "treadmill": 40000,
+          "zone": 5,
+          "stretch": 5,
+          "edge": 110
+        },
+        {
+          "type": "niche",
+          "z": 3660,
+          "y": 32,
+          "side": "left",
+          "kind": "bossLine",
+          "length": 16,
+          "depth": 6,
+          "treadmill": 40000,
+          "zone": 5,
+          "stretch": 5,
+          "edge": 110
+        },
+        {
+          "type": "niche",
+          "z": 3660,
+          "y": 32,
+          "side": "right",
           "kind": "bossLine",
           "length": 16,
           "depth": 6,
@@ -29883,6 +30515,42 @@
           "coins": 4000000000,
           "n": 4,
           "path": true
+        },
+        {
+          "type": "cover",
+          "z": 3943,
+          "x": 50,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 4170.5,
+          "x": -50,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 4352.5,
+          "x": 50,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 4489,
+          "x": -50,
+          "y": 32,
+          "r": 4,
+          "h": 6,
+          "zone": 5
         },
         {
           "type": "gate",
@@ -29972,23 +30640,50 @@
           "giants": [
             {
               "speed": 97.1,
-              "patrol": "alongZ",
+              "patrol": "chase",
               "seeDist": 0,
               "turnSec": 0.5,
               "phase": 0
             },
             {
               "speed": 97.1,
-              "patrol": "alongZ",
+              "patrol": "chase",
               "seeDist": 0,
               "turnSec": 0.5,
               "phase": 0.5
             }
           ],
+          "width": 200,
+          "covers": [
+            {
+              "x": 50,
+              "z": 3943,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": -50,
+              "z": 4170.5,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": 50,
+              "z": 4352.5,
+              "r": 4,
+              "h": 6
+            },
+            {
+              "x": -50,
+              "z": 4489,
+              "r": 4,
+              "h": 6
+            }
+          ],
           "helpers": [
             {
               "side": "left",
-              "x": -98,
+              "x": -96,
               "throwEverySec": 2.5,
               "flightSec": 1,
               "slow": 0.85,
@@ -29997,7 +30692,7 @@
             },
             {
               "side": "right",
-              "x": 98,
+              "x": 96,
               "throwEverySec": 2.5,
               "flightSec": 1,
               "slow": 0.85,
