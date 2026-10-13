@@ -339,6 +339,12 @@ export interface TuningJson {
     /** FM-03: in a giant's zone running up the view never turns from the giant ahead by more than this (deg), until the
      * player turns the camera by hand. */
     bossKeepDeg?: number;
+    /** Q-066 (docs/01-gdd.md 17.9): on the siren the mouth of the lit shelter is kept in the view by bossKeepDeg while the hero
+     * is farther than this from it (units) and has not turned the camera by hand (running back to it, the camera never looks
+     * into his face); absent or 0 — never. */
+    shelterKeep?: number;
+    /** Q-066: an arch of the base nearer than this to the camera (units), or on its line to the hero, is not drawn; absent — never. */
+    archHide?: number;
     /** SP-03 (docs/01-gdd.md 20.3): the camera backs off this much at the top of the run (distance + add × share). */
     speedDistanceAdd?: number;
     /** SP-03: set — the share of speed for the FOV and the distance is ((v − baseSpeed) / (maxSpeed − baseSpeed))^speedPow over

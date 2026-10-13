@@ -36,7 +36,7 @@ const SAME_SEC = 2;
 /** Plaques allowed in the first 60 s: the shoes and the controls. */
 const EARLY_HINTS = new Set(['hint.move', 'hint.shoes', 'hint.jumpPc', 'hint.jumpTouch']);
 
-/** A leg up to a ridge (through its pass nearest the middle, SP-04: on the field the axis is the carniz) or the giant. */
+/** A leg up to a ridge (through its pass nearest the middle, SP-04; on the axis since Q-064) or the giant. */
 type Leg = { z: number; x: number; req: number; grotto: Shelter | null; past: number };
 
 test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg, the ridges, the giant, the portal — 19.6 times and rhythm', async ({ page, openGame }) => {

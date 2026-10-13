@@ -56,8 +56,8 @@ test('mountain 1: the run at ridge 2 ≥ 2.2 ×, at the giant ≥ 2.6 × the sta
   const at2 = await runAt(page, r2.z - 140, r2.requires!, 150);
   await page.evaluate(() => window.__TEST__!.setAutoRun(false));
   expect(at2.hero!.speed / v0, `ridge 2: ${at2.hero!.speed.toFixed(1)} vs ${v0.toFixed(1)}`).toBeGreaterThanOrEqual(2.2);
-  // The giant's zone with his advice: run in from below the line through the pass of ridge 3 nearest the middle (SP-04: on
-  // 110 units four passes, the axis is the carniz), the camera settled (it backs off at retreatSpeed).
+  // The giant's zone with his advice: run in from below the line through the pass of ridge 3 nearest the middle (SP-04; Q-064:
+  // on the axis), the camera settled (it backs off at retreatSpeed).
   const zone = w1.bosses[0]!.zone;
   const px = passX(ridges[2]!);
   const giant = await runAt(page, zone[0] - 160, w1.bosses[0]!.requires, 200, px);

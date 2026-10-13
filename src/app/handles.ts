@@ -108,6 +108,8 @@ export interface GameHandles {
   readonly baseGiftReady: boolean;
   /** The lines of the «My records» board of the base (FM-12). */
   readonly baseBoard: readonly string[];
+  /** Q-066: arch `i` of the base not drawn now (in the way of the camera). */
+  baseArchHidden(i: number): boolean;
   /** A toast as the game shows them (FM-04 e2e: its plaque and contrast). */
   showToast(text: string, sec?: number, gold?: boolean): void;
   /** Gate sign as rendered: text and open colour (M2-02 e2e). */

@@ -19,8 +19,8 @@ export function forkLaneX(f: Pick<Seg, 'kind' | 'between' | 'track'>): number {
   return f.kind === 'split' ? f.between! / 2 + f.track! / 2 : 16;
 }
 
-/** Points from `from` up to `to` through the pass nearest the middle of every ridge between (SP-04: on a section 110–200
- * wide the axis can be the carniz). */
+/** Points from `from` up to `to` through the pass nearest the middle of every ridge between (SP-04; with passAxis, Q-064,
+ * it is on the axis). */
 export function upThroughRidges(w: Pick<OpenWorld, 'segments'>, from: [number, number], to: [number, number]): Array<[number, number]> {
   const pts: Array<[number, number]> = [];
   for (const r of w.segments.filter((s) => s.type === 'gate' && s.kind === 'ridge' && s.z > from[1] && s.z < to[1]).sort((a, b) => a.z - b.z)) {

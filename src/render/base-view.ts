@@ -1,8 +1,8 @@
-// What: How the base looks (docs/01-gdd.md 19.2–19.3): the arches of the mountains by state (passed — open with a flag and a cup, own — filled with light under a pillar, locked — iced with a lock), their signs and the «×N» of the base treadmill in one atlas, the arrows on the snow to the own portal, the shop counter with sneakers and an egg, the gift of the day (lit while it waits), the «My records» board, the snowmen.
-// Called by: main.ts (createBaseView; set on every entry to the base, clear on a mountain); test-api (drawn).
+// What: How the base looks (docs/01-gdd.md 19.2–19.3): the arches of the mountains by state (passed — open with a flag and a cup, own — filled with light under a pillar, locked — iced with a lock), their signs and the «×N» of the base treadmill in one atlas, the arrows on the snow to the own portal, the shop counter with sneakers and an egg, the gift of the day (lit while it waits), the «My records» board, the snowmen; an arch in the way of the camera not drawn (setArchHidden).
+// Called by: main.ts (createBaseView; set on every entry to the base, clear on a mountain); app/banner-signs.ts (guardBaseArches); test-api (drawn).
 // Keep: Render only, nothing in the sim (the ice of a locked arch is a hero collider of the level); at most 6 draw calls; colours from theme.json, texts through the caller's t().
 
-import { BoxGeometry, BufferGeometry, CanvasTexture, Color, DoubleSide, Float32BufferAttribute, Group, InstancedMesh, Mesh, MeshBasicMaterial, MeshLambertMaterial, Object3D, SphereGeometry, SRGBColorSpace } from 'three';
+import { BoxGeometry, BufferGeometry, CanvasTexture, Color, DoubleSide, Float32BufferAttribute, Group, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, MeshLambertMaterial, Object3D, SphereGeometry, SRGBColorSpace } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { ThemeJson } from '../content/types.ts';
 import type { LevelData } from '../level/types.ts';
@@ -49,8 +49,17 @@ export interface BaseView {
   setGiftReady(ready: boolean): void;
   /** Its box is lit now. */
   readonly giftReady: boolean;
+  /** Q-066: each arch as the camera may meet it — its middle on the snow, yaw, width and top (the sign included). */
+  readonly arches: ReadonlyArray<{ x: number; z: number; yaw: number; width: number; top: number }>;
+  /** Arch `i` with its light or ice, sign, flag, cup and lock not drawn (back when false); draw calls stay. */
+  setArchHidden(i: number, hide: boolean): void;
+  archHidden(i: number): boolean;
   dispose(): void;
 }
+
+/** Instances and vertices of one arch, to hide it and bring it back. */
+type ArchParts = { matrix: Matrix4; fill: [number, number] | null; sign: [number, number]; marks: Array<[number, Matrix4]>; hidden: boolean };
+const ZERO = new Matrix4().makeScale(0, 0, 0);
 
 export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView {
   const group = new Group();
@@ -64,6 +73,16 @@ export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView 
   let board: readonly string[] = [];
   /** The box of the gift of the day: its instance in the marks, its two colours, the state shown. */
   let gift: { mesh: InstancedMesh; index: number; lit: Color; closed: Color; ready: boolean | null } | null = null;
+  let arches: Array<{ x: number; z: number; yaw: number; width: number; top: number }> = [];
+  let archParts: ArchParts[] = [];
+  let meshes: { arches: InstancedMesh; fill: Mesh | null; fillPos: Float32Array | null; signs: Mesh; signPos: Float32Array; marks: InstancedMesh } | null = null;
+  /** Vertices [from, to) of a geometry folded into one point (hidden) or back from the copy. */
+  const fold = (m: Mesh, orig: Float32Array, [from, to]: [number, number], hide: boolean): void => {
+    const a = m.geometry.getAttribute('position') as Float32BufferAttribute;
+    const arr = a.array as Float32Array;
+    for (let k = from * 3; k < to * 3; k++) arr[k] = hide ? orig[from * 3 + (k % 3)]! : orig[k]!;
+    a.needsUpdate = true;
+  };
 
   const clear = (): void => {
     for (const p of parts) p.dispose();
@@ -73,6 +92,9 @@ export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView 
     treadSign = null;
     gift = null;
     board = [];
+    arches = [];
+    archParts = [];
+    meshes = null;
   };
 
   const view: BaseView = {
@@ -89,6 +111,21 @@ export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView 
     get giftReady() {
       return gift?.ready === true;
     },
+    get arches() {
+      return arches;
+    },
+    archHidden: (i) => archParts[i]?.hidden === true,
+    setArchHidden(i, hide) {
+      const a = archParts[i];
+      if (!a || !meshes || a.hidden === hide) return;
+      a.hidden = hide;
+      meshes.arches.setMatrixAt(i, hide ? ZERO : a.matrix);
+      meshes.arches.instanceMatrix.needsUpdate = true;
+      for (const [k, m] of a.marks) meshes.marks.setMatrixAt(k, hide ? ZERO : m);
+      if (a.marks.length) meshes.marks.instanceMatrix.needsUpdate = true;
+      if (a.fill && meshes.fill && meshes.fillPos) fold(meshes.fill, meshes.fillPos, a.fill, hide);
+      fold(meshes.signs, meshes.signPos, a.sign, hide);
+    },
     clear,
     set(level, portals, t, tread, boardLines) {
       clear();
@@ -104,24 +141,27 @@ export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView 
       const archGeo = mergeGeometries([left, right, lintel])!;
       for (const g of [pillar, left, right, lintel]) g.dispose();
       const archMat = new MeshLambertMaterial({ color: 0xffffff });
-      const arches = new InstancedMesh(archGeo, archMat, portals.length);
-      arches.name = 'base-arches';
+      const archMesh = new InstancedMesh(archGeo, archMat, portals.length);
+      archMesh.name = 'base-arches';
       const stateColor = { passed: color('portal'), own: lit('portalLight'), locked: color('ice') };
-      portals.forEach((p, i) => {
+      archParts = portals.map((p, i) => {
         dummy.position.set(p.x, 0, p.z);
         dummy.rotation.set(0, p.yaw, 0);
         dummy.updateMatrix();
-        arches.setMatrixAt(i, dummy.matrix);
-        arches.setColorAt(i, stateColor[p.state]);
+        archMesh.setMatrixAt(i, dummy.matrix);
+        archMesh.setColorAt(i, stateColor[p.state]);
+        return { matrix: dummy.matrix.clone(), fill: null, sign: [i * 6, i * 6 + 6], marks: [], hidden: false };
       });
-      group.add(arches);
+      arches = portals.map((p) => ({ x: p.x, z: p.z, yaw: p.yaw, width: p.width, top: p.height + SIGN_OVER + SIGN_H }));
+      group.add(archMesh);
       parts.push(archGeo, archMat);
 
       // Light of the own arch with its pillar, ice over the locked ones: one geometry, vertex colours.
       const pos: number[] = [];
       const col: number[] = [];
-      for (const p of portals) {
-        if (p.state === 'passed') continue;
+      portals.forEach((p, i) => {
+        if (p.state === 'passed') return;
+        const from = pos.length / 3;
         const local = portalGlowGeometry(0, 0, 0, p.width, p.state === 'own' ? (theme.fx.portal?.pillar ?? 0) : 0, p.state === 'own' ? lit('portal') : color('ice'), lit('portalLight'));
         const c = Math.cos(p.yaw);
         const s = Math.sin(p.yaw);
@@ -131,14 +171,16 @@ export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView 
           pos.push(p.x + x * c + z * s, local.pos[k + 1]!, p.z - x * s + z * c);
         }
         col.push(...local.col);
-      }
+        archParts[i]!.fill = [from, pos.length / 3];
+      });
+      let fill: Mesh | null = null;
       if (pos.length) {
         const fillGeo = new BufferGeometry();
         fillGeo.setAttribute('position', new Float32BufferAttribute(pos, 3));
         fillGeo.setAttribute('color', new Float32BufferAttribute(col, 3));
         fillGeo.computeBoundingSphere();
         const fillMat = new MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: FILL_OPACITY, depthWrite: false, side: DoubleSide, fog: false });
-        const fill = new Mesh(fillGeo, fillMat);
+        fill = new Mesh(fillGeo, fillMat);
         fill.name = 'base-portal-fill';
         fill.renderOrder = 3;
         group.add(fill);
@@ -273,6 +315,9 @@ export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView 
         dummy.updateMatrix();
         marks.setMatrixAt(k, dummy.matrix);
         marks.setColorAt(k, c);
+        // A flag, a cup or a lock of an arch hides with it.
+        const own = portals.indexOf(p);
+        if (own >= 0) archParts[own]!.marks.push([k, dummy.matrix.clone()]);
         k++;
       };
       for (const p of passed) {
@@ -305,6 +350,14 @@ export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView 
       dummy.scale.set(1, 1, 1);
       group.add(marks);
       parts.push(boxGeo, boxMat);
+      meshes = {
+        arches: archMesh,
+        fill,
+        fillPos: fill ? Float32Array.from(fill.geometry.getAttribute('position').array) : null,
+        signs,
+        signPos: Float32Array.from(signGeo.getAttribute('position').array),
+        marks,
+      };
       // Balls: the snowmen of the decor and the egg on the shop counter, one mesh.
       const balls: Array<{ x: number; y: number; z: number; r: number; c: Color }> = [];
       for (const snow of level.points.filter((p) => p.type === 'decor' && p['kind'] === 'snowman'))

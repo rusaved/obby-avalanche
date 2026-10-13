@@ -1,5 +1,5 @@
-// What: Hides gate signs that sit under the avalanche banner or between the camera and the hero (back when the overlap ends), and for good once the hero has passed the gate; hides the record flag in the way of the camera.
-// Called by: main.ts (guardBannerSigns, guardRecordFlag each frame); test-api/index.ts (segmentMeetsBox, flagInTheWay).
+// What: Hides gate signs that sit under the avalanche banner or between the camera and the hero (back when the overlap ends), and for good once the hero has passed the gate; hides the record flag and the arches of the base in the way of the camera.
+// Called by: main.ts (guardBannerSigns, guardRecordFlag, guardBaseArches each frame); test-api/index.ts (segmentMeetsBox, flagInTheWay).
 // Keep: Only toggles sign visibility - reads the camera, never changes sim or level data; the banner must never end up under a sign (docs/01-gdd.md 16.7, PR-11).
 
 /**
@@ -14,6 +14,7 @@ import type { LevelData } from '../level/types.ts';
 import type { LevelMeshes } from '../render/level-mesh.ts';
 import type { Hud } from '../ui/hud.ts';
 import type { RecordFlag } from '../render/record-flag.ts';
+import type { BaseView } from '../render/base-view.ts';
 import { HERO_HEIGHT } from '../sim/controller.ts';
 
 /** A sign this close to the banner box (px) counts as under it. */
@@ -27,6 +28,10 @@ const SIGHT_RANGE = 40;
 
 const _p = new Vector3();
 const _eye = new Vector3();
+const _cam = new Vector3();
+const _hero = new Vector3();
+/** An arch is this thick (its pillars, the ice and the sign in front of it), units. */
+const ARCH_DEPTH = 2;
 
 export interface ScreenRect {
   x0: number;
@@ -124,4 +129,29 @@ export function flagInTheWay(camera: Vector3, hero: Vector3, box: { center: read
 export function guardRecordFlag(flag: RecordFlag, camera: PerspectiveCamera, hero: Vector3, near: number): void {
   const box = flag.box();
   if (box && near > 0 && flagInTheWay(camera.position, hero, box, near)) flag.mesh.visible = false;
+}
+
+/**
+ * Q-066 (playtest of «Размах»: on the base the frames of the arches took up to 60% of the view): an arch of the base on
+ * the line camera → hero (chest or head) or nearer than `near` to the camera is not drawn, with its light or ice, sign,
+ * flag and lock; never the arch the hero stands in. `near` 0 — never hidden.
+ */
+export function guardBaseArches(view: BaseView, camera: PerspectiveCamera, hero: Vector3, near: number): void {
+  view.arches.forEach((a, i) => {
+    let hide = false;
+    if (near > 0) {
+      // In the arch's own axes: across it x, up y, through it z.
+      const c = Math.cos(a.yaw);
+      const s = Math.sin(a.yaw);
+      const local = (p: Vector3, out: Vector3): Vector3 => out.set((p.x - a.x) * c - (p.z - a.z) * s, p.y, (p.x - a.x) * s + (p.z - a.z) * c);
+      const center = [0, a.top / 2, 0];
+      const size = [a.width, a.top, ARCH_DEPTH];
+      local(hero, _hero);
+      if (!segmentMeetsBox(_hero, _hero, center, size, 1)) {
+        local(camera.position, _cam);
+        hide = segmentMeetsBox(_cam, _cam, center, size, near) || SIGHT_HEIGHTS.some((h) => segmentMeetsBox(_cam, _p.set(_hero.x, _hero.y + h, _hero.z), center, size, SIGHT_PAD));
+      }
+    }
+    view.setArchHidden(i, hide);
+  });
 }

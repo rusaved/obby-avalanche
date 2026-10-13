@@ -11,7 +11,8 @@ import type { TuningJson, World } from '../../src/content/types.ts';
 
 // SP-01 (docs/01-gdd.md 20.2): after the grotto frame and the avalanche frame the view comes back behind the hero where
 // he runs (camera.backBehind «run»); «before» keeps the way back of the prototype and the base — the trace below was
-// recorded on the camera as it was before SP and must not change. A hand-made slope with one grotto, so the later
+// recorded on the camera as it was before SP and must not change (re-recorded once on purpose, Q-066 of 13.10: the way
+// out of the grotto frame cuts instead of flying past the hero's face). A hand-made slope with one grotto, so the later
 // changes of worlds.json do not touch it.
 const base = mergePatch(tuningJson, openTuning) as unknown as TuningJson;
 /** «before» — the camera of the open pace as it was before SP: no run share (SP-03), FOV add of the shared tuning. */
@@ -21,6 +22,8 @@ const tuningWith = (backBehind: 'run' | 'before'): TuningJson => {
     delete camera.speedPow;
     delete camera.speedDistanceAdd;
     camera.fovSpeedAdd = (tuningJson as TuningJson).camera.fovSpeedAdd;
+    // Q-066 (the camera pass of 13.10): the open pace keeps the camera off a wall behind the hero by 7, not 4.
+    camera.minDistance = (tuningJson as TuningJson).camera.minDistance;
   }
   return { ...base, camera };
 };
@@ -141,11 +144,15 @@ describe('SP-01: the way back of the camera after the grotto and the avalanche f
     });
   }
 
-  it('«run»: standing in the grotto when the avalanche frame ends — the view turns up the slope (then the grotto frame)', () => {
+  it('«run»: standing in the grotto when the avalanche frame ends — pressed on the way back, the grotto frame at once (Q-066)', () => {
     const { trace } = play(tun, [INSIDE_X, 100]);
     const last = trace.reduce((k, r, i) => (r[7]! > 0 ? i : k), -1);
-    // Rows every 3 frames: within shotReturnSec of the frame's end the view looks up the slope (yaw 0).
+    // Rows every 3 frames: within shotReturnSec of the frame's end the grotto frame is on, and the camera is never
+    // within minDistance of his head (before: the view turned up the slope into the grotto wall and rose over him).
     const back = trace.slice(last + 1, last + 1 + Math.ceil(tun.avalanche.shotReturnSec / DT / 3) + 1);
-    expect(Math.min(...back.map((r) => Math.abs(r[0]!))), back.map((r) => r[0]).join(' ')).toBeLessThan(0.01);
+    expect(back.some((r) => r[6] === 1)).toBe(true);
+    const head = new Vector3(INSIDE_X, 4.4, 100);
+    const near = Math.min(...back.map((r) => head.distanceTo(new Vector3(r[2], r[3], r[4]))));
+    expect(near).toBeGreaterThanOrEqual(tun.camera.minDistance);
   });
 });

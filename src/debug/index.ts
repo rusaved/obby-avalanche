@@ -64,6 +64,8 @@ const CAMERA_RANGES: Partial<Record<keyof TuningJson['camera'], Range>> = {
   raiseMaxDeg: [0, 85, 1],
   fadeAlpha: [0, 1, 0.05],
   bossKeepDeg: [0, 90, 1],
+  shelterKeep: [0, 30, 1],
+  archHide: [0, 30, 1],
 };
 
 const AVALANCHE_RANGES: Partial<Record<keyof TuningJson['avalanche'], Range>> = {
@@ -127,6 +129,8 @@ export function mountDebug(g: GameHandles, host: HTMLElement, isMobile: boolean)
   // Auto-turn to +Z: off since 05.10 (docs/01-gdd.md 16.7), the box brings back the M1–M3 camera to compare.
   camera.add(g.tuning.camera, 'autoTurn').onChange(persist);
   for (const [key, range] of Object.entries(CAMERA_RANGES) as Array<[keyof TuningJson['camera'], Range]>) {
+    // A key of one pace only (shelterKeep, archHide of the open slope) is not in the others.
+    if (typeof g.tuning.camera[key] !== 'number') continue;
     camera.add(g.tuning.camera, key, range[0], range[1], range[2]).onChange(persist);
   }
   camera.close();

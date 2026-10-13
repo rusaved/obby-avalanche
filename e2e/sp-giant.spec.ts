@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { test, expect, shot1080, testState, waitTicks } from './fixtures.ts';
+import { passX, type Seg } from './base-route.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 import openBalance from '../content/avalanche/pace/open/balance.json' with { type: 'json' };
 import baseTuning from '../content/avalanche/tuning.json' with { type: 'json' };
@@ -15,9 +16,10 @@ import ru from '../content/avalanche/i18n/ru.json' with { type: 'json' };
 // carry `cover`; draw calls in the giant's zones of mountains 1, 5, 10 ≤ 45; the screenshot of the zone.
 type Cover = { x: number; z: number; r: number; h: number };
 type Boss = { zone: [number, number]; requires: number; covers: Cover[] };
-const worlds = (openWorlds as unknown as { worlds: Array<{ bosses: Boss[] }> }).worlds;
+const worlds = (openWorlds as unknown as { worlds: Array<{ bosses: Boss[]; segments: Seg[] }> }).worlds;
 const boss1 = worlds[0]!.bosses[0]!;
 const [A, C] = boss1.zone;
+const ridge3 = worlds[0]!.segments.filter((g) => g.type === 'gate' && g.kind === 'ridge').sort((a, b) => a.z - b.z)[2]!;
 const curve = { base: baseTuning.controller.baseSpeed, k: openBalance.speedCurve.k, max: openTuning.controller.maxSpeed };
 const runSpeed = (stat: number): number => Math.min(curve.max, curve.base * (1 + curve.k * Math.log10(1 + stat)));
 const statFor = (v: number): number => 10 ** ((v / curve.base - 1) / curve.k) - 1;
@@ -271,7 +273,8 @@ test('draw calls in the giant’s zones of mountains 1, 5, 10 ≤ 45; screenshot
     window.__TEST__!.resetGiants();
     window.__TEST__!.setStat(st);
   }, boss1.requires);
-  await page.evaluate((z) => window.__TEST__!.teleport(z, 10), A - 30);
+  // In the pass of ridge 3 nearest the middle (Q-064: on the axis; x 10 is its carniz now).
+  await page.evaluate(([z, x]) => window.__TEST__!.teleport(z, x), [A - 30, passX(ridge3)] as const);
   // The banner of the finish straight gone.
   await waitTicks(page, 240);
   await page.evaluate(() => window.__TEST__!.setCamera({ yaw: 0, pitch: 0.3, dist: 20 }));

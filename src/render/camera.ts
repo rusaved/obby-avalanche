@@ -405,8 +405,9 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       // The lead ahead of a fast hero never brings the camera back onto him (prototype playtest, item 2: running into a
       // cave the lead point is deep in it, its walls cut the room behind that point to about the lead): no lead then,
       // when that puts the camera farther from him (pressed into a wall the lead point may be the better one). Measured
-      // to his body from chest to head (playtest 2: out of a cave the raised camera sat in his hat, 4–5 units off the chest).
-      if (collision && bodyDistance(_desired) < c.hideDistance + LEAD_MARGIN && pivot.distanceToSquared(_head) > 1e-4 && !blocked(_head, c.collisionRadius, collision)) {
+      // to his body from chest to head (playtest 2: out of a cave the raised camera sat in his hat, 4–5 units off the chest;
+      // Q-066: running into a grotto the lead put the camera pressed to 7 straight over his head — minDistance, not 3).
+      if (collision && bodyDistance(_desired) < Math.max(c.hideDistance + LEAD_MARGIN, c.minDistance) && pivot.distanceToSquared(_head) > 1e-4 && !blocked(_head, c.collisionRadius, collision)) {
         _from.copy(pivot);
         pivot.copy(_head);
         const d = Math.min(rig.currentDistance, freeDistance(yaw, usePitch, wantDist, collision));
@@ -418,12 +419,16 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       }
       // The grotto frame (RG-13): pressed into a wall in a shelter — a cut to the wide shot from the mouth, held while the
       // hero is in the shelter; out of it the camera blends back and turns behind him (where he runs), the movement frame
-      // stays the player's. Not over a fixed frame (the avalanche and belt shots keep theirs), nor while the view is coming
-      // back after one (PR-13: the way back to the player's yaw comes first).
-      if (rig.shelter && !rig.fixed && !tight && backYaw === null && collision && (rig.currentDistance < Math.min(wantDist, c.grottoShot.pressed) || bodyDistance(_desired) < c.minDist)) {
+      // stays the player's. Not over a fixed frame (the avalanche and belt shots keep theirs). Pressed on the way back after
+      // one (Q-066: off the belt in a narrow grotto the view coming back rose over his head 3–4 units off) — the frame too,
+      // and the yaw of that way back is the one to come back to out of the shelter (PR-13).
+      if (rig.shelter && !rig.fixed && !tight && collision && (rig.currentDistance < Math.min(wantDist, c.grottoShot.pressed) || bodyDistance(_desired) < c.minDist)) {
         tight = true;
         tightK = 1;
-        tightYaw0 = frame.viewYaw;
+        tightYaw0 = backYaw ?? frame.viewYaw;
+        backYaw = null;
+        runBack = false;
+        retK = 1;
         // Out of a side shelter is across the slope towards its middle (the frame point also stands downhill of the mouth).
         tightOut.x = Math.sign(rig.shelter.pos.x - rig.shelter.look.x);
         tightOut.z = 0;
@@ -460,6 +465,8 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       } else if (!tight && tightK > 0) {
         tightK = dt > 0 ? Math.max(0, tightK - dt / Math.max(1e-3, tuning.avalanche.shotReturnSec)) : 0;
         if (collision && tightK > 0 && pathBlocked(_desired, tightPos, collision)) tightK = 0;
+        // Nor past his face (Q-066: out of a grotto the hero runs at the frame point, the blend flew 4 units off his head).
+        if (tightK > 0 && bodyDistance(_tmp.copy(_desired).lerp(tightPos, smooth01(tightK))) < c.minDistance) tightK = 0;
       }
       if (tightK > 0) {
         const kk = tight ? 1 : smooth01(tightK);
@@ -500,8 +507,9 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       fixedK = rig.fixed ? Math.min(1, fixedK + kRate) : Math.max(0, fixedK - kRate);
       // The hero is far from the frame (moved to another cave): no blend through the level, the player's view at once.
       if (!rig.fixed && fixedPos.distanceTo(pivot) > c.zoomMax + c.distance) fixedK = 0;
-      // Nor through the hero (PR-13): a blended point closer than hideDistance to his body — a cut to where the blend goes.
-      if (fixedK > 0 && fixedK < 1 && bodyDistance(_tmp.copy(_desired).lerp(fixedPos, smooth01(fixedK))) < c.hideDistance) fixedK = rig.fixed ? 1 : 0;
+      // Nor through the hero (PR-13): a blended point closer than hideDistance to his body — a cut to where the blend goes
+      // (Q-066: nor over his head, closer than minDistance).
+      if (fixedK > 0 && fixedK < 1 && bodyDistance(_tmp.copy(_desired).lerp(fixedPos, smooth01(fixedK))) < Math.max(c.hideDistance, c.minDistance)) fixedK = rig.fixed ? 1 : 0;
       if (fixedK > 0) {
         const kk = smooth01(fixedK);
         _tmp.copy(_desired).lerp(fixedPos, kk);

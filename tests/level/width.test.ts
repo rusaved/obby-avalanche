@@ -154,14 +154,15 @@ describe('SP-04: the width of the slope by sections', () => {
     }
   });
 
-  it('a ridge has one passage every 30 units of its width (3–7), evenly, inside it; its digits 8 on the field, 6 elsewhere', () => {
+  it('a ridge has one passage every 30 units of its width (3–7, odd with passAxis — Q-064), evenly, inside it; its digits 8 on the field, 6 elsewhere', () => {
     for (const [wi, w] of worlds.worlds.entries()) {
       const m = spec.mountains[wi]!;
       const ridges = w.segments.filter((s) => s.type === 'gate' && s['kind'] === 'ridge').sort((a, b) => a.z - b.z);
       ridges.forEach((g: Segment, j) => {
         const width = m.sections[j]!.width!;
         const passes = g['passes'] as number[];
-        expect(passes.length, `mountain ${wi + 1}, ridge ${j + 1}`).toBe(Math.min(7, Math.max(3, Math.round(width / 30))));
+        expect(passes.length, `mountain ${wi + 1}, ridge ${j + 1}`).toBe(passesOf(spec, width / 2).length);
+        if (spec.passAxis) expect(passes, `mountain ${wi + 1}, ridge ${j + 1}`).toContain(0);
         const step = passes[1]! - passes[0]!;
         passes.forEach((x, i) => {
           expect(x).toBeCloseTo(passes[0]! + i * step, 2);
@@ -201,7 +202,7 @@ describe('SP-04: the width of the slope by sections', () => {
     expect([100, 110, 120, 180, 200, 220].map((w) => passesOf(off, w / 2).length)).toEqual([3, 4, 4, 6, 7, 7]);
     expect([100, 110, 120, 180, 200, 220].map((w) => passesOf(on, w / 2).length)).toEqual([3, 3, 5, 7, 7, 7]);
     for (const w of [100, 110, 120, 180, 200, 220]) expect(passesOf(on, w / 2)).toContain(0);
-    expect(spec.passAxis).toBe(false);
+    expect(spec.passAxis).toBe(true);
   });
 
   it('validate-open: from the middle and both edges at the minimum speed of the section the nearest shelter ≤ warnSec × 0.8', () => {

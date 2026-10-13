@@ -39,7 +39,7 @@ import { BOSS_SIGN_HALF, BOSS_SIGN_TOP, createBossView, type BossView } from './
 import { createEventsView, type EventsView } from './app/events-view.ts';
 import { createFunView, type FunView } from './app/fun-view.ts';
 import { createFx, type FxParticles } from './render/fx.ts';
-import { guardBannerSigns, guardRecordFlag } from './app/banner-signs.ts';
+import { guardBannerSigns, guardBaseArches, guardRecordFlag } from './app/banner-signs.ts';
 import { createMetaView, type MetaView } from './app/meta-view.ts';
 import { createPetsView, type PetsView } from './app/pets-view.ts';
 import { createRebirthView, type RebirthView } from './app/rebirth-view.ts';
@@ -710,6 +710,7 @@ async function boot(): Promise<void> {
     get baseBoard() {
       return baseView?.board ?? [];
     },
+    baseArchHidden: (i) => baseView?.archHidden(i) ?? false,
     showToast: (text, sec, gold) => hud?.toast(text, sec, gold),
     showFaces() {
       if (!characters || !cameraRig) return;
@@ -1206,7 +1207,8 @@ async function boot(): Promise<void> {
       // FM-03 (docs/01-gdd.md 19.8): running up a giant's zone, the giant ahead stays in the view.
       const zone = sim.boss?.zones.find((z) => renderPos.z >= z.zone[0] && renderPos.z <= z.zone[1]);
       const ahead = zone?.giants.find((x) => x.z > renderPos.z + BOSS_KEEP_AHEAD);
-      cameraRig.keep = ahead && hero.vel.z > 0.5 ? bossKeep.set(ahead.x, sim.level.floorAt(ahead.x, ahead.z) + (theme.boss?.height ?? 0) / 2, ahead.z) : null;
+      // Q-066: on the siren the mouth of the lit shelter (camera.shelterKeep).
+      cameraRig.keep = ahead && hero.vel.z > 0.5 ? bossKeep.set(ahead.x, sim.level.floorAt(ahead.x, ahead.z) + (theme.boss?.height ?? 0) / 2, ahead.z) : (waveView?.keep ?? null);
       cameraRig.update(
         frameDt,
         { pos: renderPos, vel: hero.vel, speed: hero.speed, maxSpeed },
@@ -1244,6 +1246,7 @@ async function boot(): Promise<void> {
     }
     // SP-01: the record flag is never drawn in the way of the camera (docs/01-gdd.md 20.2).
     if (cameraRig) guardRecordFlag(recordFlag, cameraRig.camera, renderPos, tuning.camera.hideDistance * (tuning.camera.flagHide ?? 0));
+    if (cameraRig && baseView?.drawn) guardBaseArches(baseView, cameraRig.camera, renderPos, tuning.camera.archHide ?? 0);
     // Test hooks see the frame as it is drawn: camera, hero and the signs hidden for it (PR-11).
     g.onFrame?.();
     gr.follow(renderPos);
@@ -1725,14 +1728,16 @@ async function boot(): Promise<void> {
   }
 
   // Entering the game after the first summit: the base (docs/01-gdd.md 19.4, startOnReturn), otherwise 6.6 as before.
-  if (flow({ kind: 'boot' }).kind === 'base') {
+  const onBaseAtBoot = flow({ kind: 'boot' }).kind === 'base';
+  if (onBaseAtBoot) {
     enterBase();
-    // Back in the game with the gift of the day waiting (docs/01-gdd.md 19.2): it says so, by the box at the spawn.
     dailyView.tick(true);
-    if (dailyView.canClaim && hudDueNow().has('daily')) hud.toast(t('toast.welcomeGift'), 3);
   }
   // First frame drawn and controls live, then ready() (11.2, steps 6–7).
   gr.render();
+  // Back in the game with the gift of the day waiting (docs/01-gdd.md 19.2): it says so, by the box at the spawn — after the
+  // first frame, so its 3 s are not spent on the first draw of a slow device.
+  if (onBaseAtBoot && dailyView.canClaim && hudDueNow().has('daily')) hud.toast(t('toast.welcomeGift'), 3);
   bootState.firstFrameAt = gr.info().frame;
   events.push('firstFrame');
   loop.paused = pause.paused;

@@ -32,7 +32,8 @@ export interface TestState {
   width: number;
   /** The base (docs/01-gdd.md 19, FM-07): the hero is on it, its portals; the mountain is one passed, run again. */
   onBase: boolean;
-  basePortals: Array<{ world: number; x: number; z: number; yaw: number; width: number; state: string }>;
+  /** `hidden` — the arch is not drawn now (Q-066: in the way of the camera). */
+  basePortals: Array<{ world: number; x: number; z: number; yaw: number; width: number; state: string; hidden: boolean }>;
   replay: boolean;
   /** The sign of the base treadmill (FM-09). */
   baseTread: string | null;
@@ -257,7 +258,8 @@ export interface TestApi {
    * with the near plane), hero hidden by the camera while he should be seen, camera closer than 2.5 units to the hero's
    * body from chest to head (PR-13), hero behind level geometry, a drawn gate sign between the camera and the hero or
    * around the camera (PR-11); frames of the grotto frame (RG-13); first bad frames. */
-  cameraStats(): { frames: number; inside: number; heroHidden: number; heroNear: number; heroBlocked: number; signBlocked: number; tight: number; bad: string[]; headFrames: number; headBlocked: number; headBy: Record<string, number>; bossFrames: number; bossSeen: number; portal: number; flagBlocked: number; flagFrames: number };
+  /** `headMin` — the nearest the camera came to the centre of the hero's head over the frames (Q-066), `headMinAt` — where. */
+  cameraStats(): { frames: number; inside: number; heroHidden: number; heroNear: number; heroBlocked: number; signBlocked: number; tight: number; bad: string[]; headFrames: number; headBlocked: number; headBy: Record<string, number>; bossFrames: number; bossSeen: number; portal: number; flagBlocked: number; flagFrames: number; headMin: number; headMinAt: string };
   resetCameraStats(): void;
   forceSlowFrames(sec: number): boolean;
   setQuality(level: QualityLevel | 'auto'): void;
@@ -391,7 +393,7 @@ export function installTestApi(g: GameHandles): TestApi {
       for (const b of sim.bots?.list ?? []) if (b.mode !== 'away' && b.mode !== 'off') overClosed = Math.max(overClosed, b.z - gate.z);
     });
   };
-  const cam = { frames: 0, inside: 0, heroHidden: 0, heroNear: 0, heroBlocked: 0, signBlocked: 0, tight: 0, bad: [] as string[], headFrames: 0, headBlocked: 0, headBy: {} as Record<string, number>, bossFrames: 0, bossSeen: 0, portal: 0, flagBlocked: 0, flagFrames: 0 };
+  const cam = { frames: 0, inside: 0, heroHidden: 0, heroNear: 0, heroBlocked: 0, signBlocked: 0, tight: 0, bad: [] as string[], headFrames: 0, headBlocked: 0, headBy: {} as Record<string, number>, bossFrames: 0, bossSeen: 0, portal: 0, flagBlocked: 0, flagFrames: 0, headMin: 999, headMinAt: '' };
   const headRay = new Ray();
   const headAt = new Vector3();
   const ndc = new Vector3();
@@ -453,6 +455,11 @@ export function installTestApi(g: GameHandles): TestApi {
     if (rig.tight) cam.tight++;
     const p = rig.camera.position;
     const h = sim.hero.pos;
+    const toHead = Math.hypot(p.x - h.x, p.y - h.y - HEAD, p.z - h.z);
+    if (toHead < cam.headMin) {
+      cam.headMin = toHead;
+      cam.headMinAt = `hero (${h.x.toFixed(1)},${h.y.toFixed(1)},${h.z.toFixed(1)}) camera (${p.x.toFixed(1)},${p.y.toFixed(1)},${p.z.toFixed(1)}) tight ${rig.tight} fixed ${rig.fixedBlend.toFixed(2)} raise ${rig.raise.toFixed(2)} dist ${rig.currentDistance.toFixed(1)} pitch ${g.frame.pitch.toFixed(2)} view ${rig.viewBlend.toFixed(2)} shot ${rig.shot !== null} belt ${sim.onBelt} shelter ${sim.shelterIndex()}`;
+    }
     const note = (what: string): void => {
       if (cam.bad.length < 12) cam.bad.push(`${what} t=${(g.sim?.tick ?? 0) / 60} hero=(${h.x.toFixed(1)},${h.y.toFixed(1)},${h.z.toFixed(1)}) cam=(${p.x.toFixed(1)},${p.y.toFixed(1)},${p.z.toFixed(1)})`);
     };
@@ -569,7 +576,7 @@ export function installTestApi(g: GameHandles): TestApi {
         pace,
         width: g.sim?.level.width ?? 0,
         onBase: g.onBase,
-        basePortals: g.basePortals.map((b) => ({ world: b.world, x: b.x, z: b.z, yaw: b.yaw, width: b.width, state: b.state })),
+        basePortals: g.basePortals.map((b, i) => ({ world: b.world, x: b.x, z: b.z, yaw: b.yaw, width: b.width, state: b.state, hidden: g.baseArchHidden(i) })),
         replay: g.replay,
         baseTread: g.baseTreadSign,
         standButton: g.standsView?.button ?? null,
@@ -879,6 +886,8 @@ export function installTestApi(g: GameHandles): TestApi {
     cameraStats: () => ({ ...cam, bad: [...cam.bad], headBy: { ...cam.headBy } }),
     resetCameraStats() {
       cam.frames = 0;
+      cam.headMin = 999;
+      cam.headMinAt = '';
       cam.inside = 0;
       cam.heroHidden = 0;
       cam.heroNear = 0;

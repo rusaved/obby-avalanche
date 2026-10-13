@@ -382,6 +382,8 @@ const tuningSchema = v.object({
     occludeRadius: nonNeg,
     fadeAlpha: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
     bossKeepDeg: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(90))),
+    shelterKeep: v.optional(nonNeg),
+    archHide: v.optional(nonNeg),
     flagHide: v.optional(nonNeg),
     speedDistanceAdd: v.optional(nonNeg),
     speedPow: v.optional(positive),

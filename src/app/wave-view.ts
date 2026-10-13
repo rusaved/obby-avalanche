@@ -1,4 +1,4 @@
-// What: How the avalanche looks and feels each frame: banner, frost frame, cave arrow, wide camera frame, shake, white veil and the hero covering his head.
+// What: How the avalanche looks and feels each frame: banner, frost frame, cave arrow, the mouth to keep in the view, wide camera frame, shake, white veil and the hero covering his head.
 // Called by: main.ts (createWaveView); app/handles.ts (type).
 // Keep: Reads the sim, never changes it; feel values live in tuning avalanche (?debug=1 sliders) - new ones go there, not into this file.
 
@@ -58,6 +58,9 @@ export interface WaveView {
   /** The same wide frame on the belt of a cave outside an avalanche (PR-11). */
   readonly beltShot: boolean;
   readonly veil: boolean;
+  /** The mouth of the lit shelter while the arrow leads to it, farther than camera.shelterKeep (closer the view would spin past
+   * the mouth); null — none. */
+  readonly keep: Vector3 | null;
 }
 
 export function createWaveView(d: WaveViewDeps): WaveView {
@@ -73,12 +76,14 @@ export function createWaveView(d: WaveViewDeps): WaveView {
   let strongSec = 0;
   /** The player turned the camera by hand on this stay on the belt: his camera until the hero leaves the belt (PR-11). */
   let beltManual = false;
-  const view: WaveView & { banner: string | null; arrow: boolean; shot: boolean; beltShot: boolean; veil: boolean } = {
+  const keepAt = new Vector3();
+  const view: WaveView & { banner: string | null; arrow: boolean; shot: boolean; beltShot: boolean; veil: boolean; keep: Vector3 | null } = {
     banner: null,
     arrow: false,
     shot: false,
     beltShot: false,
     veil: false,
+    keep: null,
     update(frameDt, timeSec) {
       const sim = d.getSim();
       const ts = sim.threat?.state;
@@ -90,6 +95,7 @@ export function createWaveView(d: WaveViewDeps): WaveView {
         view.shot = false;
         view.beltShot = false;
         view.veil = false;
+        view.keep = null;
         d.hud.setWaveBanner(null);
         d.hud.setFrost(0);
         d.hud.setCaveArrow(null);
@@ -135,12 +141,17 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       // right above the cave mouth pointing down when it is on screen.
       const cave = sim.level.niches[ts.shelter];
       let arrow: { x: number; y: number; angle: number } | null = null;
+      view.keep = null;
       if (cave && !safeAbove && (ts.phase === 'warn' || (running && ts.outcome === 'none')) && sim.shelterIndex() < 0) {
         // A tunnel (docs/01-gdd.md 18.3) and a grotto in a rock (SP-04): its nearer mouth, not the track edge by its middle.
         if (cave.kind === 'tunnel' || cave.kind === 'island') {
           const e = distToEntrance(sim.level, cave, hero.x, hero.z);
           p.set(e.tx, cave.y + 4, e.tz);
         } else p.set(entranceX(sim.level, cave), cave.y + 4, cave.z);
+        // Q-066: the camera keeps that mouth in the view (playtest of «Размах»: back to the first rock the view looked into
+        // his face), until he is close to it.
+        const near = d.tuning.camera.shelterKeep ?? 0;
+        if (near > 0 && !sim.caught && Math.hypot(p.x - hero.x, p.z - hero.z) > near) view.keep = keepAt.copy(p);
         p.project(d.camera.camera);
         const behind = p.z > 1;
         let nx = behind ? -p.x : p.x;

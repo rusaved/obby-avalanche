@@ -11,7 +11,7 @@
  "width": 56,
  "widthTaper": 40,
  "passEvery": 30,
- "passAxis": false,
+ "passAxis": true,
  "island": {
   "size": 12,
   "every": 2,
