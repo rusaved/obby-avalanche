@@ -47,7 +47,9 @@ for (const index of [8, 9, 10]) {
     }
     await page.evaluate((z) => window.__TEST__!.teleport(z, 0), zone.zStart + 14);
     await waitTicks(page, 10);
-    const passX = calm > 0 ? 18 : -18;
+    // The pass of ridge 2 on the calm lane's side nearest it (SP-04: the passes go by the width).
+    const passes = ((ridge as { passes?: number[] }).passes ?? [0]).filter((x) => Math.sign(x) === Math.sign(calm));
+    const passX = passes.reduce((a, b) => (Math.abs(b - calm) < Math.abs(a - calm) ? b : a), passes[0] ?? 0);
     await page.evaluate(
       ([fz, cx, fe, px, rz]) => window.__TEST__!.botPath([[0, fz - 6], [cx, fz + 6], [cx, fe], [px, rz - 12], [px, rz + 8]]),
       [fork.z, calm, fork.z + fork.length!, passX, ridge.z] as const,

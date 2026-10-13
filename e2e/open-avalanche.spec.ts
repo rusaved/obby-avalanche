@@ -22,7 +22,7 @@ test('scripted wave at the entry of section 2: the bot in its grotto, «Phew, ma
   const t0 = (await testState(page)).timeSec;
   await page.evaluate((k) => window.__TEST__!.setTimeScale(k), 3);
   // Up the middle, then the left lane of the fork of section 2 (the cliff stands on the axis).
-  await page.evaluate((z) => window.__TEST__!.botPath([[0, z + 14], [-lane, z + 60]]), ridge1);
+  await page.evaluate(([z, l]) => window.__TEST__!.botPath([[0, z + 14], [-l, z + 60]]), [ridge1, lane] as const);
   await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'warn', undefined, { timeout: 90_000 });
   let s = await testState(page);
   expect(s.wave!.scripted).toBe(true);
