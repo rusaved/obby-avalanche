@@ -265,6 +265,10 @@ export interface HintsTiming {
   portalMax: number;
   /** «Two ways: pick one» (open slope, docs/01-gdd.md 17.8): once, after standing this long at a fork; absent — never. */
   forkSec?: number;
+  /** «Pets speed up your steps» (docs/01-gdd.md 20.9, Q-065): an open egg with `coins` × its price in hand whose average
+   * pet is more than `better` × the weakest pet on; up `sec`, `max` times in the life of the player. The model's
+   * profiles take that egg (scripts/balance-model.ts). Absent — no hint. */
+  pets?: { better: number; coins: number; sec: number; max: number };
 }
 
 export interface TuningJson {

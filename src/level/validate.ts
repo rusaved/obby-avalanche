@@ -312,6 +312,7 @@ const balanceSchema = v.object({
     portalIdleSec: positive,
     portalMax: v.pipe(v.number(), v.integer(), v.minValue(0)),
     forkSec: v.optional(positive),
+    pets: v.optional(v.object({ better: v.pipe(v.number(), v.minValue(1)), coins: v.pipe(v.number(), v.minValue(1)), sec: positive, max: v.pipe(v.number(), v.integer(), v.minValue(0)) })),
   }),
   // Targets of sim:balance --fit for a pace (docs/01-gdd.md 16.8): the game never reads them.
   sim: v.optional(

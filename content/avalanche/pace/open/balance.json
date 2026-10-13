@@ -32,17 +32,22 @@
   "hints": {
     "stuckMax": 99,
     "forkSec": 2,
-    "waveCaveMax": 0
+    "waveCaveMax": 0,
+    "pets": { "better": 1.5, "coins": 2, "sec": 6, "max": 3 }
   },
   "ads": {
     "skipGate": {
       "enabled": false
     },
     "continueCooldownSec": 120,
-    "continueShowSec": 6
+    "continueShowSec": 6,
+    "statNowCooldownSec": 200
+  },
+  "boost": {
+    "statNowSec": 40
   },
   "rebirth": {
-    "wallScale": [1, 38, 190, 860, 5900, 20000, 62000, 240000, 970000, 3000000],
+    "wallScale": [1, 21, 130, 490, 3300, 11000, 35000, 140000, 550000, 1600000],
     "unlock": "summitWorld10",
     "lateEase": {
       "fromWall": 30
@@ -56,11 +61,12 @@
       2.6,
       2.9,
       3.2,
-      3.5,
-      3.8,
-      4.1,
-      4.5
+      3.1,
+      3.2,
+      3.3,
+      3.4
     ],
+    "fitProfile": { "from": 7, "profile": "experienced" },
     "gateCurve": 1,
     "keep": 4,
     "roundDigits": 2,

@@ -300,11 +300,11 @@
    ],
    "boss": {
     "stretch": 400,
-    "requires": 55000,
+    "requires": 56000,
     "margin": 0.05,
     "stepMult": 6,
     "gift": 80,
-    "speed": 54.9,
+    "speed": 55,
     "width": 170,
     "covers": 2
    }
@@ -570,22 +570,22 @@
      "requires": 4200000
     },
     {
-     "requires": 5800000
+     "requires": 6000000
     },
     {
-     "requires": 7800000
+     "requires": 8500000
     },
     {
-     "requires": 11000000
+     "requires": 13000000
     }
    ],
    "boss": {
     "stretch": 560,
-    "requires": 15000000,
+    "requires": 19000000,
     "margin": 0.05,
     "stepMult": 150,
     "gift": 6000,
-    "speed": 64,
+    "speed": 64.8,
     "helpers": [
      {
       "side": "left"
@@ -677,25 +677,25 @@
    ],
    "ridges": [
     {
-     "requires": 21000000
+     "requires": 30000000
     },
     {
-     "requires": 32000000
+     "requires": 47000000
     },
     {
-     "requires": 41000000
+     "requires": 61000000
     },
     {
-     "requires": 63000000
+     "requires": 97000000
     }
    ],
    "boss": {
     "stretch": 620,
-    "requires": 100000000,
+    "requires": 160000000,
     "margin": 0.05,
     "stepMult": 500,
     "gift": 60000,
-    "speed": 69.9,
+    "speed": 71.3,
     "helpers": [
      {
       "side": "left"
@@ -786,25 +786,25 @@
    ],
    "ridges": [
     {
-     "requires": 150000000
+     "requires": 260000000
     },
     {
-     "requires": 230000000
+     "requires": 410000000
     },
     {
-     "requires": 350000000
+     "requires": 530000000
     },
     {
-     "requires": 490000000
+     "requires": 800000000
     }
    ],
    "boss": {
     "stretch": 670,
-    "requires": 700000000,
+    "requires": 1300000000,
     "margin": 0.05,
     "stepMult": 1500,
     "gift": 600000,
-    "speed": 75.9,
+    "speed": 77.8,
     "helpers": [
      {
       "side": "left"
@@ -899,25 +899,25 @@
    ],
    "ridges": [
     {
-     "requires": 1100000000
+     "requires": 2100000000
     },
     {
-     "requires": 1600000000
+     "requires": 3300000000
     },
     {
-     "requires": 2500000000
+     "requires": 4400000000
     },
     {
-     "requires": 3800000000
+     "requires": 7300000000
     }
    ],
    "boss": {
     "stretch": 730,
-    "requires": 5900000000,
+    "requires": 12000000000,
     "margin": 0.05,
     "stepMult": 5000,
     "gift": 8000000,
-    "speed": 82.5,
+    "speed": 84.7,
     "helpers": [
      {
       "side": "left"
@@ -1015,25 +1015,25 @@
    ],
    "ridges": [
     {
-     "requires": 9400000000
+     "requires": 17000000000
     },
     {
-     "requires": 14000000000
+     "requires": 28000000000
     },
     {
-     "requires": 20000000000
+     "requires": 48000000000
     },
     {
-     "requires": 31000000000
+     "requires": 91000000000
     }
    ],
    "boss": {
     "stretch": 810,
-    "requires": 49000000000,
+    "requires": 150000000000,
     "margin": 0.05,
     "stepMult": 15000,
     "gift": 160000000,
-    "speed": 89.1,
+    "speed": 92.5,
     "helpers": [
      {
       "side": "left"
@@ -1141,21 +1141,21 @@
    ],
    "ridges": [
     {
-     "requires": 86000000000
+     "requires": 280000000000
     },
     {
-     "requires": 130000000000
+     "requires": 440000000000
     },
     {
-     "requires": 200000000000
+     "requires": 640000000000
     },
     {
-     "requires": 360000000000
+     "requires": 940000000000
     }
    ],
    "boss": {
     "stretch": 940,
-    "requires": 710000000000,
+    "requires": 1300000000000,
     "margin": 0.05,
     "stepMult": 40000,
     "gift": 4000000000,

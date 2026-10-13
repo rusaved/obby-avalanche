@@ -320,6 +320,13 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
     for (let i = 0; i < slots; i++) s += meta.pets[i] ?? 0;
     return 1 + s;
   };
+  /** The best open egg with `coins` × its price in hand whose average pet is `better` × the weakest one in the slots
+   * (an empty slot — any); null — none. The experienced player: any egg it can pay for that beats the weakest pet. */
+  const betterEgg = (p: number, rule = { better: 1, coins: 1 }): (typeof eggs)[number] | null => {
+    const weakest = meta.pets.length >= slots ? meta.pets[slots - 1]! : 0;
+    return [...eggs].reverse().find((x) => p >= x.at && C >= rule.coins * x.price * Wn && x.pool.reduce((a, q) => a + q.bonus * q.chance, 0) > rule.better * weakest) ?? null;
+  };
+  const petHint = balance.hints.pets;
   let eggsBought = 0;
   const rewards: number[] = [];
   /** Novice: the cycle second it first could pay for the next shoes / egg (−1 — not yet). */
@@ -648,8 +655,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
           }
           // Experienced: an older egg it can pay for while its average pet beats the weakest one in the slots.
           for (let k = 0; experienced && k < EGG_BATCH; k++) {
-            const weakest = meta.pets.length >= slots ? meta.pets[slots - 1]! : 0;
-            const e = [...eggs].reverse().find((x) => p >= x.at && C >= x.price * Wn && x.pool.reduce((a, q) => a + q.bonus * q.chance, 0) > weakest);
+            const e = betterEgg(p);
             if (!e) break;
             C -= e.price * Wn;
             hatch(e);
@@ -665,6 +671,14 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
           shoeBuys.push(T);
           rewards.push(T);
           shoeSince = -1;
+        }
+        // The pets hint (docs/01-gdd.md 20.9, Q-065; balance.json hints.pets, the same rule shows it in the game): an egg
+        // with `coins` × its price in hand and an average pet `better` × the weakest — every profile but the spammer's.
+        for (let k = 0; petHint && !spammer && k < EGG_BATCH; k++) {
+          const e = betterEgg(p, petHint);
+          if (!e) break;
+          C -= e.price * Wn;
+          hatch(e);
         }
         // The best open egg, as many times as wanted, while the next shoes cost 4+ times more (the reference).
         if (best && !spammer) {
@@ -869,10 +883,12 @@ export function fitBalance(pack: ModelPack, t: FitTargets, reference = false): F
   const inv = runCycle(pack, { profile: 'greedy', fit: { keep, targetSec, ...(round ? { round } : {}) }, reference });
   let walls = inv.fitted;
   // SP-09 (docs/01-gdd.md 20.9): the walls of the later mountains by the experienced player on the greedy walls before them.
+  // Without the ads: the walls follow its pets and eggs, not the minute a cooldown ends (fitted with the ads, a wall jumps
+  // where an ad fell and stands for every player without one); F17 and F19 measure the same player with the ads.
   if (t.fitProfile) {
     const per = pack.worlds.map((w) => w.segments.filter((s) => s.type === 'gate').length);
     const keep2 = per.slice(0, t.fitProfile.from - 1).reduce((a, b) => a + b, 0);
-    walls = runCycle(withWalls(pack, walls), { profile: t.fitProfile.profile, fit: { keep: keep2, targetSec, ...(round ? { round } : {}) }, reference }).fitted;
+    walls = runCycle(withWalls(pack, walls), { profile: t.fitProfile.profile, ads: false, fit: { keep: keep2, targetSec, ...(round ? { round } : {}) }, reference }).fitted;
   }
   const fitted = withWalls(pack, walls);
   const r0 = runCycle(fitted, { profile: 'greedy', reference });
