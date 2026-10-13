@@ -324,6 +324,7 @@ const balanceSchema = v.object({
       checks: v.optional(v.record(v.string(), v.union([v.number(), v.array(v.union([v.number(), v.array(v.number())])), v.record(v.string(), v.union([v.number(), v.boolean()]))]))),
       eggsByMountain: v.optional(v.array(v.object({ mountain: v.pipe(v.number(), v.integer(), v.minValue(1)), min: nonNeg }))),
       words: v.optional(v.object({ one: v.string(), gen: v.string(), many: v.string(), manyGen: v.string() })),
+      fitProfile: v.optional(v.object({ from: v.pipe(v.number(), v.integer(), v.minValue(1)), profile: v.picklist(['greedy', 'experienced', 'eggSpammer']) })),
     }),
   ),
 });

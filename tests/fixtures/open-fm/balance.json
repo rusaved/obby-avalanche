@@ -1,0 +1,110 @@
+{
+  "coins": {
+    "gatePass": 5
+  },
+  "ui": {
+    "summitGroup": { "trophies": 1, "records": 1, "wardrobe": 2, "quests": 2, "rebirth": 3, "shortcut": 2 }
+  },
+  "upgrade": {
+    "tiers": [
+      { "id": "old_sneakers", "mult": 1, "price": 0 },
+      { "id": "runners", "mult": 2, "price": 30 },
+      { "id": "snow_runners", "mult": 3, "price": 300 },
+      { "id": "ice_spikes", "mult": 5, "price": 900 },
+      { "id": "puffy_kicks", "mult": 8, "price": 4000 },
+      { "id": "snowflakes", "mult": 12, "price": 18000 },
+      { "id": "frost_bolts", "mult": 20, "price": 80000 },
+      { "id": "ice_rockets", "mult": 30, "price": 350000 },
+      { "id": "blizzard_boots", "mult": 50, "price": 1500000 },
+      { "id": "comets", "mult": 80, "price": 6500000 },
+      { "id": "north_wind", "mult": 120, "price": 28000000 },
+      { "id": "aurora_kicks", "mult": 200, "price": 120000000 },
+      { "id": "star_runners", "mult": 300, "price": 500000000 },
+      { "id": "avalanche_boots", "mult": 500, "price": 2200000000 },
+      { "id": "cosmic_kicks", "mult": 800, "price": 9000000000 },
+      { "id": "slope_legend", "mult": 1200, "price": 40000000000 }
+    ]
+  },
+  "ftue": {
+    "scriptedWaveWall": 2
+  },
+  "hints": {
+    "stuckMax": 99,
+    "forkSec": 2,
+    "waveCaveMax": 0
+  },
+  "ads": {
+    "skipGate": {
+      "enabled": false
+    },
+    "continueCooldownSec": 120,
+    "continueShowSec": 6
+  },
+  "rebirth": {
+    "wallScale": [1, 37, 180, 700, 5200, 18000, 54000, 210000, 820000, 2500000],
+    "unlock": "summitWorld10",
+    "lateEase": {
+      "fromWall": 30
+    }
+  },
+  "sim": {
+    "mountainMin": [
+      1.8,
+      2,
+      2.3,
+      2.6,
+      2.9,
+      3.2,
+      3.5,
+      3.8,
+      4.1,
+      4.5
+    ],
+    "gateCurve": 1,
+    "keep": 4,
+    "roundDigits": 2,
+    "checks": {
+      "early": [
+        [
+          1,
+          15
+        ]
+      ],
+      "m1": [
+        1.1,
+        2.2
+      ],
+      "longest": 75,
+      "mean": [
+        3,
+        30
+      ],
+      "shoeMountains": 5,
+      "shoeGap": 150,
+      "share": 0.2,
+      "lazyM1": 3.5,
+      "deadEnd": 180,
+      "ratio": 0.6,
+      "before": [2.0, 2.2, 2.5, 2.7, 3.0, 3.4, 3.6, 4.0, 4.1, 4.7],
+      "growth": 0.1,
+      "rhythm": { "sec": 180, "maxGap": 20, "standMax": 10, "noviceStandMax": 15, "noviceDelaySec": 15, "noviceSpeed": 0.8 },
+      "buyer": { "fromSec": 300, "vip": true, "starter": true, "minShare": 0.5 }
+    },
+    "eggsByMountain": [
+      {
+        "mountain": 5,
+        "min": 3
+      },
+      {
+        "mountain": 10,
+        "min": 10
+      }
+    ],
+    "words": {
+      "one": "рубеж",
+      "gen": "рубежа",
+      "many": "рубежи",
+      "manyGen": "рубежей"
+    }
+  }
+}

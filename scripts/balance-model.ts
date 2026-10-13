@@ -21,6 +21,9 @@
  *   19.6, F14: the stand on a belt at a ridge of mountain 1 for a player who is slower to buy).
  * - buyer — greedy that buys with yans from `buyer.fromSec` of play (docs/01-gdd.md 19.7, F15): VIP × iap.vipMult on every
  *   step, and the starter pack once (its pet of balance.iap.starter, its trophies spendable only, not «of all time»).
+ * - experienced — as the producer played (docs/01-gdd.md 20.9, SP-09): the egg spammer's rules, «Speed now» (`stat_now`)
+ *   every `ads.statNowCooldownSec` while it stands on the belt of a grotto at a closed ridge (`boost.statNowSec` of that
+ *   belt), `x2_chest` on every summit, the base as everyone; `ads: false` — the same without the ads (F19).
  * Rewards by seconds (docs/01-gdd.md 19.6, F14): every cycle second of a passed wall (a ridge, the giant with the summit),
  * a pair of shoes, a bought egg and a wave the bot sheltered from («Phew, made it!»; the scripted one brings the free egg);
  * the seconds on the belt of a wall's grotto waiting for its number are `standSec` of its row.
@@ -43,7 +46,7 @@ import type { AurasJson, BalanceJson, EggsJson, GameJson, PetsJson, Reward, Segm
 import { moveSpeed } from '../src/sim/effects/moveSpeed.ts';
 import { scaled, stepGain } from '../src/sim/economy.ts';
 
-export type Profile = 'greedy' | 'goldSeeker' | 'lazy' | 'activeDay' | 'eggSpammer' | 'novice' | 'buyer';
+export type Profile = 'greedy' | 'goldSeeker' | 'lazy' | 'activeDay' | 'eggSpammer' | 'novice' | 'buyer' | 'experienced';
 
 export interface ModelPack {
   game: GameJson;
@@ -120,6 +123,8 @@ export interface CycleRun {
   fitted: number[];
   /** Cycle seconds of every reward (F14, docs/01-gdd.md 19.6): walls, shoes, bought eggs, waves sheltered from; sorted. */
   rewards: number[];
+  /** Experienced: «Speed now» ads watched on every mountain (index = mountain − 1). */
+  adsAt: number[];
 }
 
 export interface CycleOpts {
@@ -140,6 +145,8 @@ export interface CycleOpts {
   novice?: { speed: number; delaySec: number };
   /** Profile buyer (F15): from `fromSec` of the cycle VIP (`vip`) and the starter pack (`starter`). */
   buyer?: { fromSec: number; vip: boolean; starter: boolean };
+  /** Profile experienced: false — no «Speed now» and no `x2_chest` (the share the ads cut, F19); default true. */
+  ads?: boolean;
 }
 
 /** Model step, seconds (the reference: $dt = 0.25). */
@@ -259,7 +266,10 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
   const rnd = lcg(opts.seed ?? SEED);
   const lazyRnd = lcg(LAZY_SEED);
   const lazy = profile === 'lazy';
-  const spammer = profile === 'eggSpammer';
+  const experienced = profile === 'experienced';
+  const adsOn = experienced && opts.ads !== false;
+  // Experienced buys eggs as the spammer (docs/01-gdd.md 20.9).
+  const spammer = profile === 'eggSpammer' || experienced;
   const novice = profile === 'novice' ? (opts.novice ?? { speed: 0.8, delaySec: 15 }) : null;
   const buyer = profile === 'buyer' ? (opts.buyer ?? { fromSec: balance.iap.showAfterPlaySec, vip: true, starter: true }) : null;
   let starterGiven = false;
@@ -350,6 +360,8 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
   const mountains: number[] = [];
   const caughtAt: number[] = [];
   const eggsAt: number[] = [];
+  const adsAt: number[] = [];
+  let lastStatNow = -Infinity;
 
   for (let wi = 0; wi < worlds.length; wi++) {
     const world = worlds[wi]!;
@@ -601,6 +613,12 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
           S += (vBelt / stepLen) * g * treadAt(grotto) * DT;
           z = grotto;
           standSec += DT;
+          // Experienced: «Speed now» on the belt of the grotto at the closed ridge whenever its cooldown is over (9.1).
+          if (adsOn && T >= balance.ads.rewardedMinPlaySec && T - lastStatNow >= balance.ads.statNowCooldownSec) {
+            S += (vBelt / stepLen) * g * treadAt(grotto) * balance.boost.statNowSec;
+            lastStatNow = T;
+            adsAt[wi] = (adsAt[wi] ?? 0) + 1;
+          }
         }
         T += DT;
         // Active day: rewards of the day as their second of play comes (coins are k × the gift of the hero's zone).
@@ -620,12 +638,21 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
             if (e) hatch(e);
           }
         }
-        // Egg spammer (the reference, SPAM=1): the best open egg first, shoes from what is left.
+        // Egg spammer (the reference, SPAM=1): the best open egg first, shoes from what is left. The shop sells every egg
+        // opened: the experienced player also takes older ones (docs/01-gdd.md 20.9: pets ×3–6 on mountains 7–8).
         const best = [...eggs].reverse().find((e) => p >= e.at);
         if (spammer && best) {
           for (let k = 0; k < EGG_BATCH && C >= best.price * Wn; k++) {
             C -= best.price * Wn;
             hatch(best);
+          }
+          // Experienced: an older egg it can pay for while its average pet beats the weakest one in the slots.
+          for (let k = 0; experienced && k < EGG_BATCH; k++) {
+            const weakest = meta.pets.length >= slots ? meta.pets[slots - 1]! : 0;
+            const e = [...eggs].reverse().find((x) => p >= x.at && C >= x.price * Wn && x.pool.reduce((a, q) => a + q.bonus * q.chance, 0) > weakest);
+            if (!e) break;
+            C -= e.price * Wn;
+            hatch(e);
           }
         }
         // Novice: a purchase waits delaySec from the moment the coins are there (each kind its own clock).
@@ -652,7 +679,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
           }
         }
         if (T > LIMIT_SEC) {
-          return { sec: Infinity, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, caughtAt, eggsAt, goldTaken, coins: C, meta, trophiesGot, seedOut: rnd.state(), fitted, rewards: rewards.sort((a, b) => a - b) };
+          return { sec: Infinity, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, caughtAt, eggsAt, goldTaken, coins: C, meta, trophiesGot, seedOut: rnd.state(), fitted, rewards: rewards.sort((a, b) => a - b), adsAt };
         }
       }
       // The free egg of the first minute hatches after wall 3 of the reference (docs/01-gdd.md 6.2).
@@ -672,7 +699,9 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
       lastWallT = T;
     }
     T += TO_PORTAL / vel(S);
-    C += balance.coins.chest * zoneGift(world.zones[world.zones.length - 1]?.k ?? 0) * Wn;
+    // The summit chest; the experienced doubles it by an ad (x2_chest).
+    C += balance.coins.chest * zoneGift(world.zones[world.zones.length - 1]?.k ?? 0) * Wn * (adsOn ? 2 : 1);
+    adsAt[wi] = (adsAt[wi] ?? 0) + (adsOn ? 1 : 0);
     meta.trophies += w * (1 + n); // balance.trophies.perSummit: «world * (1 + tier)»
     trophiesGot += w * (1 + n);
     // Before rebirth the bot spends coins on the best eggs it can.
@@ -690,7 +719,7 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
     T += pack.base?.transitSec ?? 0;
   }
   spendTrophies(pack, meta);
-  return { sec: T, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, caughtAt, eggsAt, goldTaken, coins: C, meta, trophiesGot, seedOut: rnd.state(), fitted, rewards: rewards.sort((a, b) => a - b) };
+  return { sec: T, mountains, walls, shoeBuys, eggsBought, normalWaves, ignoredWaves, caught, doubleCaught, caughtAt, eggsAt, goldTaken, coins: C, meta, trophiesGot, seedOut: rnd.state(), fitted, rewards: rewards.sort((a, b) => a - b), adsAt };
 }
 
 /**
@@ -783,6 +812,8 @@ export interface FitTargets {
   cycleMin: number[];
   /** Rounding of the fitted walls (default: the «nice» row of the reference). */
   round?: Rounding;
+  /** The walls of mountain `from` on are fitted by `profile` instead of the greedy bot (docs/01a-content.md 19.8). */
+  fitProfile?: { from: number; profile: Profile };
 }
 
 /**
@@ -809,7 +840,13 @@ export const CYCLE_MIN = [22, 21, 20, 20, 19, 19, 18, 18, 18];
 export function paceTargets(sim: NonNullable<BalanceJson['sim']>, wallsPerMountain: number[]): FitTargets | null {
   if (sim.mountainMin.length !== wallsPerMountain.length) return null;
   const targetSec = wallsPerMountain.flatMap((k, m) => Array.from({ length: k }, (_, i) => sim.mountainMin[m]! * 60 * ((i + 1) / k) ** sim.gateCurve));
-  return { keep: sim.keep ?? 0, targetSec, cycleMin: CYCLE_MIN, ...(sim.roundDigits ? { round: sigRounding(sim.roundDigits) } : {}) };
+  return {
+    keep: sim.keep ?? 0,
+    targetSec,
+    cycleMin: CYCLE_MIN,
+    ...(sim.roundDigits ? { round: sigRounding(sim.roundDigits) } : {}),
+    ...(sim.fitProfile ? { fitProfile: { from: sim.fitProfile.from, profile: sim.fitProfile.profile as Profile } } : {}),
+  };
 }
 
 export interface FitResult {
@@ -830,7 +867,13 @@ export function fitBalance(pack: ModelPack, t: FitTargets, reference = false): F
   const { keep, targetSec, cycleMin, round } = t;
   const tiers = cycleMin.length;
   const inv = runCycle(pack, { profile: 'greedy', fit: { keep, targetSec, ...(round ? { round } : {}) }, reference });
-  const walls = inv.fitted;
+  let walls = inv.fitted;
+  // SP-09 (docs/01-gdd.md 20.9): the walls of the later mountains by the experienced player on the greedy walls before them.
+  if (t.fitProfile) {
+    const per = pack.worlds.map((w) => w.segments.filter((s) => s.type === 'gate').length);
+    const keep2 = per.slice(0, t.fitProfile.from - 1).reduce((a, b) => a + b, 0);
+    walls = runCycle(withWalls(pack, walls), { profile: t.fitProfile.profile, fit: { keep: keep2, targetSec, ...(round ? { round } : {}) }, reference }).fitted;
+  }
   const fitted = withWalls(pack, walls);
   const r0 = runCycle(fitted, { profile: 'greedy', reference });
   const scale = [1];

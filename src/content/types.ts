@@ -241,6 +241,8 @@ export interface BalanceJson {
     eggsByMountain?: Array<{ mountain: number; min: number }>;
     /** Words of the report for a wall of the pace: one, of one, many, of many. */
     words?: { one: string; gen: string; many: string; manyGen: string };
+    /** SP-09 (docs/01a-content.md 19.8): `--fit` takes the walls of mountain `from` on by this profile of the model. */
+    fitProfile?: { from: number; profile: string };
   };
 }
 

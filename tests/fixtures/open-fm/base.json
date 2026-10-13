@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "startOnReturn": true,
+  "replayRewards": false,
+  "size": [72, 64],
+  "spawn": { "x": 0, "z": 8 },
+  "portals": { "center": [0, 22], "radius": 30, "fromDeg": -75, "toDeg": 75, "width": 6, "height": 8 },
+  "treadmill": { "x": -24, "z": 14, "lanes": 3, "laneWidth": 4, "length": 12, "from": "lastFinish" },
+  "stands": {
+    "shop": { "x": 24, "z": 10, "radius": 4, "standSec": 0.5 },
+    "records": { "x": 33, "z": 16, "radius": 4 },
+    "daily": { "x": 5, "z": 6, "radius": 3 }
+  },
+  "bots": { "count": 2, "low": 1 },
+  "transitSec": 4,
+  "decor": {
+    "tents": [[-30, 4], [-14, 3], [14, 3]],
+    "trees": [[-34, 44], [34, 44], [-30, 60], [30, 60]],
+    "snowman": [-12, 10]
+  }
+}

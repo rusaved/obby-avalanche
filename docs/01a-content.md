@@ -1327,6 +1327,8 @@
 
 Отчёт — `docs/evidence/balance-open.txt`, как сейчас; подгонок за веху — не больше 2 (`balance-fit.json`).
 
+Данные (SP-09): пороги в `sim.checks` записаны плоско — `experienced: { "fmMin": 17, "fmMax": 23, "cycleMin": 24, "cycleMax": 30, "ratioFrom": 7, "ratio": 0.9 }`, `petsByMountain: { "mountain": 8, "min": 3 }`, `adsShare: 0.3`; снимок данных «Базы» для F16 — `tests/fixtures/open-fm/` (`worlds.json`, заплатки `balance.json` и `tuning.json`, `base.json` коммита итога FM). «Опытный» берёт и старые яйца, пока их средний питомец сильнее самого слабого в слотах (`docs/допущения.md`, 83). Подгонка — после ответа на Q-065.
+
 ### 19.9 Тексты
 
 | Ключ | ru | en |

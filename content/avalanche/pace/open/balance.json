@@ -90,7 +90,10 @@
       "growth": 0.1,
       "m1to10": [28, 38],
       "rhythm": { "sec": 180, "maxGap": 20, "standMax": 10, "noviceStandMax": 15, "noviceDelaySec": 15, "noviceSpeed": 0.8 },
-      "buyer": { "fromSec": 300, "vip": true, "starter": true, "minShare": 0.5 }
+      "buyer": { "fromSec": 300, "vip": true, "starter": true, "minShare": 0.5 },
+      "experienced": { "fmMin": 17, "fmMax": 23, "cycleMin": 24, "cycleMax": 30, "ratioFrom": 7, "ratio": 0.9 },
+      "petsByMountain": { "mountain": 8, "min": 3 },
+      "adsShare": 0.3
     },
     "eggsByMountain": [
       {

@@ -449,6 +449,48 @@ if (LIM.buyer) {
   );
 }
 
+// 16–19. The experienced player (docs/01-gdd.md 20.9; 01a 19.8: sim.checks.experienced, petsByMountain, adsShare):
+// F16 — on the data of «База» (FM, tests/fixtures/open-fm: worlds.json and the patches before SP) the model meets the
+// producer's run (10 mountains in 20 min) within fmMin–fmMax; F17 — its cycle cycleMin–cycleMax and mountains from
+// `ratioFrom` at least `ratio` × the one before; F18 — its pets by the summit of a mountain; F19 — «Speed now» cuts at
+// most `adsShare` of every mountain (against the same player with no ads).
+let expRun = null;
+let expFm = null;
+if (LIM.experienced) {
+  const X = LIM.experienced;
+  expRun = runCycle(pack, { profile: 'experienced' });
+  const noAds = runCycle(pack, { profile: 'experienced', ads: false });
+  const fmDir = resolve(root, 'tests/fixtures/open-fm');
+  if (existsSync(fmDir)) {
+    const read = (f) => JSON.parse(readFileSync(resolve(packDir, f), 'utf8'));
+    const fm = (f) => JSON.parse(readFileSync(resolve(fmDir, f), 'utf8'));
+    const fmPack = {
+      ...pack,
+      balance: mergePatch(read('balance.json'), fm('balance.json')),
+      tuning: existsSync(resolve(fmDir, 'tuning.json')) ? mergePatch(read('tuning.json'), fm('tuning.json')) : read('tuning.json'),
+      worlds: fm('worlds.json').worlds,
+      base: existsSync(resolve(fmDir, 'base.json')) ? baseOf(fm('base.json')) : undefined,
+    };
+    expFm = runCycle(fmPack, { profile: 'experienced' });
+    const m = expFm.sec / 60;
+    check(16, `опытный на данных «Базы» (FM, tests/fixtures/open-fm): горы 1–${expFm.mountains.length} — ${X.fmMin}–${X.fmMax} мин (продюсер — 20)`, m >= X.fmMin && m <= X.fmMax, `${m.toFixed(1)} мин — горы ${expFm.mountains.map(min).join(' / ')}`);
+  }
+  const m = expRun.sec / 60;
+  const ratios = expRun.mountains.map((x, i) => [i + 1, i === 0 ? 1 : x / expRun.mountains[i - 1]]).filter(([k]) => k >= X.ratioFrom);
+  const worstR = ratios.reduce((a, r) => (r[1] < a[1] ? r : a), [0, Infinity]);
+  check(17, `опытный, ступень 0: цикл ${X.cycleMin}–${X.cycleMax} мин; горы с ${X.ratioFrom}-й ≥ ${ru(X.ratio)} × предыдущей`, m >= X.cycleMin && m <= X.cycleMax && worstR[1] >= X.ratio, `${m.toFixed(1)} мин — горы ${expRun.mountains.map(min).join(' / ')}; худшее отношение — гора ${worstR[0]}, ${worstR[1].toFixed(2)}`);
+  if (LIM.petsByMountain) {
+    const pm = LIM.petsByMountain;
+    const pets = expRun.walls.filter((w) => w.mountain === pm.mountain).at(-1)?.petMult ?? 0;
+    check(18, `опытный: питомцы к вершине горы ${pm.mountain} ≥ ×${pm.min}`, pets >= pm.min, `×${pets.toFixed(2)}; яиц к вершинам гор — ${expRun.eggsAt.join(' / ')}`);
+  }
+  if (LIM.adsShare !== undefined) {
+    const share = expRun.mountains.map((x, i) => [i + 1, 1 - x / noAds.mountains[i]]);
+    const worstS = share.reduce((a, r) => (r[1] > a[1] ? r : a), [0, -Infinity]);
+    check(19, `опытный: «Скорость сейчас» срезает ≤ ${Math.round(LIM.adsShare * 100)}% каждой горы`, worstS[1] <= LIM.adsShare + 1e-9, `${share.map(([, x]) => `${Math.round(x * 100)}%`).join(' / ')}; больше всех — гора ${worstS[0]}; роликов по горам ${expRun.adsAt.join(' / ')}; без рекламы ${min(noAds.sec)} мин`);
+  }
+}
+
 // ---------- M3-10: the port repeats the reference; the gold seeker thresholds ----------
 const gates = [];
 let fidelity = null;
@@ -482,7 +524,7 @@ if (gold && classic) {
 const lines = [];
 const L = (s = '') => lines.push(s);
 L(`sim:balance — модель экономики docs/01-gdd.md 8.5 (порт docs/references/balance-model.pl), пакет ${packName}${classic ? '' : `, темп ${pace} (01-gdd 16.8: worlds.json и заплатка balance.json из pace/${pace}/)`}`);
-L(`Профили: жадный (ступени 0–${TIERS}), ленивый, активный день, спамер яиц (${SPAM_SEEDS} зёрен)${gold ? ', золотоискатель' : ''}; без рекламы и покупок, зерно 12345 (генератор эталона)`);
+L(`Профили: жадный (ступени 0–${TIERS}), ленивый, активный день, спамер яиц (${SPAM_SEEDS} зёрен)${gold ? ', золотоискатель' : ''}; без рекламы и покупок, зерно 12345 (генератор эталона)${LIM.experienced ? '; опытный (01-gdd 20.9) — с рекламой «Скорость сейчас» и ×2 сундук' : ''}`);
 if (pack.base) L(`База между горами (01-gdd 19.2): после каждой вершины ${pack.base.transitSec} с от появления на базе до портала (base.json transitSec)`);
 L();
 L(classic ? 'Проверки 8.5:' : `Проверки 16.8 (темп ${pace}):`);
@@ -503,6 +545,8 @@ L(sumLine('активный день', active));
 L(` ${'спамер яиц'.padEnd(16)} ${min(spamMed.sec).padStart(5)} мин — горы ${spamMed.mountains.map(min).join(' / ')} (медиана ${SPAM_SEEDS} зёрен 12345 + 7919·k; зерно 12345 — ${min(spam[0].sec)} мин)`);
 if (gold) L(sumLine('золотоискатель', gold) + `; золотых подарков ${gold.goldTaken}`);
 if (buyerRun) L(sumLine('покупатель', buyerRun) + ` (VIP и стартовый набор с ${LIM.buyer.fromSec} с)`);
+if (expRun) L(sumLine('опытный', expRun) + `; «Скорость сейчас» и ×2 сундук по кулдауну, роликов ${expRun.adsAt.reduce((a, b) => a + b, 0)}`);
+if (expFm) L(sumLine('опытный (FM)', expFm) + ' — на данных «Базы», F16');
 if (rhythm) L(` новичок (F14)       ${min(rhythm.novice.sec).padStart(5)} мин — гора 1; кроссовки на секундах ${rhythm.novice.shoeBuys.slice(0, 3).map((t) => t.toFixed(0)).join(', ')}`);
 if (lazy.caughtAt.length) L(` ленивый: «Накрыло» на секундах цикла ${lazy.caughtAt.slice(0, 12).map((t) => t.toFixed(0)).join(', ')}${lazy.caughtAt.length > 12 ? ', …' : ''}`);
 if (greedy.eggsAt.some((n) => n > 0)) L(` жадный: яиц к вершине горы 1…${greedy.eggsAt.length} — ${greedy.eggsAt.join(' / ')}`);
