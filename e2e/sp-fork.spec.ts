@@ -78,7 +78,8 @@ test('dropped on the bottom of the crevasse: out up its slope within 4 s, no fal
   for (const t of [0.15, 0.5, 0.85]) {
     const z = fork.z + t * fork.length!;
     await page.evaluate((zz) => window.__TEST__!.teleport(zz, 0), z);
-    await waitTicks(page, 10);
+    // Down onto the bottom (3 units: about half a second).
+    await waitTicks(page, 40);
     const s0 = await testState(page);
     expect(s0.hero!.y, 'on the bottom').toBeLessThan(y - 1);
     const before = await falls(page);

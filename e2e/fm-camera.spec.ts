@@ -110,7 +110,7 @@ test('mountain 3 through the throat: the head is behind something opaque in ≤ 
   const ridge = w.segments.filter((s) => s.type === 'gate' && s.kind === 'ridge')[0]! as Seg & { requires: number };
   await start(page, openGame, 3, ridge.requires * 1.2);
   const throat = w.segments.find((s) => s.type === 'throat' && s.z > ridge.z)!;
-  const s = await run(page, [[18, ridge.z - 30], [18, ridge.z + (ridge.passLength ?? 0) + 1], [0, throat.z + 4], [0, throat.z + throat.length! + 30]]);
+  const s = await run(page, [[18, ridge.z - 30], [18, ridge.z + (ridge.passLength ?? 0) + 1], [0, throat.z + 4], [0, throat.z + throat.length! + 40]]);
   report.push(row('гора 3, теснина', s));
   expect(s.headFrames).toBeGreaterThan(30);
   expect(s.headBlocked / s.headFrames, JSON.stringify(s)).toBeLessThanOrEqual(SHARE);

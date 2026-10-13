@@ -106,7 +106,8 @@ test('mountain 6: the avalanche passes over the hero in the tunnel; on the open 
   await waitTicks(page, 2);
   const s = await testState(page);
   const lit = (await page.evaluate(() => window.__TEST__!.shelters()))[s.wave!.shelter]!;
-  expect(lit.kind).toBe('grotto');
+  // A grotto at the edge of the open lane — the one with the chest too (SP-05: it stands inside the split fork).
+  expect(['grotto', 'chestGrotto']).toContain(lit.kind);
   expect(Math.sign(lit.mouth[0])).toBe(Math.sign(boldX));
   await page.evaluate(([mx, mz, ix, iz]) => window.__TEST__!.botPath([[mx, mz], [ix, iz]]), [lit.mouth[0], lit.mouth[1], lit.inside[0], lit.inside[1]] as const);
   expect(await waitOutcome(page)).toBe('survived');
