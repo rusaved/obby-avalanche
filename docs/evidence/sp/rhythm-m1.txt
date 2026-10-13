@@ -1,11 +1,11 @@
 Физический бот горы 1 (FM-05, 01 19.6), секунды игры
-Стоянка на дорожке у рубежа 2: 1.9 с (≤ 10)
+Стоянка на дорожке у рубежа 2: 1.7 с (≤ 10)
 Самый долгий промежуток между наградами до 75 с: 17.4 с (≤ 25)
-   4.4 s  shoes 1
+   4.5 s  shoes 1
   11.2 s  gatePass
-  20.1 s  waveSurvived
+  20.3 s  waveSurvived
   29.0 s  eggHatch
-  33.9 s  shoes 2
-  39.7 s  gatePass
-  57.1 s  gatePass
+  33.1 s  shoes 2
+  39.5 s  gatePass
+  56.9 s  gatePass
   74.3 s  gatePass
