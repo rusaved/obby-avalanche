@@ -1174,7 +1174,9 @@
 
 | Поле | Значение | Что |
 |---|---|---|
-| `community.url` | `""` до ответа продюсера на Q-054 | адрес публичного сообщества игры; пусто — кнопки «Сообщество игры» в паузе нет |
+| `community.telegram` | `https://t.me/sunhearth` | канал игры (решение продюсера 13.10, Q-054); пусто — кнопки нет |
+| `community.vk` | `https://vk.ru/sunhearth_yandex` | сообщество игры ВКонтакте; пусто — кнопки нет |
+| подпись блока | «Промокоды и бонусы в канале» | сбоку окна паузы и настроек, на узком экране — под настройками |
 | `community.reward` | нет поля | награды за переход нет (`03` 4.1) |
 
 ### 18.8 Тексты
@@ -1197,7 +1199,9 @@
 | `records.tier` | Ступень {n} | Tier {n} |
 | `btn.shortcut` | Ярлык на рабочий стол: +{n} | Desktop shortcut: +{n} |
 | `toast.shortcutOk` | Ярлык готов! +{n} кубков | Shortcut added! +{n} trophies |
-| `btn.community` | Сообщество игры | Game community |
+| `community.caption` | Промокоды и бонусы в канале | Promo codes and bonuses in our channel |
+| `community.telegram` | Telegram | Telegram |
+| `community.vk` | ВКонтакте | VK |
 
 Подсказок-плашек о точках базы нет: учат стрелки, боты на дорожке и значок руки над лавкой.
 

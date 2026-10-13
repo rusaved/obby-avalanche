@@ -18,8 +18,9 @@ export interface HudOptions {
   onJumpDown: () => void;
   onPause: () => void;
   onContinue: () => void;
-  /** «Game community» in the pause window (docs/01-gdd.md 19.10); absent — no such button (no address). */
-  onCommunity?: () => void;
+  /** The channels of the game by the side of the pause window (docs/01-gdd.md 19.10, Q-054): their ids in order
+   * (telegram, vk), a button each; `open` — the press; absent or empty — no block. */
+  community?: { ids: readonly string[]; open: (id: string) => void };
   onAutoRun: (on: boolean) => void;
   onQuality: (level: 'auto' | 'low' | 'medium' | 'high') => void;
   /** Coin plaque colour (theme.json ui.coins). */
@@ -488,7 +489,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   // the game title (LOC-04), «Pause» small under it; «Continue» is the window's «next» button.
   const pausePanel = el('div', 'pause-body');
   pausePanel.dataset['role'] = 'pause';
-  pausePanel.appendChild(el('div', 'panel-sub', t('settings.title')));
+  // The settings in a column; the channels of the game beside it (below it on a narrow screen).
+  const pauseMain = el('div', 'pause-main');
+  pausePanel.appendChild(pauseMain);
+  pauseMain.appendChild(el('div', 'panel-sub', t('settings.title')));
 
   const row = (label: string, control: HTMLElement): HTMLElement => {
     const r = el('div', 'row');
@@ -510,7 +514,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   };
   const autoRunToggle = toggle('autorun', false, (v) => opts.onAutoRun(v));
   const autoRow = row(`${t('settings.autorun')} · ${t('settings.autorunHint')}`, autoRunToggle);
-  pausePanel.appendChild(autoRow);
+  pauseMain.appendChild(autoRow);
 
   const qualitySel = el('select', 'select');
   qualitySel.dataset['hud'] = 'quality';
@@ -521,24 +525,31 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     qualitySel.appendChild(o);
   }
   qualitySel.addEventListener('change', () => opts.onQuality(qualitySel.value as 'auto' | 'low' | 'medium' | 'high'));
-  pausePanel.appendChild(row(t('settings.quality'), qualitySel));
+  pauseMain.appendChild(row(t('settings.quality'), qualitySel));
 
   const howto = el('div', 'howto');
   howto.append(el('p', '', t('howto.goal')), el('p', '', t('howto.pc')), el('p', '', t('howto.touch')));
-  pausePanel.appendChild(howto);
+  pauseMain.appendChild(howto);
 
-  if (opts.onCommunity) {
-    const community = el('button', 'card-btn community', t('btn.community'));
-    community.dataset['hud'] = 'community';
-    community.addEventListener('click', () => opts.onCommunity?.());
-    pausePanel.appendChild(community);
+  // «Promo codes and bonuses in the channel» (docs/01-gdd.md 19.10, Q-054): a button a channel, a new tab, nothing given.
+  if (opts.community && opts.community.ids.length > 0) {
+    const side = el('div', 'pause-side');
+    side.dataset['role'] = 'community';
+    side.appendChild(el('div', 'pause-side-cap', t('community.caption')));
+    for (const id of opts.community.ids) {
+      const b = el('button', `card-btn community ${id}`, t(`community.${id}`));
+      b.dataset['hud'] = `community-${id}`;
+      b.addEventListener('click', () => opts.community?.open(id));
+      side.appendChild(b);
+    }
+    pausePanel.appendChild(side);
   }
 
   const cont = el('button', 'btn-primary', t('btn.continue'));
   cont.dataset['hud'] = 'continue';
   cont.dataset['next'] = '1';
   cont.addEventListener('click', () => opts.onContinue());
-  pausePanel.appendChild(cont);
+  pauseMain.appendChild(cont);
 
   let touchMode = false;
   let fieldW = 1;

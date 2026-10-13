@@ -11,7 +11,7 @@
   },
   "leaderboard": null,
   "shortcut": { "enabled": true, "reward": { "trophies": 5 }, "fromSummit": 2, "place": "base" },
-  "community": { "url": "" },
+  "community": { "telegram": "https://t.me/sunhearth", "vk": "https://vk.ru/sunhearth_yandex" },
   "metrikaCounterId": 0,
   "mobileOrientation": "landscape",
   "payments": { "enabled": false },

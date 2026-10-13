@@ -351,9 +351,14 @@ canvas.fallback {
 .win-next { width: auto; min-width: 180px; margin-top: 0; padding: 0 24px; }
 .win-title.fit { flex: 1 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; }
 .hud.short ~ .win .win-foot { padding-top: 4px; }
-.pause-body { max-width: 520px; margin: 0 auto; }
+.pause-body { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: center; align-items: flex-start; }
+.pause-main { flex: 1 1 360px; max-width: 520px; min-width: 0; }
 .pause-body .panel-sub { margin-top: 0; }
-.pause-body .community { display: block; width: 100%; margin-top: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* The channels of the game beside the settings (Q-054); a narrow window puts them under. */
+.pause-side { flex: 0 1 170px; display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 12px; background: #dde9f5; text-align: center; }
+.pause-side-cap { font-size: 13px; font-weight: 800; line-height: 1.25; }
+.pause-side .community { display: block; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 700px) { .pause-side { flex: 1 1 100%; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; } .pause-side-cap { flex: 1 1 100%; } .pause-side .community { flex: 1 1 120px; width: auto; } }
 /* A new HUD button shines once (docs/01-gdd.md 6.4). */
 .hud-menu-btn.glow { animation: menu-glow 1.4s ease-out 1; }
 @keyframes menu-glow { 0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.95); filter: brightness(1.5); } 100% { box-shadow: 0 0 0 14px rgba(255, 255, 255, 0); filter: none; } }

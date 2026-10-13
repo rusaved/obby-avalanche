@@ -81,6 +81,8 @@ export const FX_VALUES = {
   treadmill: ['snowWhirl'],
 } as const;
 
+/** A community address of game.json (Q-054): https or empty (no button). */
+const communityUrl = v.union([v.literal(''), v.pipe(v.string(), v.regex(/^https:\/\/[^\s"'<>]+$/, 'expected an https address or empty'))]);
 const gameSchema = v.object({
   id: id,
   schema: v.literal(1),
@@ -105,7 +107,7 @@ const gameSchema = v.object({
   }),
   // The leaderboard scores by a whole counter of the save (trophies over all time), never by the stat (docs/01-gdd.md 7.9, 8.4).
   leaderboard: v.nullable(v.object({ name: v.string(), score: v.picklist(LEADERBOARD_SCORES) })),
-  community: v.optional(v.object({ url: v.union([v.literal(''), v.pipe(v.string(), v.regex(/^https:\/\/[^\s"'<>]+$/, 'expected an https address or empty'))]) })),
+  community: v.optional(v.strictObject({ telegram: v.optional(communityUrl), vk: v.optional(communityUrl) })),
   shortcut: v.optional(
     v.object({ enabled: v.boolean(), reward: v.object({ trophies: v.pipe(v.number(), v.integer(), v.minValue(0)) }), fromSummit: v.pipe(v.number(), v.integer(), v.minValue(1)), place: v.literal('base') }),
   ),

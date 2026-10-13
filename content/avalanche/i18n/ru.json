@@ -357,5 +357,7 @@
   "records.loading": "Загрузка",
   "btn.shortcut": "Ярлык на рабочий стол: +{n}",
   "toast.shortcutOk": "Ярлык готов! +{n} кубков",
-  "btn.community": "Сообщество игры"
+  "community.caption": "Промокоды и бонусы в канале",
+  "community.telegram": "Telegram",
+  "community.vk": "ВКонтакте"
 }

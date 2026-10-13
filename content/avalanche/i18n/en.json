@@ -357,5 +357,7 @@
   "records.loading": "Loading",
   "btn.shortcut": "Desktop shortcut: +{n}",
   "toast.shortcutOk": "Shortcut added! +{n} trophies",
-  "btn.community": "Game community"
+  "community.caption": "Promo codes and bonuses in our channel",
+  "community.telegram": "Telegram",
+  "community.vk": "VK"
 }

@@ -14,7 +14,7 @@ const EVENTS: Array<{ name: string; times: 'player' | 'always'; code: RegExp }> 
   { name: 'base_first', times: 'player', code: /trackOnce\('base_first'\)/ },
   { name: 'base_portal', times: 'always', code: /[^e]track\('base_portal', \{ world: w, replay: place\.replay \}\)/ },
   { name: 'shortcut_ok', times: 'player', code: /trackOnce\('shortcut_ok'\)/ },
-  { name: 'community_open', times: 'always', code: /[^e]track\('community_open'\)/ },
+  { name: 'community_open', times: 'always', code: /[^e]track\('community_open', \{ to: id \}\)/ },
 ];
 
 describe('events of the base (FM-14)', () => {

@@ -118,8 +118,9 @@ async function boot(): Promise<void> {
   const events: string[] = [];
   const bootState: BootState = { firstFrameAt: null, readyAt: null, controllable: false, glRenderer: '' };
 
-  // `?community=` (debug builds): a stand-in address of the community for its e2e (game.json has none yet, Q-054).
-  const communityUrl = debugParams.get('community') ?? game.community?.url ?? '';
+  // The channels of the game (Q-054): those with an address, in the order of game.json; `?community=none` (debug builds)
+  // — none, for the e2e of the pause window without them.
+  const community = debugParams.get('community') === 'none' ? [] : Object.entries(game.community ?? {}).filter(([, url]) => !!url) as Array<[string, string]>;
   // `?leaderboard=` (debug builds): a leaderboard name for the e2e of the records (game.json has none yet, M4-06).
   const platformOpts: PlatformOptions = { packId: game.id, leaderboardName: debugParams.get('leaderboard') ?? game.leaderboard?.name ?? '', track };
   const platform = await createPlatform(platformOpts);
@@ -1366,8 +1367,20 @@ async function boot(): Promise<void> {
     onJumpDown: () => input.jumpButtonDown(),
     onPause: () => g.toggleMenu(true),
     onContinue: () => g.toggleMenu(false),
-    // The community of the game (P1, Q-054): the only window.open of the code, by the player's press, no reward.
-    ...(communityUrl ? { onCommunity: () => void (window.open(communityUrl, '_blank', 'noopener,noreferrer'), track('community_open')) } : {}),
+    // The channels of the game (P1, Q-054): the only window.open of the code, by the player's press, no reward.
+    ...(community.length > 0
+      ? {
+          community: {
+            ids: community.map(([id]) => id),
+            open: (id: string) => {
+              const url = community.find(([k]) => k === id)?.[1];
+              if (!url) return;
+              window.open(url, '_blank', 'noopener,noreferrer');
+              track('community_open', { to: id });
+            },
+          },
+        }
+      : {}),
     onAutoRun: (on) => g.setAutoRun(on),
     onQuality: (level) => g.setQualitySetting(level),
     coinColor: theme.ui.coins,
