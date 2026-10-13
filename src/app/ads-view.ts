@@ -117,6 +117,8 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       if (busy || !shown.includes(id)) return;
       const sim = d.getSim();
       const amount = id === 'stat_now' ? statNow(sim) : 0;
+      // «Speed now» by mountain (docs/01-gdd.md 20.13: the share of the ads against F19; 0 — the base).
+      const where = id === 'stat_now' ? { mountain: sim.level.worldIndex } : {};
       busy = id;
       d.pause.add('ad');
       void d.platform
@@ -141,7 +143,7 @@ export function createAdsView(d: AdsViewDeps): AdsView {
           busy = null;
           d.pause.remove('ad');
           // The hero is in the player's hands again after any outcome (docs/06 section 3).
-          track('ad_resume_ok', { placement: id, type: 'rewarded' });
+          track('ad_resume_ok', { placement: id, type: 'rewarded', ...where });
         });
     },
   };

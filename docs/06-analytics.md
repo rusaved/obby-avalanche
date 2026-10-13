@@ -82,7 +82,7 @@
 | `gameFullscreenOpen` | колбэк `onOpen` | `placement` |
 | `gameFullscreenClose` | колбэк `onClose` | `placement`, `wasShown` (`yes` или `no`, как в доках) |
 | `gameFullscreenError` | `onError` или сторож 10 с без единого колбэка (`02`, 11.4) | `placement`, `reason` |
-| `ad_resume_ok` | после любого исхода рекламы герой снова управляем, звук идёт | `placement`, `type` (`rewarded`, `fullscreen`) |
+| `ad_resume_ok` | после любого исхода рекламы герой снова управляем, звук идёт | `placement`, `type` (`rewarded`, `fullscreen`); у `stat_now` ещё `mountain` — номер горы, 0 — база (SP-10, `01` 20.13: доля «Скорости сейчас» по горам против F19) |
 | `quit_after_inter` | `visibilitychange: hidden` или `pagehide` в течение 15 с после `gameFullscreenClose` | `placement` |
 | `gameOfferView`, `gamePurchaseStart`, `gamePurchaseSuccess`, `gamePurchaseError` | только при `payments.enabled: true` (`01`, 9.3) | `productId` |
 
@@ -158,6 +158,8 @@ ym(counterId, 'reachGoal', name, {
 | 4 | `interstitialCooldownSec` | 180 с | 120–600 (нижняя граница 120 — решение 04.10; SDK Яндекса сам держит минимум 60 с) | доход с полноэкранной низкий, а удержание ровное — опустить до 150–120; растёт `quit_after_inter` — поднять | доход с рекламы на сессию растёт | `quit_after_inter` не выше; доля сессий дольше 10 мин; возврат на день 2 |
 | 5 | `sneakers1_price` | 30 монет | 10–60 | обрыв до `shoes_1` (первая покупка) — опустить | доля дошедших до `shoes_1` растёт, время до `shoes_1` ≤ 40 с | время до `rebirth_1` не уходит из коридора; доля сессий дольше 3 мин |
 | 6 | `pace` | `open` | `open`, `fast` | только для сравнения темпов (8.2): A/B двух групп с первой недели, пока не выбран один темп | договор 8.2 | договор 8.2 |
+
+Кандидат вехи «Размах» (`01` 20.13): `speedCurve.k` 0,55 против 0,45 — две группы, если на просторе упадёт доля сессий дольше 3 мин (бег разгоняется слишком быстро или слишком медленно). Флага в `game.json flags` пока нет: заводится по решению продюсера, диапазон 0,3–0,6.
 
 Набор принятых флагов уходит параметром `flags` события `gameReady` (раздел 4): по нему отчёты делятся на группы эксперимента.
 

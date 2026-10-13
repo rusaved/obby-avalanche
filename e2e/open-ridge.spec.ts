@@ -131,6 +131,9 @@ test('no «▶ Ad: open the wall» at any ridge; «▶ Ad: +N speed» in the rid
   const s = await testState(page);
   expect(s.stat).toBeGreaterThan(before);
   expect(s.adButtons).not.toContain('stat_now');
+  // SP-10 (docs/01-gdd.md 20.13): «Speed now» names its mountain.
+  const resume = await page.evaluate(() => window.__TEST__!.analytics().filter((e) => e.name === 'ad_resume_ok').map((e) => e.params));
+  expect(resume).toEqual([{ placement: 'stat_now', type: 'rewarded', mountain: 1 }]);
 });
 
 // PS-05: the section multiplier (docs/01-gdd.md 17.4): past ridge 1 every step of the run gives ×1.2 with the same shoes
