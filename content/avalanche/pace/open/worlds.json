@@ -1781,11 +1781,11 @@
           "y": 36,
           "kind": "boss",
           "boss": true,
-          "requires": 2300,
+          "requires": 2200,
           "reward": {
             "coins": 100
           },
-          "speed": 43.4,
+          "speed": 43.2,
           "margin": 0.05,
           "height": 0,
           "signHeight": 7.5,
@@ -1858,11 +1858,11 @@
             1060,
             1390
           ],
-          "requires": 2300,
+          "requires": 2200,
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 43.4,
+              "speed": 43.2,
               "patrol": "chase",
               "seeDist": 0,
               "turnSec": 0.5

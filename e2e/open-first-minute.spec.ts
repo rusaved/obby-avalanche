@@ -110,16 +110,35 @@ test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg
   let hiding = false;
   const early = new Set<string>();
   const shots = new Set<string>();
+  /** The way of the current leg from where the bot stands up to past its ridge (or the giant and the portal). */
+  const legPath = (st: TestState, l: Leg): Array<[number, number]> => {
+    const inIt = l.grotto !== null && st.shelter === shelters.indexOf(l.grotto);
+    // A canopy with the belt (SP-04) is open to the sides: straight on to the passage.
+    const out: Array<[number, number]> = inIt && l.grotto!.kind !== 'island' ? [l.grotto!.mouth] : [];
+    const finish: Array<[number, number]> = leg === legs.length - 1 ? [[0, boss.zone[1] + 4], [0, portal + 2]] : [[l.x, l.z + 10]];
+    return route(st, [...out, [l.x, l.z - 4], ...finish]);
+  };
+  /** Off the belt in the frame the stat reaches `req` (SP-10: a decision by polling from here came late beside another
+   * worker — verify SP, the giant at 75.1 s of play against 72.8 ± 2). */
+  const leaveAt = (req: number, path: Array<[number, number]>): Promise<void> =>
+    page.evaluate(
+      ([r, p]) => {
+        const f = (): void => {
+          if (window.__TEST__!.state().stat >= r) window.__TEST__!.botPath(p);
+          else requestAnimationFrame(f);
+        };
+        f();
+      },
+      [req, path] as const,
+    );
+  let armed = -1;
   const resume = async (st: TestState): Promise<void> => {
     const l = legs[leg];
     if (!l) return;
     const inIt = l.grotto !== null && st.shelter === shelters.indexOf(l.grotto);
     if (st.stat >= l.req || !l.grotto) {
       stage = 'leg';
-      // A canopy with the belt (SP-04) is open to the sides: straight on to the passage.
-      const out: Array<[number, number]> = inIt && l.grotto!.kind !== 'island' ? [l.grotto!.mouth] : [];
-      const finish: Array<[number, number]> = leg === legs.length - 1 ? [[0, boss.zone[1] + 4], [0, portal + 2]] : [[l.x, l.z + 10]];
-      await go(route(st, [...out, [l.x, l.z - 4], ...finish]));
+      await go(legPath(st, l));
     } else {
       stage = 'belt';
       const belt = l.grotto.belt ?? l.grotto.inside;
@@ -135,6 +154,10 @@ test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg
     if (leg === 0 && stage !== 'belt' && beltFrom !== null) {
       beltSec += s.playSec - beltFrom;
       beltFrom = null;
+    }
+    if (stage === 'belt' && s.onBelt && armed !== leg) {
+      armed = leg;
+      await leaveAt(legs[leg]!.req, legPath(s, legs[leg]!));
     }
     if (s.playSec < 60 && s.hint) early.add(s.hint);
     if (s.shoesButton.can && !s.window) await page.locator('[data-hud="shoes"]').click();

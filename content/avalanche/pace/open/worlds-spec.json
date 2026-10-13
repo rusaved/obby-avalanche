@@ -208,11 +208,11 @@
    ],
    "boss": {
     "stretch": 360,
-    "requires": 2300,
+    "requires": 2200,
     "margin": 0.05,
     "stepMult": 2,
     "gift": 20,
-    "speed": 43.4,
+    "speed": 43.2,
     "width": 160,
     "covers": 2
    }
