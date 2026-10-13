@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { test, expect, shot1080, testState, waitTicks } from './fixtures.ts';
+import { passX } from './base-route.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 import tuning from '../content/avalanche/tuning.json' with { type: 'json' };
 import openTuning from '../content/avalanche/pace/open/tuning.json' with { type: 'json' };
@@ -198,4 +199,70 @@ test('mountain 2: on the belt of the grotto of ridge 1 the record flag is never 
   st = await page.evaluate(() => window.__TEST__!.cameraStats());
   expect(st.flagBlocked, JSON.stringify(st.bad)).toBe(0);
   await page.evaluate(() => window.__TEST__!.setCamera('auto'));
+});
+
+// SP-10 (playtest of «Размах»: on the belt under the roof of a rock grotto the hero was not seen for 21 s — the wide frame
+// took the axes of a side grotto and the roof of the rock stayed drawn; in a ridge passage the camera sat in his head):
+// every rock grotto with a belt of mountains 1–2 — on its belt (the belt frame) and in an avalanche frame there the line
+// to the hero is clear, the hero drawn, the camera never at his body; through the passages of the ridges of mountain 1
+// the camera never at his body either. Screenshot of the belt frame.
+test('rock grottos with a belt, mountains 1–2: on the belt and in an avalanche frame the hero is seen, the camera never at him; ridge passages', async ({ page, openGame }) => {
+  test.setTimeout(360_000);
+  await start(page, openGame);
+  const rows: string[] = [];
+  let bad = 0;
+  for (const m of [1, 2]) {
+    await toMountain(page, m);
+    const list = (await page.evaluate(() => window.__TEST__!.shelters())) as Shelter[];
+    const rocks = list.filter((s) => s.kind === 'island' && s.belt);
+    expect(rocks.length, `mountain ${m}`).toBeGreaterThan(0);
+    for (const n of rocks) {
+      await page.evaluate(([z, x]) => window.__TEST__!.teleport(z, x), [n.belt![1], n.belt![0]] as const);
+      await waitTicks(page, 30);
+      expect((await testState(page)).onBelt, `mountain ${m} z ${n.z.toFixed(0)}`).toBe(true);
+      await page.evaluate(() => window.__TEST__!.resetCameraStats());
+      await waitTicks(page, 120);
+      const belt = await page.evaluate(() => window.__TEST__!.cameraStats());
+      if (rows.length === 0) await shot1080(page, `${EVIDENCE}/island_belt_1920x1080_ru.png`);
+      // An avalanche over the rock: its frame from the start of the warning.
+      await page.evaluate(() => {
+        window.__TEST__!.setTimeScale(4);
+        window.__TEST__!.triggerWave();
+      });
+      await page.waitForFunction(() => window.__TEST__!.state().waveHud.shot, undefined, { timeout: 60_000 });
+      await page.evaluate(() => window.__TEST__!.resetCameraStats());
+      await waitTicks(page, 60);
+      const wave = await page.evaluate(() => window.__TEST__!.cameraStats());
+      await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'idle', undefined, { timeout: 90_000 });
+      await page.evaluate(() => {
+        window.__TEST__!.setTimeScale(1);
+        window.__TEST__!.holdWave(900);
+      });
+      for (const [what, st] of [
+        ['belt', belt],
+        ['avalanche', wave],
+      ] as const) {
+        const miss = st.heroHidden + st.heroBlocked + st.heroNear + st.inside;
+        bad += miss;
+        rows.push(`mountain ${m} z ${n.z.toFixed(0)} ${what}: ${st.frames} frames, hidden ${st.heroHidden}, blocked ${st.heroBlocked}, at him ${st.heroNear}, inside ${st.inside}${st.bad.length ? ` — ${st.bad.slice(0, 3).join('; ')}` : ''}`);
+      }
+    }
+  }
+  // The passages of the ridges of mountain 1, open: from below the carniz through its pass nearest the middle and on.
+  await toMountain(page, 1);
+  const m1 = worlds[0]!.segments.filter((g) => g.type === 'gate' && g.kind === 'ridge') as Array<Seg & { passes?: number[] }>;
+  for (const r of m1) {
+    const x = passX(r);
+    await page.evaluate(([z, xx]) => window.__TEST__!.teleport(z, xx), [r.z - 30, x] as const);
+    await waitTicks(page, 20);
+    await page.evaluate(() => window.__TEST__!.resetCameraStats());
+    await page.evaluate((p) => window.__TEST__!.botPath(p), [[x, r.z - 4], [x, r.z + 30]] as Array<[number, number]>);
+    await page.waitForFunction(() => window.__TEST__!.botLeft() === 0, undefined, { timeout: 30_000 });
+    const st = await page.evaluate(() => window.__TEST__!.cameraStats());
+    bad += st.heroNear + st.inside + st.heroHidden;
+    rows.push(`ridge z ${r.z.toFixed(0)} pass x ${x}: ${st.frames} frames, hidden ${st.heroHidden}, at him ${st.heroNear}, inside ${st.inside}${st.bad.length ? ` — ${st.bad.slice(0, 3).join('; ')}` : ''}`);
+  }
+  await page.evaluate(() => window.__TEST__!.botPath(null));
+  console.log(rows.join('\n'));
+  expect(bad, rows.join('\n')).toBe(0);
 });

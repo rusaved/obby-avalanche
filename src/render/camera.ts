@@ -76,6 +76,8 @@ export interface CameraRig {
 const _desired = new Vector3();
 const _dir = new Vector3();
 const _probe = new Sphere(new Vector3(), 0.4);
+/** A point on the way of clearWay (blocked() copies it into _probe). */
+const _probe2 = new Vector3();
 const _tmp = new Vector3();
 const _head = new Vector3();
 const _look = new Vector3();
@@ -171,6 +173,12 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
     _probe.center.copy(p);
     _probe.radius = r;
     return collision.sphereHit(_probe) !== null;
+  };
+  /** The straight way a → b crosses no face (a point deep inside a thick box touches none: the way, not the end). */
+  const clearWay = (a: Vector3, b: Vector3, r: number, collision: CollisionWorld): boolean => {
+    const n = Math.max(1, Math.ceil(a.distanceTo(b) / (r * 0.5)));
+    for (let i = 1; i <= n; i++) if (blocked(_probe2.lerpVectors(a, b, i / n), r, collision)) return false;
+    return true;
   };
   /** Free distance from the pivot along the direction (yaw, pitch) up to `want`, 0.5 short of the first hit. */
   const freeDistance = (yaw: number, pitch: number, want: number, collision: CollisionWorld): number => {
@@ -514,19 +522,23 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
         if (collision && blocked(_desired, c.collisionRadius * 0.5, collision)) _desired.copy(_tmp);
       }
       // Never inside the hero (PR-13; playtest FM: «flies into the hero in the grotto after the avalanche»): whatever moved
-      // the point this frame (a blend on a slow frame, the shake, a pull off a wall), closer than hideDistance to his chest
-      // it goes out to it along the same line, unless a wall is there.
-      _seg.copy(_desired).sub(heroChest);
+      // the point this frame (a blend on a slow frame, the shake, a pull off a wall), closer than hideDistance to his body
+      // from chest to head it goes out to it along the same line, unless a wall is there (playtest SP: in a ridge passage the
+      // camera sat in his head, farther than hideDistance from the chest).
+      _from.set(heroChest.x, Math.min(heroHead.y, Math.max(heroChest.y, _desired.y)), heroChest.z);
+      _seg.copy(_desired).sub(_from);
       if (_seg.length() < c.hideDistance) {
         if (_seg.lengthSq() < 1e-6) _seg.set(-Math.sin(frame.viewYaw), 0.5, -Math.cos(frame.viewYaw));
-        _tmp.copy(heroChest).addScaledVector(_seg.normalize(), c.hideDistance * 1.05);
-        if (!collision || !blocked(_tmp, c.collisionRadius * 0.5, collision)) _desired.copy(_tmp);
+        _tmp.copy(_from).addScaledVector(_seg.normalize(), c.hideDistance * 1.05);
+        // No way out that side (a closed gate, a roof): straight over his head; neither — he is hidden below.
+        if (collision && !clearWay(_desired, _tmp, c.collisionRadius * 0.5, collision)) _tmp.set(heroHead.x, heroHead.y + c.hideDistance * 1.05, heroHead.z);
+        if (!collision || clearWay(_desired, _tmp, c.collisionRadius * 0.5, collision)) _desired.copy(_tmp);
       }
       camera.position.copy(_desired);
       if (_desired.distanceToSquared(_look) > 1e-6) camera.lookAt(_look);
       // Projections later in this frame (HUD arrows, signs under the banner) use this view, not the last one.
       camera.updateMatrixWorld();
-      rig.heroHidden = camera.position.distanceTo(heroChest) < c.hideDistance;
+      rig.heroHidden = bodyDistance(camera.position) < c.hideDistance;
 
       // FOV from speed, smoothed.
       const ratio = shareOf(target);

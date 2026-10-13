@@ -5,7 +5,7 @@ import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type:
 
 // PS-06: the avalanche on the open slope (docs/01-gdd.md 17.5, 17.8). The physical bot runs up from the camp; at the
 // entry of section 2 the scripted siren, the bot runs into the lit grotto — «Phew, made it!» within 46 s of the start.
-// A normal wave with the hero in the giant's zone (above spawnMaxZ) never catches him.
+// A normal wave with the hero in the giant's zone (above spawnMaxZ) never catches him, and says nothing there (SP-10).
 type Seg = { type: string; z: number; side?: string; kind?: string; length?: number; edge?: number; between?: number; track?: number };
 type OpenWorld = { segments: Seg[]; bosses: Array<{ zone: [number, number] }>; threat: { spawnMaxZ: number } };
 const world = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds[0]!;
@@ -52,7 +52,7 @@ test('scripted wave at the entry of section 2: the bot in its grotto, «Phew, ma
   expect(funnel?.params).toMatchObject({ inShelter: true });
 });
 
-test('a normal wave with the hero in the giant’s zone (above spawnMaxZ) never catches him', async ({ page, openGame }) => {
+test('a normal wave with the hero in the giant’s zone (above spawnMaxZ) never catches him; no warning, arrow or «To the cave!» up there', async ({ page, openGame }) => {
   test.setTimeout(120_000);
   await openGame('pace=open');
   // The scripted wave first (it never catches), then a normal one with the hero up in the zone.
@@ -74,6 +74,16 @@ test('a normal wave with the hero in the giant’s zone (above spawnMaxZ) never 
   await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'warn', undefined, { timeout: 30_000 });
   const s0 = await testState(page);
   expect(s0.wave!.spawnZ).toBeLessThanOrEqual(world.threat.spawnMaxZ);
+  // SP-10 (playtest SP: «Avalanche in 11» by the end of the zone sent the hero 330 units back): no threat up here — no
+  // banner, no arrow to a grotto below, no «To the cave!».
+  for (let k = 0; k < 10; k++) {
+    const st = await testState(page);
+    if (st.wave?.phase === 'gone') break;
+    expect(st.waveHud.banner, `${st.wave?.phase}`).toBeNull();
+    expect(st.waveHud.arrow).toBe(false);
+    expect(st.hint).not.toBe('wave.cave');
+    await waitTicks(page, 5);
+  }
   await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'gone', undefined, { timeout: 60_000 });
   await page.evaluate(() => window.__TEST__!.setTimeScale(1));
   const s = await testState(page);

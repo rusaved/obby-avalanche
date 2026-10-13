@@ -187,6 +187,14 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   };
   // The back wall of a cave is a cave wall outside the cave box on its far side, the roof lies over it (src/level/builder.ts).
   const partOf = (b: LevelBox): { niche: number; part: CavePart } | null => {
+    // A grotto in a rock (SP-04): its roof over it, its back wall past its far (uphill) end; the side walls stay drawn.
+    if (b.kind === 'islandRoof' || b.kind === 'islandWall') {
+      const roof = b.kind === 'islandRoof';
+      const niche = level.niches.findIndex(
+        (n) => n.kind === 'island' && b.min[0] < n.box.max[0] && b.max[0] > n.box.min[0] && (roof ? b.min[2] < n.box.max[2] && b.max[2] > n.box.min[2] : b.min[2] >= n.box.max[2] - 1e-6 && b.min[2] <= n.box.max[2] + 1e-6),
+      );
+      return niche >= 0 ? { niche, part: roof ? 'roof' : 'back' } : null;
+    }
     if (b.kind !== 'nicheWall' && b.kind !== 'nicheRoof') return null;
     const niche = level.niches.findIndex(
       (n) =>

@@ -117,8 +117,10 @@ export function createFtueView(d: FtueViewDeps): FtueView {
       const firstWaveDone = d.save.flags?.['firstWaveDone'] ?? false;
       const shoes = d.shoes();
       // Wave hint: the scripted wave and the first normal ones (wave.cave counts the shows, docs/01-gdd.md 6.5).
-      const warn = ts?.phase === 'warn';
-      const active = ts !== undefined && (warn || (ts.phase === 'run' && ts.outcome === 'none'));
+      // Up past the point the front starts from it is no threat (docs/01-gdd.md 17.5; app/wave-view.ts): no «To the cave!».
+      const safeAbove = ts !== undefined && !ts.scripted && ts.phase !== 'idle' && hero.pos.z >= ts.spawnZ;
+      const warn = ts?.phase === 'warn' && !safeAbove;
+      const active = ts !== undefined && !safeAbove && (warn || (ts.phase === 'run' && ts.outcome === 'none'));
       // Closed gate ahead within stuckDist (docs/01-gdd.md 6.5, hint.stuck).
       let nearGate = -1;
       sim.level.gates.forEach((g, i) => {

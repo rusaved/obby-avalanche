@@ -105,9 +105,14 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       const dz = running ? ts.frontZ - hero.z : Infinity;
       d.visual.update(ts, timeSec, d.camera.camera.position);
 
+      // Up past the point the front starts from (docs/01-gdd.md 17.1, 17.5: the finish straight is the giant's): it rolls
+      // down below him, no banner, frost or arrow to a grotto behind him (playtest SP: «Avalanche in 11» 8 units off the
+      // end of the giant's zone sent the hero 330 units back down).
+      const safeAbove = !ts.scripted && ts.phase !== 'idle' && hero.z >= ts.spawnZ;
       // Banner: «Avalanche in N» on warn, «Avalanche!» until the front reaches the hero.
       let banner: string | null = null;
-      if (ts.phase === 'warn') banner = t('wave.warn', { n: Math.max(1, Math.ceil(ts.timer)) });
+      if (safeAbove) banner = null;
+      else if (ts.phase === 'warn') banner = t('wave.warn', { n: Math.max(1, Math.ceil(ts.timer)) });
       else if (running && ts.outcome === 'none' && dz > 0) banner = t('wave.run');
       view.banner = banner;
       d.hud.setWaveBanner(banner);
@@ -115,7 +120,7 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       // Frost frame and shake by distance (docs/01-gdd.md 4.8).
       let frost = 0;
       let shake = 0;
-      if (ts.phase === 'warn') frost = FROST_WARN;
+      if (ts.phase === 'warn' && !safeAbove) frost = FROST_WARN;
       if (running && Math.abs(dz) <= d.tuning.avalanche.nearDist * 3) {
         const near = Math.abs(dz) < av.nearDist;
         frost = near ? 1 : FROST_WARN;
@@ -130,7 +135,7 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       // right above the cave mouth pointing down when it is on screen.
       const cave = sim.level.niches[ts.shelter];
       let arrow: { x: number; y: number; angle: number } | null = null;
-      if (cave && (ts.phase === 'warn' || (running && ts.outcome === 'none')) && sim.shelterIndex() < 0) {
+      if (cave && !safeAbove && (ts.phase === 'warn' || (running && ts.outcome === 'none')) && sim.shelterIndex() < 0) {
         // A tunnel (docs/01-gdd.md 18.3) and a grotto in a rock (SP-04): its nearer mouth, not the track edge by its middle.
         if (cave.kind === 'tunnel' || cave.kind === 'island') {
           const e = distToEntrance(sim.level, cave, hero.x, hero.z);
@@ -202,7 +207,21 @@ export function createWaveView(d: WaveViewDeps): WaveView {
           // Behind the back wall or over the roof: at least the camera radius off its outer face.
           const back = sign < 0 ? c.box.min[0] - NICHE_WALL - r : c.box.max[0] + NICHE_WALL + r;
           const roof = c.box.max[1] + NICHE_WALL + r;
+          // A grotto in a rock (SP-04) opens to the camp (−z): its depth runs up the slope, its width across it (SP-10:
+          // with the axes of a side grotto the frame stood over the rock and its roof hid the hero on the belt).
+          const island = c.kind === 'island';
           const at = (q: readonly [number, number, number], out: Vector3, clamp: boolean): Vector3 => {
+            if (island) {
+              out.set(c.box.min[0] + q[2] * (c.box.max[0] - c.box.min[0]), c.box.min[1] + q[1] * (c.box.max[1] - c.box.min[1]), c.box.min[2] + q[0] * (c.box.max[2] - c.box.min[2]));
+              if (clamp && q[1] > 1) out.y = Math.max(roof, out.y);
+              else if (clamp) {
+                if (q[0] > 1) out.z = Math.max(c.box.max[2] + NICHE_WALL + r, out.z);
+                else out.z = Math.min(c.box.max[2] - r, Math.max(c.box.min[2] + r, out.z));
+                out.x = Math.min(c.box.max[0] - r, Math.max(c.box.min[0] + r, out.x));
+                out.y = Math.min(c.box.max[1] - r, Math.max(c.box.min[1] + r, out.y));
+              }
+              return out;
+            }
             out.set(mouth + sign * q[0] * depth, c.box.min[1] + q[1] * (c.box.max[1] - c.box.min[1]), c.box.min[2] + q[2] * (c.box.max[2] - c.box.min[2]));
             if (clamp && q[1] > 1) out.y = Math.max(roof, out.y);
             else if (clamp) {
