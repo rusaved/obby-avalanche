@@ -4,7 +4,7 @@
 
 import * as v from 'valibot';
 import type { BalanceJson, BaseJson, TuningJson, WorldsJson } from '../content/types.ts';
-import { basePortals, baseTreadMult, buildBase, type BasePortal } from './base-layout.ts';
+import { basePortals, baseTreadMult, buildBase, TENT_HALF, type BasePortal } from './base-layout.ts';
 import { BORDER_HEIGHT } from './builder.ts';
 import type { LevelData } from './types.ts';
 import { createSim } from '../sim/world.ts';
@@ -33,7 +33,8 @@ const baseSchema = v.object({
   stands: v.object({ shop: v.object({ ...spot, standSec: nonNeg }), records: v.object(spot), daily: v.object(spot) }),
   bots: v.object({ count: v.pipe(num, v.integer(), v.minValue(0)), low: v.pipe(num, v.integer(), v.minValue(0)) }),
   transitSec: nonNeg,
-  decor: v.object({ tents: v.array(xz), trees: v.array(xz), snowman: xz }),
+  arrows: v.optional(v.pipe(num, v.integer(), v.minValue(0))),
+  decor: v.object({ tents: v.array(xz), trees: v.array(xz), snowmen: v.array(xz), lanterns: v.optional(v.array(xz)), flags: v.optional(v.array(xz)) }),
 });
 
 const progressAll = (base: BaseJson, worlds: WorldsJson, summits: number): Parameters<typeof buildBase>[1] => ({
@@ -81,7 +82,9 @@ export function validateBase(base: BaseJson, worlds: WorldsJson, tuning: TuningJ
     ...Object.entries(base.stands).map(([k, s]) => [`stands.${k}`, s.x, s.z] as [string, number, number]),
     ...base.decor.tents.map(([x, z], i) => [`decor.tents[${i}]`, x, z] as [string, number, number]),
     ...base.decor.trees.map(([x, z], i) => [`decor.trees[${i}]`, x, z] as [string, number, number]),
-    ['decor.snowman', base.decor.snowman[0], base.decor.snowman[1]],
+    ...base.decor.snowmen.map(([x, z], i) => [`decor.snowmen[${i}]`, x, z] as [string, number, number]),
+    ...(base.decor.lanterns ?? []).map(([x, z], i) => [`decor.lanterns[${i}]`, x, z] as [string, number, number]),
+    ...(base.decor.flags ?? []).map(([x, z], i) => [`decor.flags[${i}]`, x, z] as [string, number, number]),
   ];
   for (const [name, x, z] of points) {
     if (Math.abs(x) > W / 2 - CLEAR || z < CLEAR || z > L - CLEAR) errors.push(`base.json: ${name} — (${x}, ${z}) outside the field`);
@@ -91,6 +94,12 @@ export function validateBase(base: BaseJson, worlds: WorldsJson, tuning: TuningJ
   }
   for (const p of portals)
     if (Math.abs(p.x - t.x) < beltHalf.x + p.width / 2 && Math.abs(p.z - t.z) < beltHalf.z + p.width / 2) errors.push(`base.json: treadmill — under the portal of mountain ${p.world}`);
+  // SP-08: a tent (solid) clear of the spawn and of the round of a stand.
+  const rounds: Array<[string, number, number, number]> = [['spawn', base.spawn.x, base.spawn.z, 0], ...Object.entries(base.stands).map(([k, s]) => [`stands.${k}`, s.x, s.z, s.radius] as [string, number, number, number])];
+  base.decor.tents.forEach(([x, z], i) => {
+    for (const [name, px, pz, r] of rounds)
+      if (Math.max(Math.abs(x - px), Math.abs(z - pz)) < TENT_HALF + r + CLEAR) errors.push(`base.json: decor.tents[${i}] — (${x}, ${z}) on the ${name}`);
+  });
   // The base treadmill never beats section 1 of the next mountain (docs/01a-content.md 18.2): running pays more.
   for (let k = 0; k < n; k++) {
     const next = worlds.worlds[k]!;

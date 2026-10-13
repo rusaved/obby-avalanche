@@ -6,7 +6,7 @@
  * The base (docs/01-gdd.md 19.2; docs/01a-content.md 18.1): a flat snow field `size` with a fence of snow banks and the
  * invisible wall of 19.9 round it; on the north an arc of arches, one per mountain of the pace (1 on the left as the
  * hero faces +z, N on the right), each facing the middle of the arc; the base treadmill, the stands, tents (solid),
- * fir trees and a snowman. A locked arch is iced over and hard to the hero (an invisible block inside it).
+ * fir trees, snowmen, lanterns and flags. A locked arch is iced over and hard to the hero (an invisible block inside it).
  */
 import type { BaseJson, Segment, World } from '../content/types.ts';
 import { buildLevel, BORDER_HEIGHT, BORDER_WIDTH, FLOOR_THICKNESS } from './builder.ts';
@@ -113,7 +113,10 @@ export function generateBase(base: BaseJson, progress: BaseProgress): World {
     seg.push({ type: 'block', z: z - TENT_HALF, z1: z + TENT_HALF, x0: x - TENT_HALF, x1: x + TENT_HALF, y0: 0, y1: TENT_HEIGHT, material: 'tent', kind: 'tent', invisible: true });
   }
   for (const [x, z] of base.decor.trees) seg.push({ type: 'decor', z, x, y: 0, kind: 'tree' });
-  seg.push({ type: 'decor', z: base.decor.snowman[1], x: base.decor.snowman[0], y: 0, kind: 'snowman' });
+  for (const [x, z] of base.decor.snowmen) seg.push({ type: 'decor', z, x, y: 0, kind: 'snowman' });
+  // SP-08 (docs/01a-content.md 19.6): lanterns and flags by the stands, drawn only.
+  for (const [x, z] of base.decor.lanterns ?? []) seg.push({ type: 'decor', z, x, y: 0, kind: 'lantern' });
+  for (const [x, z] of base.decor.flags ?? []) seg.push({ type: 'decor', z, x, y: 0, kind: 'flag' });
   return {
     id: 'base',
     index: 0,

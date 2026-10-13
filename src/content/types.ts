@@ -797,7 +797,10 @@ export interface BaseJson {
   bots: { count: number; low: number };
   /** The model: seconds from the arrival on the base to a portal (F3, docs/01a-content.md 18.5). */
   transitSec: number;
-  decor: { tents: Array<[number, number]>; trees: Array<[number, number]>; snowman: [number, number] };
+  /** Arrows on the snow from the spawn to the own portal (SP-08: 5 across the doubled field); absent — 3. */
+  arrows?: number;
+  /** Decor (SP-08, docs/01a-content.md 19.6): tents (solid), fir trees, snowmen, lanterns and flags by the stands. */
+  decor: { tents: Array<[number, number]>; trees: Array<[number, number]>; snowmen: Array<[number, number]>; lanterns?: Array<[number, number]>; flags?: Array<[number, number]> };
 }
 
 export interface ContentPack {

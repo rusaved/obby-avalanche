@@ -1,4 +1,4 @@
-// What: How the base looks (docs/01-gdd.md 19.2–19.3): the arches of the mountains by state (passed — open with a flag and a cup, own — filled with light under a pillar, locked — iced with a lock), their signs and the «×N» of the base treadmill in one atlas, 3 arrows on the snow to the own portal, the shop counter with sneakers and an egg, the gift of the day (lit while it waits), the «My records» board, the snowman.
+// What: How the base looks (docs/01-gdd.md 19.2–19.3): the arches of the mountains by state (passed — open with a flag and a cup, own — filled with light under a pillar, locked — iced with a lock), their signs and the «×N» of the base treadmill in one atlas, the arrows on the snow to the own portal, the shop counter with sneakers and an egg, the gift of the day (lit while it waits), the «My records» board, the snowmen.
 // Called by: main.ts (createBaseView; set on every entry to the base, clear on a mountain); test-api (drawn).
 // Keep: Render only, nothing in the sim (the ice of a locked arch is a hero collider of the level); at most 6 draw calls; colours from theme.json, texts through the caller's t().
 
@@ -15,7 +15,7 @@ const SIGN_H = 2.2;
 const SIGN_OVER = 1.2;
 const ROW_PX = 96;
 const ATLAS_W = 512;
-/** Arrows on the snow from the spawn to the own portal: how many and the gap from both ends (units). */
+/** Arrows on the snow from the spawn to the own portal: how many (base.json arrows, SP-08) and the gap from both ends (units). */
 const ARROWS = 3;
 const ARROW_GAP = 4;
 const FILL_OPACITY = 0.6;
@@ -52,7 +52,7 @@ export interface BaseView {
   dispose(): void;
 }
 
-export function createBaseView(theme: ThemeJson): BaseView {
+export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView {
   const group = new Group();
   group.name = 'base';
   const color = (key: string): Color => new Color(theme.materials[key]?.color ?? '#ffffff');
@@ -220,11 +220,11 @@ export function createBaseView(theme: ThemeJson): BaseView {
       group.add(signs);
       parts.push(signGeo, signMat, tex);
 
-      // 3 arrows on the snow from the spawn to the own portal (docs/01-gdd.md 19.2).
+      // Arrows on the snow from the spawn to the own portal (docs/01-gdd.md 19.2; 5 across the base of SP-08).
       const own = portals.find((p) => p.state === 'own');
       const arrowGeo = chevronGeometry();
       const arrowMat = new MeshBasicMaterial({ color: color('wayArrow'), side: DoubleSide, transparent: true, opacity: 0.95, depthWrite: false });
-      const arrows = new InstancedMesh(arrowGeo, arrowMat, ARROWS);
+      const arrows = new InstancedMesh(arrowGeo, arrowMat, Math.max(1, arrowCount));
       arrows.name = 'base-arrows';
       arrows.count = 0;
       if (own) {
@@ -234,14 +234,14 @@ export function createBaseView(theme: ThemeJson): BaseView {
         const len = Math.hypot(dx, dz);
         const usable = len - 2 * ARROW_GAP;
         if (usable > 0) {
-          for (let i = 0; i < ARROWS; i++) {
-            const d = ARROW_GAP + (usable * (i + 0.5)) / ARROWS;
+          for (let i = 0; i < arrowCount; i++) {
+            const d = ARROW_GAP + (usable * (i + 0.5)) / arrowCount;
             dummy.position.set(sx + (dx / len) * d, 0.08, sz + (dz / len) * d);
             dummy.rotation.set(0, Math.atan2(dx, dz), 0);
             dummy.updateMatrix();
             arrows.setMatrixAt(i, dummy.matrix);
           }
-          arrows.count = ARROWS;
+          arrows.count = arrowCount;
         }
       }
       group.add(arrows);
@@ -305,10 +305,10 @@ export function createBaseView(theme: ThemeJson): BaseView {
       dummy.scale.set(1, 1, 1);
       group.add(marks);
       parts.push(boxGeo, boxMat);
-      // Balls: the snowman of the decor and the egg on the shop counter, one mesh.
-      const snow = level.points.find((p) => p.type === 'decor' && p['kind'] === 'snowman');
+      // Balls: the snowmen of the decor and the egg on the shop counter, one mesh.
       const balls: Array<{ x: number; y: number; z: number; r: number; c: Color }> = [];
-      if (snow) balls.push({ x: snow.x, y: 1.3, z: snow.z, r: 1.4, c: color('snowman') }, { x: snow.x, y: 3.3, z: snow.z, r: 0.9, c: color('snowman') });
+      for (const snow of level.points.filter((p) => p.type === 'decor' && p['kind'] === 'snowman'))
+        balls.push({ x: snow.x, y: 1.3, z: snow.z, r: 1.4, c: color('snowman') }, { x: snow.x, y: 3.3, z: snow.z, r: 0.9, c: color('snowman') });
       if (shop) balls.push({ x: shop.x + COUNTER[0] / 4, y: COUNTER[1] + 0.5, z: shop.z, r: 0.5, c: color('giftEgg') });
       if (balls.length) {
         const ballGeo = new SphereGeometry(1, 14, 10);

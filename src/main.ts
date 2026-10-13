@@ -1326,7 +1326,7 @@ async function boot(): Promise<void> {
   // The giant of the open slope and his silhouette (docs/01-gdd.md 17.6).
   bossView = createBossView({ theme, characters, scene: gr.scene, camera: () => cameraRig?.camera ?? null, numSuffix: (k) => t(`num.${k}`), skinId: skins.default, fadeAlpha: () => tuning.camera.fadeAlpha ?? 1 });
   bossView.wire(sim);
-  baseView = createBaseView(theme);
+  baseView = createBaseView(theme, baseCfg?.arrows);
   gr.scene.add(baseView.group);
   decor = createDecor(gr.scene, theme, pets.pets, { top: BOSS_SIGN_TOP, half: BOSS_SIGN_HALF });
   decorWire(sim);

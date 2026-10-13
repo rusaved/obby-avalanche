@@ -222,6 +222,16 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     } else if (p.type === 'decor' && p['kind'] === 'tent') {
       const tent: LevelBox = { min: [p.x - 2.5, p.y, p.z - 2.5], max: [p.x + 2.5, p.y + 3, p.z + 2.5], material: 'tent', kind: 'decor', solid: false };
       bucketOf(p.z).push(boxGeometry(tent, theme));
+    } else if (p.type === 'decor' && p['kind'] === 'lantern') {
+      // SP-08 (docs/01a-content.md 19.6): a lantern of the base — a post with a lit box on top.
+      const post: LevelBox = { min: [p.x - 0.15, p.y, p.z - 0.15], max: [p.x + 0.15, p.y + 3.2, p.z + 0.15], material: 'pole', kind: 'decor', solid: false };
+      const lamp: LevelBox = { min: [p.x - 0.45, p.y + 3.2, p.z - 0.45], max: [p.x + 0.45, p.y + 4.1, p.z + 0.45], material: 'portalLight', kind: 'decor', solid: false };
+      bucketOf(p.z).push(boxGeometry(post, theme), boxGeometry(lamp, theme));
+    } else if (p.type === 'decor' && p['kind'] === 'flag') {
+      // A flag of a base stand: a pole and its cloth in the colour of the tents.
+      const pole: LevelBox = { min: [p.x - 0.12, p.y, p.z - 0.12], max: [p.x + 0.12, p.y + 4.5, p.z + 0.12], material: 'pole', kind: 'decor', solid: false };
+      const cloth: LevelBox = { min: [p.x + 0.12, p.y + 3.3, p.z - 0.06], max: [p.x + 1.9, p.y + 4.4, p.z + 0.06], material: 'tent', kind: 'decor', solid: false };
+      bucketOf(p.z).push(boxGeometry(pole, theme), boxGeometry(cloth, theme));
     } else if (p.type === 'decor' && p['kind'] === 'arrow') {
       const arrow: LevelBox = { min: [p.x - 0.6, p.y + 0.02, p.z - 1.5], max: [p.x + 0.6, p.y + 0.08, p.z + 1.5], material: 'arrow', kind: 'decor', solid: false };
       bucketOf(p.z).push(boxGeometry(arrow, theme));

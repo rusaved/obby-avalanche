@@ -44,12 +44,20 @@ describe('the base (FM-07)', () => {
       return validateBaseFile(b, worlds, tuning, balance, i18n);
     };
     expect(bad((b) => (b.treadmill.lanes = 0)).join()).toContain('base.json: treadmill.lanes');
-    expect(bad((b) => (b.portals.radius = 60)).join()).toContain('base.json: portals');
-    expect(bad((b) => (b.spawn = { x: -24, z: 14 })).join()).toContain('base.json: spawn');
+    // SP-08: by the data of the field (150 × 130): an arc as deep as the field, the spawn on the treadmill.
+    expect(bad((b) => (b.portals.radius = b.size[1])).join()).toContain('base.json: portals');
+    expect(bad((b) => (b.spawn = { x: b.treadmill.x, z: b.treadmill.z })).join()).toContain('base.json: spawn');
     const p1 = basePortals(base, progress(0))[0]!;
     expect(bad((b) => (b.decor.tents = [[p1.x, p1.z]])).join()).toContain('base.json: decor.tents[0]');
+    // SP-08: a tent on the round of the shop.
+    expect(bad((b) => (b.decor.tents = [[b.stands.shop.x + 3, b.stands.shop.z]])).join()).toContain('base.json: decor.tents[0] — (53, 22) on the stands.shop');
     // Tents round the spawn, corner to corner: no portal is reached.
-    const boxed = bad((b) => (b.decor.tents = [[0, 13], [0, 3], [-5, 8], [5, 8]]));
+    const { x: sx, z: sz } = base.spawn;
+    const boxed = bad((b) => {
+      b.decor.tents = [[sx, sz + 5], [sx, sz - 5], [sx - 5, sz], [sx + 5, sz]];
+      // The gift of the day off the ring (a tent on a stand is its own error).
+      b.stands.daily = { ...b.stands.daily, x: -30, z: 60 };
+    });
     expect(boxed.length).toBe(worlds.worlds.length);
     expect(boxed[0]).toContain('base.json: portals — the hero does not get into the portal of mountain 1');
     // Texts of the base in both languages.
