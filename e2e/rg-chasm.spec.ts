@@ -90,6 +90,9 @@ test('mountain 2: by the walk at the edge down into the chasm, its gift, out up 
   let s = await testState(page);
   expect(s.giftsTaken[left[0]!], 'the bottom gift of the walk').toBe(true);
   expect(s.hero!.z).toBeGreaterThan(c1 + 4);
+  // Out of the ramp at a run he is thrown a little (RL-04: like the way out of a dip): on the snow once he lands.
+  await page.waitForFunction(() => window.__TEST__!.state().hero?.onGround === true, undefined, { timeout: 10_000 });
+  s = await testState(page);
   expect(s.hero!.y).toBeCloseTo(chasm.y!, 0);
   expect(first).toContain(want);
   // Down again, the first toast gone: no toast this time (once a save).

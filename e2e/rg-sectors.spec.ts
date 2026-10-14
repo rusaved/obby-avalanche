@@ -52,16 +52,17 @@ for (const index of [8, 9, 10]) {
     // The pass of ridge 2 on the calm lane's side nearest it (SP-04: the passes go by the width).
     const passes = ((ridge as { passes?: number[] }).passes ?? [0]).filter((x) => Math.sign(x) === Math.sign(calm));
     const passX = passes.reduce((a, b) => (Math.abs(b - calm) < Math.abs(a - calm) ? b : a), passes[0] ?? 0);
-    // Up the middle through the throat, then onto the calm lane well before the chasm and the crevasse (SP-05: the
-    // trampolines of the chasm stand on the lanes; at 120 units/s a late turn ends on the crevasse bottom), along the lane,
-    // through a pass of the ridge.
+    // Up the middle through the throat and over the chasm from its middle trampoline (RL-03: between the trampolines is the
+    // pit, and at 120 units/s a turn onto a lane's trampoline right after the throat misses it), then onto the calm lane
+    // in the flight, along the lane, through a pass of the ridge.
     const throat = w.segments.find((s) => s.type === 'throat' && s.section === 2);
     const chasm = w.segments.find((s) => s.type === 'chasm' && s.section === 2);
     const z0 = throat ? throat.z + throat.length! + 6 : zone.zStart + 20;
-    const z1 = chasm ? chasm.z - 12 : fork.z - 6;
+    const z1 = chasm ? chasm.z + chasm.length! + 2 : fork.z - 6;
     await page.evaluate((p) => window.__TEST__!.botPath(p), [
       [0, z0],
-      [calm, z1],
+      [0, z1],
+      [calm, fork.z + 10],
       [calm, fork.z + fork.length!],
       [passX, ridge.z - 12],
       [passX, ridge.z + 8],

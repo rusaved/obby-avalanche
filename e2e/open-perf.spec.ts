@@ -157,11 +157,18 @@ test('640×360: both lanes of the fork of section 3 of mountain 4 are in the fra
   test.setTimeout(120_000);
   await page.setViewportSize({ width: 640, height: 360 });
   await openGame('pace=open');
+  // The scripted wave played first: a teleport up to section 3 reaches its trigger, and at the siren the camera turns to the grotto.
+  await page.evaluate(() => window.__TEST__!.setPlaySec(400));
+  await page.evaluate(() => window.__TEST__!.setTimeScale(8));
+  await page.evaluate(() => window.__TEST__!.triggerWave());
+  await page.waitForFunction(() => window.__TEST__!.state().wave?.scriptedPending === false && window.__TEST__!.state().wave?.phase === 'idle', undefined, { timeout: 60_000 });
+  await page.evaluate(() => window.__TEST__!.setTimeScale(1));
   await page.evaluate(() => window.__TEST__!.gotoWorld(4));
   await waitTicks(page, 20);
   // RL-01: section 2 of mountain 4 has a hump now (its bold lane climbs 20 units); section 3 — a plain split fork.
   const fork = worlds[3]!.segments.find((s) => s.type === 'fork' && s.section === 3)!;
   await page.evaluate(([z]) => {
+    window.__TEST__!.holdWave(120);
     window.__TEST__!.setStat(1e6);
     window.__TEST__!.teleport(z);
   }, [fork.z - 8] as const);

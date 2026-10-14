@@ -172,9 +172,13 @@ test('open, mountain 10 at 120 units/s: in 600 frames the camera never within hi
     window.__TEST__!.setAutoRun(true);
   });
   let top = 0;
+  // On the axis (RL) nothing slows the run: before the giant's zone back to the start, the summit window would pause it.
+  const zone0 = (await testState(page)).boss?.zones[0]?.zone[0] ?? Infinity;
   while ((await page.evaluate(() => window.__TEST__!.cameraStats().frames)) < 600) {
     await waitTicks(page, 6);
-    top = Math.max(top, (await testState(page)).hero!.speed);
+    const h = (await testState(page)).hero!;
+    top = Math.max(top, h.speed);
+    if (h.z > zone0 - 150) await page.evaluate(() => window.__TEST__!.teleport(60, 0));
   }
   await page.evaluate(() => window.__TEST__!.setAutoRun(false));
   const st = await page.evaluate(() => window.__TEST__!.cameraStats());
