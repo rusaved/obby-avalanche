@@ -1,0 +1,8 @@
+
+Running 2 tests using 1 worker
+
+  ✓  1 [desktop] › e2e/perf.spec.ts:14:1 › SP-02: a simulation step on mountain 10 at CPU ×4 with 6 bots at 120 units/s stays within 2 ms (24.5s)
+  ✓  2 [desktop] › e2e/sp-field.spec.ts:25:1 › a runner at an edge of the field of mountain 1 (±(width/2 − 5)) reaches a shelter on the siren 10 of 10 (4.9m)
+
+  2 passed (5.4m)
+EXIT=0
