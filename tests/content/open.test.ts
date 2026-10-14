@@ -63,7 +63,8 @@ describe('pace open by default (PS-02)', () => {
     expect(validatePack(bad, { paces: PACES }).errors.some((e) => e.includes('flags.pace') && e.includes('not in values'))).toBe(true);
     delete (bad['game.json'] as { flags: Record<string, { values?: string[] }> }).flags['pace']!.values;
     expect(validatePack(bad, { paces: PACES }).errors.some((e) => e.includes('flags.pace') && e.includes('needs values'))).toBe(true);
-  });
+    // Three whole packs through the validator (11 s alone, up to 27 s beside other tests).
+  }, 60_000);
 
   it('the open patch of balance.json: ridge coins ×5, the scripted wave at section 2, no «open the wall» ad (01a 16.6)', () => {
     const b = files['balance.json'] as BalanceJson;
