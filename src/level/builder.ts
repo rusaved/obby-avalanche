@@ -118,8 +118,9 @@ export interface BuildOptions {
   cameraThrough?: boolean | undefined;
 }
 
-/** Tall walls the camera may pass (RL-09): ice cliffs, the walls of a throat and of a tunnel, the walls of a rock. */
-export const CAMERA_THROUGH: ReadonlySet<string> = new Set(['cliff', 'ledgeCliff', 'throatWall', 'tunnelWall', 'islandWall']);
+/** Tall walls the camera may pass (RL-09): ice cliffs, the walls of a throat and of a tunnel. Not a rock: its walls stop the
+ * camera, and its grotto frame cuts its roof and back wall (SP-04; playtest RL: through a rock the camera stood inside it). */
+export const CAMERA_THROUGH: ReadonlySet<string> = new Set(['cliff', 'ledgeCliff', 'throatWall', 'tunnelWall']);
 
 /**
  * The invisible wall of the slope (docs/01-gdd.md 19.9, Q-048): over every border up to `h` above the floor it borders,

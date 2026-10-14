@@ -45,8 +45,8 @@
    ],
    "step": 2,
    "plate": 8,
-   "gapMin": 1.5,
-   "gapMax": 5,
+   "gapMin": 1,
+   "gapMax": 1.5,
    "inner": 8,
    "deep": 12,
    "fall": 1

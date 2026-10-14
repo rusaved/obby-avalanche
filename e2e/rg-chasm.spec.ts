@@ -122,6 +122,9 @@ test('mountain 2: by the walk at the edge down into the chasm, its gift, out up 
   }
   expect(inAt).toBeGreaterThan(0);
   expect(inAt - t0, `to ${JSON.stringify(lit)}`).toBeLessThanOrEqual(w2.threat.warnSec * 0.8);
+  // In the shelter: the rest of the wave at ×4 (real seconds under load, not the game's).
+  await page.evaluate(() => window.__TEST__!.setTimeScale(4));
   await page.waitForFunction(() => ['survived', 'caught'].includes(window.__TEST__!.state().wave?.outcome ?? ''), undefined, { timeout: 60_000 });
+  await page.evaluate(() => window.__TEST__!.setTimeScale(1));
   expect((await testState(page)).wave!.outcome).toBe('survived');
 });

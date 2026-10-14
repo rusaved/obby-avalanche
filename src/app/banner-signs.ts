@@ -157,7 +157,7 @@ export function guardBaseArches(view: BaseView, camera: PerspectiveCamera, hero:
 }
 
 /**
- * RL-09 (docs/01-gdd.md 21.9): a tall wall (an ice cliff, a wall of a throat, a tunnel or a rock) on the sight line from
+ * RL-09 (docs/01-gdd.md 21.9): a tall wall (an ice cliff, a wall of a throat or a tunnel) on the sight line from
  * the camera to the hero, or round the camera, turns see-through; the one he stands on top of stays solid.
  */
 export function guardSeeThrough(meshes: Pick<LevelMeshes, 'seeThrough' | 'setSeeThrough'>, camera: PerspectiveCamera, hero: Vector3): void {
