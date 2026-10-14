@@ -50,6 +50,7 @@
   "fx": {
     "windFrom": 0.4
   },
+  "fun": { "slideSway": 6, "slideSwayHz": 1.6 },
   "bounds": {
     "wallHeight": 38
   }

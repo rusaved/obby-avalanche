@@ -36,7 +36,31 @@
  "relief": {
   "approachSlope": 0.2,
   "passSlope": 0.5,
-  "padFrom": 2
+  "padFrom": 2,
+  "stairs": {
+   "fromWorld": 2,
+   "count": [
+    3,
+    5
+   ],
+   "step": 2,
+   "plate": 8,
+   "gapMin": 1.5,
+   "gapMax": 5,
+   "inner": 8,
+   "deep": 12,
+   "fall": 1
+  },
+  "chute": {
+   "fromSection": 2,
+   "share": [
+    0.3,
+    0.5
+   ],
+   "minLength": 120,
+   "width": 8,
+   "mult": 1.6
+  }
  },
  "spawnZ": 20,
  "threat": {

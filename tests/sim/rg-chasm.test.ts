@@ -25,7 +25,7 @@ const w2 = worlds.worlds[1]!;
 const level = buildLevel(w2);
 const chasm = level.shapes!.find((c) => c.kind === 'chasm' && c.section === 2)!;
 // RL-03 (docs/01-gdd.md 21.3): the pit in its middle, the walk round its bottom at the edges.
-const pit = level.shapes!.find((c) => c.kind === 'pit' && c.section === 2)!;
+const pit = level.shapes!.find((c) => c.kind === 'pit' && c.side === undefined && c.section === 2)!;
 const walkX = -(pit.x1 + level.halfAt(chasm.z0)) / 2;
 // The minimum speed of the section: the stat of the ridge below it, no newbie bonus.
 const stat = spec.mountains[1]!.ridges[0]!.requires;

@@ -8,7 +8,7 @@
  * starts delaySec after the entry at the earliest (the section's own toast first), while the hero is in that section.
  * The snowball waits for the lane ahead free for aheadSec (no closed gate, throat or fork cliff): its trail lies on the
  * hero's lane all the time, a step aside or a shelter is enough. The blizzard: everyone in its section × speedMult and
- * the hero's steps × stepMult for durationSec. */
+ * the hero's steps × stepMult for durationSec. RL-07: one blizzard owed on a `guaranteed` section (seed), armed past it till it starts. */
 import type { GameEvents } from '../content/types.ts';
 import type { LevelData } from '../level/types.ts';
 import { createRng } from '../core/rng.ts';
@@ -56,6 +56,7 @@ export function createEvents(level: LevelData, cfg: GameEvents, seed: number, ga
   const inZone = (z: number): boolean => level.bosses.some((b) => z >= b.zone[0] && z <= b.zone[1]);
   let [time, last, section, armedAt] = [0, -Infinity, sectionAt(level.spawn[2]), 0];
   let armed: EventId | null = null;
+  let owed = ((g: number[]): number => (g.length ? g[(seed + level.worldIndex) % g.length]! : 0))(cfg.blizzard?.guaranteed && level.worldIndex >= cfg.blizzard.fromWorld ? cfg.blizzard.guaranteed : []);
 
   // Free run along the lane `x` ahead of z: to the nearest closed gate, throat or fork cliff on it.
   const room = (x: number, z: number, lane: number): number => {
@@ -139,11 +140,11 @@ export function createEvents(level: LevelData, cfg: GameEvents, seed: number, ga
       const k = sectionAt(ctx.hero.z);
       if (k !== section) {
         [section, armedAt] = [k, time];
-        armed = k >= cfg.sections[0] && k <= cfg.sections[1] && !busy() && quiet(ctx) ? roll() : null;
+        armed = owed && k >= owed && !busy() ? 'blizzard' : k >= cfg.sections[0] && k <= cfg.sections[1] && !busy() && quiet(ctx) ? roll() : null;
       }
       if (!armed || busy() || time - armedAt < cfg.delaySec - 1e-9 || !quiet(ctx) || !start(armed, ctx, k)) return;
       emit('eventStart', { tick: ctx.tick, id: armed, section: k });
-      [armed, last] = [null, time];
+      [armed, last, owed] = [null, time, armed === 'blizzard' ? 0 : owed];
     },
   };
 }

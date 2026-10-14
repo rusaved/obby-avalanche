@@ -59,6 +59,7 @@
     "jumpPadMark": { "color": "#FFE066" },
     "slide": { "color": "#7FD0FF" },
     "slideMark": { "color": "#FFFFFF" },
+    "slideSpark": { "color": "#FFE27A" },
     "snowPuff": { "color": "#CFEAFF" },
     "slideTrail": { "color": "#B5E0FF" }
   },

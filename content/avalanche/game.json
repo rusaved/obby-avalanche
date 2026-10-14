@@ -43,6 +43,6 @@
     "delaySec": 2,
     "sections": [2, 4],
     "snowball": { "fromWorld": 5, "chance": 0.25, "aheadSec": 3, "speedMult": 1.3, "trailWidth": 4, "size": 3, "tumbleSec": 1, "slow": 0.6, "slowSec": 2 },
-    "blizzard": { "fromWorld": 7, "chance": 0.2, "durationSec": 12, "speedMult": 0.7, "stepMult": 2, "fogMult": 0.5, "snowMult": 3 }
+    "blizzard": { "fromWorld": 2, "guaranteed": [2, 3], "chance": 0.2, "durationSec": 12, "speedMult": 0.7, "stepMult": 2, "fogMult": 0.5, "snowMult": 3 }
   }
 }

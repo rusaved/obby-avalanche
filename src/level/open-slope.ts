@@ -47,6 +47,10 @@ const AXIS_ROCK_GAP = 6;
 const PAD_RUNUP = 12;
 /** A split fork's bridge from a pit's slope to the next pit, units along the run (both lanes meet on it). */
 const SPLIT_BRIDGE = 4;
+/** RL-06: the chute on a calm track starts and ends this far inside its fork (units). */
+const FORK_CHUTE_MARGIN = 10;
+/** RL-05: the pit of the stairs reaches this far past the edge of the slope (units). */
+const STAIRS_OUT = 30;
 
 export const OPEN_SLOPE = {
   flag: 12,
@@ -142,7 +146,9 @@ function pushStairs(seg: Segment[], ST: NonNullable<NonNullable<OpenSpecJson['re
   const bold: [number, number] = sb > 0 ? [ST.inner, half] : [-half, -ST.inner];
   seg.push({ type: 'ramp', z: zA, length: span, y, rise, x0: calm[0], x1: calm[1], approach: true });
   seg.push({ type: 'stairs', z: zA, length: span, y, x: px, count: n, plate: round3(P), gap: round3(g), rise: round3(r), side: sb > 0 ? 'right' : 'left', section: j });
-  seg.push({ type: 'pit', z: zA, length: span, y: round3(y - ST.fall), x0: bold[0], x1: bold[1], side: sb > 0 ? 'right' : 'left', section: j });
+  // The pit reaches past the edge (no border over it): a fall off the side there counts as one into it.
+  const out: [number, number] = sb > 0 ? [ST.inner, half + STAIRS_OUT] : [-half - STAIRS_OUT, -ST.inner];
+  seg.push({ type: 'pit', z: zA, length: span, y: round3(y - ST.fall), x0: out[0], x1: out[1], side: sb > 0 ? 'right' : 'left', section: j });
   seg.push({ type: 'floor', z: zA, length: span, y: round3(y - ST.deep), x0: bold[0], x1: bold[1], material: 'ice', solid: false, shape: 'stairs' });
   for (let k = 0; k < n; k++)
     seg.push({ type: 'floor', z: round3(zA + g + k * (P + g)), length: round3(P), y: round3(y + r * (k + 1)), x0: round3(px - ST.plate / 2), x1: round3(px + ST.plate / 2), thickness: 1, material: 'ice', shape: 'stairs' });
@@ -534,6 +540,13 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       pushShapes(seg, { plan, section: j, index, y, half, bold, laneX, ...(fs ? { padX: laneX } : {}), forkWidth: 2 * innerX, gift: sec.gift, rarity: zone.rarity, vmin: speedOf(balance, tuning, j >= 2 ? (m.ridges[j - 2] as { requires: number }).requires : carried), shapes: spec.shapes!, tuning: tuning! });
       // RL-06 (docs/01-gdd.md 21.6): the ice chute on the axis of a section without a fork, in its longest free stretch.
       const CH = spec.relief?.chute;
+      // On a split fork: down the middle of its calm track (the axis is its crevasse); a tunnel takes the calm track — the
+      // bold one then. At least share[0] of the section or minLength long.
+      const least = CH ? Math.min(CH.share[0] * L, CH.minLength ?? Infinity) : Infinity;
+      if (CH && j >= CH.fromSection && fork && fs && !(plan.tunnel && plan.hump)) {
+        const len = round3(Math.min(fork[1] - fork[0] - 2 * FORK_CHUTE_MARGIN, CH.share[1] * L));
+        if (len >= least) seg.push({ type: 'slide', z: round3((fork[0] + fork[1]) / 2), x: round3((plan.tunnel ? sb : -sb) * laneX), y, width: CH.width, length: len, mult: CH.mult, stretch: j, shape: 'chute' });
+      }
       if (CH && j >= CH.fromSection && !fork) {
         const pad = spec.shapes!.chasm.padBefore + PAD_SIZE + PAD_RUNUP;
         const busy: Array<[number, number]> = [[z0, z0 + O.flag + 4], [zA - 4, z1]];
@@ -548,7 +561,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
           cur = Math.max(cur, b);
         }
         const len = round3(Math.min(best[1] - best[0], CH.share[1] * L));
-        if (len >= CH.share[0] * L) seg.push({ type: 'slide', z: round3((best[0] + best[1]) / 2), x: 0, y, width: CH.width, length: len, mult: CH.mult, stretch: j, shape: 'chute' });
+        if (len >= least) seg.push({ type: 'slide', z: round3((best[0] + best[1]) / 2), x: 0, y, width: CH.width, length: len, mult: CH.mult, stretch: j, shape: 'chute' });
       }
     } else if (crevasse) {
       const [c0, c1] = crevasse;

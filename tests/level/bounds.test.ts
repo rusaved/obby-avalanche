@@ -85,7 +85,10 @@ describe('FM-01: the invisible wall of the open slope', () => {
       const s = createSim(level, tuning, { balance, speedCurve: curve, stat: 1e9 });
       let falls = 0;
       s.events.on('fall', () => falls++);
-      for (const z of [60, w.length * 0.35, w.length * 0.7, w.length - 30]) {
+      // RL: off the pits, chasms and dips (there a fall or a dip is the element, not the border).
+      const holes = [...(level.shapes ?? []).filter((q) => q.kind === 'pit' || q.kind === 'chasm').map((q) => [q.z0, q.z1]), ...w.segments.filter((x) => x.type === 'dip').map((d) => [d.z, d.z + (d['length'] as number)])];
+      const clear = (z: number): number => (holes.some(([a, b]) => z > a! - 10 && z < b! + 10) ? clear(z + 20) : z);
+      for (const z of [60, w.length * 0.35, w.length * 0.7, w.length - 30].map(clear)) {
         // The summit funnel (SP-01): its snow walls are the border there.
         const f = level.funnel;
         const edge = f && z > f.z0 ? f.x0 + (f.x1 - f.x0) * Math.min(1, (z - f.z0) / (f.z1 - f.z0)) : level.halfAt(z);

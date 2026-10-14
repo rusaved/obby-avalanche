@@ -121,7 +121,10 @@ describe('generator openSlope and its validator (PS-03)', () => {
         const h = (spec.mountains[wi]!.sections[i]!.width ?? spec.width) / 2;
         const across = (s: Segment): boolean => s['x0'] === undefined || (num(s, 'x0') <= -h + 1e-6 && num(s, 'x1') >= h - 1e-6);
         const m = spec.mountains[wi]!;
-        const rise = w.segments.find((s) => s.type === 'ramp' && across(s) && s['approach'] === true && s.z > zone.zStart && s.z < zone.zEnd)!;
+        // RL-05: from mountain 2 the ramp takes the calm half and the axis, the stairs the bold half.
+        const stairs = w.segments.some((s) => s.type === 'stairs' && s.z > zone.zStart && s.z < zone.zEnd);
+        const rise = w.segments.find((s) => s.type === 'ramp' && (stairs || across(s)) && s['approach'] === true && s.z > zone.zStart && s.z < zone.zEnd)!;
+        expect(stairs).toBe(wi >= 1);
         expect(num(rise, 'rise')).toBe(m.terraceRise! - m.ridgeRise!);
         expect(num(rise, 'rise') / num(rise, 'length')).toBeGreaterThanOrEqual(spec.relief!.approachSlope - 1e-9);
         expect(num(rise, 'rise') / num(rise, 'length')).toBeLessThanOrEqual(0.3);

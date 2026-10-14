@@ -6,7 +6,7 @@ import { mergePatch } from '../../src/content/pace.ts';
 import { createEvents, type EventEvents, type EventsContext } from '../../src/sim/events.ts';
 import { createSim, type Sim } from '../../src/sim/world.ts';
 import { moveSpeed } from '../../src/sim/effects/moveSpeed.ts';
-import type { BalanceJson, BotsJson, GameJson, TuningJson, WorldsJson } from '../../src/content/types.ts';
+import type { BalanceJson, BotsJson, GameEvents, GameJson, TuningJson, WorldsJson } from '../../src/content/types.ts';
 import type { LevelData } from '../../src/level/types.ts';
 import type { HeroInput } from '../../src/sim/controller.ts';
 
@@ -18,7 +18,13 @@ const tuning = mergePatch(read<TuningJson>('tuning.json'), read('pace/open/tunin
 const game = read<GameJson>('game.json');
 const worlds = read<WorldsJson>('pace/open/worlds.json');
 const botsCfg = read<BotsJson>('bots.json');
-const cfg = game.events!;
+// RL-07 moved the blizzard to mountain 2 with one for sure on section 2 or 3 (tests/sim/rl-blizzard.test.ts); the rules of
+// RG are checked here as they were: from mountain 7, by chance only.
+const cfg = ((e: GameEvents): GameEvents => {
+  const blizzard = { ...e.blizzard!, fromWorld: 7 };
+  delete blizzard.guaranteed;
+  return { ...e, blizzard };
+})(game.events!);
 const sb = cfg.snowball!;
 const curve = { ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed };
 const DT = 1 / 60;

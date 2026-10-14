@@ -239,10 +239,11 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     const y = num(f, 'y');
     const x0 = num(f, 'x0', -half);
     const x1 = num(f, 'x1', half);
-    // RL-03: the floor of a pit is seen, never stood on (`solid` false): a fall counts long before it.
+    // RL-03: the floor of a pit is seen, never stood on (`solid` false): a fall counts long before it. At the edge of the
+    // slope (the stairs of RL-05) it keeps the fence and the invisible wall over it.
     const solid = f['solid'] !== false;
     boxes.push(box([x0, y - num(f, 'thickness', FLOOR_THICKNESS), z0], [x1, y, z1], str(f, 'material', 'track'), solid ? 'floor' : 'pitFloor', solid));
-    if (solid) addBorders(z0, z1, y, x0, x1);
+    addBorders(z0, z1, y, x0, x1);
   }
   for (const r of rampSegs) {
     const z0 = r.z;

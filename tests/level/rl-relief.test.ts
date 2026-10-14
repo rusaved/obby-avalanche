@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import { buildLevel } from '../../src/level/builder.ts';
 import { mergePatch } from '../../src/content/pace.ts';
 import { createSim } from '../../src/sim/world.ts';
+import { groundPath } from '../../src/sim/shelter.ts';
 import type { BalanceJson, OpenSpecJson, ThemeJson, TuningJson, WorldsJson } from '../../src/content/types.ts';
 import type { HeroInput } from '../../src/sim/controller.ts';
 
@@ -75,5 +76,115 @@ describe('dips and tints (RL-04)', () => {
       expect(t.track).not.toBe(prev.track);
       prev = { top: t.sky.top, track: t.track };
     }
+  });
+
+  it('RL-05: on every section of mountains 2–10 a stair of 3–5 plates up the bold half of the rise; gaps ≤ 5, a rise ≤ 3 each; the calm half a ramp without gaps', () => {
+    const ST = spec.relief!.stairs!;
+    const jump = (tuning.controller.jumpSpeed ** 2) / (2 * tuning.controller.gravity);
+    for (const w of worlds.worlds) {
+      const level = buildLevel(w);
+      const stairs = w.segments.filter((s) => s.type === 'stairs');
+      expect(stairs.length, w.id).toBe(w.index >= ST.fromWorld ? w.zones.length - 1 : 0);
+      for (const st of stairs) {
+        const n = st['count'] as number;
+        expect(n).toBeGreaterThanOrEqual(3);
+        expect(n).toBeLessThanOrEqual(5);
+        expect(st['gap'] as number).toBeLessThanOrEqual(ST.gapMax + 1e-9);
+        expect(st['rise'] as number).toBeLessThanOrEqual(3 + 1e-9);
+        expect(jump).toBeGreaterThan((st['rise'] as number) + 2);
+        const sb = st['side'] === 'right' ? 1 : -1;
+        const plates = w.segments.filter((s) => s.type === 'floor' && s['shape'] === 'stairs' && s.z >= st.z && s.z < st.z + (st['length'] as number) && s['solid'] !== false);
+        expect(plates.length).toBe(n);
+        for (const pl of plates) expect(Math.sign((pl['x0'] as number) + (pl['x1'] as number))).toBe(sb);
+        // The last plate one step under the top floor past the stairs.
+        const top = level.floorAt(st['x'] as number, st.z + (st['length'] as number) + 0.5);
+        expect(top - (plates.at(-1)!['y'] as number)).toBeCloseTo(st['rise'] as number, 6);
+        // The calm half: ground at every step of the rise.
+        for (let z = st.z; z <= st.z + (st['length'] as number); z += 0.5) expect(Number.isFinite(level.floorAt(-sb * 20, z)), `${w.id} z ${z}`).toBe(true);
+        // The way up the bold half rounds the pit by its inner end.
+        const from = { x: sb * 30, z: st.z - 5 };
+        const to = { x: sb * 30, z: st.z + (st['length'] as number) + 5 };
+        expect(groundPath(level, from.x, from.z, to.x, to.z)).toBeGreaterThan(to.z - from.z + 10);
+      }
+    }
+  });
+
+  it('RL-05: from the front of each plate a jump takes the next one (the last — the top floor); off the plates he falls in and rolls back', () => {
+    for (const wi of [1, 9]) {
+      const w = worlds.worlds[wi]!;
+      const level = buildLevel(w);
+      const st = w.segments.find((s) => s.type === 'stairs' && s['section'] === 2)!;
+      const plates = w.segments.filter((s) => s.type === 'floor' && s['shape'] === 'stairs' && s['solid'] !== false && s.z > st.z && s.z < st.z + (st['length'] as number));
+      const stat = spec.mountains[wi]!.ridges[0]!.requires;
+      const x = st['x'] as number;
+      const end = st.z + (st['length'] as number);
+      const s = createSim(level, tuning, { balance, speedCurve: curve, stat });
+      let falls = 0;
+      s.events.on('fall', () => falls++);
+      for (let k = 0; k < plates.length; k++) {
+        const pl = plates[k]!;
+        s.progress.stat = stat;
+        s.teleport(x, (pl['y'] as number) + 0.05, pl.z + (pl['length'] as number) - 1.5);
+        for (let i = 0; i < 5; i++) s.step({ moveX: 0, moveZ: 0, jump: false, jumpHeld: false }, DT);
+        let air = false;
+        for (let i = 0; i < 90; i++) {
+          // A hop at about 15 units/s along the stair (the stick pushed as far as that needs at the run of the section).
+          s.step({ moveX: 0, moveZ: Math.min(1, 15 / s.params.speed), jump: i === 0, jumpHeld: i < 20 }, DT);
+          if (!s.hero.onGround) air = true;
+          else if (air) break;
+        }
+        const want = k + 1 < plates.length ? (plates[k + 1]!['y'] as number) : level.floorAt(x, end + 1);
+        expect(falls, `${w.id} plate ${k + 1}`).toBe(0);
+        expect(s.hero.pos.y, `${w.id} plate ${k + 1} → next`).toBeGreaterThan(want - 0.2);
+      }
+      // Running straight off the slope into the pit: back to the flag.
+      s.teleport(x, level.floorAt(x, st.z - 3) + 0.05, st.z - 3);
+      for (let i = 0; i < 120 && !s.caught; i++) s.step(RUN, DT);
+      expect(s.caught, w.id).not.toBeNull();
+    }
+  }, 60_000);
+
+  it('RL-05: bots run the calm half of the rise, never over the pit of the stairs', () => {
+    const w = worlds.worlds[1]!;
+    const level = buildLevel(w);
+    const pits = level.shapes!.filter((q) => q.kind === 'pit' && q.side !== undefined);
+    const s = createSim(level, tuning, { balance, speedCurve: curve, stat: 1e6, bots: { cfg: read('bots.json'), count: 6, seed: 9 } });
+    for (const b of s.bots!.list) {
+      b.mode = 'up';
+      b.x = b.lane = (b.index % 2 ? 1 : -1) * 30;
+      b.z = pits[0]!.z0 - 40;
+      b.path = [[b.x, pits[0]!.z1 + 30]];
+    }
+    for (let i = 0; i < 600; i++) {
+      s.step({ moveX: 0, moveZ: 0, jump: false, jumpHeld: false }, DT);
+      for (const b of s.bots!.list) for (const q of pits) expect(b.z > q.z0 && b.z < q.z1 && b.x > q.x0 && b.x < q.x1, `bot ${b.index} at ${b.x}, ${b.z}`).toBe(false);
+    }
+  });
+
+  it('RL-06: every mountain has an ice chute on a section from the 2nd, ×1.6, flat, path gifts on it; the hero speeds up on it', () => {
+    const CH = spec.relief!.chute!;
+    for (const w of worlds.worlds) {
+      const level = buildLevel(w);
+      const chutes = w.segments.filter((s) => s.type === 'slide' && s['shape'] === 'chute');
+      expect(chutes.length, w.id).toBeGreaterThan(0);
+      for (const c of chutes) {
+        const L = spec.mountains[w.index - 1]!.sections[(c['stretch'] as number) - 1]!.length;
+        expect(c['stretch'] as number).toBeGreaterThanOrEqual(CH.fromSection);
+        expect(c['length'] as number).toBeGreaterThanOrEqual(Math.min(CH.share[0] * L, CH.minLength!) - 1e-6);
+        expect(c['length'] as number).toBeLessThanOrEqual(CH.share[1] * L + 1e-6);
+        expect(c['mult']).toBe(1.6);
+        const x = c.x as number;
+        const z0 = c.z - (c['length'] as number) / 2;
+        for (let z = z0; z <= z0 + (c['length'] as number); z += 1) expect(level.floorAt(x, z), `${w.id} chute z ${z}`).toBeCloseTo(c['y'] as number, 6);
+        if (x === 0) expect(w.segments.some((g) => g.type === 'gift' && g['path'] === true && g.x === 0 && Math.abs(g.z - c.z) < (c['length'] as number) / 2), `${w.id} gifts on the chute`).toBe(true);
+      }
+    }
+    const w = worlds.worlds[0]!;
+    const c = w.segments.find((s) => s.type === 'slide' && s['shape'] === 'chute')!;
+    const level = buildLevel(w);
+    const s = createSim(level, tuning, { balance, speedCurve: curve, stat: 520 });
+    s.teleport(0, level.floorAt(0, c.z) + 0.05, c.z - (c['length'] as number) / 2 + 2);
+    for (let i = 0; i < 40; i++) s.step(RUN, DT);
+    expect(s.hero.speed).toBeGreaterThan(1.5 * s.params.speed);
   });
 });

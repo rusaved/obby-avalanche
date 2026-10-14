@@ -89,7 +89,8 @@ describe('character of the mountains in the data (RG-01)', () => {
     for (const m of plain.mountains) for (const s of m.sections) delete s.shape;
     const out = gen(plain);
     for (const w of out.worlds) {
-      expect(w.segments.filter((s) => ['chasm', 'throat', 'tunnel', 'hump', 'dip', 'pit'].includes(s.type) || s['shape'] !== undefined), w.id).toEqual([]);
+      // The stairs to a ridge (RL-05) and the chute (RL-06) are the relief of every section, not elements of a shape.
+      expect(w.segments.filter((s) => ['chasm', 'throat', 'tunnel', 'hump', 'dip'].includes(s.type) || (s['shape'] !== undefined && s['shape'] !== 'stairs' && s['shape'] !== 'chute')), w.id).toEqual([]);
       for (const f of w.segments.filter((s) => s.type === 'fork')) {
         const zone = w.zones[(f['section'] as number) - 1]!;
         // SP-05: a split fork starts where the fork of 16.5 does and runs 150–300 (tests/level/fork.test.ts).

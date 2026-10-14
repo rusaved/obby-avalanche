@@ -68,6 +68,8 @@ export interface BlizzardEvent {
   stepMult: number;
   fogMult: number;
   snowMult: number;
+  /** RL-07 (docs/01-gdd.md 21.7): one blizzard a mountain for sure on one of these sections (picked by the seed). */
+  guaranteed?: number[];
 }
 
 export interface GameEvents {
@@ -670,7 +672,7 @@ export interface OpenSpecJson {
     stairs?: { fromWorld: number; count: [number, number]; step: number; plate: number; gapMin: number; gapMax: number; inner: number; deep: number; fall: number };
     /** RL-06 (docs/01-gdd.md 21.6): from section `fromSection`, on a section without a fork, an ice slide `width` wide ×`mult`
      * on the axis, `share` [min, max] of the section long, in the longest free stretch of the axis. */
-    chute?: { fromSection: number; share: [number, number]; width: number; mult: number };
+    chute?: { fromSection: number; share: [number, number]; minLength?: number; width: number; mult: number };
   };
   /** SP-04 (docs/01-gdd.md 20.4: the first minute of the game on the same seconds): on `mountain`, the first grotto row of
    * `section` (the first avalanche) — rocks by the lanes `gap` off their lines — and from that section the grottos with the

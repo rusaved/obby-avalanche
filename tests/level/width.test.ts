@@ -118,6 +118,7 @@ describe('SP-04: the width of the slope by sections', () => {
             expect(snow.some((p) => inside(p.pts, sign * (e + 0.5), z)), where).toBe(true);
             continue;
           }
+
           expect(Number.isFinite(level.floorAt(sign * (e - 0.5), z)), where).toBe(true);
           expect(level.floorAt(sign * (e + 0.5), z), where).toBe(-Infinity);
           const x = sign * (e + BORDER_WIDTH / 2);

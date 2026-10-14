@@ -1767,6 +1767,17 @@
           "section": 3
         },
         {
+          "type": "slide",
+          "z": 850,
+          "x": 0,
+          "y": 24,
+          "width": 8,
+          "length": 192,
+          "mult": 1.6,
+          "stretch": 3,
+          "shape": "chute"
+        },
+        {
           "type": "gift",
           "z": 650,
           "x": 0,
@@ -2415,9 +2426,87 @@
           "length": 45,
           "y": 0,
           "rise": 9,
-          "approach": true,
+          "x0": -8,
+          "x1": 55,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 291,
+          "length": 45,
+          "y": 0,
+          "x": -36.667,
+          "count": 4,
+          "plate": 8,
+          "gap": 2.6,
+          "rise": 1.8,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "pit",
+          "z": 291,
+          "length": 45,
+          "y": -1,
+          "x0": -85,
+          "x1": -8,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "floor",
+          "z": 291,
+          "length": 45,
+          "y": -12,
           "x0": -55,
-          "x1": 55
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 293.6,
+          "length": 8,
+          "y": 1.8,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 304.2,
+          "length": 8,
+          "y": 3.6,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 314.8,
+          "length": 8,
+          "y": 5.4,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 325.4,
+          "length": 8,
+          "y": 7.2,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -2758,9 +2847,87 @@
           "length": 45,
           "y": 13,
           "rise": 9,
-          "approach": true,
           "x0": -60,
-          "x1": 60
+          "x1": 8,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 671,
+          "length": 45,
+          "y": 13,
+          "x": 24,
+          "count": 4,
+          "plate": 8,
+          "gap": 2.6,
+          "rise": 1.8,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "pit",
+          "z": 671,
+          "length": 45,
+          "y": 12,
+          "x0": 8,
+          "x1": 90,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "floor",
+          "z": 671,
+          "length": 45,
+          "y": 1,
+          "x0": 8,
+          "x1": 60,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 673.6,
+          "length": 8,
+          "y": 14.8,
+          "x0": 20,
+          "x1": 28,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 684.2,
+          "length": 8,
+          "y": 16.6,
+          "x0": 20,
+          "x1": 28,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 694.8,
+          "length": 8,
+          "y": 18.4,
+          "x0": 20,
+          "x1": 28,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 705.4,
+          "length": 8,
+          "y": 20.2,
+          "x0": 20,
+          "x1": 28,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -3488,7 +3655,87 @@
           "length": 45,
           "y": 26,
           "rise": 9,
+          "x0": -8,
+          "x1": 100,
           "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 1086,
+          "length": 45,
+          "y": 26,
+          "x": -57.143,
+          "count": 4,
+          "plate": 8,
+          "gap": 2.6,
+          "rise": 1.8,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "pit",
+          "z": 1086,
+          "length": 45,
+          "y": 25,
+          "x0": -130,
+          "x1": -8,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "floor",
+          "z": 1086,
+          "length": 45,
+          "y": 14,
+          "x0": -100,
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1088.6,
+          "length": 8,
+          "y": 27.8,
+          "x0": -61.143,
+          "x1": -53.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1099.2,
+          "length": 8,
+          "y": 29.6,
+          "x0": -61.143,
+          "x1": -53.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1109.8,
+          "length": 8,
+          "y": 31.4,
+          "x0": -61.143,
+          "x1": -53.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1120.4,
+          "length": 8,
+          "y": 33.2,
+          "x0": -61.143,
+          "x1": -53.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -4061,6 +4308,17 @@
           "y": 26,
           "depth": 4,
           "section": 3
+        },
+        {
+          "type": "slide",
+          "z": 1000,
+          "x": 40,
+          "y": 26,
+          "width": 8,
+          "length": 144,
+          "mult": 1.6,
+          "stretch": 3,
+          "shape": "chute"
         },
         {
           "type": "floor",
@@ -4672,9 +4930,87 @@
           "length": 45,
           "y": 39,
           "rise": 9,
-          "approach": true,
           "x0": -62,
-          "x1": 62
+          "x1": 8,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 1546,
+          "length": 45,
+          "y": 39,
+          "x": 24.8,
+          "count": 4,
+          "plate": 8,
+          "gap": 2.6,
+          "rise": 1.8,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "pit",
+          "z": 1546,
+          "length": 45,
+          "y": 38,
+          "x0": 8,
+          "x1": 92,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "floor",
+          "z": 1546,
+          "length": 45,
+          "y": 27,
+          "x0": 8,
+          "x1": 62,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1548.6,
+          "length": 8,
+          "y": 40.8,
+          "x0": 20.8,
+          "x1": 28.8,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1559.2,
+          "length": 8,
+          "y": 42.6,
+          "x0": 20.8,
+          "x1": 28.8,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1569.8,
+          "length": 8,
+          "y": 44.4,
+          "x0": 20.8,
+          "x1": 28.8,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1580.4,
+          "length": 8,
+          "y": 46.2,
+          "x0": 20.8,
+          "x1": 28.8,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -5301,6 +5637,17 @@
             51.033,
             72.301
           ]
+        },
+        {
+          "type": "slide",
+          "z": 1433,
+          "x": -40,
+          "y": 39,
+          "width": 8,
+          "length": 130,
+          "mult": 1.6,
+          "stretch": 4,
+          "shape": "chute"
         },
         {
           "type": "floor",
@@ -6239,9 +6586,98 @@
           "length": 54,
           "y": 0,
           "rise": 11,
-          "approach": true,
+          "x0": -8,
+          "x1": 55,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 342,
+          "length": 54,
+          "y": 0,
+          "x": -36.667,
+          "count": 5,
+          "plate": 8,
+          "gap": 2.333,
+          "rise": 1.833,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "pit",
+          "z": 342,
+          "length": 54,
+          "y": -1,
+          "x0": -85,
+          "x1": -8,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "floor",
+          "z": 342,
+          "length": 54,
+          "y": -12,
           "x0": -55,
-          "x1": 55
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 344.333,
+          "length": 8,
+          "y": 1.833,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 354.667,
+          "length": 8,
+          "y": 3.667,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 365,
+          "length": 8,
+          "y": 5.5,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 375.333,
+          "length": 8,
+          "y": 7.333,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 385.667,
+          "length": 8,
+          "y": 9.167,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -6595,9 +7031,98 @@
           "length": 55,
           "y": 15,
           "rise": 11,
-          "approach": true,
           "x0": -62,
-          "x1": 62
+          "x1": 8,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 771,
+          "length": 55,
+          "y": 15,
+          "x": 24.8,
+          "count": 5,
+          "plate": 8,
+          "gap": 2.5,
+          "rise": 1.833,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "pit",
+          "z": 771,
+          "length": 55,
+          "y": 14,
+          "x0": 8,
+          "x1": 92,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "floor",
+          "z": 771,
+          "length": 55,
+          "y": 3,
+          "x0": 8,
+          "x1": 62,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 773.5,
+          "length": 8,
+          "y": 16.833,
+          "x0": 20.8,
+          "x1": 28.8,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 784,
+          "length": 8,
+          "y": 18.667,
+          "x0": 20.8,
+          "x1": 28.8,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 794.5,
+          "length": 8,
+          "y": 20.5,
+          "x0": 20.8,
+          "x1": 28.8,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 805,
+          "length": 8,
+          "y": 22.333,
+          "x0": 20.8,
+          "x1": 28.8,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 815.5,
+          "length": 8,
+          "y": 24.167,
+          "x0": 20.8,
+          "x1": 28.8,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -7180,6 +7705,17 @@
           ]
         },
         {
+          "type": "slide",
+          "z": 684.5,
+          "x": -40,
+          "y": 15,
+          "width": 8,
+          "length": 145,
+          "mult": 1.6,
+          "stretch": 2,
+          "shape": "chute"
+        },
+        {
           "type": "floor",
           "z": 550.5,
           "length": 51.5,
@@ -7711,9 +8247,98 @@
           "length": 55,
           "y": 30,
           "rise": 11,
-          "approach": true,
+          "x0": -8,
+          "x1": 62,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 1244,
+          "length": 55,
+          "y": 30,
+          "x": -24.8,
+          "count": 5,
+          "plate": 8,
+          "gap": 2.5,
+          "rise": 1.833,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "pit",
+          "z": 1244,
+          "length": 55,
+          "y": 29,
+          "x0": -92,
+          "x1": -8,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "floor",
+          "z": 1244,
+          "length": 55,
+          "y": 18,
           "x0": -62,
-          "x1": 62
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1246.5,
+          "length": 8,
+          "y": 31.833,
+          "x0": -28.8,
+          "x1": -20.8,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1257,
+          "length": 8,
+          "y": 33.667,
+          "x0": -28.8,
+          "x1": -20.8,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1267.5,
+          "length": 8,
+          "y": 35.5,
+          "x0": -28.8,
+          "x1": -20.8,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1278,
+          "length": 8,
+          "y": 37.333,
+          "x0": -28.8,
+          "x1": -20.8,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1288.5,
+          "length": 8,
+          "y": 39.167,
+          "x0": -28.8,
+          "x1": -20.8,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -8349,6 +8974,17 @@
           ]
         },
         {
+          "type": "slide",
+          "z": 1127,
+          "x": 40,
+          "y": 30,
+          "width": 8,
+          "length": 130,
+          "mult": 1.6,
+          "stretch": 3,
+          "shape": "chute"
+        },
+        {
           "type": "floor",
           "z": 993,
           "length": 59,
@@ -8873,7 +9509,98 @@
           "length": 55,
           "y": 45,
           "rise": 11,
+          "x0": -100,
+          "x1": 8,
           "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 1764,
+          "length": 55,
+          "y": 45,
+          "x": 57.143,
+          "count": 5,
+          "plate": 8,
+          "gap": 2.5,
+          "rise": 1.833,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "pit",
+          "z": 1764,
+          "length": 55,
+          "y": 44,
+          "x0": 8,
+          "x1": 130,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "floor",
+          "z": 1764,
+          "length": 55,
+          "y": 33,
+          "x0": 8,
+          "x1": 100,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1766.5,
+          "length": 8,
+          "y": 46.833,
+          "x0": 53.143,
+          "x1": 61.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1777,
+          "length": 8,
+          "y": 48.667,
+          "x0": 53.143,
+          "x1": 61.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1787.5,
+          "length": 8,
+          "y": 50.5,
+          "x0": 53.143,
+          "x1": 61.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1798,
+          "length": 8,
+          "y": 52.333,
+          "x0": 53.143,
+          "x1": 61.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1808.5,
+          "length": 8,
+          "y": 54.167,
+          "x0": 53.143,
+          "x1": 61.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -9338,6 +10065,17 @@
           "y": 45,
           "depth": 5,
           "section": 4
+        },
+        {
+          "type": "slide",
+          "z": 1690.584,
+          "x": 0,
+          "y": 45,
+          "width": 8,
+          "length": 138.833,
+          "mult": 1.6,
+          "stretch": 4,
+          "shape": "chute"
         },
         {
           "type": "gift",
@@ -10081,9 +10819,98 @@
           "length": 54,
           "y": 0,
           "rise": 11,
-          "approach": true,
+          "x0": -8,
+          "x1": 60,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 392,
+          "length": 54,
+          "y": 0,
+          "x": -24,
+          "count": 5,
+          "plate": 8,
+          "gap": 2.333,
+          "rise": 1.833,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "pit",
+          "z": 392,
+          "length": 54,
+          "y": -1,
+          "x0": -90,
+          "x1": -8,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "floor",
+          "z": 392,
+          "length": 54,
+          "y": -12,
           "x0": -60,
-          "x1": 60
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 394.333,
+          "length": 8,
+          "y": 1.833,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 404.667,
+          "length": 8,
+          "y": 3.667,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 415,
+          "length": 8,
+          "y": 5.5,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 425.333,
+          "length": 8,
+          "y": 7.333,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 435.667,
+          "length": 8,
+          "y": 9.167,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -10488,7 +11315,98 @@
           "length": 55,
           "y": 16,
           "rise": 11,
+          "x0": -100,
+          "x1": 8,
           "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 872,
+          "length": 55,
+          "y": 16,
+          "x": 57.143,
+          "count": 5,
+          "plate": 8,
+          "gap": 2.5,
+          "rise": 1.833,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "pit",
+          "z": 872,
+          "length": 55,
+          "y": 15,
+          "x0": 8,
+          "x1": 130,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "floor",
+          "z": 872,
+          "length": 55,
+          "y": 4,
+          "x0": 8,
+          "x1": 100,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 874.5,
+          "length": 8,
+          "y": 17.833,
+          "x0": 53.143,
+          "x1": 61.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 885,
+          "length": 8,
+          "y": 19.667,
+          "x0": 53.143,
+          "x1": 61.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 895.5,
+          "length": 8,
+          "y": 21.5,
+          "x0": 53.143,
+          "x1": 61.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 906,
+          "length": 8,
+          "y": 23.333,
+          "x0": 53.143,
+          "x1": 61.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 916.5,
+          "length": 8,
+          "y": 25.167,
+          "x0": 53.143,
+          "x1": 61.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -11118,6 +12036,17 @@
           ]
         },
         {
+          "type": "slide",
+          "z": 751,
+          "x": -44,
+          "y": 16,
+          "width": 8,
+          "length": 130,
+          "mult": 1.6,
+          "stretch": 2,
+          "shape": "chute"
+        },
+        {
           "type": "floor",
           "z": 616.5,
           "length": 59.5,
@@ -11677,9 +12606,98 @@
           "length": 55,
           "y": 32,
           "rise": 11,
-          "approach": true,
+          "x0": -8,
+          "x1": 66,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 1402,
+          "length": 55,
+          "y": 32,
+          "x": -26.4,
+          "count": 5,
+          "plate": 8,
+          "gap": 2.5,
+          "rise": 1.833,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "pit",
+          "z": 1402,
+          "length": 55,
+          "y": 31,
+          "x0": -96,
+          "x1": -8,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "floor",
+          "z": 1402,
+          "length": 55,
+          "y": 20,
           "x0": -66,
-          "x1": 66
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1404.5,
+          "length": 8,
+          "y": 33.833,
+          "x0": -30.4,
+          "x1": -22.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1415,
+          "length": 8,
+          "y": 35.667,
+          "x0": -30.4,
+          "x1": -22.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1425.5,
+          "length": 8,
+          "y": 37.5,
+          "x0": -30.4,
+          "x1": -22.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1436,
+          "length": 8,
+          "y": 39.333,
+          "x0": -30.4,
+          "x1": -22.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1446.5,
+          "length": 8,
+          "y": 41.167,
+          "x0": -30.4,
+          "x1": -22.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -12266,6 +13284,17 @@
           "section": 3
         },
         {
+          "type": "slide",
+          "z": 1292,
+          "x": 44,
+          "y": 32,
+          "width": 8,
+          "length": 192,
+          "mult": 1.6,
+          "stretch": 3,
+          "shape": "chute"
+        },
+        {
           "type": "floor",
           "z": 1119,
           "length": 67,
@@ -12841,9 +13870,98 @@
           "length": 55,
           "y": 48,
           "rise": 11,
-          "approach": true,
           "x0": -66,
-          "x1": 66
+          "x1": 8,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 1974,
+          "length": 55,
+          "y": 48,
+          "x": 26.4,
+          "count": 5,
+          "plate": 8,
+          "gap": 2.5,
+          "rise": 1.833,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "pit",
+          "z": 1974,
+          "length": 55,
+          "y": 47,
+          "x0": 8,
+          "x1": 96,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "floor",
+          "z": 1974,
+          "length": 55,
+          "y": 36,
+          "x0": 8,
+          "x1": 66,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1976.5,
+          "length": 8,
+          "y": 49.833,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1987,
+          "length": 8,
+          "y": 51.667,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1997.5,
+          "length": 8,
+          "y": 53.5,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2008,
+          "length": 8,
+          "y": 55.333,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2018.5,
+          "length": 8,
+          "y": 57.167,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -13398,6 +14516,17 @@
             45,
             49
           ]
+        },
+        {
+          "type": "slide",
+          "z": 1856,
+          "x": -44,
+          "y": 48,
+          "width": 8,
+          "length": 208,
+          "mult": 1.6,
+          "stretch": 4,
+          "shape": "chute"
         },
         {
           "type": "floor",
@@ -14440,9 +15569,98 @@
           "length": 55,
           "y": 0,
           "rise": 13,
-          "approach": true,
+          "x0": -8,
+          "x1": 50,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 432,
+          "length": 55,
+          "y": 0,
+          "x": -33.333,
+          "count": 5,
+          "plate": 8,
+          "gap": 2.5,
+          "rise": 2.167,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "pit",
+          "z": 432,
+          "length": 55,
+          "y": -1,
+          "x0": -80,
+          "x1": -8,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "floor",
+          "z": 432,
+          "length": 55,
+          "y": -12,
           "x0": -50,
-          "x1": 50
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 434.5,
+          "length": 8,
+          "y": 2.167,
+          "x0": -37.333,
+          "x1": -29.333,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 445,
+          "length": 8,
+          "y": 4.333,
+          "x0": -37.333,
+          "x1": -29.333,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 455.5,
+          "length": 8,
+          "y": 6.5,
+          "x0": -37.333,
+          "x1": -29.333,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 466,
+          "length": 8,
+          "y": 8.667,
+          "x0": -37.333,
+          "x1": -29.333,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 476.5,
+          "length": 8,
+          "y": 10.833,
+          "x0": -37.333,
+          "x1": -29.333,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -14809,9 +16027,98 @@
           "length": 65,
           "y": 18,
           "rise": 13,
-          "approach": true,
           "x0": -66,
-          "x1": 66
+          "x1": 8,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 962,
+          "length": 65,
+          "y": 18,
+          "x": 26.4,
+          "count": 5,
+          "plate": 8,
+          "gap": 4.167,
+          "rise": 2.167,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "pit",
+          "z": 962,
+          "length": 65,
+          "y": 17,
+          "x0": 8,
+          "x1": 96,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "floor",
+          "z": 962,
+          "length": 65,
+          "y": 6,
+          "x0": 8,
+          "x1": 66,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 966.167,
+          "length": 8,
+          "y": 20.167,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 978.333,
+          "length": 8,
+          "y": 22.333,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 990.5,
+          "length": 8,
+          "y": 24.5,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1002.667,
+          "length": 8,
+          "y": 26.667,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1014.833,
+          "length": 8,
+          "y": 28.833,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -15484,6 +16791,17 @@
           ]
         },
         {
+          "type": "slide",
+          "z": 821,
+          "x": -44,
+          "y": 18,
+          "width": 8,
+          "length": 130,
+          "mult": 1.6,
+          "stretch": 2,
+          "shape": "chute"
+        },
+        {
           "type": "floor",
           "z": 679,
           "length": 67,
@@ -15987,9 +17305,98 @@
           "length": 65,
           "y": 36,
           "rise": 13,
-          "approach": true,
+          "x0": -8,
+          "x1": 66,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 1542,
+          "length": 65,
+          "y": 36,
+          "x": -26.4,
+          "count": 5,
+          "plate": 8,
+          "gap": 4.167,
+          "rise": 2.167,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "pit",
+          "z": 1542,
+          "length": 65,
+          "y": 35,
+          "x0": -96,
+          "x1": -8,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "floor",
+          "z": 1542,
+          "length": 65,
+          "y": 24,
           "x0": -66,
-          "x1": 66
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1546.167,
+          "length": 8,
+          "y": 38.167,
+          "x0": -30.4,
+          "x1": -22.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1558.333,
+          "length": 8,
+          "y": 40.333,
+          "x0": -30.4,
+          "x1": -22.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1570.5,
+          "length": 8,
+          "y": 42.5,
+          "x0": -30.4,
+          "x1": -22.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1582.667,
+          "length": 8,
+          "y": 44.667,
+          "x0": -30.4,
+          "x1": -22.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1594.833,
+          "length": 8,
+          "y": 46.833,
+          "x0": -30.4,
+          "x1": -22.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -16589,6 +17996,17 @@
           "section": 3
         },
         {
+          "type": "slide",
+          "z": 1422,
+          "x": 44,
+          "y": 36,
+          "width": 8,
+          "length": 212,
+          "mult": 1.6,
+          "stretch": 3,
+          "shape": "chute"
+        },
+        {
           "type": "floor",
           "z": 1231.5,
           "length": 74.5,
@@ -17185,7 +18603,98 @@
           "length": 65,
           "y": 54,
           "rise": 13,
+          "x0": -110,
+          "x1": 8,
           "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 2172,
+          "length": 65,
+          "y": 54,
+          "x": 62.857,
+          "count": 5,
+          "plate": 8,
+          "gap": 4.167,
+          "rise": 2.167,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "pit",
+          "z": 2172,
+          "length": 65,
+          "y": 53,
+          "x0": 8,
+          "x1": 140,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "floor",
+          "z": 2172,
+          "length": 65,
+          "y": 42,
+          "x0": 8,
+          "x1": 110,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2176.167,
+          "length": 8,
+          "y": 56.167,
+          "x0": 58.857,
+          "x1": 66.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2188.333,
+          "length": 8,
+          "y": 58.333,
+          "x0": 58.857,
+          "x1": 66.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2200.5,
+          "length": 8,
+          "y": 60.5,
+          "x0": 58.857,
+          "x1": 66.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2212.667,
+          "length": 8,
+          "y": 62.667,
+          "x0": 58.857,
+          "x1": 66.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2224.833,
+          "length": 8,
+          "y": 64.833,
+          "x0": 58.857,
+          "x1": 66.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -17650,6 +19159,17 @@
           "y": 54,
           "depth": 5,
           "section": 4
+        },
+        {
+          "type": "slide",
+          "z": 2068.333,
+          "x": 0,
+          "y": 54,
+          "width": 8,
+          "length": 199.333,
+          "mult": 1.6,
+          "stretch": 4,
+          "shape": "chute"
         },
         {
           "type": "gift",
@@ -18445,9 +19965,98 @@
           "length": 57,
           "y": 0,
           "rise": 14,
-          "approach": true,
+          "x0": -8,
+          "x1": 60,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 480,
+          "length": 57,
+          "y": 0,
+          "x": -24,
+          "count": 5,
+          "plate": 8,
+          "gap": 2.833,
+          "rise": 2.333,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "pit",
+          "z": 480,
+          "length": 57,
+          "y": -1,
+          "x0": -90,
+          "x1": -8,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "floor",
+          "z": 480,
+          "length": 57,
+          "y": -12,
           "x0": -60,
-          "x1": 60
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 482.833,
+          "length": 8,
+          "y": 2.333,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 493.667,
+          "length": 8,
+          "y": 4.667,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 504.5,
+          "length": 8,
+          "y": 7,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 515.333,
+          "length": 8,
+          "y": 9.333,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 526.167,
+          "length": 8,
+          "y": 11.667,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -18865,9 +20474,98 @@
           "length": 70,
           "y": 19,
           "rise": 14,
-          "approach": true,
           "x0": -66,
-          "x1": 66
+          "x1": 8,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 1070,
+          "length": 70,
+          "y": 19,
+          "x": 26.4,
+          "count": 5,
+          "plate": 8,
+          "gap": 5,
+          "rise": 2.333,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "pit",
+          "z": 1070,
+          "length": 70,
+          "y": 18,
+          "x0": 8,
+          "x1": 96,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "floor",
+          "z": 1070,
+          "length": 70,
+          "y": 7,
+          "x0": 8,
+          "x1": 66,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1075,
+          "length": 8,
+          "y": 21.333,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1088,
+          "length": 8,
+          "y": 23.667,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1101,
+          "length": 8,
+          "y": 26,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1114,
+          "length": 8,
+          "y": 28.333,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1127,
+          "length": 8,
+          "y": 30.667,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -19413,6 +21111,17 @@
           "section": 2
         },
         {
+          "type": "slide",
+          "z": 923.667,
+          "x": 44,
+          "y": 19,
+          "width": 8,
+          "length": 130,
+          "mult": 1.6,
+          "stretch": 2,
+          "shape": "chute"
+        },
+        {
           "type": "floor",
           "z": 755,
           "length": 93.667,
@@ -19906,7 +21615,98 @@
           "length": 70,
           "y": 38,
           "rise": 14,
+          "x0": -8,
+          "x1": 100,
           "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 1710,
+          "length": 70,
+          "y": 38,
+          "x": -57.143,
+          "count": 5,
+          "plate": 8,
+          "gap": 5,
+          "rise": 2.333,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "pit",
+          "z": 1710,
+          "length": 70,
+          "y": 37,
+          "x0": -130,
+          "x1": -8,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "floor",
+          "z": 1710,
+          "length": 70,
+          "y": 26,
+          "x0": -100,
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1715,
+          "length": 8,
+          "y": 40.333,
+          "x0": -61.143,
+          "x1": -53.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1728,
+          "length": 8,
+          "y": 42.667,
+          "x0": -61.143,
+          "x1": -53.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1741,
+          "length": 8,
+          "y": 45,
+          "x0": -61.143,
+          "x1": -53.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1754,
+          "length": 8,
+          "y": 47.333,
+          "x0": -61.143,
+          "x1": -53.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1767,
+          "length": 8,
+          "y": 49.667,
+          "x0": -61.143,
+          "x1": -53.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -20391,6 +22191,17 @@
           "zone": 3,
           "stretch": 3,
           "section": 3
+        },
+        {
+          "type": "slide",
+          "z": 1536.167,
+          "x": -44,
+          "y": 38,
+          "width": 8,
+          "length": 130,
+          "mult": 1.6,
+          "stretch": 3,
+          "shape": "chute"
         },
         {
           "type": "floor",
@@ -20911,9 +22722,98 @@
           "length": 70,
           "y": 57,
           "rise": 14,
-          "approach": true,
           "x0": -66,
-          "x1": 66
+          "x1": 8,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 2392,
+          "length": 70,
+          "y": 57,
+          "x": 26.4,
+          "count": 5,
+          "plate": 8,
+          "gap": 5,
+          "rise": 2.333,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "pit",
+          "z": 2392,
+          "length": 70,
+          "y": 56,
+          "x0": 8,
+          "x1": 96,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "floor",
+          "z": 2392,
+          "length": 70,
+          "y": 45,
+          "x0": 8,
+          "x1": 66,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2397,
+          "length": 8,
+          "y": 59.333,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2410,
+          "length": 8,
+          "y": 61.667,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2423,
+          "length": 8,
+          "y": 64,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2436,
+          "length": 8,
+          "y": 66.333,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2449,
+          "length": 8,
+          "y": 68.667,
+          "x0": 22.4,
+          "x1": 30.4,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -21380,6 +23280,17 @@
           "zone": 4,
           "stretch": 4,
           "section": 4
+        },
+        {
+          "type": "slide",
+          "z": 2196.167,
+          "x": 44,
+          "y": 57,
+          "width": 8,
+          "length": 130,
+          "mult": 1.6,
+          "stretch": 4,
+          "shape": "chute"
         },
         {
           "type": "floor",
@@ -22344,9 +24255,98 @@
           "length": 57,
           "y": 0,
           "rise": 15,
-          "approach": true,
+          "x0": -8,
+          "x1": 55,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 520,
+          "length": 57,
+          "y": 0,
+          "x": -36.667,
+          "count": 5,
+          "plate": 8,
+          "gap": 2.833,
+          "rise": 2.5,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "pit",
+          "z": 520,
+          "length": 57,
+          "y": -1,
+          "x0": -85,
+          "x1": -8,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "floor",
+          "z": 520,
+          "length": 57,
+          "y": -12,
           "x0": -55,
-          "x1": 55
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 522.833,
+          "length": 8,
+          "y": 2.5,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 533.667,
+          "length": 8,
+          "y": 5,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 544.5,
+          "length": 8,
+          "y": 7.5,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 555.333,
+          "length": 8,
+          "y": 10,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 566.167,
+          "length": 8,
+          "y": 12.5,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -22739,7 +24739,98 @@
           "length": 75,
           "y": 21,
           "rise": 15,
+          "x0": -100,
+          "x1": 8,
           "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 1160,
+          "length": 75,
+          "y": 21,
+          "x": 57.143,
+          "count": 5,
+          "plate": 9,
+          "gap": 5,
+          "rise": 2.5,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "pit",
+          "z": 1160,
+          "length": 75,
+          "y": 20,
+          "x0": 8,
+          "x1": 130,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "floor",
+          "z": 1160,
+          "length": 75,
+          "y": 9,
+          "x0": 8,
+          "x1": 100,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1165,
+          "length": 9,
+          "y": 23.5,
+          "x0": 53.143,
+          "x1": 61.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1179,
+          "length": 9,
+          "y": 26,
+          "x0": 53.143,
+          "x1": 61.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1193,
+          "length": 9,
+          "y": 28.5,
+          "x0": 53.143,
+          "x1": 61.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1207,
+          "length": 9,
+          "y": 31,
+          "x0": 53.143,
+          "x1": 61.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1221,
+          "length": 9,
+          "y": 33.5,
+          "x0": 53.143,
+          "x1": 61.143,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -23271,6 +25362,17 @@
           "section": 2
         },
         {
+          "type": "slide",
+          "z": 986.167,
+          "x": 48,
+          "y": 21,
+          "width": 8,
+          "length": 130,
+          "mult": 1.6,
+          "stretch": 2,
+          "shape": "chute"
+        },
+        {
           "type": "floor",
           "z": 817.5,
           "length": 93.667,
@@ -23799,9 +25901,98 @@
           "length": 75,
           "y": 42,
           "rise": 15,
-          "approach": true,
+          "x0": -8,
+          "x1": 70,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 1850,
+          "length": 75,
+          "y": 42,
+          "x": -28,
+          "count": 5,
+          "plate": 9,
+          "gap": 5,
+          "rise": 2.5,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "pit",
+          "z": 1850,
+          "length": 75,
+          "y": 41,
+          "x0": -100,
+          "x1": -8,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "floor",
+          "z": 1850,
+          "length": 75,
+          "y": 30,
           "x0": -70,
-          "x1": 70
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1855,
+          "length": 9,
+          "y": 44.5,
+          "x0": -32,
+          "x1": -24,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1869,
+          "length": 9,
+          "y": 47,
+          "x0": -32,
+          "x1": -24,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1883,
+          "length": 9,
+          "y": 49.5,
+          "x0": -32,
+          "x1": -24,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1897,
+          "length": 9,
+          "y": 52,
+          "x0": -32,
+          "x1": -24,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1911,
+          "length": 9,
+          "y": 54.5,
+          "x0": -32,
+          "x1": -24,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -24453,6 +26644,17 @@
           ]
         },
         {
+          "type": "slide",
+          "z": 1645,
+          "x": 48,
+          "y": 42,
+          "width": 8,
+          "length": 130,
+          "mult": 1.6,
+          "stretch": 3,
+          "shape": "chute"
+        },
+        {
           "type": "floor",
           "z": 1480,
           "length": 90,
@@ -24942,9 +27144,98 @@
           "length": 75,
           "y": 63,
           "rise": 15,
-          "approach": true,
           "x0": -70,
-          "x1": 70
+          "x1": 8,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 2590,
+          "length": 75,
+          "y": 63,
+          "x": 28,
+          "count": 5,
+          "plate": 9,
+          "gap": 5,
+          "rise": 2.5,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "pit",
+          "z": 2590,
+          "length": 75,
+          "y": 62,
+          "x0": 8,
+          "x1": 100,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "floor",
+          "z": 2590,
+          "length": 75,
+          "y": 51,
+          "x0": 8,
+          "x1": 70,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2595,
+          "length": 9,
+          "y": 65.5,
+          "x0": 24,
+          "x1": 32,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2609,
+          "length": 9,
+          "y": 68,
+          "x0": 24,
+          "x1": 32,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2623,
+          "length": 9,
+          "y": 70.5,
+          "x0": 24,
+          "x1": 32,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2637,
+          "length": 9,
+          "y": 73,
+          "x0": 24,
+          "x1": 32,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2651,
+          "length": 9,
+          "y": 75.5,
+          "x0": 24,
+          "x1": 32,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -25421,6 +27712,17 @@
           "zone": 4,
           "stretch": 4,
           "section": 4
+        },
+        {
+          "type": "slide",
+          "z": 2365,
+          "x": 48,
+          "y": 63,
+          "width": 8,
+          "length": 130,
+          "mult": 1.6,
+          "stretch": 4,
+          "shape": "chute"
         },
         {
           "type": "floor",
@@ -26373,9 +28675,98 @@
           "length": 58,
           "y": 0,
           "rise": 16,
-          "approach": true,
+          "x0": -8,
+          "x1": 60,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 568,
+          "length": 58,
+          "y": 0,
+          "x": -24,
+          "count": 5,
+          "plate": 8,
+          "gap": 3,
+          "rise": 2.667,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "pit",
+          "z": 568,
+          "length": 58,
+          "y": -1,
+          "x0": -90,
+          "x1": -8,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "floor",
+          "z": 568,
+          "length": 58,
+          "y": -12,
           "x0": -60,
-          "x1": 60
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 571,
+          "length": 8,
+          "y": 2.667,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 582,
+          "length": 8,
+          "y": 5.333,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 593,
+          "length": 8,
+          "y": 8,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 604,
+          "length": 8,
+          "y": 10.667,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 615,
+          "length": 8,
+          "y": 13.333,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -26806,9 +29197,98 @@
           "length": 80,
           "y": 22,
           "rise": 16,
-          "approach": true,
           "x0": -70,
-          "x1": 70
+          "x1": 8,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 1268,
+          "length": 80,
+          "y": 22,
+          "x": 28,
+          "count": 5,
+          "plate": 10,
+          "gap": 5,
+          "rise": 2.667,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "pit",
+          "z": 1268,
+          "length": 80,
+          "y": 21,
+          "x0": 8,
+          "x1": 100,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "floor",
+          "z": 1268,
+          "length": 80,
+          "y": 10,
+          "x0": 8,
+          "x1": 70,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1273,
+          "length": 10,
+          "y": 24.667,
+          "x0": 24,
+          "x1": 32,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1288,
+          "length": 10,
+          "y": 27.333,
+          "x0": 24,
+          "x1": 32,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1303,
+          "length": 10,
+          "y": 30,
+          "x0": 24,
+          "x1": 32,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1318,
+          "length": 10,
+          "y": 32.667,
+          "x0": 24,
+          "x1": 32,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1333,
+          "length": 10,
+          "y": 35.333,
+          "x0": 24,
+          "x1": 32,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -27515,6 +29995,17 @@
           ]
         },
         {
+          "type": "slide",
+          "z": 1059,
+          "x": -48,
+          "y": 22,
+          "width": 8,
+          "length": 130,
+          "mult": 1.6,
+          "stretch": 2,
+          "shape": "chute"
+        },
+        {
           "type": "floor",
           "z": 893.5,
           "length": 90.5,
@@ -28012,9 +30503,98 @@
           "length": 80,
           "y": 44,
           "rise": 16,
-          "approach": true,
+          "x0": -8,
+          "x1": 70,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 2018,
+          "length": 80,
+          "y": 44,
+          "x": -28,
+          "count": 5,
+          "plate": 10,
+          "gap": 5,
+          "rise": 2.667,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "pit",
+          "z": 2018,
+          "length": 80,
+          "y": 43,
+          "x0": -100,
+          "x1": -8,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "floor",
+          "z": 2018,
+          "length": 80,
+          "y": 32,
           "x0": -70,
-          "x1": 70
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2023,
+          "length": 10,
+          "y": 46.667,
+          "x0": -32,
+          "x1": -24,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2038,
+          "length": 10,
+          "y": 49.333,
+          "x0": -32,
+          "x1": -24,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2053,
+          "length": 10,
+          "y": 52,
+          "x0": -32,
+          "x1": -24,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2068,
+          "length": 10,
+          "y": 54.667,
+          "x0": -32,
+          "x1": -24,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2083,
+          "length": 10,
+          "y": 57.333,
+          "x0": -32,
+          "x1": -24,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -29159,7 +31739,98 @@
           "length": 80,
           "y": 66,
           "rise": 16,
+          "x0": -110,
+          "x1": 8,
           "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 2818,
+          "length": 80,
+          "y": 66,
+          "x": 62.857,
+          "count": 5,
+          "plate": 10,
+          "gap": 5,
+          "rise": 2.667,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "pit",
+          "z": 2818,
+          "length": 80,
+          "y": 65,
+          "x0": 8,
+          "x1": 140,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "floor",
+          "z": 2818,
+          "length": 80,
+          "y": 54,
+          "x0": 8,
+          "x1": 110,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2823,
+          "length": 10,
+          "y": 68.667,
+          "x0": 58.857,
+          "x1": 66.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2838,
+          "length": 10,
+          "y": 71.333,
+          "x0": 58.857,
+          "x1": 66.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2853,
+          "length": 10,
+          "y": 74,
+          "x0": 58.857,
+          "x1": 66.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2868,
+          "length": 10,
+          "y": 76.667,
+          "x0": 58.857,
+          "x1": 66.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2883,
+          "length": 10,
+          "y": 79.333,
+          "x0": 58.857,
+          "x1": 66.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -29798,6 +32469,17 @@
             78.033,
             88.98
           ]
+        },
+        {
+          "type": "slide",
+          "z": 2569,
+          "x": -48,
+          "y": 66,
+          "width": 8,
+          "length": 130,
+          "mult": 1.6,
+          "stretch": 4,
+          "shape": "chute"
         },
         {
           "type": "floor",
@@ -30809,9 +33491,98 @@
           "length": 59,
           "y": 0,
           "rise": 17,
-          "approach": true,
+          "x0": -8,
+          "x1": 55,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 608,
+          "length": 59,
+          "y": 0,
+          "x": -36.667,
+          "count": 5,
+          "plate": 8,
+          "gap": 3.167,
+          "rise": 2.833,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "pit",
+          "z": 608,
+          "length": 59,
+          "y": -1,
+          "x0": -85,
+          "x1": -8,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "floor",
+          "z": 608,
+          "length": 59,
+          "y": -12,
           "x0": -55,
-          "x1": 55
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 611.167,
+          "length": 8,
+          "y": 2.833,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 622.333,
+          "length": 8,
+          "y": 5.667,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 633.5,
+          "length": 8,
+          "y": 8.5,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 644.667,
+          "length": 8,
+          "y": 11.333,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 655.833,
+          "length": 8,
+          "y": 14.167,
+          "x0": -40.667,
+          "x1": -32.667,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -31204,9 +33975,98 @@
           "length": 85,
           "y": 23,
           "rise": 17,
-          "approach": true,
           "x0": -74,
-          "x1": 74
+          "x1": 8,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 1358,
+          "length": 85,
+          "y": 23,
+          "x": 29.6,
+          "count": 5,
+          "plate": 11,
+          "gap": 5,
+          "rise": 2.833,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "pit",
+          "z": 1358,
+          "length": 85,
+          "y": 22,
+          "x0": 8,
+          "x1": 104,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "floor",
+          "z": 1358,
+          "length": 85,
+          "y": 11,
+          "x0": 8,
+          "x1": 74,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1363,
+          "length": 11,
+          "y": 25.833,
+          "x0": 25.6,
+          "x1": 33.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1379,
+          "length": 11,
+          "y": 28.667,
+          "x0": 25.6,
+          "x1": 33.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1395,
+          "length": 11,
+          "y": 31.5,
+          "x0": 25.6,
+          "x1": 33.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1411,
+          "length": 11,
+          "y": 34.333,
+          "x0": 25.6,
+          "x1": 33.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1427,
+          "length": 11,
+          "y": 37.167,
+          "x0": 25.6,
+          "x1": 33.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -31890,6 +34750,17 @@
           ]
         },
         {
+          "type": "slide",
+          "z": 1129,
+          "x": -52,
+          "y": 23,
+          "width": 8,
+          "length": 130,
+          "mult": 1.6,
+          "stretch": 2,
+          "shape": "chute"
+        },
+        {
           "type": "floor",
           "z": 956,
           "length": 98,
@@ -32396,7 +35267,98 @@
           "length": 85,
           "y": 46,
           "rise": 17,
+          "x0": -8,
+          "x1": 110,
           "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 2158,
+          "length": 85,
+          "y": 46,
+          "x": -62.857,
+          "count": 5,
+          "plate": 11,
+          "gap": 5,
+          "rise": 2.833,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "pit",
+          "z": 2158,
+          "length": 85,
+          "y": 45,
+          "x0": -140,
+          "x1": -8,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "floor",
+          "z": 2158,
+          "length": 85,
+          "y": 34,
+          "x0": -110,
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2163,
+          "length": 11,
+          "y": 48.833,
+          "x0": -66.857,
+          "x1": -58.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2179,
+          "length": 11,
+          "y": 51.667,
+          "x0": -66.857,
+          "x1": -58.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2195,
+          "length": 11,
+          "y": 54.5,
+          "x0": -66.857,
+          "x1": -58.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2211,
+          "length": 11,
+          "y": 57.333,
+          "x0": -66.857,
+          "x1": -58.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2227,
+          "length": 11,
+          "y": 60.167,
+          "x0": -66.857,
+          "x1": -58.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -32907,6 +35869,17 @@
           "zone": 3,
           "stretch": 3,
           "section": 3
+        },
+        {
+          "type": "slide",
+          "z": 1909,
+          "x": -52,
+          "y": 46,
+          "width": 8,
+          "length": 130,
+          "mult": 1.6,
+          "stretch": 3,
+          "shape": "chute"
         },
         {
           "type": "floor",
@@ -33423,9 +36396,98 @@
           "length": 85,
           "y": 69,
           "rise": 17,
-          "approach": true,
           "x0": -74,
-          "x1": 74
+          "x1": 8,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 3016,
+          "length": 85,
+          "y": 69,
+          "x": 29.6,
+          "count": 5,
+          "plate": 11,
+          "gap": 5,
+          "rise": 2.833,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "pit",
+          "z": 3016,
+          "length": 85,
+          "y": 68,
+          "x0": 8,
+          "x1": 104,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "floor",
+          "z": 3016,
+          "length": 85,
+          "y": 57,
+          "x0": 8,
+          "x1": 74,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 3021,
+          "length": 11,
+          "y": 71.833,
+          "x0": 25.6,
+          "x1": 33.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 3037,
+          "length": 11,
+          "y": 74.667,
+          "x0": 25.6,
+          "x1": 33.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 3053,
+          "length": 11,
+          "y": 77.5,
+          "x0": 25.6,
+          "x1": 33.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 3069,
+          "length": 11,
+          "y": 80.333,
+          "x0": 25.6,
+          "x1": 33.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 3085,
+          "length": 11,
+          "y": 83.167,
+          "x0": 25.6,
+          "x1": 33.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -34068,6 +37130,17 @@
             81.033,
             87.644
           ]
+        },
+        {
+          "type": "slide",
+          "z": 2743,
+          "x": -52,
+          "y": 69,
+          "width": 8,
+          "length": 130,
+          "mult": 1.6,
+          "stretch": 4,
+          "shape": "chute"
         },
         {
           "type": "floor",
@@ -35063,9 +38136,98 @@
           "length": 63,
           "y": 0,
           "rise": 18,
-          "approach": true,
+          "x0": -8,
+          "x1": 60,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 680,
+          "length": 63,
+          "y": 0,
+          "x": -24,
+          "count": 5,
+          "plate": 8,
+          "gap": 3.833,
+          "rise": 3,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "pit",
+          "z": 680,
+          "length": 63,
+          "y": -1,
+          "x0": -90,
+          "x1": -8,
+          "side": "left",
+          "section": 1
+        },
+        {
+          "type": "floor",
+          "z": 680,
+          "length": 63,
+          "y": -12,
           "x0": -60,
-          "x1": 60
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 683.833,
+          "length": 8,
+          "y": 3,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 695.667,
+          "length": 8,
+          "y": 6,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 707.5,
+          "length": 8,
+          "y": 9,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 719.333,
+          "length": 8,
+          "y": 12,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 731.167,
+          "length": 8,
+          "y": 15,
+          "x0": -28,
+          "x1": -20,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -35522,9 +38684,98 @@
           "length": 90,
           "y": 24,
           "rise": 18,
-          "approach": true,
           "x0": -74,
-          "x1": 74
+          "x1": 8,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 1536,
+          "length": 90,
+          "y": 24,
+          "x": 29.6,
+          "count": 5,
+          "plate": 12,
+          "gap": 5,
+          "rise": 3,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "pit",
+          "z": 1536,
+          "length": 90,
+          "y": 23,
+          "x0": 8,
+          "x1": 104,
+          "side": "right",
+          "section": 2
+        },
+        {
+          "type": "floor",
+          "z": 1536,
+          "length": 90,
+          "y": 12,
+          "x0": 8,
+          "x1": 74,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1541,
+          "length": 12,
+          "y": 27,
+          "x0": 25.6,
+          "x1": 33.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1558,
+          "length": 12,
+          "y": 30,
+          "x0": 25.6,
+          "x1": 33.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1575,
+          "length": 12,
+          "y": 33,
+          "x0": 25.6,
+          "x1": 33.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1592,
+          "length": 12,
+          "y": 36,
+          "x0": 25.6,
+          "x1": 33.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 1609,
+          "length": 12,
+          "y": 39,
+          "x0": 25.6,
+          "x1": 33.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -36086,6 +39337,17 @@
           "section": 2
         },
         {
+          "type": "slide",
+          "z": 1268,
+          "x": 52,
+          "y": 24,
+          "width": 8,
+          "length": 140,
+          "mult": 1.6,
+          "stretch": 2,
+          "shape": "chute"
+        },
+        {
           "type": "floor",
           "z": 1073.5,
           "length": 114.5,
@@ -36567,9 +39829,98 @@
           "length": 90,
           "y": 48,
           "rise": 18,
-          "approach": true,
+          "x0": -8,
+          "x1": 74,
+          "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 2454,
+          "length": 90,
+          "y": 48,
+          "x": -29.6,
+          "count": 5,
+          "plate": 12,
+          "gap": 5,
+          "rise": 3,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "pit",
+          "z": 2454,
+          "length": 90,
+          "y": 47,
+          "x0": -104,
+          "x1": -8,
+          "side": "left",
+          "section": 3
+        },
+        {
+          "type": "floor",
+          "z": 2454,
+          "length": 90,
+          "y": 36,
           "x0": -74,
-          "x1": 74
+          "x1": -8,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2459,
+          "length": 12,
+          "y": 51,
+          "x0": -33.6,
+          "x1": -25.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2476,
+          "length": 12,
+          "y": 54,
+          "x0": -33.6,
+          "x1": -25.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2493,
+          "length": 12,
+          "y": 57,
+          "x0": -33.6,
+          "x1": -25.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2510,
+          "length": 12,
+          "y": 60,
+          "x0": -33.6,
+          "x1": -25.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 2527,
+          "length": 12,
+          "y": 63,
+          "x0": -33.6,
+          "x1": -25.6,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
@@ -37257,6 +40608,17 @@
           ]
         },
         {
+          "type": "slide",
+          "z": 2157,
+          "x": 52,
+          "y": 48,
+          "width": 8,
+          "length": 130,
+          "mult": 1.6,
+          "stretch": 3,
+          "shape": "chute"
+        },
+        {
           "type": "floor",
           "z": 1958.5,
           "length": 123.5,
@@ -37762,7 +41124,98 @@
           "length": 90,
           "y": 72,
           "rise": 18,
+          "x0": -110,
+          "x1": 8,
           "approach": true
+        },
+        {
+          "type": "stairs",
+          "z": 3440,
+          "length": 90,
+          "y": 72,
+          "x": 62.857,
+          "count": 5,
+          "plate": 12,
+          "gap": 5,
+          "rise": 3,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "pit",
+          "z": 3440,
+          "length": 90,
+          "y": 71,
+          "x0": 8,
+          "x1": 140,
+          "side": "right",
+          "section": 4
+        },
+        {
+          "type": "floor",
+          "z": 3440,
+          "length": 90,
+          "y": 60,
+          "x0": 8,
+          "x1": 110,
+          "material": "ice",
+          "solid": false,
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 3445,
+          "length": 12,
+          "y": 75,
+          "x0": 58.857,
+          "x1": 66.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 3462,
+          "length": 12,
+          "y": 78,
+          "x0": 58.857,
+          "x1": 66.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 3479,
+          "length": 12,
+          "y": 81,
+          "x0": 58.857,
+          "x1": 66.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 3496,
+          "length": 12,
+          "y": 84,
+          "x0": 58.857,
+          "x1": 66.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
+        },
+        {
+          "type": "floor",
+          "z": 3513,
+          "length": 12,
+          "y": 87,
+          "x0": 58.857,
+          "x1": 66.857,
+          "thickness": 1,
+          "material": "ice",
+          "shape": "stairs"
         },
         {
           "type": "floor",
