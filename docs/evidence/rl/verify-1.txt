@@ -1,0 +1,462 @@
+
+> obby-avalanche@0.1.0 verify
+> node scripts/verify.mjs
+
+
+== verify: typecheck
+-- verify: typecheck ok, 4.0 s
+
+== verify: test
+
+ RUN  v5.0.3 /home/user/obby-avalanche
+
+
+ Test Files  83 passed (83)
+      Tests  450 passed (450)
+   Start at  20:27:39
+   Duration  142.29s (tests 96%, import 2%, transform 2%)
+
+-- verify: test ok, 143.1 s
+
+== verify: validate:content
+validate:content: _sample — ok
+validate:content: avalanche — ok
+validate:content: avalanche/pace/fast — ok
+validate:content: avalanche/pace/open — ok
+-- verify: validate:content ok, 4.8 s
+
+== verify: build:e2e
+vite v8.3.2 building client environment for e2e...
+transforming...
+<script src="/sdk.js"> in "/index.html" can't be bundled without type="module" attribute
+✓ 145 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-e2e/index.html                                           1.70 kB │ gzip:   0.93 kB
+dist-e2e/assets/rubik-cyrillic-800-normal-wonQiwhm.woff2      7.85 kB
+dist-e2e/assets/rubik-cyrillic-500-normal-Didq2w9O.woff2      7.92 kB
+dist-e2e/assets/rubik-cyrillic-800-normal-DocVmW4N.woff       9.85 kB
+dist-e2e/assets/rubik-cyrillic-500-normal-BH_pkKR0.woff       9.92 kB
+dist-e2e/assets/en-C_eGSJP-.json                             13.13 kB │ gzip:   4.36 kB
+dist-e2e/assets/ru-C3jbHvmP.json                             17.36 kB │ gzip:   5.60 kB
+dist-e2e/assets/rubik-latin-500-normal-1os41rQk.woff2        19.03 kB
+dist-e2e/assets/rubik-latin-800-normal-BtaGuVpR.woff2        19.06 kB
+dist-e2e/assets/rubik-latin-800-normal-Dq1miTTj.woff         24.17 kB
+dist-e2e/assets/rubik-latin-500-normal-LZYVHeqz.woff         24.21 kB
+dist-e2e/assets/index-BR9VTs22.css                           29.45 kB │ gzip:   6.45 kB
+dist-e2e/assets/ZzFX-C1HKDoVW.js                              2.00 kB │ gzip:   1.17 kB
+dist-e2e/assets/test-api-CLLthoP-.js                         19.19 kB │ gzip:   7.61 kB
+dist-e2e/assets/debug-UZV0N1Zy.js                            46.89 kB │ gzip:  14.96 kB
+dist-e2e/assets/index-Dlca0WpD.js                         1,396.76 kB │ gzip: 318.64 kB
+
+✓ built in 1.70s
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 900 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+-- verify: build:e2e ok, 2.3 s
+
+== verify: e2e
+
+Running 231 tests using 2 workers
+
+bot-world1: {"sec":376.8833333333333,"shoes":3,"walls":12,"caught":0,"waves":5,"portal":true} — game minutes 6.28
+  ✓    2 [desktop] › e2e/bot-world1.spec.ts:116:1 › bot on game time plays mountain 1 to the portal with shoe purchases, no console errors (47.2s)
+  ✓    3 [desktop] › e2e/bots.spec.ts:8:1 › 6 bots with character names, unique on the mountain; no names in shots, promo or with showNames: false (18.8s)
+  ✓    4 [desktop] › e2e/bots.spec.ts:47:1 › photo studio: bots without names (9.9s)
+  ✓    1 [desktop] › e2e/avalanche.spec.ts:21:1 › avalanche: scripted wave in cave 1, then a normal wave — warn and shelter screenshots, camera in the cave, gifts back after gone (1.3m)
+  ✓    5 [desktop] › e2e/bots.spec.ts:55:1 › quality low: 3 bots (5.8s)
+  ✓    7 [desktop] › e2e/camera.spec.ts:6:3 › camera › at three points near walls the camera is never inside the geometry (12.8s)
+  ✓    8 [desktop] › e2e/camera.spec.ts:32:3 › camera › with camera.autoTurn = true the auto-turn pulls the view towards +Z and changes only viewYaw (14.1s)
+  ✓    9 [desktop] › e2e/camera.spec.ts:52:3 › camera › FOV at full speed exceeds the resting FOV by fovSpeedAdd from tuning.json (11.5s)
+  ✓    6 [desktop] › e2e/bots.spec.ts:61:1 › 5 minutes of play: on warn ≥ 90% of the bots run to caves; no bot ever above a wall closed for the hero (1.1m)
+camera walk: walls 12, waves 1, shot true, {"frames":731,"inside":0,"heroHidden":0,"heroNear":0,"heroBlocked":2,"signBlocked":0,"tight":286,"bad":["hero blocked t=136.16666666666666 hero=(-11.1,30.0,456.3) cam=(-17.3,34.3,450.4)","hero blocked t=209.96666666666667 hero=(-11.4,42.0,637.7) cam=(-16.3,46.1,632.4)"],"headFrames":346,"headBlocked":0,"headBy":{},"bossFrames":0,"bossSeen":0,"portal":0,"flagBlocked":0,"flagFrames":0,"headMin":2.624999999999955,"headMinAt":"hero (-0.0,72.0,1118.3) camera (0.9,78.8,1118.9) tight false fixed 0.00 raise 1.44 dist 3.1 pitch -0.17 view 0.00 shot false belt false shelter -1","shelterRun":74,"shelterWhite":1}
+  ✓   10 [desktop] › e2e/camera.spec.ts:70:1 › walk of mountain 1 by botPath: the camera is never inside a collider and never loses the hero (2.0m)
+  ✓   11 [desktop] › e2e/camera.spec.ts:160:1 › open, mountain 10 at 120 units/s: in 600 frames the camera never within hideDistance of the hero (1.8m)
+  ✓   13 [desktop] › e2e/characters.spec.ts:4:1 › faces.png: eight emotions in a row; nine characters still fit in 8 draw calls (11.5s)
+  ✓   14 [desktop] › e2e/characters.spec.ts:17:1 › hero close-up: three-quarter view screenshot (16.0s)
+  ✓   12 [desktop] › e2e/caught.spec.ts:4:1 › snowed in on the slope: toast, the ball rolls into the cave below within 2 s, nothing lost; screenshot caught_1920x1080_ru.png (1.2m)
+  ✓   16 [desktop] › e2e/daily.spec.ts:99:1 › calendar on a phone 844×390: cards 4 + 3, «Claim» inside the screen (6.8s)
+  ✓   15 [desktop] › e2e/daily.spec.ts:16:1 › calendar: claim day 1, F5 keeps it, 19 h later still locked, 20 h later day 2; boost and ad egg survive F5 and the day change (50.5s)
+  ✓   17 [desktop] › e2e/debug.spec.ts:8:3 › debug panel › a slider change applies at once: doubled baseSpeed doubles the run speed (12.7s)
+  ✓   18 [desktop] › e2e/debug.spec.ts:30:3 › debug panel › Export gives JSON that passes the tuning.json schema (5.9s)
+  ✓   19 [desktop] › e2e/debug.spec.ts:40:3 › debug panel › on a phone the panel starts collapsed and the overlay shows level, DPR and frame time (6.5s)
+fast-mountain: {"sec":104.88333333333334,"walls":15,"passSec":[3.7,6.3,7.7,9.2,11.4,12.6,30.5,36.7,41.5,48.1,53.5,59.6,66,72,103.5],"maxDown":2.6118275500004984,"standOffBelt":0,"gateStandMax":0,"shoes":2,"waves":2,"caught":0,"portal":true,"standAt":[],"firstBelt":{"passed":6,"shelter":6,"playSec":14.16666666666695},"axisMax6":14.376156094881459,"axisAt":"(14.4,6.0,117.5) gate:0 t=5.2 wave idle fun {\"padFlight\":false,\"launches\":1,\"top\":12.81250000000001,\"onSlide\":-1,\"slideLeft\":0,\"runSpeed\":22.24494397918711}","arrive":[null,null,null,null,"91",null,null,"1653.800000000001",null,null,null,null,"5924.600000000026"]} — game seconds 104.9
+  ✓   20 [desktop] › e2e/fast-mountain.spec.ts:220:1 › fast pace: the bot plays mountain 1 to the portal within 120 s of game time, never down the slope, at a closed gate only on its belt (1.1m)
+fast-gates: gates [3.5,5.7,7.2,8.7,12.6,13.8,40.8,68.2]; shoes_1 4.9 s, treadmill_first 15.7 s; first belt {"passed":6,"shelter":6,"playSec":15.650000000000357}; off the axis before gate 6 8.6 at (-8.6,15.0,257.2) cave:4 t=10.6 wave idle fun {"padFlight":false,"launches":2,"top":12.812500000000014,"onSlide":-1,"slideLeft":0,"runSpeed":25.027905242947796}; stat at the gates ["16","21","43","65","71 closed",null,"1051.4000000000005 closed","1233.8000000000075 closed"]
+  ✓   22 [desktop] › e2e/fast-mountain.spec.ts:291:1 › fast pace, gates 1–6 on the way: the straight bot passes them without a belt; the first belt and treadmill_first are in the cave of gate 7 (49.7s)
+ftue-fast: gate_1 2.8 s, shoes_1 5.6 s, gate_3 7.4 s, first_wave_survived 21.2 s, egg_1 24.0 s, treadmill_first 11.2 s; gate 8 36.5 s; summit 105.7 s; gates [4.1,6.7,8.2,9.7,12.2,13.3,30.5,36.5,41.7,48.1,53.7,59.3,66,72.5,104.3]
+  ✓   21 [desktop] › e2e/fast-mountain.spec.ts:238:1 › fast pace, first 2 minutes: gate_1 ≤ 8 s, gate_3 ≤ 20 s, the scripted wave in a cave ≤ 50 s, egg after it, gate 8 ≤ 75 s, summit ≤ 120 s; no window or interstitial before 180 s (2.7m)
+  ✓   24 [desktop] › e2e/fast-mountain.spec.ts:354:1 › fast pace: «Гора a/10» on the rebirth button and in its window; the rebirth opens only after the summit of mountain 10 (7.0s)
+base draw calls: 27
+base → portal 2: 2.0 s of game time
+  ✓   25 [desktop] › e2e/fm-base.spec.ts:13:1 › mountain 1 → «Mountain 1 cleared!» → «Next» → the base (base_first) → portal 2 within 10 s → the camp of mountain 2; screenshots; draw calls (34.2s)
+  ✓   23 [desktop] › e2e/fast-mountain.spec.ts:306:1 › fast pace: every one of the 10 mountains loads by teleport (camp, middle, summit), draw calls within 60; screenshots (2.0m)
+  ✓   26 [desktop] › e2e/fm-base.spec.ts:49:1 › F5 on mountain 3 after ridge 2 → the base → portal 3 («ridge 2/3») → the flag of ridge 2 (44.4s)
+  ✓   28 [desktop] › e2e/fm-base.spec.ts:94:1 › base.json off: the summit of mountain 1 → «Next» → the camp of mountain 2, as before FM (13.0s)
+  ✓   27 [desktop] › e2e/fm-base.spec.ts:75:1 › mountain 1 run again from the base: its summit with no window, chest or trophies — «Top again!» and back to the base (32.5s)
+  ✓   30 [desktop] › e2e/fm-bounds.spec.ts:78:3 › mountain 1: up along the left funnel wall of the summit, jumping — no fall, never past the portal beside it (15.8s)
+  ✓   31 [desktop] › e2e/fm-bounds.spec.ts:78:3 › mountain 1: up along the right funnel wall of the summit, jumping — no fall, never past the portal beside it (14.4s)
+  ✓   32 [desktop] › e2e/fm-camera.spec.ts:60:1 › mountain 1 foot → summit: the head is behind something opaque in ≤ 2% of the frames, the giant in the frame ≥ 90%; screenshot (1.1m)
+  ✓   33 [desktop] › e2e/fm-camera.spec.ts:77:1 › mountain 1, the giant’s zone: a turn by hand is the player’s; screenshot of the giant in the frame (22.3s)
+  ✓   29 [desktop] › e2e/fm-bounds.spec.ts:33:1 › jumps sideways at both borders of mountains 1, 5 and 9 — no fall; screenshot (6.0m)
+  ✓   35 [desktop] › e2e/fm-community-gift.spec.ts:32:1 › «Egg for subscribing»: the window, «Go» opens the channel, the egg once back in the game; gone after a reload (35.4s)
+  ✓   34 [desktop] › e2e/fm-camera.spec.ts:107:1 › mountain 3 through the throat: the head is behind something opaque in ≤ 2% of the frames (4.7m)
+  ✓   36 [desktop] › e2e/fm-community-gift.spec.ts:75:3 › «Chest for a review», mock_review=sent (11.3s)
+  ✓   38 [desktop] › e2e/fm-community-gift.spec.ts:75:3 › «Chest for a review», mock_review=closed (10.3s)
+  ✓   39 [desktop] › e2e/fm-community-gift.spec.ts:75:3 › «Chest for a review», mock_review=unavailable (8.6s)
+  ✓   40 [desktop] › e2e/fm-community-gift.spec.ts:106:3 › 640 × 360, ru: the gift cards fit (7.4s)
+  ✓   41 [desktop] › e2e/fm-community-gift.spec.ts:106:3 › 640 × 360, en: the gift cards fit (8.0s)
+  ✓   37 [desktop] › e2e/fm-camera.spec.ts:119:1 › mountain 9, section 3: the head is behind something opaque in ≤ 2% of the frames (39.5s)
+  ✓   43 [desktop] › e2e/fm-community.spec.ts:48:1 › without channels: no block, no window.open (8.7s)
+  ✓   42 [desktop] › e2e/fm-community.spec.ts:25:1 › the channels by the side of the pause window: each opens its address in a new tab once; nothing given; community_open (14.1s)
+  ✓   44 [desktop] › e2e/fm-community.spec.ts:58:3 › 640 × 360, ru: the caption and both buttons fit (7.5s)
+  ✓   45 [desktop] › e2e/fm-community.spec.ts:58:3 › 640 × 360, en: the caption and both buttons fit (8.1s)
+  ✓   46 [desktop] › e2e/fm-gift.spec.ts:12:1 › the gift of the day: «!», «Claim» once (daily_claim from: base), the calendar marks the day, the timer as on «Calendar»; next day F5 — welcomeGift; screenshot (33.4s)
+readability: подсказка над #FFFFFF: 14.59:1; подсказка над #DCE8F2: 14.35:1; тост над #FFFFFF: 6.49:1; тост над #DCE8F2: 7.20:1; баннер лавины над #FFFFFF: 7.60:1; баннер лавины над #DCE8F2: 8.26:1; +N 33/27 px, arrow 80 px
+  ✓   48 [desktop] › e2e/fm-readability.spec.ts:54:1 › the toast, the hint and the avalanche banner on their plaques: contrast ≥ 4.5:1 over snow and blizzard fog; «+N» ×1.5; the arrow ×2; screenshot (24.4s)
+  ✓   49 [desktop] › e2e/fm-readability.spec.ts:89:1 › 640×360: the toast and the hint stay off the Speed plaque and the buttons (SCR-01) (8.1s)
+  ✓   50 [desktop] › e2e/fm-records.spec.ts:17:1 › after mountain 2 the board shows the save (best Speed, trophies, 2/10, tier 0); no leaderboard — no button, no call; screenshot (45.2s)
+  ✓   47 [desktop] › e2e/fm-hud.spec.ts:8:1 › open: the summit group by summits — trophies after 1, wardrobe and quests after 2, rebirth after 3; each new button shines (1.9m)
+  ✓   51 [desktop] › e2e/fm-records.spec.ts:39:1 › with a leaderboard and a login: «Records» at the board opens the records window (22.8s)
+  ✓   52 [desktop] › e2e/fm-shop.spec.ts:29:1 › the shop counter: no button before 180 s; then by standing — the tab by the coins; running past opens nothing; the hand; the Snow egg; screenshot (37.6s)
+  ✓   53 [desktop] › e2e/fm-shortcut.spec.ts:19:1 › accepted: the button after summit 2 on the base, +5 spendable trophies once, gone for good (F5), shortcut_ok (1.1m)
+  ✓   54 [desktop] › e2e/fm-shortcut.spec.ts:42:1 › rejected: no reward, the button gone until a reload; on a mountain none (1.9m)
+  ✓   55 [desktop] › e2e/fm-shortcut.spec.ts:71:1 › unavailable: no button; without the SDK (NullPlatform): no button and no error (1.4m)
+  ✓   57 [desktop] › e2e/fm-way.spec.ts:58:3 › mountain 1: straight up -10 off the middle from the giant's line — into the portal without a stop (20.3s)
+  ✓   56 [desktop] › e2e/fm-treadmill.spec.ts:12:1 › after 2 summits: the sign «×6», a step on the belt × 6, the toast once, 2 bots on it, stat_now standing on it; screenshot (58.9s)
+  ✓   58 [desktop] › e2e/fm-way.spec.ts:58:3 › mountain 1: straight up 10 off the middle from the giant's line — into the portal without a stop (19.6s)
+  ✓   59 [desktop] › e2e/fm-way.spec.ts:73:1 › mountain 1: the pillar of light in the frame from the start of the finish straight; draw calls at the summit; screenshot (25.5s)
+  ✓   60 [desktop] › e2e/fm-way.spec.ts:105:3 › mountain 3: after ridge 1 along the arrows through the throat — no stand longer than 3 s; draw calls ≤ 40 (30.5s)
+  ✓   61 [desktop] › e2e/fm-way.spec.ts:105:3 › mountain 9: after ridge 3 along the arrows through the throat — no stand longer than 3 s; draw calls ≤ 40 (31.6s)
+  ✓   62 [desktop] › e2e/fun.spec.ts:16:1 › fast pace: straight up the middle — every gift on the path, the trampoline throws above 10 units, the slide boosts; screenshots (30.9s)
+  ✓   63 [desktop] › e2e/fun.spec.ts:75:1 › fast pace: the slide runs × fun.slideMult and holds it fun.slideSec after; gifts on the path in a row ring higher each (14.6s)
+  ✓   64 [desktop] › e2e/gate-reward.spec.ts:28:3 › gate reward (classic): coins once, fountain and confetti within 0.3 s, «+N», a chime rising a semitone in a row and back after a pause (35.6s)
+  ✓   65 [desktop] › e2e/gate-reward.spec.ts:28:3 › gate reward (fast): coins once, fountain and confetti within 0.3 s, «+N», a chime rising a semitone in a row and back after a pause (38.1s)
+  ✓   67 [desktop] › e2e/gifts.spec.ts:4:1 › first gift: coins of zone 1, the gift disappears, the coin plaque slides in; after the avalanche gifts return (15.0s)
+  ✓   66 [desktop] › e2e/gates.spec.ts:4:1 › gate 1 sign counts up to 20, turns green, the hero passes; screenshot gate_1920x1080_ru.png (26.5s)
+  ✓   69 [desktop] › e2e/hatch-count.spec.ts:20:1 › collection counter ru: «Снежное яйцо: 2 из 5», «2/27» on the Pets button, the same after F5 (23.3s)
+  ✓   70 [desktop] › e2e/hatch-count.spec.ts:41:1 › collection counter en: «Snow Egg: 2 of 5», «2/27» (10.0s)
+  ✓   71 [desktop] › e2e/hud.spec.ts:72:5 › core HUD › 640x360: places of 10.1, no overlaps at the spawn and with a wave, coins, shoes and a hint; spawn screenshot (10.2s)
+  ✓   72 [desktop] › e2e/hud.spec.ts:72:5 › core HUD › 844x390: places of 10.1, no overlaps at the spawn and with a wave, coins, shoes and a hint; spawn screenshot (11.9s)
+  ✓   73 [desktop] › e2e/hud.spec.ts:72:5 › core HUD › 1920x1080: places of 10.1, no overlaps at the spawn and with a wave, coins, shoes and a hint; spawn screenshot (27.6s)
+  ✓   74 [desktop] › e2e/hud.spec.ts:149:3 › core HUD › en: texts from en.json, number format with a point («1.23K»), ru with a comma (24.3s)
+  ✓   75 [desktop] › e2e/input.spec.ts:5:3 › PC input › SCR-05 KeyW moves the hero up the slope even with a Russian layout (code, not key) (6.5s)
+  ✓   76 [desktop] › e2e/input.spec.ts:17:3 › PC input › arrows and WASD move in the control frame; A moves to screen-left (+X), D to screen-right (−X) (8.9s)
+  ✓   77 [desktop] › e2e/input.spec.ts:38:3 › PC input › SCR-03 Space jumps and never scrolls the page; wheel zooms the camera, not the page (7.1s)
+  ✓   68 [desktop] › e2e/gold.spec.ts:24:1 › 2nd normal wave: a golden gift, carried into the cave → gold_take, gold_saved; caught with it → gold_lost; screenshot gold_carry (2.2m)
+  ✓   79 [desktop] › e2e/input.spec.ts:72:3 › PC input › SCR-05 no shortcuts with Ctrl or Alt, F-keys and Tab do nothing (7.4s)
+  ✓   78 [desktop] › e2e/input.spec.ts:53:3 › PC input › mouse drag turns the camera (both buttons), control yaw follows (8.9s)
+  ✓   80 [desktop] › e2e/input.spec.ts:91:3 › PC input › Escape and KeyP open and close the pause menu; the menu pauses the simulation (6.7s)
+  ✓   81 [desktop] › e2e/level.spec.ts:5:3 › level › falling off the track returns the hero to the flag within 0.5 s of game time (7.5s)
+  ✓   82 [desktop] › e2e/level.spec.ts:25:3 › level › closed walls stop the hero; gates and caves come from data (8.7s)
+  ✓   83 [desktop] › e2e/level.spec.ts:37:3 › level › a short run from the camp: the hero stays on the ground over the ramp of stretch 1 (11.4s)
+  ✓   84 [desktop] › e2e/m3-fixes.spec.ts:75:3 › avalanche banner (classic): contrast plaque, no visible gate sign under it on warn (49.9s)
+  ✓   85 [desktop] › e2e/m3-fixes.spec.ts:115:3 › free egg (classic): not there and not taken before «Phew, made it!» of the scripted wave, then shown and taken (53.8s)
+  ✓   86 [desktop] › e2e/m3-fixes.spec.ts:162:3 › hint.stuck (classic): after 3 s at a closed gate, with an arrow to the belt of the cave below it (25.4s)
+  ✓   87 [desktop] › e2e/m3-fixes.spec.ts:75:3 › avalanche banner (fast): contrast plaque, no visible gate sign under it on warn (47.8s)
+  ✓   88 [desktop] › e2e/m3-fixes.spec.ts:115:3 › free egg (fast): not there and not taken before «Phew, made it!» of the scripted wave, then shown and taken (58.9s)
+  ✓   89 [desktop] › e2e/m3-fixes.spec.ts:162:3 › hint.stuck (fast): after 3 s at a closed gate, with an arrow to the belt of the cave below it (28.6s)
+  ✓   91 [desktop] › e2e/milestone.spec.ts:16:1 › 1K Speed: flash class, toast «1K Скорости!», chime, one event per load, no analytics; screenshot (21.0s)
+  ✓   92 [desktop] › e2e/milestone.spec.ts:40:1 › en: «1K Speed!» (8.0s)
+  ✓   90 [desktop] › e2e/m3-fixes.spec.ts:201:1 › hint.stuck (fast): at every closed gate, more than 3 times a session; holds on the way to the cave, off on entering it (50.1s)
+  ✓   93 [desktop] › e2e/mountain.spec.ts:4:1 › summit of mountain 1: walking into the portal moves the hero to the camp of mountain 2; screenshot summit_1920x1080_ru.png (24.0s)
+  ✓   95 [desktop] › e2e/numbers.spec.ts:4:1 › Speed of a late tier on the HUD: «1,23Qa» with the suffix from ru.json; screenshot (10.0s)
+  ✓   96 [desktop] › e2e/numbers.spec.ts:15:1 › wall sign in progress: «4,2K/12K» as on the HUD goal bar, plaque fits; screenshot (13.4s)
+  ✓   94 [desktop] › e2e/mountain.spec.ts:37:1 › teleport to every mountain 1–5: camp, middle and summit load without errors; screenshots mountain_N_960x540_ru.png (29.7s)
+  ✓   98 [desktop] › e2e/open-avalanche.spec.ts:55:1 › a normal wave with the hero in the giant’s zone (above spawnMaxZ) never catches him; no warning, arrow or «To the cave!» up there (19.6s)
+  ✓   97 [desktop] › e2e/open-avalanche.spec.ts:17:1 › scripted wave at the entry of section 2: the bot in its grotto, «Phew, made it!» within 46 s (40.5s)
+  ✓  100 [desktop] › e2e/open-boss.spec.ts:49:1 › at half the advice the giant catches the bot: back at the flag of the last ridge (RL-02), Speed and coins kept (21.8s)
+  ✓   99 [desktop] › e2e/open-boss.spec.ts:17:1 › with the Speed of the advice the bot slips past the giant to the summit on the first try; screenshots (1.0m)
+  ✓  101 [desktop] › e2e/open-boss.spec.ts:73:1 › the giant is seen from the camp looking up the slope; in his zone no ad button and no window (26.0s)
+  ✓  103 [desktop] › e2e/open-continue.spec.ts:68:1 › after the giant’s catch the button goes with the first move (22.4s)
+  ✓  102 [desktop] › e2e/open-continue.spec.ts:41:1 › no button before 60 s of play and the first avalanche; then at the pop of «Snowed in!» ≤ 1 s, gone after 6 s (43.3s)
+  ✓  104 [desktop] › e2e/open-continue.spec.ts:81:1 › ?mock_ad=ok: back on the record flag, the threat at rest, ad_resume_ok; again within 120 s — no button (39.4s)
+  ✓  105 [desktop] › e2e/open-continue.spec.ts:122:3 › ?mock_ad=noshow: «Награда не получена», the hero where he was, no reward (24.4s)
+  ✓  106 [desktop] › e2e/open-continue.spec.ts:122:3 › ?mock_ad=error: «Видео сейчас недоступно», the hero where he was, no reward (20.0s)
+  ✓  107 [desktop] › e2e/open-continue.spec.ts:122:3 › ?mock_ad=closenoreward: «Награда не получена», the hero where he was, no reward (23.2s)
+  ✓  108 [desktop] › e2e/open-continue.spec.ts:139:3 › 640×360 ru: the label fits its button and the screen (15.7s)
+  ✓  109 [desktop] › e2e/open-continue.spec.ts:139:3 › 640×360 en: the label fits its button and the screen (15.1s)
+  ✓  111 [desktop] › e2e/open-design.spec.ts:69:1 › «Two ways: pick one»: not while the hero runs through a fork; once after he stands at one for 2 s (32.9s)
+  ✓  112 [desktop] › e2e/open-events.spec.ts:24:1 › gameReady carries the pace; the flag pace of getFlags picks fast without ?pace=; an unknown value — game.json; ?pace= wins (26.3s)
+  ✓  110 [desktop] › e2e/open-design.spec.ts:23:1 › the bot takes the bold lane of section 3 on mountain 2: over the crevasse, past the cliff, up to ridge 3; screenshots (1.3m)
+  ✓  113 [desktop] › e2e/open-events.spec.ts:45:1 › the giant’s catch sends boss_caught {world: 1}; back above the record flag — record_up, once a climb (23.0s)
+  ✓  115 [desktop] › e2e/open-first-minute.spec.ts:270:1 › the egg of the scripted wave stands in the grotto the hero hid in, either lane of the fork (17.0s)
+  ✓  116 [desktop] › e2e/open-first-minute.spec.ts:297:1 › ridge 2 of mountain 1 with its number of 19.6: screenshot (33.2s)
+  ✓  114 [desktop] › e2e/open-first-minute.spec.ts:42:1 › first minutes on the open slope: ridge 1, the grotto at the siren, the egg, the ridges, the giant, the portal — 19.6 times and rhythm (2.2m)
+  ✓  118 [desktop] › e2e/open-perf.spec.ts:16:1 › draw calls, triangles, textures at the foot, ridge 2 and the giant’s line of each of the 10 mountains; perf.md (2.0m)
+  ✓  117 [desktop] › e2e/open-mountain.spec.ts:13:1 › open slope: every one of the 10 mountains loads by teleport (camp, ridges, grotto before the giant, summit); screenshots (3.3m)
+  ✓  120 [desktop] › e2e/open-perf.spec.ts:121:1 › the ridge view and the giant’s shot come back behind the hero within 1.5 s; a turn by hand ends them (11.8s)
+  ✓  121 [desktop] › e2e/open-perf.spec.ts:156:1 › 640×360: both lanes of the fork of section 3 of mountain 4 are in the frame from its start (13.9s)
+  ✓  122 [desktop] › e2e/open-ridge.spec.ts:29:1 › ridge 1 opens on the approach of the physical bot; all passages melt at once, fountain, flag, view frame; at ridge 2 only belt or run (1.0m)
+  ✓  123 [desktop] › e2e/open-ridge.spec.ts:107:1 › no «▶ Ad: open the wall» at any ridge; «▶ Ad: +N speed» in the ridge grotto after 60 s and the first avalanche (22.4s)
+  ✓  119 [desktop] › e2e/open-perf.spec.ts:70:1 › a simulation step on mountain 10 at CPU ×4 stays within 2 ms; memory does not grow over 5 transitions (1.9m)
+  ✓  125 [desktop] › e2e/open-ridge.spec.ts:169:1 › the sign of a ridge the hero has passed is gone for good, also when he looks back down (12.5s)
+  ✓  124 [desktop] › e2e/open-ridge.spec.ts:141:1 › section multiplier: past ridge 1 a step gives ×1.2 with the same shoes and pets; the plaque shows ×1,2 (17.5s)
+  ✓  126 [desktop] › e2e/pace.spec.ts:40:1 › without ?pace the pace of game.json (open: ridge 50, the width of the data); ?pace=fast — 15 gates; ?pace=classic — 12 walls; unknown pace — game.json (21.8s)
+  ✓  127 [desktop] › e2e/pace.spec.ts:69:1 › separate saves: classic progress (wall 3) is not seen in fast and not erased by it; F5 brings each pace to its flag (41.7s)
+  ✘  128 [desktop] › e2e/perf.spec.ts:14:1 › SP-02: a simulation step on mountain 10 at CPU ×4 with 6 bots at 120 units/s stays within 2 ms (29.4s)
+  ✓  129 [desktop] › e2e/perf.spec.ts:55:1 › SP-03: draw calls at the foot, ridge 2 and the giant’s line of mountains 1, 5, 10 ≤ 45 (far 800) (44.2s)
+  ✓  131 [desktop] › e2e/quality.spec.ts:6:3 › quality and budgets › render budgets on the slope of mountain 1 at three points, written to docs/evidence/M1/budgets.txt (11.0s)
+  ✓  132 [desktop] › e2e/quality.spec.ts:24:3 › quality and budgets › auto downgrade: slow frames lower DPR first, then the level; ?quality and ?dpr lock both (9.5s)
+  ✓  133 [desktop] › e2e/quality.spec.ts:50:3 › quality and budgets › ?gpuload=2 renders the scene twice per frame (7.6s)
+  ✓  130 [desktop] › e2e/pets.spec.ts:13:1 › eggs and pets: buy at the camp stand, hatch in 1 s, 3 pets on next to the hero, the Pets window (57.6s)
+  ✓  134 [desktop] › e2e/quests.spec.ts:16:1 › quests and time rewards survive F5, refresh with the calendar after 20 h; one free spin a day (40.9s)
+  ✓  135 [desktop] › e2e/rebirth.spec.ts:6:1 › rebirth window ru: locked until mountain 5, then rebirth to tier 1 — camp of mountain 1, stat and coins 0, step ×3; screenshot rebirth_1920x1080_ru.png (16.2s)
+  ✓  136 [desktop] › e2e/rebirth.spec.ts:89:1 › portal of mountain 5 opens «All mountains cleared!»: «Rebirth» opens the rebirth window, «Stay» keeps the hero on the summit (10.9s)
+  ✓  137 [desktop] › e2e/rg-boss.spec.ts:21:1 › mountain 1: the giant chases and slaps a bot within 90 s; then the hero with the advice passes; screenshot (1.3m)
+  ✓  138 [desktop] › e2e/rg-camera-grotto.spec.ts:83:1 › open: turned around by hand in a grotto the camera keeps off the hero, the head stays in frame; behind him outside (1.3m)
+  ✓  139 [desktop] › e2e/rg-camera-grotto.spec.ts:99:1 › fast: the same camera in a cave by a gate (37.6s)
+  ✓  140 [desktop] › e2e/rg-chasm.spec.ts:56:1 › mountain 2: over the chasm from the middle trampoline with the gifts in the air; screenshot (34.4s)
+  ✓  141 [desktop] › e2e/rg-chasm.spec.ts:76:1 › mountain 2: by the walk at the edge down into the chasm, its gift, out up the ramp; the toast once; the siren from the bottom (50.7s)
+  ✓  143 [desktop] › e2e/rg-decor.spec.ts:92:1 › quality low: no decor, +0 draw calls (16.0s)
+  ✓  142 [desktop] › e2e/rg-decor.spec.ts:23:1 › penguins of mountain 1 walk within their patch; a bird of mountain 3 turns to the hero; +2 draw calls; screenshot (1.6m)
+  ✓  144 [desktop] › e2e/rg-events.spec.ts:36:1 › mountain 5: the trail at once, the ball meets the standing hero ≥ 3 s later — a hit; a step aside — missed; screenshot (1.3m)
+  ✓  145 [desktop] › e2e/rg-events.spec.ts:89:1 › mountain 7: the blizzard — fog nearer, snow, «+2 per step», ≤ 42 draw calls; it ends and the fog comes back; screenshot (50.5s)
+  ✓  147 [desktop] › e2e/rg-hump.spec.ts:56:1 › mountain 8: up the hump, off the crest into the landing; no «+N» in the air; the gifts of the flight; screenshot (31.7s)
+  ✓  146 [desktop] › e2e/rg-helpers.spec.ts:22:1 › mountain 4: a helper throws within 3 s, a hit — «×0,85» and «Snowball!»; the advice passes the zone first try; screenshot (46.1s)
+  ✓  148 [desktop] › e2e/rg-hump.spec.ts:77:1 › mountain 8: the siren in the flight — into the landing grotto before the front (41.9s)
+  ✓  149 [desktop] › e2e/rg-sectors.spec.ts:24:3 › mountain 8: the bot runs section 2 through its elements without getting stuck; ≤ 40 draw calls at 3 points (43.0s)
+  ✓  150 [desktop] › e2e/rg-sectors.spec.ts:24:3 › mountain 9: the bot runs section 2 through its elements without getting stuck; ≤ 40 draw calls at 3 points (51.6s)
+  ✓  151 [desktop] › e2e/rg-sectors.spec.ts:24:3 › mountain 10: the bot runs section 2 through its elements without getting stuck; ≤ 40 draw calls at 3 points (1.3m)
+  ✓  152 [desktop] › e2e/rg-throat.spec.ts:32:1 › mountain 3: the bot runs the throat on its ice; the camera keeps off the cliffs and the hero; ≤ 40 draw calls; screenshot (44.4s)
+  ✓  153 [desktop] › e2e/rg-throat.spec.ts:73:1 › mountain 3: the siren at the throat entry — the bot runs it and is in the field grotto before the front (51.1s)
+  ✓  154 [desktop] › e2e/rg-tunnel.spec.ts:42:1 › mountain 6: through the tunnel — the camera keeps under its roof and off the hero, ≤ 40 draw calls, the toast once; screenshot (47.5s)
+  ✓  156 [desktop] › e2e/rg-two-giants.spec.ts:33:1 › mountain 9: two silhouettes from the start, two giants in the zone, the sign of the pair; screenshot (40.3s)
+  ✓  157 [desktop] › e2e/rg-two-giants.spec.ts:67:1 › mountain 9 in English: «Two giants: Speed ~N» (21.5s)
+  ✓  155 [desktop] › e2e/rg-tunnel.spec.ts:87:1 › mountain 6: the avalanche passes over the hero in the tunnel; on the open lane he hides in a grotto (1.7m)
+  ✓  158 [desktop] › e2e/rl-relief.spec.ts:43:1 › mountain 1, section 3: off the trampolines into the pit — back at the flag of ridge 2 within 2 s, the toast, «forward» goes up the slope (36.9s)
+  ✓  160 [desktop] › e2e/rl-relief.spec.ts:124:1 › mountain 2: its own tint, the stairs of plates to a ridge in the frame, the camera never inside geometry; screenshot (30.5s)
+  ✓  159 [desktop] › e2e/rl-relief.spec.ts:86:1 › mountain 1, section 3: the middle trampoline throws over the chasm, no roll back; the dip and the chute (sparks); screenshots (41.7s)
+  ✓  162 [desktop] › e2e/rl-relief.spec.ts:159:1 › mountain 3: a throat wall between the camera and the hero turns see-through, the camera keeps its distance (33.4s)
+  ✓  163 [desktop] › e2e/rl-relief.spec.ts:191:1 › the base: the gift cards by the shop side without the pause (one tap — the same window); none on a mountain; 640 × 360 fits (28.0s)
+  ✓  161 [desktop] › e2e/rl-relief.spec.ts:138:1 › mountain 2: the sure blizzard comes on section 2 or 3 without a mock (1.2m)
+  ✓  164 [desktop] › e2e/save.spec.ts:14:1 › F5 right after buying shoes: shoes, coins, stat and settings in place (10.7s)
+  ✓  165 [desktop] › e2e/save.spec.ts:34:1 › F5 right after a wall: the hero at its flag, the wall open, stat and coins in place; the first avalanche after 30 s (12.6s)
+  ✓  167 [desktop] › e2e/save.spec.ts:90:1 › resize and rotation 844×390 ↔ 390×844 ↔ 844×390 keep the state without a reload (SAV-03) (6.4s)
+  ✓  166 [desktop] › e2e/save.spec.ts:65:1 › F5 on mountain 3: the same mountain, its frontier, pets and the tier (16.8s)
+  ✓  169 [desktop] › e2e/shoes.spec.ts:5:1 › shoes button: shows when coins first suffice, one tap buys, then stays grey while short (15.7s)
+  ✓  168 [desktop] › e2e/save.spec.ts:115:1 › ?mock_save=fail: three failed cloud writes, progress kept in the mirror and after F5, then the cloud write goes through (26.1s)
+UNMASKED_RENDERER_WEBGL: ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)
+  ✓  170 [desktop] › e2e/smoke.spec.ts:4:3 › smoke › environment: WebGL2 context, renderer draws, UNMASKED_RENDERER_WEBGL logged (6.2s)
+  ✓  171 [desktop] › e2e/smoke.spec.ts:21:3 › smoke › SDK-02 LoadingAPI.ready() exactly once and after the first frame; platform is yandex (5.8s)
+  ✓  172 [desktop] › e2e/smoke.spec.ts:38:3 › smoke › SDK-03 interface language comes from environment.i18n.lang (18.4s)
+  ✓  173 [desktop] › e2e/smoke.spec.ts:56:3 › smoke › SDK-02 slow network: ?mock_init_delay=15000 waits for init, ready once, sdk_init_slow once (20.1s)
+  ✓  175 [desktop] › e2e/smoke.spec.ts:74:3 › smoke › BLD-02 no network requests outside the origin except /sdk.js and Metrika (6.5s)
+  ✓  174 [desktop] › e2e/smoke.spec.ts:66:3 › smoke › 3 minutes of game time at ×20 without console errors (17.5s)
+  ✓  176 [desktop] › e2e/smoke.spec.ts:83:3 › smoke › pause reasons: hidden tab stops the simulation and GameplayAPI, visible resumes it (6.8s)
+base draw calls — spawn: 29, shop: 29, treadmill: 24
+spawn → portal 2: 1.9 s
+  ✓  178 [desktop] › e2e/sp-base.spec.ts:40:1 › the first base ×2: portal 2 within 8 s; every arch and sign seen from the spawn at 1920×1080 and 640×360; ≤ 30 draw calls at 3 points; screenshots (48.6s)
+base arches (share of the frame; SHARE 0.3): without hiding — max 59%; hidden — max 18%, frames with an arch hidden 18:
+spawn → arch 2: 18 frames, max 9% (arch 1) at camera 40.0,11.5,55.9 hero 47.2,63.1; ends at 51.4,67.6, left 0
+along the arc → 6: 17 frames, max 18% (arch 7) at camera -25.1,11.5,83.9 hero -8.6,94.3; ends at -10.0,94.6, left 0
+along the arc → 10: 17 frames, max 17% (arch 8) at camera -44.7,11.4,70.7 hero -28.9,84.4; ends at -54.5,48.9, left 0
+back along the arc → 1: 38 frames, max 16% (arch 8) at camera -42.6,11.5,69.6 hero -34.8,76.3; ends at 55.8,48.7, left 0
+to the shop: 7 frames, max 2% (arch 1) at camera 43.0,11.2,31.5 hero 55.2,46.6; ends at 44.0,21.9, left 0
+to arch 9: 25 frames, max 10% (arch 9) at camera -52.2,11.5,50.7 hero -36.1,59.4; ends at -50.6,66.7, left 0
+turn by arch 5: max 16% (arch 5) at camera -1.3,9.8,93.8 hero 10.1,97.0
+  ✓  177 [desktop] › e2e/sp-base-camera.spec.ts:91:1 › the first base walked round and a turn by hand by an arch: no drawn arch over SHARE of the frame; screenshot (2.3m)
+  ✓  180 [desktop] › e2e/sp-camera.spec.ts:95:1 › 10 side grottos of mountains 1–3: out of each the view is behind the hero within shotReturnSec; screenshot (2.2m)
+  ✓  181 [desktop] › e2e/sp-camera.spec.ts:127:3 › mountain 1 summit: straight up -14 off the middle — into the portal ≤ 3 s from the funnel, the camera never in the arch or the light (16.9s)
+  ✓  182 [desktop] › e2e/sp-camera.spec.ts:127:3 › mountain 1 summit: straight up 0 off the middle — into the portal ≤ 3 s from the funnel, the camera never in the arch or the light (26.6s)
+  ✓  183 [desktop] › e2e/sp-camera.spec.ts:127:3 › mountain 1 summit: straight up 14 off the middle — into the portal ≤ 3 s from the funnel, the camera never in the arch or the light (18.2s)
+  ✓  184 [desktop] › e2e/sp-camera.spec.ts:158:1 › mountain 2: on the belt of the grotto of ridge 1 the record flag is never between the camera and the hero (300 frames) (1.8m)
+mountain 1 z 620 belt: 27 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 620 avalanche: 3 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 1020 belt: 25 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 1020 avalanche: 4 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 1050 belt: 27 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 1050 avalanche: 3 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 2 z 1660 belt: 27 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 2 z 1660 avalanche: 3 frames, hidden 0, blocked 0, at him 0, inside 0
+ridge z 320 pass x 0: 8 frames, hidden 0, at him 0, inside 0
+ridge z 630 pass x 0: 8 frames, hidden 0, at him 0, inside 0
+ridge z 1030 pass x 0: 8 frames, hidden 0, at him 0, inside 0
+  ✓  185 [desktop] › e2e/sp-camera.spec.ts:215:1 › rock grottos with a belt, mountains 1–2: on the belt and in an avalanche frame the hero is seen, the camera never at him; ridge passages (1.7m)
+belt camera (head, units; NEAR 6), 17 belts:
+m1 ridgeGrotto z 310: in 8.6, off 11.4, turn 10.7, off after the turn 6.1; 3 drags left 45°, right 45°
+m1 island z 620: in 11.5, off 8.6, turn 9.2, off after the turn 9.0; 3 drags left 45°, right 45°
+m1 chestGrotto z 411: in 9.0, off 10.0, turn 9.2, off after the turn 8.8; 3 drags left 45°, right 45°
+m1 island z 1020: in 11.5, off 7.4, turn 9.2, off after the turn 11.4; 3 drags left 45°, right 45°
+m1 island z 1050: in 11.5, off 7.2, turn 9.2, off after the turn 11.2; 3 drags left 45°, right 45°
+m2 ridgeGrotto z 360: in 8.6, off 11.4, turn 10.5, off after the turn 9.7; 3 drags left 45°, right 45°
+m2 ridgeGrotto z 740: in 7.6, off 11.5, turn 11.3, off after the turn 7.3; 3 drags left 45°, right 45°
+m2 ridgeGrotto z 1160: in 7.7, off 11.3, turn 10.8, off after the turn 9.7; 3 drags left 45°, right 45°
+m2 chestGrotto z 973: in 9.2, off 10.3, turn 9.1, off after the turn 8.7; 3 drags left 45°, right 45°
+m2 ridgeGrotto z 1630: in 8.7, off 11.4, turn 11.3, off after the turn 8.0; 3 drags left 45°, right 45°
+m2 island z 1660: in 11.5, off 8.0, turn 9.2, off after the turn 11.3; 3 drags left 45°, right 45°
+m3 ridgeGrotto z 420: in 8.8, off 11.5, turn 10.5, off after the turn 9.6; 3 drags left 45°, right 45°
+m3 ridgeGrotto z 850: in 8.0, off 11.2, turn 11.3, off after the turn 6.1; 3 drags left 45°, right 45°
+m3 chestGrotto z 643: in 8.8, off 11.5, turn 9.1, off after the turn 8.8; 3 drags left 45°, right 45°
+m3 ridgeGrotto z 1330: in 7.9, off 11.5, turn 11.0, off after the turn 9.6; 3 drags left 45°, right 45°
+m3 ridgeGrotto z 1860: in 7.9, off 11.7, turn 11.3, off after the turn 8.3; 3 drags left 45°, right 45°
+m3 island z 1890: in 11.5, off 8.1, turn 9.1, off after the turn 11.4; 3 drags left 45°, right 45°
+  ✓  179 [desktop] › e2e/sp-belt-camera.spec.ts:54:1 › belts of mountains 1–3: in, off without a turn, turned round by hand and out — the camera ≥ NEAR off the head; screenshot (10.8m)
+  ✓  187 [desktop] › e2e/sp-field.spec.ts:63:1 › in the middle of the field of mountain 1 at the hero’s level the borders are out of the frame; screenshot (27.6s)
+  ✓  188 [desktop] › e2e/sp-fork.spec.ts:23:1 › each lane of the fork up to ridge 2, no fall; the other lane in the frame; screenshot (1.1m)
+  ✓  189 [desktop] › e2e/sp-fork.spec.ts:68:1 › dropped on the bottom of the crevasse: out up its slope within 4 s, no fall (20.8s)
+  ✓  190 [desktop] › e2e/sp-fork.spec.ts:100:1 › «Two ways: pick one»: not while running through the fork; after a 2 s stop at it (21.9s)
+advice: passed
+0.85: passed passed
+0.7: caught caught
+  ✓  191 [desktop] › e2e/sp-giant.spec.ts:216:1 › mountain 1, a run of each: the advice straight passes, 0.85 behind a rock passes, 0.7 is caught; the giant in view; the hint once; cover in the events (1.8m)
+  ✘  186 [desktop] › e2e/sp-field.spec.ts:25:1 › a runner at an edge of the field of mountain 1 (±(width/2 − 5)) reaches a shelter on the siren 10 of 10 (7.1m)
+  ✓  192 [desktop] › e2e/sp-giant.spec.ts:242:1 › draw calls in the giant’s zones of mountains 1, 5, 10 ≤ 45; screenshot of the zone of mountain 1 (1.2m)
+side grotto controls:
+mountain 1 left z 94: out by «back» at -47.0; «forward» 0° off up the slope (v 0.0, 23.9; view 0°)
+mountain 1 right z 148: out by «back» at 44.2; «forward» 0° off up the slope (v 0.0, 26.6; view 0°)
+mountain 2 left z 104: out by «back» at -51.9; «forward» 0° off up the slope (v 0.0, 29.8; view 0°)
+mountain 2 right z 168: out by «back» at 50.4; «forward» 0° off up the slope (v 0.0, 31.6; view 0°)
+  ✓  193 [desktop] › e2e/sp-grotto-controls.spec.ts:24:1 › side grottos of mountains 1–2: in sideways, out by «back», then «forward» leads up the slope (49.5s)
+  ✓  194 [desktop] › e2e/sp-pets-hint.spec.ts:6:1 › the pets hint: up with the shop on screen and the coins for the egg, never before the shop, gone without the coins (22.0s)
+  ✓  196 [desktop] › e2e/sp-relief.spec.ts:83:1 › the relief of mountain 8: the terrace up to its ridge and the hump of section 2; screenshot (42.5s)
+«Phew» early: front 91.3 hero 94.0
+«Phew» early: front 92.0 hero 94.3
+«Phew» early: front 91.3 hero 94.2
+run 1: up to z 1318, falls 0
+run 2: up to z 899, falls 0
+run 3: up to z 1283, falls 0
+run 4: up to z 550, falls 0
+run 5: up to z 1167, falls 0
+run 6: up to z 392, falls 0
+run 7: up to z 1386, falls 0
+run 8: up to z 1361, falls 0
+run 9: up to z 1402, falls 0
+run 10: up to z 890, falls 0
+  ✓  195 [desktop] › e2e/sp-relief.spec.ts:33:1 › mountain 1: a «child» bot, 10 runs of 40 s from the camp up the terraces — not one fall (4.1m)
+«Phew» early: front 308.8 hero 310.0
+  ✓  198 [desktop] › e2e/sp-shelter-white.spec.ts:129:1 › the scripted first wave: the free egg shows only once its snow has passed the hero in the grotto (30.8s)
+  ✓  199 [desktop] › e2e/sp-speed.spec.ts:28:1 › mountain 1: the run at ridge 2 ≥ 2.2 ×, at the giant ≥ 2.6 × the start; the camera farther and wider; screenshots (38.3s)
+  ✓  200 [desktop] › e2e/sp-speed.spec.ts:74:1 › on a belt the hero does not speed up: the belt runs, not he (14.4s)
+«Phew» early: front 306.5 hero 310.0
+first rock, back to the mouth: in his face 100% of 45 frames without shelterKeep, 6% of 47 with it
+  ✓  201 [desktop] › e2e/sp-wave-camera.spec.ts:57:1 › the first rock: back to its mouth on the siren the camera is in his face in ≤ FACE of the frames (with shelterKeep); screenshot (1.3m)
+  ✓  202 [desktop] › e2e/steps.spec.ts:4:1 › «+N» pops above the hero on the first step; gameTutorialStart exactly once (7.3s)
+to-mountain classic 5: model {"stat":601205759.2210187,"coins":1353819265,"shoe":12,"pets":[0.8,0.5,0.4]}; game stat 601205759.2210187, coins 1353819265, shoes 12, pets ["fawn","husky","arctic_fox"]
+to-mountain classic 5: gate 1 (170) open at 23.4 s of game time on the mountain
+  ✓  203 [desktop] › e2e/to-mountain.spec.ts:24:3 › classic: «to mountain 5» — its camp with the state of the model bot, gate 1 within 30 s, the summit opens the rebirth (17.3s)
+«Phew» early: front 307.3 hero 310.0
+to-mountain fast 10: model {"stat":3200585666.9492044,"coins":2746408114,"shoe":13,"pets":[0.2,0.2]}; game stat 3200585666.9492044, coins 2746408114, shoes 13, pets ["bunny","bunny"]
+to-mountain fast 10: gate 1 (102) open at 7.8 s of game time on the mountain
+  ✓  204 [desktop] › e2e/to-mountain.spec.ts:24:3 › fast: «to mountain 10» — its camp with the state of the model bot, gate 1 within 30 s, the summit opens the rebirth (13.7s)
+  ✓  205 [desktop] › e2e/treadmill.spec.ts:4:1 › belt of cave 1: steps without input × treadmill, the hero is in shelter, treadmill_first once (12.9s)
+  ✓  206 [desktop] › e2e/wardrobe.spec.ts:4:1 › wardrobe opens with the default skin on the hero; trail and aura bought for trophies go into the step and stay after F5 (33.4s)
+«Phew» early: front 410.5 hero 411.0
+  ✓  207 [desktop] › e2e/wardrobe.spec.ts:78:1 › wardrobe: a skin and wings for trophies go onto the hero, locked cards show the source; F5 keeps them (33.3s)
+  ✓  208 [desktop] › e2e/windows.spec.ts:37:1 › no window before 180 s of play; HUD buttons come by the schedule of 6.4 in game time, never earlier (27.9s)
+«Phew» early: front 410.5 hero 411.0
+  ✓  209 [desktop] › e2e/windows.spec.ts:111:1 › every window of 10.2 opens by its button, closes by the cross, Esc, the veil and «next»; the avalanche stands; screenshots (1.2m)
+  ✓  210 [desktop] › e2e/windows.spec.ts:181:1 › «Mountain N cleared!» after every portal 1–4: the next mountain on «Next», the cross, Esc and the veil; «Tomorrow in the calendar» (37.4s)
+  ✓  211 [desktop] › e2e/windows.spec.ts:218:1 › 640×360: the column is 3 icons + «More» above 72% H, «More» lists them all and opens each window (8.0s)
+  ✓  212 [desktop] › e2e/wrong-way.spec.ts:59:3 › camera without auto-turn (classic): turned down the slope, «forward» 5 s without the mouse — viewYaw stays within 2° (14.9s)
+«Phew» early: front 408.3 hero 411.0
+  ✓  213 [desktop] › e2e/wrong-way.spec.ts:78:3 › wrong-way arrow (classic): shows running down, points to the next closed gate, goes on stop and on the way up (21.0s)
+  ✓  214 [desktop] › e2e/wrong-way.spec.ts:151:3 › no wrong-way arrow (classic) on warn and run, in a cave, in the camp, in a snowball (59.6s)
+«Phew» early: front 619.0 hero 619.5
+  ✓  215 [desktop] › e2e/wrong-way.spec.ts:59:3 › camera without auto-turn (fast): turned down the slope, «forward» 5 s without the mouse — viewYaw stays within 2° (16.6s)
+  ✓  216 [desktop] › e2e/wrong-way.spec.ts:78:3 › wrong-way arrow (fast): shows running down, points to the next closed gate, goes on stop and on the way up (23.9s)
+«Phew» early: front 619.5 hero 620.3
+  ✓  217 [desktop] › e2e/wrong-way.spec.ts:151:3 › no wrong-way arrow (fast) on warn and run, in a cave, in the camp, in a snowball (1.1m)
+  ✓  218 [mobile] › e2e/ftue.spec.ts:7:1 › first minute: bot walks walls 1–3 straight, scripted wave in cave 4, belt ×7, free egg, wall 4 — GDD-01 limits (1.0m)
+  ✓  219 [mobile] › e2e/ftue.spec.ts:81:1 › scripted wave never catches outside a cave: dusted, «Hide in a cave» toast, no snowball (10.2s)
+«Phew» early: front 620.3 hero 620.6
+  ✓  220 [mobile] › e2e/layout.spec.ts:37:3 › layout › SCR-02 desktop sizes: canvas ≤ 2:1, touches the window edges, margins in sky.bottom, HUD inside (51.9s)
+  ✓  221 [mobile] › e2e/layout.spec.ts:61:3 › layout › SCR-01 phone sizes: the whole screen, HUD inside, jump button under the right column (10.0s)
+  ✓  222 [mobile] › e2e/layout.spec.ts:76:3 › layout › SCR-07 resize and rotation keep the game state (6.2s)
+  ✓  223 [mobile] › e2e/layout.spec.ts:94:3 › layout › SCR-04 right click and long tap open no context menu, no text selection (7.5s)
+white frames in shelters on the run of a wave:
+grotto z 94: without the flag 4 white of 56; with it 0 of 57, «Phew» after the snow true
+grotto z 94 (ran in late): without the flag 5 white of 21; with it 0 of 22, «Phew» after the snow true
+grotto z 94 (ran in late) (turned by hand): without the flag 14 white of 22; with it 0 of 22, «Phew» after the snow true
+ridgeGrotto z 310: without the flag 0 white of 119; with it 0 of 118, «Phew» after the snow true
+ridgeGrotto z 310 (ran in late): without the flag 0 white of 81; with it 0 of 85, «Phew» after the snow true
+ridgeGrotto z 310 (ran in late) (turned by hand): without the flag 12 white of 83; with it 0 of 82, «Phew» after the snow true
+chestGrotto z 411: without the flag 0 white of 149; with it 0 of 144, «Phew» after the snow true
+chestGrotto z 411 (ran in late): without the flag 0 white of 109; with it 0 of 111, «Phew» after the snow true
+chestGrotto z 411 (ran in late) (turned by hand): without the flag 18 white of 113; with it 0 of 113, «Phew» after the snow true
+island z 620: without the flag 0 white of 209; with it 0 of 210, «Phew» after the snow true
+island z 620 (ran in late): without the flag 0 white of 168; with it 0 of 172, «Phew» after the snow true
+island z 620 (ran in late) (turned by hand): without the flag 13 white of 171; with it 0 of 174, «Phew» after the snow true
+total: without 66/1301, with 0/1310
+  ✓  197 [desktop] › e2e/sp-shelter-white.spec.ts:95:1 › shelters of mountain 1: white frames on the run of a wave ≤ WHITE with shotUntilClear, more without; «Phew» after the snow; screenshots (16.4m)
+  ✓  224 [mobile] › e2e/touch-autorun.spec.ts:13:3 › auto-run › auto-run moves the hero without a stick; tap jumps, swipe does not; swipe turns the run direction (8.9s)
+  ✓  226 [mobile] › e2e/touch-autorun.spec.ts:60:3 › auto-run › the auto-run setting is in the pause menu and survives F5 (11.2s)
+stuck hint at the closed ridge on the phone: {"sec":3.6833333333333336,"arrow":3.060411941615564,"arrows":true,"speed":3.552713678800501e-15}
+  ✓  225 [mobile] › e2e/touch-stuck-hint.spec.ts:23:1 › phone, a closed ridge of mountain 1: pushing the stick along it, the hint with an arrow to the belt within LIMIT s; screenshot (19.9s)
+  ✓  227 [mobile] › e2e/touch.spec.ts:20:3 › touch › SCR-06 stick, camera swipe and jump button work at the same time (three touches); zones ≥ 44 px (7.3s)
+  ✓  228 [mobile] › e2e/touch.spec.ts:50:3 › touch › a touch on a HUD button never starts the stick (6.0s)
+  ✓  229 [mobile] › e2e/touch.spec.ts:65:3 › touch › InputState resets on pointercancel and on a mock ad: stick held + ad → hero speed 0 afterwards (9.9s)
+  ✓  230 [mobile] › e2e/touch.spec.ts:92:3 › touch › blur resets held keys and the stick (6.8s)
+  ✓  231 [mobile] › e2e/touch.spec.ts:112:3 › touch › stick held: a second finger presses the shoes and the shop buttons at once (6.2s)
+
+
+  1) [desktop] › e2e/perf.spec.ts:14:1 › SP-02: a simulation step on mountain 10 at CPU ×4 with 6 bots at 120 units/s stays within 2 ms 
+
+    Error: mountain 10, CPU x4, 6 bots, run 120 units/s, 300 ticks: sim.step mean 2.480 ms, median 1.000 ms, p90 4.400 ms, max 125.200 ms
+
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 2
+    Received:    2.4803333333320916
+
+      50 |   expect(top, 'ran at 120').toBeGreaterThan(110);
+      51 |   // The mean: CPU throttling stops the page in quanta, a single tick that meets one is ~15 ms (docs/допущения.md).
+    > 52 |   expect(mean, line).toBeLessThanOrEqual(2);
+         |                      ^
+      53 | });
+      54 |
+      55 | test('SP-03: draw calls at the foot, ridge 2 and the giant’s line of mountains 1, 5, 10 ≤ 45 (far 800)', async ({ page, openGame }) => {
+        at /home/user/obby-avalanche/e2e/perf.spec.ts:52:22
+
+    Error Context: test-results/perf-SP-02-a-simulation-st-4e16e-0-units-s-stays-within-2-ms-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/perf-SP-02-a-simulation-st-4e16e-0-units-s-stays-within-2-ms-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/perf-SP-02-a-simulation-st-4e16e-0-units-s-stays-within-2-ms-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › e2e/sp-field.spec.ts:25:1 › a runner at an edge of the field of mountain 1 (±(width/2 − 5)) reaches a shelter on the siren 10 of 10 
+
+    Test timeout of 420000ms exceeded.
+
+    Error: page.waitForFunction: Test timeout of 420000ms exceeded.
+
+      49 |       // To its mouth, then in.
+      50 |       await page.evaluate(([m, i]) => window.__TEST__!.botPath([m, i]), [target.mouth, target.inside] as const);
+    > 51 |       await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'gone' || window.__TEST__!.state().wave?.phase === 'idle', undefined, { timeout: 60_000 });
+         |                  ^
+      52 |       await page.evaluate(() => window.__TEST__!.botPath(null));
+      53 |       const after = await page.evaluate(() => window.__TEST__!.simEvents.filter((e) => e.name === 'waveSurvived').length);
+      54 |       const ok = after > before;
+        at /home/user/obby-avalanche/e2e/sp-field.spec.ts:51:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/sp-field-a-runner-at-an-ed-7083c-elter-on-the-siren-10-of-10-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/sp-field-a-runner-at-an-ed-7083c-elter-on-the-siren-10-of-10-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sp-field-a-runner-at-an-ed-7083c-elter-on-the-siren-10-of-10-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sp-field-a-runner-at-an-ed-7083c-elter-on-the-siren-10-of-10-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: [desktop] › e2e/sp-belt-camera.spec.ts (10.8m)
+  Slow test file: [desktop] › e2e/fm-camera.spec.ts (6.8m)
+  Slow test file: [desktop] › e2e/sp-camera.spec.ts (6.8m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  2 failed
+    [desktop] › e2e/perf.spec.ts:14:1 › SP-02: a simulation step on mountain 10 at CPU ×4 with 6 bots at 120 units/s stays within 2 ms 
+    [desktop] › e2e/sp-field.spec.ts:25:1 › a runner at an edge of the field of mountain 1 (±(width/2 − 5)) reaches a shelter on the siren 10 of 10 
+  229 passed (1.5h)
+-- verify: e2e FAILED after 5561.9 s (exit 1)
+EXIT=1
