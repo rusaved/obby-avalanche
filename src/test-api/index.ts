@@ -14,7 +14,7 @@ import { content, pace } from '../content/index.ts';
 import { Ray, Vector3, type Object3D } from 'three';
 import type { LevelData } from '../level/types.ts';
 import { flagInTheWay, segmentMeetsBox } from '../app/banner-signs.ts';
-import { PORTAL_WIDTH } from '../level/builder.ts';
+import { CAMERA_THROUGH, PORTAL_WIDTH } from '../level/builder.ts';
 import { PORTAL_HEIGHT } from '../render/way-marks.ts';
 import { entranceX, nicheSign } from '../sim/shelter.ts';
 import { formatNumber } from '../ui/format.ts';
@@ -365,10 +365,11 @@ const NEAR_HERO = 2.5;
 const SIGN_RANGE = 40;
 
 /** Is the point inside a solid box, a closed gate or a ramp of the level (grown by `pad`). */
-function insideLevel(level: LevelData, gatesOpen: readonly boolean[], p: Vector3, pad: number): string | null {
+function insideLevel(level: LevelData, gatesOpen: readonly boolean[], p: Vector3, pad: number, through = false): string | null {
   const inBox = (min: readonly number[], max: readonly number[]): boolean =>
     p.x > min[0]! - pad && p.x < max[0]! + pad && p.y > min[1]! - pad && p.y < max[1]! + pad && p.z > min[2]! - pad && p.z < max[2]! + pad;
-  for (const b of level.boxes) if (b.solid && inBox(b.min, b.max)) return b.kind;
+  // RL-09: the camera passes a tall wall by design (camera.seeThrough) — that wall is see-through while it is in it.
+  for (const b of level.boxes) if (b.solid && !(through && CAMERA_THROUGH.has(b.kind)) && inBox(b.min, b.max)) return b.kind;
   for (let i = 0; i < level.gates.length; i++) if (!gatesOpen[i] && inBox(level.gates[i]!.box.min, level.gates[i]!.box.max)) return 'gate';
   for (const r of level.ramps) {
     if (p.x < r.x0 - pad || p.x > r.x1 + pad || p.z < r.z0 - pad || p.z > r.z1 + pad) continue;
@@ -470,7 +471,7 @@ export function installTestApi(g: GameHandles): TestApi {
     const note = (what: string): void => {
       if (cam.bad.length < 12) cam.bad.push(`${what} t=${(g.sim?.tick ?? 0) / 60} hero=(${h.x.toFixed(1)},${h.y.toFixed(1)},${h.z.toFixed(1)}) cam=(${p.x.toFixed(1)},${p.y.toFixed(1)},${p.z.toFixed(1)})`);
     };
-    const inside = insideLevel(sim.level, sim.gatesOpen, p, NEAR);
+    const inside = insideLevel(sim.level, sim.gatesOpen, p, NEAR, g.tuning.camera.seeThrough === true);
     if (inside) {
       cam.inside++;
       note(`inside ${inside}`);
