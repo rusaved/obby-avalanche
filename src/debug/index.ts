@@ -150,6 +150,8 @@ export function mountDebug(g: GameHandles, host: HTMLElement, isMobile: boolean)
   // reads tuning.fun every tick (the gift over a trampoline stays where gen:worlds put it).
   const funFolder = gui.addFolder('Fun');
   for (const [key, range] of Object.entries(FUN_RANGES) as Array<[keyof TuningJson['fun'], Range]>) {
+    // A key of one pace only (slideSway of the open slope, RL-06) is not in the others.
+    if (typeof g.tuning.fun[key] !== 'number') continue;
     funFolder.add(g.tuning.fun, key, range[0], range[1], range[2]).onChange(persist);
   }
   for (const [key, range] of Object.entries(GATE_REWARD_RANGES) as Array<[keyof TuningJson['gateReward'], Range]>) {

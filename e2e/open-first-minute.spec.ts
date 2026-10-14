@@ -13,7 +13,7 @@ import balanceJson from '../content/avalanche/balance.json' with { type: 'json' 
 // before the giant up to his advice, past him and into the portal. Times are play seconds. The rhythm of 19.6: on the belt
 // of ridge 2 at most 10 s of game time, and a reward (a ridge or the giant passed, «Phew, made it!» in a shelter, an egg,
 // shoes) at least every 25 s up to 180 s (fm-rhythm of docs/05 lives here: one run of the bot for both).
-type Seg = { type: string; z: number; kind?: string; requires?: number; length?: number; passes?: number[]; between?: number; track?: number };
+type Seg = { type: string; z: number; kind?: string; requires?: number; length?: number; passes?: number[]; between?: number; track?: number; x0?: number; x1?: number; side?: string };
 type OpenWorld = { segments: Seg[]; bosses: Array<{ zone: [number, number]; requires: number }> };
 type Shelter = { kind: string; z: number; mouth: [number, number]; inside: [number, number]; belt: [number, number] | null };
 type Played = Array<{ name: string; playSec: number; params?: Record<string, unknown> }>;
@@ -53,7 +53,23 @@ test('first minutes on the open slope: ridge 1, the grotto at the siren, the egg
   ];
 
   /** The path to the points from the hero: round the fork's cliff by the lane on the hero's side. */
-  const route = (s: TestState, to: Array<[number, number]>): Array<[number, number]> => {
+  /** RL-03 (docs/01-gdd.md 21.3): a leg across the pit of a chasm goes over it as a player does — onto the middle
+   * trampoline on the axis and on from past the far edge. */
+  const pits = (world.segments as Array<Seg & { x0?: number; x1?: number; side?: string }>).filter((q) => q.type === 'pit' && q.side === undefined);
+  const viaPad = (from: [number, number], path: Array<[number, number]>): Array<[number, number]> => {
+    const out: Array<[number, number]> = [];
+    let a = from;
+    for (const b of path) {
+      const q = pits.find((p) => Math.min(a[1], b[1]) < p.z && Math.max(a[1], b[1]) > p.z + p.length!);
+      if (q && b[1] > a[1]) out.push([0, q.z - 14], [0, q.z + q.length! + 6]);
+      else if (q) out.push([0, q.z + q.length! + 6], [0, q.z - 14]);
+      out.push(b);
+      a = b;
+    }
+    return out;
+  };
+  const route = (s: TestState, to: Array<[number, number]>): Array<[number, number]> => viaPad([s.hero!.x, s.hero!.z], routeRaw(s, to));
+  const routeRaw = (s: TestState, to: Array<[number, number]>): Array<[number, number]> => {
     const h = s.hero!;
     const z = to[0]![1];
     const lane = (h.x < 0 ? -1 : 1) * forkLaneX(fork);

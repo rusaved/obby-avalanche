@@ -140,7 +140,7 @@ export function createEvents(level: LevelData, cfg: GameEvents, seed: number, ga
       const k = sectionAt(ctx.hero.z);
       if (k !== section) {
         [section, armedAt] = [k, time];
-        armed = owed && k >= owed && !busy() ? 'blizzard' : k >= cfg.sections[0] && k <= cfg.sections[1] && !busy() && quiet(ctx) ? roll() : null;
+        armed = !force && owed && k >= owed && !busy() ? 'blizzard' : k >= cfg.sections[0] && k <= cfg.sections[1] && !busy() && quiet(ctx) ? roll() : null;
       }
       if (!armed || busy() || time - armedAt < cfg.delaySec - 1e-9 || !quiet(ctx) || !start(armed, ctx, k)) return;
       emit('eventStart', { tick: ctx.tick, id: armed, section: k });

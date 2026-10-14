@@ -6,7 +6,7 @@ import theme from '../content/avalanche/theme.json' with { type: 'json' };
 // PS-07: the giant of the open slope (docs/01-gdd.md 17.6). The physical bot (controller and collisions in the browser)
 // passes the zone of mountain 1 on the first try with the Speed of the advice, and is caught at half of it — back at the
 // start of the zone, nothing lost. The giant is seen from the camp; in his zone no ad button and no window shows.
-type OpenWorld = { bosses: Array<{ zone: [number, number]; requires: number }>; length: number };
+type OpenWorld = { bosses: Array<{ zone: [number, number]; requires: number }>; length: number; segments: Array<{ type: string; z: number }> };
 const world = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds[0]!;
 const zone = world.bosses[0]!.zone;
 const advice = world.bosses[0]!.requires;
@@ -46,7 +46,7 @@ test('with the Speed of the advice the bot slips past the giant to the summit on
   await shot1080(page, `${EVIDENCE}/boss_passed_1920x1080_ru.png`);
 });
 
-test('at half the advice the giant catches the bot: back at the start of the zone, Speed and coins kept', async ({ page, openGame }) => {
+test('at half the advice the giant catches the bot: back at the flag of the last ridge (RL-02), Speed and coins kept', async ({ page, openGame }) => {
   test.setTimeout(120_000);
   await openGame('pace=open');
   await page.evaluate(([z, s]) => {
@@ -62,8 +62,9 @@ test('at half the advice the giant catches the bot: back at the start of the zon
   await expect.poll(async () => (await testState(page)).waveHud.toast).toContain('Спрячься за камень');
   await page.waitForFunction(() => window.__TEST__!.state().caught === null, undefined, { timeout: 30_000 });
   const s = await testState(page);
-  expect(s.hero!.z).toBeLessThan(zone[0]);
-  expect(s.hero!.z).toBeGreaterThan(zone[0] - 10);
+  // RL-02 (docs/01-gdd.md 21.2): the flag past the last ridge, the start of the finish straight.
+  const flag = world.segments.filter((x) => x.type === 'checkpoint' && x.z < zone[0]).sort((a, b) => b.z - a.z)[0]!;
+  expect(Math.abs(s.hero!.z - flag.z)).toBeLessThan(1);
   expect(s.stat).toBeGreaterThanOrEqual(before.stat);
   expect(s.coins).toBeGreaterThanOrEqual(before.coins);
   expect(s.gatesOpen[s.gatesOpen.length - 1]).toBe(false);

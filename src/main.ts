@@ -1343,12 +1343,16 @@ async function boot(): Promise<void> {
       const giant = ahead && hero.vel.z > 0.5;
       cameraRig.keep = giant ? bossKeep.set(ahead.x, sim.level.floorAt(ahead.x, ahead.z) + (theme.boss?.height ?? 0) / 2, ahead.z) : (waveView?.keep ?? null);
       cameraRig.keepIdle = !giant;
-      cameraRig.update(
-        frameDt,
-        { pos: renderPos, vel: hero.vel, speed: hero.speed, maxSpeed },
-        { manualCamera: turnedByHand, moveX: lastSnap?.moveX ?? 0, moveY: lastSnap?.moveY ?? 0, autoRun: input.autoRun },
-        sim.collision,
-      );
+      // RL-02 (docs/01-gdd.md 21.2): the ball rolls back to the flag of the ridge — up to hundreds of units in a second; the
+      // damped follow would lag behind it and the ball run through the camera: the camera rides with the ball.
+      if (sim.caught && balance.caught?.to === 'flag') cameraRig.snapTo({ pos: renderPos, vel: hero.vel, speed: 0, maxSpeed });
+      else
+        cameraRig.update(
+          frameDt,
+          { pos: renderPos, vel: hero.vel, speed: hero.speed, maxSpeed },
+          { manualCamera: turnedByHand, moveX: lastSnap?.moveX ?? 0, moveY: lastSnap?.moveY ?? 0, autoRun: input.autoRun },
+          sim.collision,
+        );
       turnedByHand = false;
       // Hidden by this frame's camera: a cut into or out of a fixed frame moves it many units at once (PR-11).
       if (heroChar) {

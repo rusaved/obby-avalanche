@@ -166,7 +166,8 @@ test('open, mountain 10 at 120 units/s: in 600 frames the camera never within hi
     window.__TEST__!.holdWave(900);
     window.__TEST__!.setTuning('controller.maxSpeed', 120);
     window.__TEST__!.setStat(1e30);
-    window.__TEST__!.teleport(60, -12);
+    // RL-05: the axis (x −12 is the pit of the stairs of section 1 on the bold half; over a chasm — its middle trampoline).
+    window.__TEST__!.teleport(60, 0);
     window.__TEST__!.resetCameraStats();
     window.__TEST__!.setAutoRun(true);
   });
