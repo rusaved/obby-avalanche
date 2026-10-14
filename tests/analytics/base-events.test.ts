@@ -15,6 +15,9 @@ const EVENTS: Array<{ name: string; times: 'player' | 'always'; code: RegExp }> 
   { name: 'base_portal', times: 'always', code: /[^e]track\('base_portal', \{ world: w, replay: place\.replay \}\)/ },
   { name: 'shortcut_ok', times: 'player', code: /trackOnce\('shortcut_ok'\)/ },
   { name: 'community_open', times: 'always', code: /[^e]track\('community_open', \{ to: id \}\)/ },
+  // FM-16: the gifts for subscribing and for a review.
+  { name: 'community_gift', times: 'always', code: /[^e]track\('community_gift', \{ to: id \}\)/ },
+  { name: 'review_gift', times: 'player', code: /trackOnce\('review_gift'\)/ },
 ];
 
 describe('events of the base (FM-14)', () => {

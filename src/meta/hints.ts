@@ -52,6 +52,9 @@ export interface HintFrame {
   onBelt: boolean;
   /** Standing below a closed gate outside a cave. */
   nearClosedGate: boolean;
+  /** The hero gets up the slope (speed uphill above a walk); absent — as `moving`. Below a closed gate hint.stuck counts
+   * the time he does not (producer 14.10: a thumb pushing the stick along the wall slid sideways and never got it). */
+  climbing?: boolean;
   /** On the way from the gate of hint.stuck down to the cave below it, that gate still closed (docs/01-gdd.md 6.5:
    * the plaque goes on entering the cave, not on the first step; PR-12). */
   stuckWay: boolean;
@@ -195,7 +198,7 @@ export function createHints(timing: HintsTiming, counts: Record<string, number>)
         s.idleSec += dt;
         if (current?.id !== 'hint.move') s.movedSec = 0;
       }
-      s.stuckSec = f.nearClosedGate && !f.moving && !f.inShelter ? s.stuckSec + dt : 0;
+      s.stuckSec = f.nearClosedGate && !(f.climbing ?? f.moving) && !f.onBelt && !f.inShelter ? s.stuckSec + dt : 0;
       s.portalIdleSec = f.onSummit && !f.towardsPortal ? s.portalIdleSec + dt : 0;
       s.forkIdleSec = f.atFork && !f.moving && !f.inShelter ? s.forkIdleSec + dt : 0;
       if (!f.petsOffered) s.petsArmed = true;

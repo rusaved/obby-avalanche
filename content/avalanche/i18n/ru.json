@@ -359,5 +359,12 @@
   "toast.shortcutOk": "Ярлык готов! +{n} кубков",
   "community.caption": "Промокоды и бонусы в канале",
   "community.telegram": "Telegram",
-  "community.vk": "ВКонтакте"
+  "community.vk": "ВКонтакте",
+  "communityGift.subscribe": "Яйцо за подписку",
+  "communityGift.review": "Сундук за отзыв",
+  "communityGift.title": "Подарок за подписку",
+  "communityGift.text": "Подпишись на сообщество игры и получи яйцо!",
+  "communityGift.go": "Перейти",
+  "toast.communityGift": "Спасибо за подписку! Держи яйцо",
+  "toast.reviewGift": "Спасибо за отзыв! Сундук: +{n}"
 }

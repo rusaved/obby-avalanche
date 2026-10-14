@@ -1,5 +1,5 @@
 // What: Trampoline arc: flies the hero tick by tick from the pad like the controller does, and gives the gift-height band over the pad; pure TS.
-// Called by: level/generate.ts (gift placement over the pad), level/validate.ts (arc and gift checks)
+// Called by: level/generate.ts and level/open-shapes.ts, level/open-slope.ts (gift placement over the pad, flightBand), level/validate.ts (arc and gift checks)
 // Keep: Must integrate exactly like sim/controller.ts (same midpoint step, gravity, fallMult, 1/60 tick) or generator, validator and game disagree on the arc; no DOM.
 
 /**
@@ -80,4 +80,30 @@ export function padArc(z: number, y: number, runSpeed: number, tuning: ArcTuning
  */
 export function padGiftBand(tuning: ArcTuning): [number, number] {
   return [HERO_HEIGHT + PAD_GIFT_MARGIN * apexOf(tuning.controller.jumpSpeed, tuning), HERO_HEIGHT + apexOf(tuning.fun.padSpeed, tuning) / PAD_GIFT_MARGIN];
+}
+
+/** Run speeds a flight band is sampled at, from the slowest to the fastest. */
+const BAND_STEPS = 12;
+/** Feet slack above and below the band (units). */
+const BAND_SLACK = 0.5;
+
+/**
+ * Feet heights at `z` of every flight from vmin up to the top speed (Q-068: a faster hero flies higher over the gifts
+ * of the slowest arc and missed them): [lowest, highest] with slack, the column in which a gift in the air is taken.
+ * Flights that land before `z` do not count.
+ */
+export function flightBand(fly: (v: number) => PadArc, z: number, vmin: number, vmax: number): [number, number] {
+  let lo = Infinity;
+  let hi = -Infinity;
+  for (let k = 0; k <= BAND_STEPS; k++) {
+    const arc = fly(vmin + ((Math.max(vmin, vmax) - vmin) * k) / BAND_STEPS);
+    const i = arc.points.findIndex((q) => q.z >= z);
+    if (i <= 0) continue;
+    const a = arc.points[i - 1]!;
+    const b = arc.points[i]!;
+    const yy = a.y + ((b.y - a.y) * (z - a.z)) / (b.z - a.z || 1);
+    lo = Math.min(lo, yy);
+    hi = Math.max(hi, yy);
+  }
+  return [Math.round((lo - BAND_SLACK) * 1000) / 1000, Math.round((hi + BAND_SLACK) * 1000) / 1000];
 }

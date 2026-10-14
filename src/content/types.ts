@@ -29,6 +29,9 @@ export interface GameJson {
    * button each by the side of the pause window under «Promo codes and bonuses in the channel», a new tab, no reward;
    * empty or absent — no button. The only links of the game. */
   community?: { telegram?: string; vk?: string };
+  /** FM-16 (producer 14.10): a gift for subscribing to a channel of `community` (once a channel) and for a review of
+   * the game (once); absent — no card. */
+  communityGifts?: { subscribe?: Extract<Reward, { kind: 'egg' | 'coins' }>; review?: Extract<Reward, { kind: 'egg' | 'coins' }> };
   metrikaCounterId: number;
   mobileOrientation: 'landscape' | 'portrait';
   payments: { enabled: boolean };
@@ -165,7 +168,7 @@ export interface BalanceJson {
     unlock: string;
   };
   trophies: { perSummit: string };
-  gifts: { perZone: number; respawn: 'onWaveGone' };
+  gifts: { perZone: number; respawn: 'onWaveGone' | 'never' };
   coins: { gatePass: number; waveSurvived: number; chest: number };
   pets: { slots: number; inventory: number };
   /** `x2Mult`: the ×2 step boost (ad, rewards); `statNowSec`: treadmill seconds of «speed now» (docs/01-gdd.md 8.1). */
@@ -646,7 +649,8 @@ export interface OpenSpecJson {
   /** SP-04 (docs/01-gdd.md 20.4: the first minute of the game on the same seconds): on `mountain`, the first grotto row of
    * `section` (the first avalanche) — rocks by the lanes `gap` off their lines — and from that section the grottos with the
    * belt under the ridges and before the giant — rocks by the run, not at the edges of a wide field; absent — at the edges. */
-  nearRun?: { mountain: number; section: number; gap: number };
+  /** `axis` (producer 14.10): the first avalanche has a third rock on the axis, the crevasse of its fork opens past it. */
+  nearRun?: { mountain: number; section: number; gap: number; axis?: boolean };
   spawnZ: number;
   threat: WorldsSpecJson['threat'];
   rarities: string[];

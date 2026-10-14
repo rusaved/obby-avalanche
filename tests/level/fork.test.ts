@@ -53,7 +53,13 @@ describe('SP-05: forks on two lanes', () => {
         const ridge = zone.zEnd;
         expect(z1, 'the lanes meet before the ridge').toBeLessThanOrEqual(ridge - cfg.converge + 1e-6);
         expect(z1, 'and before the approach rise').toBeLessThanOrEqual(zone.zStart + OPEN_SLOPE.approach.start * (zone.zEnd - zone.zStart));
-        let pitStart = z0;
+        // The crevasse opens at the fork's start, or past the rock of the first avalanche on the axis (nearRun.axis): its
+        // first bottom floor; before it the axis is snow at the lanes' level, the rock on it.
+        const c0 = Math.min(...w.segments.filter((s) => s.type === 'floor' && s['split'] === true && (s['y'] as number) < y && s.z >= z0 && s.z < z1).map((s) => s.z));
+        const axisRock = w.segments.find((s) => s.type === 'island' && s['axis'] === true && s.z >= z0 && s.z < z1);
+        expect(c0, 'the crevasse opens at the start unless a rock stands on the axis').toBeCloseTo(axisRock ? c0 : z0, 6);
+        if (axisRock) expect(c0).toBeGreaterThan(axisRock.z + (axisRock['size'] as number) / 2);
+        let pitStart = c0;
         let deepest = 0;
         for (let z = z0 + 0.25; z < z1; z += 0.5) {
           const e = level.halfAt(z);
@@ -67,6 +73,10 @@ describe('SP-05: forks on two lanes', () => {
             deepest = Math.max(deepest, y - c);
             expect(z - pitStart, `the way up within ${cfg.rampEvery} at z ${z}`).toBeLessThanOrEqual(cfg.rampEvery);
           } else pitStart = z;
+          if (z < c0) {
+            expect(c, `snow on the axis before the crevasse z ${z}`).toBeGreaterThan(y - 1e-6);
+            continue;
+          }
           // Its walls: a lane's floor at each edge reaches down to its bottom (nothing to walk under).
           for (const sign of [-1, 1]) {
             const edge = level.boxes.filter((b) => b.kind === 'floor' && z >= b.min[2] && z <= b.max[2] && Math.abs((sign > 0 ? b.min[0] : -b.max[0]) - N / 2) < 1e-6);
@@ -75,7 +85,7 @@ describe('SP-05: forks on two lanes', () => {
         }
         expect(deepest).toBeCloseTo(cfg.depth, 6);
         // Open from its start: nothing over its first pit (a change of width's slab, a floor across).
-        expect(level.floorAt(0, z0 + 2), 'open at its start').toBeCloseTo(y - cfg.depth, 6);
+        expect(level.floorAt(0, c0 + 2), 'open at its start').toBeCloseTo(y - cfg.depth, 6);
         // Gifts on its bottom.
         const bottom = w.segments.filter((s) => s.type === 'gift' && s['bottom'] === true && s.z > z0 && s.z < z1 && Math.abs(s['x'] as number) < N / 2);
         expect(bottom).toHaveLength(cfg.bottomGifts);

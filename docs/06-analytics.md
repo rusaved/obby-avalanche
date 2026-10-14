@@ -62,6 +62,8 @@
 | подарок дня у базы | `daily_claim`, параметр `from`: `base` или `window` | «Забрать» у коробки на базе или в окне календаря (строка 18 таблицы выше, тот же `day`) | always | доля `base` растёт у вернувшихся |
 | ярлык на рабочий стол | `shortcut_ok` | `main.ts`: награда за ярлык при согласии игрока (`03` SDK-08) | player | доля от показов кнопки |
 | сообщество игры | `community_open`, параметр `to` (`telegram`, `vk`) | `main.ts`: нажатие кнопки канала сбоку окна паузы (`03` 4.1, Q-054) | always | — |
+| подарок за подписку | `community_gift`, параметр `to` (`telegram`, `vk`) | `main.ts`: яйцо выдано по возврату в игру после «Перейти» карточки «Яйцо за подписку» (FM-16) | always | доля от `community_open` |
+| подарок за отзыв | `review_gift` | `main.ts`: сундук выдан за отправленный отзыв (`feedbackSent`, FM-16) | player | доля от показов карточки |
 
 Имена `gameReady`, `gameTutorialStart`, `gameTutorialComplete` и `params.levelComplete` — стандартные из документации Яндекса, остальные — наши.
 
@@ -123,9 +125,9 @@ ym(counterId, 'reachGoal', name, {
    - техника (1): `sdk_init_slow`;
    - реклама (11): `gameRewardedRequest`, `gameRewardedOpen`, `gameRewardedEarned`, `gameRewardedClose`, `gameRewardedError`, `ad_resume_ok`, `gameFullscreenRequest`, `gameFullscreenOpen`, `gameFullscreenClose`, `gameFullscreenError`, `quit_after_inter`;
    - простор (11, темп `open`): `ridge_1`, `ridge_2`, `ridge_3`, `boss_enter`, `boss_passed`, `boss_caught`, `record_up`, `boss_bot_caught`, `helper_hit`, `event_snowball`, `event_blizzard`;
-   - база (4, темп `open`): `base_first`, `base_portal`, `shortcut_ok`, `community_open` (`daily_claim` уже в воронке);
+   - база (6, темп `open`): `base_first`, `base_portal`, `shortcut_ok`, `community_open`, `community_gift`, `review_gift` (`daily_claim` уже в воронке);
    - покупки (4, только если они включены): `gameOfferView`, `gamePurchaseStart`, `gamePurchaseSuccess`, `gamePurchaseError`;
-   - итого 52 цели, с покупками 56.
+   - итого 54 цели, с покупками 58.
 4. Отчёты «Воронка»: «Отчёты» → «Создать отчёт» → «Воронка», условие шага — «Достижение JS-цели», окно 30 минут, сегмент — только новые посетители. В воронке Метрики не больше 10 шагов, и шаги засчитываются по порядку: если шаг 3 случился раньше шага 2, игрок из воронки выпадает. Поэтому отчётов три, и в каждом только шаги, порядок которых держит сама игра:
    - «Первая минута»: `load_start` → `gameReady` → `first_input` → `gameTutorialStart` → `gate_1` → `gate_2` → `gate_3` → `first_wave_survived` → `treadmill_first` → `gate_4`;
    - «Гора 1»: `gate_4` → `gate_6` → `gate_9` → `gameTutorialComplete`;

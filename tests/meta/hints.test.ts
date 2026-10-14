@@ -94,6 +94,9 @@ describe('hint plaques (M2-08)', () => {
     expect(run(h, { stuckWay: true, moving: true, inShelter: true }, 0.2, clock)).toBeNull();
     expect(run(h, { nearClosedGate: true }, timing.stuckSec + 0.5, clock)).toBe('hint.stuck');
     expect(run(h, { moving: true }, 0.2, clock)).toBeNull();
+    // Producer 14.10: sliding along the closed gate (moving, not climbing) counts as stuck; climbing does not.
+    expect(createHints(timing, {}).update({ ...idle, playSec: 300, nearClosedGate: true, moving: true, climbing: false }, timing.stuckSec + 0.5)).toBe('hint.stuck');
+    expect(createHints(timing, {}).update({ ...idle, playSec: 300, nearClosedGate: true, moving: true, climbing: true }, timing.stuckSec + 0.5)).toBeNull();
 
     expect(run(h, { nearLedge: true, moving: true }, 0.5, clock)).toBe('hint.jumpPc');
     expect(h.update({ ...idle, playSec: 300, nearLedge: true, jumped: true }, DT)).toBeNull();

@@ -3,6 +3,7 @@
   "coins": {
     "gatePass": 5
   },
+  "gifts": { "respawn": "never" },
   "ui": {
     "summitGroup": { "trophies": 1, "records": 1, "wardrobe": 2, "quests": 2, "rebirth": 3, "shortcut": 2 }
   },

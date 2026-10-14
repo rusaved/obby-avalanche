@@ -32,6 +32,7 @@
   var authorized = cfg.mock_auth === '1' && cfg.mock_player !== 'lite';
   var adMode = cfg.mock_ad || 'ok';
   var shortcutMode = cfg.mock_shortcut || 'unavailable';
+  var reviewMode = cfg.mock_review || 'sent';
   var initDelay = Number(cfg.mock_init_delay || 0) || 0;
   var timeOffset = Number(cfg.mock_time_offset || 0) || 0;
   var mocks = parseJson(cfg.mocks, {});
@@ -301,8 +302,9 @@
       showPrompt: function () { record('shortcut.showPrompt'); return Promise.resolve({ outcome: shortcutMode === 'accepted' ? 'accepted' : 'rejected' }); },
     },
     feedback: {
-      canReview: function () { record('feedback.canReview'); return Promise.resolve({ value: true }); },
-      requestReview: function () { record('feedback.requestReview'); return Promise.resolve({ feedbackSent: true }); },
+      // ?mock_review=sent|closed|unavailable (FM-16): the review dialog sent, closed without a review, or not offered.
+      canReview: function () { record('feedback.canReview'); return Promise.resolve(reviewMode === 'unavailable' ? { value: false, reason: 'GAME_RATED' } : { value: true }); },
+      requestReview: function () { record('feedback.requestReview'); return Promise.resolve({ feedbackSent: reviewMode === 'sent' }); },
     },
     clipboard: { writeText: function (text) { record('clipboard.writeText', [text]); } },
     screen: { fullscreen: { STATUS_ON: 'on', STATUS_OFF: 'off', status: 'off', request: function () { record('screen.fullscreen.request'); return Promise.resolve(); }, exit: function () { record('screen.fullscreen.exit'); return Promise.resolve(); } } },

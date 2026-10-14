@@ -153,20 +153,24 @@ describe('avalanche on the open slope (PS-06)', () => {
     expect(threat.state.outcome).toBe('safe');
   });
 
-  it('at the fork the scripted wave lights the grotto of the hero’s lane and follows him to the other one (playtest PS)', () => {
+  it('at the fork the scripted wave lights the grotto of the hero’s lane and follows him to the other one (playtest PS); straight up the axis — the rock on the axis (Q-064)', () => {
     const threat = createThreat(level, { threat: { ...w1.threat }, balance, avalanche: tuning.avalanche, scriptedPending: true, normalWavesDone: 0 }, () => {});
-    // The lowest shelter of section 2 (SP-04: on mountain 1 its row is rocks by the lanes, listed after the edge grottos).
+    // The lowest shelter of section 2 (SP-04: on mountain 1 its row is rocks by the lanes, listed after the edge grottos;
+    // with the rock on the axis between them, Q-064).
     const first2 = level.niches[firstShelter(level, 2)]!;
     const row = level.niches.flatMap((n, i) => (n.stretch === 2 && n.z === first2.z ? [i] : []));
-    expect(row).toHaveLength(2);
+    expect(row).toHaveLength(3);
+    const midX = (i: number): number => (level.niches[i]!.box.min[0] + level.niches[i]!.box.max[0]) / 2;
+    const [left, axis, right] = [...row].sort((a, b) => midX(a) - midX(b)) as [number, number, number];
     const open = level.gates.map(() => true);
     const z = first2.z - balance.ftue.triggerDist + 1;
-    threat.step(DT, { x: 16, y: 0, z, vx: 0, vz: 0 }, open, 1);
+    threat.step(DT, { x: midX(right), y: 0, z, vx: 0, vz: 0 }, open, 1);
     expect(threat.state.scripted).toBe(true);
-    expect(level.niches[threat.state.shelter]!.side).toBe('right');
-    threat.step(DT, { x: -16, y: 0, z: z + 2, vx: 0, vz: 0 }, open, 2);
-    expect(level.niches[threat.state.shelter]!.side).toBe('left');
-    expect(row).toContain(threat.state.shelter);
+    expect(threat.state.shelter).toBe(right);
+    threat.step(DT, { x: midX(left), y: 0, z: z + 2, vx: 0, vz: 0 }, open, 2);
+    expect(threat.state.shelter).toBe(left);
+    threat.step(DT, { x: 0, y: 0, z: z + 4, vx: 0, vz: 0 }, open, 3);
+    expect(threat.state.shelter).toBe(axis);
   });
 
   it('the free egg of that wave stands in its grotto with no belt, by the back wall; in the other lane’s grotto too (PS-10)', () => {

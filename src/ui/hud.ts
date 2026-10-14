@@ -20,7 +20,7 @@ export interface HudOptions {
   onContinue: () => void;
   /** The channels of the game by the side of the pause window (docs/01-gdd.md 19.10, Q-054): their ids in order
    * (telegram, vk), a button each; `open` — the press; absent or empty — no block. */
-  community?: { ids: readonly string[]; open: (id: string) => void };
+  community?: { ids: readonly string[]; open: (id: string) => void; gifts?: CommunityGiftCards };
   onAutoRun: (on: boolean) => void;
   onQuality: (level: 'auto' | 'low' | 'medium' | 'high') => void;
   /** Coin plaque colour (theme.json ui.coins). */
@@ -93,8 +93,19 @@ export interface ShoesButtonState {
   progress: number;
 }
 
+/** FM-16: the cards «Egg for subscribing» (one a channel) and «Chest for a review» under the channels, hidden until
+ * setCommunityGifts shows them. */
+export interface CommunityGiftCards {
+  subscribe: boolean;
+  review: boolean;
+  onSubscribe(id: string): void;
+  onReview(): void;
+}
+
 export interface Hud {
   root: HTMLElement;
+  /** FM-16: which gift cards stand by the pause window: channels whose gift is not given yet, the review card. */
+  setCommunityGifts(s: { subscribe: readonly string[]; review: boolean }): void;
   setTouchMode(touch: boolean): void;
   setAutoRun(on: boolean): void;
   setQuality(level: 'auto' | 'low' | 'medium' | 'high'): void;
@@ -532,7 +543,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   pauseMain.appendChild(howto);
 
   // «Promo codes and bonuses in the channel» (docs/01-gdd.md 19.10, Q-054): a button a channel, a new tab, nothing given.
-  if (opts.community && opts.community.ids.length > 0) {
+  // FM-16: under each its card «Egg for subscribing», under them «Chest for a review» (hidden until setCommunityGifts).
+  const giftCards = new Map<string, HTMLElement>();
+  const gifts = opts.community?.gifts;
+  if (opts.community && (opts.community.ids.length > 0 || gifts?.review)) {
     const side = el('div', 'pause-side');
     side.dataset['role'] = 'community';
     side.appendChild(el('div', 'pause-side-cap', t('community.caption')));
@@ -541,6 +555,22 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       b.dataset['hud'] = `community-${id}`;
       b.addEventListener('click', () => opts.community?.open(id));
       side.appendChild(b);
+      if (gifts?.subscribe) {
+        const c = el('button', `card-btn community community-gift ${id}`, t('communityGift.subscribe'));
+        c.dataset['hud'] = `gift-sub-${id}`;
+        c.hidden = true;
+        c.addEventListener('click', () => gifts.onSubscribe(id));
+        side.appendChild(c);
+        giftCards.set(`sub-${id}`, c);
+      }
+    }
+    if (gifts?.review) {
+      const c = el('button', 'card-btn community community-gift review', t('communityGift.review'));
+      c.dataset['hud'] = 'gift-review';
+      c.hidden = true;
+      c.addEventListener('click', () => gifts.onReview());
+      side.appendChild(c);
+      giftCards.set('review', c);
     }
     pausePanel.appendChild(side);
   }
@@ -558,6 +588,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     root,
     jumpButton,
     pausePanel,
+    setCommunityGifts(s) {
+      for (const [k, c] of giftCards) c.hidden = k === 'review' ? !s.review : !s.subscribe.includes(k.slice(4));
+    },
     setTouchMode(touch) {
       touchMode = touch;
       root.classList.toggle('touch', touch);

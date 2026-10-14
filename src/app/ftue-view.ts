@@ -146,6 +146,7 @@ export function createFtueView(d: FtueViewDeps): FtueView {
       const frame: HintFrame = {
         playSec: d.save.totalPlaySec ?? 0,
         moving: hero.speed > MOVING_SPEED || sim.onBelt,
+        climbing: hero.vel.z > MOVING_SPEED,
         jumped,
         touch: d.touch(),
         nearLedge,

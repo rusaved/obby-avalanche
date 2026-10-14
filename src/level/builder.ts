@@ -535,6 +535,9 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
         // On the path (taken on the run, a note higher each, docs/01-gdd.md 16.4); over a trampoline.
         if (s['path'] === true) gift['path'] = true;
         if (s['pad'] === true) gift['pad'] = true;
+        // In the air over a trampoline, with the column of its flights (Q-068).
+        if (s['air'] === true) gift['air'] = true;
+        if (Array.isArray(s['col'])) gift['col'] = s['col'];
         points.push(gift);
         break;
       }

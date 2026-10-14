@@ -91,6 +91,14 @@ export class NullPlatform implements Platform {
     return 'rejected';
   }
 
+  async reviewCan(): Promise<boolean> {
+    return false;
+  }
+
+  async reviewAsk(): Promise<boolean> {
+    return false;
+  }
+
   serverTime(): number {
     return Date.now();
   }

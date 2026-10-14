@@ -11,7 +11,7 @@
  * section's multiplier. A fork splits the slope by a cliff into a calm and a bold lane; each lane has its grottos.
  */
 import type { Segment, World, WorldBoss, WorldCover, WorldZone, WorldsSpecJson, OpenSpecJson, OpenSpecMountain, TuningJson } from '../content/types.ts';
-import { PAD_SIZE, SLIDE_LENGTH, SLIDE_WIDTH } from './pad-arc.ts';
+import { PAD_SIZE, SLIDE_LENGTH, SLIDE_WIDTH, flightBand, padArc } from './pad-arc.ts';
 import { blockedFor, chasmFloorY, planSection, pushChasmFloor, pushShapes, type SectionPlan } from './open-shapes.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 import { FLOOR_THICKNESS, PORTAL_WIDTH } from './builder.ts';
@@ -41,6 +41,10 @@ export function round3(x: number): number {
  * rise, the ridge with three passages (ramps of `passLength` up the step, ice `gateHeight` over the lower floor, out of
  * a jump's reach), grottos, the fork of 5–40%, gifts on the path.
  */
+/** Snow between the rock of the first avalanche on the axis and the start of the crevasse past it (nearRun.axis), units. */
+const AXIS_ROCK_GAP = 6;
+/** Free snow below a trampoline before a chasm (the run-up onto it) and past the chasm (the landing), units. */
+const PAD_RUNUP = 12;
 /** A split fork's bridge from a pit's slope to the next pit, units along the run (both lanes meet on it). */
 const SPLIT_BRIDGE = 4;
 
@@ -297,6 +301,9 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
             const sx = s === 'left' ? -1 : 1;
             seg.push({ type: 'island', z: round3(zg), x: round3(sx * (laneX + fw.gap + a / 2)), y, size: a, zone: j, stretch: j, lane: s === bold ? 'bold' : 'calm', first: true });
           }
+          // And one on the axis, open towards the camp (`axis`, producer 14.10): running straight on at the siren leads into
+          // a shelter, not into the crevasse (it starts past this rock).
+          if (fw.axis) seg.push({ type: 'island', z: round3(zg), x: 0, y, size: a, zone: j, stretch: j, first: true, axis: true });
         } else if (fork && zg >= fork[0] && zg <= fork[1]) {
           // On a fork each lane needs its own grotto at its edge.
           seg.push({ ...grottoAt(zg, 'left'), lane: bold === 'left' ? 'bold' : 'calm' });
@@ -421,8 +428,17 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
         const inner = innerX * sb;
         seg.push({ type: 'gap', z: c0, length: C.width, x0: Math.min(inner, sb * half), x1: Math.max(inner, sb * half), y, depth: C.depth, lane: 'bold' });
         // SP-07 (docs/01-gdd.md 20.7): no trampoline before mountain relief.padFrom — the crevasse is a dip to run through.
-        if (index >= (spec.relief?.padFrom ?? 1)) seg.push({ type: 'jumpPad', z: round3(c0 - C.padBefore), x: xb, y, width: PAD_SIZE, length: PAD_SIZE, stretch: j });
-        seg.push(gift(c0 + C.bottom / 2, xb, y - C.depth, sec.gift, { detour: true }));
+        if (index >= (spec.relief?.padFrom ?? 1)) {
+          const pz = round3(c0 - C.padBefore);
+          seg.push({ type: 'jumpPad', z: pz, x: xb, y, width: PAD_SIZE, length: PAD_SIZE, stretch: j });
+          // Its gift on the arc over the crevasse, taken in the column of all the flights up to the top speed (Q-068: on
+          // the bottom the hero flew high over it).
+          const vmin = speedOf(balance, tuning, j >= 2 ? (m.ridges[j - 2] as { requires: number }).requires : carried);
+          const fly = (v: number): ReturnType<typeof padArc> => padArc(pz - PAD_SIZE / 2 + (v / 60) / 2, y, v, tuning!, () => y);
+          const zg = fly(vmin).points.find((q) => q.z >= c0 + C.width / 2)!.z;
+          const col = flightBand(fly, zg, vmin, tuning!.controller.maxSpeed);
+          seg.push(gift(zg, xb, round3((col[0] + col[1]) / 2 - 0.3), sec.gift, { air: true, col }));
+        } else seg.push(gift(c0 + C.bottom / 2, xb, y - C.depth, sec.gift, { detour: true }));
         overHole.push([c0 - C.padBefore - PAD_SIZE / 2 - 1, c1 + 1]);
       }
       const K = O.cliff;
@@ -485,7 +501,12 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       crevasseFloor(c0, c1);
       seg.push({ type: 'floor', z: c1, length: round3(zA - c1), y });
     } else seg.push({ type: 'floor', z: zFlat, length: round3(zA - zFlat), y });
-    if (fork && fs) pushSplit(seg, from, fork, innerX, y, half, spec.forkSplit!, (zg, gx, gy) => gift(zg, gx, gy, sec.gift, { bottom: true, detour: true }));
+    if (fork && fs) {
+      // The rock of the first avalanche on the axis stands on the snow: the crevasse opens past it (nearRun.axis).
+      const axisRock = seg.find((x) => x.type === 'island' && x['axis'] === true && x['stretch'] === j);
+      const cut: [number, number] = axisRock ? [round3(Math.max(fork[0], axisRock.z + (axisRock['size'] as number) / 2 + AXIS_ROCK_GAP)), fork[1]] : fork;
+      pushSplit(seg, from, cut, innerX, y, half, spec.forkSplit!, (zg, gx, gy) => gift(zg, gx, gy, sec.gift, { bottom: true, detour: true }));
+    }
 
     // Gifts on the path (docs/01a-content.md 16.2): 12 a section, taken on the run; on a fork one on each lane, the bold one ×2.
     // With elements (docs/01-gdd.md 18.3): on the bottom of a chasm, ×fieldGifts on the field past a throat, none inside
@@ -549,7 +570,11 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       const step = isl.every * sec.shelterEvery;
       const lo = (taper ? taper[1] : zFlat) + isl.size;
       const hi = zA - isl.size;
+      // Nor on the trampolines before a chasm with their run-up, nor on the landing past it (Q-068: a rock stood on the
+      // side one of mountains 4 and 7).
+      const pads: Array<[number, number]> = plan?.chasm ? [[plan.chasm.z0 - spec.shapes!.chasm.padBefore - PAD_SIZE / 2 - PAD_RUNUP - isl.size / 2, plan.chasm.z1 + PAD_RUNUP + isl.size / 2]] : [];
       const busyOn = (side: 'left' | 'right'): Array<[number, number]> => [
+        ...pads,
         ...(plan ? blockedFor(plan, side, bold, isl.size) : []),
         ...(fork && plainFork && side === bold ? [[fork[0] - isl.size, fork[1] + isl.size] as [number, number]] : []),
       ];

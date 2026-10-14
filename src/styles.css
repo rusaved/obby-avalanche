@@ -358,6 +358,9 @@ canvas.fallback {
 .pause-side { flex: 0 1 170px; display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 12px; background: #dde9f5; text-align: center; }
 .pause-side-cap { font-size: 13px; font-weight: 800; line-height: 1.25; }
 .pause-side .community { display: block; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* FM-16: the gift cards under the channels, gold like a gift; hidden until there is a gift to give. */
+.pause-side .community-gift { background: #ffb800; color: #1b2a3a; white-space: normal; line-height: 1.15; }
+.pause-side .community[hidden] { display: none; }
 @media (max-width: 700px) { .pause-side { flex: 1 1 100%; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: center; } .pause-side-cap { flex: 1 1 100%; } .pause-side .community { flex: 1 1 120px; width: auto; } }
 /* A new HUD button shines once (docs/01-gdd.md 6.4). */
 .hud-menu-btn.glow { animation: menu-glow 1.4s ease-out 1; }

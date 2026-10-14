@@ -10,7 +10,7 @@
  * tunnel. Every part of an element carries `shape` (its kind), so the bold lane of a plain fork stays countable.
  */
 import type { OpenShapes, Segment, ShapeKind, TuningJson } from '../content/types.ts';
-import { PAD_SIZE, padArc } from './pad-arc.ts';
+import { PAD_SIZE, flightBand, padArc } from './pad-arc.ts';
 
 /** Slots of an element as shares of the section (docs/01-gdd.md 18.6). */
 export const SLOTS = {
@@ -225,15 +225,19 @@ export function pushShapes(seg: Segment[], c: ShapeContext): void {
     const pz = round3(ch.z0 - c.shapes.chasm.padBefore);
     const px = c.padX ?? c.laneX + 2;
     for (const x of [-px, 0, px]) seg.push({ type: 'jumpPad', z: pz, x, y, width: PAD_SIZE, length: PAD_SIZE, stretch: j, shape: 'chasm' });
-    // Gifts in the air over the middle trampoline at the minimum speed, and on the bottom (docs/01a-content.md 17.2).
-    const rear = pz - PAD_SIZE / 2 + (c.vmin / 60) / 2;
-    const arc = padArc(rear, y, c.vmin, c.tuning, () => y);
+    // Gifts in the air over every trampoline along its arc (Q-068): spaced along the flight at the minimum speed, each
+    // halfway up the column of all the flights up to the top speed and taken anywhere in it; and on the bottom
+    // (docs/01a-content.md 17.2).
+    const fly = (v: number): ReturnType<typeof padArc> => padArc(pz - PAD_SIZE / 2 + (v / 60) / 2, y, v, c.tuning, () => y);
+    const arc = fly(c.vmin);
     const air = c.shapes.chasm.giftsAir;
-    for (let k = 0; k < air; k++) {
-      const zg = ch.z0 + (W * (k + 1)) / (air + 1);
-      const p = arc.points.find((q) => q.z >= zg) ?? arc.points[arc.points.length - 1]!;
-      seg.push(gift(p.z, 0, p.y - 0.3, { air: true }));
-    }
+    for (const x of [-px, 0, px])
+      for (let k = 0; k < air; k++) {
+        const zg = ch.z0 + (W * (k + 1)) / (air + 1);
+        const p = arc.points.find((q) => q.z >= zg) ?? arc.points[arc.points.length - 1]!;
+        const col = flightBand(fly, p.z, c.vmin, c.tuning.controller.maxSpeed);
+        seg.push(gift(p.z, x, (col[0] + col[1]) / 2 - 0.3, { air: true, col }));
+      }
     const sb = c.bold === 'left' ? -1 : 1;
     const bottomX = [-9, 9, sb * 24];
     // On the bottom by the foot of the ramp: where a hero running off the edge comes down (and takes the one in his lane).
@@ -262,13 +266,15 @@ export function pushShapes(seg: Segment[], c: ShapeContext): void {
     seg.push({ type: 'slide', z: round3(hu.z0 + H.slideLength / 2), x: xm, y, width: w, length: H.slideLength, rise: hu.rise, stretch: j, shape: 'hump' });
     seg.push({ type: 'jumpPad', z: hu.padZ, x: xm, y: yTop, width: w, length: PAD_SIZE, forward: hu.forward, slide: true, stretch: j, shape: 'hump' });
     // Six gifts along the flight at the minimum speed of the section (docs/01a-content.md 17.2), over the middle of the
-    // hump (SP-04: it is as wide as the bold half of its section).
-    const arc = humpArc(hu.padZ - PAD_SIZE / 2, yTop, c.vmin, hu.forward, c.tuning, () => y);
+    // hump (SP-04: it is as wide as the bold half of its section); halfway up their flight column (Q-068).
+    const fly = (v: number): ReturnType<typeof padArc> => humpArc(hu.padZ - PAD_SIZE / 2, yTop, v, hu.forward, c.tuning, () => y);
+    const arc = fly(c.vmin);
     const T = arc.points[arc.points.length - 1]!.t;
     for (let k = 0; k < H.giftsAir; k++) {
       const t = T * (0.15 + (0.7 * k) / Math.max(1, H.giftsAir - 1));
       const p = arc.points.find((q) => q.t >= t) ?? arc.points[arc.points.length - 1]!;
-      seg.push(gift(p.z, xm, p.y - 0.3, { air: true }));
+      const col = flightBand(fly, p.z, c.vmin, c.tuning.controller.maxSpeed);
+      seg.push(gift(p.z, xm, (col[0] + col[1]) / 2 - 0.3, { air: true, col }));
     }
   }
 }

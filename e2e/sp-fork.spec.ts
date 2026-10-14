@@ -75,11 +75,13 @@ test('dropped on the bottom of the crevasse: out up its slope within 4 s, no fal
     window.__TEST__!.setStat(st);
   }, ridge2.requires!);
   const y = (fork as { y?: number }).y ?? 0;
-  // The middles of its first, middle and last pits (01a 19.3: pits at most 60 long, a slope and a bridge 10 at their ends).
-  const n = Math.ceil(fork.length! / 60);
-  const P = fork.length! / n;
-  for (const k of [...new Set([0, Math.floor(n / 2), n - 1])]) {
-    const z = fork.z + k * P + (P - 10) / 2;
+  // The middles of its first, middle and last pits (01a 19.3: pits at most 60 long, a slope and a bridge 10 at their ends;
+  // the first opens past the rock on the axis, Q-064) — their bottoms as worlds.json lays them.
+  const pits = w.segments
+    .filter((s) => s.type === 'floor' && (s as { split?: boolean }).split === true && (s as { y?: number }).y! < y && s.z >= fork.z && s.z < fork.z + fork.length!)
+    .sort((a, b) => a.z - b.z);
+  for (const k of [...new Set([0, Math.floor(pits.length / 2), pits.length - 1])]) {
+    const z = pits[k]!.z + (pits[k] as { length?: number }).length! / 2;
     await page.evaluate((zz) => window.__TEST__!.teleport(zz, 0), z);
     // Down onto the bottom (3 units: about half a second).
     await waitTicks(page, 40);

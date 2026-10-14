@@ -81,6 +81,8 @@ export const FX_VALUES = {
   treadmill: ['snowWhirl'],
 } as const;
 
+/** A gift of the pause cards (FM-16): an egg or coins of N gifts of the player's zone. */
+const communityGift = v.variant('kind', [v.object({ kind: v.literal('egg'), id: v.string() }), v.object({ kind: v.literal('coins'), gifts: positive })]);
 /** A community address of game.json (Q-054): https or empty (no button). */
 const communityUrl = v.union([v.literal(''), v.pipe(v.string(), v.regex(/^https:\/\/[^\s"'<>]+$/, 'expected an https address or empty'))]);
 const gameSchema = v.object({
@@ -108,6 +110,7 @@ const gameSchema = v.object({
   // The leaderboard scores by a whole counter of the save (trophies over all time), never by the stat (docs/01-gdd.md 7.9, 8.4).
   leaderboard: v.nullable(v.object({ name: v.string(), score: v.picklist(LEADERBOARD_SCORES) })),
   community: v.optional(v.strictObject({ telegram: v.optional(communityUrl), vk: v.optional(communityUrl) })),
+  communityGifts: v.optional(v.strictObject({ subscribe: v.optional(communityGift), review: v.optional(communityGift) })),
   shortcut: v.optional(
     v.object({ enabled: v.boolean(), reward: v.object({ trophies: v.pipe(v.number(), v.integer(), v.minValue(0)) }), fromSummit: v.pipe(v.number(), v.integer(), v.minValue(1)), place: v.literal('base') }),
   ),
@@ -245,7 +248,7 @@ const balanceSchema = v.object({
     unlock: v.string(),
   }),
   trophies: v.object({ perSummit: v.string() }),
-  gifts: v.object({ perZone: v.pipe(v.number(), v.integer(), v.minValue(1)), respawn: v.literal('onWaveGone') }),
+  gifts: v.object({ perZone: v.pipe(v.number(), v.integer(), v.minValue(1)), respawn: v.picklist(['onWaveGone', 'never']) }),
   coins: v.object({ gatePass: positive, waveSurvived: positive, chest: positive }),
   pets: v.object({ slots: v.pipe(v.number(), v.integer()), inventory: v.pipe(v.number(), v.integer()) }),
   boost: v.object({ x2Sec: positive, x2Mult: positive, statNowSec: positive }),
@@ -528,7 +531,7 @@ const openSpecSchema = v.object({
   island: v.optional(v.object({ size: positive, every: positive, minWidth: positive })),
   forkSplit: v.optional(v.object({ depth: positive, rampEvery: positive, converge: nonNeg, bottomGifts: nonNeg })),
   relief: v.optional(v.object({ approachSlope: v.pipe(v.number(), v.gtValue(0), v.maxValue(0.5)), passSlope: v.pipe(v.number(), v.gtValue(0), v.maxValue(1)), padFrom: v.optional(positive) })),
-  nearRun: v.optional(v.object({ mountain: positive, section: positive, gap: nonNeg })),
+  nearRun: v.optional(v.object({ mountain: positive, section: positive, gap: nonNeg, axis: v.optional(v.boolean()) })),
   spawnZ: nonNeg,
   threat: v.object({
     spawnAhead: positive,

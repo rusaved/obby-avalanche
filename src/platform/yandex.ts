@@ -287,6 +287,28 @@ export class YandexPlatform implements Platform {
     }
   }
 
+  async reviewCan(): Promise<boolean> {
+    if (!this.sdk || this.reviewAsked) return false;
+    try {
+      return (await this.sdk.feedback.canReview()).value === true;
+    } catch (err) {
+      log.warn('feedback.canReview failed', err);
+      return false;
+    }
+  }
+
+  async reviewAsk(): Promise<boolean> {
+    if (!this.sdk || this.reviewAsked) return false;
+    // One review dialog a session, whoever asks (03 SDK-07).
+    this.reviewAsked = true;
+    try {
+      return (await this.sdk.feedback.requestReview()).feedbackSent === true;
+    } catch (err) {
+      log.warn('feedback.requestReview failed', err);
+      return false;
+    }
+  }
+
   async shortcutCanShow(): Promise<boolean> {
     if (!this.sdk) return false;
     try {

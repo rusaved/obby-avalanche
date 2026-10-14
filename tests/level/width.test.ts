@@ -174,12 +174,17 @@ describe('SP-04: the width of the slope by sections', () => {
     }
   });
 
-  it('the first avalanche of mountain 1 (20.4): its grottos are rocks by the lanes, their mouths ≤ 30 units off the lane lines', () => {
+  it('the first avalanche of mountain 1 (20.4): its grottos are rocks by the lanes, their mouths ≤ 30 units off the lane lines; and one on the axis (nearRun.axis)', () => {
     const w = worlds.worlds[0]!;
     const level = buildLevel(w);
     const first = firstShelter(level, balance.ftue.scriptedWaveWall);
-    const row = level.niches.filter((n) => n.stretch === level.niches[first]!.stretch && n.z === level.niches[first]!.z);
-    expect(row.map((n) => n.kind)).toEqual(['island', 'island']);
+    const all = level.niches.filter((n) => n.stretch === level.niches[first]!.stretch && n.z === level.niches[first]!.z);
+    expect(all.map((n) => n.kind)).toEqual(['island', 'island', 'island']);
+    // Producer 14.10: running straight on at the siren leads into a rock on the axis, open towards the camp.
+    const axis = all.find((n) => Math.abs((n.box.min[0] + n.box.max[0]) / 2) < 1e-6)!;
+    expect(axis).toBeDefined();
+    expect(entranceX(level, axis)).toBeCloseTo(0, 6);
+    const row = all.filter((n) => n !== axis);
     expect(row.map((n) => n.lane).sort()).toEqual(['bold', 'calm']);
     // SP-05: the lanes of the split fork there, their middles.
     const f = level.forks.find((x) => x.z0 <= row[0]!.z && x.z1 >= row[0]!.z)!;

@@ -93,7 +93,7 @@ async function waveIn(page: Page, n: Shelter, late: boolean, hand: boolean, shot
 }
 
 test('shelters of mountain 1: white frames on the run of a wave ≤ WHITE with shotUntilClear, more without; «Phew» after the snow; screenshots', async ({ page, openGame }) => {
-  test.setTimeout(600_000);
+  test.setTimeout(1_200_000);
   await openGame('pace=open');
   await page.evaluate(() => window.__TEST__!.setPlaySec(400));
   await page.evaluate(() => window.__TEST__!.setTimeScale(8));

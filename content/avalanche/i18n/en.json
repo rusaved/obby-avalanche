@@ -359,5 +359,12 @@
   "toast.shortcutOk": "Shortcut added! +{n} trophies",
   "community.caption": "Promo codes and bonuses in our channel",
   "community.telegram": "Telegram",
-  "community.vk": "VK"
+  "community.vk": "VK",
+  "communityGift.subscribe": "Egg for subscribing",
+  "communityGift.review": "Chest for a review",
+  "communityGift.title": "A gift for subscribing",
+  "communityGift.text": "Subscribe to the game's community and get an egg!",
+  "communityGift.go": "Go",
+  "toast.communityGift": "Thanks for subscribing! Here's an egg",
+  "toast.reviewGift": "Thanks for the review! Chest: +{n}"
 }

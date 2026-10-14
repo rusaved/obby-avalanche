@@ -575,8 +575,11 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
           if (front <= campTop) {
             phase = 'idle';
             phT = th.intervalSec;
-            giftsLeft = giftsPerZone;
-            for (const pg of pathGifts) pg.taken = false;
+            // Back after the wave (gifts.respawn); "never" — only a new visit of the mountain (Q-068).
+            if (balance.gifts.respawn !== 'never') {
+              giftsLeft = giftsPerZone;
+              for (const pg of pathGifts) pg.taken = false;
+            }
             if (caughtThisWave === 0 || isScriptedWave) {
               C += balance.coins.waveSurvived * gift;
               if (hidWave || isScriptedWave) rewards.push(T);

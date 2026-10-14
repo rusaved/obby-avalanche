@@ -101,7 +101,7 @@ export interface Sim {
   /** Gifts of this mountain (M2-04) and the coin balance. */
   readonly gifts: Gift[];
   coins: number;
-  /** Puts every gift back (`balance.gifts.respawn: "onWaveGone"`). */
+  /** Puts every gift back (`balance.gifts.respawn: "onWaveGone"`; `"never"` — not on a wave). */
   respawnGifts(): void;
   /** The avalanche of this mountain (M2-06); null when the sim runs without a threat (unit tests of other parts). */
   readonly threat: Threat | null;

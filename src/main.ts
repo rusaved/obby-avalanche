@@ -123,6 +123,13 @@ async function boot(): Promise<void> {
   // The channels of the game (Q-054): those with an address, in the order of game.json; `?community=none` (debug builds)
   // — none, for the e2e of the pause window without them.
   const community = debugParams.get('community') === 'none' ? [] : Object.entries(game.community ?? {}).filter(([, url]) => !!url) as Array<[string, string]>;
+  /** A channel by the player's press (P1, Q-054): the only window.open of the code, in a new tab; FM-16 goes through it too. */
+  const openCommunity = (id: string): void => {
+    const url = community.find(([k]) => k === id)?.[1];
+    if (!url) return;
+    window.open(url, '_blank', 'noopener,noreferrer');
+    track('community_open', { to: id });
+  };
   // `?leaderboard=` (debug builds): a leaderboard name for the e2e of the records (game.json has none yet, M4-06).
   const platformOpts: PlatformOptions = { packId: game.id, leaderboardName: debugParams.get('leaderboard') ?? game.leaderboard?.name ?? '', track };
   const platform = await createPlatform(platformOpts);
@@ -681,6 +688,8 @@ async function boot(): Promise<void> {
         return;
       }
       const panel = hud.pausePanel;
+      syncGiftCards();
+      askReviewCan();
       windows.open('pause', t('game.title'), (body) => body.appendChild(panel), { next: false, fitTitle: true });
       track('menu_open');
     },
@@ -1012,6 +1021,88 @@ async function boot(): Promise<void> {
       trackOnce('shortcut_ok');
       hud?.toast(t('toast.shortcutOk', { n: shortcutCfg.reward.trophies }), 3, true);
       persist(true);
+    });
+  };
+  /**
+   * Gifts for subscribing and for a review (FM-16, producer 14.10): by the channels of the pause window a card «Egg for
+   * subscribing» a channel until its gift is given; its window's «Go» opens the channel (the one window.open, as the
+   * channel button) and the gift comes once the player is back in the game (away — blur or hidden, back — focus or
+   * visible): a subscription cannot be checked, the save flag gives it once a channel. «Chest for a review» — while the
+   * platform can ask for a review (asked once a session) and its chest was never given; the chest only for a sent review.
+   * A coins gift waits for a mountain (the base has no gifts to count them by).
+   */
+  const communityGifts = game.communityGifts ?? {};
+  let reviewCan: boolean | null = null;
+  let subAway: { id: string; away: boolean } | null = null;
+  const giftFlag = (k: string): boolean => save.flags?.[k] ?? false;
+  const giftReady = (r: { kind: string; gifts?: number } | undefined): boolean => !!r && (r.kind !== 'coins' || rewards.coinsOf(1) > 0);
+  const syncGiftCards = (): void => {
+    hud?.setCommunityGifts({
+      subscribe: giftReady(communityGifts.subscribe) ? community.map(([id]) => id).filter((id) => !giftFlag(`giftSub_${id}`)) : [],
+      review: giftReady(communityGifts.review) && reviewCan === true && !giftFlag('giftReview'),
+    });
+  };
+  const askReviewCan = (): void => {
+    if (!communityGifts.review || reviewCan !== null || giftFlag('giftReview')) return;
+    reviewCan = false;
+    void platform.reviewCan().then((ok) => {
+      reviewCan = ok;
+      syncGiftCards();
+    });
+  };
+  const subscribeGift = (id: string): void => {
+    windows?.open(
+      'communityGift',
+      t('communityGift.title'),
+      (body) => {
+        const p = document.createElement('p');
+        p.className = 'rb-text';
+        p.textContent = t('communityGift.text');
+        body.appendChild(p);
+      },
+      {
+        next: t('communityGift.go'),
+        onNext: () => {
+          subAway = { id, away: false };
+          openCommunity(id);
+          windows?.close();
+        },
+      },
+    );
+  };
+  const subscribeBack = (): void => {
+    const id = subAway?.id;
+    subAway = null;
+    const gift = communityGifts.subscribe;
+    if (!id || !gift || giftFlag(`giftSub_${id}`)) return;
+    save.flags = { ...(save.flags ?? {}), [`giftSub_${id}`]: true };
+    hud?.toast(t('toast.communityGift'), 3, true);
+    rewards.give(gift);
+    track('community_gift', { to: id });
+    persist(true);
+    syncGiftCards();
+  };
+  window.addEventListener('blur', () => void (subAway && (subAway.away = true)));
+  window.addEventListener('focus', () => void (subAway?.away && subscribeBack()));
+  document.addEventListener('visibilitychange', () => {
+    if (!subAway) return;
+    if (document.hidden) subAway.away = true;
+    else if (subAway.away) subscribeBack();
+  });
+  const reviewGift = (): void => {
+    const gift = communityGifts.review;
+    if (!gift) return;
+    void platform.reviewAsk().then((sent) => {
+      reviewCan = false;
+      if (sent && !giftFlag('giftReview')) {
+        save.flags = { ...(save.flags ?? {}), giftReview: true };
+        const n = gift.kind === 'coins' ? rewards.coinsOf(gift.gifts) : 0;
+        rewards.give(gift);
+        hud?.toast(t('toast.reviewGift', { n: formatNumber(n, numSuffix) }), 3, true);
+        trackOnce('review_gift');
+        persist(true);
+      }
+      syncGiftCards();
     });
   };
   const openMenuWindow = (id: string): void => {
@@ -1394,12 +1485,8 @@ async function boot(): Promise<void> {
       ? {
           community: {
             ids: community.map(([id]) => id),
-            open: (id: string) => {
-              const url = community.find(([k]) => k === id)?.[1];
-              if (!url) return;
-              window.open(url, '_blank', 'noopener,noreferrer');
-              track('community_open', { to: id });
-            },
+            open: openCommunity,
+            gifts: { subscribe: !!communityGifts.subscribe, review: !!communityGifts.review, onSubscribe: subscribeGift, onReview: reviewGift },
           },
         }
       : {}),

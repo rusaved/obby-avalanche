@@ -56,7 +56,7 @@ describe('sections of the open slope (PS-08)', () => {
     expect(s.hero.pos.y).toBeCloseTo(gap['y'] as number, 1);
   });
 
-  it('the chest of the grotto gives 10 × the gift of its section and is back after the avalanche is gone', () => {
+  it('the chest of the grotto gives 10 × the gift of its section, once a visit of the mountain (Q-068: gifts.respawn never)', () => {
     const cg = w2.segments.find((s) => s.type === 'chestGrotto')!;
     const zone = w2.zones.find((z) => z.k === cg['zone'])!;
     expect(cg['coins']).toBe(OPEN_SLOPE.chest.gifts * zone.gift);
@@ -71,7 +71,7 @@ describe('sections of the open slope (PS-08)', () => {
     expect(paid).toBe(cg['coins']);
     expect(chest.taken).toBe(true);
     s.events.emit('waveGone', { tick: s.tick });
-    expect(chest.taken).toBe(false);
+    expect(chest.taken).toBe(true);
   });
 
   it('a ledge on top of the cliff shelters the hero: the front passes under him', () => {

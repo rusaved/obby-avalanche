@@ -20,7 +20,8 @@
  "nearRun": {
   "mountain": 1,
   "section": 2,
-  "gap": 4
+  "gap": 4,
+  "axis": true
  },
  "ridgeDigits": {
   "field": 8,
@@ -361,7 +362,7 @@
     },
     {
      "length": 530,
-     "stepMult": 15,
+     "stepMult": 17,
      "shelterEvery": 182,
      "gift": 200,
      "fork": false,

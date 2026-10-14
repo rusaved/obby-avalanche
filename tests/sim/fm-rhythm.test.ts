@@ -20,7 +20,10 @@ const pack = (pace: string | null): ModelPack =>
     trails: read('trails.json'),
     auras: read('auras.json'),
     worlds: (read(pace ? `pace/${pace}/worlds.json` : 'worlds.json') as { worlds: ModelPack['worlds'] }).worlds,
+    // With the base between mountains, as sim:balance runs it since FM-14 (01-gdd 19.2: base.json transitSec).
+    ...(pace && existsSync(resolve(root, 'content/avalanche', `pace/${pace}/base.json`)) ? baseOf(read(`pace/${pace}/base.json`) as { enabled: boolean; transitSec: number }) : {}),
   }) as ModelPack;
+const baseOf = (b: { enabled: boolean; transitSec: number }): { base?: { transitSec: number } } => (b.enabled ? { base: { transitSec: b.transitSec } } : {});
 
 describe('FM-05: rhythm of the first minutes in the model', () => {
   const open = pack('open');
