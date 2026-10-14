@@ -67,12 +67,13 @@ export function createWaveView(d: WaveViewDeps): WaveView {
   const av = d.tuning.avalanche;
   const p = new Vector3();
   let shotCave = -1;
+  /** The frame of shotCave is the avalanche one (avalanche.waveShot) — it is set anew when that changes. */
+  let shotWave = false;
   /** The cave of the last wide frame: its parts stay hidden while the camera blends back. */
   let wallCave = -1;
   // The frame point behind the back wall (pos[0] > 1) or over the roof (pos[1] > 1): that part is not drawn.
-  const cutParts: CavePart[] = [];
-  if (av.caveShot.pos[0] > 1) cutParts.push('back');
-  if (av.caveShot.pos[1] > 1) cutParts.push('roof');
+  const cutOf = (shot: TuningJson['avalanche']['caveShot']): CavePart[] => [...(shot.pos[0] > 1 ? (['back'] as const) : []), ...(shot.pos[1] > 1 ? (['roof'] as const) : [])];
+  let cutParts: CavePart[] = cutOf(av.caveShot);
   let strongSec = 0;
   /** The player turned the camera by hand on this stay on the belt: his camera until the hero leaves the belt (PR-11). */
   let beltManual = false;
@@ -200,8 +201,9 @@ export function createWaveView(d: WaveViewDeps): WaveView {
         }
         d.camera.shelter = f;
       } else d.camera.shelter = null;
-      const waveShot =
-        inCave >= 0 && !sim.caught && (ts.phase === 'warn' || (running && dz > -av.shotTriggerDist)) && (ts.scripted || !d.manualCamera());
+      // Q-067: held until the whole snow body has passed him (shotUntilClear), not only its front.
+      const holdPast = av.shotTriggerDist + (av.shotUntilClear ? av.bodyLength : 0);
+      const waveShot = inCave >= 0 && !sim.caught && (ts.phase === 'warn' || (running && dz > -holdPast)) && (ts.scripted || !d.manualCamera());
       const belt = inCave >= 0 && !sim.caught && (sim.onBelt || (shotCave === inCave && !sim.hero.onGround));
       // Turned on the belt: the camera input of the last frame, not a turn just before stepping on it.
       if (!belt) beltManual = false;
@@ -210,7 +212,11 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       const wantShot = waveShot || beltShot;
       if (wantShot) {
         const c = sim.level.niches[inCave]!;
-        if (shotCave !== inCave) {
+        // Q-067: on an avalanche with shotUntilClear its own frame (inside the shelter behind the hero), the belt keeps its.
+        const spec = waveShot && av.shotUntilClear && av.waveShot ? av.waveShot : av.caveShot;
+        if (shotCave !== inCave || shotWave !== (spec !== av.caveShot)) {
+          shotWave = spec !== av.caveShot;
+          cutParts = cutOf(spec);
           const sign = c.side === 'left' ? -1 : 1;
           const r = d.tuning.camera.collisionRadius + WALL_CLEARANCE;
           const mouth = entranceX(sim.level, c);
@@ -243,13 +249,14 @@ export function createWaveView(d: WaveViewDeps): WaveView {
             }
             return out;
           };
-          d.camera.fixed = { pos: at(av.caveShot.pos, new Vector3(), true), look: at(av.caveShot.look, new Vector3(), false), fov: av.caveShot.fov };
+          d.camera.fixed = { pos: at(spec.pos, new Vector3(), true), look: at(spec.look, new Vector3(), false), fov: spec.fov };
         }
         shotCave = inCave;
         wallCave = cutParts.length > 0 ? inCave : -1;
       } else if (shotCave >= 0) {
         // Back to the player's view in shotReturnSec (the rig blends out, or cuts when the way is through a wall).
         shotCave = -1;
+        shotWave = false;
         d.camera.fixed = null;
       }
       view.shot = shotCave >= 0 && waveShot;
@@ -258,8 +265,10 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       d.hideCaveParts(wallCave, cutParts);
       if (inCave >= 0 && running && Math.abs(dz) < COVER_DIST && !sim.caught) d.hero.pose = 'cover';
 
-      // Inside the snow body: the body is hidden by the visual, the HUD shows a soft white veil.
-      view.veil = running && d.visual.insideBody(d.camera.camera.position);
+      // Inside the snow body: the body is hidden by the visual, the HUD shows a soft white veil — not while the hero is in a
+      // shelter (shotUntilClear; playtest of «Размах», cycle 3: the camera turned by hand stood in the snow out of the mouth,
+      // and «Phew, made it!» came on white): the snow goes past it, he is seen.
+      view.veil = running && !(av.shotUntilClear && inCave >= 0) && d.visual.insideBody(d.camera.camera.position);
       d.hud.setVeil(view.veil);
     },
   };

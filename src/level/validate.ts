@@ -406,6 +406,8 @@ const tuningSchema = v.object({
     shotDistance: positive,
     shotReturnSec: positive,
     caveShot: v.object({ pos: v.tuple([v.number(), v.number(), v.number()]), look: v.tuple([v.number(), v.number(), v.number()]), fov: v.pipe(v.number(), v.minValue(30), v.maxValue(120)) }),
+    shotUntilClear: v.optional(v.boolean()),
+    waveShot: v.optional(v.object({ pos: v.tuple([v.number(), v.number(), v.number()]), look: v.tuple([v.number(), v.number(), v.number()]), fov: v.pipe(v.number(), v.minValue(30), v.maxValue(120)) })),
     noise: nonNeg,
     bodyLength: positive,
     nearDist: positive,

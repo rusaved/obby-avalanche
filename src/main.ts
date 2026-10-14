@@ -102,6 +102,8 @@ const PLAY_PERSIST_SEC = 5;
 /** A giant this far ahead of the hero in his zone is kept in the view (FM-03); the point it is kept by. */
 const BOSS_KEEP_AHEAD = 2;
 const bossKeep = new Vector3();
+/** Q-067: «Phew, made it!» waiting for the snow to pass the hero (avalanche.shotUntilClear). */
+let survivedShow: (() => void) | null = null;
 
 /**
  * Boot order (docs/02-tech.md 11.2): SDK init without a timeout → language → texts → save → world → first frame →
@@ -497,6 +499,7 @@ async function boot(): Promise<void> {
       save.wavesNormal = normalWavesDone;
       persist();
     });
+    survivedShow = null;
     // The free egg comes on its stand after the scripted wave: with its «Phew, made it!» (docs/01-gdd.md 16.6).
     const showEgg = (): void => {
       const egg = s.giftEgg;
@@ -511,9 +514,14 @@ async function boot(): Promise<void> {
       // The scripted wave passed the hero in a cave (docs/01-gdd.md 4.6): step 9 of docs/06 with «Phew, made it!», so
       // before its egg — on the fast pace the front still runs on for seconds down to the camp (waveEnd below).
       if (scripted) trackOnce('first_wave_survived', { inShelter: true });
-      // With the golden gift: one toast, bigger and golden, both rewards in it (docs/01-gdd.md 4.9).
-      hud?.toast(t('wave.survived', { n: formatNumber(coins, numSuffix) }), gold > 0 ? 3 : 2, gold > 0, undefined, scripted ? showEgg : undefined);
-      if (coins > 0) hud?.setCoins(formatNumber(total, numSuffix));
+      // With the golden gift: one toast, bigger and golden, both rewards in it (docs/01-gdd.md 4.9). Q-067: once the snow
+      // has passed him (avalanche.shotUntilClear), so neither it nor the egg comes while the snow still goes by.
+      const show = (): void => {
+        hud?.toast(t('wave.survived', { n: formatNumber(coins, numSuffix) }), gold > 0 ? 3 : 2, gold > 0, undefined, scripted ? showEgg : undefined);
+        if (coins > 0) hud?.setCoins(formatNumber(total, numSuffix));
+      };
+      if (tuning.avalanche.shotUntilClear) survivedShow = show;
+      else show();
     });
     // Golden gift (M2-12): chime on its warning, carried over the head, saved or popped; docs/06 goldGift params.
     s.events.on('bonusSpawn', () => audio?.play('goldSpawn'));
@@ -1182,6 +1190,15 @@ async function boot(): Promise<void> {
     recordFlag.update(sim.record, renderPos.z);
     bonusVisual?.update(sim.bonus, renderPos, playSec);
     waveView?.update(frameDt, playSec);
+    // Q-067: «Phew, made it!» of the last wave once its snow has passed the hero (or the wave is over).
+    if (survivedShow) {
+      const ts = sim.threat?.state;
+      if (!ts || ts.phase !== 'run' || ts.frontZ + tuning.avalanche.bodyLength < sim.hero.pos.z) {
+        const show = survivedShow;
+        survivedShow = null;
+        show();
+      }
+    }
     const gameDt = (loop.ticks - lastRenderTicks) * loop.step;
     lastRenderTicks = loop.ticks;
     meta?.update();

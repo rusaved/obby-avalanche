@@ -328,7 +328,8 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
           retK = 1;
           runBack = false;
         } else if (dt > 0) {
-          if (runBack && Math.hypot(target.vel.x, target.vel.z) > 1) backYaw = runYaw(target.vel);
+          // Where he runs; stopped on the way back — up the slope (producer 14.10: out of a grotto, W leads up the slope).
+          if (runBack) backYaw = runYaw(target.vel);
           const follow = retFollow && Math.abs(angleDiff(frame.controlYaw, frame.viewYaw)) < 1e-4;
           retK = Math.min(1, retK + dt / Math.max(1e-3, tuning.avalanche.shotReturnSec));
           frame.viewYaw = wrapAngle(retFrom + angleDiff(retFrom, backYaw) * smooth01(retK));
@@ -471,8 +472,12 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
           retFollow = !out;
         }
       }
-      // In the grotto frame a move started keeps the player's movement frame, not the frame's look into the grotto.
-      frame.scripted = tight;
+      // In the grotto frame a move started takes the frame's look, as anywhere (producer 14.10: «after running into a side
+      // grotto the controls are inverted» — kept on the player's frame from before the cut, «back» ran along the grotto
+      // wall, not out of its mouth towards the camera). A move held through the cut goes on its way (the frame is only
+      // taken at a new start). The open slope (backBehind «run»); in the caves of classic and fast «back» runs down the
+      // cave as before.
+      frame.scripted = tight && !behindRun;
       if (tight && rig.shelter) {
         tightPos.copy(rig.shelter.pos);
         tightLook.copy(rig.shelter.look);

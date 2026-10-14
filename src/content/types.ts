@@ -383,6 +383,13 @@ export interface TuningJson {
      * pos[1] > 1 — over the roof, pos[0] > 1 — behind the back wall: that part is not drawn while the frame lasts
      * (PR-07: the cave is too low for the whole hero at ≤ 30% of the frame). */
     caveShot: { pos: [number, number, number]; look: [number, number, number]; fov: number };
+    /** Q-067 (playtest of «Размах», cycle 3: in every shelter the screen went white): the cave frame is held until the whole
+     * snow body has passed the hero, a camera inside a shelter is not in the snow (no veil), and «Phew, made it!» with the
+     * free egg wait for the snow to pass; absent — as before. */
+    shotUntilClear?: boolean;
+    /** Q-067: the cave frame on an avalanche with shotUntilClear (inside the shelter behind the hero, in the coordinates of
+     * caveShot); absent — caveShot. The belt frame outside an avalanche stays caveShot. */
+    waveShot?: { pos: [number, number, number]; look: [number, number, number]; fov: number };
     /** Front surface displacement, units. */
     noise: number;
     /** Snow body behind the front, units uphill. */

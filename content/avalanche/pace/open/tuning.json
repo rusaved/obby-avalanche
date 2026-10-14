@@ -26,6 +26,14 @@
     "back": 4,
     "sec": 1.5
   },
+  "avalanche": {
+   "shotUntilClear": true,
+   "waveShot": {
+    "pos": [0.9, 0.8, 0.9],
+    "look": [-1.0, 0.25, 0.3],
+    "fov": 100
+   }
+  },
   "bossShot": {
     "side": 10,
     "rise": 2,
