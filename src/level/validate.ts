@@ -66,7 +66,7 @@ const curve = v.object({ base: positive, k: nonNeg, max: positive });
 export const STAT_EFFECTS = ['moveSpeed', 'jumpPower', 'gateOnly'] as const;
 export const SEGMENT_TYPES = [
   'floor', 'wall', 'gate', 'niche', 'gap', 'ramp', 'steps', 'treadmill', 'checkpoint', 'coins', 'chest',
-  'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit', 'jumpPad', 'slide', 'fork', 'cliff', 'chestGrotto', 'chasm', 'throat', 'tunnel', 'hump', 'funnel', 'taper', 'island', 'cover',
+  'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit', 'jumpPad', 'slide', 'fork', 'cliff', 'chestGrotto', 'chasm', 'throat', 'tunnel', 'hump', 'funnel', 'taper', 'island', 'cover', 'pit', 'stairs', 'dip',
 ] as const;
 /** Mountain layouts of the generator (docs/01-gdd.md 5.2, 16.3). */
 export const WORLD_LAYOUTS = ['classic', 'gateSide', 'openSlope'] as const;
@@ -252,7 +252,7 @@ const balanceSchema = v.object({
   coins: v.object({ gatePass: positive, waveSurvived: positive, chest: positive }),
   pets: v.object({ slots: v.pipe(v.number(), v.integer()), inventory: v.pipe(v.number(), v.integer()) }),
   boost: v.object({ x2Sec: positive, x2Mult: positive, statNowSec: positive }),
-  caught: v.object({ rollSec: positive, maxSec: v.pipe(v.number(), v.maxValue(2)) }),
+  caught: v.object({ rollSec: positive, maxSec: v.pipe(v.number(), v.maxValue(2)), to: v.optional(v.picklist(['flag', 'caveBelow'])) }),
   threat: v.object({ newbieWaves: v.object({ count: v.pipe(v.number(), v.integer(), v.minValue(0)), warnBonusSec: nonNeg }), resumeSec: positive }),
   niche: v.object({ graceDist: nonNeg, graceMoving: nonNeg }),
   ui: v.object({
@@ -552,6 +552,7 @@ const openSpecSchema = v.object({
     edgeGrottos: v.optional(positive),
   }),
   shapeFrom: v.optional(v.object({ chasm: positive, throat: positive, tunnel: positive, hump: positive })),
+  risk: v.optional(v.object({ fromSection: positive })),
   shapes: v.optional(
     v.object({
       grotto: v.optional(v.object({ width: positive, fromWorld: positive })),

@@ -58,7 +58,7 @@ describe('giant (PS-07)', () => {
     }
   });
 
-  it('slower: the giant catches him, he is back at the start of the zone within caught.maxSec; Speed, coins and frontier stay', () => {
+  it('slower: the giant catches him, he is back at the flag of the last ridge within caught.maxSec (RL-02); Speed, coins and frontier stay', () => {
     const { s, events } = climb(w1, statFor(0.97), 3);
     s.teleport(0, s.level.floorAt(0, zone[0] - 10), zone[0] - 10);
     const frontier = s.gatesPassed.map(Boolean);
@@ -71,8 +71,10 @@ describe('giant (PS-07)', () => {
     for (let i = 0; i < balance.caught.maxSec * 60 + 2; i++) s.step({ moveX: 0, moveZ: 0, jump: false, jumpHeld: false }, DT);
     expect(events).toContain('caughtEnd');
     expect(s.caught).toBeNull();
+    // RL-02 (docs/01-gdd.md 21.2): the flag past the last ridge, the start of the finish straight.
+    const flag = s.level.checkpoints.find((c) => c.wall === 3)!;
+    expect(Math.abs(s.hero.pos.z - flag.z)).toBeLessThan(0.5);
     expect(s.hero.pos.z).toBeLessThan(zone[0]);
-    expect(s.hero.pos.z).toBeGreaterThan(zone[0] - 10);
     // Steps while rolling back count nothing; the catch takes nothing away.
     expect(s.progress.stat).toBeGreaterThanOrEqual(stat);
     expect(s.coins).toBe(coins);

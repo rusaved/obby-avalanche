@@ -265,6 +265,16 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   const tunnels = level.niches.flatMap((n, i) => (n.kind === 'tunnel' ? [i] : []));
   let inChasm = false;
   let inTunnel = false;
+  // RL-02 (docs/01-gdd.md 21.2): `caught.to` «flag» — a fall (below killY or into a pit), «Snowed in!» and the giant's
+  // slap roll the hero to the flag of the ridge below (the camp before the first); the avalanche pauses again from zero.
+  const toFlag = opts.balance.caught?.to === 'flag';
+  const pits = (level.shapes ?? []).filter((c) => c.kind === 'pit');
+  const inPit = (): boolean => pits.some((q) => hero.pos.y < q.y && hero.pos.x > q.x0 && hero.pos.x < q.x1 && hero.pos.z > q.z0 && hero.pos.z < q.z1);
+  const flagPoint = (): { x: number; y: number; z: number } => {
+    const c = level.checkpoints[sim.checkpoint];
+    return c ? { x: c.x, y: c.y, z: c.z } : { x: level.spawn[0], y: level.spawn[1], z: level.spawn[2] };
+  };
+  let waveReset = false;
 
   const sim: Sim = {
     hero,
@@ -306,6 +316,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     },
     step(input, dt) {
       sim.tick++;
+      if (threat && waveReset) threat.reset(sim.tick);
+      waveReset = false;
       if (threat) {
         heroView.x = hero.pos.x;
         heroView.y = hero.pos.y;
@@ -481,9 +493,12 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
           break;
         }
       }
-      if (hero.pos.y < level.killY) {
+      if (hero.pos.y < level.killY || inPit()) {
+        if (toFlag && opts.balance.caught) {
+          sim.caught = createCaught(level, { x: hero.pos.x, y: hero.pos.y, z: hero.pos.z }, opts.balance.caught, tuning.avalanche, flagPoint());
+          waveReset = true;
+        } else sim.respawnTicksLeft = RESPAWN_FADE_TICKS;
         events.emit('fall', { tick: sim.tick, z: hero.pos.z });
-        sim.respawnTicksLeft = RESPAWN_FADE_TICKS;
       }
       events.emit('step', { tick: sim.tick });
     },
@@ -687,7 +702,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
               const p = payload as BossEvents['bossCaught'];
               const a = level.bosses[p.zone]!.zone[0] - BOSS_BACK;
               if (sim.respawnTicksLeft >= 0) sim.respawnTicksLeft = -1;
-              sim.caught = createCaught(level, { x: p.x, y: p.y, z: p.z }, opts.balance.caught!, tuning.avalanche, { x: 0, y: level.floorAt(0, a), z: a });
+              sim.caught = createCaught(level, { x: p.x, y: p.y, z: p.z }, opts.balance.caught!, tuning.avalanche, toFlag ? flagPoint() : { x: 0, y: level.floorAt(0, a), z: a });
+              if (toFlag) waveReset = true;
             } else if (name === 'helperHit') {
               // A helper's snowball (docs/01-gdd.md 18.5): slowed for a moment; nothing is lost.
               const p = payload as BossEvents['helperHit'];
@@ -722,6 +738,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       sim.caught = null;
       resetFun(sim.fun);
       placeHero(hero, c.to.x, c.to.y + 0.05, c.to.z);
+      // At the flag (RL-02) he faces up the slope, as after a respawn.
+      if (toFlag) hero.yaw = 0;
       progress.resetCarry();
       prev.onGround = false;
       events.emit('caughtEnd', { tick: sim.tick, sec: c.t, niche: c.niche, x: c.to.x, y: c.to.y, z: c.to.z });
@@ -731,7 +749,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     const caughtCfg = opts.balance.caught;
     events.on('waveCaught', ({ x, y, z }) => {
       if (sim.respawnTicksLeft >= 0) sim.respawnTicksLeft = -1;
-      sim.caught = createCaught(level, { x, y, z }, caughtCfg, tuning.avalanche);
+      sim.caught = createCaught(level, { x, y, z }, caughtCfg, tuning.avalanche, toFlag ? flagPoint() : undefined);
+      if (toFlag) waveReset = true;
     });
   }
   return sim;

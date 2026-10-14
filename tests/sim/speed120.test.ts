@@ -98,7 +98,9 @@ describe('SP-02: physics at 120 units/s', () => {
         }
         // In a grotto: its own floor (floorAt knows the track only).
         const y = family === 'grotto' ? grottos.find((n) => x >= n.box.min[0] && x <= n.box.max[0] && z >= n.box.min[2] && z <= n.box.max[2])!.y : level.floorAt(x, z);
-        if (!Number.isFinite(y) || past(x, y, z)) continue;
+        // RL-01: a hump on mountains 2–7 — a start against its tall top block is a start in a wall (skipped, as on a hole).
+        const touching = carniz.some((b) => x > b.min[0] - 1.5 && x < b.max[0] + 1.5 && z > b.min[2] - 1.5 && z < b.max[2] + 1.5 && y < b.max[1] - 0.3);
+        if (!Number.isFinite(y) || past(x, y, z) || touching) continue;
         runs[family]++;
         const hero = createHero([x, y + 0.05, z]);
         const mx = Math.sin(dir);

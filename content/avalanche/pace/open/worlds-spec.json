@@ -85,10 +85,13 @@
   "edgeGrottos": 4
  },
  "shapeFrom": {
-  "chasm": 2,
+  "chasm": 1,
   "throat": 3,
   "tunnel": 6,
-  "hump": 8
+  "hump": 2
+ },
+ "risk": {
+  "fromSection": 2
  },
  "shapes": {
   "grotto": {
@@ -96,21 +99,23 @@
    "fromWorld": 2
   },
   "chasm": {
-   "width": 18,
+   "width": 14,
    "depth": 3,
    "giftsAir": 2,
    "giftsBottom": 3,
    "ramp": 6,
    "padBefore": 6,
    "widthByWorld": {
-    "2": 18,
-    "4": 22,
-    "5": 22,
-    "6": 22,
-    "7": 26,
-    "8": 26,
-    "9": 28,
-    "10": 28
+    "1": 12,
+    "2": 13,
+    "3": 13,
+    "4": 14,
+    "5": 14,
+    "6": 15,
+    "7": 15,
+    "8": 16,
+    "9": 16,
+    "10": 16
    }
   },
   "throat": {
@@ -146,6 +151,12 @@
    "giftsAir": 6,
    "landing": 20,
    "flightByWorld": {
+    "2": 80,
+    "3": 90,
+    "4": 90,
+    "5": 100,
+    "6": 110,
+    "7": 120,
     "8": 120,
     "10": 160
    }
@@ -193,7 +204,10 @@
      "shelterEvery": 138,
      "gift": 18,
      "fork": false,
-     "width": 110
+     "width": 110,
+     "shape": [
+      "chasm"
+     ]
     }
    ],
    "ridges": [
@@ -282,7 +296,11 @@
        300
       ]
      },
-     "width": 124
+     "width": 124,
+     "shape": [
+      "chasm",
+      "hump"
+     ]
     }
    ],
    "ridges": [
@@ -345,7 +363,8 @@
       ]
      },
      "shape": [
-      "throat"
+      "throat",
+      "chasm"
      ],
      "width": 124
     },
@@ -354,11 +373,20 @@
      "stepMult": 12,
      "shelterEvery": 135,
      "gift": 200,
-     "fork": false,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 36,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
-      "throat"
+      "chasm",
+      "hump"
      ],
-     "width": 110
+     "width": 124
     },
     {
      "length": 530,
@@ -432,7 +460,11 @@
        300
       ]
      },
-     "width": 200
+     "width": 200,
+     "shape": [
+      "chasm",
+      "hump"
+     ]
     },
     {
      "length": 540,
@@ -468,7 +500,8 @@
       ]
      },
      "shape": [
-      "throat"
+      "throat",
+      "chasm"
      ],
      "width": 132
     }
@@ -538,7 +571,9 @@
       ]
      },
      "shape": [
-      "throat"
+      "throat",
+      "chasm",
+      "hump"
      ],
      "width": 132
     },
@@ -547,11 +582,19 @@
      "stepMult": 100,
      "shelterEvery": 140,
      "gift": 4000,
-     "fork": false,
+     "fork": {
+      "kind": "split",
+      "track": 44,
+      "between": 44,
+      "length": [
+       150,
+       300
+      ]
+     },
      "shape": [
       "chasm"
      ],
-     "width": 110
+     "width": 132
     },
     {
      "length": 640,
@@ -631,6 +674,7 @@
       ]
      },
      "shape": [
+      "chasm",
       "tunnel"
      ],
      "width": 132
@@ -671,6 +715,7 @@
      },
      "shape": [
       "throat",
+      "chasm",
       "tunnel"
      ],
      "width": 132
@@ -741,6 +786,7 @@
       ]
      },
      "shape": [
+      "chasm",
       "tunnel"
      ],
      "width": 200
@@ -760,7 +806,9 @@
       ]
      },
      "shape": [
-      "throat"
+      "throat",
+      "chasm",
+      "hump"
      ],
      "width": 140
     },
@@ -853,6 +901,7 @@
       ]
      },
      "shape": [
+      "chasm",
       "hump"
      ],
      "width": 140
@@ -872,6 +921,7 @@
       ]
      },
      "shape": [
+      "chasm",
       "tunnel",
       "hump"
      ],
@@ -893,6 +943,7 @@
      },
      "shape": [
       "throat",
+      "chasm",
       "hump"
      ],
      "width": 220

@@ -90,7 +90,8 @@ export function planSection(p: PlanInput): SectionPlan {
     // Nothing tall right past it: the middle trampoline at the ceiling of the run lands before the fork cliff.
     const rear = z0 - S.chasm.padBefore - PAD_SIZE / 2;
     const landMax = padArc(rear, p.y, p.tuning.controller.maxSpeed, p.tuning, () => p.y).landZ;
-    after = p.split ? plan.chasm.z1 + p.grotto / 2 + 1 : Math.max(plan.chasm.z1 + p.grotto / 2 + 1, landMax + CHASM_LAND_CLEAR);
+    // A split fork has no cliff to land on, but a tunnel on it has walls (RL-01: a chasm and a tunnel on one section).
+    after = p.split && !has('tunnel') ? plan.chasm.z1 + p.grotto / 2 + 1 : Math.max(plan.chasm.z1 + p.grotto / 2 + 1, landMax + CHASM_LAND_CLEAR);
   }
   const tunnel = has('tunnel');
   const hump = has('hump');

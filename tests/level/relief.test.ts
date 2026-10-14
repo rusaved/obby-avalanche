@@ -21,7 +21,7 @@ const speedAt = (st: number): number => moveSpeed(st, curve);
 const TERRACE = [12, 13, 15, 16, 18, 19, 21, 22, 23, 24];
 
 describe('SP-07: relief', () => {
-  it('the spec by 19.5: terraces, carniz 4–6, chasms 18–28, hump 20 / 140 (8: 120, 10: 160), throat 16, ice cliff 12–16', () => {
+  it('the spec by 19.5 and RL (21.3): terraces, carniz 4–6, chasms 12–16, hump 20 / 140 (2–7: 80–120, 8: 120, 10: 160), throat 16, ice cliff 12–16', () => {
     expect(spec.mountains.map((m) => m.terraceRise)).toEqual(TERRACE);
     for (const m of spec.mountains) {
       expect(m.ridgeRise!).toBeGreaterThanOrEqual(4);
@@ -29,8 +29,8 @@ describe('SP-07: relief', () => {
     }
     expect(spec.mountains[0]!.ridgeRise).toBe(4);
     const S = spec.shapes!;
-    expect([S.chasm.width, ...Object.values(S.chasm.widthByWorld ?? {})].every((x) => x >= 18 && x <= 28)).toBe(true);
-    expect([S.hump.rise, S.hump.flight, S.hump.flightByWorld]).toEqual([20, 140, { 8: 120, 10: 160 }]);
+    expect([S.chasm.width, ...Object.values(S.chasm.widthByWorld ?? {})].every((x) => x >= 12 && x <= 16)).toBe(true);
+    expect([S.hump.rise, S.hump.flight, S.hump.flightByWorld]).toEqual([20, 140, { 2: 80, 3: 90, 4: 90, 5: 100, 6: 110, 7: 120, 8: 120, 10: 160 }]);
     expect(S.throat.height).toBe(16);
     for (const m of spec.mountains.slice(1)) {
       expect(m.cliffHeight!).toBeGreaterThanOrEqual(12);
@@ -56,8 +56,10 @@ describe('SP-07: relief', () => {
       }
       for (const c of w.segments.filter((s) => s.type === 'cliff')) expect(c['height']).toBe(m.cliffHeight);
       if (wi === 0) {
-        // Mountain 1: terraces and the crevasse of the fork only.
-        expect(w.segments.filter((s) => s.type === 'jumpPad' || s.type === 'chasm' || s.type === 'hump' || s.type === 'cliff')).toEqual([]);
+        // Mountain 1 (RL-01): terraces, the crevasse of the fork and the chasm of section 3 with its trampolines.
+        expect(w.segments.filter((s) => s.type === 'hump' || s.type === 'cliff')).toEqual([]);
+        expect(w.segments.filter((s) => s.type === 'chasm').map((s) => s['section'])).toEqual([3]);
+        expect(w.segments.filter((s) => s.type === 'jumpPad').every((p) => p['shape'] === 'chasm' && p['stretch'] === 3)).toBe(true);
       }
     });
   }

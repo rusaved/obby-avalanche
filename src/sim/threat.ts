@@ -79,6 +79,9 @@ export interface Threat {
   step(dt: number, hero: ThreatHero, gatesOpen: readonly boolean[], tick: number): void;
   /** Starts the next wave now (debug «Avalanche now», __TEST__.triggerWave): from idle or gone only. */
   trigger(): void;
+  /** RL-02 (docs/01-gdd.md 21.2): the hero rolled back to the flag — a warning or a running front melts, the pause starts
+   * again from the full intervalSec; the scripted first wave goes on. */
+  reset(tick: number): void;
 }
 
 /** Index of the cave nearest by run time (path along the track, through open gates only), −1 in a safe zone. */
@@ -217,6 +220,16 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
         state.timer = 0;
         forced = true;
       }
+    },
+    reset(tick) {
+      if (state.scripted && (state.phase === 'warn' || state.phase === 'run')) return;
+      if (state.phase === 'warn' || state.phase === 'run') {
+        state.phase = 'gone';
+        state.timer = avalanche.fadeSec;
+        state.shelter = -1;
+        emit('waveGone', { tick });
+        emit('waveEnd', { tick, scripted: false, outcome: state.outcome, normalWaves: state.normalWaves });
+      } else if (state.phase === 'idle') state.timer = threat.intervalSec;
     },
     step(dt, hero, gatesOpen, tick) {
       state.playSec += dt;

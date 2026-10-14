@@ -123,7 +123,7 @@ export function createWayMarks(level: LevelData, theme: ThemeJson): WayMarks {
     }
   }
   for (const s of level.shapes ?? []) {
-    if (s.kind === 'chasm') continue;
+    if (s.kind === 'chasm' || s.kind === 'pit') continue;
     // A throat is entered past its funnel; a tunnel at its mouth; a hump at the foot of its ramp.
     const zIn = s.kind === 'throat' ? s.z0 + (s.funnel ?? 0) : s.z0;
     arrowsTo(level, (s.x0 + s.x1) / 2, zIn, cfg.arrows, s.kind, marks);

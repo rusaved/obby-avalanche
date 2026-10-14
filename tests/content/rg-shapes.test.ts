@@ -19,24 +19,25 @@ const worlds = read<WorldsJson>('pace/open/worlds.json');
 const gen = (sp: OpenSpecJson): WorldsJson => generateWorlds({ spec: sp, balance, tuning });
 const clone = <T>(x: T): T => JSON.parse(JSON.stringify(x)) as T;
 
-/** docs/01a-content.md 17.1: the elements of sections 1–4 of mountains 2–10 (`fork` — a plain fork of 17.7). */
+/** docs/01a-content.md 17.1 after RL-01 (producer 14.10): the elements of the sections (`fork` — a fork of 17.7). */
 const TABLE: Record<string, string[][]> = {
-  pines: [[], ['chasm'], ['chasm', 'fork'], ['fork']],
-  pass: [[], ['throat', 'fork'], ['throat'], ['throat', 'chasm']],
-  falls: [[], ['fork'], ['chasm', 'fork'], ['throat', 'fork']],
-  canyon: [[], ['throat', 'fork'], ['chasm'], ['throat', 'chasm']],
-  crystal: [[], ['tunnel'], ['chasm', 'tunnel'], ['throat', 'tunnel']],
-  blizzard: [[], ['tunnel'], ['throat', 'fork'], ['chasm', 'tunnel']],
-  clouds: [[], ['hump'], ['hump', 'tunnel'], ['throat', 'hump']],
+  slope: [[], ['fork'], ['chasm']],
+  pines: [[], ['chasm'], ['chasm', 'fork'], ['chasm', 'hump']],
+  pass: [[], ['throat', 'chasm', 'fork'], ['chasm', 'hump'], ['throat', 'chasm']],
+  falls: [[], ['chasm', 'hump'], ['chasm', 'fork'], ['throat', 'chasm', 'fork']],
+  canyon: [[], ['throat', 'chasm', 'hump'], ['chasm', 'fork'], ['throat', 'chasm']],
+  crystal: [[], ['chasm', 'tunnel'], ['chasm', 'tunnel'], ['throat', 'chasm', 'tunnel']],
+  blizzard: [[], ['chasm', 'tunnel'], ['throat', 'chasm', 'hump'], ['chasm', 'tunnel']],
+  clouds: [[], ['chasm', 'hump'], ['chasm', 'tunnel', 'hump'], ['throat', 'chasm', 'hump']],
   aurora: [[], ['throat', 'chasm', 'hump'], ['chasm', 'tunnel'], ['throat', 'chasm', 'hump']],
   stars: [[], ['throat', 'chasm', 'tunnel'], ['throat', 'chasm', 'hump'], ['throat', 'chasm', 'tunnel', 'hump']],
 };
 
 describe('character of the mountains in the data (RG-01)', () => {
-  it('worlds-spec.json: the sections of mountains 2–10 as in 01a 17.1, shapeFrom chasm 2, throat 3, tunnel 6, hump 8', () => {
-    expect(spec.shapeFrom).toEqual({ chasm: 2, throat: 3, tunnel: 6, hump: 8 });
-    expect(spec.mountains[0]!.sections.every((s) => (s.shape ?? []).length === 0)).toBe(true);
-    for (const m of spec.mountains.slice(1)) {
+  it('worlds-spec.json: the sections of mountains 1–10 as in 01a 17.1 after RL-01, shapeFrom chasm 1, hump 2, throat 3, tunnel 6', () => {
+    expect(spec.shapeFrom).toEqual({ chasm: 1, throat: 3, tunnel: 6, hump: 2 });
+    expect(spec.risk).toEqual({ fromSection: 2 });
+    for (const m of spec.mountains) {
       const rows = TABLE[m.id]!;
       expect(rows, m.id).toBeDefined();
       m.sections.forEach((sec, i) => {
@@ -48,10 +49,16 @@ describe('character of the mountains in the data (RG-01)', () => {
     }
   });
 
-  it('mountain 1 in worlds.json is byte for byte the record before RG (tests/fixtures/open-world1.json)', () => {
-    const before = readFileSync(resolve(root, 'tests/fixtures/open-world1.json'), 'utf8');
-    expect(JSON.stringify(worlds.worlds[0], null, 2) + '\n').toBe(before);
-    expect(JSON.stringify(gen(spec).worlds[0], null, 2) + '\n').toBe(before);
+  it('section 1 of mountain 1 (the first minute) is byte for byte the record before RL (tests/fixtures/open-world1.json)', () => {
+    // RL-01 (producer 14.10): the chasm comes on section 3; the first minute up to the first ridge stays as FM built it.
+    const before = JSON.parse(readFileSync(resolve(root, 'tests/fixtures/open-world1.json'), 'utf8')) as WorldsJson['worlds'][number];
+    const first = (w: WorldsJson['worlds'][number]): string => {
+      const ridge = w.segments.find((s) => s.type === 'gate')!.z;
+      return JSON.stringify(w.segments.filter((s) => s.z < ridge && s.z + ((s['length'] as number | undefined) ?? 0) <= ridge));
+    };
+    expect(first(worlds.worlds[0]!)).toBe(first(before));
+    expect(first(gen(spec).worlds[0]!)).toBe(first(before));
+    expect(worlds.worlds[0]!.zones[0]).toEqual(before.zones[0]);
   });
 
   it('every element of worlds.json is in its section and slot; the validator passes them', () => {
@@ -70,9 +77,9 @@ describe('character of the mountains in the data (RG-01)', () => {
 
   it('an element before its mountain (shapeFrom) is an error naming the mountain and the section', () => {
     const bad = clone(spec);
-    bad.mountains[1]!.sections[1]!.shape = ['hump'];
+    bad.mountains[1]!.sections[1]!.shape = ['throat'];
     const errors = validateOpenShapes(worlds, bad);
-    expect(errors.some((e) => e.includes('(pines), section 2') && e.includes('hump') && e.includes('from mountain 8'))).toBe(true);
+    expect(errors.some((e) => e.includes('(pines), section 2') && e.includes('throat') && e.includes('from mountain 3'))).toBe(true);
     // And a section of worlds.json that does not have the elements of its spec.
     expect(errors.some((e) => e.includes('(pines): section 2 — elements chasm'))).toBe(true);
   });
@@ -92,7 +99,8 @@ describe('character of the mountains in the data (RG-01)', () => {
         else expect([f.z, f.z + (f['length'] as number)]).toEqual(forkRange(zone.zStart, zone.zEnd - zone.zStart));
       }
     }
-    expect(out.worlds[0]).toEqual(worlds.worlds[0]);
+    // Mountain 1 without its chasm (RL-01) is the record before RL byte for byte.
+    expect(JSON.stringify(out.worlds[0], null, 2) + '\n').toBe(readFileSync(resolve(root, 'tests/fixtures/open-world1.json'), 'utf8'));
   });
 
   it('fairness on every lane with the elements: at the minimum speed of a section, no newbie bonus, ≤ warnSec × 0.8 (2× to spare, 1.5× on mountain 1)', () => {
@@ -104,7 +112,7 @@ describe('character of the mountains in the data (RG-01)', () => {
 
   it('RG-09: on a section with three or four elements each starts in its slot 5–25 / 25–40 / 40–75%, none overlaps the one below', () => {
     let big = 0;
-    for (const w of worlds.worlds.slice(7)) {
+    for (const w of worlds.worlds) {
       for (const zone of w.zones.slice(0, -1)) {
         const L = zone.zEnd - zone.zStart;
         const at = (z: number): number => (z - zone.zStart) / L;
@@ -123,22 +131,26 @@ describe('character of the mountains in the data (RG-01)', () => {
         for (const e of lane) expect(e.z).toBeGreaterThan(Math.max(th ? end(th) : 0, ch ? end(ch) : 0));
       }
     }
-    expect(big).toBe(5);
+    expect(big).toBe(Object.values(TABLE).flat().filter((r) => r.filter((k) => k !== 'fork').length >= 3).length);
   });
 
-  it('RG-09: one new element a mountain at most (2 chasm, 3 throat, 6 tunnel, 8 hump); 9 and 10 bring none; sizes grow', () => {
-    const seen = new Set<string>();
-    const fresh: Record<number, string[]> = {};
-    for (const w of worlds.worlds) {
-      const kinds = [...new Set(w.segments.filter((s) => ['chasm', 'throat', 'tunnel', 'hump'].includes(s.type)).map((s) => s.type))];
-      fresh[w.index] = kinds.filter((k) => !seen.has(k));
-      for (const k of kinds) seen.add(k);
-    }
-    expect(fresh).toEqual({ 1: [], 2: ['chasm'], 3: ['throat'], 4: [], 5: [], 6: ['tunnel'], 7: [], 8: ['hump'], 9: [], 10: [] });
+  it('RL-01: every section from the 2nd has a fall risk or a flight; a section without one is named; sizes grow', () => {
+    expect(validateOpenShapes(worlds, spec)).toEqual([]);
+    for (const w of worlds.worlds)
+      for (const z of w.zones.slice(1, -1)) {
+        const risk = w.segments.some((s) => ['chasm', 'hump', 'stairs'].includes(s.type) && s['section'] === z.k) || w.segments.some((s) => s.type === 'fork' && s['kind'] === 'split' && s['section'] === z.k);
+        expect(risk, `${w.id} section ${z.k}`).toBe(true);
+      }
+    // Mountain 1 section 3 without its chasm: named by the validator.
+    const bad = clone(worlds);
+    bad.worlds[0]!.segments = bad.worlds[0]!.segments.filter((s) => s.type !== 'chasm');
+    const badSpec = clone(spec);
+    badSpec.mountains[0]!.sections[2]!.shape = [];
+    expect(validateOpenShapes(bad, badSpec).some((e) => e.includes('(slope): section 3 — no fall risk nor flight'))).toBe(true);
     const size = (wi: number, t: string): number => worlds.worlds[wi]!.segments.find((s) => s.type === t)!['length'] as number;
-    // SP-03 (docs/01a-content.md 19.5): wider for the faster run, still growing up the mountains.
-    expect([size(1, 'chasm'), size(4, 'chasm'), size(8, 'chasm'), size(9, 'chasm')]).toEqual([18, 22, 28, 28]);
-    expect([size(2, 'throat'), size(4, 'throat'), size(8, 'throat'), size(9, 'throat')]).toEqual([60, 80, 100, 100]);
+    // RL-03 (producer 14.10): 12–16 wide, a trampoline takes it.
+    expect([size(0, 'chasm'), size(1, 'chasm'), size(4, 'chasm'), size(9, 'chasm')]).toEqual([12, 13, 14, 16]);
+    expect([size(3, 'throat'), size(4, 'throat'), size(8, 'throat'), size(9, 'throat')]).toEqual([80, 80, 100, 100]);
     expect([size(5, 'tunnel'), size(6, 'tunnel'), size(9, 'tunnel')]).toEqual([80, 110, 140]);
   });
 

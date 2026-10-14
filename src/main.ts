@@ -548,6 +548,10 @@ async function boot(): Promise<void> {
     });
     // «Snowed in!» (M2-07, docs/01-gdd.md 4.5): toast; the ball and the pose follow sim.caught in renderFrame.
     s.events.on('waveCaught', () => hud?.toast(t('wave.caught')));
+    // RL-02 (docs/01-gdd.md 21.2): a fall rolls him back to the flag of the ridge (caught.to «flag») — a short toast.
+    s.events.on('fall', () => {
+      if (s.caught) hud?.toast(t('toast.fallBack'), 2);
+    });
     s.events.on('waveEnd', ({ scripted, outcome }) => {
       if (scripted) {
         // Not in a cave (no «Phew»), or the toast was dropped from a full queue: the egg is there now anyway.

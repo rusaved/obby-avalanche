@@ -28,6 +28,7 @@
   "wave.cave": "В пещеру!",
   "wave.survived": "Уф, успел! +{n}",
   "wave.caught": "Накрыло снегом!",
+  "toast.fallBack": "Опа! Назад к флажку",
   "wave.goldSaved": "Золотой подарок! +{n}",
   "wave.firstMiss": "В пещеру, когда идёт лавина!",
   "zone.common": "Обычные подарки",

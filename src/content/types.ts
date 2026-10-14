@@ -173,7 +173,9 @@ export interface BalanceJson {
   pets: { slots: number; inventory: number };
   /** `x2Mult`: the ×2 step boost (ad, rewards); `statNowSec`: treadmill seconds of «speed now» (docs/01-gdd.md 8.1). */
   boost: { x2Sec: number; x2Mult: number; statNowSec: number };
-  caught: { rollSec: number; maxSec: number };
+  /** `to` (RL-02, docs/01-gdd.md 21.2): «flag» — a fall, «Snowed in!» and the giant roll the hero to the flag of the ridge
+   * below; absent or «caveBelow» — to the cave below (4.5). */
+  caught: { rollSec: number; maxSec: number; to?: 'flag' | 'caveBelow' };
   /** `resumeSec`: the first avalanche after F5 or another day comes this late (docs/01-gdd.md 6.6). */
   threat: { newbieWaves: { count: number; warnBonusSec: number }; resumeSec: number };
   niche: { graceDist: number; graceMoving: number };
@@ -469,7 +471,11 @@ export type SegmentType =
   // The base between the mountains (docs/01-gdd.md 19; src/level/base-layout.ts): a box, a portal of a mountain, a stand.
   | 'block'
   | 'basePortal'
-  | 'stand';
+  | 'stand'
+  // RL (docs/01-gdd.md 21): where a fall rolls the hero back to the flag; the stairs of plates to a ridge; a dip across the slope.
+  | 'pit'
+  | 'stairs'
+  | 'dip';
 
 export interface Segment {
   type: SegmentType;
@@ -670,6 +676,9 @@ export interface OpenSpecJson {
   };
   /** Elements of the slope (docs/01-gdd.md 18.3; docs/01a-content.md 17.1): from which mountain each is allowed. */
   shapeFrom?: Record<ShapeKind, number>;
+  /** RL-01 (docs/01-gdd.md 18.1, 21.1): every section from `fromSection` on has a fall risk or a flight (chasm, hump, a
+   * split fork's crevasse, stairs of plates); absent — no such rule. */
+  risk?: { fromSection: number };
   /** Sizes of the elements (docs/01a-content.md 17.2), read by the generator. */
   shapes?: OpenShapes;
   mountains: OpenSpecMountain[];

@@ -200,6 +200,11 @@ export function validateOpenShapes(worlds: WorldsJson, spec: OpenSpecJson): stri
       const want = [...(sec.shape ?? [])].sort().join('+') || '—';
       const have = marks.map((s) => s.type).sort().join('+') || '—';
       if (want !== have) errors.push(`${at}: section ${j} — elements ${have}, worlds-spec.json has ${want} (npm run gen:worlds)`);
+      // RL-01 (docs/01-gdd.md 18.1): from `risk.fromSection` on, a fall risk or a flight on every section.
+      const split = w.segments.some((s) => s.type === 'fork' && s['kind'] === 'split' && num(s, 'section') === j);
+      const stairs = w.segments.some((s) => s.type === 'stairs' && num(s, 'section') === j);
+      if (spec.risk && j >= spec.risk.fromSection && !marks.some((s) => s.type === 'chasm' || s.type === 'hump') && !split && !stairs)
+        errors.push(`${at}: section ${j} — no fall risk nor flight (a chasm, a hump, a split fork or stairs; risk.fromSection ${spec.risk.fromSection}, docs/01-gdd.md 18.1)`);
       const one = (t: string): Segment | undefined => marks.find((s) => s.type === t);
       const th = one('throat');
       const ch = one('chasm');
