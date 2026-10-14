@@ -33,13 +33,15 @@ describe('pace open by default (PS-02)', () => {
   it('the tuning.json patch of a pace merges deep like balance.json: the camera of the open slope, the rest shared', () => {
     const shared = json<TuningJson>('avalanche', 'tuning.json');
     const open = files['tuning.json'] as TuningJson;
-    expect(open.camera).toEqual({ ...shared.camera, distance: 13, height: 4.5, pitchDeg: 24, fov: 76, fovSpeedAdd: 18, speedDistanceAdd: 7, speedPow: 0.4, zoomMax: 26, mobileFovAdd: 4, flagHide: 2, backBehind: 'run', minDistance: 7, shelterKeep: 8, archHide: 8, grottoShot: { ...shared.camera.grottoShot, orbitDeg: 75 } });
+    expect(open.camera).toEqual({ ...shared.camera, distance: 13, height: 4.5, pitchDeg: 24, fov: 76, fovSpeedAdd: 18, speedDistanceAdd: 7, speedPow: 0.4, zoomMax: 26, mobileFovAdd: 4, flagHide: 2, backBehind: 'run', minDistance: 7, shelterKeep: 8, archHide: 8, seeThrough: true, grottoShot: { ...shared.camera.grottoShot, orbitDeg: 75 } });
     // SP-03: the ceiling of the run 120 (docs/01a-content.md 19.7), the rest of the controller shared.
     expect(open.controller).toEqual({ ...shared.controller, maxSpeed: 120 });
     expect(open.ridgeShot).toEqual({ rise: 6, back: 4, sec: 1.5 });
     expect(open.bossShot).toEqual({ side: 10, rise: 2, back: 2, sec: 1 });
     expect(open.far).toEqual({ pc: 800, mobile: 600 });
     expect(open.fx).toEqual({ windFrom: 0.4 });
+    // RL-06: the light sway on an ice slide of the open slope.
+    expect(open.fun).toEqual({ ...shared.fun, slideSway: 6, slideSwayHz: 1.6 });
     expect(shared.camera.distance).toBe(10);
   });
 
