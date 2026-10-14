@@ -149,7 +149,7 @@ function pushStairs(seg: Segment[], ST: NonNullable<NonNullable<OpenSpecJson['re
   // The pit reaches past the edge (no border over it): a fall off the side there counts as one into it.
   const out: [number, number] = sb > 0 ? [ST.inner, half + STAIRS_OUT] : [-half - STAIRS_OUT, -ST.inner];
   seg.push({ type: 'pit', z: zA, length: span, y: round3(y - ST.fall), x0: out[0], x1: out[1], side: sb > 0 ? 'right' : 'left', section: j });
-  seg.push({ type: 'floor', z: zA, length: span, y: round3(y - ST.deep), x0: bold[0], x1: bold[1], material: 'ice', solid: false, shape: 'stairs' });
+  seg.push({ type: 'floor', z: zA, length: span, y: round3(y - ST.deep), x0: bold[0], x1: bold[1], material: 'pit', solid: false, shape: 'stairs' });
   for (let k = 0; k < n; k++)
     seg.push({ type: 'floor', z: round3(zA + g + k * (P + g)), length: round3(P), y: round3(y + r * (k + 1)), x0: round3(px - ST.plate / 2), x1: round3(px + ST.plate / 2), thickness: 1, material: 'ice', shape: 'stairs' });
 }

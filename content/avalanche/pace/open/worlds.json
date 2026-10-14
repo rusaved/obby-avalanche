@@ -1546,7 +1546,7 @@
           "y": 9,
           "x0": -30,
           "x1": 30,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -2460,7 +2460,7 @@
           "y": -12,
           "x0": -55,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -2881,7 +2881,7 @@
           "y": 1,
           "x0": 8,
           "x1": 60,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -3115,7 +3115,7 @@
           "y": -2,
           "x0": -30,
           "x1": 30,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -3689,7 +3689,7 @@
           "y": 14,
           "x0": -100,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -4080,7 +4080,7 @@
           "y": 11,
           "x0": -52,
           "x1": 52,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -4964,7 +4964,7 @@
           "y": 27,
           "x0": 8,
           "x1": 62,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -5263,7 +5263,7 @@
           "y": 24,
           "x0": -50,
           "x1": 50,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -6620,7 +6620,7 @@
           "y": -12,
           "x0": -55,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -7065,7 +7065,7 @@
           "y": 3,
           "x0": 8,
           "x1": 62,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -7461,7 +7461,7 @@
           "y": 0,
           "x0": -50,
           "x1": 50,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -8281,7 +8281,7 @@
           "y": 18,
           "x0": -62,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -8598,7 +8598,7 @@
           "y": 15,
           "x0": -50,
           "x1": 50,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -9543,7 +9543,7 @@
           "y": 33,
           "x0": 8,
           "x1": 100,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -9797,7 +9797,7 @@
           "y": 30,
           "x0": -30,
           "x1": 30,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -10853,7 +10853,7 @@
           "y": -12,
           "x0": -60,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -11349,7 +11349,7 @@
           "y": 4,
           "x0": 8,
           "x1": 100,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -11660,7 +11660,7 @@
           "y": 1,
           "x0": -56,
           "x1": 56,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -12640,7 +12640,7 @@
           "y": 20,
           "x0": -66,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -13054,7 +13054,7 @@
           "y": 17,
           "x0": -54,
           "x1": 54,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -13904,7 +13904,7 @@
           "y": 36,
           "x0": 8,
           "x1": 66,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -14274,7 +14274,7 @@
           "y": 33,
           "x0": -54,
           "x1": 54,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -15603,7 +15603,7 @@
           "y": -12,
           "x0": -50,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -16061,7 +16061,7 @@
           "y": 6,
           "x0": 8,
           "x1": 66,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -16401,7 +16401,7 @@
           "y": 3,
           "x0": -54,
           "x1": 54,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -17339,7 +17339,7 @@
           "y": 24,
           "x0": -66,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -17766,7 +17766,7 @@
           "y": 21,
           "x0": -54,
           "x1": 54,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -18637,7 +18637,7 @@
           "y": 42,
           "x0": 8,
           "x1": 110,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -18891,7 +18891,7 @@
           "y": 39,
           "x0": -30,
           "x1": 30,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -19999,7 +19999,7 @@
           "y": -12,
           "x0": -60,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -20508,7 +20508,7 @@
           "y": 7,
           "x0": 8,
           "x1": 66,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -20885,7 +20885,7 @@
           "y": 4,
           "x0": -54,
           "x1": 54,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -21649,7 +21649,7 @@
           "y": 26,
           "x0": -100,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -21967,7 +21967,7 @@
           "y": 23,
           "x0": -56,
           "x1": 56,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -22756,7 +22756,7 @@
           "y": 45,
           "x0": 8,
           "x1": 66,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -23042,7 +23042,7 @@
           "y": 42,
           "x0": -54,
           "x1": 54,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -24289,7 +24289,7 @@
           "y": -12,
           "x0": -55,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -24773,7 +24773,7 @@
           "y": 9,
           "x0": 8,
           "x1": 100,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -25136,7 +25136,7 @@
           "y": 6,
           "x0": -60,
           "x1": 60,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -25935,7 +25935,7 @@
           "y": 30,
           "x0": -70,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -26254,7 +26254,7 @@
           "y": 27,
           "x0": -58,
           "x1": 58,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -27178,7 +27178,7 @@
           "y": 51,
           "x0": 8,
           "x1": 70,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -27488,7 +27488,7 @@
           "y": 48,
           "x0": -58,
           "x1": 58,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -28709,7 +28709,7 @@
           "y": -12,
           "x0": -60,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -29231,7 +29231,7 @@
           "y": 10,
           "x0": 8,
           "x1": 70,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -29619,7 +29619,7 @@
           "y": 7,
           "x0": -58,
           "x1": 58,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -30537,7 +30537,7 @@
           "y": 32,
           "x0": -70,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -30880,7 +30880,7 @@
           "y": 29,
           "x0": -58,
           "x1": 58,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -31773,7 +31773,7 @@
           "y": 54,
           "x0": 8,
           "x1": 110,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -32081,7 +32081,7 @@
           "y": 51,
           "x0": -60,
           "x1": 60,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -33525,7 +33525,7 @@
           "y": -12,
           "x0": -55,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -34009,7 +34009,7 @@
           "y": 11,
           "x0": 8,
           "x1": 74,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -34360,7 +34360,7 @@
           "y": 8,
           "x0": -62,
           "x1": 62,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -35301,7 +35301,7 @@
           "y": 34,
           "x0": -110,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -35645,7 +35645,7 @@
           "y": 31,
           "x0": -64,
           "x1": 64,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -36430,7 +36430,7 @@
           "y": 57,
           "x0": 8,
           "x1": 74,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -36742,7 +36742,7 @@
           "y": 54,
           "x0": -62,
           "x1": 62,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -38170,7 +38170,7 @@
           "y": -12,
           "x0": -60,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -38718,7 +38718,7 @@
           "y": 12,
           "x0": 8,
           "x1": 74,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -39097,7 +39097,7 @@
           "y": 9,
           "x0": -62,
           "x1": 62,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -39863,7 +39863,7 @@
           "y": 36,
           "x0": -74,
           "x1": -8,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -40232,7 +40232,7 @@
           "y": 33,
           "x0": -62,
           "x1": 62,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },
@@ -41158,7 +41158,7 @@
           "y": 60,
           "x0": 8,
           "x1": 110,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "stairs"
         },
@@ -41466,7 +41466,7 @@
           "y": 57,
           "x0": -64,
           "x1": 64,
-          "material": "ice",
+          "material": "pit",
           "solid": false,
           "shape": "chasm"
         },

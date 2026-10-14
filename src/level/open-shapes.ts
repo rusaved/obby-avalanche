@@ -243,7 +243,7 @@ export function pushChasmFloor(seg: Segment[], ch: NonNullable<SectionPlan['chas
     seg.push({ type: 'floor', z: b0, length: round3(ch.z1 - ramp - b0), y: round3(y - ch.depth), ...xs, material: 'ice', shape: 'chasm' });
     seg.push({ type: 'ramp', z: round3(ch.z1 - ramp), length: ramp, y: round3(y - ch.depth), rise: ch.depth, ...xs, material: 'ice', shape: 'chasm' });
   }
-  if (p !== null) seg.push({ type: 'floor', z: ch.z0, length: round3(ch.z1 - ch.z0), y: round3(y - ch.depth - shapes.chasm.pit!.deep), x0: -p, x1: p, material: 'ice', solid: false, shape: 'chasm' });
+  if (p !== null) seg.push({ type: 'floor', z: ch.z0, length: round3(ch.z1 - ch.z0), y: round3(y - ch.depth - shapes.chasm.pit!.deep), x0: -p, x1: p, material: 'pit', solid: false, shape: 'chasm' });
 }
 
 /** Height of the ground at z inside a chasm (the centre of the slope), as pushChasmFloor lays it. */

@@ -109,7 +109,7 @@ describe('dips and tints (RL-04)', () => {
     }
   });
 
-  it('RL-05: from the front of each plate a jump takes the next one (the last — the top floor); off the plates he falls in and rolls back', () => {
+  it('RL-05: from the front of each plate a jump takes the next one (the last — the top floor); off the side of a plate he falls in and rolls back', () => {
     for (const wi of [1, 9]) {
       const w = worlds.worlds[wi]!;
       const level = buildLevel(w);
@@ -137,9 +137,10 @@ describe('dips and tints (RL-04)', () => {
         expect(falls, `${w.id} plate ${k + 1}`).toBe(0);
         expect(s.hero.pos.y, `${w.id} plate ${k + 1} → next`).toBeGreaterThan(want - 0.2);
       }
-      // Running straight off the slope into the pit: back to the flag.
-      s.teleport(x, level.floorAt(x, st.z - 3) + 0.05, st.z - 3);
-      for (let i = 0; i < 120 && !s.caught; i++) s.step(RUN, DT);
+      // Off the side of a plate into the pit (the gaps are narrower than the hero, Q-070): back to the flag.
+      const pl = plates[1]!;
+      s.teleport(x, (pl['y'] as number) + 0.05, pl.z + (pl['length'] as number) / 2);
+      for (let i = 0; i < 180 && !s.caught; i++) s.step({ moveX: Math.sign(x), moveZ: 0, jump: false, jumpHeld: false }, DT);
       expect(s.caught, w.id).not.toBeNull();
     }
   }, 60_000);
