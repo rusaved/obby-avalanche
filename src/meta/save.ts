@@ -74,6 +74,8 @@ export interface SaveData {
   record?: { world: number; x: number; y: number; z: number };
   /** The base treadmill step last announced (docs/01-gdd.md 19.2): tier × 100 + summits of the tier. */
   baseTread?: number;
+  /** RL-08 (docs/01-gdd.md 21.8): the gifts taken on mountain `world` since it was entered (indices of LevelData gifts). */
+  gifts?: { world: number; taken: number[] };
 }
 
 export const SAVE_VERSION = 2;
@@ -111,7 +113,7 @@ export function migrate(raw: Record<string, unknown>): Record<string, unknown> |
 
 const NUMBER_KEYS = ['sessions', 'wavesNormal', 'totalPlaySec', 'shoes', 'trophies', 'trophiesTotal', 'tier', 'summits', 'stat', 'bestStat', 'coins', 'world', 'frontierWall', 'boostSec', 'adEgg', 'baseTread'] as const;
 const ARRAY_KEYS = ['pets', 'petsOn', 'trails', 'auras', 'skins', 'wings'] as const;
-const OBJECT_KEYS = ['flags', 'hints', 'daily', 'quests', 'timeRw', 'wheel', 'record'] as const;
+const OBJECT_KEYS = ['flags', 'hints', 'daily', 'quests', 'timeRw', 'wheel', 'record', 'gifts'] as const;
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
 
 /**

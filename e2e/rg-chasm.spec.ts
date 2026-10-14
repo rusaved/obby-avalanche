@@ -13,6 +13,11 @@ const w2 = (openWorlds as unknown as { worlds: Array<{ segments: Seg[]; threat: 
 const chasm = w2.segments.find((s) => s.type === 'chasm' && s.section === 2)!;
 const c0 = chasm.z;
 const c1 = chasm.z + chasm.length!;
+// RL-03 (docs/01-gdd.md 21.3): the middle of the chasm is a pit (a fall — back to the flag); the walk round its bottom is
+// at the edges: the middle of the left one.
+const pit = (w2.segments as Array<Seg & { x1?: number; side?: string }>).find((s) => s.type === 'pit' && s.section === 2 && s.side === undefined)!;
+const half = (openSpec as unknown as { mountains: Array<{ sections: Array<{ width: number }> }> }).mountains[1]!.sections[1]!.width / 2;
+const WALK = -(pit.x1! + half) / 2;
 const STAT = (openSpec as unknown as { mountains: Array<{ ridges: Array<{ requires: number }> }> }).mountains[1]!.ridges[0]!.requires;
 const EVIDENCE = 'docs/evidence/rg';
 
@@ -68,32 +73,34 @@ test('mountain 2: over the chasm from the middle trampoline with the gifts in th
   expect(s.hero!.z).toBeGreaterThan(c1 + 10);
 });
 
-test('mountain 2: past the plates down into the chasm, its 3 gifts, out up the ramp; the toast once; the siren from the bottom', async ({ page, openGame }) => {
+test('mountain 2: by the walk at the edge down into the chasm, its gift, out up the ramp; the toast once; the siren from the bottom', async ({ page, openGame }) => {
   test.setTimeout(180_000);
   await openGame('pace=open');
   await toMountain2(page);
   const st0 = await testState(page);
   const bottom = st0.gifts.flatMap((g, i) => (g.z > c0 && g.z < c1 && g.y < chasm.y! - 2 ? [i] : []));
   expect(bottom).toHaveLength(3);
-  const gs = bottom.map((i) => st0.gifts[i]!).sort((a, b) => a.x - b.x);
-  await page.evaluate((z) => window.__TEST__!.teleport(z, -9), c0 - 12);
+  const left = bottom.filter((i) => st0.gifts[i]!.x < 0);
+  expect(left).toHaveLength(1);
+  const g = st0.gifts[left[0]!]!;
+  await page.evaluate((z) => window.__TEST__!.teleport(z, WALK), c0 - 12);
   await waitTicks(page, 10);
   const want = ru['toast.chasm'];
-  const first = await run(page, [[-9, c0 + 2], ...gs.map((g): [number, number] => [g.x, g.z]), [gs[gs.length - 1]!.x, c1 + 8]]);
+  const first = await run(page, [[WALK, c0 + 2], [g.x, g.z], [g.x, c1 + 8]]);
   let s = await testState(page);
-  for (const i of bottom) expect(s.giftsTaken[i], `bottom gift ${i}`).toBe(true);
+  expect(s.giftsTaken[left[0]!], 'the bottom gift of the walk').toBe(true);
   expect(s.hero!.z).toBeGreaterThan(c1 + 4);
   expect(s.hero!.y).toBeCloseTo(chasm.y!, 0);
   expect(first).toContain(want);
   // Down again, the first toast gone: no toast this time (once a save).
   await page.waitForFunction((w) => window.__TEST__!.state().waveHud.toast !== w, want, { timeout: 30_000 });
-  await page.evaluate((z) => window.__TEST__!.teleport(z, -9), c0 - 12);
-  const again = await run(page, [[-9, c0 + 2], [-9, c1 + 8]]);
+  await page.evaluate((z) => window.__TEST__!.teleport(z, WALK), c0 - 12);
+  const again = await run(page, [[WALK, c0 + 2], [WALK, c1 + 8]]);
   expect(again).not.toContain(want);
   const downs = (await page.evaluate(() => window.__TEST__!.simEvents.filter((e) => e.name === 'chasmDown').length)) as number;
   expect(downs).toBe(2);
   // The siren with the hero on the bottom: he runs to the lit shelter and is in it before the front.
-  await page.evaluate((z) => window.__TEST__!.teleport(z, 9), c1 - 4);
+  await page.evaluate((z) => window.__TEST__!.teleport(z, WALK), c1 - 4);
   await waitTicks(page, 20);
   expect((await testState(page)).hero!.y).toBeLessThan(chasm.y! - 1);
   await page.evaluate(() => window.__TEST__!.triggerWave());

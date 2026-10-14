@@ -116,7 +116,7 @@ export interface TestState {
    * app/fun-view.ts).
    */
   fun: { padFlight: boolean; launches: number; top: number; onSlide: number; slideLeft: number; runSpeed: number };
-  funFx: { fountains: number; coinsFlying: number; confetti: number; gateNote: number; chimes: number; puffs: number; trail: number; puffAlive: number; giftNote: number; slides: number };
+  funFx: { fountains: number; coinsFlying: number; confetti: number; gateNote: number; chimes: number; puffs: number; trail: number; spark: number; puffAlive: number; giftNote: number; slides: number };
   /** «+N» by the coin plaque: its text and whether it is playing. */
   coinGain: { text: string; shown: boolean };
   pets: string[];
@@ -244,6 +244,8 @@ export interface TestApi {
   cameraInsideGeometry(): boolean;
   /** The camera position now (RG-13: behind the hero out of a grotto). */
   cameraPos(): [number, number, number];
+  /** RL-09: the tall walls drawn apart — their boxes and whether each is see-through now. */
+  seeThrough(): Array<{ min: number[]; max: number[]; faded: boolean }>;
   /** A world point in field px as the camera sees it now; `ahead` false — behind the camera (PR-06, PR-07). */
   project(x: number, y: number, z: number): { x: number; y: number; ahead: boolean };
   /** Gate sign plaque as a world box and whether it is hidden now (PR-08: never under the avalanche banner). */
@@ -644,7 +646,7 @@ export function installTestApi(g: GameHandles): TestApi {
         fun: g.sim
           ? { padFlight: g.sim.fun.padFlight, launches: g.sim.fun.launches, top: g.sim.fun.top, onSlide: g.sim.fun.onSlide, slideLeft: g.sim.fun.slideLeft, runSpeed: g.sim.params.speed }
           : { padFlight: false, launches: 0, top: 0, onSlide: -1, slideLeft: 0, runSpeed: 0 },
-        funFx: g.fun?.state ?? { fountains: 0, coinsFlying: 0, confetti: 0, gateNote: 0, chimes: 0, puffs: 0, trail: 0, puffAlive: 0, giftNote: 0, slides: 0 },
+        funFx: g.fun?.state ?? { fountains: 0, coinsFlying: 0, confetti: 0, gateNote: 0, chimes: 0, puffs: 0, trail: 0, spark: 0, puffAlive: 0, giftNote: 0, slides: 0 },
         coinGain: {
           text: document.querySelector('[data-role="coin-gain"]')?.textContent ?? '',
           shown: document.querySelector('[data-role="coin-gain"]')?.classList.contains('show') ?? false,
@@ -790,6 +792,10 @@ export function installTestApi(g: GameHandles): TestApi {
       const buf = new Uint8Array(4);
       gl.readPixels(Math.round(x * k), Math.round(canvas.height - y * k), 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, buf);
       return [buf[0]!, buf[1]!, buf[2]!];
+    },
+    seeThrough() {
+      const m = g.levelMeshes;
+      return m ? m.seeThrough.map((b, i) => ({ min: [...b.min], max: [...b.max], faded: m.seeFaded(i) })) : [];
     },
     cameraPos() {
       const p = g.camera?.camera.position;

@@ -113,7 +113,13 @@ export function prismTriangles(out: number[], p: Pick<LevelPrism, 'pts' | 'y0' |
 /** Build options from tuning.json (docs/01-gdd.md 19.9): `wallHeight` — the invisible wall over the borders; 0 or absent — none. */
 export interface BuildOptions {
   wallHeight?: number | undefined;
+  /** RL-09 (docs/01-gdd.md 21.9): the tall walls of CAMERA_THROUGH meet the hero only — the camera passes them (they turn
+   * see-through when between it and the hero, render/level-mesh.ts); absent — as before. */
+  cameraThrough?: boolean | undefined;
 }
+
+/** Tall walls the camera may pass (RL-09): ice cliffs, the walls of a throat and of a tunnel, the walls of a rock. */
+export const CAMERA_THROUGH: ReadonlySet<string> = new Set(['cliff', 'ledgeCliff', 'throatWall', 'tunnelWall', 'islandWall']);
 
 /**
  * The invisible wall of the slope (docs/01-gdd.md 19.9, Q-048): over every border up to `h` above the floor it borders,
@@ -588,13 +594,14 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     }
   }
 
-  for (const b of boxes) if (b.solid) pushBoxTriangles(tris, b);
+  const through = opts.cameraThrough ? boxes.filter((b) => b.solid && CAMERA_THROUGH.has(b.kind)) : [];
+  for (const b of boxes) if (b.solid && !through.includes(b)) pushBoxTriangles(tris, b);
   for (const r of ramps) pushRampTriangles(tris, r);
   for (const p of prisms) prismTriangles(tris, p);
   const wallHeight = opts.wallHeight ?? 0;
   const bounds = [...(wallHeight > 0 ? boundsWalls(boxes, edgeNiches, floors, ramps, half, wallHeight) : []), ...heroOnly];
   const boundsTris: number[] = [];
-  for (const b of bounds) pushBoxTriangles(boundsTris, b);
+  for (const b of [...bounds, ...through]) pushBoxTriangles(boundsTris, b);
   // Over a prism the invisible wall stands on it as over a border (docs/01-gdd.md 19.9).
   if (wallHeight > 0) for (const p of prisms) prismTriangles(boundsTris, { pts: p.pts, y0: p.y1, y1: p.y1 - BORDER_HEIGHT + wallHeight });
 

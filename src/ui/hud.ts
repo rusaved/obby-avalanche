@@ -574,6 +574,25 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     }
     pausePanel.appendChild(side);
   }
+  // RL-11 (producer 14.10): the same cards on the base without the pause — a column by the shop side of the screen;
+  // never on a mountain run (setMountainShown). A card says its channel: there is no channel button above it here.
+  const baseGifts = el('div', 'base-gifts off');
+  baseGifts.dataset['role'] = 'base-gifts';
+  if (opts.community && gifts) {
+    const card = (key: string, hud: string, top: string | null, text: string, on: () => void): void => {
+      const c = el('button', 'card-btn community community-gift');
+      c.dataset['hud'] = hud;
+      if (top) c.appendChild(el('span', 'base-gift-from', top));
+      c.appendChild(el('span', 'base-gift-what', text));
+      c.hidden = true;
+      c.addEventListener('click', on);
+      baseGifts.appendChild(c);
+      giftCards.set(`base-${key}`, c);
+    };
+    if (gifts.subscribe) for (const id of opts.community.ids) card(`sub-${id}`, `base-gift-sub-${id}`, t(`community.${id}`), t('communityGift.subscribe'), () => gifts.onSubscribe(id));
+    if (gifts.review) card('review', 'base-gift-review', null, t('communityGift.review'), () => gifts.onReview());
+    root.appendChild(baseGifts);
+  }
 
   const cont = el('button', 'btn-primary', t('btn.continue'));
   cont.dataset['hud'] = 'continue';
@@ -589,7 +608,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     jumpButton,
     pausePanel,
     setCommunityGifts(s) {
-      for (const [k, c] of giftCards) c.hidden = k === 'review' ? !s.review : !s.subscribe.includes(k.slice(4));
+      for (const [key, c] of giftCards) {
+        const k = key.startsWith('base-') ? key.slice(5) : key;
+        c.hidden = k === 'review' ? !s.review : !s.subscribe.includes(k.slice(4));
+      }
     },
     setTouchMode(touch) {
       touchMode = touch;
@@ -780,6 +802,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     },
     setMountainShown(on) {
       mountain.classList.toggle('off', !on);
+      baseGifts.classList.toggle('off', on);
     },
     updateMountain(label, hero, wave, blinkCave) {
       if (mountainLabel.textContent !== label) mountainLabel.textContent = label;

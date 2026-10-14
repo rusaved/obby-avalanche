@@ -362,6 +362,8 @@ export interface TuningJson {
     shelterKeep?: number;
     /** Q-066: an arch of the base nearer than this to the camera (units), or on its line to the hero, is not drawn; absent — never. */
     archHide?: number;
+    /** RL-09: tall walls (cliffs, throat, tunnel and rock walls) let the camera through and fade at fadeAlpha in its way. */
+    seeThrough?: boolean;
     /** SP-03 (docs/01-gdd.md 20.3): the camera backs off this much at the top of the run (distance + add × share). */
     speedDistanceAdd?: number;
     /** SP-03: set — the share of speed for the FOV and the distance is ((v − baseSpeed) / (maxSpeed − baseSpeed))^speedPow over

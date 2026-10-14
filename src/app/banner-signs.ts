@@ -1,5 +1,5 @@
-// What: Hides gate signs that sit under the avalanche banner or between the camera and the hero (back when the overlap ends), and for good once the hero has passed the gate; hides the record flag and the arches of the base in the way of the camera.
-// Called by: main.ts (guardBannerSigns, guardRecordFlag, guardBaseArches each frame); test-api/index.ts (segmentMeetsBox, flagInTheWay).
+// What: Hides gate signs that sit under the avalanche banner or between the camera and the hero (back when the overlap ends), and for good once the hero has passed the gate; hides the record flag and the arches of the base in the way of the camera; fades the tall walls in its way (RL-09).
+// Called by: main.ts (guardBannerSigns, guardRecordFlag, guardBaseArches, guardSeeThrough each frame); test-api/index.ts (segmentMeetsBox, flagInTheWay).
 // Keep: Only toggles sign visibility - reads the camera, never changes sim or level data; the banner must never end up under a sign (docs/01-gdd.md 16.7, PR-11).
 
 /**
@@ -153,5 +153,19 @@ export function guardBaseArches(view: BaseView, camera: PerspectiveCamera, hero:
       }
     }
     view.setArchHidden(i, hide);
+  });
+}
+
+/**
+ * RL-09 (docs/01-gdd.md 21.9): a tall wall (an ice cliff, a wall of a throat, a tunnel or a rock) on the sight line from
+ * the camera to the hero, or round the camera, turns see-through; the one he stands on top of stays solid.
+ */
+export function guardSeeThrough(meshes: Pick<LevelMeshes, 'seeThrough' | 'setSeeThrough'>, camera: PerspectiveCamera, hero: Vector3): void {
+  meshes.seeThrough.forEach((b, i) => {
+    const center = [(b.min[0] + b.max[0]) / 2, (b.min[1] + b.max[1]) / 2, (b.min[2] + b.max[2]) / 2];
+    const size = [b.max[0] - b.min[0], b.max[1] - b.min[1], b.max[2] - b.min[2]];
+    const onTop = hero.y >= b.max[1] - 0.5;
+    const fade = !onTop && (segmentMeetsBox(camera.position, camera.position, center, size, SIGHT_PAD) || SIGHT_HEIGHTS.some((h) => segmentMeetsBox(camera.position, _p.set(hero.x, hero.y + h, hero.z), center, size, SIGHT_PAD)));
+    meshes.setSeeThrough(i, fade);
   });
 }

@@ -27,7 +27,7 @@ import {
 } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { LevelBox, LevelData, LevelPrism, LevelRamp } from '../level/types.ts';
-import { GATE_THICKNESS, PORTAL_WIDTH, prismTriangles } from '../level/builder.ts';
+import { CAMERA_THROUGH, GATE_THICKNESS, PORTAL_WIDTH, prismTriangles } from '../level/builder.ts';
 import { createWayMarks, PORTAL_HEIGHT, type WayMarks } from './way-marks.ts';
 import type { ThemeJson } from '../content/types.ts';
 import { createDigitLabels, type DigitLabels } from './digits.ts';
@@ -95,6 +95,10 @@ export interface LevelMeshes {
   update(timeSec: number): void;
   setGiftShown(index: number, shown: boolean): void;
   giftShown(index: number): boolean;
+  /** RL-09 (docs/01-gdd.md 21.9): the tall walls (builder CAMERA_THROUGH), drawn apart; a faded one see-through at `fade`. */
+  seeThrough: readonly LevelBox[];
+  setSeeThrough(index: number, faded: boolean): void;
+  seeFaded(index: number): boolean;
   cullByDistance(z: number, far: number): void;
   dispose(): void;
 }
@@ -168,7 +172,7 @@ const _p = new Vector3();
 const _q = new Quaternion();
 const _s = new Vector3();
 
-export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k: string) => string): LevelMeshes {
+export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k: string) => string, fade = 1): LevelMeshes {
   const group = new Group();
   group.name = `level-${level.worldId}`;
   const material = new MeshLambertMaterial({ vertexColors: true });
@@ -205,7 +209,10 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     return niche >= 0 ? { niche, part: b.kind === 'nicheRoof' ? 'roof' : 'back' } : null;
   };
   const cutParts: Array<{ niche: number; part: CavePart; box: LevelBox }> = [];
+  // RL-09: with `fade` < 1 the tall walls are drawn apart, solid or see-through (the camera passes them, builder cameraThrough).
+  const seeThrough = fade < 1 ? level.boxes.filter((b) => CAMERA_THROUGH.has(b.kind)) : [];
   for (const b of level.boxes) {
+    if (fade < 1 && CAMERA_THROUGH.has(b.kind)) continue;
     const cut = partOf(b);
     if (cut) cutParts.push({ ...cut, box: b });
     else bucketOf((b.min[2] + b.max[2]) / 2).push(boxGeometry(b, theme));
@@ -303,6 +310,38 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   backMesh.computeBoundingSphere();
   group.add(backMesh);
   const cutHidden = cutParts.map(() => false);
+
+  // The tall walls (RL-09): two InstancedMeshes of unit boxes, solid and see-through; a wall is in one of them.
+  const seeMat = new MeshLambertMaterial({ vertexColors: true, transparent: true, opacity: fade, depthWrite: false });
+  const seeSolid = new InstancedMesh(backGeo, material, Math.max(1, seeThrough.length));
+  const seeFadedMesh = new InstancedMesh(backGeo, seeMat, Math.max(1, seeThrough.length));
+  seeSolid.count = seeFadedMesh.count = seeThrough.length;
+  seeSolid.name = 'see-through-solid';
+  seeFadedMesh.name = 'see-through-faded';
+  const faded = seeThrough.map(() => false);
+  const placeSee = (i: number): void => {
+    const b = seeThrough[i]!;
+    backDummy.position.set((b.min[0] + b.max[0]) / 2, (b.min[1] + b.max[1]) / 2, (b.min[2] + b.max[2]) / 2);
+    for (const [mesh, on] of [[seeSolid, !faded[i]], [seeFadedMesh, faded[i]]] as const) {
+      backDummy.scale.set(b.max[0] - b.min[0], b.max[1] - b.min[1], b.max[2] - b.min[2]).multiplyScalar(on ? 1 : 1e-4);
+      backDummy.updateMatrix();
+      mesh.setMatrixAt(i, backDummy.matrix);
+      mesh.instanceMatrix.needsUpdate = true;
+    }
+  };
+  seeThrough.forEach((b, i) => {
+    placeSee(i);
+    seeSolid.setColorAt(i, materialColor(theme, b.material));
+    seeFadedMesh.setColorAt(i, materialColor(theme, b.material));
+  });
+  for (const m of [seeSolid, seeFadedMesh]) {
+    if (m.instanceColor) m.instanceColor.needsUpdate = true;
+    m.computeBoundingSphere();
+    m.visible = seeThrough.length > 0;
+  }
+  seeFadedMesh.visible = false;
+  seeFadedMesh.renderOrder = 2;
+  group.add(seeSolid, seeFadedMesh);
 
   // Gates: one InstancedMesh of unit boxes scaled to each slab; signs as a second instanced quad set.
   const gateGeo = new BoxGeometry(1, 1, 1);
@@ -589,9 +628,20 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       // Half a chunk of margin each way (a 120-unit chunk shows while its centre is within far + 120).
       for (const c of chunks) c.visible = c.userData['z1'] > z - far - CHUNK_LENGTH / 2 && c.userData['z0'] < z + far + CHUNK_LENGTH / 2;
     },
+    seeThrough,
+    setSeeThrough(i, f) {
+      if (faded[i] === undefined || faded[i] === f) return;
+      faded[i] = f;
+      placeSee(i);
+      seeSolid.computeBoundingSphere();
+      seeFadedMesh.computeBoundingSphere();
+      seeFadedMesh.visible = faded.some(Boolean);
+    },
+    seeFaded: (i) => faded[i] === true,
     dispose() {
       for (const c of chunks) c.geometry.dispose();
       material.dispose();
+      seeMat.dispose();
       gateGeo.dispose();
       gateMat.dispose();
       crestMat.dispose();

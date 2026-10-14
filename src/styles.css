@@ -358,6 +358,11 @@ canvas.fallback {
 .pause-side { flex: 0 1 170px; display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: 12px; background: #dde9f5; text-align: center; }
 .pause-side-cap { font-size: 13px; font-weight: 800; line-height: 1.25; }
 .pause-side .community { display: block; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.base-gifts { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 8px; width: 150px; pointer-events: auto; }
+.base-gifts.off { display: none; }
+.base-gifts .community-gift { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%; padding: 6px 8px; }
+.base-gift-from { font-size: 11px; font-weight: 700; opacity: 0.8; }
+.base-gift-what { font-size: 13px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 /* FM-16: the gift cards under the channels, gold like a gift; hidden until there is a gift to give. */
 .pause-side .community-gift { background: #ffb800; color: #1b2a3a; white-space: normal; line-height: 1.15; }
 .pause-side .community[hidden] { display: none; }

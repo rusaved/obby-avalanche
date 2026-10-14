@@ -78,6 +78,8 @@ export interface FunViewState {
   /** Trampoline puffs, slide trail particles alive, snow puff particles alive, the note step of the last path gift. */
   puffs: number;
   trail: number;
+  /** RL-06: sparks of the ice alive. */
+  spark: number;
   puffAlive: number;
   giftNote: number;
   slides: number;
@@ -185,6 +187,7 @@ export function createFunView(d: FunViewDeps): FunView {
         chimes: st.chimes,
         puffs: st.puffs,
         trail: d.fx.alive('trail'),
+        spark: d.fx.alive('spark'),
         puffAlive: d.fx.alive('puff'),
         giftNote: st.giftNote,
         slides: st.slides,

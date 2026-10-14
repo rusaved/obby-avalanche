@@ -39,7 +39,7 @@ import { BOSS_SIGN_HALF, BOSS_SIGN_TOP, createBossView, type BossView } from './
 import { createEventsView, type EventsView } from './app/events-view.ts';
 import { createFunView, type FunView } from './app/fun-view.ts';
 import { createFx, type FxParticles } from './render/fx.ts';
-import { guardBannerSigns, guardBaseArches, guardRecordFlag } from './app/banner-signs.ts';
+import { guardBannerSigns, guardBaseArches, guardRecordFlag, guardSeeThrough } from './app/banner-signs.ts';
 import { createMetaView, type MetaView } from './app/meta-view.ts';
 import { createPetsView, type PetsView } from './app/pets-view.ts';
 import { createRebirthView, type RebirthView } from './app/rebirth-view.ts';
@@ -56,6 +56,7 @@ import { faceDataUrl } from './render/characters.ts';
 import { createAudio, type GameAudio } from './audio/index.ts';
 import type { ThreatOptions } from './sim/threat.ts';
 import type { ThemeJson, ThemeTint, World } from './content/types.ts';
+import { freshGifts, keepGift, keptGifts } from './meta/kept-gifts.ts';
 import { createQuality, qualityParams, QUALITY_LEVELS, type QualityLevel } from './render/quality.ts';
 import { createDecor, type Decor } from './render/decor.ts';
 import { buildLevel } from './level/builder.ts';
@@ -140,6 +141,8 @@ async function boot(): Promise<void> {
   const { theme, tuning, balance, skins, accessories, pets, eggs, trails, auras, sfx, bots } = content;
   // RL-04 (docs/01-gdd.md 21.4): a mountain's own sky, fog and snow (theme.json tints by its id); the base — the theme's.
   const tintOf = (w: World | undefined): ThemeTint | null => (w ? theme.tints?.[w.id] : undefined) ?? null;
+  // RL-09 (docs/01-gdd.md 21.9): tall walls in the way of the camera drawn at camera.fadeAlpha (1 — as before, solid).
+  const seeFade = (): number => (tuning.camera.seeThrough ? (tuning.camera.fadeAlpha ?? 0.3) : 1);
   const themeOf = (tint: ThemeTint | null): ThemeJson =>
     tint ? { ...theme, materials: { ...theme.materials, track: { ...theme.materials['track']!, color: tint.track } } } : theme;
   platform.onPause(() => pause.add('sdk'));
@@ -222,7 +225,7 @@ async function boot(): Promise<void> {
   // Back after F5 or another day (docs/01-gdd.md 6.6): the mountain of the save, the hero at its farthest flag.
   let world = content.worlds.worlds.find((w) => w.index === save.world) ?? content.worlds.worlds[0];
   if (!world) throw new Error('worlds.json has no worlds');
-  let level = buildLevel(world, { wallHeight: tuning.bounds?.wallHeight });
+  let level = buildLevel(world, { wallHeight: tuning.bounds?.wallHeight, cameraThrough: tuning.camera.seeThrough });
   // Feel values (base and ceiling) come from tuning.json sliders; the curve shape from balance.json.
   const speedCurve = () => ({ ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed });
   // The avalanche (docs/02-tech.md 8.1): live world threat (debug sliders change it), save counters.
@@ -279,6 +282,9 @@ async function boot(): Promise<void> {
     walls: wallsOf(world),
     events: eventsOptions(world),
   });
+  // RL-08 (docs/01-gdd.md 21.8): with gifts.respawn «never» the gifts taken on this mountain stay taken after F5.
+  const keepTaken = (balance.gifts?.respawn ?? 'onWaveGone') === 'never';
+  if (keepTaken) for (const i of keptGifts(save, world.index, sim.gifts.length)) sim.gifts[i]!.taken = true;
   /** The climb into the save (docs/01-gdd.md 7.10): stat, best stat, coins, mountain, farthest wall passed. */
   const frontierOf = (s: Sim): number => s.level.gates.reduce((m, g, i) => (s.gatesPassed[i] ? Math.max(m, g.index) : m), 0);
   function syncSave(): void {
@@ -403,6 +409,7 @@ async function boot(): Promise<void> {
     // Gifts (M2-04): a taken gift disappears, the coin plaque slides in on the first coin.
     s.events.on('giftTake', ({ index, total }) => {
       levelMeshes?.setGiftShown(index, false);
+      if (keepTaken && !onBase && !replay) keepGift(save, s.level.worldIndex, index);
       hud?.setCoins(formatNumber(total, numSuffix));
     });
     s.events.on('gatePass', ({ total, index }) => {
@@ -861,7 +868,9 @@ async function boot(): Promise<void> {
     basePortals = [];
     baseView?.clear();
     hud?.setMountainShown(true);
-    level = buildLevel(world, { wallHeight: tuning.bounds?.wallHeight });
+    level = buildLevel(world, { wallHeight: tuning.bounds?.wallHeight, cameraThrough: tuning.camera.seeThrough });
+    // A new entry (a portal, the rebirth): all its gifts back (RL-08); a run again from the base keeps the save's own.
+    if (!replay) freshGifts(save, index);
     // From the base portal of the own mountain begun (docs/01-gdd.md 19.4): at the flag of its farthest ridge, as 6.6.
     const resume = how.resume ? { frontierWall: save.frontierWall ?? 0 } : undefined;
     sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world), walls: wallsOf(world), record: replay ? undefined : world.layout === 'openSlope' ? recordOf(world) : undefined, boss: game.threat.boss, events: eventsOptions(world), resume });
@@ -878,7 +887,7 @@ async function boot(): Promise<void> {
       gr.scene.remove(levelMeshes.group);
       levelMeshes.dispose();
       gr.setTint(tintOf(world));
-      levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`));
+      levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`), seeFade());
       gr.scene.add(levelMeshes.group);
       applyQualityNow();
     }
@@ -944,6 +953,9 @@ async function boot(): Promise<void> {
     }
     baseView?.set(level, basePortals, t, `×${formatNumber(treadMult, numSuffix)}`, recordsView?.boardLines(save, summits, content.worlds.worlds.length));
     hud?.setMountainShown(false);
+    // RL-11: the gift cards of the base column are those of the pause, shown without it.
+    syncGiftCards();
+    askReviewCan();
     maxSpeed = sim.params.speed;
     frame.controlYaw = b.spawnYaw;
     frame.viewYaw = b.spawnYaw;
@@ -1369,6 +1381,7 @@ async function boot(): Promise<void> {
     // SP-01: the record flag is never drawn in the way of the camera (docs/01-gdd.md 20.2).
     if (cameraRig) guardRecordFlag(recordFlag, cameraRig.camera, renderPos, tuning.camera.hideDistance * (tuning.camera.flagHide ?? 0));
     if (cameraRig && baseView?.drawn) guardBaseArches(baseView, cameraRig.camera, renderPos, tuning.camera.archHide ?? 0);
+    if (cameraRig && levelMeshes) guardSeeThrough(levelMeshes, cameraRig.camera, renderPos);
     // Test hooks see the frame as it is drawn: camera, hero and the signs hidden for it (PR-11).
     g.onFrame?.();
     gr.follow(renderPos);
@@ -1443,10 +1456,11 @@ async function boot(): Promise<void> {
   gr = createGameRenderer(canvas, gl, theme, quality.params.antialias);
   bootState.glRenderer = gr.glRenderer;
   gr.setTint(tintOf(world));
-  levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`));
+  levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`), seeFade());
   gr.scene.add(levelMeshes.group);
-  // Walls open from the save stand as arches at once (M3-07), no melt.
+  // Walls open from the save stand as arches at once (M3-07), no melt; gifts taken before F5 are gone (RL-08).
   sim.gatesOpen.forEach((open, i) => open && levelMeshes!.setGateOpen(i, 1));
+  sim.gifts.forEach((g, i) => g.taken && levelMeshes!.setGiftShown(i, false));
   characters = createCharacters(skins, accessories);
   gr.scene.add(characters.group);
   heroChar = characters.create(skins.default);
