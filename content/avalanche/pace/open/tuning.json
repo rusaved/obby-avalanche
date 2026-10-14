@@ -12,6 +12,9 @@
   "minDistance": 7,
   "shelterKeep": 8,
   "archHide": 8,
+  "grottoShot": {
+   "orbitDeg": 75
+  },
     "speedPow": 0.4,
     "zoomMax": 26,
     "mobileFovAdd": 4,

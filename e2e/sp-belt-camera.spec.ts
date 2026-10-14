@@ -6,10 +6,13 @@ import openTuning from '../content/avalanche/pace/open/tuning.json' with { type:
 // Q-066 (plays of «Размах»: on a grotto belt the camera hung over the hero's head 3–4 units off — off the belt in a narrow
 // grotto the view coming back after the belt frame was pressed into the wall and rose over him; the grotto frame waited
 // for the way back to end): on every belt of mountains 1–3 the camera keeps NEAR units off the hero's head — walking in,
-// stepping off the belt and out without a turn, turned round by hand 360° on the belt, and out after that turn.
+// stepping off the belt and out without a turn, turned round by hand 360° on the belt, and out after that turn; on the belt
+// 3 drags of 15° each way turn the view ≥ ANSWER (the grotto frame goes round the hero, camera.grottoShot.orbitDeg).
 // NEAR — the minDistance of the open camera (7: the playtester's «not closer than 7–8») less the unit its point over the
 // hero leads him by; the open frame itself keeps 13. Screenshot: the turn on the belt.
 const NEAR = openTuning.camera.minDistance - 1;
+/** 3 drags of 15° one way turn the view at least this much on every belt (degrees). */
+const ANSWER = 10;
 const EVIDENCE = 'docs/evidence/sp';
 const RETURN_TICKS = Math.round(tuning.avalanche.shotReturnSec * 60);
 type Shelter = { kind: string; side: string; z: number; mouth: [number, number]; inside: [number, number]; belt: [number, number] | null };
@@ -24,6 +27,15 @@ async function watch(page: Page, act: () => Promise<boolean>, maxSteps = 200): P
   }
   const st = await page.evaluate(() => window.__TEST__!.cameraStats());
   return { min: st.headMin, at: st.headMinAt };
+}
+
+/** One drag of the mouse across the screen by `px`, then the ticks for it to show. */
+async function drag(page: Page, px: number): Promise<void> {
+  await page.mouse.move(400, 300);
+  await page.mouse.down();
+  await page.mouse.move(400 + px, 300, { steps: 2 });
+  await page.mouse.up();
+  await waitTicks(page, 3);
 }
 
 /** A bot walk through these points, watched to the end and shotReturnSec past it. */
@@ -52,6 +64,8 @@ test('belts of mountains 1–3: in, off without a turn, turned round by hand and
   const rows: string[] = [];
   let worst = Infinity;
   let belts = 0;
+  /** The least the view answered 3 drags of 15° one way, degrees. */
+  let deaf = Infinity;
   for (const m of [1, 2, 3]) {
     if (m > 1) {
       await page.evaluate((n) => window.__TEST__!.gotoWorld(n), m);
@@ -80,13 +94,19 @@ test('belts of mountains 1–3: in, off without a turn, turned round by hand and
       await walk(page, [belt]);
       let i = 0;
       const turn = await watch(page, async () => {
-        await page.mouse.move(400, 300);
-        await page.mouse.down();
-        await page.mouse.move(400 + px, 300, { steps: 2 });
-        await page.mouse.up();
+        await drag(page, px);
         return ++i >= 24;
       });
       expect((await testState(page)).onBelt, `mountain ${m} ${n.kind} z ${n.z.toFixed(0)}: still on the belt`).toBe(true);
+      // The view answers the hand both ways (playtest 3: in the grotto frame 7 drags of 8 did nothing): 3 drags left, 3 right;
+      // in the grotto frame as far round as the hero is seen through the mouth (a narrow one stops it sooner on one side).
+      const answer: number[] = [];
+      for (const dir of [-1, 1]) {
+        const y0 = (await testState(page)).viewYaw;
+        for (let k = 0; k < 3; k++) await drag(page, dir * px);
+        const y1 = (await testState(page)).viewYaw;
+        answer.push(Math.abs(Math.atan2(Math.sin(y1 - y0), Math.cos(y1 - y0))) * (180 / Math.PI));
+      }
       if (belts === 2) await shot1080(page, `${EVIDENCE}/belt_turn_1920x1080_ru.png`);
       const offTurned = await walk(page, [n.mouth]);
       const parts = [
@@ -97,10 +117,12 @@ test('belts of mountains 1–3: in, off without a turn, turned round by hand and
       ] as const;
       for (const [, r] of parts) worst = Math.min(worst, r.min);
       const bad = parts.filter(([, r]) => r.min < NEAR);
-      rows.push(`m${m} ${n.kind} z ${n.z.toFixed(0)}: ${parts.map(([w, r]) => `${w} ${r.min.toFixed(1)}`).join(', ')}${bad.length ? ` — ${bad.map(([w, r]) => `${w}: ${r.at}`).join('; ')}` : ''}`);
+      rows.push(`m${m} ${n.kind} z ${n.z.toFixed(0)}: ${parts.map(([w, r]) => `${w} ${r.min.toFixed(1)}`).join(', ')}; 3 drags left ${answer[0]!.toFixed(0)}°, right ${answer[1]!.toFixed(0)}°${bad.length ? ` — ${bad.map(([w, r]) => `${w}: ${r.at}`).join('; ')}` : ''}`);
+      deaf = Math.min(deaf, ...answer);
     }
   }
   console.log(`belt camera (head, units; NEAR ${NEAR}), ${belts} belts:\n` + rows.join('\n'));
   expect(belts).toBeGreaterThanOrEqual(15);
   expect(worst, rows.join('\n')).toBeGreaterThanOrEqual(NEAR);
+  expect(deaf, rows.join('\n')).toBeGreaterThanOrEqual(ANSWER);
 });

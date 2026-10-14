@@ -374,7 +374,7 @@ const tuningSchema = v.object({
     hideDistance: nonNeg,
     minDistance: nonNeg,
     minDist: positive,
-    grottoShot: v.object({ out: positive, height: positive, back: nonNeg, fov: v.pipe(v.number(), v.minValue(30), v.maxValue(120)), pressed: positive }),
+    grottoShot: v.object({ out: positive, height: positive, back: nonNeg, fov: v.pipe(v.number(), v.minValue(30), v.maxValue(120)), pressed: positive, orbitDeg: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(90))) }),
     raiseMaxDeg: v.pipe(v.number(), v.minValue(0), v.maxValue(85)),
     raiseStepDeg: positive,
     raiseReturnRate: positive,

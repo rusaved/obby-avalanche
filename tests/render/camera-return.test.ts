@@ -24,6 +24,7 @@ const tuningWith = (backBehind: 'run' | 'before'): TuningJson => {
     camera.fovSpeedAdd = (tuningJson as TuningJson).camera.fovSpeedAdd;
     // Q-066 (the camera pass of 13.10): the open pace keeps the camera off a wall behind the hero by 7, not 4.
     camera.minDistance = (tuningJson as TuningJson).camera.minDistance;
+    camera.grottoShot = (tuningJson as TuningJson).camera.grottoShot;
   }
   return { ...base, camera };
 };

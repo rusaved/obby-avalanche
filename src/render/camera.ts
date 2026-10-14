@@ -65,6 +65,8 @@ export interface CameraRig {
   /** A point kept in the view (the giant ahead in his zone, docs/01-gdd.md 19.8): the view never turns from it by more
    * than camera.bossKeepDeg; a turn by hand while it is set leaves the view to the player until it is cleared. */
   keep: Vector3 | null;
+  /** The kept point turns the view only while the player gives no move (the shelter of the siren, Q-066). */
+  keepIdle: boolean;
   update(dt: number, target: CameraTarget, input: CameraInputInfo, collision: CollisionWorld | null): void;
   snapTo(target: CameraTarget): void;
   /** Is the camera inside level geometry (sphere test) — for tests. */
@@ -93,6 +95,8 @@ const LEAD_MARGIN = 0.5;
 const HEAD = 4.4;
 /** How fast the view turns to keep the giant in it (rad/s). */
 const KEEP_RATE = 3;
+/** The grotto frame taken round the hero steps back towards its own point by this much where the hero is not seen (rad). */
+const ORBIT_STEP = (5 * Math.PI) / 180;
 /** A turn by hand this recent when the fixed frame ends keeps the player's yaw (docs/02-tech.md 7: «a turn in the last 0.5 s»). */
 const MANUAL_RECENT_SEC = 0.5;
 
@@ -144,6 +148,9 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
    * not by running out of the mouth (a teleport, along a wall, the avalanche shot) the view goes back to that yaw. */
   let tightYaw0 = 0;
   const tightOut = { x: 0, z: 0 };
+  /** Q-066: the turn by hand in the grotto frame (rad, round the hero from the frame point) and the yaw the frame set last. */
+  let tightOrbit = 0;
+  let tightYawSet = 0;
   const tightPos = new Vector3();
   const tightLook = new Vector3();
   let tightFov = c.fov;
@@ -213,6 +220,7 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
     },
     view: null,
     keep: null,
+    keepIdle: false,
     get viewBlend() {
       return viewK;
     },
@@ -248,6 +256,11 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
     update(dt, target, input, collision) {
       if (input.manualCamera) rig.sinceManual = 0;
       else rig.sinceManual += dt;
+      // In the grotto frame a turn by hand takes the frame round the hero (from the mouth's side, grottoShot.orbitDeg).
+      if (tight) {
+        const lim = ((c.grottoShot.orbitDeg ?? 0) * Math.PI) / 180;
+        tightOrbit = Math.max(-lim, Math.min(lim, tightOrbit + angleDiff(tightYawSet, frame.viewYaw)));
+      }
       viewK = 0;
       if (rig.view) {
         const v = rig.view;
@@ -352,10 +365,13 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
         }
       }
 
-      // The giant ahead in his zone stays in the view (FM-03), until the player turns the camera himself.
+      // The giant ahead in his zone stays in the view (FM-03), until the player turns the camera himself. A point kept only
+      // while he stands (keepIdle: the shelter of the siren) never turns the view under a held key (Q-066, playtest 3: turned
+      // to the shelter behind him under «back», the next press of it led away from it).
       if (!rig.keep) keepOff = false;
       else if (input.manualCamera) keepOff = true;
-      if (rig.keep && !keepOff && !rig.shot && !rig.fixed && c.bossKeepDeg !== undefined && dt > 0) {
+      const still = input.moveX === 0 && input.moveY === 0 && !input.autoRun;
+      if (rig.keep && !keepOff && (!rig.keepIdle || still) && !rig.shot && !rig.fixed && c.bossKeepDeg !== undefined && dt > 0) {
         const want = Math.atan2(rig.keep.x - target.pos.x, rig.keep.z - target.pos.z);
         const d = angleDiff(frame.viewYaw, want);
         const lim = (c.bossKeepDeg * Math.PI) / 180;
@@ -426,6 +442,7 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
         tight = true;
         tightK = 1;
         tightYaw0 = backYaw ?? frame.viewYaw;
+        tightOrbit = 0;
         backYaw = null;
         runBack = false;
         retK = 1;
@@ -460,6 +477,20 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
         tightPos.copy(rig.shelter.pos);
         tightLook.copy(rig.shelter.look);
         tightFov = rig.shelter.fov;
+        // Round the hero by the turn by hand, as far round as the hero is still seen through the mouth (a step of ORBIT_STEP
+        // back at a time; the angle found is kept, so the next frame starts from it).
+        const rx = rig.shelter.pos.x - tightLook.x;
+        const rz = rig.shelter.pos.z - tightLook.z;
+        while (Math.abs(tightOrbit) > 1e-3) {
+          const cs = Math.cos(tightOrbit);
+          const sn = Math.sin(tightOrbit);
+          _tmp.set(tightLook.x + rx * cs + rz * sn, rig.shelter.pos.y, tightLook.z - rx * sn + rz * cs);
+          if (!collision || (!blocked(_tmp, c.collisionRadius, collision) && clearWay(_tmp, tightLook, c.collisionRadius * 0.5, collision))) {
+            tightPos.copy(_tmp);
+            break;
+          }
+          tightOrbit = Math.abs(tightOrbit) <= ORBIT_STEP ? 0 : tightOrbit - Math.sign(tightOrbit) * ORBIT_STEP;
+        }
         // Never inside the level: from the frame point towards the hero until free.
         if (collision) for (let i = 0; i < 10 && blocked(tightPos, c.collisionRadius, collision); i++) tightPos.lerp(tightLook, 0.15);
       } else if (!tight && tightK > 0) {
@@ -475,6 +506,7 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
         if (tight) {
           _seg.copy(tightLook).sub(tightPos);
           frame.viewYaw = Math.atan2(_seg.x, _seg.z);
+          tightYawSet = frame.viewYaw;
         }
       }
       _look.copy(pivot);

@@ -326,7 +326,9 @@ export interface TuningJson {
     minDist: number;
     /** The grotto frame: from the slope `out` units off the mouth, `height` over the floor, `back` downhill, looking at the
      * hero; taken when the free distance behind him in a shelter is under `pressed` (the camera ran into a wall). */
-    grottoShot: { out: number; height: number; back: number; fov: number; pressed: number };
+    /** `orbitDeg` (Q-066): a turn by hand in the grotto frame takes it round the hero this far either way from the mouth's
+     * side (absent — the frame does not turn). */
+    grottoShot: { out: number; height: number; back: number; fov: number; pressed: number; orbitDeg?: number };
     raiseMaxDeg: number;
     raiseStepDeg: number;
     raiseReturnRate: number;

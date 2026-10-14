@@ -1207,8 +1207,10 @@ async function boot(): Promise<void> {
       // FM-03 (docs/01-gdd.md 19.8): running up a giant's zone, the giant ahead stays in the view.
       const zone = sim.boss?.zones.find((z) => renderPos.z >= z.zone[0] && renderPos.z <= z.zone[1]);
       const ahead = zone?.giants.find((x) => x.z > renderPos.z + BOSS_KEEP_AHEAD);
-      // Q-066: on the siren the mouth of the lit shelter (camera.shelterKeep).
-      cameraRig.keep = ahead && hero.vel.z > 0.5 ? bossKeep.set(ahead.x, sim.level.floorAt(ahead.x, ahead.z) + (theme.boss?.height ?? 0) / 2, ahead.z) : (waveView?.keep ?? null);
+      // Q-066: on the siren the mouth of the lit shelter (camera.shelterKeep), only while the player stands.
+      const giant = ahead && hero.vel.z > 0.5;
+      cameraRig.keep = giant ? bossKeep.set(ahead.x, sim.level.floorAt(ahead.x, ahead.z) + (theme.boss?.height ?? 0) / 2, ahead.z) : (waveView?.keep ?? null);
+      cameraRig.keepIdle = !giant;
       cameraRig.update(
         frameDt,
         { pos: renderPos, vel: hero.vel, speed: hero.speed, maxSpeed },
