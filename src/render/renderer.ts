@@ -19,7 +19,7 @@ import {
   PCFSoftShadowMap,
   Vector3,
 } from 'three';
-import type { ThemeJson } from '../content/types.ts';
+import type { ThemeJson, ThemeTint } from '../content/types.ts';
 import type { QualityParams } from './quality.ts';
 
 export interface RenderInfo {
@@ -44,6 +44,8 @@ export interface GameRenderer {
   applyQuality(q: QualityParams): void;
   /** Shadow camera and sky follow the hero. */
   follow(target: Vector3): void;
+  /** RL-04: a mountain's own sky, fog and snow light (theme.json tints), null — the theme's own. */
+  setTint(tint: ThemeTint | null): void;
   dispose(): void;
 }
 
@@ -162,6 +164,14 @@ export function createGameRenderer(canvas: HTMLCanvasElement, gl: WebGL2Renderin
         sun.shadow.map?.dispose();
         sun.shadow.map = null;
       }
+    },
+    setTint(tint) {
+      const bottom = new Color(tint?.sky.bottom ?? theme.sky.bottom);
+      renderer.setClearColor(bottom, 1);
+      (scene.background as Color).copy(bottom);
+      (scene.fog as Fog).color.set(tint?.fog ?? theme.fog.color);
+      hemi.color.set(tint?.sky.top ?? theme.sky.top);
+      hemi.groundColor.set(tint?.track ?? theme.materials['track']?.color ?? '#ffffff');
     },
     follow(target) {
       sun.position.copy(target).addScaledVector(sunDir, 60);

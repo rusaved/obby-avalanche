@@ -96,6 +96,7 @@ export function createFunView(d: FunViewDeps): FunView {
   let giftStreak: Streak = { step: 0, at: -Infinity };
   let now = 0;
   let trailAcc = 0;
+  let sparkN = 0;
   let windAcc = 0;
   let sim: Sim | null = null;
   const p = new Vector3();
@@ -158,6 +159,8 @@ export function createFunView(d: FunViewDeps): FunView {
           trailAcc -= TRAIL_EVERY;
           const back = 0.9 / Math.max(1, h.speed);
           d.fx.burst('trail', heroRender.x - h.vel.x * back, heroRender.y + 0.15, heroRender.z - h.vel.z * back, [color('slideTrail', '#ffffff'), '#ffffff'], 3, 2.5, 0.5);
+          // RL-06: sparks off the ice at his feet, every other trail.
+          if ((sparkN = (sparkN + 1) % 2) === 0) d.fx.burst('spark', heroRender.x, heroRender.y + 0.1, heroRender.z, [color('slideSpark', '#ffffff'), '#ffffff'], 4, 5, 0.6);
         }
       } else trailAcc = 0;
       // SP-03: wind lines past the hero above tuning fx.windFrom of the run share (on a belt he does not move: none).

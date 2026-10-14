@@ -127,6 +127,8 @@ const LANE_SHIFT_MAX = 64;
 const REACH = 0.4;
 /** Half the width of a bot plus a margin: lanes keep this far from obstacles and the side borders. */
 const LANE_MARGIN = 2;
+/** RL-05: a bot heading for the pit of the stairs starts drifting off it this far below it (units). */
+const STAIRS_RUNUP = 25;
 /** The bot walks out of a cave to this far inside the track edge (the mouth). */
 const MOUTH_INSET = 2;
 /** Boxes that are not obstacles on the slope (the walls of throats and tunnels squeeze the lanes only along them). */
@@ -487,6 +489,14 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
   const fun = opts.fun;
   const pads = fun ? level.points.filter((p) => p.type === 'jumpPad') : [];
   const slides = fun ? level.points.filter((p) => p.type === 'slide') : [];
+  // RL-03 (docs/01-gdd.md 21.3): a bot jumps a pit at its edge, up or down the slope (the hop of a trampoline).
+  const pits = fun ? (level.shapes ?? []).filter((q) => q.kind === 'pit' && q.side === undefined) : [];
+  // RL-05: the pit of the stairs to a ridge — bots run the calm half of the rise.
+  const stairPits = (level.shapes ?? []).filter((q) => q.kind === 'pit' && q.side !== undefined);
+  const atPit = (b: Bot): boolean => {
+    const c = Math.cos(b.yaw);
+    return pits.some((q) => b.x > q.x0 && b.x < q.x1 && ((c > 0 && b.z > q.z0 - 2 && b.z < q.z0) || (c < 0 && b.z < q.z1 + 2 && b.z > q.z1)));
+  };
   const on = (p: LevelPoint, x: number, z: number): boolean => Math.abs(x - p.x) <= (p['width'] as number) / 2 && Math.abs(z - p.z) <= (p['length'] as number) / 2;
   // Narrow places (docs/01-gdd.md 18.3): in a throat bots keep between its walls (closing in over its funnel); on the
   // side of a tunnel they keep inside its hall. Out on the track only, not in a cave.
@@ -535,6 +545,12 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
     // A step sideways into a wall of a narrow place never ends: past it. Only when a wall stopped him (SP-02: out of a
     // cave anywhere on a mountain with a narrow place the step to the mouth was dropped, and the bot cut through the
     // cave wall and out past the fence).
+    // Off the pit of the stairs: drift to its inner end over the run-up to it, at most the run speed sideways.
+    for (const q of stairPits) {
+      if (b.z < q.z0 - STAIRS_RUNUP || b.z > q.z1 || b.x < q.x0 - LANE_MARGIN || b.x > q.x1 + LANE_MARGIN) continue;
+      const tx = q.side === 'right' ? q.x0 - LANE_MARGIN : q.x1 + LANE_MARGIN;
+      b.x = b.z >= q.z0 ? tx : b.x + Math.max(-speed * dt, Math.min(speed * dt, tx - b.x));
+    }
     if (narrows.length && squeeze(b)) {
       const wp = b.path[0];
       if (wp && Math.abs(wp[1] - b.z) <= REACH && Math.abs(wp[0] - b.x) > REACH) b.path.shift();
@@ -550,7 +566,7 @@ export function createBots(level: LevelData, opts: BotsOptions): BotCrowd {
       const h = b.hopY + fun.cfg.padSpeed * b.hop - 0.5 * fun.gravity * b.hop * b.hop;
       if (h > floor) b.y = h;
       else b.hop = -1;
-    } else if (b.moving && Math.cos(b.yaw) > 0 && pads.some((p) => on(p, b.x, b.z) && Math.abs(p.y - floor) < 1)) {
+    } else if (b.moving && ((Math.cos(b.yaw) > 0 && pads.some((p) => on(p, b.x, b.z) && Math.abs(p.y - floor) < 1)) || atPit(b))) {
       b.hop = 0;
       b.hopY = floor;
     }

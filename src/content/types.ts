@@ -79,6 +79,12 @@ export interface GameEvents {
   blizzard?: BlizzardEvent;
 }
 
+export interface ThemeTint {
+  sky: { top: string; bottom: string };
+  fog: string;
+  track: string;
+}
+
 export interface ThemeJson {
   fx: {
     caught: string;
@@ -94,6 +100,8 @@ export interface ThemeJson {
   };
   sky: { top: string; mid?: string; bottom: string };
   fog: { color: string; near: number; far: number };
+  /** RL-04 (docs/01-gdd.md 21.4): a mountain's own sky, fog and snow by its id; absent — the colours above. */
+  tints?: Record<string, ThemeTint>;
   light: { sun: string; sunIntensity: number; ambient: string; ambientIntensity: number; sunDir: [number, number, number] };
   materials: Record<string, { color: string; roughness?: number; metalness?: number; emissive?: string }>;
   rarity: Record<string, string>;
@@ -413,7 +421,8 @@ export interface TuningJson {
    * adds `padForward` along the track; on the ice slide the run is × `slideMult` and stays so `slideSec` after it;
    * gifts on the path taken within `giftStreakSec` of each other ring a note higher each.
    */
-  fun: { padSpeed: number; padForward: number; slideMult: number; slideSec: number; giftStreakSec: number };
+  /** `slideSway` (RL-06): the hero sways this many degrees side to side on an ice slide, `slideSwayHz` times a second. */
+  fun: { padSpeed: number; padForward: number; slideMult: number; slideSec: number; giftStreakSec: number; slideSway?: number; slideSwayHz?: number };
   /**
    * Reward of every gate (docs/01-gdd.md 16.5): a fountain of `fountain` [min, max] coins into the coin plaque; gates
    * coming within `streakSec` of each other ring a semitone higher each, up to `streakSteps` steps.
@@ -651,7 +660,18 @@ export interface OpenSpecJson {
   forkSplit?: { depth: number; rampEvery: number; converge: number; bottomGifts: number };
   /** SP-07 (docs/01-gdd.md 20.7): the approach rise and the ridge passages climb at these slopes (rise / length); absent —
    * the approach 20 long, the passages 8. The trampoline of a bold lane's crevasse from mountain `padFrom` (absent — 1). */
-  relief?: { approachSlope: number; passSlope: number; padFrom?: number };
+  /** `stairs` (RL-05, docs/01-gdd.md 21.5): from mountain `fromWorld` the bold half of a section's rise (from `inner` off
+   * the axis to the edge) is a pit with `count` [min, max] plates `plate` wide, about `step` up each, gaps `gapMin`–`gapMax`;
+   * its floor `deep` under the slope, a fall counts `fall` under it. */
+  relief?: {
+    approachSlope: number;
+    passSlope: number;
+    padFrom?: number;
+    stairs?: { fromWorld: number; count: [number, number]; step: number; plate: number; gapMin: number; gapMax: number; inner: number; deep: number; fall: number };
+    /** RL-06 (docs/01-gdd.md 21.6): from section `fromSection`, on a section without a fork, an ice slide `width` wide ×`mult`
+     * on the axis, `share` [min, max] of the section long, in the longest free stretch of the axis. */
+    chute?: { fromSection: number; share: [number, number]; width: number; mult: number };
+  };
   /** SP-04 (docs/01-gdd.md 20.4: the first minute of the game on the same seconds): on `mountain`, the first grotto row of
    * `section` (the first avalanche) — rocks by the lanes `gap` off their lines — and from that section the grottos with the
    * belt under the ridges and before the giant — rocks by the run, not at the edges of a wide field; absent — at the edges. */
@@ -694,16 +714,31 @@ export interface OpenFork {
   length: [number, number];
 }
 
-export type ShapeKind = 'chasm' | 'throat' | 'tunnel' | 'hump';
+export type ShapeKind = 'chasm' | 'throat' | 'tunnel' | 'hump' | 'dip';
 
 /** Sizes of the elements (docs/01a-content.md 17.2); `…ByWorld` — the value on that mountain (key: its number). */
 export interface OpenShapes {
   /** Grottos of the slope this long along it from mountain `fromWorld` (docs/01-gdd.md 18.8 item 3: 8 → 10; mountain 1 stays as built). */
   grotto?: { width: number; fromWorld: number };
-  chasm: { width: number; depth: number; giftsAir: number; giftsBottom: number; ramp: number; padBefore: number; widthByWorld?: Record<string, number> };
+  /** `pit` (RL-03, docs/01-gdd.md 21.3): the middle of the chasm a pit `margin` units past the outer trampolines (a fall —
+   * back to the flag), the walk round its bottom at the edges at least `walk` wide; its floor `deep` under the bottom, the
+   * fall counts `fall` under the bottom. Absent — the bottom across the whole slope (RG). */
+  chasm: {
+    width: number;
+    depth: number;
+    giftsAir: number;
+    giftsBottom: number;
+    ramp: number;
+    padBefore: number;
+    widthByWorld?: Record<string, number>;
+    pit?: { margin: number; walk: number; deep: number; fall: number };
+  };
   throat: { width: number; length: number; slideMult: number; holdSec?: number; fieldGifts: number; fieldGrotto: number; height: number; funnel: number; lengthByWorld?: Record<string, number> };
   tunnel: { width: number; height: number; length: number; openGifts: number; lengthByWorld?: Record<string, number> };
   hump: { rise: number; slideLength: number; top: number; flight: number; giftsAir: number; landing: number; flightByWorld?: Record<string, number> };
+  /** RL-04 (docs/01-gdd.md 21.4): a dip across the slope — `down` units down to `depth`, a `bottom`, the way out `up` long
+   * up to `kick` over the slope (a hero running out of it is thrown a little). */
+  dip?: { depth: number; down: number; bottom: number; up: number; kick: number; depthByWorld?: Record<string, number> };
 }
 
 export interface OpenSpecMountain {

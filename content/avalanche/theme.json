@@ -11,6 +11,17 @@
   },
   "sky": { "top": "#8FD3FF", "bottom": "#E8F6FF" },
   "fog": { "color": "#E8F6FF", "near": 60, "far": 220 },
+  "tints": {
+    "pines": { "sky": { "top": "#7FCFC4", "bottom": "#E4F5EE" }, "fog": "#E4F5EE", "track": "#EEF7F2" },
+    "pass": { "sky": { "top": "#A9B8F2", "bottom": "#EEEAFB" }, "fog": "#EEEAFB", "track": "#F3F1FB" },
+    "falls": { "sky": { "top": "#6FC3E8", "bottom": "#DDF3FA" }, "fog": "#DDF3FA", "track": "#EEF8FC" },
+    "canyon": { "sky": { "top": "#F2B48C", "bottom": "#FBEDE2" }, "fog": "#FBEDE2", "track": "#FBF4EE" },
+    "crystal": { "sky": { "top": "#7EE0E0", "bottom": "#E2FAF8" }, "fog": "#E2FAF8", "track": "#F0FBFA" },
+    "blizzard": { "sky": { "top": "#9DB1C6", "bottom": "#E3E9EF" }, "fog": "#E3E9EF", "track": "#EEF1F4" },
+    "clouds": { "sky": { "top": "#F2A9C8", "bottom": "#FCEAF2" }, "fog": "#FCEAF2", "track": "#FBF3F7" },
+    "aurora": { "sky": { "top": "#8E86E6", "bottom": "#E6E3FA" }, "fog": "#E6E3FA", "track": "#F1F0FB" },
+    "stars": { "sky": { "top": "#6E7FD8", "bottom": "#DCE0F7" }, "fog": "#DCE0F7", "track": "#EDEFFA" }
+  },
   "light": {
     "sun": "#FFF4E0",
     "sunIntensity": 2.2,

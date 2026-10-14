@@ -171,6 +171,7 @@ const themeSchema = v.object({
   }),
   sky: v.object({ top: hex, mid: v.optional(hex), bottom: hex }),
   fog: v.object({ color: hex, near: nonNeg, far: positive }),
+  tints: v.optional(v.record(v.string(), v.object({ sky: v.object({ top: hex, bottom: hex }), fog: hex, track: hex }))),
   light: v.object({
     sun: hex,
     sunIntensity: nonNeg,
@@ -419,7 +420,7 @@ const tuningSchema = v.object({
     ballBounce: nonNeg,
     arrowScale: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(4))),
   }),
-  fun: v.object({ padSpeed: positive, padForward: nonNeg, slideMult: v.pipe(v.number(), v.minValue(1)), slideSec: nonNeg, giftStreakSec: nonNeg }),
+  fun: v.object({ padSpeed: positive, padForward: nonNeg, slideMult: v.pipe(v.number(), v.minValue(1)), slideSec: nonNeg, giftStreakSec: nonNeg, slideSway: v.optional(nonNeg), slideSwayHz: v.optional(nonNeg) }),
   // Pace open (docs/01a-content.md 16.7): the ridge view, the giant-zone shot, the giant's stomp, draw distance.
   ridgeShot: v.optional(v.object({ rise: nonNeg, back: nonNeg, sec: positive })),
   bossShot: v.optional(v.object({ side: positive, rise: nonNeg, back: nonNeg, sec: positive })),
@@ -530,7 +531,15 @@ const openSpecSchema = v.object({
   ridgeDigits: v.optional(v.object({ field: positive, other: positive })),
   island: v.optional(v.object({ size: positive, every: positive, minWidth: positive })),
   forkSplit: v.optional(v.object({ depth: positive, rampEvery: positive, converge: nonNeg, bottomGifts: nonNeg })),
-  relief: v.optional(v.object({ approachSlope: v.pipe(v.number(), v.gtValue(0), v.maxValue(0.5)), passSlope: v.pipe(v.number(), v.gtValue(0), v.maxValue(1)), padFrom: v.optional(positive) })),
+  relief: v.optional(
+    v.object({
+      approachSlope: v.pipe(v.number(), v.gtValue(0), v.maxValue(0.5)),
+      passSlope: v.pipe(v.number(), v.gtValue(0), v.maxValue(1)),
+      padFrom: v.optional(positive),
+      stairs: v.optional(v.object({ fromWorld: positive, count: v.tuple([positive, positive]), step: positive, plate: positive, gapMin: positive, gapMax: positive, inner: positive, deep: positive, fall: positive })),
+      chute: v.optional(v.object({ fromSection: positive, share: v.tuple([positive, positive]), width: positive, mult: v.pipe(v.number(), v.minValue(1)) })),
+    }),
+  ),
   nearRun: v.optional(v.object({ mountain: positive, section: positive, gap: nonNeg, axis: v.optional(v.boolean()) })),
   spawnZ: nonNeg,
   threat: v.object({
@@ -551,15 +560,16 @@ const openSpecSchema = v.object({
     cover: v.optional(v.object({ at: v.array(v.pipe(v.number(), v.gtValue(0), v.ltValue(1))), x: v.pipe(v.number(), v.gtValue(0), v.ltValue(0.5)), r: positive, h: positive })),
     edgeGrottos: v.optional(positive),
   }),
-  shapeFrom: v.optional(v.object({ chasm: positive, throat: positive, tunnel: positive, hump: positive })),
+  shapeFrom: v.optional(v.object({ chasm: positive, throat: positive, tunnel: positive, hump: positive, dip: positive })),
   risk: v.optional(v.object({ fromSection: positive })),
   shapes: v.optional(
     v.object({
       grotto: v.optional(v.object({ width: positive, fromWorld: positive })),
-      chasm: v.object({ width: positive, depth: positive, giftsAir: nonNeg, giftsBottom: nonNeg, ramp: positive, padBefore: positive, widthByWorld: v.optional(v.record(v.string(), positive)) }),
+      chasm: v.object({ width: positive, depth: positive, giftsAir: nonNeg, giftsBottom: nonNeg, ramp: positive, padBefore: positive, widthByWorld: v.optional(v.record(v.string(), positive)), pit: v.optional(v.object({ margin: positive, walk: positive, deep: positive, fall: positive })) }),
       throat: v.object({ width: positive, length: positive, slideMult: positive, holdSec: v.optional(nonNeg), fieldGifts: positive, fieldGrotto: positive, height: positive, funnel: nonNeg, lengthByWorld: v.optional(v.record(v.string(), positive)) }),
       tunnel: v.object({ width: positive, height: positive, length: positive, openGifts: positive, lengthByWorld: v.optional(v.record(v.string(), positive)) }),
       hump: v.object({ rise: positive, slideLength: positive, top: positive, flight: positive, giftsAir: nonNeg, landing: positive, flightByWorld: v.optional(v.record(v.string(), positive)) }),
+      dip: v.optional(v.object({ depth: positive, down: positive, bottom: positive, up: positive, kick: nonNeg, depthByWorld: v.optional(v.record(v.string(), positive)) })),
     }),
   ),
   mountains: v.pipe(
@@ -583,7 +593,7 @@ const openSpecSchema = v.object({
               shelterEvery: positive,
               gift: positive,
               fork: v.union([v.boolean(), v.object({ kind: v.picklist(['split', 'cliff']), track: positive, between: positive, length: v.tuple([positive, positive]) })]),
-              shape: v.optional(v.array(v.picklist(['chasm', 'throat', 'tunnel', 'hump']))),
+              shape: v.optional(v.array(v.picklist(['chasm', 'throat', 'tunnel', 'hump', 'dip']))),
               width: v.optional(positive),
             }),
           ),

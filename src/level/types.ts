@@ -87,7 +87,8 @@ export interface LevelNiche {
  * `x0`–`x1` on `side`), a hump (its bold lane `side`, the crest at z1, landing `land`).
  */
 export interface LevelShape {
-  /** `pit` (RL, docs/01-gdd.md 21.2): below `y` over [x0, x1] × [z0, z1] the hero has fallen (rolled back to the flag). */
+  /** `pit` (RL, docs/01-gdd.md 21.2): below `y` over [x0, x1] × [z0, z1] the hero has fallen (rolled back to the flag); with
+   * `side` — the pit of the stairs to a ridge (RL-05) at that edge, bots keep out of it. */
   kind: 'chasm' | 'throat' | 'tunnel' | 'hump' | 'pit';
   z0: number;
   z1: number;

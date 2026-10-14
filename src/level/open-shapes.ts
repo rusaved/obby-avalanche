@@ -30,6 +30,9 @@ const FORK_HUMP_BEFORE = 6;
 const FORK_HUMP_AFTER = 10;
 /** The fork past a chasm starts this far beyond where its middle trampoline lands at the ceiling of the run. */
 const CHASM_LAND_CLEAR = 6;
+/** RL-04: a dip starts this far past the flag (clear of the egg stand), ends this far before a chasm's run-up or the rise. */
+const DIP_PAST_FLAG = 14;
+const DIP_CLEAR = 12;
 
 const round3 = (x: number): number => Math.round(x * 1000) / 1000;
 
@@ -47,6 +50,8 @@ export interface SectionPlan {
   fork: [number, number] | null;
   tunnel: { z0: number; z1: number; width: number; height: number } | null;
   hump: { z0: number; crest: number; topEnd: number; padZ: number; forward: number; rise: number; land: [number, number]; landEnd: number; grotto: number } | null;
+  /** RL-04: the dip across the slope. */
+  dip: { z0: number; z1: number; depth: number } | null;
 }
 
 export interface PlanInput {
@@ -68,13 +73,16 @@ export interface PlanInput {
   vmin: number;
   vmax: number;
   tuning: Pick<TuningJson, 'controller' | 'fun'>;
+  /** Where the approach rise starts (RL-04: a dip ends before it); where a change of width ends (a dip starts past it). */
+  zA?: number;
+  taperEnd?: number;
 }
 
 /** z ranges of the elements of one section (docs/01-gdd.md 18.6); null fields for the elements it has not. */
 export function planSection(p: PlanInput): SectionPlan {
   const S = p.shapes;
   const has = (k: ShapeKind): boolean => p.shape.includes(k);
-  const plan: SectionPlan = { throat: null, field: null, chasm: null, fork: null, tunnel: null, hump: null };
+  const plan: SectionPlan = { throat: null, field: null, chasm: null, fork: null, tunnel: null, hump: null, dip: null };
   let after = p.z0;
   if (has('throat')) {
     const z0 = round3(p.z0 + Math.max(SLOTS.throat[0] * p.L, p.flag + THROAT_PAST_FLAG));
@@ -128,7 +136,41 @@ export function planSection(p: PlanInput): SectionPlan {
     // A plain fork stays inside its slot; a tunnel or a hump takes the length it needs (the validator checks the slots).
     plan.fork = [a, round3(tunnel || hump ? end : Math.min(end, p.z0 + SLOTS.fork[1] * p.L))];
   }
+  if (has('dip') && S.dip) {
+    // RL-04 (docs/01-gdd.md 21.4): on a section without a throat past the flag, before a chasm's run-up; else past the
+    // elements before the rise (a section with a throat and a fork has no room — the data does not ask for one there).
+    const D = S.dip;
+    const len = D.down + D.bottom + D.up;
+    const top = (p.zA ?? p.z0 + p.L) - DIP_CLEAR;
+    const late = plan.fork ? null : round3(after + DIP_CLEAR);
+    let a = round3(Math.max(p.z0 + p.flag + DIP_PAST_FLAG, (p.taperEnd ?? -Infinity) + 4));
+    const lim = plan.chasm ? plan.chasm.z0 - S.chasm.padBefore - PAD_SIZE - DIP_CLEAR : plan.fork ? plan.fork[0] - 4 : top;
+    // A throat takes the start: past the elements then, as on a short start before a chasm.
+    if (plan.throat || a + len > lim) {
+      if (late === null || late + len > top) throw new Error(`section at z=${p.z0}: no room for the dip (before ${round3(lim)}, past ${late ?? 'a fork'})`);
+      a = late;
+    }
+    plan.dip = { z0: a, z1: round3(a + len), depth: sizeOf(D.depth, D.depthByWorld, p.index) };
+  }
   return plan;
+}
+
+/** RL-04: the ground of a dip — a ramp down, its bottom, the way out up to `kick` over the slope. */
+export function pushDipFloor(seg: Segment[], d: NonNullable<SectionPlan['dip']>, y: number, shapes: OpenShapes): void {
+  const D = shapes.dip!;
+  seg.push({ type: 'ramp', z: d.z0, length: D.down, y, rise: -d.depth, shape: 'dip' });
+  seg.push({ type: 'floor', z: round3(d.z0 + D.down), length: D.bottom, y: round3(y - d.depth), shape: 'dip' });
+  seg.push({ type: 'ramp', z: round3(d.z0 + D.down + D.bottom), length: D.up, y: round3(y - d.depth), rise: round3(d.depth + D.kick), shape: 'dip' });
+}
+
+/** Height of the ground at z inside a dip, as pushDipFloor lays it. */
+export function dipFloorY(d: NonNullable<SectionPlan['dip']>, z: number, y: number, shapes: OpenShapes): number {
+  const D = shapes.dip!;
+  const b0 = d.z0 + D.down;
+  const b1 = b0 + D.bottom;
+  if (z < b0) return y - (d.depth * (z - d.z0)) / D.down;
+  if (z < b1) return y - d.depth;
+  return y - d.depth + ((d.depth + D.kick) * Math.min(1, (z - b1) / D.up));
 }
 
 /** The flight off a hump crest: the slide boost (fun.slideMult) and the pad's own `forward` push along +Z. */
@@ -145,6 +187,7 @@ export function blockedFor(plan: SectionPlan, side: 'left' | 'right' | null, bol
   const out: Array<[number, number]> = [];
   if (plan.throat) out.push([plan.throat.z0 - g, plan.throat.z1 + g]);
   if (plan.chasm) out.push([plan.chasm.z0 - g, plan.chasm.z1 + g]);
+  if (plan.dip) out.push([plan.dip.z0 - g, plan.dip.z1 + g]);
   if (plan.tunnel && side !== null && side !== bold) out.push([plan.tunnel.z0 - g, plan.tunnel.z1 + g]);
   if (plan.hump && side === bold) out.push([plan.hump.z0 - g, plan.hump.topEnd + g]);
   return out;
@@ -179,13 +222,28 @@ export function chasmLayout(ch: NonNullable<SectionPlan['chasm']>, shapes: OpenS
   return { steps: CHASM_STEPS, rise, bottom: round3(W - CHASM_STEPS * CHASM_STEP - ramp), ramp };
 }
 
-export function pushChasmFloor(seg: Segment[], ch: NonNullable<SectionPlan['chasm']>, y: number, shapes: OpenShapes): void {
+/**
+ * RL-03 (docs/01-gdd.md 21.3): the half-width of the pit in the middle of a chasm — `pit.margin` past the outer trampolines
+ * (x ±px), leaving the walk round its bottom at the edges at least `pit.walk` wide; null — no pit (the bottom across).
+ */
+export function chasmPit(shapes: OpenShapes, half: number, px: number): number | null {
+  const P = shapes.chasm.pit;
+  return P ? round3(Math.min(px + PAD_SIZE / 2 + P.margin, half - P.walk)) : null;
+}
+
+export function pushChasmFloor(seg: Segment[], ch: NonNullable<SectionPlan['chasm']>, y: number, shapes: OpenShapes, half: number, px: number): void {
   const { steps, rise, ramp } = chasmLayout(ch, shapes);
-  // Ice, not snow: the crack reads from afar (docs/01-gdd.md 5.3 colour language).
-  for (let k = 0; k < steps; k++) seg.push({ type: 'floor', z: round3(ch.z0 + k * CHASM_STEP), length: CHASM_STEP, y: round3(y - (k + 1) * rise), material: 'ice', shape: 'chasm' });
-  const b0 = round3(ch.z0 + steps * CHASM_STEP);
-  seg.push({ type: 'floor', z: b0, length: round3(ch.z1 - ramp - b0), y: round3(y - ch.depth), material: 'ice', shape: 'chasm' });
-  seg.push({ type: 'ramp', z: round3(ch.z1 - ramp), length: ramp, y: round3(y - ch.depth), rise: ch.depth, material: 'ice', shape: 'chasm' });
+  const p = chasmPit(shapes, half, px);
+  // With a pit (RL-03) the bottom is the walk round it at both edges; its own floor lies `deep` lower, out of reach.
+  const strips: Array<Record<string, number>> = p === null ? [{}] : [{ x0: -half, x1: -p }, { x0: p, x1: half }];
+  for (const xs of strips) {
+    // Ice, not snow: the crack reads from afar (docs/01-gdd.md 5.3 colour language).
+    for (let k = 0; k < steps; k++) seg.push({ type: 'floor', z: round3(ch.z0 + k * CHASM_STEP), length: CHASM_STEP, y: round3(y - (k + 1) * rise), ...xs, material: 'ice', shape: 'chasm' });
+    const b0 = round3(ch.z0 + steps * CHASM_STEP);
+    seg.push({ type: 'floor', z: b0, length: round3(ch.z1 - ramp - b0), y: round3(y - ch.depth), ...xs, material: 'ice', shape: 'chasm' });
+    seg.push({ type: 'ramp', z: round3(ch.z1 - ramp), length: ramp, y: round3(y - ch.depth), rise: ch.depth, ...xs, material: 'ice', shape: 'chasm' });
+  }
+  if (p !== null) seg.push({ type: 'floor', z: ch.z0, length: round3(ch.z1 - ch.z0), y: round3(y - ch.depth - shapes.chasm.pit!.deep), x0: -p, x1: p, material: 'ice', solid: false, shape: 'chasm' });
 }
 
 /** Height of the ground at z inside a chasm (the centre of the slope), as pushChasmFloor lays it. */
@@ -225,6 +283,9 @@ export function pushShapes(seg: Segment[], c: ShapeContext): void {
     seg.push({ type: 'chasm', z: ch.z0, length: W, y, depth: ch.depth, section: j });
     const pz = round3(ch.z0 - c.shapes.chasm.padBefore);
     const px = c.padX ?? c.laneX + 2;
+    // RL-03: the pit in the middle — a fall there rolls the hero back to the flag (docs/01-gdd.md 21.2).
+    const pit = chasmPit(c.shapes, c.half, px);
+    if (pit !== null) seg.push({ type: 'pit', z: ch.z0, length: W, y: round3(y - ch.depth - c.shapes.chasm.pit!.fall), x0: -pit, x1: pit, section: j });
     for (const x of [-px, 0, px]) seg.push({ type: 'jumpPad', z: pz, x, y, width: PAD_SIZE, length: PAD_SIZE, stretch: j, shape: 'chasm' });
     // Gifts in the air over every trampoline along its arc (Q-068): spaced along the flight at the minimum speed, each
     // halfway up the column of all the flights up to the top speed and taken anywhere in it; and on the bottom
@@ -240,12 +301,17 @@ export function pushShapes(seg: Segment[], c: ShapeContext): void {
         seg.push(gift(p.z, x, (col[0] + col[1]) / 2 - 0.3, { air: true, col }));
       }
     const sb = c.bold === 'left' ? -1 : 1;
-    const bottomX = [-9, 9, sb * 24];
+    // With a pit (RL-03) on the walk round it: the middle of each edge strip, the third on the bold one a little lower.
+    const sc = pit === null ? 0 : round3((pit + c.half) / 2);
+    const bottomX = pit === null ? [-9, 9, sb * 24] : [-sc, sc, sb * sc];
     // On the bottom by the foot of the ramp: where a hero running off the edge comes down (and takes the one in his lane).
     const lay = chasmLayout(ch, c.shapes);
     const zb = ch.z1 - lay.ramp - 1;
-    for (let k = 0; k < c.shapes.chasm.giftsBottom; k++) seg.push(gift(zb, bottomX[k % bottomX.length]!, y - ch.depth, { bottom: true }));
+    // With a pit (RL-03) taken anywhere from the bottom up to the edge at its z: a hero running the walk fast flies over it.
+    const col = pit === null ? {} : { col: [round3(y - ch.depth), round3(y + 1)] };
+    for (let k = 0; k < c.shapes.chasm.giftsBottom; k++) seg.push(gift(pit !== null && k >= 2 ? zb - 3 : zb, bottomX[k % bottomX.length]!, y - ch.depth, { bottom: true, ...col }));
   }
+  if (plan.dip) seg.push({ type: 'dip', z: plan.dip.z0, length: round3(plan.dip.z1 - plan.dip.z0), y, depth: plan.dip.depth, section: j });
   const sb = c.bold === 'left' ? -1 : 1;
   const tu = plan.tunnel;
   if (tu) {

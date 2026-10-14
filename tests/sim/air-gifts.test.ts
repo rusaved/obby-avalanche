@@ -24,6 +24,7 @@ describe('gifts in the air over trampolines (Q-068)', () => {
   it('mountains 2, 4, 8: from the speed of the ridge below to the top speed every flight takes all gifts of its arc', () => {
     let flights = 0;
     // Mountain 2: the chasm and the crevasse; 4: the side pad a rock stood on; 8: the hump.
+    const sims: Record<string, ReturnType<typeof createSim>> = {};
     for (const mi of [1, 3, 7]) {
       const w = worlds.worlds[mi]!;
       const level = buildLevel(w);
@@ -38,7 +39,10 @@ describe('gifts in the air over trampolines (Q-068)', () => {
         const hump = w.segments.find((s) => s.type === 'hump' && pad.z >= s.z && pad.z <= s.z + num(s, 'length') + 10);
         const z0 = hump ? hump.z - 6 : pad.z - 12;
         for (const stat of [req, req * 30, 1e12]) {
-          const s = createSim(level, tuning, { balance, speedCurve: balance.speedCurve, stat });
+          // RL-01: a trampoline on many more sections — one sim a mountain, its gifts back and its stat reset each flight.
+          const s = (sims[`${mi}`] ??= createSim(level, tuning, { balance, speedCurve: balance.speedCurve, stat }));
+          s.respawnGifts();
+          s.progress.stat = stat;
           const idx = air.map((g) => s.gifts.findIndex((q) => q.x === g.x && q.z === g.z && q.y === g.y));
           s.teleport(x, level.floorAt(x, z0) + 0.05, z0);
           for (let k = 0; k < 10; k++) s.step(NO_INPUT, DT);

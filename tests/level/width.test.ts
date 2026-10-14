@@ -41,13 +41,14 @@ function inside(pts: Array<[number, number]>, x: number, z: number): boolean {
 
 describe('SP-04: the width of the slope by sections', () => {
   it('the spec: the widths of 01a 19.2, a change over 40, a passage every 30, rocks 12 across every 2 × shelterEvery past 120', () => {
-    // 19.2, a section with a split fork no narrower than 2 × 44 + its crevasse (19.3, SP-05): 124 / 132 / 140 / 148.
+    // 19.2, a section with a split fork no narrower than 2 × 44 + its crevasse (19.3, SP-05): 124 / 132 / 140 / 148; RL-01: the
+    // new forks of pass 3 and canyon 3 (a hump, the chest grotto) widen them to 124 and 132.
     expect(spec.mountains.map((m) => m.sections.map((s) => s.width))).toEqual([
       [100, 180, 110],
       [110, 120, 200, 124],
-      [110, 124, 110, 200],
+      [110, 124, 124, 200],
       [120, 200, 132, 132],
-      [100, 132, 110, 220],
+      [100, 132, 132, 220],
       [120, 132, 200, 132],
       [110, 200, 140, 140],
       [120, 140, 140, 220],

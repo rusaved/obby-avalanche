@@ -12,7 +12,7 @@
  */
 import type { Segment, World, WorldBoss, WorldCover, WorldZone, WorldsSpecJson, OpenSpecJson, OpenSpecMountain, TuningJson } from '../content/types.ts';
 import { PAD_SIZE, SLIDE_LENGTH, SLIDE_WIDTH, flightBand, padArc } from './pad-arc.ts';
-import { blockedFor, chasmFloorY, planSection, pushChasmFloor, pushShapes, type SectionPlan } from './open-shapes.ts';
+import { blockedFor, chasmFloorY, dipFloorY, planSection, pushChasmFloor, pushDipFloor, pushShapes, type SectionPlan } from './open-shapes.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 import { FLOOR_THICKNESS, PORTAL_WIDTH } from './builder.ts';
 
@@ -117,6 +117,37 @@ export function openRarity(spec: Spec, k: number, count: number): string {
   return r;
 }
 
+/**
+ * RL-05 (docs/01-gdd.md 21.5): the rise of a section — its calm half (and the axis) the ramp as before, its bold half a
+ * pit with a stair of plates up to the top floor on the passage line nearest the middle of that half; a fall from a plate
+ * rolls the hero back to the flag (the `pit`). Bold is the side of the section's fork (right on even sections).
+ */
+function pushStairs(seg: Segment[], ST: NonNullable<NonNullable<OpenSpecJson['relief']>['stairs']>, j: number, zA: number, zB: number, y: number, rise: number, half: number, passes: readonly number[]): void {
+  const sb = j % 2 === 0 ? 1 : -1;
+  const span = round3(zB - zA);
+  let n = Math.max(ST.count[0], Math.min(ST.count[1], Math.round(rise / ST.step) - 1));
+  let P = ST.plate;
+  let g = (span - n * P) / (n + 1);
+  while (g < ST.gapMin && n > ST.count[0]) g = (span - --n * P) / (n + 1);
+  if (g > ST.gapMax) {
+    g = ST.gapMax;
+    P = (span - (n + 1) * g) / n;
+  }
+  const r = rise / (n + 1);
+  // On the passage line of the bold half nearest its middle, the plate whole inside it.
+  const mid = sb * (ST.inner + half) / 2;
+  const line = passes.filter((x) => Math.sign(x) === sb).sort((a, b) => Math.abs(a - mid) - Math.abs(b - mid))[0] ?? mid;
+  const px = round3(sb * Math.max(ST.inner + ST.plate / 2 + 1, Math.min(half - ST.plate / 2 - 1, Math.abs(line))));
+  const calm: [number, number] = sb > 0 ? [-half, ST.inner] : [-ST.inner, half];
+  const bold: [number, number] = sb > 0 ? [ST.inner, half] : [-half, -ST.inner];
+  seg.push({ type: 'ramp', z: zA, length: span, y, rise, x0: calm[0], x1: calm[1], approach: true });
+  seg.push({ type: 'stairs', z: zA, length: span, y, x: px, count: n, plate: round3(P), gap: round3(g), rise: round3(r), side: sb > 0 ? 'right' : 'left', section: j });
+  seg.push({ type: 'pit', z: zA, length: span, y: round3(y - ST.fall), x0: bold[0], x1: bold[1], side: sb > 0 ? 'right' : 'left', section: j });
+  seg.push({ type: 'floor', z: zA, length: span, y: round3(y - ST.deep), x0: bold[0], x1: bold[1], material: 'ice', solid: false, shape: 'stairs' });
+  for (let k = 0; k < n; k++)
+    seg.push({ type: 'floor', z: round3(zA + g + k * (P + g)), length: round3(P), y: round3(y + r * (k + 1)), x0: round3(px - ST.plate / 2), x1: round3(px + ST.plate / 2), thickness: 1, material: 'ice', shape: 'stairs' });
+}
+
 /** The fork of section of length L starting at z0: [start, end) or null (docs/01a-content.md 16.5: 5–40%). */
 export function forkRange(z0: number, L: number): [number, number] {
   const F = OPEN_SLOPE.fork;
@@ -205,7 +236,9 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       seg.push({ type: 'taper', z: taper[0], length: T, y, from: below, to: half });
       profile.push([taper[0], below], [taper[1], half]);
     } else if (below !== half) profile.push([zFlat, below], [zFlat, half]);
-    seg.push({ type: 'ramp', z: zA, length: round3(zB - zA), y, rise: approachRise, approach: true });
+    const ST = spec.relief?.stairs;
+    if (ST && index >= ST.fromWorld) pushStairs(seg, ST, j, zA, zB, y, approachRise, half, passesOf(spec, half));
+    else seg.push({ type: 'ramp', z: zA, length: round3(zB - zA), y, rise: approachRise, approach: true });
     seg.push({ type: 'floor', z: zB, length: round3(z1 - zB), y: yTop });
 
     if (j >= 2) seg.push({ type: 'checkpoint', z: z0 + O.flag, y, x: 0, zone: j, rarity: zone.rarity, wall: j - 1 });
@@ -232,6 +265,8 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
         vmin: speedOf(balance, tuning, stat(j - 1)),
         vmax: speedOf(balance, tuning, stat(j)),
         tuning,
+        zA,
+        ...(taper ? { taperEnd: taper[1] } : {}),
       });
     }
     const plainFork = !plan?.tunnel && !plan?.hump;
@@ -483,18 +518,38 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       seg.push({ type: 'ramp', z: round3(c0 + C.bottom), length: round3(C.width - C.bottom), y: y - C.depth, rise: C.depth, x0: boldX[0], x1: boldX[1] });
     };
     if (plan) {
-      const holes: Array<[number, number, 'chasm' | 'crevasse']> = [];
+      const holes: Array<[number, number, 'chasm' | 'crevasse' | 'dip']> = [];
       if (plan.chasm) holes.push([plan.chasm.z0, plan.chasm.z1, 'chasm']);
+      if (plan.dip) holes.push([plan.dip.z0, plan.dip.z1, 'dip']);
       if (crevasse) holes.push([crevasse[0], crevasse[1], 'crevasse']);
       let cur = zFlat;
       for (const [a, b, kind] of holes.sort((p, q) => p[0] - q[0])) {
         seg.push({ type: 'floor', z: round3(cur), length: round3(a - cur), y });
-        if (kind === 'chasm' && plan.chasm) pushChasmFloor(seg, plan.chasm, y, spec.shapes!);
+        if (kind === 'chasm' && plan.chasm) pushChasmFloor(seg, plan.chasm, y, spec.shapes!, half, fs ? laneX : laneX + 2);
+        else if (kind === 'dip' && plan.dip) pushDipFloor(seg, plan.dip, y, spec.shapes!);
         else crevasseFloor(a, b);
         cur = b;
       }
       seg.push({ type: 'floor', z: round3(cur), length: round3(zA - cur), y });
       pushShapes(seg, { plan, section: j, index, y, half, bold, laneX, ...(fs ? { padX: laneX } : {}), forkWidth: 2 * innerX, gift: sec.gift, rarity: zone.rarity, vmin: speedOf(balance, tuning, j >= 2 ? (m.ridges[j - 2] as { requires: number }).requires : carried), shapes: spec.shapes!, tuning: tuning! });
+      // RL-06 (docs/01-gdd.md 21.6): the ice chute on the axis of a section without a fork, in its longest free stretch.
+      const CH = spec.relief?.chute;
+      if (CH && j >= CH.fromSection && !fork) {
+        const pad = spec.shapes!.chasm.padBefore + PAD_SIZE + PAD_RUNUP;
+        const busy: Array<[number, number]> = [[z0, z0 + O.flag + 4], [zA - 4, z1]];
+        if (plan.throat) busy.push([plan.throat.z0, (plan.field ?? plan.throat.z1) + G]);
+        if (plan.chasm) busy.push([plan.chasm.z0 - pad, plan.chasm.z1 + PAD_RUNUP]);
+        if (plan.dip) busy.push([plan.dip.z0 - 4, plan.dip.z1 + 6]);
+        busy.sort((p, q) => p[0] - q[0]);
+        let best: [number, number] = [0, 0];
+        let cur = z0;
+        for (const [a, b] of busy) {
+          if (a - cur > best[1] - best[0]) best = [cur, a];
+          cur = Math.max(cur, b);
+        }
+        const len = round3(Math.min(best[1] - best[0], CH.share[1] * L));
+        if (len >= CH.share[0] * L) seg.push({ type: 'slide', z: round3((best[0] + best[1]) / 2), x: 0, y, width: CH.width, length: len, mult: CH.mult, stretch: j, shape: 'chute' });
+      }
     } else if (crevasse) {
       const [c0, c1] = crevasse;
       seg.push({ type: 'floor', z: zFlat, length: round3(c0 - zFlat), y });
@@ -516,6 +571,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       const zg = round3(z0 + L * (O.giftSpan[0] + ((O.giftSpan[1] - O.giftSpan[0]) * g) / (O.pathGifts - 1)));
       let yg = zg < zA ? y : zg < zB ? round3(y + (approachRise * (zg - zA)) / (zB - zA)) : yTop;
       if (plan?.chasm && zg >= plan.chasm.z0 && zg <= plan.chasm.z1) yg = round3(chasmFloorY(plan.chasm, zg, y, spec.shapes!));
+      if (plan?.dip && zg >= plan.dip.z0 && zg <= plan.dip.z1) yg = round3(dipFloorY(plan.dip, zg, y, spec.shapes!));
       const field = plan?.throat && zg > plan.throat.z1 && zg < fieldEnd;
       const pathGift = (x: number, coins: number, extra: Record<string, unknown> = {}, gy = yg): Segment => ({
         type: 'gift',
@@ -540,7 +596,9 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
         if (!overHole.some(([a, b]) => zg >= a && zg <= b)) seg.push(pathGift(sb * laneX, boldCoins, { lane: 'bold' }, boldY));
       } else if (field) seg.push(pathGift(0, Math.round(spec.shapes!.throat.fieldGifts * sec.gift), { field: true }));
       // Not in the rock of the belt under the ridge (nearRun): on the line of the passage nearest the axis.
-      else seg.push(pathGift(near && Math.abs(zg - zRidgeGrotto) < big.length / 2 + 2 && Math.abs(rockX) < spec.island!.size / 2 + 1 ? (ps[mid - 1] ?? ps[mid]!) : 0, sec.gift));
+      // Not over the pit of a chasm (RL-03): its middle trampoline's gifts are there.
+      else if (!(plan?.chasm && spec.shapes!.chasm.pit && zg >= plan.chasm.z0 - 1 && zg <= plan.chasm.z1 + 1))
+        seg.push(pathGift(near && Math.abs(zg - zRidgeGrotto) < big.length / 2 + 2 && Math.abs(rockX) < spec.island!.size / 2 + 1 ? (ps[mid - 1] ?? ps[mid]!) : 0, sec.gift));
     }
 
     const ridge = m.ridges[i] as { requires: number };
@@ -573,6 +631,8 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
       // Nor on the trampolines before a chasm with their run-up, nor on the landing past it (Q-068: a rock stood on the
       // side one of mountains 4 and 7).
       const pads: Array<[number, number]> = plan?.chasm ? [[plan.chasm.z0 - spec.shapes!.chasm.padBefore - PAD_SIZE / 2 - PAD_RUNUP - isl.size / 2, plan.chasm.z1 + PAD_RUNUP + isl.size / 2]] : [];
+      // Nor in a dip (RL-04).
+      if (plan?.dip) pads.push([plan.dip.z0 - isl.size / 2 - 2, plan.dip.z1 + isl.size / 2 + 2]);
       const busyOn = (side: 'left' | 'right'): Array<[number, number]> => [
         ...pads,
         ...(plan ? blockedFor(plan, side, bold, isl.size) : []),

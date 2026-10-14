@@ -239,8 +239,10 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     const y = num(f, 'y');
     const x0 = num(f, 'x0', -half);
     const x1 = num(f, 'x1', half);
-    boxes.push(box([x0, y - num(f, 'thickness', FLOOR_THICKNESS), z0], [x1, y, z1], str(f, 'material', 'track'), 'floor'));
-    addBorders(z0, z1, y, x0, x1);
+    // RL-03: the floor of a pit is seen, never stood on (`solid` false): a fall counts long before it.
+    const solid = f['solid'] !== false;
+    boxes.push(box([x0, y - num(f, 'thickness', FLOOR_THICKNESS), z0], [x1, y, z1], str(f, 'material', 'track'), solid ? 'floor' : 'pitFloor', solid));
+    if (solid) addBorders(z0, z1, y, x0, x1);
   }
   for (const r of rampSegs) {
     const z0 = r.z;
@@ -386,7 +388,7 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
   for (const c of world.segments.filter((s) => s.type === 'chasm'))
     shapes.push({ kind: 'chasm', z0: c.z, z1: c.z + num(c, 'length'), y: num(c, 'y'), x0: -halfAt(c.z), x1: halfAt(c.z), depth: num(c, 'depth'), section: num(c, 'section') });
   for (const p of world.segments.filter((s) => s.type === 'pit'))
-    shapes.push({ kind: 'pit', z0: p.z, z1: p.z + num(p, 'length'), y: num(p, 'y'), x0: num(p, 'x0'), x1: num(p, 'x1'), section: num(p, 'section') });
+    shapes.push({ kind: 'pit', z0: p.z, z1: p.z + num(p, 'length'), y: num(p, 'y'), x0: num(p, 'x0'), x1: num(p, 'x1'), section: num(p, 'section'), ...(p['side'] === 'left' || p['side'] === 'right' ? { side: p['side'] } : {}) });
   for (const c of world.segments.filter((s) => s.type === 'hump')) {
     const land = c['land'] as [number, number];
     shapes.push({ kind: 'hump', z0: c.z, z1: c.z + num(c, 'length'), y: num(c, 'y'), x0: num(c, 'x0'), x1: num(c, 'x1'), side: str(c, 'side') === 'left' ? 'left' : 'right', land: [land[0], num(c, 'landEnd')], section: num(c, 'section') });

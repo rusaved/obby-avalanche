@@ -196,7 +196,7 @@ export function validateOpenShapes(worlds: WorldsJson, spec: OpenSpecJson): stri
       if (!zone) return;
       const L = sec.length;
       const share = (z: number): number => (z - zone.zStart) / L;
-      const marks = w.segments.filter((s) => (s.type === 'chasm' || s.type === 'throat' || s.type === 'tunnel' || s.type === 'hump') && num(s, 'section') === j);
+      const marks = w.segments.filter((s) => (s.type === 'chasm' || s.type === 'throat' || s.type === 'tunnel' || s.type === 'hump' || s.type === 'dip') && num(s, 'section') === j);
       const want = [...(sec.shape ?? [])].sort().join('+') || '—';
       const have = marks.map((s) => s.type).sort().join('+') || '—';
       if (want !== have) errors.push(`${at}: section ${j} — elements ${have}, worlds-spec.json has ${want} (npm run gen:worlds)`);
@@ -547,11 +547,19 @@ export function validateOpenGround(worlds: WorldsJson, tuning: TuningJson, speed
     for (const x of [-mouth, 0, mouth]) lines.push([x, from, w.length]);
     // A change of width is at most this long (01a 19.2: 40).
     const lead = 60;
+    // RL-03: a pit is flown over (its trampoline's arc — validateOpenFun), the line goes on at its far edge.
+    const pits = (level.shapes ?? []).filter((q) => q.kind === 'pit');
     for (const [x, z0, z1] of lines) {
       let z = z0;
       while (level.floorAt(x, z) === -Infinity && z < z0 + lead) z += 0.5;
       let prev = level.floorAt(x, z);
       for (z += 0.5; z <= z1; z += 0.5) {
+        const pit = pits.find((q) => x > q.x0 && x < q.x1 && z >= q.z0 && z <= q.z1);
+        if (pit) {
+          z = pit.z1;
+          prev = level.floorAt(x, z + 0.5);
+          continue;
+        }
         const y = level.floorAt(x, z);
         if (y === -Infinity) {
           errors.push(`${at}: hole in the ground at x=${x}, z=${z}`);

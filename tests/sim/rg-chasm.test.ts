@@ -5,6 +5,7 @@ import { buildLevel } from '../../src/level/builder.ts';
 import { mergePatch } from '../../src/content/pace.ts';
 import { validateOpenFun, validateOpenShapes } from '../../src/level/validate-open.ts';
 import { createSim } from '../../src/sim/world.ts';
+import { groundPath } from '../../src/sim/shelter.ts';
 import { moveSpeed } from '../../src/sim/effects/moveSpeed.ts';
 import type { BalanceJson, BotsJson, OpenSpecJson, TuningJson, WorldsJson } from '../../src/content/types.ts';
 import type { HeroInput } from '../../src/sim/controller.ts';
@@ -23,16 +24,26 @@ const RUN: HeroInput = { moveX: 0, moveZ: 1, jump: false, jumpHeld: false };
 const w2 = worlds.worlds[1]!;
 const level = buildLevel(w2);
 const chasm = level.shapes!.find((c) => c.kind === 'chasm' && c.section === 2)!;
+// RL-03 (docs/01-gdd.md 21.3): the pit in its middle, the walk round its bottom at the edges.
+const pit = level.shapes!.find((c) => c.kind === 'pit' && c.section === 2)!;
+const walkX = -(pit.x1 + level.halfAt(chasm.z0)) / 2;
 // The minimum speed of the section: the stat of the ridge below it, no newbie bonus.
 const stat = spec.mountains[1]!.ridges[0]!.requires;
 const vmin = moveSpeed(stat, curve);
 const sim = (): ReturnType<typeof createSim> => createSim(level, tuning, { balance, speedCurve: curve, stat });
 
 describe('chasm and trampoline (RG-02)', () => {
-  // SP-03 (docs/01a-content.md 19.5): 18 wide — at the run of «Размах» a hero would run over the 10 of RG.
-  it('mountain 2: a chasm 18 wide and 3 deep across the whole slope, a trampoline on every lane before it', () => {
-    expect(chasm.z1 - chasm.z0).toBe(18);
+  // RL-03 (docs/01-gdd.md 21.3): 12–16 wide — the trampoline takes it with room; the middle is a pit, the edges a walk.
+  it('mountain 2: a chasm 13 wide and 3 deep across the whole slope, a pit in its middle past the outer trampolines, a trampoline on every lane before it', () => {
+    expect(chasm.z1 - chasm.z0).toBe(13);
     expect(chasm.depth).toBe(3);
+    expect([pit.z0, pit.z1]).toEqual([chasm.z0, chasm.z1]);
+    expect([pit.x0, pit.x1]).toEqual([-30, 30]);
+    expect(pit.y).toBe(chasm.y - chasm.depth! - 1);
+    // The walk round it at both edges is at least `pit.walk` wide; its floor is the bottom, the pit floor out of reach.
+    expect(level.halfAt(chasm.z0) - pit.x1).toBeGreaterThanOrEqual(spec.shapes!.chasm.pit!.walk);
+    expect(level.floorAt(walkX, (chasm.z0 + chasm.z1) / 2)).toBe(chasm.y - chasm.depth!);
+    expect(level.floorAt(0, (chasm.z0 + chasm.z1) / 2)).toBeLessThan(pit.y - 5);
     // SP-04: across its section, as wide as the section is there.
     expect(chasm.x0).toBe(-level.halfAt(chasm.z0));
     expect(chasm.x1).toBe(level.halfAt(chasm.z0));
@@ -60,9 +71,9 @@ describe('chasm and trampoline (RG-02)', () => {
     expect(airGains).toBe(0);
   });
 
-  it('past the plates: down into it without a teleport, a gift of the bottom in his lane, out up the ramp in ≤ 4 s, «chasmDown» once', () => {
+  it('the walk at the edge: down into it without a teleport, a gift of the bottom in his lane, out up the ramp in ≤ 4 s, «chasmDown» once', () => {
     const s = sim();
-    s.teleport(-9, chasm.y, chasm.z0 - 8);
+    s.teleport(walkX, chasm.y, chasm.z0 - 8);
     const down: number[] = [];
     let respawns = 0;
     s.events.on('chasmDown', ({ section }) => down.push(section));
@@ -82,10 +93,12 @@ describe('chasm and trampoline (RG-02)', () => {
       expect(Math.abs(p.y - prev.y)).toBeLessThan(2);
       prev = { y: p.y, z: p.z };
       // Down in it: the bottom or the foot of its ramp (running off the edge he comes down there).
-      if (bottomAt < 0 && s.hero.onGround && p.y < chasm.y - chasm.depth! + 1) bottomAt = i;
+      // RL-03: 13 wide at the run of the section — he may come down on the foot of the ramp, still down in it.
+      if (bottomAt < 0 && s.hero.onGround && p.y < chasm.y - 1) bottomAt = i;
       if (bottomAt >= 0 && p.z > chasm.z1 && s.hero.onGround && p.y >= chasm.y - 0.01) outAt = i;
     }
     expect(respawns).toBe(0);
+    expect(s.caught).toBeNull();
     expect(bottomAt).toBeGreaterThanOrEqual(0);
     expect(outAt).toBeGreaterThan(bottomAt);
     expect((outAt - bottomAt) * DT).toBeLessThanOrEqual(4);
@@ -103,10 +116,44 @@ describe('chasm and trampoline (RG-02)', () => {
     expect(s.fun.launches).toBe(0);
   });
 
-  it('bots: one over the plate flies over, one past it goes down and up the ramp', () => {
-    const s = createSim(level, tuning, { balance, speedCurve: curve, stat, bots: { cfg: bots, count: 2, seed: 3 } });
-    const [a, b] = s.bots!.list;
-    for (const [bot, x] of [[a!, 0], [b!, -9]] as const) {
+  it('past the plates over the pit: the hero falls in and rolls back to the flag (RL-02), never down to the pit floor', () => {
+    const s = sim();
+    const flag = level.checkpoints.find((c) => c.wall === 1)!;
+    s.teleport(0, flag.y, flag.z + 1);
+    for (let i = 0; i < 5; i++) s.step({ moveX: 0, moveZ: 0, jump: false, jumpHeld: false }, DT);
+    s.teleport(-9, chasm.y, chasm.z0 - 8);
+    let falls = 0;
+    s.events.on('fall', () => falls++);
+    let minY = Infinity;
+    for (let i = 0; i < 120 && falls === 0; i++) {
+      s.step(RUN, DT);
+      minY = Math.min(minY, s.hero.pos.y);
+    }
+    expect(falls).toBe(1);
+    expect(s.caught).not.toBeNull();
+    expect(minY).toBeGreaterThan(level.floorAt(0, (chasm.z0 + chasm.z1) / 2));
+    for (let i = 0; i < 150 && s.caught; i++) s.step({ moveX: 0, moveZ: 0, jump: false, jumpHeld: false }, DT);
+    expect(Math.abs(s.hero.pos.z - flag.z)).toBeLessThan(0.5);
+  });
+
+  it('the way to a shelter past the chasm rounds its pit by the walk at the nearer edge (the avalanche validator counts it)', () => {
+    const z0 = chasm.z0 - 10;
+    const z1 = chasm.z1 + 10;
+    const straight = z1 - z0;
+    expect(groundPath(level, 0, z0, 0, z1)).toBeGreaterThan(straight + pit.x1);
+    // Beside the pit — straight.
+    expect(groundPath(level, walkX, z0, walkX, z1)).toBeCloseTo(straight, 6);
+  });
+
+  it('bots: one over the plate flies over, one over the pit jumps it, one at the edge goes down and up the ramp', () => {
+    const s = createSim(level, tuning, { balance, speedCurve: curve, stat, bots: { cfg: bots, count: 3, seed: 3 } });
+    const [a, b, c] = s.bots!.list;
+    c!.mode = 'up';
+    c!.lane = c!.x = -9;
+    c!.z = chasm.z0 - 20;
+    c!.path = [[-9, chasm.z1 + 30]];
+    let cMin = Infinity;
+    for (const [bot, x] of [[a!, 0], [b!, walkX]] as const) {
       bot.mode = 'up';
       bot.lane = x;
       bot.x = x;
@@ -123,7 +170,10 @@ describe('chasm and trampoline (RG-02)', () => {
         aTop = Math.max(aTop, a!.y);
       }
       if (b!.z > chasm.z0 && b!.z < chasm.z1) bMin = Math.min(bMin, b!.y);
+      if (c!.z > chasm.z0 && c!.z < chasm.z1) cMin = Math.min(cMin, c!.y);
     }
+    expect(cMin).toBeGreaterThan(chasm.y);
+    expect(c!.z).toBeGreaterThan(chasm.z1);
     expect(aMin).toBeGreaterThan(chasm.y);
     expect(aTop).toBeGreaterThan(chasm.y + 3);
     expect(bMin).toBeCloseTo(chasm.y - chasm.depth!, 3);

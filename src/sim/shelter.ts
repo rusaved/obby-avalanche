@@ -105,6 +105,20 @@ export function groundPath(level: LevelData, x: number, z: number, tx: number, t
     const b: [number, number] = inZ(tz) ? [tx, tz] : [clampX(tx), up ? t.z1 : t.z0];
     return Math.hypot(a[0] - x, a[1] - z) + Math.hypot(b[0] - a[0], b[1] - a[1]) + Math.hypot(tx - b[0], tz - b[1]);
   }
+  // RL-03 (docs/01-gdd.md 21.3): a pit in the middle of a chasm — round it by the walk at its nearer edge (its bottom).
+  for (const q of level.shapes ?? []) {
+    if (q.kind !== 'pit') continue;
+    const lo = Math.max(q.z0, Math.min(z, tz));
+    const hi = Math.min(q.z1, Math.max(z, tz));
+    if (lo >= hi) continue;
+    const at = (zz: number): number => (tz === z ? x : x + ((tx - x) * (zz - z)) / (tz - z));
+    if (Math.max(at(lo), at(hi)) <= q.x0 || Math.min(at(lo), at(hi)) >= q.x1) continue;
+    const clampZ = (v: number): number => Math.max(q.z0, Math.min(q.z1, v));
+    const round = (sx: number): number => Math.hypot(sx - x, clampZ(z) - z) + Math.abs(clampZ(tz) - clampZ(z)) + Math.hypot(tx - sx, tz - clampZ(tz));
+    // The pit of the stairs (RL-05) reaches the edge: round its inner end only.
+    const e = level.halfAt(q.z0) - 0.5;
+    return Math.min(q.x0 > -e ? round(q.x0 - 1) : Infinity, q.x1 < e ? round(q.x1 + 1) : Infinity);
+  }
   let cliffs = cliffCache.get(level);
   if (!cliffs) {
     cliffs = level.boxes.filter((b) => b.kind === 'cliff').map((b) => ({ x0: b.min[0], x1: b.max[0], z0: b.min[2], z1: b.max[2] }));

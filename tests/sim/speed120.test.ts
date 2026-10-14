@@ -37,7 +37,8 @@ function walls(level: LevelData, carnizToo: boolean): (x: number, y: number, z: 
   const carniz = carnizToo ? level.boxes.filter((b) => b.kind === 'floor' && b.max[1] - b.min[1] > FLOOR_THICKNESS + 0.5 && b.max[0] - b.min[0] < level.width - 1) : [];
   const f = level.funnel;
   return (x, y, z) => {
-    for (const b of carniz) if (x > b.min[0] + 0.2 && x < b.max[0] - 0.2 && z > b.min[2] + 0.3 && z < b.max[2] - 0.3 && y < b.max[1] - 0.3) return `carniz at z ${b.min[2]}`;
+    // In it, not under it (RL-03: a hero falling in a pit passes below the floor past it).
+    for (const b of carniz) if (x > b.min[0] + 0.2 && x < b.max[0] - 0.2 && z > b.min[2] + 0.3 && z < b.max[2] - 0.3 && y < b.max[1] - 0.3 && y > b.min[1]) return `carniz at z ${b.min[2]}`;
     if (Math.abs(x) > half(z) + 0.2) {
       const n = side.find((s) => z > s.box.min[2] - 0.05 && z < s.box.max[2] + 0.05 && Math.sign(x) === (s.side === 'left' ? -1 : 1));
       if (!n) return 'past the fence';
@@ -62,6 +63,7 @@ describe('SP-02: physics at 120 units/s', () => {
       const rng = createRng(1000 + i);
       const carniz = level.boxes.filter((b) => b.kind === 'floor' && b.max[1] - b.min[1] > FLOOR_THICKNESS + 0.5 && b.max[0] - b.min[0] >= 3 && b.max[0] - b.min[0] < level.width - 1);
       const grottos = level.niches.filter((n) => n.kind !== 'tunnel' && n.kind !== 'ledge');
+      const pits = (level.shapes ?? []).filter((q) => q.kind === 'pit');
       const f = level.funnel!;
       const camp = level.safeZones[0]![1];
       const deg = Math.PI / 180;
@@ -109,6 +111,8 @@ describe('SP-02: physics at 120 units/s', () => {
         hero.onGround = true;
         for (let k = 0; k < 30; k++) {
           stepHero(hero, { moveX: mx, moveZ: mz, jump: false, jumpHeld: false }, DT, world, params, level.killY);
+          // Down in a pit (RL-03) the game rolls him back to the flag: this run is over.
+          if (pits.some((q) => hero.pos.y < q.y && hero.pos.x > q.x0 && hero.pos.x < q.x1 && hero.pos.z > q.z0 && hero.pos.z < q.z1)) break;
           const why = past(hero.pos.x, hero.pos.y, hero.pos.z);
           if (why) {
             if (bad.length < 10) bad.push(`${family} from (${x.toFixed(1)}, ${z.toFixed(1)}) course ${(dir / deg).toFixed(0)}°: ${why} at (${hero.pos.x.toFixed(2)}, ${hero.pos.y.toFixed(2)}, ${hero.pos.z.toFixed(2)})`);

@@ -1395,7 +1395,44 @@
         {
           "type": "floor",
           "z": 638,
-          "length": 92,
+          "length": 44,
+          "y": 24,
+          "x0": -55,
+          "x1": 55
+        },
+        {
+          "type": "ramp",
+          "z": 682,
+          "length": 8,
+          "y": 24,
+          "rise": -4,
+          "shape": "dip",
+          "x0": -55,
+          "x1": 55
+        },
+        {
+          "type": "floor",
+          "z": 690,
+          "length": 6,
+          "y": 20,
+          "shape": "dip",
+          "x0": -55,
+          "x1": 55
+        },
+        {
+          "type": "ramp",
+          "z": 696,
+          "length": 12,
+          "y": 20,
+          "rise": 5,
+          "shape": "dip",
+          "x0": -55,
+          "x1": 55
+        },
+        {
+          "type": "floor",
+          "z": 708,
+          "length": 22,
           "y": 24,
           "x0": -55,
           "x1": 55
@@ -1405,40 +1442,40 @@
           "z": 730,
           "length": 1,
           "y": 23.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -55,
-          "x1": 55
+          "x1": -30,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 731,
           "length": 1,
           "y": 22.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -55,
-          "x1": 55
+          "x1": -30,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 732,
           "length": 1,
           "y": 21.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -55,
-          "x1": 55
+          "x1": -30,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 733,
           "length": 3,
           "y": 21,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -55,
-          "x1": 55
+          "x1": -30,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -1446,10 +1483,72 @@
           "length": 6,
           "y": 21,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -55,
-          "x1": 55
+          "x1": -30,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 730,
+          "length": 1,
+          "y": 23.25,
+          "x0": 30,
+          "x1": 55,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 731,
+          "length": 1,
+          "y": 22.5,
+          "x0": 30,
+          "x1": 55,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 732,
+          "length": 1,
+          "y": 21.75,
+          "x0": 30,
+          "x1": 55,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 733,
+          "length": 3,
+          "y": 21,
+          "x0": 30,
+          "x1": 55,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 736,
+          "length": 6,
+          "y": 21,
+          "rise": 3,
+          "x0": 30,
+          "x1": 55,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 730,
+          "length": 12,
+          "y": 9,
+          "x0": -30,
+          "x1": 30,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "floor",
@@ -1465,6 +1564,15 @@
           "length": 12,
           "y": 24,
           "depth": 3,
+          "section": 3
+        },
+        {
+          "type": "pit",
+          "z": 730,
+          "length": 12,
+          "y": 20,
+          "x0": -30,
+          "x1": 30,
           "section": 3
         },
         {
@@ -1602,7 +1710,7 @@
         {
           "type": "gift",
           "z": 735,
-          "x": -9,
+          "x": -42.5,
           "y": 21,
           "height": 0,
           "zone": 3,
@@ -1610,12 +1718,16 @@
           "coins": 18,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            21,
+            25
+          ]
         },
         {
           "type": "gift",
           "z": 735,
-          "x": 9,
+          "x": 42.5,
           "y": 21,
           "height": 0,
           "zone": 3,
@@ -1623,12 +1735,16 @@
           "coins": 18,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            21,
+            25
+          ]
         },
         {
           "type": "gift",
-          "z": 735,
-          "x": -24,
+          "z": 732,
+          "x": -42.5,
           "y": 21,
           "height": 0,
           "zone": 3,
@@ -1636,7 +1752,19 @@
           "coins": 18,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            21,
+            25
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 682,
+          "length": 26,
+          "y": 24,
+          "depth": 4,
+          "section": 3
         },
         {
           "type": "gift",
@@ -1654,7 +1782,7 @@
           "type": "gift",
           "z": 682.727,
           "x": 0,
-          "y": 24,
+          "y": 23.637,
           "height": 0,
           "zone": 3,
           "rarity": "legendary",
@@ -2716,40 +2844,40 @@
           "z": 465,
           "length": 1,
           "y": 12.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -60,
-          "x1": 60
+          "x1": -30,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 466,
           "length": 1,
           "y": 11.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -60,
-          "x1": 60
+          "x1": -30,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 467,
           "length": 1,
           "y": 10.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -60,
-          "x1": 60
+          "x1": -30,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 468,
           "length": 4,
           "y": 10,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -60,
-          "x1": 60
+          "x1": -30,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -2757,15 +2885,114 @@
           "length": 6,
           "y": 10,
           "rise": 3,
+          "x0": -60,
+          "x1": -30,
           "material": "ice",
-          "shape": "chasm",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 465,
+          "length": 1,
+          "y": 12.25,
+          "x0": 30,
+          "x1": 60,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 466,
+          "length": 1,
+          "y": 11.5,
+          "x0": 30,
+          "x1": 60,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 467,
+          "length": 1,
+          "y": 10.75,
+          "x0": 30,
+          "x1": 60,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 468,
+          "length": 4,
+          "y": 10,
+          "x0": 30,
+          "x1": 60,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 472,
+          "length": 6,
+          "y": 10,
+          "rise": 3,
+          "x0": 30,
+          "x1": 60,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 465,
+          "length": 13,
+          "y": -2,
+          "x0": -30,
+          "x1": 30,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 478,
+          "length": 103.667,
+          "y": 13,
+          "x0": -60,
+          "x1": 60
+        },
+        {
+          "type": "ramp",
+          "z": 581.667,
+          "length": 8,
+          "y": 13,
+          "rise": -4,
+          "shape": "dip",
           "x0": -60,
           "x1": 60
         },
         {
           "type": "floor",
-          "z": 478,
-          "length": 193,
+          "z": 589.667,
+          "length": 6,
+          "y": 9,
+          "shape": "dip",
+          "x0": -60,
+          "x1": 60
+        },
+        {
+          "type": "ramp",
+          "z": 595.667,
+          "length": 12,
+          "y": 9,
+          "rise": 5,
+          "shape": "dip",
+          "x0": -60,
+          "x1": 60
+        },
+        {
+          "type": "floor",
+          "z": 607.667,
+          "length": 63.333,
           "y": 13,
           "x0": -60,
           "x1": 60
@@ -2776,6 +3003,15 @@
           "length": 13,
           "y": 13,
           "depth": 3,
+          "section": 2
+        },
+        {
+          "type": "pit",
+          "z": 465,
+          "length": 13,
+          "y": 9,
+          "x0": -30,
+          "x1": 30,
           "section": 2
         },
         {
@@ -2913,7 +3149,7 @@
         {
           "type": "gift",
           "z": 471,
-          "x": -9,
+          "x": -45,
           "y": 10,
           "height": 0,
           "zone": 2,
@@ -2921,12 +3157,16 @@
           "coins": 40,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            10,
+            14
+          ]
         },
         {
           "type": "gift",
           "z": 471,
-          "x": 9,
+          "x": 45,
           "y": 10,
           "height": 0,
           "zone": 2,
@@ -2934,12 +3174,16 @@
           "coins": 40,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            10,
+            14
+          ]
         },
         {
           "type": "gift",
-          "z": 471,
-          "x": 24,
+          "z": 468,
+          "x": 45,
           "y": 10,
           "height": 0,
           "zone": 2,
@@ -2947,7 +3191,19 @@
           "coins": 40,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            10,
+            14
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 581.667,
+          "length": 26,
+          "y": 13,
+          "depth": 4,
+          "section": 2
         },
         {
           "type": "gift",
@@ -3037,7 +3293,7 @@
           "type": "gift",
           "z": 606.636,
           "x": 0,
-          "y": 13,
+          "y": 13.57,
           "height": 0,
           "zone": 2,
           "rarity": "rare",
@@ -3436,7 +3692,36 @@
         {
           "type": "floor",
           "z": 758,
-          "length": 97,
+          "length": 44,
+          "y": 26
+        },
+        {
+          "type": "ramp",
+          "z": 802,
+          "length": 8,
+          "y": 26,
+          "rise": -4,
+          "shape": "dip"
+        },
+        {
+          "type": "floor",
+          "z": 810,
+          "length": 6,
+          "y": 22,
+          "shape": "dip"
+        },
+        {
+          "type": "ramp",
+          "z": 816,
+          "length": 12,
+          "y": 22,
+          "rise": 5,
+          "shape": "dip"
+        },
+        {
+          "type": "floor",
+          "z": 828,
+          "length": 27,
           "y": 26
         },
         {
@@ -3444,6 +3729,8 @@
           "z": 855,
           "length": 1,
           "y": 25.25,
+          "x0": -100,
+          "x1": -52,
           "material": "ice",
           "shape": "chasm"
         },
@@ -3452,6 +3739,8 @@
           "z": 856,
           "length": 1,
           "y": 24.5,
+          "x0": -100,
+          "x1": -52,
           "material": "ice",
           "shape": "chasm"
         },
@@ -3460,6 +3749,8 @@
           "z": 857,
           "length": 1,
           "y": 23.75,
+          "x0": -100,
+          "x1": -52,
           "material": "ice",
           "shape": "chasm"
         },
@@ -3468,6 +3759,8 @@
           "z": 858,
           "length": 4,
           "y": 23,
+          "x0": -100,
+          "x1": -52,
           "material": "ice",
           "shape": "chasm"
         },
@@ -3477,7 +3770,71 @@
           "length": 6,
           "y": 23,
           "rise": 3,
+          "x0": -100,
+          "x1": -52,
           "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 855,
+          "length": 1,
+          "y": 25.25,
+          "x0": 52,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 856,
+          "length": 1,
+          "y": 24.5,
+          "x0": 52,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 857,
+          "length": 1,
+          "y": 23.75,
+          "x0": 52,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 858,
+          "length": 4,
+          "y": 23,
+          "x0": 52,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 862,
+          "length": 6,
+          "y": 23,
+          "rise": 3,
+          "x0": 52,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 855,
+          "length": 13,
+          "y": 11,
+          "x0": -52,
+          "x1": 52,
+          "material": "ice",
+          "solid": false,
           "shape": "chasm"
         },
         {
@@ -3503,6 +3860,15 @@
           "length": 13,
           "y": 26,
           "depth": 3,
+          "section": 3
+        },
+        {
+          "type": "pit",
+          "z": 855,
+          "length": 13,
+          "y": 22,
+          "x0": -52,
+          "x1": 52,
           "section": 3
         },
         {
@@ -3640,7 +4006,7 @@
         {
           "type": "gift",
           "z": 861,
-          "x": -9,
+          "x": -76,
           "y": 23,
           "height": 0,
           "zone": 3,
@@ -3648,12 +4014,16 @@
           "coins": 50,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            23,
+            27
+          ]
         },
         {
           "type": "gift",
           "z": 861,
-          "x": 9,
+          "x": 76,
           "y": 23,
           "height": 0,
           "zone": 3,
@@ -3661,12 +4031,16 @@
           "coins": 50,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            23,
+            27
+          ]
         },
         {
           "type": "gift",
-          "z": 861,
-          "x": -24,
+          "z": 858,
+          "x": -76,
           "y": 23,
           "height": 0,
           "zone": 3,
@@ -3674,7 +4048,19 @@
           "coins": 50,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            23,
+            27
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 802,
+          "length": 26,
+          "y": 26,
+          "depth": 4,
+          "section": 3
         },
         {
           "type": "floor",
@@ -3892,7 +4278,7 @@
           "type": "gift",
           "z": 805.364,
           "x": 0,
-          "y": 26,
+          "y": 24.318,
           "height": 0,
           "zone": 3,
           "rarity": "epic",
@@ -4390,7 +4776,44 @@
         {
           "type": "floor",
           "z": 1178,
-          "length": 109.5,
+          "length": 44,
+          "y": 39,
+          "x0": -62,
+          "x1": 62
+        },
+        {
+          "type": "ramp",
+          "z": 1222,
+          "length": 8,
+          "y": 39,
+          "rise": -4,
+          "shape": "dip",
+          "x0": -62,
+          "x1": 62
+        },
+        {
+          "type": "floor",
+          "z": 1230,
+          "length": 6,
+          "y": 35,
+          "shape": "dip",
+          "x0": -62,
+          "x1": 62
+        },
+        {
+          "type": "ramp",
+          "z": 1236,
+          "length": 12,
+          "y": 35,
+          "rise": 5,
+          "shape": "dip",
+          "x0": -62,
+          "x1": 62
+        },
+        {
+          "type": "floor",
+          "z": 1248,
+          "length": 39.5,
           "y": 39,
           "x0": -62,
           "x1": 62
@@ -4400,40 +4823,40 @@
           "z": 1287.5,
           "length": 1,
           "y": 38.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -62,
-          "x1": 62
+          "x1": -50,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1288.5,
           "length": 1,
           "y": 37.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -62,
-          "x1": 62
+          "x1": -50,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1289.5,
           "length": 1,
           "y": 36.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -62,
-          "x1": 62
+          "x1": -50,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1290.5,
           "length": 4,
           "y": 36,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -62,
-          "x1": 62
+          "x1": -50,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -4441,10 +4864,72 @@
           "length": 6,
           "y": 36,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -62,
-          "x1": 62
+          "x1": -50,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1287.5,
+          "length": 1,
+          "y": 38.25,
+          "x0": 50,
+          "x1": 62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1288.5,
+          "length": 1,
+          "y": 37.5,
+          "x0": 50,
+          "x1": 62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1289.5,
+          "length": 1,
+          "y": 36.75,
+          "x0": 50,
+          "x1": 62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1290.5,
+          "length": 4,
+          "y": 36,
+          "x0": 50,
+          "x1": 62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 1294.5,
+          "length": 6,
+          "y": 36,
+          "rise": 3,
+          "x0": 50,
+          "x1": 62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1287.5,
+          "length": 13,
+          "y": 24,
+          "x0": -50,
+          "x1": 50,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "chasm",
@@ -4452,6 +4937,15 @@
           "length": 13,
           "y": 39,
           "depth": 3,
+          "section": 4
+        },
+        {
+          "type": "pit",
+          "z": 1287.5,
+          "length": 13,
+          "y": 35,
+          "x0": -50,
+          "x1": 50,
           "section": 4
         },
         {
@@ -4589,7 +5083,7 @@
         {
           "type": "gift",
           "z": 1293.5,
-          "x": -9,
+          "x": -56,
           "y": 36,
           "height": 0,
           "zone": 4,
@@ -4597,12 +5091,16 @@
           "coins": 60,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            36,
+            40
+          ]
         },
         {
           "type": "gift",
           "z": 1293.5,
-          "x": 9,
+          "x": 56,
           "y": 36,
           "height": 0,
           "zone": 4,
@@ -4610,12 +5108,16 @@
           "coins": 60,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            36,
+            40
+          ]
         },
         {
           "type": "gift",
-          "z": 1293.5,
-          "x": 24,
+          "z": 1290.5,
+          "x": 56,
           "y": 36,
           "height": 0,
           "zone": 4,
@@ -4623,7 +5125,19 @@
           "coins": 60,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            36,
+            40
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 1222,
+          "length": 26,
+          "y": 39,
+          "depth": 4,
+          "section": 4
         },
         {
           "type": "hump",
@@ -4972,7 +5486,7 @@
           "type": "gift",
           "z": 1231.955,
           "x": 0,
-          "y": 39,
+          "y": 35,
           "height": 0,
           "zone": 4,
           "rarity": "legendary",
@@ -6318,40 +6832,40 @@
           "z": 537.5,
           "length": 1,
           "y": 14.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -62,
-          "x1": 62
+          "x1": -50,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 538.5,
           "length": 1,
           "y": 13.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -62,
-          "x1": 62
+          "x1": -50,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 539.5,
           "length": 1,
           "y": 12.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -62,
-          "x1": 62
+          "x1": -50,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 540.5,
           "length": 4,
           "y": 12,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -62,
-          "x1": 62
+          "x1": -50,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -6359,10 +6873,72 @@
           "length": 6,
           "y": 12,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -62,
-          "x1": 62
+          "x1": -50,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 537.5,
+          "length": 1,
+          "y": 14.25,
+          "x0": 50,
+          "x1": 62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 538.5,
+          "length": 1,
+          "y": 13.5,
+          "x0": 50,
+          "x1": 62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 539.5,
+          "length": 1,
+          "y": 12.75,
+          "x0": 50,
+          "x1": 62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 540.5,
+          "length": 4,
+          "y": 12,
+          "x0": 50,
+          "x1": 62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 544.5,
+          "length": 6,
+          "y": 12,
+          "rise": 3,
+          "x0": 50,
+          "x1": 62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 537.5,
+          "length": 13,
+          "y": 0,
+          "x0": -50,
+          "x1": 50,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "floor",
@@ -6412,6 +6988,15 @@
           "section": 2
         },
         {
+          "type": "pit",
+          "z": 537.5,
+          "length": 13,
+          "y": 11,
+          "x0": -50,
+          "x1": 50,
+          "section": 2
+        },
+        {
           "type": "jumpPad",
           "z": 531.5,
           "x": -40,
@@ -6546,7 +7131,7 @@
         {
           "type": "gift",
           "z": 543.5,
-          "x": -9,
+          "x": -56,
           "y": 12,
           "height": 0,
           "zone": 2,
@@ -6554,12 +7139,16 @@
           "coins": 150,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            12,
+            16
+          ]
         },
         {
           "type": "gift",
           "z": 543.5,
-          "x": 9,
+          "x": 56,
           "y": 12,
           "height": 0,
           "zone": 2,
@@ -6567,12 +7156,16 @@
           "coins": 150,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            12,
+            16
+          ]
         },
         {
           "type": "gift",
-          "z": 543.5,
-          "x": 24,
+          "z": 540.5,
+          "x": 56,
           "y": 12,
           "height": 0,
           "zone": 2,
@@ -6580,7 +7173,11 @@
           "coins": 150,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            12,
+            16
+          ]
         },
         {
           "type": "floor",
@@ -7225,7 +7822,44 @@
         {
           "type": "floor",
           "z": 868,
-          "length": 112,
+          "length": 18,
+          "y": 30,
+          "x0": -62,
+          "x1": 62
+        },
+        {
+          "type": "ramp",
+          "z": 886,
+          "length": 8,
+          "y": 30,
+          "rise": -5,
+          "shape": "dip",
+          "x0": -62,
+          "x1": 62
+        },
+        {
+          "type": "floor",
+          "z": 894,
+          "length": 6,
+          "y": 25,
+          "shape": "dip",
+          "x0": -62,
+          "x1": 62
+        },
+        {
+          "type": "ramp",
+          "z": 900,
+          "length": 12,
+          "y": 25,
+          "rise": 6,
+          "shape": "dip",
+          "x0": -62,
+          "x1": 62
+        },
+        {
+          "type": "floor",
+          "z": 912,
+          "length": 68,
           "y": 30,
           "x0": -62,
           "x1": 62
@@ -7235,40 +7869,40 @@
           "z": 980,
           "length": 1,
           "y": 29.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -62,
-          "x1": 62
+          "x1": -50,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 981,
           "length": 1,
           "y": 28.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -62,
-          "x1": 62
+          "x1": -50,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 982,
           "length": 1,
           "y": 27.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -62,
-          "x1": 62
+          "x1": -50,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 983,
           "length": 4,
           "y": 27,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -62,
-          "x1": 62
+          "x1": -50,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -7276,10 +7910,72 @@
           "length": 6,
           "y": 27,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -62,
-          "x1": 62
+          "x1": -50,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 980,
+          "length": 1,
+          "y": 29.25,
+          "x0": 50,
+          "x1": 62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 981,
+          "length": 1,
+          "y": 28.5,
+          "x0": 50,
+          "x1": 62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 982,
+          "length": 1,
+          "y": 27.75,
+          "x0": 50,
+          "x1": 62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 983,
+          "length": 4,
+          "y": 27,
+          "x0": 50,
+          "x1": 62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 987,
+          "length": 6,
+          "y": 27,
+          "rise": 3,
+          "x0": 50,
+          "x1": 62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 980,
+          "length": 13,
+          "y": 15,
+          "x0": -50,
+          "x1": 50,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "chasm",
@@ -7287,6 +7983,15 @@
           "length": 13,
           "y": 30,
           "depth": 3,
+          "section": 3
+        },
+        {
+          "type": "pit",
+          "z": 980,
+          "length": 13,
+          "y": 26,
+          "x0": -50,
+          "x1": 50,
           "section": 3
         },
         {
@@ -7424,7 +8129,7 @@
         {
           "type": "gift",
           "z": 986,
-          "x": -9,
+          "x": -56,
           "y": 27,
           "height": 0,
           "zone": 3,
@@ -7432,12 +8137,16 @@
           "coins": 200,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            27,
+            31
+          ]
         },
         {
           "type": "gift",
           "z": 986,
-          "x": 9,
+          "x": 56,
           "y": 27,
           "height": 0,
           "zone": 3,
@@ -7445,12 +8154,16 @@
           "coins": 200,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            27,
+            31
+          ]
         },
         {
           "type": "gift",
-          "z": 986,
-          "x": -24,
+          "z": 983,
+          "x": -56,
           "y": 27,
           "height": 0,
           "zone": 3,
@@ -7458,7 +8171,19 @@
           "coins": 200,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            27,
+            31
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 886,
+          "length": 26,
+          "y": 30,
+          "depth": 5,
+          "section": 3
         },
         {
           "type": "hump",
@@ -8241,6 +8966,8 @@
           "z": 1472.5,
           "length": 1,
           "y": 44.25,
+          "x0": -100,
+          "x1": -30,
           "material": "ice",
           "shape": "chasm"
         },
@@ -8249,6 +8976,8 @@
           "z": 1473.5,
           "length": 1,
           "y": 43.5,
+          "x0": -100,
+          "x1": -30,
           "material": "ice",
           "shape": "chasm"
         },
@@ -8257,6 +8986,8 @@
           "z": 1474.5,
           "length": 1,
           "y": 42.75,
+          "x0": -100,
+          "x1": -30,
           "material": "ice",
           "shape": "chasm"
         },
@@ -8265,6 +8996,8 @@
           "z": 1475.5,
           "length": 4,
           "y": 42,
+          "x0": -100,
+          "x1": -30,
           "material": "ice",
           "shape": "chasm"
         },
@@ -8274,13 +9007,106 @@
           "length": 6,
           "y": 42,
           "rise": 3,
+          "x0": -100,
+          "x1": -30,
           "material": "ice",
           "shape": "chasm"
         },
         {
           "type": "floor",
+          "z": 1472.5,
+          "length": 1,
+          "y": 44.25,
+          "x0": 30,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1473.5,
+          "length": 1,
+          "y": 43.5,
+          "x0": 30,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1474.5,
+          "length": 1,
+          "y": 42.75,
+          "x0": 30,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1475.5,
+          "length": 4,
+          "y": 42,
+          "x0": 30,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 1479.5,
+          "length": 6,
+          "y": 42,
+          "rise": 3,
+          "x0": 30,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1472.5,
+          "length": 13,
+          "y": 30,
+          "x0": -30,
+          "x1": 30,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
           "z": 1485.5,
-          "length": 278.5,
+          "length": 103.667,
+          "y": 45
+        },
+        {
+          "type": "ramp",
+          "z": 1589.167,
+          "length": 8,
+          "y": 45,
+          "rise": -5,
+          "shape": "dip"
+        },
+        {
+          "type": "floor",
+          "z": 1597.167,
+          "length": 6,
+          "y": 40,
+          "shape": "dip"
+        },
+        {
+          "type": "ramp",
+          "z": 1603.167,
+          "length": 12,
+          "y": 40,
+          "rise": 6,
+          "shape": "dip"
+        },
+        {
+          "type": "floor",
+          "z": 1615.167,
+          "length": 148.833,
           "y": 45
         },
         {
@@ -8314,6 +9140,15 @@
           "section": 4
         },
         {
+          "type": "pit",
+          "z": 1472.5,
+          "length": 13,
+          "y": 41,
+          "x0": -30,
+          "x1": 30,
+          "section": 4
+        },
+        {
           "type": "jumpPad",
           "z": 1466.5,
           "x": -18,
@@ -8448,7 +9283,7 @@
         {
           "type": "gift",
           "z": 1478.5,
-          "x": -9,
+          "x": -65,
           "y": 42,
           "height": 0,
           "zone": 4,
@@ -8456,12 +9291,16 @@
           "coins": 200,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            42,
+            46
+          ]
         },
         {
           "type": "gift",
           "z": 1478.5,
-          "x": 9,
+          "x": 65,
           "y": 42,
           "height": 0,
           "zone": 4,
@@ -8469,12 +9308,16 @@
           "coins": 200,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            42,
+            46
+          ]
         },
         {
           "type": "gift",
-          "z": 1478.5,
-          "x": 24,
+          "z": 1475.5,
+          "x": 65,
           "y": 42,
           "height": 0,
           "zone": 4,
@@ -8482,7 +9325,19 @@
           "coins": 200,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            42,
+            46
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 1589.167,
+          "length": 26,
+          "y": 45,
+          "depth": 5,
+          "section": 4
         },
         {
           "type": "gift",
@@ -9746,7 +10601,36 @@
         {
           "type": "floor",
           "z": 490,
-          "length": 112.5,
+          "length": 44,
+          "y": 16
+        },
+        {
+          "type": "ramp",
+          "z": 534,
+          "length": 8,
+          "y": 16,
+          "rise": -5,
+          "shape": "dip"
+        },
+        {
+          "type": "floor",
+          "z": 542,
+          "length": 6,
+          "y": 11,
+          "shape": "dip"
+        },
+        {
+          "type": "ramp",
+          "z": 548,
+          "length": 12,
+          "y": 11,
+          "rise": 6,
+          "shape": "dip"
+        },
+        {
+          "type": "floor",
+          "z": 560,
+          "length": 42.5,
           "y": 16
         },
         {
@@ -9754,6 +10638,8 @@
           "z": 602.5,
           "length": 1,
           "y": 15.25,
+          "x0": -100,
+          "x1": -56,
           "material": "ice",
           "shape": "chasm"
         },
@@ -9762,6 +10648,8 @@
           "z": 603.5,
           "length": 1,
           "y": 14.5,
+          "x0": -100,
+          "x1": -56,
           "material": "ice",
           "shape": "chasm"
         },
@@ -9770,6 +10658,8 @@
           "z": 604.5,
           "length": 1,
           "y": 13.75,
+          "x0": -100,
+          "x1": -56,
           "material": "ice",
           "shape": "chasm"
         },
@@ -9778,6 +10668,8 @@
           "z": 605.5,
           "length": 5,
           "y": 13,
+          "x0": -100,
+          "x1": -56,
           "material": "ice",
           "shape": "chasm"
         },
@@ -9787,7 +10679,71 @@
           "length": 6,
           "y": 13,
           "rise": 3,
+          "x0": -100,
+          "x1": -56,
           "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 602.5,
+          "length": 1,
+          "y": 15.25,
+          "x0": 56,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 603.5,
+          "length": 1,
+          "y": 14.5,
+          "x0": 56,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 604.5,
+          "length": 1,
+          "y": 13.75,
+          "x0": 56,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 605.5,
+          "length": 5,
+          "y": 13,
+          "x0": 56,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 610.5,
+          "length": 6,
+          "y": 13,
+          "rise": 3,
+          "x0": 56,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 602.5,
+          "length": 14,
+          "y": 1,
+          "x0": -56,
+          "x1": 56,
+          "material": "ice",
+          "solid": false,
           "shape": "chasm"
         },
         {
@@ -9796,6 +10752,15 @@
           "length": 14,
           "y": 16,
           "depth": 3,
+          "section": 2
+        },
+        {
+          "type": "pit",
+          "z": 602.5,
+          "length": 14,
+          "y": 12,
+          "x0": -56,
+          "x1": 56,
           "section": 2
         },
         {
@@ -9933,7 +10898,7 @@
         {
           "type": "gift",
           "z": 609.5,
-          "x": -9,
+          "x": -78,
           "y": 13,
           "height": 0,
           "zone": 2,
@@ -9941,12 +10906,16 @@
           "coins": 1000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            13,
+            17
+          ]
         },
         {
           "type": "gift",
           "z": 609.5,
-          "x": 9,
+          "x": 78,
           "y": 13,
           "height": 0,
           "zone": 2,
@@ -9954,12 +10923,16 @@
           "coins": 1000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            13,
+            17
+          ]
         },
         {
           "type": "gift",
-          "z": 609.5,
-          "x": 24,
+          "z": 606.5,
+          "x": 78,
           "y": 13,
           "height": 0,
           "zone": 2,
@@ -9967,7 +10940,19 @@
           "coins": 1000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            13,
+            17
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 534,
+          "length": 26,
+          "y": 16,
+          "depth": 5,
+          "section": 2
         },
         {
           "type": "hump",
@@ -10312,7 +11297,7 @@
           "type": "gift",
           "z": 544.591,
           "x": 0,
-          "y": 16,
+          "y": 11,
           "height": 0,
           "zone": 2,
           "rarity": "rare",
@@ -10900,7 +11885,44 @@
         {
           "type": "floor",
           "z": 980,
-          "length": 125,
+          "length": 44,
+          "y": 32,
+          "x0": -66,
+          "x1": 66
+        },
+        {
+          "type": "ramp",
+          "z": 1024,
+          "length": 8,
+          "y": 32,
+          "rise": -5,
+          "shape": "dip",
+          "x0": -66,
+          "x1": 66
+        },
+        {
+          "type": "floor",
+          "z": 1032,
+          "length": 6,
+          "y": 27,
+          "shape": "dip",
+          "x0": -66,
+          "x1": 66
+        },
+        {
+          "type": "ramp",
+          "z": 1038,
+          "length": 12,
+          "y": 27,
+          "rise": 6,
+          "shape": "dip",
+          "x0": -66,
+          "x1": 66
+        },
+        {
+          "type": "floor",
+          "z": 1050,
+          "length": 55,
           "y": 32,
           "x0": -66,
           "x1": 66
@@ -10910,40 +11932,40 @@
           "z": 1105,
           "length": 1,
           "y": 31.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1106,
           "length": 1,
           "y": 30.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1107,
           "length": 1,
           "y": 29.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1108,
           "length": 5,
           "y": 29,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -10951,10 +11973,72 @@
           "length": 6,
           "y": 29,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1105,
+          "length": 1,
+          "y": 31.25,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1106,
+          "length": 1,
+          "y": 30.5,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1107,
+          "length": 1,
+          "y": 29.75,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1108,
+          "length": 5,
+          "y": 29,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 1113,
+          "length": 6,
+          "y": 29,
+          "rise": 3,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1105,
+          "length": 14,
+          "y": 17,
+          "x0": -54,
+          "x1": 54,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "floor",
@@ -10979,6 +12063,15 @@
           "length": 14,
           "y": 32,
           "depth": 3,
+          "section": 3
+        },
+        {
+          "type": "pit",
+          "z": 1105,
+          "length": 14,
+          "y": 28,
+          "x0": -54,
+          "x1": 54,
           "section": 3
         },
         {
@@ -11116,7 +12209,7 @@
         {
           "type": "gift",
           "z": 1112,
-          "x": -9,
+          "x": -60,
           "y": 29,
           "height": 0,
           "zone": 3,
@@ -11124,12 +12217,16 @@
           "coins": 1200,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            29,
+            33
+          ]
         },
         {
           "type": "gift",
           "z": 1112,
-          "x": 9,
+          "x": 60,
           "y": 29,
           "height": 0,
           "zone": 3,
@@ -11137,12 +12234,16 @@
           "coins": 1200,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            29,
+            33
+          ]
         },
         {
           "type": "gift",
-          "z": 1112,
-          "x": -24,
+          "z": 1109,
+          "x": -60,
           "y": 29,
           "height": 0,
           "zone": 3,
@@ -11150,7 +12251,19 @@
           "coins": 1200,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            29,
+            33
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 1024,
+          "length": 26,
+          "y": 32,
+          "depth": 5,
+          "section": 3
         },
         {
           "type": "floor",
@@ -11403,7 +12516,7 @@
           "type": "gift",
           "z": 1041.182,
           "x": 0,
-          "y": 32,
+          "y": 28.591,
           "height": 0,
           "zone": 3,
           "rarity": "epic",
@@ -11939,40 +13052,40 @@
           "z": 1655,
           "length": 1,
           "y": 47.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1656,
           "length": 1,
           "y": 46.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1657,
           "length": 1,
           "y": 45.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1658,
           "length": 5,
           "y": 45,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -11980,10 +13093,72 @@
           "length": 6,
           "y": 45,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1655,
+          "length": 1,
+          "y": 47.25,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1656,
+          "length": 1,
+          "y": 46.5,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1657,
+          "length": 1,
+          "y": 45.75,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1658,
+          "length": 5,
+          "y": 45,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 1663,
+          "length": 6,
+          "y": 45,
+          "rise": 3,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1655,
+          "length": 14,
+          "y": 33,
+          "x0": -54,
+          "x1": 54,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "floor",
@@ -12033,6 +13208,15 @@
           "section": 4
         },
         {
+          "type": "pit",
+          "z": 1655,
+          "length": 14,
+          "y": 44,
+          "x0": -54,
+          "x1": 54,
+          "section": 4
+        },
+        {
           "type": "jumpPad",
           "z": 1649,
           "x": -44,
@@ -12167,7 +13351,7 @@
         {
           "type": "gift",
           "z": 1662,
-          "x": -9,
+          "x": -60,
           "y": 45,
           "height": 0,
           "zone": 4,
@@ -12175,12 +13359,16 @@
           "coins": 1500,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            45,
+            49
+          ]
         },
         {
           "type": "gift",
           "z": 1662,
-          "x": 9,
+          "x": 60,
           "y": 45,
           "height": 0,
           "zone": 4,
@@ -12188,12 +13376,16 @@
           "coins": 1500,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            45,
+            49
+          ]
         },
         {
           "type": "gift",
-          "z": 1662,
-          "x": 24,
+          "z": 1659,
+          "x": 60,
           "y": 45,
           "height": 0,
           "zone": 4,
@@ -12201,7 +13393,11 @@
           "coins": 1500,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            45,
+            49
+          ]
         },
         {
           "type": "floor",
@@ -13794,40 +14990,40 @@
           "z": 665,
           "length": 1,
           "y": 17.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 666,
           "length": 1,
           "y": 16.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 667,
           "length": 1,
           "y": 15.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 668,
           "length": 5,
           "y": 15,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -13835,10 +15031,72 @@
           "length": 6,
           "y": 15,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 665,
+          "length": 1,
+          "y": 17.25,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 666,
+          "length": 1,
+          "y": 16.5,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 667,
+          "length": 1,
+          "y": 15.75,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 668,
+          "length": 5,
+          "y": 15,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 673,
+          "length": 6,
+          "y": 15,
+          "rise": 3,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 665,
+          "length": 14,
+          "y": 3,
+          "x0": -54,
+          "x1": 54,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "throat",
@@ -13871,6 +15129,15 @@
           "section": 2
         },
         {
+          "type": "pit",
+          "z": 665,
+          "length": 14,
+          "y": 14,
+          "x0": -54,
+          "x1": 54,
+          "section": 2
+        },
+        {
           "type": "jumpPad",
           "z": 659,
           "x": -44,
@@ -14005,7 +15272,7 @@
         {
           "type": "gift",
           "z": 672,
-          "x": -9,
+          "x": -60,
           "y": 15,
           "height": 0,
           "zone": 2,
@@ -14013,12 +15280,16 @@
           "coins": 3000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            15,
+            19
+          ]
         },
         {
           "type": "gift",
           "z": 672,
-          "x": 9,
+          "x": 60,
           "y": 15,
           "height": 0,
           "zone": 2,
@@ -14026,12 +15297,16 @@
           "coins": 3000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            15,
+            19
+          ]
         },
         {
           "type": "gift",
-          "z": 672,
-          "x": 24,
+          "z": 669,
+          "x": 60,
           "y": 15,
           "height": 0,
           "zone": 2,
@@ -14039,7 +15314,11 @@
           "coins": 3000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            15,
+            19
+          ]
         },
         {
           "type": "hump",
@@ -14929,7 +16208,44 @@
         {
           "type": "floor",
           "z": 1080,
-          "length": 137.5,
+          "length": 16,
+          "y": 36,
+          "x0": -66,
+          "x1": 66
+        },
+        {
+          "type": "ramp",
+          "z": 1096,
+          "length": 8,
+          "y": 36,
+          "rise": -5,
+          "shape": "dip",
+          "x0": -66,
+          "x1": 66
+        },
+        {
+          "type": "floor",
+          "z": 1104,
+          "length": 6,
+          "y": 31,
+          "shape": "dip",
+          "x0": -66,
+          "x1": 66
+        },
+        {
+          "type": "ramp",
+          "z": 1110,
+          "length": 12,
+          "y": 31,
+          "rise": 6,
+          "shape": "dip",
+          "x0": -66,
+          "x1": 66
+        },
+        {
+          "type": "floor",
+          "z": 1122,
+          "length": 95.5,
           "y": 36,
           "x0": -66,
           "x1": 66
@@ -14939,40 +16255,40 @@
           "z": 1217.5,
           "length": 1,
           "y": 35.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1218.5,
           "length": 1,
           "y": 34.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1219.5,
           "length": 1,
           "y": 33.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1220.5,
           "length": 5,
           "y": 33,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -14980,10 +16296,72 @@
           "length": 6,
           "y": 33,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1217.5,
+          "length": 1,
+          "y": 35.25,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1218.5,
+          "length": 1,
+          "y": 34.5,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1219.5,
+          "length": 1,
+          "y": 33.75,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1220.5,
+          "length": 5,
+          "y": 33,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 1225.5,
+          "length": 6,
+          "y": 33,
+          "rise": 3,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1217.5,
+          "length": 14,
+          "y": 21,
+          "x0": -54,
+          "x1": 54,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "floor",
@@ -15008,6 +16386,15 @@
           "length": 14,
           "y": 36,
           "depth": 3,
+          "section": 3
+        },
+        {
+          "type": "pit",
+          "z": 1217.5,
+          "length": 14,
+          "y": 32,
+          "x0": -54,
+          "x1": 54,
           "section": 3
         },
         {
@@ -15145,7 +16532,7 @@
         {
           "type": "gift",
           "z": 1224.5,
-          "x": -9,
+          "x": -60,
           "y": 33,
           "height": 0,
           "zone": 3,
@@ -15153,12 +16540,16 @@
           "coins": 4000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            33,
+            37
+          ]
         },
         {
           "type": "gift",
           "z": 1224.5,
-          "x": 9,
+          "x": 60,
           "y": 33,
           "height": 0,
           "zone": 3,
@@ -15166,12 +16557,16 @@
           "coins": 4000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            33,
+            37
+          ]
         },
         {
           "type": "gift",
-          "z": 1224.5,
-          "x": -24,
+          "z": 1221.5,
+          "x": -60,
           "y": 33,
           "height": 0,
           "zone": 3,
@@ -15179,7 +16574,19 @@
           "coins": 4000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            33,
+            37
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 1096,
+          "length": 26,
+          "y": 36,
+          "depth": 5,
+          "section": 3
         },
         {
           "type": "floor",
@@ -15420,7 +16827,7 @@
           "type": "gift",
           "z": 1099.5,
           "x": 0,
-          "y": 36,
+          "y": 33.813,
           "height": 0,
           "zone": 3,
           "rarity": "epic",
@@ -15823,7 +17230,7 @@
         },
         {
           "type": "niche",
-          "z": 1948.667,
+          "z": 1930.667,
           "y": 54,
           "side": "left",
           "kind": "grotto",
@@ -15836,7 +17243,7 @@
         },
         {
           "type": "niche",
-          "z": 2119.333,
+          "z": 2110.333,
           "y": 54,
           "side": "right",
           "kind": "grotto",
@@ -15871,6 +17278,8 @@
           "z": 1820,
           "length": 1,
           "y": 53.25,
+          "x0": -110,
+          "x1": -30,
           "material": "ice",
           "shape": "chasm"
         },
@@ -15879,6 +17288,8 @@
           "z": 1821,
           "length": 1,
           "y": 52.5,
+          "x0": -110,
+          "x1": -30,
           "material": "ice",
           "shape": "chasm"
         },
@@ -15887,6 +17298,8 @@
           "z": 1822,
           "length": 1,
           "y": 51.75,
+          "x0": -110,
+          "x1": -30,
           "material": "ice",
           "shape": "chasm"
         },
@@ -15895,6 +17308,8 @@
           "z": 1823,
           "length": 5,
           "y": 51,
+          "x0": -110,
+          "x1": -30,
           "material": "ice",
           "shape": "chasm"
         },
@@ -15904,13 +17319,106 @@
           "length": 6,
           "y": 51,
           "rise": 3,
+          "x0": -110,
+          "x1": -30,
           "material": "ice",
           "shape": "chasm"
         },
         {
           "type": "floor",
+          "z": 1820,
+          "length": 1,
+          "y": 53.25,
+          "x0": 30,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1821,
+          "length": 1,
+          "y": 52.5,
+          "x0": 30,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1822,
+          "length": 1,
+          "y": 51.75,
+          "x0": 30,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1823,
+          "length": 5,
+          "y": 51,
+          "x0": 30,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 1828,
+          "length": 6,
+          "y": 51,
+          "rise": 3,
+          "x0": 30,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1820,
+          "length": 14,
+          "y": 39,
+          "x0": -30,
+          "x1": 30,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
           "z": 1834,
-          "length": 338,
+          "length": 102.667,
+          "y": 54
+        },
+        {
+          "type": "ramp",
+          "z": 1936.667,
+          "length": 8,
+          "y": 54,
+          "rise": -5,
+          "shape": "dip"
+        },
+        {
+          "type": "floor",
+          "z": 1944.667,
+          "length": 6,
+          "y": 49,
+          "shape": "dip"
+        },
+        {
+          "type": "ramp",
+          "z": 1950.667,
+          "length": 12,
+          "y": 49,
+          "rise": 6,
+          "shape": "dip"
+        },
+        {
+          "type": "floor",
+          "z": 1962.667,
+          "length": 209.333,
           "y": 54
         },
         {
@@ -15944,6 +17452,15 @@
           "section": 4
         },
         {
+          "type": "pit",
+          "z": 1820,
+          "length": 14,
+          "y": 50,
+          "x0": -30,
+          "x1": 30,
+          "section": 4
+        },
+        {
           "type": "jumpPad",
           "z": 1814,
           "x": -18,
@@ -16078,7 +17595,7 @@
         {
           "type": "gift",
           "z": 1827,
-          "x": -9,
+          "x": -70,
           "y": 51,
           "height": 0,
           "zone": 4,
@@ -16086,12 +17603,16 @@
           "coins": 5000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            51,
+            55
+          ]
         },
         {
           "type": "gift",
           "z": 1827,
-          "x": 9,
+          "x": 70,
           "y": 51,
           "height": 0,
           "zone": 4,
@@ -16099,12 +17620,16 @@
           "coins": 5000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            51,
+            55
+          ]
         },
         {
           "type": "gift",
-          "z": 1827,
-          "x": 24,
+          "z": 1824,
+          "x": 70,
           "y": 51,
           "height": 0,
           "zone": 4,
@@ -16112,7 +17637,19 @@
           "coins": 5000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            51,
+            55
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 1936.667,
+          "length": 26,
+          "y": 54,
+          "depth": 5,
+          "section": 4
         },
         {
           "type": "gift",
@@ -16179,7 +17716,7 @@
           "type": "gift",
           "z": 1953.818,
           "x": 0,
-          "y": 54,
+          "y": 50.576,
           "height": 0,
           "zone": 4,
           "rarity": "legendary",
@@ -17499,7 +19036,44 @@
         {
           "type": "floor",
           "z": 600,
-          "length": 140,
+          "length": 44,
+          "y": 19,
+          "x0": -66,
+          "x1": 66
+        },
+        {
+          "type": "ramp",
+          "z": 644,
+          "length": 8,
+          "y": 19,
+          "rise": -5,
+          "shape": "dip",
+          "x0": -66,
+          "x1": 66
+        },
+        {
+          "type": "floor",
+          "z": 652,
+          "length": 6,
+          "y": 14,
+          "shape": "dip",
+          "x0": -66,
+          "x1": 66
+        },
+        {
+          "type": "ramp",
+          "z": 658,
+          "length": 12,
+          "y": 14,
+          "rise": 6,
+          "shape": "dip",
+          "x0": -66,
+          "x1": 66
+        },
+        {
+          "type": "floor",
+          "z": 670,
+          "length": 70,
           "y": 19,
           "x0": -66,
           "x1": 66
@@ -17509,40 +19083,40 @@
           "z": 740,
           "length": 1,
           "y": 18.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 741,
           "length": 1,
           "y": 17.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 742,
           "length": 1,
           "y": 16.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 743,
           "length": 6,
           "y": 16,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -17550,10 +19124,72 @@
           "length": 6,
           "y": 16,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 740,
+          "length": 1,
+          "y": 18.25,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 741,
+          "length": 1,
+          "y": 17.5,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 742,
+          "length": 1,
+          "y": 16.75,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 743,
+          "length": 6,
+          "y": 16,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 749,
+          "length": 6,
+          "y": 16,
+          "rise": 3,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 740,
+          "length": 15,
+          "y": 4,
+          "x0": -54,
+          "x1": 54,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "chasm",
@@ -17561,6 +19197,15 @@
           "length": 15,
           "y": 19,
           "depth": 3,
+          "section": 2
+        },
+        {
+          "type": "pit",
+          "z": 740,
+          "length": 15,
+          "y": 15,
+          "x0": -54,
+          "x1": 54,
           "section": 2
         },
         {
@@ -17698,7 +19343,7 @@
         {
           "type": "gift",
           "z": 748,
-          "x": -9,
+          "x": -60,
           "y": 16,
           "height": 0,
           "zone": 2,
@@ -17706,12 +19351,16 @@
           "coins": 20000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            16,
+            20
+          ]
         },
         {
           "type": "gift",
           "z": 748,
-          "x": 9,
+          "x": 60,
           "y": 16,
           "height": 0,
           "zone": 2,
@@ -17719,12 +19368,16 @@
           "coins": 20000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            16,
+            20
+          ]
         },
         {
           "type": "gift",
-          "z": 748,
-          "x": 24,
+          "z": 745,
+          "x": 60,
           "y": 16,
           "height": 0,
           "zone": 2,
@@ -17732,7 +19385,19 @@
           "coins": 20000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            16,
+            20
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 644,
+          "length": 26,
+          "y": 19,
+          "depth": 5,
+          "section": 2
         },
         {
           "type": "tunnel",
@@ -17931,7 +19596,7 @@
           "type": "gift",
           "z": 669.091,
           "x": 0,
-          "y": 19,
+          "y": 19.546,
           "height": 0,
           "zone": 2,
           "rarity": "rare",
@@ -18361,7 +20026,36 @@
         {
           "type": "floor",
           "z": 1200,
-          "length": 152.5,
+          "length": 44,
+          "y": 38
+        },
+        {
+          "type": "ramp",
+          "z": 1244,
+          "length": 8,
+          "y": 38,
+          "rise": -5,
+          "shape": "dip"
+        },
+        {
+          "type": "floor",
+          "z": 1252,
+          "length": 6,
+          "y": 33,
+          "shape": "dip"
+        },
+        {
+          "type": "ramp",
+          "z": 1258,
+          "length": 12,
+          "y": 33,
+          "rise": 6,
+          "shape": "dip"
+        },
+        {
+          "type": "floor",
+          "z": 1270,
+          "length": 82.5,
           "y": 38
         },
         {
@@ -18369,6 +20063,8 @@
           "z": 1352.5,
           "length": 1,
           "y": 37.25,
+          "x0": -100,
+          "x1": -56,
           "material": "ice",
           "shape": "chasm"
         },
@@ -18377,6 +20073,8 @@
           "z": 1353.5,
           "length": 1,
           "y": 36.5,
+          "x0": -100,
+          "x1": -56,
           "material": "ice",
           "shape": "chasm"
         },
@@ -18385,6 +20083,8 @@
           "z": 1354.5,
           "length": 1,
           "y": 35.75,
+          "x0": -100,
+          "x1": -56,
           "material": "ice",
           "shape": "chasm"
         },
@@ -18393,6 +20093,8 @@
           "z": 1355.5,
           "length": 6,
           "y": 35,
+          "x0": -100,
+          "x1": -56,
           "material": "ice",
           "shape": "chasm"
         },
@@ -18402,7 +20104,71 @@
           "length": 6,
           "y": 35,
           "rise": 3,
+          "x0": -100,
+          "x1": -56,
           "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1352.5,
+          "length": 1,
+          "y": 37.25,
+          "x0": 56,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1353.5,
+          "length": 1,
+          "y": 36.5,
+          "x0": 56,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1354.5,
+          "length": 1,
+          "y": 35.75,
+          "x0": 56,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1355.5,
+          "length": 6,
+          "y": 35,
+          "x0": 56,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 1361.5,
+          "length": 6,
+          "y": 35,
+          "rise": 3,
+          "x0": 56,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1352.5,
+          "length": 15,
+          "y": 23,
+          "x0": -56,
+          "x1": 56,
+          "material": "ice",
+          "solid": false,
           "shape": "chasm"
         },
         {
@@ -18411,6 +20177,15 @@
           "length": 15,
           "y": 38,
           "depth": 3,
+          "section": 3
+        },
+        {
+          "type": "pit",
+          "z": 1352.5,
+          "length": 15,
+          "y": 34,
+          "x0": -56,
+          "x1": 56,
           "section": 3
         },
         {
@@ -18548,7 +20323,7 @@
         {
           "type": "gift",
           "z": 1360.5,
-          "x": -9,
+          "x": -78,
           "y": 35,
           "height": 0,
           "zone": 3,
@@ -18556,12 +20331,16 @@
           "coins": 30000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            35,
+            39
+          ]
         },
         {
           "type": "gift",
           "z": 1360.5,
-          "x": 9,
+          "x": 78,
           "y": 35,
           "height": 0,
           "zone": 3,
@@ -18569,12 +20348,16 @@
           "coins": 30000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            35,
+            39
+          ]
         },
         {
           "type": "gift",
-          "z": 1360.5,
-          "x": -24,
+          "z": 1357.5,
+          "x": -78,
           "y": 35,
           "height": 0,
           "zone": 3,
@@ -18582,7 +20365,19 @@
           "coins": 30000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            35,
+            39
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 1244,
+          "length": 26,
+          "y": 38,
+          "depth": 5,
+          "section": 3
         },
         {
           "type": "tunnel",
@@ -19243,40 +21038,40 @@
           "z": 2012.5,
           "length": 1,
           "y": 56.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 2013.5,
           "length": 1,
           "y": 55.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 2014.5,
           "length": 1,
           "y": 54.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 2015.5,
           "length": 6,
           "y": 54,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -19284,10 +21079,72 @@
           "length": 6,
           "y": 54,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -66,
-          "x1": 66
+          "x1": -54,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2012.5,
+          "length": 1,
+          "y": 56.25,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2013.5,
+          "length": 1,
+          "y": 55.5,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2014.5,
+          "length": 1,
+          "y": 54.75,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2015.5,
+          "length": 6,
+          "y": 54,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 2021.5,
+          "length": 6,
+          "y": 54,
+          "rise": 3,
+          "x0": 54,
+          "x1": 66,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2012.5,
+          "length": 15,
+          "y": 42,
+          "x0": -54,
+          "x1": 54,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "throat",
@@ -19320,6 +21177,15 @@
           "section": 4
         },
         {
+          "type": "pit",
+          "z": 2012.5,
+          "length": 15,
+          "y": 53,
+          "x0": -54,
+          "x1": 54,
+          "section": 4
+        },
+        {
           "type": "jumpPad",
           "z": 2006.5,
           "x": -44,
@@ -19454,7 +21320,7 @@
         {
           "type": "gift",
           "z": 2020.5,
-          "x": -9,
+          "x": -60,
           "y": 54,
           "height": 0,
           "zone": 4,
@@ -19462,12 +21328,16 @@
           "coins": 40000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            54,
+            58
+          ]
         },
         {
           "type": "gift",
           "z": 2020.5,
-          "x": 9,
+          "x": 60,
           "y": 54,
           "height": 0,
           "zone": 4,
@@ -19475,12 +21345,16 @@
           "coins": 40000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            54,
+            58
+          ]
         },
         {
           "type": "gift",
-          "z": 2020.5,
-          "x": 24,
+          "z": 2017.5,
+          "x": 60,
           "y": 54,
           "height": 0,
           "zone": 4,
@@ -19488,7 +21362,11 @@
           "coins": 40000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            54,
+            58
+          ]
         },
         {
           "type": "tunnel",
@@ -20893,7 +22771,7 @@
         },
         {
           "type": "niche",
-          "z": 722.857,
+          "z": 728,
           "y": 21,
           "side": "left",
           "kind": "grotto",
@@ -21026,7 +22904,36 @@
         {
           "type": "floor",
           "z": 652,
-          "length": 150.5,
+          "length": 44,
+          "y": 21
+        },
+        {
+          "type": "ramp",
+          "z": 696,
+          "length": 8,
+          "y": 21,
+          "rise": -6,
+          "shape": "dip"
+        },
+        {
+          "type": "floor",
+          "z": 704,
+          "length": 6,
+          "y": 15,
+          "shape": "dip"
+        },
+        {
+          "type": "ramp",
+          "z": 710,
+          "length": 12,
+          "y": 15,
+          "rise": 7,
+          "shape": "dip"
+        },
+        {
+          "type": "floor",
+          "z": 722,
+          "length": 80.5,
           "y": 21
         },
         {
@@ -21034,6 +22941,8 @@
           "z": 802.5,
           "length": 1,
           "y": 20.25,
+          "x0": -100,
+          "x1": -60,
           "material": "ice",
           "shape": "chasm"
         },
@@ -21042,6 +22951,8 @@
           "z": 803.5,
           "length": 1,
           "y": 19.5,
+          "x0": -100,
+          "x1": -60,
           "material": "ice",
           "shape": "chasm"
         },
@@ -21050,6 +22961,8 @@
           "z": 804.5,
           "length": 1,
           "y": 18.75,
+          "x0": -100,
+          "x1": -60,
           "material": "ice",
           "shape": "chasm"
         },
@@ -21058,6 +22971,8 @@
           "z": 805.5,
           "length": 6,
           "y": 18,
+          "x0": -100,
+          "x1": -60,
           "material": "ice",
           "shape": "chasm"
         },
@@ -21067,7 +22982,71 @@
           "length": 6,
           "y": 18,
           "rise": 3,
+          "x0": -100,
+          "x1": -60,
           "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 802.5,
+          "length": 1,
+          "y": 20.25,
+          "x0": 60,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 803.5,
+          "length": 1,
+          "y": 19.5,
+          "x0": 60,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 804.5,
+          "length": 1,
+          "y": 18.75,
+          "x0": 60,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 805.5,
+          "length": 6,
+          "y": 18,
+          "x0": 60,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 811.5,
+          "length": 6,
+          "y": 18,
+          "rise": 3,
+          "x0": 60,
+          "x1": 100,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 802.5,
+          "length": 15,
+          "y": 6,
+          "x0": -60,
+          "x1": 60,
+          "material": "ice",
+          "solid": false,
           "shape": "chasm"
         },
         {
@@ -21076,6 +23055,15 @@
           "length": 15,
           "y": 21,
           "depth": 3,
+          "section": 2
+        },
+        {
+          "type": "pit",
+          "z": 802.5,
+          "length": 15,
+          "y": 17,
+          "x0": -60,
+          "x1": 60,
           "section": 2
         },
         {
@@ -21213,7 +23201,7 @@
         {
           "type": "gift",
           "z": 810.5,
-          "x": -9,
+          "x": -80,
           "y": 18,
           "height": 0,
           "zone": 2,
@@ -21221,12 +23209,16 @@
           "coins": 200000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            18,
+            22
+          ]
         },
         {
           "type": "gift",
           "z": 810.5,
-          "x": 9,
+          "x": 80,
           "y": 18,
           "height": 0,
           "zone": 2,
@@ -21234,12 +23226,16 @@
           "coins": 200000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            18,
+            22
+          ]
         },
         {
           "type": "gift",
-          "z": 810.5,
-          "x": 24,
+          "z": 807.5,
+          "x": 80,
           "y": 18,
           "height": 0,
           "zone": 2,
@@ -21247,7 +23243,19 @@
           "coins": 200000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            18,
+            22
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 696,
+          "length": 26,
+          "y": 21,
+          "depth": 6,
+          "section": 2
         },
         {
           "type": "tunnel",
@@ -21951,40 +23959,40 @@
           "z": 1465,
           "length": 1,
           "y": 41.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1466,
           "length": 1,
           "y": 40.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1467,
           "length": 1,
           "y": 39.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1468,
           "length": 6,
           "y": 39,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -21992,10 +24000,72 @@
           "length": 6,
           "y": 39,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1465,
+          "length": 1,
+          "y": 41.25,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1466,
+          "length": 1,
+          "y": 40.5,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1467,
+          "length": 1,
+          "y": 39.75,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1468,
+          "length": 6,
+          "y": 39,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 1474,
+          "length": 6,
+          "y": 39,
+          "rise": 3,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1465,
+          "length": 15,
+          "y": 27,
+          "x0": -58,
+          "x1": 58,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "throat",
@@ -22028,6 +24098,15 @@
           "section": 3
         },
         {
+          "type": "pit",
+          "z": 1465,
+          "length": 15,
+          "y": 38,
+          "x0": -58,
+          "x1": 58,
+          "section": 3
+        },
+        {
           "type": "jumpPad",
           "z": 1459,
           "x": -48,
@@ -22162,7 +24241,7 @@
         {
           "type": "gift",
           "z": 1473,
-          "x": -9,
+          "x": -64,
           "y": 39,
           "height": 0,
           "zone": 3,
@@ -22170,12 +24249,16 @@
           "coins": 300000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            39,
+            43
+          ]
         },
         {
           "type": "gift",
           "z": 1473,
-          "x": 9,
+          "x": 64,
           "y": 39,
           "height": 0,
           "zone": 3,
@@ -22183,12 +24266,16 @@
           "coins": 300000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            39,
+            43
+          ]
         },
         {
           "type": "gift",
-          "z": 1473,
-          "x": -24,
+          "z": 1470,
+          "x": -64,
           "y": 39,
           "height": 0,
           "zone": 3,
@@ -22196,7 +24283,11 @@
           "coins": 300000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            39,
+            43
+          ]
         },
         {
           "type": "hump",
@@ -22955,7 +25046,44 @@
         {
           "type": "floor",
           "z": 2002,
-          "length": 175.5,
+          "length": 14,
+          "y": 63,
+          "x0": -70,
+          "x1": 70
+        },
+        {
+          "type": "ramp",
+          "z": 2016,
+          "length": 8,
+          "y": 63,
+          "rise": -6,
+          "shape": "dip",
+          "x0": -70,
+          "x1": 70
+        },
+        {
+          "type": "floor",
+          "z": 2024,
+          "length": 6,
+          "y": 57,
+          "shape": "dip",
+          "x0": -70,
+          "x1": 70
+        },
+        {
+          "type": "ramp",
+          "z": 2030,
+          "length": 12,
+          "y": 57,
+          "rise": 7,
+          "shape": "dip",
+          "x0": -70,
+          "x1": 70
+        },
+        {
+          "type": "floor",
+          "z": 2042,
+          "length": 135.5,
           "y": 63,
           "x0": -70,
           "x1": 70
@@ -22965,40 +25093,40 @@
           "z": 2177.5,
           "length": 1,
           "y": 62.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 2178.5,
           "length": 1,
           "y": 61.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 2179.5,
           "length": 1,
           "y": 60.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 2180.5,
           "length": 6,
           "y": 60,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -23006,10 +25134,72 @@
           "length": 6,
           "y": 60,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2177.5,
+          "length": 1,
+          "y": 62.25,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2178.5,
+          "length": 1,
+          "y": 61.5,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2179.5,
+          "length": 1,
+          "y": 60.75,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2180.5,
+          "length": 6,
+          "y": 60,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 2186.5,
+          "length": 6,
+          "y": 60,
+          "rise": 3,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2177.5,
+          "length": 15,
+          "y": 48,
+          "x0": -58,
+          "x1": 58,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "chasm",
@@ -23017,6 +25207,15 @@
           "length": 15,
           "y": 63,
           "depth": 3,
+          "section": 4
+        },
+        {
+          "type": "pit",
+          "z": 2177.5,
+          "length": 15,
+          "y": 59,
+          "x0": -58,
+          "x1": 58,
           "section": 4
         },
         {
@@ -23154,7 +25353,7 @@
         {
           "type": "gift",
           "z": 2185.5,
-          "x": -9,
+          "x": -64,
           "y": 60,
           "height": 0,
           "zone": 4,
@@ -23162,12 +25361,16 @@
           "coins": 400000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            60,
+            64
+          ]
         },
         {
           "type": "gift",
           "z": 2185.5,
-          "x": 9,
+          "x": 64,
           "y": 60,
           "height": 0,
           "zone": 4,
@@ -23175,12 +25378,16 @@
           "coins": 400000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            60,
+            64
+          ]
         },
         {
           "type": "gift",
-          "z": 2185.5,
-          "x": 24,
+          "z": 2182.5,
+          "x": 64,
           "y": 60,
           "height": 0,
           "zone": 4,
@@ -23188,7 +25395,19 @@
           "coins": 400000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            60,
+            64
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 2016,
+          "length": 26,
+          "y": 63,
+          "depth": 6,
+          "section": 4
         },
         {
           "type": "tunnel",
@@ -23375,7 +25594,7 @@
           "type": "gift",
           "z": 2027.5,
           "x": 0,
-          "y": 63,
+          "y": 57,
           "height": 0,
           "zone": 4,
           "rarity": "legendary",
@@ -24623,7 +26842,7 @@
         },
         {
           "type": "niche",
-          "z": 779.488,
+          "z": 788,
           "y": 22,
           "side": "left",
           "kind": "grotto",
@@ -24636,7 +26855,7 @@
         },
         {
           "type": "niche",
-          "z": 868.976,
+          "z": 871.5,
           "y": 22,
           "side": "right",
           "kind": "grotto",
@@ -24649,7 +26868,7 @@
         },
         {
           "type": "niche",
-          "z": 958.464,
+          "z": 960.357,
           "y": 22,
           "side": "left",
           "kind": "grotto",
@@ -24662,7 +26881,7 @@
         },
         {
           "type": "niche",
-          "z": 1047.952,
+          "z": 1049.214,
           "y": 22,
           "side": "left",
           "kind": "grotto",
@@ -24676,7 +26895,7 @@
         },
         {
           "type": "niche",
-          "z": 1047.952,
+          "z": 1049.214,
           "y": 22,
           "side": "right",
           "kind": "grotto",
@@ -24690,7 +26909,7 @@
         },
         {
           "type": "niche",
-          "z": 1137.44,
+          "z": 1138.071,
           "y": 22,
           "side": "right",
           "kind": "grotto",
@@ -24769,7 +26988,44 @@
         {
           "type": "floor",
           "z": 712,
-          "length": 165.5,
+          "length": 44,
+          "y": 22,
+          "x0": -70,
+          "x1": 70
+        },
+        {
+          "type": "ramp",
+          "z": 756,
+          "length": 8,
+          "y": 22,
+          "rise": -6,
+          "shape": "dip",
+          "x0": -70,
+          "x1": 70
+        },
+        {
+          "type": "floor",
+          "z": 764,
+          "length": 6,
+          "y": 16,
+          "shape": "dip",
+          "x0": -70,
+          "x1": 70
+        },
+        {
+          "type": "ramp",
+          "z": 770,
+          "length": 12,
+          "y": 16,
+          "rise": 7,
+          "shape": "dip",
+          "x0": -70,
+          "x1": 70
+        },
+        {
+          "type": "floor",
+          "z": 782,
+          "length": 95.5,
           "y": 22,
           "x0": -70,
           "x1": 70
@@ -24779,40 +27035,40 @@
           "z": 877.5,
           "length": 1,
           "y": 21.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 878.5,
           "length": 1,
           "y": 20.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 879.5,
           "length": 1,
           "y": 19.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 880.5,
           "length": 7,
           "y": 19,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -24820,10 +27076,72 @@
           "length": 6,
           "y": 19,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 877.5,
+          "length": 1,
+          "y": 21.25,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 878.5,
+          "length": 1,
+          "y": 20.5,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 879.5,
+          "length": 1,
+          "y": 19.75,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 880.5,
+          "length": 7,
+          "y": 19,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 887.5,
+          "length": 6,
+          "y": 19,
+          "rise": 3,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 877.5,
+          "length": 16,
+          "y": 7,
+          "x0": -58,
+          "x1": 58,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "chasm",
@@ -24831,6 +27149,15 @@
           "length": 16,
           "y": 22,
           "depth": 3,
+          "section": 2
+        },
+        {
+          "type": "pit",
+          "z": 877.5,
+          "length": 16,
+          "y": 18,
+          "x0": -58,
+          "x1": 58,
           "section": 2
         },
         {
@@ -24968,7 +27295,7 @@
         {
           "type": "gift",
           "z": 886.5,
-          "x": -9,
+          "x": -64,
           "y": 19,
           "height": 0,
           "zone": 2,
@@ -24976,12 +27303,16 @@
           "coins": 2400000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            19,
+            23
+          ]
         },
         {
           "type": "gift",
           "z": 886.5,
-          "x": 9,
+          "x": 64,
           "y": 19,
           "height": 0,
           "zone": 2,
@@ -24989,12 +27320,16 @@
           "coins": 2400000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            19,
+            23
+          ]
         },
         {
           "type": "gift",
-          "z": 886.5,
-          "x": 24,
+          "z": 883.5,
+          "x": 64,
           "y": 19,
           "height": 0,
           "zone": 2,
@@ -25002,7 +27337,19 @@
           "coins": 2400000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            19,
+            23
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 756,
+          "length": 26,
+          "y": 22,
+          "depth": 6,
+          "section": 2
         },
         {
           "type": "hump",
@@ -25802,7 +28149,44 @@
         {
           "type": "floor",
           "z": 1422,
-          "length": 178,
+          "length": 14,
+          "y": 44,
+          "x0": -70,
+          "x1": 70
+        },
+        {
+          "type": "ramp",
+          "z": 1436,
+          "length": 8,
+          "y": 44,
+          "rise": -6,
+          "shape": "dip",
+          "x0": -70,
+          "x1": 70
+        },
+        {
+          "type": "floor",
+          "z": 1444,
+          "length": 6,
+          "y": 38,
+          "shape": "dip",
+          "x0": -70,
+          "x1": 70
+        },
+        {
+          "type": "ramp",
+          "z": 1450,
+          "length": 12,
+          "y": 38,
+          "rise": 7,
+          "shape": "dip",
+          "x0": -70,
+          "x1": 70
+        },
+        {
+          "type": "floor",
+          "z": 1462,
+          "length": 138,
           "y": 44,
           "x0": -70,
           "x1": 70
@@ -25812,40 +28196,40 @@
           "z": 1600,
           "length": 1,
           "y": 43.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1601,
           "length": 1,
           "y": 42.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1602,
           "length": 1,
           "y": 41.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1603,
           "length": 7,
           "y": 41,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -25853,10 +28237,72 @@
           "length": 6,
           "y": 41,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -70,
-          "x1": 70
+          "x1": -58,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1600,
+          "length": 1,
+          "y": 43.25,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1601,
+          "length": 1,
+          "y": 42.5,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1602,
+          "length": 1,
+          "y": 41.75,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1603,
+          "length": 7,
+          "y": 41,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 1610,
+          "length": 6,
+          "y": 41,
+          "rise": 3,
+          "x0": 58,
+          "x1": 70,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1600,
+          "length": 16,
+          "y": 29,
+          "x0": -58,
+          "x1": 58,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "chasm",
@@ -25864,6 +28310,15 @@
           "length": 16,
           "y": 44,
           "depth": 3,
+          "section": 3
+        },
+        {
+          "type": "pit",
+          "z": 1600,
+          "length": 16,
+          "y": 40,
+          "x0": -58,
+          "x1": 58,
           "section": 3
         },
         {
@@ -26001,7 +28456,7 @@
         {
           "type": "gift",
           "z": 1609,
-          "x": -9,
+          "x": -64,
           "y": 41,
           "height": 0,
           "zone": 3,
@@ -26009,12 +28464,16 @@
           "coins": 4000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            41,
+            45
+          ]
         },
         {
           "type": "gift",
           "z": 1609,
-          "x": 9,
+          "x": 64,
           "y": 41,
           "height": 0,
           "zone": 3,
@@ -26022,12 +28481,16 @@
           "coins": 4000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            41,
+            45
+          ]
         },
         {
           "type": "gift",
-          "z": 1609,
-          "x": -24,
+          "z": 1606,
+          "x": -64,
           "y": 41,
           "height": 0,
           "zone": 3,
@@ -26035,7 +28498,19 @@
           "coins": 4000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            41,
+            45
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 1436,
+          "length": 26,
+          "y": 44,
+          "depth": 6,
+          "section": 3
         },
         {
           "type": "tunnel",
@@ -26385,7 +28860,7 @@
           "type": "gift",
           "z": 1448,
           "x": 0,
-          "y": 44,
+          "y": 38,
           "height": 0,
           "zone": 3,
           "rarity": "epic",
@@ -26831,6 +29306,8 @@
           "z": 2372.5,
           "length": 1,
           "y": 65.25,
+          "x0": -110,
+          "x1": -60,
           "material": "ice",
           "shape": "chasm"
         },
@@ -26839,6 +29316,8 @@
           "z": 2373.5,
           "length": 1,
           "y": 64.5,
+          "x0": -110,
+          "x1": -60,
           "material": "ice",
           "shape": "chasm"
         },
@@ -26847,6 +29326,8 @@
           "z": 2374.5,
           "length": 1,
           "y": 63.75,
+          "x0": -110,
+          "x1": -60,
           "material": "ice",
           "shape": "chasm"
         },
@@ -26855,6 +29336,8 @@
           "z": 2375.5,
           "length": 7,
           "y": 63,
+          "x0": -110,
+          "x1": -60,
           "material": "ice",
           "shape": "chasm"
         },
@@ -26864,7 +29347,71 @@
           "length": 6,
           "y": 63,
           "rise": 3,
+          "x0": -110,
+          "x1": -60,
           "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2372.5,
+          "length": 1,
+          "y": 65.25,
+          "x0": 60,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2373.5,
+          "length": 1,
+          "y": 64.5,
+          "x0": 60,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2374.5,
+          "length": 1,
+          "y": 63.75,
+          "x0": 60,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2375.5,
+          "length": 7,
+          "y": 63,
+          "x0": 60,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 2382.5,
+          "length": 6,
+          "y": 63,
+          "rise": 3,
+          "x0": 60,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2372.5,
+          "length": 16,
+          "y": 51,
+          "x0": -60,
+          "x1": 60,
+          "material": "ice",
+          "solid": false,
           "shape": "chasm"
         },
         {
@@ -26898,6 +29445,15 @@
           "section": 4
         },
         {
+          "type": "pit",
+          "z": 2372.5,
+          "length": 16,
+          "y": 62,
+          "x0": -60,
+          "x1": 60,
+          "section": 4
+        },
+        {
           "type": "jumpPad",
           "z": 2366.5,
           "x": -48,
@@ -27032,7 +29588,7 @@
         {
           "type": "gift",
           "z": 2381.5,
-          "x": -9,
+          "x": -85,
           "y": 63,
           "height": 0,
           "zone": 4,
@@ -27040,12 +29596,16 @@
           "coins": 6000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            63,
+            67
+          ]
         },
         {
           "type": "gift",
           "z": 2381.5,
-          "x": 9,
+          "x": 85,
           "y": 63,
           "height": 0,
           "zone": 4,
@@ -27053,12 +29613,16 @@
           "coins": 6000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            63,
+            67
+          ]
         },
         {
           "type": "gift",
-          "z": 2381.5,
-          "x": 24,
+          "z": 2378.5,
+          "x": 85,
           "y": 63,
           "height": 0,
           "zone": 4,
@@ -27066,7 +29630,11 @@
           "coins": 6000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            63,
+            67
+          ]
         },
         {
           "type": "hump",
@@ -28828,40 +31396,40 @@
           "z": 940,
           "length": 1,
           "y": 22.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 941,
           "length": 1,
           "y": 21.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 942,
           "length": 1,
           "y": 20.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 943,
           "length": 7,
           "y": 20,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -28869,10 +31437,72 @@
           "length": 6,
           "y": 20,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 940,
+          "length": 1,
+          "y": 22.25,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 941,
+          "length": 1,
+          "y": 21.5,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 942,
+          "length": 1,
+          "y": 20.75,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 943,
+          "length": 7,
+          "y": 20,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 950,
+          "length": 6,
+          "y": 20,
+          "rise": 3,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 940,
+          "length": 16,
+          "y": 8,
+          "x0": -62,
+          "x1": 62,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "throat",
@@ -28905,6 +31535,15 @@
           "section": 2
         },
         {
+          "type": "pit",
+          "z": 940,
+          "length": 16,
+          "y": 19,
+          "x0": -62,
+          "x1": 62,
+          "section": 2
+        },
+        {
           "type": "jumpPad",
           "z": 934,
           "x": -52,
@@ -29039,7 +31678,7 @@
         {
           "type": "gift",
           "z": 949,
-          "x": -9,
+          "x": -68,
           "y": 20,
           "height": 0,
           "zone": 2,
@@ -29047,12 +31686,16 @@
           "coins": 40000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            20,
+            24
+          ]
         },
         {
           "type": "gift",
           "z": 949,
-          "x": 9,
+          "x": 68,
           "y": 20,
           "height": 0,
           "zone": 2,
@@ -29060,12 +31703,16 @@
           "coins": 40000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            20,
+            24
+          ]
         },
         {
           "type": "gift",
-          "z": 949,
-          "x": 24,
+          "z": 946,
+          "x": 68,
           "y": 20,
           "height": 0,
           "zone": 2,
@@ -29073,7 +31720,11 @@
           "coins": 40000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            20,
+            24
+          ]
         },
         {
           "type": "hump",
@@ -29891,7 +32542,36 @@
         {
           "type": "floor",
           "z": 1522,
-          "length": 190.5,
+          "length": 44,
+          "y": 46
+        },
+        {
+          "type": "ramp",
+          "z": 1566,
+          "length": 8,
+          "y": 46,
+          "rise": -6,
+          "shape": "dip"
+        },
+        {
+          "type": "floor",
+          "z": 1574,
+          "length": 6,
+          "y": 40,
+          "shape": "dip"
+        },
+        {
+          "type": "ramp",
+          "z": 1580,
+          "length": 12,
+          "y": 40,
+          "rise": 7,
+          "shape": "dip"
+        },
+        {
+          "type": "floor",
+          "z": 1592,
+          "length": 120.5,
           "y": 46
         },
         {
@@ -29899,6 +32579,8 @@
           "z": 1712.5,
           "length": 1,
           "y": 45.25,
+          "x0": -110,
+          "x1": -64,
           "material": "ice",
           "shape": "chasm"
         },
@@ -29907,6 +32589,8 @@
           "z": 1713.5,
           "length": 1,
           "y": 44.5,
+          "x0": -110,
+          "x1": -64,
           "material": "ice",
           "shape": "chasm"
         },
@@ -29915,6 +32599,8 @@
           "z": 1714.5,
           "length": 1,
           "y": 43.75,
+          "x0": -110,
+          "x1": -64,
           "material": "ice",
           "shape": "chasm"
         },
@@ -29923,6 +32609,8 @@
           "z": 1715.5,
           "length": 7,
           "y": 43,
+          "x0": -110,
+          "x1": -64,
           "material": "ice",
           "shape": "chasm"
         },
@@ -29932,7 +32620,71 @@
           "length": 6,
           "y": 43,
           "rise": 3,
+          "x0": -110,
+          "x1": -64,
           "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1712.5,
+          "length": 1,
+          "y": 45.25,
+          "x0": 64,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1713.5,
+          "length": 1,
+          "y": 44.5,
+          "x0": 64,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1714.5,
+          "length": 1,
+          "y": 43.75,
+          "x0": 64,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1715.5,
+          "length": 7,
+          "y": 43,
+          "x0": 64,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 1722.5,
+          "length": 6,
+          "y": 43,
+          "rise": 3,
+          "x0": 64,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1712.5,
+          "length": 16,
+          "y": 31,
+          "x0": -64,
+          "x1": 64,
+          "material": "ice",
+          "solid": false,
           "shape": "chasm"
         },
         {
@@ -29941,6 +32693,15 @@
           "length": 16,
           "y": 46,
           "depth": 3,
+          "section": 3
+        },
+        {
+          "type": "pit",
+          "z": 1712.5,
+          "length": 16,
+          "y": 42,
+          "x0": -64,
+          "x1": 64,
           "section": 3
         },
         {
@@ -30078,7 +32839,7 @@
         {
           "type": "gift",
           "z": 1721.5,
-          "x": -9,
+          "x": -87,
           "y": 43,
           "height": 0,
           "zone": 3,
@@ -30086,12 +32847,16 @@
           "coins": 60000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            43,
+            47
+          ]
         },
         {
           "type": "gift",
           "z": 1721.5,
-          "x": 9,
+          "x": 87,
           "y": 43,
           "height": 0,
           "zone": 3,
@@ -30099,12 +32864,16 @@
           "coins": 60000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            43,
+            47
+          ]
         },
         {
           "type": "gift",
-          "z": 1721.5,
-          "x": -24,
+          "z": 1718.5,
+          "x": -87,
           "y": 43,
           "height": 0,
           "zone": 3,
@@ -30112,7 +32881,19 @@
           "coins": 60000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            43,
+            47
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 1566,
+          "length": 26,
+          "y": 46,
+          "depth": 6,
+          "section": 3
         },
         {
           "type": "tunnel",
@@ -30795,40 +33576,40 @@
           "z": 2537.5,
           "length": 1,
           "y": 68.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 2538.5,
           "length": 1,
           "y": 67.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 2539.5,
           "length": 1,
           "y": 66.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 2540.5,
           "length": 7,
           "y": 66,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -30836,10 +33617,72 @@
           "length": 6,
           "y": 66,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2537.5,
+          "length": 1,
+          "y": 68.25,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2538.5,
+          "length": 1,
+          "y": 67.5,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2539.5,
+          "length": 1,
+          "y": 66.75,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2540.5,
+          "length": 7,
+          "y": 66,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 2547.5,
+          "length": 6,
+          "y": 66,
+          "rise": 3,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2537.5,
+          "length": 16,
+          "y": 54,
+          "x0": -62,
+          "x1": 62,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "throat",
@@ -30872,6 +33715,15 @@
           "section": 4
         },
         {
+          "type": "pit",
+          "z": 2537.5,
+          "length": 16,
+          "y": 65,
+          "x0": -62,
+          "x1": 62,
+          "section": 4
+        },
+        {
           "type": "jumpPad",
           "z": 2531.5,
           "x": -52,
@@ -31006,7 +33858,7 @@
         {
           "type": "gift",
           "z": 2546.5,
-          "x": -9,
+          "x": -68,
           "y": 66,
           "height": 0,
           "zone": 4,
@@ -31014,12 +33866,16 @@
           "coins": 100000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            66,
+            70
+          ]
         },
         {
           "type": "gift",
           "z": 2546.5,
-          "x": 9,
+          "x": 68,
           "y": 66,
           "height": 0,
           "zone": 4,
@@ -31027,12 +33883,16 @@
           "coins": 100000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            66,
+            70
+          ]
         },
         {
           "type": "gift",
-          "z": 2546.5,
-          "x": 24,
+          "z": 2543.5,
+          "x": 68,
           "y": 66,
           "height": 0,
           "zone": 4,
@@ -31040,7 +33900,11 @@
           "coins": 100000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            66,
+            70
+          ]
         },
         {
           "type": "hump",
@@ -32878,40 +35742,40 @@
           "z": 1057.5,
           "length": 1,
           "y": 23.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1058.5,
           "length": 1,
           "y": 22.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1059.5,
           "length": 1,
           "y": 21.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1060.5,
           "length": 7,
           "y": 21,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -32919,10 +35783,72 @@
           "length": 6,
           "y": 21,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1057.5,
+          "length": 1,
+          "y": 23.25,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1058.5,
+          "length": 1,
+          "y": 22.5,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1059.5,
+          "length": 1,
+          "y": 21.75,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1060.5,
+          "length": 7,
+          "y": 21,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 1067.5,
+          "length": 6,
+          "y": 21,
+          "rise": 3,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1057.5,
+          "length": 16,
+          "y": 9,
+          "x0": -62,
+          "x1": 62,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "throat",
@@ -32955,6 +35881,15 @@
           "section": 2
         },
         {
+          "type": "pit",
+          "z": 1057.5,
+          "length": 16,
+          "y": 20,
+          "x0": -62,
+          "x1": 62,
+          "section": 2
+        },
+        {
           "type": "jumpPad",
           "z": 1051.5,
           "x": -52,
@@ -33089,7 +36024,7 @@
         {
           "type": "gift",
           "z": 1066.5,
-          "x": -9,
+          "x": -68,
           "y": 21,
           "height": 0,
           "zone": 2,
@@ -33097,12 +36032,16 @@
           "coins": 800000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            21,
+            25
+          ]
         },
         {
           "type": "gift",
           "z": 1066.5,
-          "x": 9,
+          "x": 68,
           "y": 21,
           "height": 0,
           "zone": 2,
@@ -33110,12 +36049,16 @@
           "coins": 800000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            21,
+            25
+          ]
         },
         {
           "type": "gift",
-          "z": 1066.5,
-          "x": 24,
+          "z": 1063.5,
+          "x": 68,
           "y": 21,
           "height": 0,
           "zone": 2,
@@ -33123,7 +36066,11 @@
           "coins": 800000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            21,
+            25
+          ]
         },
         {
           "type": "tunnel",
@@ -33663,7 +36610,7 @@
         },
         {
           "type": "niche",
-          "z": 1750.5,
+          "z": 1832.067,
           "y": 48,
           "side": "left",
           "kind": "grotto",
@@ -33676,7 +36623,20 @@
         },
         {
           "type": "niche",
-          "z": 1862.5,
+          "z": 1936.5,
+          "y": 48,
+          "side": "right",
+          "kind": "grotto",
+          "length": 10,
+          "depth": 4,
+          "treadmill": 0,
+          "zone": 3,
+          "stretch": 3,
+          "edge": 74
+        },
+        {
+          "type": "niche",
+          "z": 2077.778,
           "y": 48,
           "side": "left",
           "kind": "grotto",
@@ -33689,33 +36649,7 @@
         },
         {
           "type": "niche",
-          "z": 1862.5,
-          "y": 48,
-          "side": "right",
-          "kind": "grotto",
-          "length": 10,
-          "depth": 4,
-          "treadmill": 0,
-          "zone": 3,
-          "stretch": 3,
-          "edge": 74
-        },
-        {
-          "type": "niche",
-          "z": 1986.959,
-          "y": 48,
-          "side": "right",
-          "kind": "grotto",
-          "length": 10,
-          "depth": 4,
-          "treadmill": 0,
-          "zone": 3,
-          "stretch": 3,
-          "edge": 74
-        },
-        {
-          "type": "niche",
-          "z": 2082,
+          "z": 2219.056,
           "y": 48,
           "side": "left",
           "kind": "grotto",
@@ -33729,7 +36663,7 @@
         },
         {
           "type": "niche",
-          "z": 2111.418,
+          "z": 2219.056,
           "y": 48,
           "side": "right",
           "kind": "grotto",
@@ -33740,19 +36674,6 @@
           "stretch": 3,
           "edge": 74,
           "lane": "calm"
-        },
-        {
-          "type": "niche",
-          "z": 2235.877,
-          "y": 48,
-          "side": "left",
-          "kind": "grotto",
-          "length": 10,
-          "depth": 4,
-          "treadmill": 0,
-          "zone": 3,
-          "stretch": 3,
-          "edge": 74
         },
         {
           "type": "niche",
@@ -33809,7 +36730,44 @@
         {
           "type": "floor",
           "z": 1722,
-          "length": 220.5,
+          "length": 14,
+          "y": 48,
+          "x0": -74,
+          "x1": 74
+        },
+        {
+          "type": "ramp",
+          "z": 1736,
+          "length": 8,
+          "y": 48,
+          "rise": -6,
+          "shape": "dip",
+          "x0": -74,
+          "x1": 74
+        },
+        {
+          "type": "floor",
+          "z": 1744,
+          "length": 6,
+          "y": 42,
+          "shape": "dip",
+          "x0": -74,
+          "x1": 74
+        },
+        {
+          "type": "ramp",
+          "z": 1750,
+          "length": 12,
+          "y": 42,
+          "rise": 7,
+          "shape": "dip",
+          "x0": -74,
+          "x1": 74
+        },
+        {
+          "type": "floor",
+          "z": 1762,
+          "length": 180.5,
           "y": 48,
           "x0": -74,
           "x1": 74
@@ -33819,40 +36777,40 @@
           "z": 1942.5,
           "length": 1,
           "y": 47.25,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1943.5,
           "length": 1,
           "y": 46.5,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1944.5,
           "length": 1,
           "y": 45.75,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "floor",
           "z": 1945.5,
           "length": 7,
           "y": 45,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
           "type": "ramp",
@@ -33860,32 +36818,72 @@
           "length": 6,
           "y": 45,
           "rise": 3,
-          "material": "ice",
-          "shape": "chasm",
           "x0": -74,
-          "x1": 74
+          "x1": -62,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
-          "type": "throat",
-          "z": 1756.5,
-          "length": 100,
-          "y": 48,
-          "width": 20,
-          "funnel": 8,
-          "height": 16,
-          "section": 3
+          "type": "floor",
+          "z": 1942.5,
+          "length": 1,
+          "y": 47.25,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
         },
         {
-          "type": "slide",
-          "z": 1806.5,
-          "x": 0,
-          "y": 48,
-          "width": 20,
-          "length": 100,
-          "mult": 1.6,
-          "hold": 0,
-          "stretch": 3,
-          "shape": "throat"
+          "type": "floor",
+          "z": 1943.5,
+          "length": 1,
+          "y": 46.5,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1944.5,
+          "length": 1,
+          "y": 45.75,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1945.5,
+          "length": 7,
+          "y": 45,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 1952.5,
+          "length": 6,
+          "y": 45,
+          "rise": 3,
+          "x0": 62,
+          "x1": 74,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 1942.5,
+          "length": 16,
+          "y": 33,
+          "x0": -62,
+          "x1": 62,
+          "material": "ice",
+          "solid": false,
+          "shape": "chasm"
         },
         {
           "type": "chasm",
@@ -33896,6 +36894,15 @@
           "section": 3
         },
         {
+          "type": "pit",
+          "z": 1942.5,
+          "length": 16,
+          "y": 44,
+          "x0": -62,
+          "x1": 62,
+          "section": 3
+        },
+        {
           "type": "jumpPad",
           "z": 1936.5,
           "x": -52,
@@ -34030,7 +37037,7 @@
         {
           "type": "gift",
           "z": 1951.5,
-          "x": -9,
+          "x": -68,
           "y": 45,
           "height": 0,
           "zone": 3,
@@ -34038,12 +37045,16 @@
           "coins": 1200000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            45,
+            49
+          ]
         },
         {
           "type": "gift",
           "z": 1951.5,
-          "x": 9,
+          "x": 68,
           "y": 45,
           "height": 0,
           "zone": 3,
@@ -34051,12 +37062,16 @@
           "coins": 1200000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            45,
+            49
+          ]
         },
         {
           "type": "gift",
-          "z": 1951.5,
-          "x": -24,
+          "z": 1948.5,
+          "x": -68,
           "y": 45,
           "height": 0,
           "zone": 3,
@@ -34064,7 +37079,19 @@
           "coins": 1200000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            45,
+            49
+          ]
+        },
+        {
+          "type": "dip",
+          "z": 1736,
+          "length": 26,
+          "y": 48,
+          "depth": 6,
+          "section": 3
         },
         {
           "type": "hump",
@@ -34401,7 +37428,7 @@
           "type": "gift",
           "z": 1756.5,
           "x": 0,
-          "y": 48,
+          "y": 45.792,
           "height": 0,
           "zone": 3,
           "rarity": "epic",
@@ -34429,10 +37456,9 @@
           "height": 0,
           "zone": 3,
           "rarity": "epic",
-          "coins": 1800000000,
+          "coins": 1200000000,
           "n": 3,
-          "path": true,
-          "field": true
+          "path": true
         },
         {
           "type": "gift",
@@ -34883,6 +37909,8 @@
           "z": 2890,
           "length": 1,
           "y": 71.25,
+          "x0": -110,
+          "x1": -64,
           "material": "ice",
           "shape": "chasm"
         },
@@ -34891,6 +37919,8 @@
           "z": 2891,
           "length": 1,
           "y": 70.5,
+          "x0": -110,
+          "x1": -64,
           "material": "ice",
           "shape": "chasm"
         },
@@ -34899,6 +37929,8 @@
           "z": 2892,
           "length": 1,
           "y": 69.75,
+          "x0": -110,
+          "x1": -64,
           "material": "ice",
           "shape": "chasm"
         },
@@ -34907,6 +37939,8 @@
           "z": 2893,
           "length": 7,
           "y": 69,
+          "x0": -110,
+          "x1": -64,
           "material": "ice",
           "shape": "chasm"
         },
@@ -34916,7 +37950,71 @@
           "length": 6,
           "y": 69,
           "rise": 3,
+          "x0": -110,
+          "x1": -64,
           "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2890,
+          "length": 1,
+          "y": 71.25,
+          "x0": 64,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2891,
+          "length": 1,
+          "y": 70.5,
+          "x0": 64,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2892,
+          "length": 1,
+          "y": 69.75,
+          "x0": 64,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2893,
+          "length": 7,
+          "y": 69,
+          "x0": 64,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "ramp",
+          "z": 2900,
+          "length": 6,
+          "y": 69,
+          "rise": 3,
+          "x0": 64,
+          "x1": 110,
+          "material": "ice",
+          "shape": "chasm"
+        },
+        {
+          "type": "floor",
+          "z": 2890,
+          "length": 16,
+          "y": 57,
+          "x0": -64,
+          "x1": 64,
+          "material": "ice",
+          "solid": false,
           "shape": "chasm"
         },
         {
@@ -34950,6 +38048,15 @@
           "section": 4
         },
         {
+          "type": "pit",
+          "z": 2890,
+          "length": 16,
+          "y": 68,
+          "x0": -64,
+          "x1": 64,
+          "section": 4
+        },
+        {
           "type": "jumpPad",
           "z": 2884,
           "x": -52,
@@ -35084,7 +38191,7 @@
         {
           "type": "gift",
           "z": 2899,
-          "x": -9,
+          "x": -87,
           "y": 69,
           "height": 0,
           "zone": 4,
@@ -35092,12 +38199,16 @@
           "coins": 2400000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            69,
+            73
+          ]
         },
         {
           "type": "gift",
           "z": 2899,
-          "x": 9,
+          "x": 87,
           "y": 69,
           "height": 0,
           "zone": 4,
@@ -35105,12 +38216,16 @@
           "coins": 2400000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            69,
+            73
+          ]
         },
         {
           "type": "gift",
-          "z": 2899,
-          "x": 24,
+          "z": 2896,
+          "x": 87,
           "y": 69,
           "height": 0,
           "zone": 4,
@@ -35118,7 +38233,11 @@
           "coins": 2400000000,
           "n": 0,
           "detour": true,
-          "bottom": true
+          "bottom": true,
+          "col": [
+            69,
+            73
+          ]
         },
         {
           "type": "tunnel",

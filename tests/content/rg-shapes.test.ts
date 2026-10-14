@@ -21,21 +21,21 @@ const clone = <T>(x: T): T => JSON.parse(JSON.stringify(x)) as T;
 
 /** docs/01a-content.md 17.1 after RL-01 (producer 14.10): the elements of the sections (`fork` — a fork of 17.7). */
 const TABLE: Record<string, string[][]> = {
-  slope: [[], ['fork'], ['chasm']],
-  pines: [[], ['chasm'], ['chasm', 'fork'], ['chasm', 'hump']],
-  pass: [[], ['throat', 'chasm', 'fork'], ['chasm', 'hump'], ['throat', 'chasm']],
-  falls: [[], ['chasm', 'hump'], ['chasm', 'fork'], ['throat', 'chasm', 'fork']],
-  canyon: [[], ['throat', 'chasm', 'hump'], ['chasm', 'fork'], ['throat', 'chasm']],
-  crystal: [[], ['chasm', 'tunnel'], ['chasm', 'tunnel'], ['throat', 'chasm', 'tunnel']],
-  blizzard: [[], ['chasm', 'tunnel'], ['throat', 'chasm', 'hump'], ['chasm', 'tunnel']],
-  clouds: [[], ['chasm', 'hump'], ['chasm', 'tunnel', 'hump'], ['throat', 'chasm', 'hump']],
-  aurora: [[], ['throat', 'chasm', 'hump'], ['chasm', 'tunnel'], ['throat', 'chasm', 'hump']],
-  stars: [[], ['throat', 'chasm', 'tunnel'], ['throat', 'chasm', 'hump'], ['throat', 'chasm', 'tunnel', 'hump']],
+  slope: [[], ['fork'], ['chasm', 'dip']],
+  pines: [[], ['chasm', 'dip'], ['chasm', 'fork', 'dip'], ['chasm', 'hump', 'dip']],
+  pass: [[], ['throat', 'chasm', 'fork'], ['chasm', 'hump', 'dip'], ['throat', 'chasm', 'dip']],
+  falls: [[], ['chasm', 'hump', 'dip'], ['chasm', 'fork', 'dip'], ['throat', 'chasm', 'fork']],
+  canyon: [[], ['throat', 'chasm', 'hump'], ['chasm', 'fork', 'dip'], ['throat', 'chasm', 'dip']],
+  crystal: [[], ['chasm', 'tunnel', 'dip'], ['chasm', 'tunnel', 'dip'], ['throat', 'chasm', 'tunnel']],
+  blizzard: [[], ['chasm', 'tunnel', 'dip'], ['throat', 'chasm', 'hump'], ['chasm', 'tunnel', 'dip']],
+  clouds: [[], ['chasm', 'hump', 'dip'], ['chasm', 'tunnel', 'hump', 'dip'], ['throat', 'chasm', 'hump']],
+  aurora: [[], ['throat', 'chasm', 'hump'], ['chasm', 'tunnel', 'dip'], ['throat', 'chasm', 'hump']],
+  stars: [[], ['throat', 'chasm', 'tunnel'], ['chasm', 'hump', 'dip'], ['throat', 'chasm', 'tunnel', 'hump']],
 };
 
 describe('character of the mountains in the data (RG-01)', () => {
   it('worlds-spec.json: the sections of mountains 1–10 as in 01a 17.1 after RL-01, shapeFrom chasm 1, hump 2, throat 3, tunnel 6', () => {
-    expect(spec.shapeFrom).toEqual({ chasm: 1, throat: 3, tunnel: 6, hump: 2 });
+    expect(spec.shapeFrom).toEqual({ chasm: 1, throat: 3, tunnel: 6, hump: 2, dip: 1 });
     expect(spec.risk).toEqual({ fromSection: 2 });
     for (const m of spec.mountains) {
       const rows = TABLE[m.id]!;
@@ -89,7 +89,7 @@ describe('character of the mountains in the data (RG-01)', () => {
     for (const m of plain.mountains) for (const s of m.sections) delete s.shape;
     const out = gen(plain);
     for (const w of out.worlds) {
-      expect(w.segments.filter((s) => ['chasm', 'throat', 'tunnel', 'hump'].includes(s.type) || s['shape'] !== undefined), w.id).toEqual([]);
+      expect(w.segments.filter((s) => ['chasm', 'throat', 'tunnel', 'hump', 'dip', 'pit'].includes(s.type) || s['shape'] !== undefined), w.id).toEqual([]);
       for (const f of w.segments.filter((s) => s.type === 'fork')) {
         const zone = w.zones[(f['section'] as number) - 1]!;
         // SP-05: a split fork starts where the fork of 16.5 does and runs 150–300 (tests/level/fork.test.ts).
@@ -131,7 +131,7 @@ describe('character of the mountains in the data (RG-01)', () => {
         for (const e of lane) expect(e.z).toBeGreaterThan(Math.max(th ? end(th) : 0, ch ? end(ch) : 0));
       }
     }
-    expect(big).toBe(Object.values(TABLE).flat().filter((r) => r.filter((k) => k !== 'fork').length >= 3).length);
+    expect(big).toBe(Object.values(TABLE).flat().filter((r) => r.filter((k) => k !== 'fork' && k !== 'dip').length >= 3).length);
   });
 
   it('RL-01: every section from the 2nd has a fall risk or a flight; a section without one is named; sizes grow', () => {

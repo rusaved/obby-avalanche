@@ -85,6 +85,8 @@ const FUN_RANGES: Record<keyof TuningJson['fun'], Range> = {
   slideMult: [1, 3, 0.05],
   slideSec: [0, 5, 0.1],
   giftStreakSec: [0.2, 5, 0.1],
+  slideSway: [0, 20, 0.5],
+  slideSwayHz: [0, 4, 0.1],
 };
 const GATE_REWARD_RANGES: Partial<Record<keyof TuningJson['gateReward'], Range>> = {
   streakSec: [2, 30, 0.5],

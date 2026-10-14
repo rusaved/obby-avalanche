@@ -55,7 +55,7 @@ import { createBotsView, type BotsView, type HudMode } from './app/bots-view.ts'
 import { faceDataUrl } from './render/characters.ts';
 import { createAudio, type GameAudio } from './audio/index.ts';
 import type { ThreatOptions } from './sim/threat.ts';
-import type { World } from './content/types.ts';
+import type { ThemeJson, ThemeTint, World } from './content/types.ts';
 import { createQuality, qualityParams, QUALITY_LEVELS, type QualityLevel } from './render/quality.ts';
 import { createDecor, type Decor } from './render/decor.ts';
 import { buildLevel } from './level/builder.ts';
@@ -138,6 +138,10 @@ async function boot(): Promise<void> {
   const runPace = usePace((await platform.getFlags({ pace: game.pace ?? CLASSIC_PACE }))['pace']);
   platformOpts.saveSlot = runPace === CLASSIC_PACE ? undefined : runPace;
   const { theme, tuning, balance, skins, accessories, pets, eggs, trails, auras, sfx, bots } = content;
+  // RL-04 (docs/01-gdd.md 21.4): a mountain's own sky, fog and snow (theme.json tints by its id); the base — the theme's.
+  const tintOf = (w: World | undefined): ThemeTint | null => (w ? theme.tints?.[w.id] : undefined) ?? null;
+  const themeOf = (tint: ThemeTint | null): ThemeJson =>
+    tint ? { ...theme, materials: { ...theme.materials, track: { ...theme.materials['track']!, color: tint.track } } } : theme;
   platform.onPause(() => pause.add('sdk'));
   platform.onResume(() => pause.remove('sdk'));
   track('sdk_ready', { platform: platform.kind, lang: platform.lang, device: platform.device });
@@ -873,7 +877,8 @@ async function boot(): Promise<void> {
     if (gr && levelMeshes) {
       gr.scene.remove(levelMeshes.group);
       levelMeshes.dispose();
-      levelMeshes = createLevelMeshes(level, theme, (k) => t(`num.${k}`));
+      gr.setTint(tintOf(world));
+      levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`));
       gr.scene.add(levelMeshes.group);
       applyQualityNow();
     }
@@ -932,6 +937,7 @@ async function boot(): Promise<void> {
     if (gr && levelMeshes) {
       gr.scene.remove(levelMeshes.group);
       levelMeshes.dispose();
+      gr.setTint(null);
       levelMeshes = createLevelMeshes(level, theme, (k) => t(`num.${k}`));
       gr.scene.add(levelMeshes.group);
       applyQualityNow();
@@ -1267,7 +1273,9 @@ async function boot(): Promise<void> {
     renderPos.copy(prevPos).lerp(curPos, alpha);
     if (heroChar) {
       heroChar.position.copy(renderPos);
-      heroChar.yaw = hero.yaw;
+      // RL-06 (docs/01-gdd.md 21.6): a light sway on an ice slide — the model only, the run and the camera keep the course.
+      const sway = sim.fun.onSlide >= 0 && hero.onGround ? ((tuning.fun.slideSway ?? 0) * Math.PI) / 180 : 0;
+      heroChar.yaw = hero.yaw + sway * Math.sin(playSec * 2 * Math.PI * (tuning.fun.slideSwayHz ?? 0));
       heroChar.speedFactor = Math.min(1, hero.speed / Math.max(1, maxSpeed));
       // On a belt the hero runs in place by himself (docs/01-gdd.md 3.4).
       heroChar.pose = hero.onGround ? (hero.speed > 0.5 || sim.onBelt ? 'run' : 'idle') : hero.vel.y > 2 ? 'jump' : 'fall';
@@ -1434,7 +1442,8 @@ async function boot(): Promise<void> {
 
   gr = createGameRenderer(canvas, gl, theme, quality.params.antialias);
   bootState.glRenderer = gr.glRenderer;
-  levelMeshes = createLevelMeshes(level, theme, (k) => t(`num.${k}`));
+  gr.setTint(tintOf(world));
+  levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`));
   gr.scene.add(levelMeshes.group);
   // Walls open from the save stand as arches at once (M3-07), no melt.
   sim.gatesOpen.forEach((open, i) => open && levelMeshes!.setGateOpen(i, 1));

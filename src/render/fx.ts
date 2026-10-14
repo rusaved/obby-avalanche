@@ -18,13 +18,15 @@ const WIND_LEN_PER_SPEED = 0.04;
 const WIND_LIFE: [number, number] = [0.25, 0.4];
 const WIND_OPACITY = 0.55;
 
-export type FxKind = 'puff' | 'trail' | 'confetti';
+export type FxKind = 'puff' | 'trail' | 'confetti' | 'spark';
 
 /** Per kind: life (s), pull down (units/s²) and drag (share of the speed kept a second). */
 const KIND: Record<FxKind, { life: [number, number]; gravity: number; keep: number }> = {
   puff: { life: [0.45, 0.8], gravity: 6, keep: 0.08 },
   trail: { life: [0.35, 0.6], gravity: -1.5, keep: 0.2 },
   confetti: { life: [1.0, 1.6], gravity: 9, keep: 0.35 },
+  // RL-06: sparks of the ice under a sliding hero.
+  spark: { life: [0.2, 0.4], gravity: 5, keep: 0.25 },
 };
 
 export interface FxParticles {
