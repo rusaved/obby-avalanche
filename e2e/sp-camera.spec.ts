@@ -11,7 +11,7 @@ import openTuning from '../content/avalanche/pace/open/tuning.json' with { type:
 // camera.distance, no rise, never inside the level; straight up the summit of mountain 1 −14, 0, +14 off the middle the
 // hero goes into the portal ≤ 3 s from the line of the funnel, the camera never inside the arch or the pillar of light;
 // on the belt of the grotto of ridge 1 of mountain 2 the record flag is never between the camera and the hero.
-type Seg = { type: string; z: number; kind?: string };
+type Seg = { type: string; z: number; kind?: string; length?: number };
 type OpenWorld = { length: number; segments: Seg[]; bosses: Array<{ zone: [number, number] }> };
 const worlds = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds;
 const EVIDENCE = 'docs/evidence/sp';
@@ -39,13 +39,19 @@ async function toMountain(page: Page, i: number, stat = 1e12): Promise<void> {
   }, stat);
 }
 
-/** Side grottos of this mountain with no ridge within 40 units up the slope (the way out runs up and across) and no rock
- * of the field on that way (SP-07 moved the grottos: one exit ran past a rock, and the view went round it). */
+/** Side grottos of this mountain with no ridge within 40 units up the slope (the way out runs up and across), no rock
+ * of the field on that way (SP-07 moved the grottos: one exit ran past a rock, and the view went round it) and no pit
+ * (RL-03: a fall there rolls the hero back to the flag). */
 function grottos(list: Shelter[], w: OpenWorld): Shelter[] {
   const ridges = w.segments.filter((s) => s.type === 'gate' && s.kind === 'ridge').map((s) => s.z);
   const rocks = list.filter((n) => n.kind === 'island');
+  const pits = w.segments.filter((s) => s.type === 'pit');
   return list.filter(
-    (n) => n.kind === 'grotto' && !ridges.some((z) => z > n.z - 4 && z < n.z + 40) && !rocks.some((r) => Math.sign(r.mouth[0]) === (n.side === 'left' ? -1 : 1) && r.z > n.z - 20 && r.z < n.z + 40),
+    (n) =>
+      n.kind === 'grotto' &&
+      !ridges.some((z) => z > n.z - 4 && z < n.z + 40) &&
+      !rocks.some((r) => Math.sign(r.mouth[0]) === (n.side === 'left' ? -1 : 1) && r.z > n.z - 20 && r.z < n.z + 40) &&
+      !pits.some((q) => q.z + q.length! > n.z - 4 && q.z < n.z + 40),
   );
 }
 
