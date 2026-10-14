@@ -46,8 +46,9 @@ test('a runner at an edge of the field of mountain 1 (±(width/2 − 5)) reaches
       const s = await testState(page);
       const shelters = await page.evaluate(() => window.__TEST__!.shelters());
       const target = shelters[s.wave!.shelter]!;
-      // To its mouth, then in.
+      // To its mouth, then in; the wave at ×2 (the bot steers every tick, so the run is the same — only the real seconds).
       await page.evaluate(([m, i]) => window.__TEST__!.botPath([m, i]), [target.mouth, target.inside] as const);
+      await page.evaluate(() => window.__TEST__!.setTimeScale(2));
       await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'gone' || window.__TEST__!.state().wave?.phase === 'idle', undefined, { timeout: 60_000 });
       await page.evaluate(() => window.__TEST__!.botPath(null));
       const after = await page.evaluate(() => window.__TEST__!.simEvents.filter((e) => e.name === 'waveSurvived').length);
@@ -55,6 +56,7 @@ test('a runner at an edge of the field of mountain 1 (±(width/2 − 5)) reaches
       if (ok) safe++;
       rows.push(`z ${z}, x ${sign * x}: ${target.kind} at z ${target.z} — ${ok ? 'safe' : 'caught'}`);
       await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'idle', undefined, { timeout: 60_000 });
+      await page.evaluate(() => window.__TEST__!.setTimeScale(1));
     }
   }
   expect(safe, rows.join('\n')).toBe(10);
