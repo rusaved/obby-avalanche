@@ -1012,7 +1012,7 @@
     "milestone": "SP",
     "description": "Плейтест и итог вехи «Размах» (SP) (docs/01-gdd.md 20.14; docs/05 блок SP): субагент-плейтестер (смоук), verify, скриншоты, docs актуализированы (01 20, 01a 19 с итоговыми числами, 02 — камера, генератор, великан, модель; 05; 06 — параметры cover и mountain), запись итога с тремя строками и честным списком «что не нравится», push в main, стоп продюсера",
     "acceptance": "docs/evidence/sp/playtest.md: средний балл ≥ 3,5 и камера ≥ 3; пункты ниже 3 — в фичи вехи или в progress.md с причиной; npm run verify в фоне — docs/evidence/sp/verify.txt с последней строкой EXIT=0; все фичи SP passes: true (SP-07 — или deferred: true по списку резки); скриншоты вехи открыты и просмотрены; docs/02 дополнен разделами по камере (воронка, флажок, возврат вида), генератору (ширина, split, island, cover), великану (chase) и модели (experienced, fitProfile), дубли убраны; docs/06 — параметры cover и mountain; QUESTIONS.md Q-059…Q-063 со статусами; git push origin HEAD:main; запись итога в progress.md по шаблону с блоком «Что проверить продюсеру» и строкой «Ждёт решения продюсера»",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
