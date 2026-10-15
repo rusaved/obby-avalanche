@@ -18,8 +18,13 @@ export const TELEPORT_WINDOW = 'campTeleport';
 const PAD_REACH = 3.2;
 /** Levels the last tutorial step asks for (docs/01-gdd.md 22.12: «+3 levels»). */
 const TUTOR_LEVELS = 3;
-/** «Jump!» shows this close before a pit on the line of the run. */
+/** «Jump!» shows this close before a pit on the line of the run, and no later than JUMP_HINT_SEC of the run before it
+ * (LV-12 re-check: at 14 units it came 0.4 s before the edge on a phone). */
 const JUMP_HINT_AHEAD = 14;
+const JUMP_HINT_SEC = 1;
+/** The hook for tomorrow waits this long after a trophy toast (one toast at a time, LV-12 review). */
+const HOOK_QUIET_TICKS = 150;
+const HOOK_SEC = 6;
 
 export interface CampViewDeps {
   getSim(): Sim;
@@ -47,6 +52,7 @@ export interface CampView {
 export function createCampView(d: CampViewDeps): CampView {
   let onPad = false;
   let levelAtStep3 = -1;
+  let takenTick = -1;
   const fmt = (n: number): string => formatNumber(n, d.numSuffix);
   const best = (w: World): number => d.save.stageBest?.[String(w.index)] ?? 0;
 
@@ -72,20 +78,31 @@ export function createCampView(d: CampViewDeps): CampView {
         if (levelAtStep3 < 0) levelAtStep3 = lv;
         if (lv >= levelAtStep3 + TUTOR_LEVELS) {
           d.save.tutor = 3;
-          // The hook for tomorrow (LV-12 review: nothing in the first session said «come back»).
-          d.hud.toast(t('tutor.done'), 4, false, t('tutor.tomorrow'));
           d.persist();
         }
+      }
+      // The hook for tomorrow (LV-12 review: nothing in the first session said «come back»): once the tutorial is done, on
+      // the next safe finish, not mid-run and not over a trophy toast (LV-12 re-check: a 4 s toast in the run was missed).
+      const quiet = sim.tick < takenTick || sim.tick - takenTick >= HOOK_QUIET_TICKS;
+      if ((d.save.tutor ?? 0) >= 3 && !d.save.flags?.['tomorrowHook'] && st && h.z >= st.finish[0] && h.z <= st.finish[1] && quiet) {
+        (d.save.flags ??= {})['tomorrowHook'] = true;
+        d.hud.toast(t('tutor.done'), HOOK_SEC, true, t('tutor.tomorrow'));
+        d.persist();
       }
       const now = d.save.tutor ?? 0;
       let show = now === 0 ? (st && (st.type !== 'intro' || w.index > 1) ? t('tutor.run') : null) : now === 1 ? t('tutor.take') : now === 2 ? t('tutor.levels', { n: TUTOR_LEVELS }) : null;
       // «Jump!» before a pit on the line of the run until three are jumped (LV-12 review: no hint at the first jump).
       const jumps = d.save.flags?.['jumpsTaught'] === true;
       if (!jumps && st && (st.type === 'cracks' || st.type === 'plates') && sim.hero.onGround) {
-        const pit = sim.level.shapes?.find((q) => q.kind === 'pit' && q.z0 > h.z && q.z0 - h.z < JUMP_HINT_AHEAD && h.x >= q.x0 && h.x <= q.x1);
+        const ahead = Math.max(JUMP_HINT_AHEAD, sim.hero.speed * JUMP_HINT_SEC);
+        const pit = sim.level.shapes?.find((q) => q.kind === 'pit' && q.z0 > h.z && q.z0 - h.z < ahead && h.x >= q.x0 && h.x <= q.x1);
         if (pit) show = t('tutor.jump');
       }
       if (!jumps && st && h.z > st.end && (st.type === 'cracks' || st.type === 'plates')) (d.save.flags ??= {})['jumpsTaught'] = true;
+      // The avalanche of a stage (LV-12 re-check: «Run up!» and «Take the trophies» stood under the wave): to a grotto.
+      const ws = sim.threat?.state;
+      const wave = !!ws && (ws.phase === 'warn' || (ws.phase === 'run' && ws.outcome === 'none'));
+      if (st?.type === 'avalanche' && wave) show = sim.inShelter() ? null : t('hint.cover');
       d.hud.setTutor(show);
       // The teleport pad of the camp: stepping on it opens the window once a step-on.
       const p = w.campTeleport;
@@ -95,6 +112,7 @@ export function createCampView(d: CampViewDeps): CampView {
     },
     hasPassed: () => best(d.getWorld()) >= 2,
     trophyTaken() {
+      takenTick = d.getSim().tick;
       if ((d.save.tutor ?? 0) <= 1) {
         d.save.tutor = 2;
         levelAtStep3 = -1;

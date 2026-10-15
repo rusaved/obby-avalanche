@@ -164,9 +164,13 @@ const RULES: Rule[] = [
     id: 'hint.move',
     max: (t) => t.moveMax,
     // At the very start, and again after moveIdleSec without moving during the first moveRepeatUntilSec of play.
+    // Never under a wave (LV-12 re-check: «Run up!» stood on «Avalanche in 4»).
     show: (f, s) =>
-      s.movedSec === 0 && f.playSec < s.t.moveRepeatUntilSec && (((s.counts['hint.move'] ?? 0) === 0 && f.playSec < 1) || s.idleSec >= s.t.moveIdleSec),
-    hide: (_, __, s) => s.movedSec >= s.t.moveDoneSec,
+      !f.waveActive &&
+      s.movedSec === 0 &&
+      f.playSec < s.t.moveRepeatUntilSec &&
+      (((s.counts['hint.move'] ?? 0) === 0 && f.playSec < 1) || s.idleSec >= s.t.moveIdleSec),
+    hide: (f, __, s) => f.waveActive || s.movedSec >= s.t.moveDoneSec,
   },
 ];
 

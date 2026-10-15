@@ -46,6 +46,8 @@ async function pass(page: Page, world: number, st: WorldStage): Promise<void> {
   if (st.type === 'avalanche') {
     // On the warning — into the grotto the game lights, out once the wave is gone.
     await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'warn', undefined, { timeout: 30_000 });
+    // The plaque says where to (LV-12 re-check: «Run up!» stood under the wave).
+    await expect(page.locator('[data-role=tutor]')).toContainText(/Спрячься за камень|Duck behind a rock/);
     const sh = await page.evaluate(() => {
       const i = window.__TEST__!.state().wave!.shelter;
       return window.__TEST__!.shelters()[i]!;
