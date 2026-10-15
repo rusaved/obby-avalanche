@@ -147,6 +147,8 @@ export interface GameHandles {
   readonly windows: WindowFrame | null;
   /** Sound (M2-13: minimal, ZzFX by the first gesture). */
   readonly audio: GameAudio | null;
+  /** Footsteps (LV-09): the step sounds heard and the «Footsteps» window; null — the pack has none. */
+  readonly footsteps: import('./footsteps-view.ts').FootstepsView | null;
   /** Bots on screen and their name labels (M2-10). */
   readonly botsView: BotsView | null;
   /** HUD mode (docs/04-packaging.md 11.2): `shots` and `promo` hide the bot names (the rest of the modes — M5/M6). */

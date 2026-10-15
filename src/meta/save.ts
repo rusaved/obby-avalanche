@@ -1,5 +1,5 @@
 // What: SaveData shape, defaults, versioned migrations, tolerant parseSave and newerSave (cloud vs mirror) for everything that survives a reload.
-// Called by: main.ts, platform/{null,yandex,types}.ts, all app/*-view modules, meta/{daily,quests,rebirth,trophies}.ts; tests/meta/*, tests/platform/pace-save.test.ts.
+// Called by: main.ts, platform/{null,yandex,types}.ts, all app/*-view modules, meta/{daily,footsteps,quests,rebirth,trophies}.ts; tests/meta/*, tests/platform/pace-save.test.ts.
 // Keep: Save format is versioned: migrate with a unit test, never rename keys; a new field must be added to the NUMBER/ARRAY/OBJECT_KEYS lists; parseSave never throws.
 
 /**
@@ -76,6 +76,9 @@ export interface SaveData {
   baseTread?: number;
   /** RL-08 (docs/01-gdd.md 21.8): the gifts taken on mountain `world` since it was entered (indices of LevelData gifts). */
   gifts?: { world: number; taken: number[] };
+  /** Footsteps (LV-09; src/meta/footsteps.ts): the set on, the sets opened by an ad (forever), the volume 0–1; an absent
+   * or bad field — the default of sfx.json footsteps. */
+  footsteps?: { set?: string; ads?: string[]; volume?: number };
 }
 
 export const SAVE_VERSION = 2;
@@ -113,7 +116,7 @@ export function migrate(raw: Record<string, unknown>): Record<string, unknown> |
 
 const NUMBER_KEYS = ['sessions', 'wavesNormal', 'totalPlaySec', 'shoes', 'trophies', 'trophiesTotal', 'tier', 'summits', 'stat', 'bestStat', 'coins', 'world', 'frontierWall', 'boostSec', 'adEgg', 'baseTread'] as const;
 const ARRAY_KEYS = ['pets', 'petsOn', 'trails', 'auras', 'skins', 'wings'] as const;
-const OBJECT_KEYS = ['flags', 'hints', 'daily', 'quests', 'timeRw', 'wheel', 'record', 'gifts'] as const;
+const OBJECT_KEYS = ['flags', 'hints', 'daily', 'quests', 'timeRw', 'wheel', 'record', 'gifts', 'footsteps'] as const;
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
 
 /**

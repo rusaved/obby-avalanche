@@ -904,8 +904,31 @@ export interface BotsJson {
   boss?: { waitSec: [number, number]; passShare: number; speedK: [number, number] };
 }
 
-/** sfx.json (docs/02-tech.md 10): ZzFX parameters per sound event. */
-export type SfxJson = Record<string, number[]>;
+/** A set of footsteps (LV-09, docs/01-gdd.md 11): ZzFX parameters of a step on snow and on ice (an ice slide), how
+ * the player gets it (`free` at once, `ad` by a rewarded ad forever, `shop` — shown locked «soon in the shop»); `file`
+ * — an audio file the producer adds later (null — the synth plays). */
+export interface FootstepSet {
+  id: string;
+  snow: number[];
+  ice: number[];
+  unlock: 'free' | 'ad' | 'shop';
+  file: string | null;
+}
+
+/** sfx.json `footsteps` (LV-09): the volume by default (a share of the effects, 0–1), the random pitch of a step
+ * (± semitones), the sets; the first `free` set is the one on by default. */
+export interface FootstepsJson {
+  volume: number;
+  pitch: number;
+  sets: FootstepSet[];
+}
+
+/** sfx.json (docs/02-tech.md 10): ZzFX parameters per sound event; `footsteps` — the sets of step sounds (LV-09),
+ * absent — the hero steps silently. */
+export interface SfxJson {
+  footsteps?: FootstepsJson;
+  [name: string]: number[] | FootstepsJson | undefined;
+}
 
 /**
  * pace/<pace>/base.json (docs/01-gdd.md 19.2–19.4; docs/01a-content.md 18.1): the base between the mountains — a flat
