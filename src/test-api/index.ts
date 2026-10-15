@@ -161,6 +161,9 @@ export interface TestState {
   statFlash: boolean;
   sfx: string[];
   audioRunning: boolean;
+  /** Footsteps (LV-09): steps and previews heard, the surface of the last one, the set on, its volume (0–1), the sets
+   * opened by an ad, the set whose ad runs; null — the pack has no footsteps. */
+  footsteps: { count: number; surface: string | null; set: string; volume: number; ads: string[]; busy: string | null } | null;
   /** Coin plaque on the HUD: shown (slid in) and its text. */
   coinPlaque: { shown: boolean; text: string };
   controlYaw: number;
@@ -691,6 +694,9 @@ export function installTestApi(g: GameHandles): TestApi {
         statFlash: document.querySelector('[data-role="stat"]')?.classList.contains('flash') ?? false,
         sfx: [...(g.audio?.played ?? [])],
         audioRunning: g.audio?.running ?? false,
+        footsteps: g.footsteps
+          ? { count: g.footsteps.count, surface: g.footsteps.surface, ...g.footsteps.state(), busy: g.footsteps.busy }
+          : null,
         caught: g.sim?.caught
           ? { t: g.sim.caught.t, total: g.sim.caught.formSec + g.sim.caught.rollSec + g.sim.caught.popSec, niche: g.sim.caught.niche }
           : null,

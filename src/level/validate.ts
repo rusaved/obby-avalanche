@@ -8,7 +8,7 @@
  * physics (M1) and cave fairness against warnSec (M2-03).
  */
 import * as v from 'valibot';
-import type { AurasJson, BalanceJson, BotsJson, Curve, EggsJson, TrailsJson, GameJson, OpenSpecJson, Reward, Segment, SkinsJson, TuningJson, World, WorldsJson, WorldsSpecJson } from '../content/types.ts';
+import type { AurasJson, BalanceJson, BotsJson, Curve, EggsJson, TrailsJson, GameJson, OpenSpecJson, Reward, Segment, SfxJson, SkinsJson, TuningJson, World, WorldsJson, WorldsSpecJson } from '../content/types.ts';
 import { summitTrophies } from '../sim/economy.ts';
 import { LEADERBOARD_SCORES } from '../meta/trophies.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
@@ -665,7 +665,25 @@ const trailsSchema = v.object({ trails: v.array(cosmetic) });
 const aurasSchema = v.object({ auras: v.array(cosmetic) });
 
 /** ZzFX takes up to 21 numbers (docs/02-tech.md 10). */
-const sfxSchema = v.record(name, v.pipe(v.array(v.number()), v.minLength(1), v.maxLength(21)));
+const zzfx = v.pipe(v.array(v.number()), v.minLength(1), v.maxLength(21));
+/** Footstep sets (LV-09): snow and ice sounds, how a set opens, a future audio file (null — the synth); one free at least. */
+export const FOOTSTEP_UNLOCKS = ['free', 'ad', 'shop'] as const;
+const footstepsSchema = v.pipe(
+  v.object({
+    volume: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
+    pitch: nonNeg,
+    sets: v.pipe(
+      v.array(v.object({ id: id, snow: zzfx, ice: zzfx, unlock: v.picklist(FOOTSTEP_UNLOCKS), file: v.nullable(v.pipe(v.string(), v.minLength(1))) })),
+      v.minLength(1),
+    ),
+  }),
+  v.check((f) => f.sets.some((x) => x.unlock === 'free'), 'expected at least one free set'),
+  v.check((f) => new Set(f.sets.map((x) => x.id)).size === f.sets.length, 'duplicate set id'),
+);
+const sfxSchema = v.pipe(
+  v.objectWithRest({ footsteps: v.optional(footstepsSchema) }, zzfx),
+  v.check((o) => Object.keys(o).every((k) => v.is(name, k)), 'expected latin sound names'),
+);
 
 const range = v.pipe(
   v.tuple([nonNeg, nonNeg]),
@@ -771,6 +789,13 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
       errors.push(`i18n/en.json: ${k} — placeholders differ from ru (${placeholders(ru[k] ?? '')} vs ${placeholders(en[k] ?? '')})`);
   }
   if (!ru['game.title']) errors.push('i18n/ru.json: game.title — missing');
+
+  // Footsteps (LV-09): a set by an ad needs the rewarded place `footsteps`; names footsteps.set.<id> in both languages.
+  const steps = (files['sfx.json'] as SfxJson).footsteps;
+  if (steps?.sets.some((x) => x.unlock === 'ad') && !game.ads.rewarded.includes('footsteps'))
+    errors.push('game.json: ads.rewarded — "footsteps" missing (sfx.json has a footstep set by an ad)');
+  for (const x of steps?.sets ?? [])
+    for (const [file, dict] of [['i18n/ru.json', ru], ['i18n/en.json', en]] as const) if (!dict[`footsteps.set.${x.id}`]) errors.push(`${file}: footsteps.set.${x.id} — missing (sfx.json footsteps)`);
 
   // Skins → accessories.
   const accIds = new Set(accessories.accessories.map((a) => a.id));

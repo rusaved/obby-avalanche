@@ -35,6 +35,7 @@ import { createFtueVisual } from './render/ftue.ts';
 import { createFtueView, type FtueView } from './app/ftue-view.ts';
 import { createWayView, type WayView } from './app/way-view.ts';
 import { createAdsView, type AdsView } from './app/ads-view.ts';
+import { createFootstepsView, FOOTSTEPS_WINDOW, type FootstepsView } from './app/footsteps-view.ts';
 import { BOSS_SIGN_HALF, BOSS_SIGN_TOP, createBossView, type BossView } from './app/boss-view.ts';
 import { createEventsView, type EventsView } from './app/events-view.ts';
 import { createFunView, type FunView } from './app/fun-view.ts';
@@ -370,6 +371,8 @@ async function boot(): Promise<void> {
   let windows: WindowFrame | null = null;
   let hudView: HudView | null = null;
   let audio: GameAudio | null = null;
+  /** Footsteps (LV-09): a sound at every step, the «Footsteps» window; null — the pack has no footsteps. */
+  let footstepsView: FootstepsView | null = null;
   let botsView: BotsView | null = null;
   let bonusVisual: BonusVisual | null = null;
   let cosmeticsVisual: CosmeticsVisual | null = null;
@@ -393,6 +396,8 @@ async function boot(): Promise<void> {
     }
     s.events.on('gain', ({ amount, steps, belt }) => {
       pendingGain = amount;
+      // A soft step (LV-09): ice while the feet are on an ice slide, snow elsewhere (a belt too).
+      footstepsView?.step(s.fun.onSlide >= 0 ? 'ice' : 'snow');
       if (steps === 1) track('gameTutorialStart');
       if (belt) trackOnce('treadmill_first');
     });
@@ -799,6 +804,9 @@ async function boot(): Promise<void> {
     },
     get audio() {
       return audio;
+    },
+    get footsteps() {
+      return footstepsView;
     },
     get botsView() {
       return botsView;
@@ -1259,6 +1267,8 @@ async function boot(): Promise<void> {
       if (windows?.current) windows.close();
       else g.toggleMenu();
     }
+    // The footsteps window plays its previews while only `menu` holds the game: a new reason (ad, sdk, hidden) stops it.
+    if (windows?.current === FOOTSTEPS_WINDOW) audio?.sync();
     const hero = sim.hero;
     renderPos.copy(prevPos).lerp(curPos, alpha);
     if (heroChar) {
@@ -1492,6 +1502,7 @@ async function boot(): Promise<void> {
       : {}),
     onAutoRun: (on) => g.setAutoRun(on),
     onQuality: (level) => g.setQualitySetting(level),
+    ...(sfx.footsteps ? { onFootsteps: () => footstepsView?.openWindow() } : {}),
     coinColor: theme.ui.coins,
     threatColor: theme.threat.front[1],
     bonusColor: theme.bonus?.color,
@@ -1522,7 +1533,8 @@ async function boot(): Promise<void> {
   audio = createAudio({
     sfx,
     enabled: save.settings.sound,
-    paused: () => pause.paused,
+    // Any pause reason stops the sound; the «Footsteps» window alone (reason `menu` only) keeps it for its previews.
+    paused: () => pause.paused && !(windows?.current === FOOTSTEPS_WINDOW && pause.reasons.length === 1 && pause.has('menu')),
     onPauseChange: (fn) => void pause.onChange(fn),
     gestureTarget: window,
   });
@@ -1564,6 +1576,7 @@ async function boot(): Promise<void> {
   meta.apply();
   // Windows (docs/01-gdd.md 10.2): one at a time, the game and the avalanche stand while it is open (pause `menu`).
   windows = createWindowFrame(ui, { closeLabel: t('btn.close'), okLabel: t('btn.ok'), onChange: (id) => pause.set_('menu', id !== null) });
+  if (sfx.footsteps) footstepsView = createFootstepsView({ manifest: sfx.footsteps, save, windows, platform, pause, hud, audio: () => audio, persist });
   const petsVisual = createPetsVisual(theme);
   gr.scene.add(petsVisual.group);
   petsView = createPetsView({

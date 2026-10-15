@@ -23,6 +23,8 @@ export interface HudOptions {
   community?: { ids: readonly string[]; open: (id: string) => void; gifts?: CommunityGiftCards };
   onAutoRun: (on: boolean) => void;
   onQuality: (level: 'auto' | 'low' | 'medium' | 'high') => void;
+  /** «Footsteps» row of the pause window pressed (LV-09): the caller opens its window; absent — no row. */
+  onFootsteps?: () => void;
   /** Coin plaque colour (theme.json ui.coins). */
   coinColor: string;
   /** Avalanche colour for the banner outline, frost frame and cave arrow (theme.json threat.front[1]). */
@@ -537,6 +539,15 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   }
   qualitySel.addEventListener('change', () => opts.onQuality(qualitySel.value as 'auto' | 'low' | 'medium' | 'high'));
   pauseMain.appendChild(row(t('settings.quality'), qualitySel));
+
+  // Footsteps (LV-09): the row opens the «Footsteps» window (sets and their volume).
+  const onFootsteps = opts.onFootsteps;
+  if (onFootsteps) {
+    const b = el('button', 'toggle', t('footsteps.open'));
+    b.dataset['hud'] = 'footsteps';
+    b.addEventListener('click', () => onFootsteps());
+    pauseMain.appendChild(row(t('footsteps.title'), b));
+  }
 
   const howto = el('div', 'howto');
   howto.append(el('p', '', t('howto.goal')), el('p', '', t('howto.pc')), el('p', '', t('howto.touch')));
