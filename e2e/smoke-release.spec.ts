@@ -1,4 +1,5 @@
 import { test, expect, mockCalls } from './fixtures.ts';
+import game from '../content/avalanche/game.json' with { type: 'json' };
 
 // Release archive smoke (docs/02-tech.md 16.3): the unpacked release/*.zip served statically, mock on /sdk.js.
 // There is no __TEST__ in a release build, so readiness is read from the mock and the DOM.
@@ -19,13 +20,13 @@ test('release build: ready() exactly once, first frame drawn, zero console error
   expect(hasTest).toBe('undefined');
 });
 
-// PR-01, PS-02 (docs/01-gdd.md 16.1, 17.1): the release never reads ?pace= — it plays game.json `pace` (open), so the
-// save goes to the open slot of the mirror and the classic key stays empty.
+// PR-01, PS-02 (docs/01-gdd.md 16.1, 17.1): the release never reads ?pace= — it plays game.json `pace` (stages since
+// 15.10, LV-01), so the save goes to that slot of the mirror and the classic key stays empty.
 test('release build ignores ?pace=classic: the save lands in the slot of the game.json pace', async ({ page }) => {
   await page.goto('/?pace=classic');
   await page.waitForFunction(() => window.__YA_MOCK__?.calls.some((c) => c.name === 'LoadingAPI.ready'), undefined, { timeout: 60_000 });
   await page.waitForFunction(() => Object.keys(localStorage).some((k) => /:save(\.|$)/.test(k)), undefined, { timeout: 30_000 });
   const keys = await page.evaluate(() => Object.keys(localStorage).filter((k) => /:save(\.|$)/.test(k)));
-  expect(keys.some((k) => k.endsWith(':save.open'))).toBe(true);
+  expect(keys.some((k) => k.endsWith(`:save.${game.pace}`)), keys.join(' ')).toBe(true);
   expect(keys.some((k) => k.endsWith(':save'))).toBe(false);
 });

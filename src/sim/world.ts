@@ -292,14 +292,18 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   const toFlag = opts.balance.caught?.to === 'flag' || toPrev;
   const pits = (level.shapes ?? []).filter((c) => c.kind === 'pit');
   const inPit = (): boolean => pits.some((q) => hero.pos.y < q.y && hero.pos.x > q.x0 && hero.pos.x < q.x1 && hero.pos.z > q.z0 && hero.pos.z < q.z1);
+  // No cascade (Q-083, producer 15.10; docs/01-gdd.md 4.5, 22.9): the stage back counts from the farthest stage of the
+  // attempt — a fall on the stage the hero was rolled back to returns him to its own start. A teleport starts an attempt.
+  let stageFar = 0;
   const flagPoint = (): { x: number; y: number; z: number } => {
     if (toPrev) {
       // A false exit of the maze rolls back to its own way in (LV-12 review: back over the whole stage before it the
-      // maze was a lottery with a long walk); any other fall — to the stage before (22.9).
+      // maze was a lottery with a long walk); any other fall at the farthest stage — to the stage before (22.9).
       const n = stageAt(level, hero.pos.z);
-      const target = stageStart(level.stages?.find((x) => x.n === n)?.type === 'maze' ? n : n - 1);
+      const back = n >= stageFar && level.stages?.find((x) => x.n === n)?.type !== 'maze';
+      stageFar = Math.max(stageFar, n);
       sim.rollFrom = n;
-      return target;
+      return stageStart(back ? n - 1 : n);
     }
     const c = level.checkpoints[sim.checkpoint];
     return c ? { x: c.x, y: c.y, z: c.z } : { x: level.spawn[0], y: level.spawn[1], z: level.spawn[2] };
@@ -534,6 +538,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
           break;
         }
       }
+      if (level.stages && !sim.caught) stageFar = Math.max(stageFar, stageAt(level, hero.pos.z));
       // Trophy buttons of the stage finishes (docs/01-gdd.md 22.8): stand on one — its trophies, once a pass.
       if (level.stages) for (let k = 0; k < level.stages.length; k++) {
         const st = level.stages[k]!;
@@ -555,6 +560,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       events.emit('step', { tick: sim.tick });
     },
     teleport(x, y, z) {
+      stageFar = 0;
       sim.caught = null;
       sim.slow = null;
       sim.tumble = null;

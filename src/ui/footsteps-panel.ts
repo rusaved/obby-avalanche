@@ -5,7 +5,7 @@
 /**
  * «Footsteps» window body (LV-09, docs/01-gdd.md 11): the volume of the steps on its own slider, applied at once; the
  * sets as cards — an open one has «Choose» («Selected» when on; a tap chooses and plays it), one by an ad has the
- * rewarded button, one of the shop a lock with «Soon in the shop».
+ * rewarded button, one of the shop a lock with «From the shop» (no «soon»: a dev trace, docs/03 4.2).
  */
 import { t } from './i18n.ts';
 import { icon } from './icons.ts';

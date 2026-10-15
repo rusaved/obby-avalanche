@@ -1,0 +1,96 @@
+# Хвост verify после правок: «Скоро в магазине» → «Из магазина» (check-release, стоп-слово), Q-083, смоук релиза читает темп из game.json (те же ступени, что в verify.mjs после e2e:sample)
+== verify: build
+vite v8.3.2 building client environment for production...
+transforming...
+<script src="/sdk.js"> in "/index.html" can't be bundled without type="module" attribute
+✓ 152 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                           1.70 kB │ gzip:   0.93 kB
+dist/assets/rubik-cyrillic-800-normal-wonQiwhm.woff2      7.85 kB
+dist/assets/rubik-cyrillic-500-normal-Didq2w9O.woff2      7.92 kB
+dist/assets/rubik-cyrillic-800-normal-DocVmW4N.woff       9.85 kB
+dist/assets/rubik-cyrillic-500-normal-BH_pkKR0.woff       9.92 kB
+dist/assets/en-fKmlPhXw.json                             14.58 kB │ gzip:   4.82 kB
+dist/assets/rubik-latin-500-normal-1os41rQk.woff2        19.03 kB
+dist/assets/rubik-latin-800-normal-BtaGuVpR.woff2        19.06 kB
+dist/assets/ru-wahChpWi.json                             19.22 kB │ gzip:   6.15 kB
+dist/assets/rubik-latin-800-normal-Dq1miTTj.woff         24.17 kB
+dist/assets/rubik-latin-500-normal-LZYVHeqz.woff         24.21 kB
+dist/assets/index-Dw6CZaCM.css                           33.23 kB │ gzip:   7.17 kB
+dist/assets/ZzFX-C1HKDoVW.js                              2.00 kB │ gzip:   1.17 kB
+dist/assets/index-CDIM8gg4.js                         1,668.19 kB │ gzip: 357.09 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 900 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.34s
+-- verify: build ok
+== verify: size
+size: dist
+  assets/en-fKmlPhXw.json                             14.2 KB 
+  assets/index-CDIM8gg4.js                          1629.1 KB gzip 342.3 KB
+  assets/index-Dw6CZaCM.css                           32.5 KB 
+  assets/ru-wahChpWi.json                             18.8 KB 
+  assets/rubik-cyrillic-500-normal-BH_pkKR0.woff       9.7 KB 
+  assets/rubik-cyrillic-500-normal-Didq2w9O.woff2      7.7 KB 
+  assets/rubik-cyrillic-800-normal-DocVmW4N.woff       9.6 KB 
+  assets/rubik-cyrillic-800-normal-wonQiwhm.woff2      7.7 KB 
+  assets/rubik-latin-500-normal-1os41rQk.woff2        18.6 KB 
+  assets/rubik-latin-500-normal-LZYVHeqz.woff         23.6 KB 
+  assets/rubik-latin-800-normal-BtaGuVpR.woff2        18.6 KB 
+  assets/rubik-latin-800-normal-Dq1miTTj.woff         23.6 KB 
+  assets/ZzFX-C1HKDoVW.js                              2.0 KB gzip 1.1 KB
+  index.html                                           1.7 KB 
+  total 1817.4 KB (target 4096.0 KB, limit 10240.0 KB)
+  js 1631.1 KB → gzip 343.4 KB (target 500.0 KB, limit 800.0 KB)
+-- verify: size ok
+== verify: pack
+pack: 14 files, 1817.4 KB → release/avalanche-0.1.0.zip 501.0 KB
+-- verify: pack ok
+== verify: check-release
+check-release: release/avalanche-0.1.0.zip
+date: 2026-10-15T14:35:38.391Z
+files: 14
+  assets/ZzFX-C1HKDoVW.js  2.0 KB
+  assets/en-fKmlPhXw.json  14.2 KB
+  assets/index-CDIM8gg4.js  1629.1 KB
+  assets/index-Dw6CZaCM.css  32.5 KB
+  assets/ru-wahChpWi.json  18.8 KB
+  assets/rubik-cyrillic-500-normal-BH_pkKR0.woff  9.7 KB
+  assets/rubik-cyrillic-500-normal-Didq2w9O.woff2  7.7 KB
+  assets/rubik-cyrillic-800-normal-DocVmW4N.woff  9.6 KB
+  assets/rubik-cyrillic-800-normal-wonQiwhm.woff2  7.7 KB
+  assets/rubik-latin-500-normal-1os41rQk.woff2  18.6 KB
+  assets/rubik-latin-500-normal-LZYVHeqz.woff  23.6 KB
+  assets/rubik-latin-800-normal-BtaGuVpR.woff2  18.6 KB
+  assets/rubik-latin-800-normal-Dq1miTTj.woff  23.6 KB
+  index.html  1.7 KB
+
+PASS  1. index.html at the root, paths only [A-Za-z0-9._/-]
+PASS  2. unpacked ≤ 10 MB and JS gzip ≤ 800 KB
+        zip 501.0 KB, unpacked 1817.4 KB, js gzip 343.4 KB
+PASS  3. no external addresses except /sdk.js and mc.yandex.ru (namespaces allowed)
+PASS  4. <script src="/sdk.js"> exactly once
+        found 1
+PASS  5. no <audio>, <video>, new Audio(
+PASS  6. no lil-gui, __TEST__, __STUDIO__, __YA_MOCK__, yasdk-mock, localhost, debugger, sourceMappingURL, ?pace=
+PASS  7. no development or stop-list words in shipped texts
+
+WARN  other absolute addresses in strings (not loaded): https://t.me/sunhearth_games, https://vk.ru/sunhearth_yandex
+RESULT: PASS
+
+-- verify: check-release ok
+== verify: e2e:release
+e2e:release: unpacked /home/user/obby-avalanche/release/avalanche-0.1.0.zip (14 entries) to /home/user/obby-avalanche/.cache/release-unpacked
+
+Running 2 tests using 1 worker
+
+  ✓  1 e2e/smoke-release.spec.ts:6:1 › release build: ready() exactly once, first frame drawn, zero console errors (5.0s)
+  ✓  2 e2e/smoke-release.spec.ts:25:1 › release build ignores ?pace=classic: the save lands in the slot of the game.json pace (3.3s)
+
+  2 passed (10.2s)
+-- verify: e2e:release ok
+EXIT=0

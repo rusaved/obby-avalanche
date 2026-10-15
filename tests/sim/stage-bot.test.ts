@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { HeroInput } from '../../src/sim/controller.ts';
-import { createSim, type Sim } from '../../src/sim/world.ts';
+import { createSim, stageAt, type Sim } from '../../src/sim/world.ts';
 import { buildLevel } from '../../src/level/builder.ts';
 import { mergePatch } from '../../src/content/pace.ts';
 import { levelThreshold } from '../../src/sim/levels.ts';
@@ -187,5 +187,40 @@ describe('the ridge sign and the roll-back of the stages (LV-02, LV-08)', () => 
       expect(sim.rollFrom).toBe(st.n);
       expect(sim.progress.stat).toBeGreaterThanOrEqual(stat0);
     }
+  });
+  it('no cascade (Q-083): a fall on the stage the hero was rolled back to returns him to its own start; past the farthest stage — one back again', () => {
+    const w = worlds.worlds[0]!;
+    const level = buildLevel(w);
+    const st = w.stages!.find((s) => s.n === 4)!;
+    const sim = createSim(level, tuning, { balance, speedCurve: balance.speedCurve, stat: levelThreshold(st.level, balance.levels!) });
+    const still = { moveX: 0, moveZ: 0, jump: false, jumpHeld: false };
+    /** Drop below killY at z, wait for the snowball to pop; the stage it popped on. */
+    const fallAt = (z: number): number => {
+      sim.hero.pos.y = level.killY - 1;
+      sim.hero.pos.z = z;
+      for (let k = 0; k < 600 && !sim.caught; k++) sim.step(still, DT);
+      expect(sim.caught).not.toBeNull();
+      for (let k = 0; k < 600 && sim.caught; k++) sim.step(still, DT);
+      return stageAt(level, sim.hero.pos.z);
+    };
+    const near = (n: number): number => Math.hypot(sim.hero.pos.x - sim.stageStart(n).x, sim.hero.pos.z - sim.stageStart(n).z);
+    // An attempt that reached stage n: on it — to n − 1; on n − 1 — to the start of n − 1, again and again.
+    const s0 = sim.stageStart(st.n);
+    sim.teleport(s0.x, s0.y + 0.05, s0.z);
+    for (let k = 0; k < 5; k++) sim.step(still, DT);
+    fallAt(st.start + 4);
+    expect(near(st.n - 1), 'the first fall: one stage back').toBeLessThanOrEqual(3);
+    const prev = w.stages!.find((s) => s.n === st.n - 1)!;
+    for (let r = 0; r < 2; r++) {
+      fallAt(prev.start + 4);
+      expect(near(st.n - 1), `fall ${r + 2} on the stage rolled back to: its own start`).toBeLessThanOrEqual(3);
+    }
+    // Further than before (the next stage): one stage back from there.
+    const next = w.stages!.find((s) => s.n === st.n + 1)!;
+    sim.hero.pos.z = next.start + 2;
+    sim.hero.pos.y = next.y + 0.05;
+    for (let k = 0; k < 5; k++) sim.step(still, DT);
+    fallAt(next.start + 4);
+    expect(near(st.n), 'past the farthest stage: one back from it').toBeLessThanOrEqual(3);
   });
 });

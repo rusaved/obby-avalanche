@@ -76,7 +76,7 @@ test('«Footsteps» from the pause: 3 free sets chosen at once with a preview, 2
   for (const t of await adBtns.allTextContents()) expect(t).toContain('Реклама');
   const locked = win.locator('.card.locked');
   await expect(locked).toHaveCount(1);
-  await expect(locked.locator('.card-lock')).toContainText('Скоро в магазине');
+  await expect(locked.locator('.card-lock')).toContainText('Из магазина');
   await expect(locked.locator('.card-lock svg')).toHaveCount(1);
   await expect(locked.locator('button')).toHaveCount(0);
 
