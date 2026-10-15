@@ -211,9 +211,10 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   };
   const cutParts: Array<{ niche: number; part: CavePart; box: LevelBox }> = [];
   // RL-09: with `fade` < 1 the tall walls are drawn apart, solid or see-through (the camera passes them, builder cameraThrough).
-  const seeThrough = fade < 1 ? level.boxes.filter((b) => CAMERA_THROUGH.has(b.kind)) : [];
+  const throughKinds = level.cameraThrough ?? CAMERA_THROUGH;
+  const seeThrough = fade < 1 ? level.boxes.filter((b) => throughKinds.has(b.kind)) : [];
   for (const b of level.boxes) {
-    if (fade < 1 && CAMERA_THROUGH.has(b.kind)) continue;
+    if (fade < 1 && throughKinds.has(b.kind)) continue;
     const cut = partOf(b);
     if (cut) cutParts.push({ ...cut, box: b });
     else bucketOf((b.min[2] + b.max[2]) / 2).push(boxGeometry(b, theme));

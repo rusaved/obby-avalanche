@@ -459,6 +459,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         bonus.carried = true;
         events.emit('bonusTake', { tick: sim.tick, x: bonus.x, y: bonus.y, z: bonus.z });
       }
+      // SD-02 (docs/01-gdd.md 23.2): brought into a shelter — it counts at once (not after the wave), the hands are free.
+      if (sim.bonus?.carried && !sim.caught && sim.shelterIndex() >= 0) saveBonus('cave');
       // Steps: horizontal path while on the ground before and after the tick; the air and the landing tick count nothing.
       // On a belt the belt runs under the hero at his run speed: he runs in place by himself (docs/02-tech.md 5.3).
       const belt = hero.onGround ? beltAt(beltList, hero.pos.x, hero.pos.y, hero.pos.z) : null;
@@ -621,6 +623,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   // The avalanche emits through the sim bus; «Phew, made it!» pays coins first (docs/01-gdd.md 4.4).
   const zoneGift = new Map<number, number>();
   for (const gift of sim.gifts) if (!zoneGift.has(gift.zone)) zoneGift.set(gift.zone, gift.coins);
+  // SD-02 (docs/01-gdd.md 23.2): no gifts on the track (pace stages) — the zone's gift value, never «+0».
+  for (const [k, v] of Object.entries(level.zoneGifts ?? {})) if (!zoneGift.has(Number(k))) zoneGift.set(Number(k), v);
   // Golden gift (docs/01-gdd.md 4.9): worth mult gifts of the zone where it lay.
   const bonusCfg = opts.bonus?.cfg ?? null;
   const bonusRng = createRng(opts.bonus?.seed ?? 0);

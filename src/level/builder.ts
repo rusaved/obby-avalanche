@@ -116,11 +116,16 @@ export interface BuildOptions {
   /** RL-09 (docs/01-gdd.md 21.9): the tall walls of CAMERA_THROUGH meet the hero only — the camera passes them (they turn
    * see-through when between it and the hero, render/level-mesh.ts); absent — as before. */
   cameraThrough?: boolean | undefined;
+  /** SD-01 (docs/01-gdd.md 23.1, camera.grottoFrame false): the walls and roofs of grottos and rocks too — no grotto frame,
+   * the camera stays behind the hero and passes them. */
+  grottoThrough?: boolean | undefined;
 }
 
 /** Tall walls the camera may pass (RL-09): ice cliffs, the walls of a throat and of a tunnel. Not a rock: its walls stop the
  * camera, and its grotto frame cuts its roof and back wall (SP-04; playtest RL: through a rock the camera stood inside it). */
 export const CAMERA_THROUGH: ReadonlySet<string> = new Set(['cliff', 'ledgeCliff', 'throatWall', 'tunnelWall']);
+/** SD-01: with the grotto frame off, the grotto walls and roofs join them (the camera behind the hero passes them). */
+const GROTTO_THROUGH: ReadonlySet<string> = new Set([...CAMERA_THROUGH, 'nicheWall', 'nicheRoof', 'islandWall', 'islandRoof']);
 
 /**
  * The invisible wall of the slope (docs/01-gdd.md 19.9, Q-048): over every border up to `h` above the floor it borders,
@@ -595,7 +600,8 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     }
   }
 
-  const through = opts.cameraThrough ? boxes.filter((b) => b.solid && CAMERA_THROUGH.has(b.kind)) : [];
+  const throughKinds = opts.cameraThrough && opts.grottoThrough ? GROTTO_THROUGH : CAMERA_THROUGH;
+  const through = opts.cameraThrough ? boxes.filter((b) => b.solid && throughKinds.has(b.kind)) : [];
   for (const b of boxes) if (b.solid && !through.includes(b)) pushBoxTriangles(tris, b);
   for (const r of ramps) pushRampTriangles(tris, r);
   for (const p of prisms) prismTriangles(tris, p);
@@ -630,6 +636,8 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
   const minY = Math.min(0, ...floors.map((f) => num(f, 'y')));
   return {
     ...(world.stages ? { stages: world.stages } : {}),
+    cameraThrough: throughKinds,
+    zoneGifts: Object.fromEntries((world.zones ?? []).map((z) => [z.k, z.gift])),
     worldId: world.id,
     worldIndex: world.index,
     length: world.length,

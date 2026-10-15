@@ -88,7 +88,8 @@ export function createHudView(d: HudViewDeps): HudView {
       sim.events.on('checkpoint', ({ index }) => {
         const c = sim.level.checkpoints[index];
         const prev = sim.level.checkpoints[index - 1];
-        if (c && prev && c.rarity !== prev.rarity) d.hud.toast(t(`zone.${c.rarity}`));
+        // SD-02: not on the stages pace — no gifts on its track, the toast would mean nothing there.
+        if (c && prev && c.rarity !== prev.rarity && !sim.level.stages) d.hud.toast(t(`zone.${c.rarity}`));
       });
       sim.events.on('gain', ({ amount }) => void (pendingPop = (pendingPop ?? 0) + amount));
     },

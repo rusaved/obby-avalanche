@@ -390,6 +390,11 @@ export interface TuningJson {
     mouseYawPerPx?: number;
     /** LV-12: the outer share of the field where the mouse turns nothing (on its way to the corner buttons). */
     mouseEdge?: number;
+    /** SD-01 (docs/01-gdd.md 23.1): the top share of the field and the px round HUD buttons where the mouse turns nothing. */
+    mouseTop?: number;
+    mouseButtonPad?: number;
+    /** SD-01: false — no frame of its own in grottos and caves (the view behind the hero), their walls and roofs see-through. */
+    grottoFrame?: boolean;
     mouseReturnSec?: number;
   };
   input: {

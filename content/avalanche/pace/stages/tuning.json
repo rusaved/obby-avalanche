@@ -13,6 +13,9 @@
   "shelterKeep": 8,
   "archHide": 8,
     "seeThrough": true,
+    "grottoFrame": false,
+    "mouseTop": 0.15,
+    "mouseButtonPad": 48,
   "grottoShot": {
    "orbitDeg": 75
   },

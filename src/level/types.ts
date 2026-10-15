@@ -119,6 +119,8 @@ export interface LevelPoint {
 }
 
 export interface LevelData {
+  /** The box kinds the camera passes (builder CAMERA_THROUGH; SD-01: with grottos); absent — CAMERA_THROUGH. */
+  cameraThrough?: ReadonlySet<string>;
   /** Stages pace (docs/01-gdd.md 22.4): the stages of worlds.json as they are; absent — the other layouts. */
   stages?: import('../content/types.ts').WorldStage[];
   worldId: string;
@@ -141,6 +143,9 @@ export interface LevelData {
   funnel?: { z0: number; z1: number; x0: number; x1: number };
   gates: LevelGate[];
   niches: LevelNiche[];
+  /** SD-02: the gift value of each zone of the mountain (worlds.json zones[].gift by k): the golden gift and «Phew» are worth
+   * it where the track has no gifts (pace stages). */
+  zoneGifts?: Record<number, number>;
   checkpoints: LevelCheckpoint[];
   points: LevelPoint[];
   safeZones: Array<[number, number]>;

@@ -391,7 +391,7 @@ function insideLevel(level: LevelData, gatesOpen: readonly boolean[], p: Vector3
   const inBox = (min: readonly number[], max: readonly number[]): boolean =>
     p.x > min[0]! - pad && p.x < max[0]! + pad && p.y > min[1]! - pad && p.y < max[1]! + pad && p.z > min[2]! - pad && p.z < max[2]! + pad;
   // RL-09: the camera passes a tall wall by design (camera.seeThrough) — that wall is see-through while it is in it.
-  for (const b of level.boxes) if (b.solid && !(through && CAMERA_THROUGH.has(b.kind)) && inBox(b.min, b.max)) return b.kind;
+  for (const b of level.boxes) if (b.solid && !(through && (level.cameraThrough ?? CAMERA_THROUGH).has(b.kind)) && inBox(b.min, b.max)) return b.kind;
   for (let i = 0; i < level.gates.length; i++) if (!gatesOpen[i] && inBox(level.gates[i]!.box.min, level.gates[i]!.box.max)) return 'gate';
   for (const r of level.ramps) {
     if (p.x < r.x0 - pad || p.x > r.x1 + pad || p.z < r.z0 - pad || p.z > r.z1 + pad) continue;

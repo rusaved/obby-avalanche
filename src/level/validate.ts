@@ -403,6 +403,9 @@ const tuningSchema = v.object({
     mouseLook: v.optional(v.boolean()),
     mouseYawPerPx: v.optional(positive),
     mouseEdge: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.4))),
+    mouseTop: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.4))),
+    mouseButtonPad: v.optional(nonNeg),
+    grottoFrame: v.optional(v.boolean()),
     mouseReturnSec: v.optional(positive),
   }),
   input: v.object({

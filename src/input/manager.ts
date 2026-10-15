@@ -24,6 +24,9 @@ interface PointerTrack {
   moved: number;
 }
 
+/** SD-01: how often the HUD buttons' rects are read again for the mouse look (ms). */
+const BUTTON_RECTS_MS = 500;
+
 export class InputManager {
   readonly stick: StickState = { active: false, originX: 0, originY: 0, x: 0, y: 0, dx: 0, dy: 0 };
   autoRun = false;
@@ -51,6 +54,10 @@ export class InputManager {
   private field: HTMLElement | null = null;
   private readonly cleanups: Array<() => void> = [];
   private hudMatcher = '[data-hud]';
+  private hudRoot: HTMLElement | null = null;
+  /** SD-01: the HUD buttons' rects, read again at most every BUTTON_RECTS_MS (layout reads are not free per move). */
+  private buttonRects: DOMRect[] = [];
+  private buttonRectsAt = -Infinity;
 
   constructor(
     private readonly opts: InputOptions,
@@ -64,6 +71,7 @@ export class InputManager {
 
   attach(field: HTMLElement, hudRoot: HTMLElement): void {
     this.field = field;
+    this.hudRoot = hudRoot;
     const on = <K extends keyof WindowEventMap>(target: Window, type: K, fn: (ev: WindowEventMap[K]) => void, opts?: AddEventListenerOptions): void => {
       target.addEventListener(type, fn as EventListener, opts);
       this.cleanups.push(() => target.removeEventListener(type, fn as EventListener, opts));
@@ -348,8 +356,28 @@ export class InputManager {
     // The hand on its way to a corner button (pause, sound, menu) turns nothing (LV-12 review): the outer band of the field.
     const edge = this.opts.mouseEdge ?? 0;
     if (edge > 0 && (ev.clientX < innerWidth * edge || ev.clientX > innerWidth * (1 - edge) || ev.clientY < innerHeight * edge)) return;
+    // SD-01 (docs/01-gdd.md 23.1): nor the top band (pause, goal) nor near any HUD button (producer 15.10: the camera
+    // turned on the way to a button).
+    if (ev.clientY < innerHeight * (this.opts.mouseTop ?? 0)) return;
+    if (this.nearButton(ev.clientX, ev.clientY, this.eventTime(ev))) return;
     this.yawDelta -= (dx * (this.opts.mouseYawPerPx ?? this.opts.mouseDegPerPx) * this.opts.sensitivity * Math.PI) / 180;
     this.lookEdge = true;
+  }
+
+  private nearButton(x: number, y: number, t: number): boolean {
+    const pad = this.opts.mouseButtonPad ?? 0;
+    if (pad <= 0 || !this.hudRoot) return false;
+    if (t - this.buttonRectsAt > BUTTON_RECTS_MS || t < this.buttonRectsAt) {
+      this.buttonRectsAt = t;
+      this.buttonRects = [];
+      this.hudRoot.querySelectorAll('button').forEach((b) => {
+        // Only a button the player sees: windows stay in the DOM hidden (visibility, opacity).
+        if (b.checkVisibility && !b.checkVisibility({ opacityProperty: true, visibilityProperty: true })) return;
+        const r = b.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0) this.buttonRects.push(r);
+      });
+    }
+    return this.buttonRects.some((r) => x > r.left - pad && x < r.right + pad && y > r.top - pad && y < r.bottom + pad);
   }
 
   private onPointerUp(ev: PointerEvent): void {

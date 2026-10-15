@@ -230,7 +230,7 @@ async function boot(): Promise<void> {
   // Back after F5 or another day (docs/01-gdd.md 6.6): the mountain of the save, the hero at its farthest flag.
   let world = content.worlds.worlds.find((w) => w.index === save.world) ?? content.worlds.worlds[0];
   if (!world) throw new Error('worlds.json has no worlds');
-  let level = buildLevel(world, { wallHeight: tuning.bounds?.wallHeight, cameraThrough: tuning.camera.seeThrough });
+  let level = buildLevel(world, { wallHeight: tuning.bounds?.wallHeight, cameraThrough: tuning.camera.seeThrough, grottoThrough: tuning.camera.grottoFrame === false });
   // Feel values (base and ceiling) come from tuning.json sliders; the curve shape from balance.json.
   const speedCurve = () => ({ ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed });
   // The avalanche (docs/02-tech.md 8.1): live world threat (debug sliders change it), save counters.
@@ -347,6 +347,8 @@ async function boot(): Promise<void> {
     mouseLook: !!tuning.camera.mouseLook && !mobile,
     mouseYawPerPx: tuning.camera.mouseYawPerPx ?? tuning.camera.mouseDegPerPx,
     mouseEdge: tuning.camera.mouseEdge ?? 0,
+    mouseTop: tuning.camera.mouseTop ?? 0,
+    mouseButtonPad: tuning.camera.mouseButtonPad ?? 0,
     lookAfterDragMs: (tuning.camera.mouseReturnSec ?? 0) * 1000,
     sensitivity: tuning.camera.sensitivity * save.settings.cameraSens,
     tapMaxMs: tuning.input.tapMaxMs,
@@ -553,7 +555,8 @@ async function boot(): Promise<void> {
       // With the golden gift: one toast, bigger and golden, both rewards in it (docs/01-gdd.md 4.9). Q-067: once the snow
       // has passed him (avalanche.shotUntilClear), so neither it nor the egg comes while the snow still goes by.
       const show = (): void => {
-        hud?.toast(t('wave.survived', { n: formatNumber(coins, numSuffix) }), gold > 0 ? 3 : 2, gold > 0, undefined, scripted ? showEgg : undefined);
+        // SD-02: never «+0» (pace stages: no gifts on the track, the zone value may still be 0).
+        hud?.toast(coins > 0 ? t('wave.survived', { n: formatNumber(coins, numSuffix) }) : t('wave.survivedPlain'), gold > 0 ? 3 : 2, gold > 0, undefined, scripted ? showEgg : undefined);
         if (coins > 0) hud?.setCoins(formatNumber(total, numSuffix));
       };
       if (tuning.avalanche.shotUntilClear) survivedShow = show;
@@ -564,7 +567,8 @@ async function boot(): Promise<void> {
     s.events.on('bonusTake', () => track('gold_take'));
     s.events.on('bonusSaved', ({ coins, total, where }) => {
       track('gold_saved');
-      if (where !== 'cave') hud?.toast(t('wave.goldSaved', { n: formatNumber(coins, numSuffix) }), 3, true);
+      // SD-02: saved in the shelter at once — its own golden toast (no longer folded into «Phew» after the wave).
+      if (coins > 0) hud?.toast(t('wave.goldSaved', { n: formatNumber(coins, numSuffix) }), 3, true);
       hud?.setCoins(formatNumber(total, numSuffix));
     });
     s.events.on('bonusLost', (at) => {
@@ -896,7 +900,7 @@ async function boot(): Promise<void> {
     basePortals = [];
     baseView?.clear();
     hud?.setMountainShown(true);
-    level = buildLevel(world, { wallHeight: tuning.bounds?.wallHeight, cameraThrough: tuning.camera.seeThrough });
+    level = buildLevel(world, { wallHeight: tuning.bounds?.wallHeight, cameraThrough: tuning.camera.seeThrough, grottoThrough: tuning.camera.grottoFrame === false });
     // A new entry (a portal, the rebirth): all its gifts back (RL-08); a run again from the base keeps the save's own.
     if (!replay) freshGifts(save, index);
     // From the base portal of the own mountain begun (docs/01-gdd.md 19.4): at the flag of its farthest ridge, as 6.6.

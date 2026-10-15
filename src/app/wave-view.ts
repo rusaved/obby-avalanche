@@ -186,7 +186,9 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       const inCave = sim.shelterIndex();
       // The grotto frame (RG-13, docs/01-gdd.md 18.8 item 3): from the slope off the mouth of the shelter the hero is in,
       // looking at him (a tunnel: from behind him along its hall); the rig cuts to it when pressed into a wall there.
-      const sh = inCave >= 0 && !sim.caught ? sim.level.niches[inCave]! : null;
+      // SD-01 (docs/01-gdd.md 23.1, camera.grottoFrame false): no frame of its own in grottos and caves — the view behind him.
+      const frames = d.tuning.camera.grottoFrame !== false;
+      const sh = frames && inCave >= 0 && !sim.caught ? sim.level.niches[inCave]! : null;
       if (sh && sh.kind !== 'ledge') {
         const gs = d.tuning.camera.grottoShot;
         const f = d.camera.shelter ?? { pos: new Vector3(), look: new Vector3(), fov: gs.fov };
@@ -209,7 +211,7 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       if (!belt) beltManual = false;
       else if (d.camera.sinceManual === 0) beltManual = true;
       const beltShot = !waveShot && belt && !beltManual;
-      const wantShot = waveShot || beltShot;
+      const wantShot = frames && (waveShot || beltShot);
       if (wantShot) {
         const c = sim.level.niches[inCave]!;
         // Q-067: on an avalanche with shotUntilClear its own frame (inside the shelter behind the hero), the belt keeps its.

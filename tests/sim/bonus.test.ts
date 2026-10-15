@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { buildLevel } from '../../src/level/builder.ts';
 import { createSim, type Sim } from '../../src/sim/world.ts';
@@ -137,7 +138,7 @@ describe('golden gift (M2-12)', () => {
     expect(a.sim.bonus).toEqual(b.sim.bonus);
   });
 
-  it('taken and brought into the cave: «Phew, made it!» + mult × the gift of its zone, one toast, then gold_saved', () => {
+  it('taken and brought into the cave: counted at once on the way in (SD-02), «Phew, made it!» after the wave', () => {
     const { sim, log } = goldSim();
     const c = caveCentre(2);
     standAt(sim, c.x, c.z, c.y);
@@ -147,14 +148,45 @@ describe('golden gift (M2-12)', () => {
     expect(sim.bonus!.carried).toBe(true);
     const coins0 = sim.coins;
     sim.teleport(c.x, c.y + 0.05, c.z);
+    sim.step(NO_INPUT, DT);
+    // SD-02 (docs/01-gdd.md 23.2): in the shelter it counts at once, the hands are free.
+    expect(log.find((e) => e.name === 'bonusSaved')!.p['where']).toBe('cave');
+    expect(sim.bonus).toBeNull();
+    expect(sim.coins - coins0).toBe(cfg.mult * zoneGift(b.zone));
     until(sim, () => log.some((e) => e.name === 'waveSurvived'));
     const surv = log.find((e) => e.name === 'waveSurvived')!.p;
     const normal = bal.coins.waveSurvived * zoneGift(level.niches[2]!.zone!);
-    expect(surv['gold']).toBe(cfg.mult * zoneGift(b.zone));
+    expect(surv['gold']).toBe(0);
     expect(sim.coins - coins0).toBe(normal + cfg.mult * zoneGift(b.zone));
     expect(log.filter((e) => e.name.startsWith('bonus')).map((e) => e.name)).toEqual(['bonusSpawn', 'bonusTake', 'bonusSaved']);
-    expect(log.find((e) => e.name === 'bonusSaved')!.p['where']).toBe('cave');
+  });
+
+  it('SD-02: on the stages pace (no gifts on the track) the gift brought into a grotto is worth more than 0', () => {
+    const read = (f: string): unknown => JSON.parse(readFileSync(`content/avalanche/${f}`, 'utf8'));
+    const sw = (read('pace/stages/worlds.json') as WorldsJson).worlds[0]!;
+    const sl = buildLevel(sw);
+    expect(Object.values(sl.zoneGifts ?? {}).every((v) => v > 0)).toBe(true);
+    const sim = createSim(sl, tun, {
+      balance: bal,
+      speedCurve: curve,
+      threat: { threat: { ...sw.threat }, balance: bal, avalanche: tun.avalanche, scriptedPending: false, normalWavesDone: 99 },
+      bonus: { cfg, seed: 7, wavesBefore: 1 },
+    });
+    const log: Ev[] = [];
+    sim.events.on('bonusSaved', (p) => void log.push({ name: 'bonusSaved', p: p as Record<string, unknown> }));
+    const i = sl.niches.findIndex((n) => n.kind === 'island');
+    const n = sl.niches[i]!;
+    const below = sl.gates.filter((g) => g.z < n.z).length;
+    if (below > 0) sim.progress.stat = sim.gateRequirement(below - 1);
+    sim.teleport(0, sl.floorYAt(n.z - 20) + 0.05, n.z - 20);
+    sim.step(NO_INPUT, DT);
+    sim.threat!.trigger();
+    for (let k = 0; k < 10 && sim.threat!.state.phase !== 'warn'; k++) sim.step(NO_INPUT, DT);
+    expect(sim.giveBonus()).toBe(true);
+    sim.teleport((n.box.min[0] + n.box.max[0]) / 2, n.y + 0.05, (n.box.min[2] + n.box.max[2]) / 2);
+    sim.step(NO_INPUT, DT);
     expect(sim.bonus).toBeNull();
+    expect(Number(log[0]?.p['coins'])).toBeGreaterThan(0);
   });
 
   it('into the portal with the gift: saved at once; in the camp or on the summit — on gone', () => {

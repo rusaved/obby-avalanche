@@ -50,6 +50,10 @@ export interface InputOptions {
   mouseYawPerPx?: number;
   /** The outer share of the field where a move without a button turns nothing (the way to a corner button). */
   mouseEdge?: number;
+  /** SD-01 (docs/01-gdd.md 23.1): the top share of the field where a move turns nothing (pause and the goal live there). */
+  mouseTop?: number;
+  /** SD-01: px round any HUD button where a move turns nothing (the hand on its way to it). */
+  mouseButtonPad?: number;
   lookAfterDragMs?: number;
   sensitivity: number;
   /** Autorun: tap shorter than this (ms) and smaller than tapMovePx is a jump. */
