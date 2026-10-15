@@ -614,7 +614,11 @@ if (packName === 'avalanche') {
   writeFileSync(out, text);
 }
 process.stdout.write(text);
-if (failed.length) {
+// A pace whose numbers were moved, not recounted (the stages pace, docs/01-gdd.md 22.1): its table is a report, its checks
+// do not fail the run — `sim.reportOnly` of its balance.json names the decision.
+const reportOnly = pack.balance.sim?.reportOnly;
+if (failed.length && reportOnly) console.log(`sim:balance (${pace}): отчёт без порога — ${reportOnly}; не взято: ${failed.join(', ')}`);
+else if (failed.length) {
   console.error(`sim:balance${classic ? '' : ` (${pace})`}: FAIL — ${failed.join(', ')}`);
   process.exit(1);
 }

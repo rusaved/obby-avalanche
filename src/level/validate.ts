@@ -331,6 +331,7 @@ const balanceSchema = v.object({
     v.object({
       mountainMin: v.pipe(v.array(positive), v.minLength(1)),
       gateCurve: positive,
+      reportOnly: v.optional(v.string()),
       keep: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0))),
       roundDigits: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))),
       // Thresholds of F1–F8, the F11 egg rows and the words of the report (pace open, docs/01-gdd.md 17.12).

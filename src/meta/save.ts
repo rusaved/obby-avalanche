@@ -79,6 +79,10 @@ export interface SaveData {
   /** Footsteps (LV-09; src/meta/footsteps.ts): the set on, the sets opened by an ad (forever), the volume 0–1; an absent
    * or bad field — the default of sfx.json footsteps. */
   footsteps?: { set?: string; ads?: string[]; volume?: number };
+  /** Stages pace (docs/01-gdd.md 22.12): the farthest stage reached on each mountain (its index → stage n) and the step of
+   * the stage tutorial done (0–3). */
+  stageBest?: Record<string, number>;
+  tutor?: number;
 }
 
 export const SAVE_VERSION = 2;
@@ -114,9 +118,9 @@ export function migrate(raw: Record<string, unknown>): Record<string, unknown> |
   return s;
 }
 
-const NUMBER_KEYS = ['sessions', 'wavesNormal', 'totalPlaySec', 'shoes', 'trophies', 'trophiesTotal', 'tier', 'summits', 'stat', 'bestStat', 'coins', 'world', 'frontierWall', 'boostSec', 'adEgg', 'baseTread'] as const;
+const NUMBER_KEYS = ['sessions', 'wavesNormal', 'totalPlaySec', 'shoes', 'trophies', 'trophiesTotal', 'tier', 'summits', 'stat', 'bestStat', 'coins', 'world', 'frontierWall', 'boostSec', 'adEgg', 'baseTread', 'tutor'] as const;
 const ARRAY_KEYS = ['pets', 'petsOn', 'trails', 'auras', 'skins', 'wings'] as const;
-const OBJECT_KEYS = ['flags', 'hints', 'daily', 'quests', 'timeRw', 'wheel', 'record', 'gifts', 'footsteps'] as const;
+const OBJECT_KEYS = ['flags', 'hints', 'daily', 'quests', 'timeRw', 'wheel', 'record', 'gifts', 'footsteps', 'stageBest'] as const;
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
 
 /**

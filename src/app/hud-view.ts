@@ -141,15 +141,21 @@ export function createHudView(d: HudViewDeps): HudView {
         const gi = sim.gatesOpen.findIndex((o, i) => !o && level.gates[i]?.kind !== 'boss');
         const g = level.gates[gi];
         const mine = levelOf(stat, lv);
+        // The pill by the nearest ridge ahead, open or closed (green once the level is there, until it is passed).
+        const pill = (have: number): void => {
+          const ai = level.gates.findIndex((q) => q.kind !== 'boss' && q.z >= sim.hero.pos.z - 2);
+          const q = level.gates[ai];
+          const need = q ? levelNeeded(sim.gateRequirement(ai), lv) : 0;
+          d.hud.setNeed(q && q.z - sim.hero.pos.z <= NEED_NEAR ? { text: t('stage.need', { have, need }), ok: have >= need } : null);
+        };
         if (g) {
           const need = levelNeeded(sim.gateRequirement(gi), lv);
           const st = stages.find((x) => Math.abs(x.z0 - g.z) < 1e-6);
           d.hud.setGoal(t('stage.goal', { a: st?.n ?? stageN, b: stages.length, n: need }), { text: `${fmt(stat)}/${fmt(sim.gateRequirement(gi))}`, frac: stat / sim.gateRequirement(gi) });
-          const near = g.z - sim.hero.pos.z;
-          d.hud.setNeed(near >= -2 && near <= NEED_NEAR ? { text: t('stage.need', { have: mine, need }), ok: mine >= need } : null);
+          pill(mine);
           return;
         }
-        d.hud.setNeed(null);
+        pill(mine);
       } else d.hud.setNeed(null);
 
       // Goal: the next closed wall with the count, «Wall open!» for 2 s, then the summit and the portal.

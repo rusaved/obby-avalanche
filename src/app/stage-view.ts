@@ -24,6 +24,10 @@ export interface StageViewDeps {
   fx(): FxParticles | null;
   play(name: string): void;
   numSuffix(k: string): string;
+  /** A trophy button taken (the tutorial step, docs/01-gdd.md 22.12). */
+  onTrophy?: () => void;
+  /** The teleport pad of the camp of this mountain (docs/01-gdd.md 22.12); absent — none. */
+  campTeleport?: () => { x: number; y: number; z: number } | undefined;
 }
 
 export interface StageView {
@@ -54,6 +58,7 @@ export function createStageView(d: StageViewDeps): StageView {
         d.hud.popCoinGain(`+${fmt(amount)}`);
         d.fx()?.burst('confetti', x, y + 1.5, z, [d.theme.ui.trophies, '#ffffff', d.theme.ui.coins], 36, 9, 3);
         d.play('levelUp');
+        d.onTrophy?.();
       });
     },
     update() {
@@ -69,7 +74,10 @@ export function createStageView(d: StageViewDeps): StageView {
       }
       const st = best >= 0 ? stages[best]! : null;
       const at = st ? project(st.pad.x, st.pad.y + LABEL_ABOVE, st.pad.z) : null;
-      d.hud.setPadLabel(st && at ? { text: `+${fmt(st.trophies)}`, x: at.x, y: at.y } : null);
+      // In the camp — the teleport pad (docs/01-gdd.md 22.12) instead of a trophy button.
+      const tp = d.campTeleport?.();
+      const tpAt = !st && tp && h.z < tp.z + LABEL_NEAR / 4 ? project(tp.x, tp.y + LABEL_ABOVE, tp.z) : null;
+      d.hud.setPadLabel(st && at ? { text: `+${fmt(st.trophies)}`, x: at.x, y: at.y } : tpAt ? { text: t('teleport.title'), x: tpAt.x, y: tpAt.y } : null);
     },
   };
 }

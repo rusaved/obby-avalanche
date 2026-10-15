@@ -44,9 +44,10 @@ describe('stages pace: the mountain of stages (LV-03…LV-07, docs/01-gdd.md 22.
     expect(a).toBe(readFileSync(new URL('../../content/avalanche/pace/stages/worlds.json', import.meta.url), 'utf8'));
     expect(validateStageWorlds({ schema: 1, generator: '', worlds: full }, balance.levels, tuning)).toEqual([]);
   }, 60_000);
-  it('the first minute of mountain 1 is the open one byte for byte (up to ridge 1)', () => {
+  it('the first minute of mountain 1 is the open one byte for byte (up to ridge 1), plus the teleport pad of the camp', () => {
     const r1 = open[0]!.segments.find((s) => s.type === 'gate' && s.kind === 'ridge')!.z;
-    const before = (w: W): string => JSON.stringify(w.segments.filter((s) => s.z < r1));
+    // LV-11 (22.12): the camp of every mountain has the teleport pad — inert until a stage is passed.
+    const before = (w: W): string => JSON.stringify(w.segments.filter((s) => s.z < r1 && s.kind !== 'campTeleport'));
     expect(before(stages[0]!)).toBe(before(open[0]!));
   });
   it('10–15 stages a mountain, 2–3 changes of width, no coins on the track past the first minute, ×2–3 trophies, ±20% of the open coins', () => {

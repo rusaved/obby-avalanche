@@ -53,6 +53,7 @@ import { createCosmeticsVisual, type CosmeticsVisual } from './render/cosmetics.
 import { createWindowFrame, type WindowFrame } from './ui/window.ts';
 import { createHudView, type HudView } from './app/hud-view.ts';
 import { createStageView, type StageView } from './app/stage-view.ts';
+import { createCampView, type CampView } from './app/camp-view.ts';
 import { setWalletTrophies } from './ui/shop-panel.ts';
 import { levelNeeded } from './sim/levels.ts';
 import { createBotsView, type BotsView, type HudMode } from './app/bots-view.ts';
@@ -388,6 +389,7 @@ async function boot(): Promise<void> {
   let windows: WindowFrame | null = null;
   let hudView: HudView | null = null;
   let stageView: StageView | null = null;
+  let campView: CampView | null = null;
   let audio: GameAudio | null = null;
   /** Footsteps (LV-09): a sound at every step, the «Footsteps» window; null — the pack has no footsteps. */
   let footstepsView: FootstepsView | null = null;
@@ -784,6 +786,9 @@ async function boot(): Promise<void> {
     },
     get standsView() {
       return standsView;
+    },
+    get campView() {
+      return campView;
     },
     get eventsView() {
       return eventsView;
@@ -1244,9 +1249,11 @@ async function boot(): Promise<void> {
         w.z = 0;
       }
     }
+    // e2e bot (LV-04): jumps at the edge of a pit on its way — the floor 1.5 units ahead along the move more than 1 below.
+    const botJump = !!g.botJump && !!g.botPath && sim.hero.onGround && level.floorAt(sim.hero.pos.x + w.x * 1.5, sim.hero.pos.z + w.z * 1.5) < sim.hero.pos.y - 1;
     prevPos.copy(sim.hero.pos);
     const s0 = performance.now();
-    sim.step({ moveX: w.x, moveZ: w.z, jump: snap.jumpPressed, jumpHeld: snap.jumpHeld }, dt);
+    sim.step({ moveX: w.x, moveZ: w.z, jump: snap.jumpPressed || botJump, jumpHeld: snap.jumpHeld || botJump }, dt);
     g.lastStepMs = performance.now() - s0;
     curPos.copy(sim.hero.pos);
     maxSpeed = sim.params.speed;
@@ -1363,6 +1370,7 @@ async function boot(): Promise<void> {
     ftueView?.update(gameDt, playSec, renderPos);
     hudView?.update(playSec);
     stageView?.update();
+    campView?.update();
     if (cameraRig) {
       // FM-03 (docs/01-gdd.md 19.8): running up a giant's zone, the giant ahead stays in the view.
       const zone = sim.boss?.zones.find((z) => renderPos.z >= z.zone[0] && renderPos.z <= z.zone[1]);
@@ -1853,8 +1861,10 @@ async function boot(): Promise<void> {
   });
   hudView.wire(sim);
   // The stage finishes of the stages pace (docs/01-gdd.md 22.8): the trophy buttons.
-  stageView = createStageView({ getSim: () => sim, hud, camera: cameraRig, theme, field: () => field, fx: () => fx, play: (n) => audio?.play(n), numSuffix });
+  stageView = createStageView({ getSim: () => sim, hud, camera: cameraRig, theme, field: () => field, fx: () => fx, play: (n) => audio?.play(n), numSuffix, onTrophy: () => campView?.trophyTaken(), campTeleport: () => (campView?.hasPassed() ? g.world.campTeleport : undefined) });
   stageView.wire(sim);
+  // The stage tutorial and the camp teleport (docs/01-gdd.md 22.12).
+  campView = createCampView({ getSim: () => sim, getWorld: () => g.world, hud, windows, save, levels: balance.levels, persist, numSuffix });
   hud.setAutoRun(save.settings.autoRun);
   hud.setQuality(save.settings.quality);
   hud.setTouchMode(mobile);

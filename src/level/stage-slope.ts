@@ -24,6 +24,8 @@ const clamp = (x: number, a: number, b: number): number => Math.max(a, Math.min(
 const PASS_LENGTH = 8;
 /** The flag of a stage stands this far past its carniz (the roll-back point, docs/01-gdd.md 22.9). */
 const FLAG_PAST = 4;
+/** The teleport pad of the camp (docs/01-gdd.md 22.12): clear of the tents, the belt, the egg stand and the arrows. */
+const CAMP_TELEPORT: [number, number] = [20, 20];
 /** The pit trigger this far under the floor of a trial (a fall counts, RL-03). */
 const PIT_TRIGGER = 4;
 
@@ -227,6 +229,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     for (const s of ow.segments) if (s.z < spec.campLength && s.type !== 'gift' && s.type !== 'niche') seg.push(s);
     z = spec.campLength;
   }
+  seg.push({ type: 'block', z: CAMP_TELEPORT[1] - 3, z1: CAMP_TELEPORT[1] + 3, x0: CAMP_TELEPORT[0] - 3, x1: CAMP_TELEPORT[0] + 3, y0: -0.5, y1: 0.25, material: 'ice', kind: 'campTeleport' });
   const first = stages.length + 1;
 
   for (let s = first; s <= K; s++) {
@@ -420,6 +423,8 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     const pad = { x: padX, z: round3(end + cfg.finish / 2), y };
     seg.push({ type: 'trophyPad', z: pad.z, x: pad.x, y, stage: s, trophies: trophiesOf(s) });
     seg.push({ type: 'block', z: round3(pad.z - 3), z1: round3(pad.z + 3), x0: round3(pad.x - 3), x1: round3(pad.x + 3), y0: round3(y - 0.5), y1: round3(y + 0.25), material: 'trophyPad', kind: 'trophyPad' });
+    // The treadmill of the finish (22.8; the belt of the ridge grotto of 17.4): Speed by the closed ridge, × the step of the stage.
+    seg.push({ type: 'treadmill', z: pad.z, x: -padX, y, length: 12, width: 6, mult: zone.stepMult ?? 1 });
     safe.push([end, round3(end + cfg.finish)]);
     stages.push({ n: s, type, z0: round3(z0), start, end, finish: [end, round3(end + cfg.finish)], y, level, speed: v, width, trophies: trophiesOf(s), pad, ...(cut ? { cut } : {}), ...(maze ? { maze } : {}) });
     z = round3(end + cfg.finish);
@@ -457,6 +462,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     ...(ow.look ? { look: ow.look } : {}),
     profile: [[0, half]],
     stages,
+    campTeleport: { x: CAMP_TELEPORT[0], y: 0, z: CAMP_TELEPORT[1] },
   };
 }
 

@@ -13,6 +13,9 @@ export interface WordLabels {
 }
 
 const FONT_PX = 72;
+/** A hidden label sits this far below the world at a near-zero scale. */
+const FAR = 99999;
+const TINY = 0.0001;
 
 export function createWordLabels(text: string, count: number): WordLabels {
   const canvas = document.createElement('canvas');
@@ -54,11 +57,11 @@ export function createWordLabels(text: string, count: number): WordLabels {
     mesh.setMatrixAt(i, dummy.matrix);
     mesh.instanceMatrix.needsUpdate = true;
   };
-  for (let i = 0; i < count; i++) place(i, 0, -1e4, 0, 1e-4);
+  for (let i = 0; i < count; i++) place(i, 0, -FAR, 0, TINY);
   return {
     mesh,
     set: (i, x, y, z, height) => place(i, x, y, z, height),
-    hide: (i) => place(i, 0, -1e4, 0, 1e-4),
+    hide: (i) => place(i, 0, -FAR, 0, TINY),
     dispose() {
       geo.dispose();
       mat.dispose();

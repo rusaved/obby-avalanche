@@ -22,6 +22,8 @@ import { t } from '../ui/i18n.ts';
 
 export type { BootState as TestBootState } from '../app/handles.ts';
 
+import { stageAt } from '../sim/world.ts';
+
 export interface TestState {
   platform: 'yandex' | 'null';
   lang: string;
@@ -62,6 +64,13 @@ export interface TestState {
   steps: number;
   /** «Level up!» shown this run (docs/01-gdd.md 22.2). */
   levelUps: number;
+  /** Stages pace (docs/01-gdd.md 22.4, 22.9): the stage under the hero (0 — no stages), the stage of the last roll-back, trophy buttons taken now. */
+  stage: number;
+  rollFrom: number;
+  padsTaken: number;
+  /** The stage tutorial step done (0–3) and the farthest stage of this mountain (docs/01-gdd.md 22.12). */
+  tutor: number;
+  stageBest: number;
   /** Open state per gate of the current mountain (M2-02). */
   gatesOpen: boolean[];
   /** Coin balance and taken state per gift of the current mountain (M2-04). */
@@ -321,6 +330,12 @@ export interface TestApi {
   givePet(id: string): void;
   /** e2e bot: the hero walks these world points [x, z] in order, ignoring the camera; null stops the bot. */
   botPath(points: Array<[number, number] | [number, number, number]> | null): void;
+  /** The stages of the mountain (docs/01-gdd.md 22.4) as worlds.json has them; null — no stages. */
+  stages(): import('../content/types.ts').WorldStage[] | null;
+  /** The bot of botPath jumps at the edge of a pit on its way (LV-04). */
+  botJump(on: boolean): void;
+  /** The camp teleport to stage n (docs/01-gdd.md 22.12): false — not passed or short of trophies. */
+  campTeleport(n: number): boolean;
   /** Points the bot has not reached yet. */
   botLeft(): number;
   /** Caves of this mountain in LevelData order, as the bot walks to them: a point in front of the mouth, the middle
@@ -616,6 +631,11 @@ export function installTestApi(g: GameHandles): TestApi {
         stat: g.sim?.progress.stat ?? 0,
         steps: g.sim?.progress.steps ?? 0,
         levelUps: g.levelUps ?? 0,
+        stage: g.sim ? stageAt(g.sim.level, g.sim.hero.pos.z) : 0,
+        rollFrom: g.sim?.rollFrom ?? 0,
+        padsTaken: g.sim ? g.sim.padTaken.filter(Boolean).length : 0,
+        tutor: g.save.tutor ?? 0,
+        stageBest: g.save.stageBest?.[String(g.world.index)] ?? 0,
         gatesOpen: g.sim ? [...g.sim.gatesOpen] : [],
         coins: g.sim?.coins ?? 0,
         giftsTaken: g.sim ? g.sim.gifts.map((x) => x.taken) : [],
@@ -1008,6 +1028,11 @@ export function installTestApi(g: GameHandles): TestApi {
       g.botPath = points ? points.map((p) => [p[0], p[1], p[2]] as [number, number, number?]) : null;
     },
     botLeft: () => g.botPath?.length ?? 0,
+    stages: () => g.sim?.level.stages ?? null,
+    botJump(on) {
+      g.botJump = on;
+    },
+    campTeleport: (n) => g.campView?.teleport(n) ?? false,
     shelters() {
       const level = g.level;
       if (!level) return [];

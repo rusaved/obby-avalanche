@@ -190,6 +190,8 @@ export interface Hud {
   setLevel(state: { title: string; progress: string; frac: number } | null): void;
   /** «yours 7 / need 8» under the goal by a ridge of the stages pace (docs/01-gdd.md 22.3); null — hidden. */
   setNeed(state: { text: string; ok: boolean } | null): void;
+  /** The step of the stage tutorial under the goal (docs/01-gdd.md 22.12); null — none. */
+  setTutor(text: string | null): void;
   /** «+N» with a trophy over the trophy button of a stage (docs/01-gdd.md 22.8); null — hidden. */
   setPadLabel(state: { text: string; x: number; y: number } | null): void;
   readonly jumpButton: HTMLButtonElement;
@@ -365,7 +367,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   // Stages pace (docs/01-gdd.md 22.3): «yours 7 / need 8» by a closed ridge — red short, green enough; a pill, not a board.
   const need = el('div', 'hud-need');
   need.dataset['role'] = 'need';
-  goal.append(goalText, goalBar, need);
+  // The stage tutorial (docs/01-gdd.md 22.12): one step at a time under the goal.
+  const tutor = el('div', 'hud-tutor');
+  tutor.dataset['role'] = 'tutor';
+  goal.append(goalText, goalBar, need, tutor);
   root.appendChild(goal);
 
   // Coins under the Speed plaque (docs/01-gdd.md 10.1): a coin with a snowflake and the number.
@@ -983,6 +988,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (!state) return;
       if (padText.textContent !== state.text) padText.textContent = state.text;
       padLabel.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
+    },
+    setTutor(text) {
+      tutor.classList.toggle('shown', text !== null);
+      if (text !== null && tutor.textContent !== text) tutor.textContent = text;
     },
     setNeed(state) {
       need.classList.toggle('shown', state !== null);

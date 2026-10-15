@@ -253,6 +253,8 @@ export interface BalanceJson {
   sim?: {
     mountainMin: number[];
     gateCurve: number;
+    /** The stages pace (docs/01-gdd.md 22.1): moved numbers — the model reports, its checks do not fail the run. */
+    reportOnly?: string;
     keep?: number;
     roundDigits?: number;
     /** Thresholds of F1–F8 (pace open, docs/01-gdd.md 17.12); absent — the numbers of 8.5. `rhythm` — F14 (docs/01-gdd.md
@@ -621,6 +623,8 @@ export interface World {
   profile?: Array<[number, number]>;
   /** Stages pace (docs/01-gdd.md 22.4): the mountain as a chain of stages; absent — the other layouts. */
   stages?: WorldStage[];
+  /** Stages pace (docs/01-gdd.md 22.12): the teleport pad of the camp — the way to the stages passed, for trophies. */
+  campTeleport?: { x: number; y: number; z: number };
 }
 
 /** Types of a stage (docs/01-gdd.md 22.5); `intro` — the first minute of mountain 1 as built (22.1). */

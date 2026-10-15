@@ -583,6 +583,17 @@
           "level": 2
         },
         {
+          "type": "block",
+          "z": 17,
+          "z1": 23,
+          "x0": 17,
+          "x1": 23,
+          "y0": -0.5,
+          "y1": 0.25,
+          "material": "ice",
+          "kind": "campTeleport"
+        },
+        {
           "type": "checkpoint",
           "z": 332,
           "y": 12,
@@ -651,6 +662,15 @@
           "y1": 12.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 507.135,
+          "x": 42,
+          "y": 12,
+          "length": 12,
+          "width": 6,
+          "mult": 1
         },
         {
           "type": "floor",
@@ -918,6 +938,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 683.233,
+          "x": -42,
+          "y": 16,
+          "length": 12,
+          "width": 6,
+          "mult": 1
+        },
+        {
           "type": "floor",
           "z": 695.233,
           "length": 8,
@@ -1063,6 +1092,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 884.982,
+          "x": 42,
+          "y": 20,
+          "length": 12,
+          "width": 6,
+          "mult": 1.2
+        },
+        {
           "type": "floor",
           "z": 896.982,
           "length": 8,
@@ -1193,6 +1231,15 @@
           "y1": 24.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 1050.32,
+          "x": -42,
+          "y": 24,
+          "length": 12,
+          "width": 6,
+          "mult": 1.2
         },
         {
           "type": "floor",
@@ -1360,6 +1407,15 @@
           "y1": 28.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 1386.283,
+          "x": 42,
+          "y": 28,
+          "length": 12,
+          "width": 6,
+          "mult": 1.5
         },
         {
           "type": "floor",
@@ -1622,6 +1678,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 1622.738,
+          "x": -42,
+          "y": 32,
+          "length": 12,
+          "width": 6,
+          "mult": 1.5
+        },
+        {
           "type": "floor",
           "z": 1634.738,
           "length": 8,
@@ -1773,6 +1838,15 @@
           "y1": 36.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 1825.99,
+          "x": 42,
+          "y": 36,
+          "length": 12,
+          "width": 6,
+          "mult": 1.5
         },
         {
           "type": "floor",
@@ -2085,6 +2159,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 1925.99,
+          "x": -42,
+          "y": 40,
+          "length": 12,
+          "width": 6,
+          "mult": 2
+        },
+        {
           "type": "floor",
           "z": 1937.99,
           "length": 8,
@@ -2228,6 +2311,15 @@
           "y1": 44.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 2159.277,
+          "x": 42,
+          "y": 44,
+          "length": 12,
+          "width": 6,
+          "mult": 2
         },
         {
           "type": "floor",
@@ -2693,7 +2785,12 @@
             "y": 44
           }
         }
-      ]
+      ],
+      "campTeleport": {
+        "x": 20,
+        "y": 0,
+        "z": 20
+      }
     },
     {
       "id": "pines",
@@ -2940,6 +3037,17 @@
           "kind": "arrow"
         },
         {
+          "type": "block",
+          "z": 17,
+          "z1": 23,
+          "x0": 17,
+          "x1": 23,
+          "y0": -0.5,
+          "y1": 0.25,
+          "material": "ice",
+          "kind": "campTeleport"
+        },
+        {
           "type": "floor",
           "z": 40,
           "length": 12,
@@ -3100,6 +3208,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 190,
+          "x": -42,
+          "y": 0,
+          "length": 12,
+          "width": 6,
+          "mult": 2.5
+        },
+        {
           "type": "floor",
           "z": 202,
           "length": 8,
@@ -3256,6 +3373,15 @@
           "y1": 4.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 483.64,
+          "x": 42,
+          "y": 4,
+          "length": 12,
+          "width": 6,
+          "mult": 2.5
         },
         {
           "type": "floor",
@@ -3523,6 +3649,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 717.698,
+          "x": -42,
+          "y": 8,
+          "length": 12,
+          "width": 6,
+          "mult": 3
+        },
+        {
           "type": "floor",
           "z": 729.698,
           "length": 8,
@@ -3668,6 +3803,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 979.923,
+          "x": 42,
+          "y": 12,
+          "length": 12,
+          "width": 6,
+          "mult": 3
+        },
+        {
           "type": "floor",
           "z": 991.923,
           "length": 8,
@@ -3798,6 +3942,15 @@
           "y1": 16.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 1183.196,
+          "x": -42,
+          "y": 16,
+          "length": 12,
+          "width": 6,
+          "mult": 4
         },
         {
           "type": "floor",
@@ -3967,6 +4120,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 1607.688,
+          "x": 42,
+          "y": 20,
+          "length": 12,
+          "width": 6,
+          "mult": 4
+        },
+        {
           "type": "floor",
           "z": 1619.688,
           "length": 8,
@@ -4118,6 +4280,15 @@
           "y1": 24.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 1849.646,
+          "x": -42,
+          "y": 24,
+          "length": 12,
+          "width": 6,
+          "mult": 5
         },
         {
           "type": "floor",
@@ -4430,6 +4601,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 1949.646,
+          "x": 42,
+          "y": 28,
+          "length": 12,
+          "width": 6,
+          "mult": 5
+        },
+        {
           "type": "floor",
           "z": 1961.646,
           "length": 8,
@@ -4565,6 +4745,15 @@
           "y1": 32.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 2175.682,
+          "x": -42,
+          "y": 32,
+          "length": 12,
+          "width": 6,
+          "mult": 6
         },
         {
           "type": "floor",
@@ -4710,6 +4899,15 @@
           "y1": 36.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 2458.959,
+          "x": 42,
+          "y": 36,
+          "length": 12,
+          "width": 6,
+          "mult": 6
         },
         {
           "type": "floor",
@@ -5176,7 +5374,12 @@
             "y": 36
           }
         }
-      ]
+      ],
+      "campTeleport": {
+        "x": 20,
+        "y": 0,
+        "z": 20
+      }
     },
     {
       "id": "pass",
@@ -5435,6 +5638,17 @@
           "kind": "arrow"
         },
         {
+          "type": "block",
+          "z": 17,
+          "z1": 23,
+          "x0": 17,
+          "x1": 23,
+          "y0": -0.5,
+          "y1": 0.25,
+          "material": "ice",
+          "kind": "campTeleport"
+        },
+        {
           "type": "floor",
           "z": 40,
           "length": 12,
@@ -5595,6 +5809,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 190,
+          "x": -42,
+          "y": 0,
+          "length": 12,
+          "width": 6,
+          "mult": 8
+        },
+        {
           "type": "floor",
           "z": 202,
           "length": 8,
@@ -5751,6 +5974,15 @@
           "y1": 4.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 531.08,
+          "x": 42,
+          "y": 4,
+          "length": 12,
+          "width": 6,
+          "mult": 8
         },
         {
           "type": "floor",
@@ -6018,6 +6250,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 797.396,
+          "x": -42,
+          "y": 8,
+          "length": 12,
+          "width": 6,
+          "mult": 8
+        },
+        {
           "type": "floor",
           "z": 809.396,
           "length": 8,
@@ -6163,6 +6404,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 1096.461,
+          "x": 42,
+          "y": 12,
+          "length": 12,
+          "width": 6,
+          "mult": 10
+        },
+        {
           "type": "floor",
           "z": 1108.461,
           "length": 8,
@@ -6293,6 +6543,15 @@
           "y1": 16.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 1326.299,
+          "x": -42,
+          "y": 16,
+          "length": 12,
+          "width": 6,
+          "mult": 10
         },
         {
           "type": "floor",
@@ -6460,6 +6719,15 @@
           "y1": 20.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 1808.352,
+          "x": 42,
+          "y": 20,
+          "length": 12,
+          "width": 6,
+          "mult": 12
         },
         {
           "type": "floor",
@@ -6722,6 +6990,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 2115.157,
+          "x": -42,
+          "y": 24,
+          "length": 12,
+          "width": 6,
+          "mult": 12
+        },
+        {
           "type": "floor",
           "z": 2127.157,
           "length": 8,
@@ -6873,6 +7150,15 @@
           "y1": 28.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 2388.996,
+          "x": 42,
+          "y": 28,
+          "length": 12,
+          "width": 6,
+          "mult": 17
         },
         {
           "type": "floor",
@@ -7221,6 +7507,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 2500.996,
+          "x": -42,
+          "y": 32,
+          "length": 12,
+          "width": 6,
+          "mult": 17
+        },
+        {
           "type": "floor",
           "z": 2512.996,
           "length": 8,
@@ -7356,6 +7651,15 @@
           "y1": 36.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 2753.344,
+          "x": 42,
+          "y": 36,
+          "length": 12,
+          "width": 6,
+          "mult": 20
         },
         {
           "type": "floor",
@@ -7501,6 +7805,15 @@
           "y1": 40.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 3070.827,
+          "x": -42,
+          "y": 40,
+          "length": 12,
+          "width": 6,
+          "mult": 20
         },
         {
           "type": "floor",
@@ -8017,7 +8330,12 @@
             "y": 40
           }
         }
-      ]
+      ],
+      "campTeleport": {
+        "x": 20,
+        "y": 0,
+        "z": 20
+      }
     },
     {
       "id": "falls",
@@ -8276,6 +8594,17 @@
           "kind": "arrow"
         },
         {
+          "type": "block",
+          "z": 17,
+          "z1": 23,
+          "x0": 17,
+          "x1": 23,
+          "y0": -0.5,
+          "y1": 0.25,
+          "material": "ice",
+          "kind": "campTeleport"
+        },
+        {
           "type": "floor",
           "z": 40,
           "length": 12,
@@ -8436,6 +8765,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 190,
+          "x": -42,
+          "y": 0,
+          "length": 12,
+          "width": 6,
+          "mult": 25
+        },
+        {
           "type": "floor",
           "z": 202,
           "length": 8,
@@ -8592,6 +8930,15 @@
           "y1": 4.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 569.035,
+          "x": 42,
+          "y": 4,
+          "length": 12,
+          "width": 6,
+          "mult": 25
         },
         {
           "type": "floor",
@@ -8886,6 +9233,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 919.074,
+          "x": -42,
+          "y": 8,
+          "length": 12,
+          "width": 6,
+          "mult": 25
+        },
+        {
           "type": "floor",
           "z": 931.074,
           "length": 8,
@@ -9031,6 +9387,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 1247.086,
+          "x": 42,
+          "y": 12,
+          "length": 12,
+          "width": 6,
+          "mult": 30
+        },
+        {
           "type": "floor",
           "z": 1259.086,
           "length": 8,
@@ -9161,6 +9526,15 @@
           "y1": 16.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 1497.801,
+          "x": -42,
+          "y": 16,
+          "length": 12,
+          "width": 6,
+          "mult": 30
         },
         {
           "type": "floor",
@@ -9328,6 +9702,15 @@
           "y1": 20.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 2028.56,
+          "x": 42,
+          "y": 20,
+          "length": 12,
+          "width": 6,
+          "mult": 40
         },
         {
           "type": "floor",
@@ -9590,6 +9973,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 2360.33,
+          "x": -42,
+          "y": 24,
+          "length": 12,
+          "width": 6,
+          "mult": 40
+        },
+        {
           "type": "floor",
           "z": 2372.33,
           "length": 8,
@@ -9741,6 +10133,15 @@
           "y1": 28.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 2659.216,
+          "x": 42,
+          "y": 28,
+          "length": 12,
+          "width": 6,
+          "mult": 40
         },
         {
           "type": "floor",
@@ -10101,6 +10502,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 2771.216,
+          "x": -42,
+          "y": 32,
+          "length": 12,
+          "width": 6,
+          "mult": 40
+        },
+        {
           "type": "floor",
           "z": 2783.216,
           "length": 8,
@@ -10236,6 +10646,15 @@
           "y1": 36.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 3045.83,
+          "x": 42,
+          "y": 36,
+          "length": 12,
+          "width": 6,
+          "mult": 60
         },
         {
           "type": "floor",
@@ -10381,6 +10800,15 @@
           "y1": 40.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 3392.264,
+          "x": -42,
+          "y": 40,
+          "length": 12,
+          "width": 6,
+          "mult": 60
         },
         {
           "type": "floor",
@@ -10933,7 +11361,12 @@
             "y": 40
           }
         }
-      ]
+      ],
+      "campTeleport": {
+        "x": 20,
+        "y": 0,
+        "z": 20
+      }
     },
     {
       "id": "canyon",
@@ -11204,6 +11637,17 @@
           "kind": "arrow"
         },
         {
+          "type": "block",
+          "z": 17,
+          "z1": 23,
+          "x0": 17,
+          "x1": 23,
+          "y0": -0.5,
+          "y1": 0.25,
+          "material": "ice",
+          "kind": "campTeleport"
+        },
+        {
           "type": "floor",
           "z": 40,
           "length": 12,
@@ -11364,6 +11808,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 190,
+          "x": -42,
+          "y": 0,
+          "length": 12,
+          "width": 6,
+          "mult": 60
+        },
+        {
           "type": "floor",
           "z": 202,
           "length": 8,
@@ -11520,6 +11973,15 @@
           "y1": 4.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 594,
+          "x": 42,
+          "y": 4,
+          "length": 12,
+          "width": 6,
+          "mult": 60
         },
         {
           "type": "floor",
@@ -11814,6 +12276,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 973.876,
+          "x": -42,
+          "y": 8,
+          "length": 12,
+          "width": 6,
+          "mult": 60
+        },
+        {
           "type": "floor",
           "z": 985.876,
           "length": 8,
@@ -11967,6 +12438,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 1404.018,
+          "x": 42,
+          "y": 12,
+          "length": 12,
+          "width": 6,
+          "mult": 80
+        },
+        {
           "type": "floor",
           "z": 1416.018,
           "length": 8,
@@ -12097,6 +12577,15 @@
           "y1": 16.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 1675.607,
+          "x": -42,
+          "y": 16,
+          "length": 12,
+          "width": 6,
+          "mult": 80
         },
         {
           "type": "floor",
@@ -12264,6 +12753,15 @@
           "y1": 20.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 2255.072,
+          "x": 42,
+          "y": 20,
+          "length": 12,
+          "width": 6,
+          "mult": 100
         },
         {
           "type": "floor",
@@ -12526,6 +13024,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 2611.807,
+          "x": -42,
+          "y": 24,
+          "length": 12,
+          "width": 6,
+          "mult": 100
+        },
+        {
           "type": "floor",
           "z": 2623.807,
           "length": 8,
@@ -12774,6 +13281,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 2948.011,
+          "x": 42,
+          "y": 28,
+          "length": 12,
+          "width": 6,
+          "mult": 100
+        },
+        {
           "type": "floor",
           "z": 2960.011,
           "length": 8,
@@ -12925,6 +13441,15 @@
           "y1": 32.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 3274.227,
+          "x": -42,
+          "y": 32,
+          "length": 12,
+          "width": 6,
+          "mult": 150
         },
         {
           "type": "floor",
@@ -13297,6 +13822,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 3386.227,
+          "x": 42,
+          "y": 36,
+          "length": 12,
+          "width": 6,
+          "mult": 150
+        },
+        {
           "type": "floor",
           "z": 3398.227,
           "length": 8,
@@ -13432,6 +13966,15 @@
           "y1": 40.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 3685.133,
+          "x": -42,
+          "y": 40,
+          "length": 12,
+          "width": 6,
+          "mult": 150
         },
         {
           "type": "floor",
@@ -13585,6 +14128,15 @@
           "y1": 44.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 4141.25,
+          "x": 42,
+          "y": 44,
+          "length": 12,
+          "width": 6,
+          "mult": 150
         },
         {
           "type": "floor",
@@ -14152,7 +14704,12 @@
             "y": 44
           }
         }
-      ]
+      ],
+      "campTeleport": {
+        "x": 20,
+        "y": 0,
+        "z": 20
+      }
     },
     {
       "id": "crystal",
@@ -14423,6 +14980,17 @@
           "kind": "arrow"
         },
         {
+          "type": "block",
+          "z": 17,
+          "z1": 23,
+          "x0": 17,
+          "x1": 23,
+          "y0": -0.5,
+          "y1": 0.25,
+          "material": "ice",
+          "kind": "campTeleport"
+        },
+        {
           "type": "floor",
           "z": 40,
           "length": 12,
@@ -14583,6 +15151,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 190,
+          "x": -42,
+          "y": 0,
+          "length": 12,
+          "width": 6,
+          "mult": 200
+        },
+        {
           "type": "floor",
           "z": 202,
           "length": 8,
@@ -14739,6 +15316,15 @@
           "y1": 4.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 594,
+          "x": 42,
+          "y": 4,
+          "length": 12,
+          "width": 6,
+          "mult": 200
         },
         {
           "type": "floor",
@@ -15033,6 +15619,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 1006.422,
+          "x": -42,
+          "y": 8,
+          "length": 12,
+          "width": 6,
+          "mult": 200
+        },
+        {
           "type": "floor",
           "z": 1018.422,
           "length": 8,
@@ -15186,6 +15781,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 1478.774,
+          "x": 42,
+          "y": 12,
+          "length": 12,
+          "width": 6,
+          "mult": 250
+        },
+        {
           "type": "floor",
           "z": 1490.774,
           "length": 8,
@@ -15316,6 +15920,15 @@
           "y1": 16.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 1773.136,
+          "x": -42,
+          "y": 16,
+          "length": 12,
+          "width": 6,
+          "mult": 250
         },
         {
           "type": "floor",
@@ -15483,6 +16096,15 @@
           "y1": 20.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 2405.738,
+          "x": 42,
+          "y": 20,
+          "length": 12,
+          "width": 6,
+          "mult": 300
         },
         {
           "type": "floor",
@@ -15745,6 +16367,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 2785.224,
+          "x": -42,
+          "y": 24,
+          "length": 12,
+          "width": 6,
+          "mult": 300
+        },
+        {
           "type": "floor",
           "z": 2797.224,
           "length": 8,
@@ -15993,6 +16624,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 3148.392,
+          "x": 42,
+          "y": 28,
+          "length": 12,
+          "width": 6,
+          "mult": 300
+        },
+        {
           "type": "floor",
           "z": 3160.392,
           "length": 8,
@@ -16144,6 +16784,15 @@
           "y1": 32.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 3501.935,
+          "x": -42,
+          "y": 32,
+          "length": 12,
+          "width": 6,
+          "mult": 400
         },
         {
           "type": "floor",
@@ -16516,6 +17165,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 3613.935,
+          "x": 42,
+          "y": 36,
+          "length": 12,
+          "width": 6,
+          "mult": 400
+        },
+        {
           "type": "floor",
           "z": 3625.935,
           "length": 8,
@@ -16651,6 +17309,15 @@
           "y1": 40.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 3937.131,
+          "x": -42,
+          "y": 40,
+          "length": 12,
+          "width": 6,
+          "mult": 500
         },
         {
           "type": "floor",
@@ -16804,6 +17471,15 @@
           "y1": 44.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 4432.203,
+          "x": 42,
+          "y": 44,
+          "length": 12,
+          "width": 6,
+          "mult": 500
         },
         {
           "type": "floor",
@@ -17377,7 +18053,12 @@
             "y": 44
           }
         }
-      ]
+      ],
+      "campTeleport": {
+        "x": 20,
+        "y": 0,
+        "z": 20
+      }
     },
     {
       "id": "blizzard",
@@ -17660,6 +18341,17 @@
           "kind": "arrow"
         },
         {
+          "type": "block",
+          "z": 17,
+          "z1": 23,
+          "x0": 17,
+          "x1": 23,
+          "y0": -0.5,
+          "y1": 0.25,
+          "material": "ice",
+          "kind": "campTeleport"
+        },
+        {
           "type": "floor",
           "z": 40,
           "length": 12,
@@ -17820,6 +18512,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 190,
+          "x": -42,
+          "y": 0,
+          "length": 12,
+          "width": 6,
+          "mult": 600
+        },
+        {
           "type": "floor",
           "z": 202,
           "length": 8,
@@ -17976,6 +18677,15 @@
           "y1": 4.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 594,
+          "x": 42,
+          "y": 4,
+          "length": 12,
+          "width": 6,
+          "mult": 600
         },
         {
           "type": "floor",
@@ -18270,6 +18980,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 1041.687,
+          "x": -42,
+          "y": 8,
+          "length": 12,
+          "width": 6,
+          "mult": 600
+        },
+        {
           "type": "floor",
           "z": 1053.687,
           "length": 8,
@@ -18423,6 +19142,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 1553,
+          "x": 42,
+          "y": 12,
+          "length": 12,
+          "width": 6,
+          "mult": 800
+        },
+        {
           "type": "floor",
           "z": 1565,
           "length": 8,
@@ -18553,6 +19281,15 @@
           "y1": 16.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 1872.031,
+          "x": -42,
+          "y": 16,
+          "length": 12,
+          "width": 6,
+          "mult": 800
         },
         {
           "type": "floor",
@@ -18720,6 +19457,15 @@
           "y1": 20.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 2562.194,
+          "x": 42,
+          "y": 20,
+          "length": 12,
+          "width": 6,
+          "mult": 800
         },
         {
           "type": "floor",
@@ -18982,6 +19728,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 2961.696,
+          "x": -42,
+          "y": 24,
+          "length": 12,
+          "width": 6,
+          "mult": 1000
+        },
+        {
           "type": "floor",
           "z": 2973.696,
           "length": 8,
@@ -19228,6 +19983,15 @@
           "y1": 28.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 3351.824,
+          "x": 42,
+          "y": 28,
+          "length": 12,
+          "width": 6,
+          "mult": 1000
         },
         {
           "type": "floor",
@@ -19487,6 +20251,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 3521.824,
+          "x": -42,
+          "y": 32,
+          "length": 12,
+          "width": 6,
+          "mult": 1200
+        },
+        {
           "type": "floor",
           "z": 3533.824,
           "length": 8,
@@ -19638,6 +20411,15 @@
           "y1": 36.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 3904.968,
+          "x": 42,
+          "y": 36,
+          "length": 12,
+          "width": 6,
+          "mult": 1200
         },
         {
           "type": "floor",
@@ -20058,6 +20840,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 4028.968,
+          "x": -42,
+          "y": 40,
+          "length": 12,
+          "width": 6,
+          "mult": 1200
+        },
+        {
           "type": "floor",
           "z": 4040.968,
           "length": 8,
@@ -20193,6 +20984,15 @@
           "y1": 44.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 4372.968,
+          "x": 42,
+          "y": 44,
+          "length": 12,
+          "width": 6,
+          "mult": 1500
         },
         {
           "type": "floor",
@@ -20346,6 +21146,15 @@
           "y1": 48.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 4910.256,
+          "x": -42,
+          "y": 48,
+          "length": 12,
+          "width": 6,
+          "mult": 1500
         },
         {
           "type": "floor",
@@ -21006,7 +21815,12 @@
             "y": 48
           }
         }
-      ]
+      ],
+      "campTeleport": {
+        "x": 20,
+        "y": 0,
+        "z": 20
+      }
     },
     {
       "id": "clouds",
@@ -21289,6 +22103,17 @@
           "kind": "arrow"
         },
         {
+          "type": "block",
+          "z": 17,
+          "z1": 23,
+          "x0": 17,
+          "x1": 23,
+          "y0": -0.5,
+          "y1": 0.25,
+          "material": "ice",
+          "kind": "campTeleport"
+        },
+        {
           "type": "floor",
           "z": 40,
           "length": 12,
@@ -21449,6 +22274,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 190,
+          "x": -42,
+          "y": 0,
+          "length": 12,
+          "width": 6,
+          "mult": 2000
+        },
+        {
           "type": "floor",
           "z": 202,
           "length": 8,
@@ -21605,6 +22439,15 @@
           "y1": 4.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 594,
+          "x": 42,
+          "y": 4,
+          "length": 12,
+          "width": 6,
+          "mult": 2000
         },
         {
           "type": "floor",
@@ -21926,6 +22769,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 1164.535,
+          "x": -42,
+          "y": 8,
+          "length": 12,
+          "width": 6,
+          "mult": 2000
+        },
+        {
           "type": "floor",
           "z": 1176.535,
           "length": 8,
@@ -22079,6 +22931,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 1718.058,
+          "x": 42,
+          "y": 12,
+          "length": 12,
+          "width": 6,
+          "mult": 2500
+        },
+        {
           "type": "floor",
           "z": 1730.058,
           "length": 8,
@@ -22209,6 +23070,15 @@
           "y1": 16.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 2061.758,
+          "x": -42,
+          "y": 16,
+          "length": 12,
+          "width": 6,
+          "mult": 2500
         },
         {
           "type": "floor",
@@ -22376,6 +23246,15 @@
           "y1": 20.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 2809.489,
+          "x": 42,
+          "y": 20,
+          "length": 12,
+          "width": 6,
+          "mult": 2500
         },
         {
           "type": "floor",
@@ -22636,6 +23515,15 @@
           "y1": 24.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 3230.681,
+          "x": -42,
+          "y": 24,
+          "length": 12,
+          "width": 6,
+          "mult": 3000
         },
         {
           "type": "floor",
@@ -22913,6 +23801,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 3739.856,
+          "x": 42,
+          "y": 28,
+          "length": 12,
+          "width": 6,
+          "mult": 3000
+        },
+        {
           "type": "floor",
           "z": 3751.856,
           "length": 8,
@@ -23170,6 +24067,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 3909.856,
+          "x": -42,
+          "y": 32,
+          "length": 12,
+          "width": 6,
+          "mult": 4000
+        },
+        {
           "type": "floor",
           "z": 3921.856,
           "length": 8,
@@ -23321,6 +24227,15 @@
           "y1": 36.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 4322.604,
+          "x": 42,
+          "y": 36,
+          "length": 12,
+          "width": 6,
+          "mult": 4000
         },
         {
           "type": "floor",
@@ -23729,6 +24644,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 4446.604,
+          "x": -42,
+          "y": 40,
+          "length": 12,
+          "width": 6,
+          "mult": 4000
+        },
+        {
           "type": "floor",
           "z": 4458.604,
           "length": 8,
@@ -23864,6 +24788,15 @@
           "y1": 44.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 4790.604,
+          "x": 42,
+          "y": 44,
+          "length": 12,
+          "width": 6,
+          "mult": 5000
         },
         {
           "type": "floor",
@@ -24017,6 +24950,15 @@
           "y1": 48.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 5373.353,
+          "x": -42,
+          "y": 48,
+          "length": 12,
+          "width": 6,
+          "mult": 5000
         },
         {
           "type": "floor",
@@ -24683,7 +25625,12 @@
             "y": 48
           }
         }
-      ]
+      ],
+      "campTeleport": {
+        "x": 20,
+        "y": 0,
+        "z": 20
+      }
     },
     {
       "id": "aurora",
@@ -24978,6 +25925,17 @@
           "kind": "arrow"
         },
         {
+          "type": "block",
+          "z": 17,
+          "z1": 23,
+          "x0": 17,
+          "x1": 23,
+          "y0": -0.5,
+          "y1": 0.25,
+          "material": "ice",
+          "kind": "campTeleport"
+        },
+        {
           "type": "floor",
           "z": 40,
           "length": 12,
@@ -25138,6 +26096,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 190,
+          "x": -42,
+          "y": 0,
+          "length": 12,
+          "width": 6,
+          "mult": 6000
+        },
+        {
           "type": "floor",
           "z": 202,
           "length": 8,
@@ -25294,6 +26261,15 @@
           "y1": 4.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 594,
+          "x": 42,
+          "y": 4,
+          "length": 12,
+          "width": 6,
+          "mult": 6000
         },
         {
           "type": "floor",
@@ -25615,6 +26591,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 1203.222,
+          "x": -42,
+          "y": 8,
+          "length": 12,
+          "width": 6,
+          "mult": 6000
+        },
+        {
           "type": "floor",
           "z": 1215.222,
           "length": 8,
@@ -25768,6 +26753,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 1798.956,
+          "x": 42,
+          "y": 12,
+          "length": 12,
+          "width": 6,
+          "mult": 8000
+        },
+        {
           "type": "floor",
           "z": 1810.956,
           "length": 8,
@@ -25898,6 +26892,15 @@
           "y1": 16.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 2142.956,
+          "x": -42,
+          "y": 16,
+          "length": 12,
+          "width": 6,
+          "mult": 8000
         },
         {
           "type": "floor",
@@ -26074,6 +27077,15 @@
           "y1": 20.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 2948.248,
+          "x": 42,
+          "y": 20,
+          "length": 12,
+          "width": 6,
+          "mult": 8000
         },
         {
           "type": "floor",
@@ -26334,6 +27346,15 @@
           "y1": 24.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 3392.796,
+          "x": -42,
+          "y": 24,
+          "length": 12,
+          "width": 6,
+          "mult": 10000
         },
         {
           "type": "floor",
@@ -26611,6 +27632,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 3932.861,
+          "x": 42,
+          "y": 28,
+          "length": 12,
+          "width": 6,
+          "mult": 10000
+        },
+        {
           "type": "floor",
           "z": 3944.861,
           "length": 8,
@@ -26868,6 +27898,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 4102.861,
+          "x": -42,
+          "y": 32,
+          "length": 12,
+          "width": 6,
+          "mult": 10000
+        },
+        {
           "type": "floor",
           "z": 4114.861,
           "length": 8,
@@ -27084,6 +28123,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 4471.709,
+          "x": 42,
+          "y": 36,
+          "length": 12,
+          "width": 6,
+          "mult": 12000
+        },
+        {
           "type": "floor",
           "z": 4483.709,
           "length": 8,
@@ -27235,6 +28283,15 @@
           "y1": 40.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 4920.892,
+          "x": -42,
+          "y": 40,
+          "length": 12,
+          "width": 6,
+          "mult": 12000
         },
         {
           "type": "floor",
@@ -27643,6 +28700,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 5044.892,
+          "x": 42,
+          "y": 44,
+          "length": 12,
+          "width": 6,
+          "mult": 12000
+        },
+        {
           "type": "floor",
           "z": 5056.892,
           "length": 8,
@@ -27778,6 +28844,15 @@
           "y1": 48.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 5388.892,
+          "x": -42,
+          "y": 48,
+          "length": 12,
+          "width": 6,
+          "mult": 15000
         },
         {
           "type": "floor",
@@ -27931,6 +29006,15 @@
           "y1": 52.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 6020.336,
+          "x": 42,
+          "y": 52,
+          "length": 12,
+          "width": 6,
+          "mult": 15000
         },
         {
           "type": "floor",
@@ -28612,7 +29696,12 @@
             "y": 52
           }
         }
-      ]
+      ],
+      "campTeleport": {
+        "x": 20,
+        "y": 0,
+        "z": 20
+      }
     },
     {
       "id": "stars",
@@ -28919,6 +30008,17 @@
           "kind": "arrow"
         },
         {
+          "type": "block",
+          "z": 17,
+          "z1": 23,
+          "x0": 17,
+          "x1": 23,
+          "y0": -0.5,
+          "y1": 0.25,
+          "material": "ice",
+          "kind": "campTeleport"
+        },
+        {
           "type": "floor",
           "z": 40,
           "length": 12,
@@ -29079,6 +30179,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 190,
+          "x": -42,
+          "y": 0,
+          "length": 12,
+          "width": 6,
+          "mult": 20000
+        },
+        {
           "type": "floor",
           "z": 202,
           "length": 8,
@@ -29235,6 +30344,15 @@
           "y1": 4.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 594,
+          "x": 42,
+          "y": 4,
+          "length": 12,
+          "width": 6,
+          "mult": 20000
         },
         {
           "type": "floor",
@@ -29556,6 +30674,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 1241.032,
+          "x": -42,
+          "y": 8,
+          "length": 12,
+          "width": 6,
+          "mult": 20000
+        },
+        {
           "type": "floor",
           "z": 1253.032,
           "length": 8,
@@ -29709,6 +30836,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 1888.711,
+          "x": 42,
+          "y": 12,
+          "length": 12,
+          "width": 6,
+          "mult": 25000
+        },
+        {
           "type": "floor",
           "z": 1900.711,
           "length": 8,
@@ -29839,6 +30975,15 @@
           "y1": 16.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 2232.711,
+          "x": -42,
+          "y": 16,
+          "length": 12,
+          "width": 6,
+          "mult": 25000
         },
         {
           "type": "floor",
@@ -30015,6 +31160,15 @@
           "y1": 20.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 3108.85,
+          "x": 42,
+          "y": 20,
+          "length": 12,
+          "width": 6,
+          "mult": 25000
         },
         {
           "type": "floor",
@@ -30275,6 +31429,15 @@
           "y1": 24.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 3577.788,
+          "x": -42,
+          "y": 24,
+          "length": 12,
+          "width": 6,
+          "mult": 30000
         },
         {
           "type": "floor",
@@ -30552,6 +31715,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 4146.318,
+          "x": 42,
+          "y": 28,
+          "length": 12,
+          "width": 6,
+          "mult": 30000
+        },
+        {
           "type": "floor",
           "z": 4158.318,
           "length": 8,
@@ -30809,6 +31981,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 4316.318,
+          "x": -42,
+          "y": 32,
+          "length": 12,
+          "width": 6,
+          "mult": 30000
+        },
+        {
           "type": "floor",
           "z": 4328.318,
           "length": 8,
@@ -31023,6 +32204,15 @@
           "y1": 36.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 4697.945,
+          "x": 42,
+          "y": 36,
+          "length": 12,
+          "width": 6,
+          "mult": 40000
         },
         {
           "type": "floor",
@@ -31300,6 +32490,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 5267.945,
+          "x": -42,
+          "y": 40,
+          "length": 12,
+          "width": 6,
+          "mult": 40000
+        },
+        {
           "type": "floor",
           "z": 5279.945,
           "length": 8,
@@ -31451,6 +32650,15 @@
           "y1": 44.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 5743.945,
+          "x": 42,
+          "y": 44,
+          "length": 12,
+          "width": 6,
+          "mult": 40000
         },
         {
           "type": "floor",
@@ -31907,6 +33115,15 @@
           "kind": "trophyPad"
         },
         {
+          "type": "treadmill",
+          "z": 5867.945,
+          "x": -42,
+          "y": 48,
+          "length": 12,
+          "width": 6,
+          "mult": 40000
+        },
+        {
           "type": "floor",
           "z": 5879.945,
           "length": 8,
@@ -32042,6 +33259,15 @@
           "y1": 52.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 6211.945,
+          "x": 42,
+          "y": 52,
+          "length": 12,
+          "width": 6,
+          "mult": 40000
         },
         {
           "type": "floor",
@@ -32195,6 +33421,15 @@
           "y1": 56.25,
           "material": "trophyPad",
           "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 6870.345,
+          "x": -42,
+          "y": 56,
+          "length": 12,
+          "width": 6,
+          "mult": 40000
         },
         {
           "type": "floor",
@@ -32903,7 +34138,12 @@
             "y": 56
           }
         }
-      ]
+      ],
+      "campTeleport": {
+        "x": 20,
+        "y": 0,
+        "z": 20
+      }
     }
   ]
 }

@@ -145,3 +145,32 @@ describe('the stage bot at the level of the ridge (LV-02, LV-03)', () => {
       }
   });
 });
+
+describe('the ridge sign and the roll-back of the stages (LV-02, LV-08)', () => {
+  it('the «LEVEL NEEDED» digits of every ridge are 6 units and stand within the phone draw distance of the safe finish before it', () => {
+    for (const w of worlds.worlds)
+      for (const st of w.stages!.filter((s) => s.n > 1)) {
+        const g = w.segments.find((s) => s.type === 'gate' && Math.abs(s.z - st.z0) < 1e-6)!;
+        expect(g['digits']).toBeGreaterThanOrEqual(6);
+        const before = w.stages!.find((s) => s.n === st.n - 1)!;
+        expect(st.z0 - before.finish[0]).toBeLessThanOrEqual((tuning as unknown as { far: { mobile: number } }).far.mobile);
+      }
+  });
+  it('a fall into the pit of stage k rolls the hero to the flag of stage k − 1 (stage 2 — the camp), Speed kept', () => {
+    const w = worlds.worlds[0]!;
+    const level = buildLevel(w);
+    for (const st of w.stages!.filter((s) => s.type === 'plates' || s.type === 'giant')) {
+      const sim = createSim(level, tuning, { balance, speedCurve: balance.speedCurve, stat: levelThreshold(st.level, balance.levels!) });
+      const stat0 = sim.progress.stat;
+      // Into the pit beside the bridge (plates) or off a teleport under the floor (giant: no pit — below killY).
+      sim.teleport(st.type === 'plates' ? 30 : 0, st.type === 'plates' ? st.y - 6 : level.killY - 1, st.start + 4);
+      for (let k = 0; k < 600 && !sim.caught; k++) sim.step({ moveX: 0, moveZ: 0, jump: false, jumpHeld: false }, DT);
+      expect(sim.caught, `${st.type}: the snowball`).not.toBeNull();
+      for (let k = 0; k < 600 && sim.caught; k++) sim.step({ moveX: 0, moveZ: 0, jump: false, jumpHeld: false }, DT);
+      const target = sim.stageStart(st.n - 1);
+      expect(Math.hypot(sim.hero.pos.x - target.x, sim.hero.pos.z - target.z), `${st.type}: at the flag of stage ${st.n - 1}`).toBeLessThanOrEqual(3);
+      expect(sim.rollFrom).toBe(st.n);
+      expect(sim.progress.stat).toBeGreaterThanOrEqual(stat0);
+    }
+  });
+});

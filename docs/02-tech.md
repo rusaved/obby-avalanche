@@ -234,6 +234,7 @@ index.html, vite.config.ts, tsconfig.json, vitest.config.ts, playwright.config.t
 Числа стата: `number` (double). Отображение K, M, B, T, Qa — `ui/format.ts`, суффиксы из `i18n`. В лидерборд пишется целое ≤ `Number.MAX_SAFE_INTEGER`; если стат может его превысить, `leaderboard.score` указывает другое поле (перерождения, лучший мир).
 
 ### 5.4 Валидатор (`npm run validate:content`)
+- **Темп `stages` (веха LV, `01` 22):** генератор `src/level/stage-slope.ts` (раскладка `stageSlope`, мир помечен `layout: openSlope` и полем `stages`), проверки — `src/level/validate-stages.ts` вместо проверок рубежей `open`: 10–15 этапов, порядок 22.5, нет полосы длиннее 24 ед без испытания, 2–3 смены ширины, лабиринт (1 верный, 2–3 ложных выхода, есть тупик), одна кнопка кубков в безопасном финише, честность испытаний на v(N). Бот симуляции «9 из 10 на уровне N» — `tests/sim/stage-bot.test.ts`. Уровни — `src/sim/levels.ts`; лавина только в `threat.zones`, откат `caught.to: prevStage` (`sim.stageStart`, `stageAt`).
 - Схемы valibot для каждого файла, ссылки между файлами (скин ссылается на существующий аксессуар, яйцо на существующих питомцев), шансы яиц в сумме 1.
 - Ключи `ru.json` и `en.json` совпадают, плейсхолдеры `{n}` совпадают, нет пустых строк.
 - Перечисления (`theme.json.fx`, `balance.gainTrigger`, `balance.upgrade.attach`, `stat.effect`, `threat.bonus.kind`) — только известные значения; пути `game.json.flags` существуют, значения по ним в своих диапазонах (11.11).

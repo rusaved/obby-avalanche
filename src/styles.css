@@ -135,9 +135,12 @@ canvas.fallback {
 .hud-mountain-flag svg, .hud-mountain-wave svg { width: 100%; height: 100%; display: block; }
 /* Goal under the bar: «Wall 2K», fill bar «1.2K/2K» (docs/01-gdd.md 10.1, up to 30% W). */
 .hud-goal { position: absolute; left: 50%; top: calc(48px + env(safe-area-inset-top)); width: min(30%, 360px); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 3px; pointer-events: none; }
-.hud-need { display: none; margin-top: 4px; max-width: 24vw; padding: 2px 12px; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.9); background: #e5484d; color: #fff; font-size: clamp(13px, 2.2vmin, 18px); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); }
+.hud-need { display: none; margin-top: 4px; max-width: 24vw; padding: 2px 12px; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.9); background: #e53935; color: #fff; font-size: clamp(13px, 2.2vmin, 18px); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); }
 .hud-need.shown { display: block; }
-.hud-need.ok { background: #2fb457; }
+.hud-tutor { display: none; margin-top: 6px; padding: 4px 14px; border-radius: 12px; border: 2px solid rgba(255, 255, 255, 0.9); background: #ffb800; color: #1b2a3a; font-size: clamp(15px, 2.6vmin, 22px); font-weight: 800; white-space: nowrap; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); animation: tutor-pulse 1.4s ease-in-out infinite; }
+.hud-tutor.shown { display: block; }
+@keyframes tutor-pulse { 50% { transform: scale(1.06); } }
+.hud-need.ok { background: #4cd964; }
 .hud-goal-text { font-size: 18px; font-weight: 800; color: #fff; white-space: nowrap; text-shadow: -2px -2px 0 #1b2a3a, 2px -2px 0 #1b2a3a, -2px 2px 0 #1b2a3a, 2px 2px 0 #1b2a3a; }
 .hud-goal-bar { position: relative; display: none; width: 100%; height: 16px; overflow: hidden; border-radius: 8px; border: 2px solid rgba(27, 42, 58, 0.6); background: rgba(27, 42, 58, 0.35); box-sizing: border-box; }
 .hud-goal-bar.shown { display: block; }
@@ -412,3 +415,6 @@ canvas.fallback {
 .sm-box .rw-icon svg { width: 24px; height: 24px; }
 /* The base (docs/01-gdd.md 19.4): no mountain bar there. */
 .hud-mountain.off { display: none; }
+.tp-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; max-height: 50vh; overflow-y: auto; }
+.tp-item { min-height: 52px; padding: 6px 10px; border-radius: 12px; border: 2px solid rgba(27, 42, 58, 0.4); background: #ffd34d; color: #1b2a3a; font: 800 16px/1.2 var(--font); cursor: pointer; }
+.tp-item:disabled { background: #c9d1da; color: #3a4a5c; cursor: default; }

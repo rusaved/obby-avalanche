@@ -395,8 +395,9 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
     const giftsPerZone = lazy ? Math.round(perZone * groundShare) : perZone;
     // Gifts on the path, bottom up: taken while the hero walks over them, back after a wave is gone (gifts.respawn).
     const pathGifts = world.segments
-      .filter((s) => s.type === 'gift' && s['path'] === true && axis(s))
-      .map((s) => ({ z: s.z, coins: num(s, 'coins'), taken: false }))
+      // The stages pace (docs/01-gdd.md 22.8): the trophy button of every finish is taken on the way like a path gift.
+      .filter((s) => (s.type === 'gift' && s['path'] === true && axis(s)) || s.type === 'trophyPad')
+      .map((s) => ({ z: s.z, coins: num(s, s.type === 'trophyPad' ? 'trophies' : 'coins'), taken: false }))
       .sort((a, b) => a.z - b.z);
     const takePath = (from: number, to: number): void => {
       for (const pg of pathGifts) {
@@ -469,11 +470,14 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
       // Shelters of the stretch: one cave in classic and fast, several on the open slope (docs/01-gdd.md 17.4). On
       // `warn` the bot runs to the nearest one at or above it; it saves up on the treadmill of the last one before the
       // wall (the grotto under the ridge, the start line of the giant). The snowball rolls to the nearest one below.
-      const stretchNiches = niches.filter((nn) => num(nn, 'stretch') === i).sort((a, b) => a.z - b.z);
-      const grotto = stretchNiches[stretchNiches.length - 1]?.z ?? gz;
+      // The stages pace (docs/01-gdd.md 22.8): the treadmill of the safe finish below the ridge is where the bot saves up.
+      const finishTread = (world as { stages?: unknown }).stages ? world.segments.find((x) => x.type === 'treadmill' && x.z <= gz && x.z >= gz - 40) : undefined;
+      const stretchNiches = finishTread ? [] : niches.filter((nn) => num(nn, 'stretch') === i).sort((a, b) => a.z - b.z);
+      const grotto = finishTread ? finishTread.z : (stretchNiches[stretchNiches.length - 1]?.z ?? gz);
       const shelterAt = (from: number): number => stretchNiches.find((nn) => nn.z >= from)?.z ?? grotto;
       const treadAt = (at: number): number => {
         if (reference) return refTread(p);
+        if (finishTread) return num(finishTread, 'mult') * (world.treadmillMult ?? 1);
         const nn = stretchNiches.find((x) => x.z === at);
         return (nn ? num(nn, 'treadmill') : 1) * (world.treadmillMult ?? 1);
       };

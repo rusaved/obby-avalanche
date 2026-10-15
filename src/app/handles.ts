@@ -60,6 +60,8 @@ export interface GameHandles {
   world: World;
   /** «Level up!» shown this run (docs/01-gdd.md 22.2; the e2e of LV-01 reads it). */
   levelUps?: number;
+  /** e2e bot (build:e2e only, LV-04): it jumps at the edge of a pit on its path. */
+  botJump?: boolean;
   input: InputManager;
   frame: ControlFrame;
   camera: CameraRig | null;
@@ -122,6 +124,8 @@ export interface GameHandles {
   readonly waveView: WaveView | null;
   /** The points of the base (FM-10…FM-12): the stand whose button is up, the stands with a hand. */
   readonly standsView: import('./stands-view.ts').StandsView | null;
+  /** The stage tutorial and the camp teleport (docs/01-gdd.md 22.12). */
+  readonly campView: import('./camp-view.ts').CampView | null;
   /** Starts the next avalanche now (debug «Avalanche now», __TEST__.triggerWave). */
   triggerWave(): void;
   /** e2e bot: world points [x, z] the hero walks to one after another (overrides the input), a third number — the reach
