@@ -136,6 +136,29 @@ function boxGeometry(b: LevelBox, theme: ThemeJson): BufferGeometry {
   return geo;
 }
 
+/** SD-07: the lip is this wide (inside the edge) and stands this high over the top; a drop of more than EDGE_DROP shows it. */
+const EDGE_LIP = 0.5;
+const EDGE_RISE = 0.04;
+const EDGE_DROP = 1;
+
+/** SD-07: thin boxes along the edges of a floor box where the ground past the edge is lower by EDGE_DROP (or none). */
+function edgeLips(level: LevelData, b: LevelBox): LevelBox[] {
+  const top = b.max[1];
+  const out: LevelBox[] = [];
+  const low = (x: number, z: number): boolean => level.floorAt(x, z) < top - EDGE_DROP;
+  const lip = (x0: number, z0: number, x1: number, z1: number): void => void out.push({ min: [x0, top, z0], max: [x1, top + EDGE_RISE, z1], material: 'edge', solid: false, kind: 'edge' });
+  const [x0, x1, z0, z1] = [b.min[0], b.max[0], b.min[2], b.max[2]];
+  const xm = (x0 + x1) / 2;
+  const zm = (z0 + z1) / 2;
+  if (z1 - z0 > 2 * EDGE_LIP && x1 - x0 > 2 * EDGE_LIP) {
+    if (low(xm, z0 - 0.6)) lip(x0, z0, x1, z0 + EDGE_LIP);
+    if (low(xm, z1 + 0.6)) lip(x0, z1 - EDGE_LIP, x1, z1);
+    if (low(x0 - 0.6, zm)) lip(x0, z0, x0 + EDGE_LIP, z1);
+    if (low(x1 + 0.6, zm)) lip(x1 - EDGE_LIP, z0, x1, z1);
+  }
+  return out;
+}
+
 function rampGeometry(r: LevelRamp, theme: ThemeJson): BufferGeometry {
   const { x0, x1, z0, z1, y0, y1, thickness: t } = r;
   const v: number[] = [];
@@ -219,6 +242,9 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     if (cut) cutParts.push({ ...cut, box: b });
     else bucketOf((b.min[2] + b.max[2]) / 2).push(boxGeometry(b, theme));
   }
+  // SD-07 (docs/01-gdd.md 23.7): a coloured lip on every floor edge over a drop (a pit, a gap, the end of a plate or a
+  // bridge) — white over white no more; only with theme.materials.edge, merged into the chunk (no extra draw call).
+  if (theme.materials['edge']) for (const b of level.boxes) if (b.solid && b.kind === 'floor' && b.material !== 'pit') for (const g of edgeLips(level, b)) bucketOf((g.min[2] + g.max[2]) / 2).push(boxGeometry(g, theme));
   for (const r of level.ramps) bucketOf((r.z0 + r.z1) / 2).push(rampGeometry(r, theme));
   for (const p of level.prisms ?? []) bucketOf(p.pts.reduce((z, q) => z + q[1], 0) / p.pts.length).push(prismGeometry(p, theme));
   // Checkpoint flags and simple decor as boxes (grey slope at M1).

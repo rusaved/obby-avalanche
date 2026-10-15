@@ -36,6 +36,7 @@
     "throatWall": { "color": "#A9BCD2", "roughness": 0.9 },
     "ice": { "color": "#9ED8FF", "roughness": 0.35 },
     "pit": { "color": "#2E5A8C", "roughness": 0.9 },
+    "edge": { "color": "#3B82F6", "roughness": 0.8 },
     "trophyPad": { "color": "#FFC93C", "roughness": 0.4, "emissive": "#8A5A00" },
     "gateClosed": { "color": "#A8DFFF", "roughness": 0.3 },
     "gateSign": { "color": "#FF4D4D" },
