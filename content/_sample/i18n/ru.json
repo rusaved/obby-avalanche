@@ -31,6 +31,7 @@
   "wave.survivedPlain": "Уф, успел!",
   "wave.caught": "Накрыло снегом!",
   "toast.fallBack": "Опа! Назад к флажку",
+  "toast.fallBackStage": "Опа! Назад к началу этапа",
   "wave.goldSaved": "Золотой подарок! +{n}",
   "wave.firstMiss": "В пещеру, когда идёт лавина!",
   "zone.common": "Обычные подарки",

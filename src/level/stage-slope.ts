@@ -8,6 +8,9 @@ import { pushDipFloor } from './open-shapes.ts';
 import { levelThreshold, nearestLevel, type Levels } from '../sim/levels.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 
+/** SD-09: the grotto of a start pad stands this far in from the edge of the field. */
+const EDGE_GAP = 4;
+
 export interface StageInput {
   spec: OpenSpecJson;
   balance: OpenInput['balance'] & { levels?: Levels; speedCurve?: { k: number }; upgrade?: { trophyRate?: number } };
@@ -440,8 +443,10 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     // the first minute. A grotto in a rock on the start pad beside the axis; the first wave `stageExtraSec` later than a
     // clean run of the body at v(N) — the slow one hides in it or runs on to the safe finish.
     const extra = cfg.avalanche.stageExtraSec;
-    if (extra !== undefined && type !== 'giant' && type !== 'avalanche') {
-      seg.push({ type: 'island', z: round3(start - cfg.start / 2), x: (s % 2 === 0 ? -1 : 1) * cfg.avalanche.x, y: round3(y), size: cfg.start, zone: s, stretch: s });
+    // Not in the maze either (SD-09 review: under its walls no grotto is in reach — it is a trial of its own).
+    if (extra !== undefined && type !== 'giant' && type !== 'avalanche' && type !== 'maze') {
+      // By the edge of the field (SD-09 review: by the axis, seen from the ridge below, it read as a plate in the air).
+      seg.push({ type: 'island', z: round3(start - cfg.start / 2), x: (s % 2 === 0 ? -1 : 1) * round3(half - cfg.start / 2 - EDGE_GAP), y: round3(y), size: cfg.start, zone: s, stretch: s });
       waveZones.push([round3(z0), round3(zb), round3((zb - start) / v + extra)]);
     }
     // The safe finish with the trophy button at the side (22.8): the threats stay out of it.

@@ -18,11 +18,11 @@ const worlds = read('pace/stages/worlds.json') as WorldsJson;
 const DT = 1 / 60;
 
 describe('the avalanche on the stages (SD-06)', () => {
-  it('every stage but the giant and the first minute has its zone and a grotto', () => {
+  it('every stage but the giant, the maze and the first minute has its zone and a grotto', () => {
     for (const w of worlds.worlds)
       for (const st of w.stages!) {
         const zone = (w.threat.zones ?? []).find((z) => z[0] >= st.z0 - 1e-6 && z[1] <= st.end + 1e-6);
-        if (st.type === 'giant' || st.type === 'intro') expect(zone, `${w.id} ${st.n}`).toBeUndefined();
+        if (st.type === 'giant' || st.type === 'intro' || st.type === 'maze') expect(zone, `${w.id} ${st.n}`).toBeUndefined();
         else {
           expect(zone, `${w.id} ${st.n}`).toBeDefined();
           expect(w.segments.some((s) => s.type === 'island' && s.z >= st.z0 && s.z <= st.end), `${w.id} ${st.n}`).toBe(true);

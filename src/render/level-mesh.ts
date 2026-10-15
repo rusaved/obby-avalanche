@@ -137,6 +137,8 @@ function boxGeometry(b: LevelBox, theme: ThemeJson): BufferGeometry {
 }
 
 /** SD-07: the lip is this wide (inside the edge) and stands this high over the top; a drop of more than EDGE_DROP shows it. */
+/** SD-09: the dots along a catapult strip this far apart. */
+const STRIP_DOT_STEP = 6;
 const EDGE_LIP = 0.5;
 const EDGE_RISE = 0.04;
 const EDGE_DROP = 1;
@@ -523,8 +525,16 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     .filter((p) => p.type === 'jumpPad')
     .forEach((p, pad) => {
       const size = (p['width'] as number | undefined) ?? 4;
-      funParts.push({ x: p.x, y: p.y + PAD_THICK / 2, z: p.z, w: size, h: PAD_THICK, d: size, turn: 0, color: mat('jumpPad'), pad });
       const top = p.y + PAD_THICK + MARK_THICK / 2;
+      // SD-09 (review: a 96 × 96 blue plate hung over the finish of stage 6): a strip across the slope (the catapult, its
+      // own `length`) is drawn as long as it is — a row of dots on it, not the square rings of a plate.
+      const len = p['length'] as number | undefined;
+      if (len !== undefined && Math.abs(len - size) > 1e-6) {
+        funParts.push({ x: p.x, y: p.y + PAD_THICK / 2, z: p.z, w: size, h: PAD_THICK, d: len, turn: 0, color: mat('jumpPad'), pad });
+        for (let x = -size / 2 + STRIP_DOT_STEP / 2; x < size / 2; x += STRIP_DOT_STEP) funParts.push({ x: p.x + x, y: top, z: p.z, w: MARK_WIDTH * 2, h: MARK_THICK, d: MARK_WIDTH * 2, turn: 0, color: mat('jumpPadMark'), pad });
+        return;
+      }
+      funParts.push({ x: p.x, y: p.y + PAD_THICK / 2, z: p.z, w: size, h: PAD_THICK, d: size, turn: 0, color: mat('jumpPad'), pad });
       for (const ring of [0.75, 0.42]) {
         const r = (size / 2) * ring;
         funParts.push({ x: p.x, y: top, z: p.z - r, w: 2 * r + MARK_WIDTH, h: MARK_THICK, d: MARK_WIDTH, turn: 0, color: mat('jumpPadMark'), pad });

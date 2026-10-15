@@ -136,11 +136,15 @@ export function createFunView(d: FunViewDeps): FunView {
         const g = s.level.gates[index];
         if (!g) return;
         const r = d.tuning.gateReward;
+        // SD-09 (review: «+0» on every ridge of the stages pace, their reward is a level, not coins): no coins — no fountain.
+        const paid = coins > 0;
         // Fountain: min … max coins by the wall number, out of the arch into the plaque, «+N» when the first is there.
         const n = r.fountain[0] + (wall % (r.fountain[1] - r.fountain[0] + 1));
         const from = onScreen(0, g.y + g.height * COINS_AT, g.z);
-        st.fountains++;
-        fountain.start(from.x, from.y, n, () => d.hud.popCoinGain(`+${formatNumber(coins, d.numSuffix)}`));
+        if (paid) {
+          st.fountains++;
+          fountain.start(from.x, from.y, n, () => d.hud.popCoinGain(`+${formatNumber(coins, d.numSuffix)}`));
+        }
         d.fx.burst('confetti', 0, g.y + g.height * CONFETTI_AT, g.z, [d.theme.rarity[g.rarity] ?? '#ffffff', d.theme.ui.coins, '#ffffff'], CONFETTI, 10, 6);
         // The chime: a semitone higher for each gate in a row (docs/01-gdd.md 16.5).
         gateStreak = nextStreak(gateStreak, now, r.streakSec, r.streakSteps);

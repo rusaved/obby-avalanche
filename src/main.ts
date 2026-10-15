@@ -585,7 +585,8 @@ async function boot(): Promise<void> {
     s.events.on('waveCaught', () => hud?.toast(t('wave.caught')));
     // RL-02 (docs/01-gdd.md 21.2): a fall rolls him back to the flag of the ridge (caught.to «flag») — a short toast.
     s.events.on('fall', () => {
-      if (s.caught) hud?.toast(t('toast.fallBack'), 2);
+      // SD-09: on the stages pace the roll-back goes to a stage start, not to a flag.
+      if (s.caught) hud?.toast(t(s.level.stages ? 'toast.fallBackStage' : 'toast.fallBack'), 2);
     });
     s.events.on('waveEnd', ({ scripted, outcome }) => {
       if (scripted) {

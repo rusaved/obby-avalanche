@@ -15,6 +15,7 @@
   "archHide": 8,
     "seeThrough": true,
     "grottoFrame": false,
+    "bossKeepDeg": 90,
     "mouseTop": 0.15,
     "mouseButtonPad": 48,
   "grottoShot": {

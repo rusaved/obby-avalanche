@@ -232,11 +232,11 @@ export function validateStageWorld(w: World, levels: Levels, tuning: Physics, ma
   const zones = w.threat.zones ?? [];
   for (const zn of zones) {
     const st = stages.find((s) => zn[0] >= s.z0 - 1e-6 && zn[1] <= s.end + 1e-6);
-    if (!st || st.type === 'giant') errors.push(`${at}: an avalanche zone ${zn.join('–')} outside a stage of its own or on the giant's`);
+    if (!st || st.type === 'giant' || st.type === 'maze') errors.push(`${at}: an avalanche zone ${zn.join('–')} outside a stage of its own or on the giant's or the maze`);
   }
   const extra = zones.some((zn) => zn[2] !== undefined);
   for (const st of extra ? stages : []) {
-    if (st.type === 'giant' || st.type === 'intro' || st.type === 'avalanche') continue;
+    if (st.type === 'giant' || st.type === 'intro' || st.type === 'avalanche' || st.type === 'maze') continue;
     const zn = zones.find((x) => x[0] >= st.z0 - 1e-6 && x[1] <= st.end + 1e-6);
     const isl = w.segments.filter((s) => s.type === 'island' && s.z >= st.z0 - 1e-6 && s.z <= st.end + 1e-6).map((s) => s.z);
     if (!zn || isl.length === 0) {
