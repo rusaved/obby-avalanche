@@ -58,6 +58,8 @@ const CAMERA_RANGES: Partial<Record<keyof TuningJson['camera'], Range>> = {
   autoTurnDelaySec: [0, 5, 0.1],
   autoTurnRate: [0, 6, 0.1],
   sensitivity: [0.5, 2, 0.05],
+  mouseYawPerPx: [0.05, 1, 0.01],
+  mouseReturnSec: [0.3, 5, 0.1],
   shake: [0, 1, 0.05],
   hideDistance: [0, 6, 0.1],
   minDistance: [0, 12, 0.5],

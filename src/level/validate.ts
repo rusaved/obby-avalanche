@@ -391,6 +391,9 @@ const tuningSchema = v.object({
     speedDistanceAdd: v.optional(nonNeg),
     speedPow: v.optional(positive),
     backBehind: v.optional(v.picklist(['run', 'before'])),
+    mouseLook: v.optional(v.boolean()),
+    mouseYawPerPx: v.optional(positive),
+    mouseReturnSec: v.optional(positive),
   }),
   input: v.object({
     stickRadiusFrac: v.pipe(v.number(), v.minValue(0.05), v.maxValue(0.3)),
@@ -411,6 +414,7 @@ const tuningSchema = v.object({
     caveShot: v.object({ pos: v.tuple([v.number(), v.number(), v.number()]), look: v.tuple([v.number(), v.number(), v.number()]), fov: v.pipe(v.number(), v.minValue(30), v.maxValue(120)) }),
     shotUntilClear: v.optional(v.boolean()),
     waveShot: v.optional(v.object({ pos: v.tuple([v.number(), v.number(), v.number()]), look: v.tuple([v.number(), v.number(), v.number()]), fov: v.pipe(v.number(), v.minValue(30), v.maxValue(120)) })),
+    firstWaveShot: v.optional(v.object({ pos: v.tuple([v.number(), v.number(), v.number()]), look: v.tuple([v.number(), v.number(), v.number()]), fov: v.pipe(v.number(), v.minValue(30), v.maxValue(120)) })),
     noise: nonNeg,
     bodyLength: positive,
     nearDist: positive,

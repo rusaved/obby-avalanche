@@ -8,7 +8,7 @@
  * white veil inside the snow body, the hero covering his head while the front goes over the cave.
  * Reads the simulation, never changes it.
  */
-import { Vector3 } from 'three';
+import { Sphere, Vector3 } from 'three';
 import type { TuningJson } from '../content/types.ts';
 import type { Sim } from '../sim/world.ts';
 import type { CameraRig } from '../render/camera.ts';
@@ -67,8 +67,8 @@ export function createWaveView(d: WaveViewDeps): WaveView {
   const av = d.tuning.avalanche;
   const p = new Vector3();
   let shotCave = -1;
-  /** The frame of shotCave is the avalanche one (avalanche.waveShot) — it is set anew when that changes. */
-  let shotWave = false;
+  /** The frame asked for shotCave (avalanche.caveShot, waveShot or firstWaveShot) — it is set anew when that changes. */
+  let shotSpec: TuningJson['avalanche']['caveShot'] | null = null;
   /** The cave of the last wide frame: its parts stay hidden while the camera blends back. */
   let wallCave = -1;
   // The frame point behind the back wall (pos[0] > 1) or over the roof (pos[1] > 1): that part is not drawn.
@@ -213,10 +213,12 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       if (wantShot) {
         const c = sim.level.niches[inCave]!;
         // Q-067: on an avalanche with shotUntilClear its own frame (inside the shelter behind the hero), the belt keeps its.
-        const spec = waveShot && av.shotUntilClear && av.waveShot ? av.waveShot : av.caveShot;
-        if (shotCave !== inCave || shotWave !== (spec !== av.caveShot)) {
-          shotWave = spec !== av.caveShot;
-          cutParts = cutOf(spec);
+        const plain = waveShot && av.shotUntilClear && av.waveShot ? av.waveShot : av.caveShot;
+        // LV-10 (docs/01-gdd.md 22.11): the scripted first wave in a grotto in a rock — out of its mouth over the roof, up the
+        // slope where the front comes from (playtest: pressed to the rock wall, the climax of the first minute was not seen).
+        const spec = waveShot && ts.scripted && av.firstWaveShot && c.kind === 'island' ? av.firstWaveShot : plain;
+        if (shotCave !== inCave || shotSpec !== spec) {
+          shotSpec = spec;
           const sign = c.side === 'left' ? -1 : 1;
           const r = d.tuning.camera.collisionRadius + WALL_CLEARANCE;
           const mouth = entranceX(sim.level, c);
@@ -249,14 +251,19 @@ export function createWaveView(d: WaveViewDeps): WaveView {
             }
             return out;
           };
-          d.camera.fixed = { pos: at(spec.pos, new Vector3(), true), look: at(spec.look, new Vector3(), false), fov: spec.fov };
+          let use = spec;
+          const pos = at(use.pos, new Vector3(), true);
+          // That point inside the level (a rock right below the mouth): the frame of any wave.
+          if (use !== plain && sim.collision.sphereHit(new Sphere(pos, r)) !== null) at((use = plain).pos, pos, true);
+          cutParts = cutOf(use);
+          d.camera.fixed = { pos, look: at(use.look, new Vector3(), false), fov: use.fov };
         }
         shotCave = inCave;
         wallCave = cutParts.length > 0 ? inCave : -1;
       } else if (shotCave >= 0) {
         // Back to the player's view in shotReturnSec (the rig blends out, or cuts when the way is through a wall).
         shotCave = -1;
-        shotWave = false;
+        shotSpec = null;
         d.camera.fixed = null;
       }
       view.shot = shotCave >= 0 && waveShot;

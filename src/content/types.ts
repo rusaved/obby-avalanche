@@ -361,6 +361,12 @@ export interface TuningJson {
     /** SP-01: after the grotto frame and the avalanche frame the view comes back «run» — behind the hero where he runs
      * (up the slope when he stands), or «before» — to the yaw from before the frame (as until SP); absent — «before». */
     backBehind?: 'run' | 'before';
+    /** LV-10 (docs/01-gdd.md 22.11): on a PC the mouse moved over the field without a button turns the camera by
+     * mouseYawPerPx °/px; mouseReturnSec of no such move — the view eases back behind the hero (a drag keeps it the
+     * player's, and a move within mouseReturnSec of a drag is not a look); absent or false — only a drag turns it. */
+    mouseLook?: boolean;
+    mouseYawPerPx?: number;
+    mouseReturnSec?: number;
   };
   input: {
     stickRadiusFrac: number;
@@ -393,6 +399,10 @@ export interface TuningJson {
     /** Q-067: the cave frame on an avalanche with shotUntilClear (inside the shelter behind the hero, in the coordinates of
      * caveShot); absent — caveShot. The belt frame outside an avalanche stays caveShot. */
     waveShot?: { pos: [number, number, number]; look: [number, number, number]; fov: number };
+    /** LV-10 (docs/01-gdd.md 22.11): the frame of the scripted first wave in a grotto in a rock (in the coordinates of caveShot
+     * in its axes: depth up the slope from the mouth): out of its mouth over the roof, up the slope where the front comes
+     * from; absent, or that point inside the level — waveShot. */
+    firstWaveShot?: { pos: [number, number, number]; look: [number, number, number]; fov: number };
     /** Front surface displacement, units. */
     noise: number;
     /** Snow body behind the front, units uphill. */

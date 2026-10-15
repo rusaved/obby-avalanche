@@ -18,6 +18,8 @@ export interface InputSnapshot {
   /** The camera was turned by hand in this tick: a drag on the camera zone (finger or mouse) past the tap distance.
    * A finger or a button resting on the zone is not a turn (PR-13). */
   manualCamera: boolean;
+  /** LV-10: that turn was the mouse moved over the field without a button (no drag or swipe in this tick). */
+  mouseLook: boolean;
   /** Movement began this frame (stick touched, first move key): controlYaw snaps to viewYaw. */
   moveStarted: boolean;
   /** Last input came from touch (HUD shows the stick and the jump button). */
@@ -42,6 +44,11 @@ export interface InputOptions {
   deadZoneFrac: number;
   mouseDegPerPx: number;
   touchDegPerPx: number;
+  /** LV-10 (camera.mouseLook): the mouse moved over the field without a button turns the camera by mouseYawPerPx °/px;
+   * a move within lookAfterDragMs of a drag is the hand going back, not a look. */
+  mouseLook?: boolean;
+  mouseYawPerPx?: number;
+  lookAfterDragMs?: number;
   sensitivity: number;
   /** Autorun: tap shorter than this (ms) and smaller than tapMovePx is a jump. */
   tapMaxMs: number;

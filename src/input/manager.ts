@@ -1,4 +1,4 @@
-// What: InputManager: keyboard by event.code, mouse drag, dynamic left stick, right-half camera swipe, tap-jump in autorun, multitouch; consume() gives an InputSnapshot.
+// What: InputManager: keyboard by event.code, mouse drag, mouse look without a button, dynamic left stick, right-half camera swipe, tap-jump in autorun, multitouch; consume() gives an InputSnapshot.
 // Called by: main.ts; app/handles.ts (type); src/test-api/index.ts (setVirtualStick, injectKey, injectJump).
 // Keep: reset() on pause, blur, pointercancel and lostpointercapture; a HUD button press is never a stick; no Ctrl/Alt/Meta shortcuts; numbers via InputOptions.
 
@@ -41,6 +41,12 @@ export class InputManager {
   private zoomDelta = 0;
   /** The camera was turned by a drag since the last snapshot (PR-13: a finger resting on the camera zone is not a turn). */
   private turnEdge = false;
+  /** LV-10: the camera was turned by the mouse moved without a button since the last snapshot. */
+  private lookEdge = false;
+  /** When the last drag of the mouse ended (event time, ms): the hand going back after it is not a look. */
+  private dragEndAt = -Infinity;
+  /** The pointer left the field: its next move there is the jump from where it left, not a look. */
+  private lookSkip = false;
   private pinchDist: number | null = null;
   private field: HTMLElement | null = null;
   private readonly cleanups: Array<() => void> = [];
@@ -76,6 +82,9 @@ export class InputManager {
     onEl(field, 'pointerup', (ev) => this.onPointerUp(ev));
     onEl(field, 'pointercancel', (ev) => this.onPointerCancel(ev));
     onEl(field, 'lostpointercapture', (ev) => this.onPointerCancel(ev));
+    onEl(field, 'pointerleave', () => {
+      this.lookSkip = true;
+    });
     onEl(field, 'wheel', (ev) => this.onWheel(ev), { passive: false });
 
     // Browser bans (docs/03 SCR-03, SCR-04): no context menu, selection, double-click zoom, gestures.
@@ -106,6 +115,7 @@ export class InputManager {
     this.pitchDelta = 0;
     this.zoomDelta = 0;
     this.turnEdge = false;
+    this.lookEdge = false;
     this.pinchDist = null;
     this.virtualStick = null;
   }
@@ -173,7 +183,8 @@ export class InputManager {
       camPitchDelta: this.pitchDelta,
       zoomDelta: this.zoomDelta,
       pausePressed: false,
-      manualCamera: this.turnEdge,
+      manualCamera: this.turnEdge || this.lookEdge,
+      mouseLook: this.lookEdge && !this.turnEdge,
       moveStarted: this.moveStartEdge,
       touchActive: this.touchActive,
     };
@@ -183,6 +194,7 @@ export class InputManager {
     this.pitchDelta = 0;
     this.zoomDelta = 0;
     this.turnEdge = false;
+    this.lookEdge = false;
     return snap;
   }
 
@@ -264,7 +276,10 @@ export class InputManager {
 
   private onPointerMove(ev: PointerEvent): void {
     const p = this.pointers.get(ev.pointerId);
-    if (!p) return;
+    if (!p) {
+      this.onMouseLook(ev);
+      return;
+    }
     const dx = ev.clientX - p.lastX;
     const dy = ev.clientY - p.lastY;
     p.lastX = ev.clientX;
@@ -315,10 +330,29 @@ export class InputManager {
     if ((dx !== 0 || dy !== 0) && p.moved >= this.opts.tapMovePx) this.turnEdge = true;
   }
 
+  /**
+   * LV-10 (docs/01-gdd.md 22.11): on a PC the mouse moved over the field without a button turns the camera, no pointer lock
+   * (movementX). Only over the field itself: a HUD button or a window takes its own events, a paused game drops them
+   * (reset on every pause change). Not within lookAfterDragMs of a drag: the hand going back after it would undo the turn.
+   */
+  private onMouseLook(ev: PointerEvent): void {
+    if (ev.pointerType !== 'mouse' || !this.opts.mouseLook || ev.buttons !== 0) return;
+    if (this.lookSkip) {
+      this.lookSkip = false;
+      return;
+    }
+    if (this.eventTime(ev) - this.dragEndAt < (this.opts.lookAfterDragMs ?? 0)) return;
+    const dx = ev.movementX;
+    if (!dx) return;
+    this.yawDelta -= (dx * (this.opts.mouseYawPerPx ?? this.opts.mouseDegPerPx) * this.opts.sensitivity * Math.PI) / 180;
+    this.lookEdge = true;
+  }
+
   private onPointerUp(ev: PointerEvent): void {
     const p = this.pointers.get(ev.pointerId);
     if (!p) return;
     this.pointers.delete(ev.pointerId);
+    if (ev.pointerType === 'mouse' && p.moved >= this.opts.tapMovePx) this.dragEndAt = this.eventTime(ev);
     if (p.kind === 'stick') {
       this.stick.active = false;
       this.stick.dx = 0;
