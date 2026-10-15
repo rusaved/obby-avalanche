@@ -321,7 +321,8 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
         const L = n * plate + (n + 1) * gap;
         pit(zb, L, y, s);
         // The second plates of a mountain step side to side (LV-12 review: the same pattern twice).
-        const shift = plan.slice(0, s - 1).includes('plates') ? bw : 0;
+        // SD-04: with the long gaps of `gapK` a quarter of a plate — the plates overlap and the jump stays straight.
+        const shift = plan.slice(0, s - 1).includes('plates') ? (cfg.gapK ? bw / 4 : bw) : 0;
         let p = zb + gap;
         for (let k = 0; k < n; k++) {
           const x = k === 0 ? 0 : (k % 2 === 1 ? 1 : -1) * shift;

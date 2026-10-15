@@ -649,7 +649,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     const levels = opts.balance.levels;
     if (!lj || !levels || !level.stages) return 1;
     const st = level.stages.find((x) => x.n === stageAt(level, hero.pos.z));
-    if (!st) return 1;
+    // The first minute of mountain 1 (the intro stage) jumps as it always did.
+    if (!st || st.type === 'intro') return 1;
     return Math.min(lj.max, Math.max(lj.min, lj.g ** (levelOf(progress.stat, levels) - st.level)));
   };
   const runSpeed = (): number => moveSpeed(progress.stat, speedCurve) * (sim.slow?.mult ?? 1) * (rare?.speedMultAt(hero.pos.z) ?? 1);

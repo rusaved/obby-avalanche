@@ -66,13 +66,13 @@ function narrowAhead(w: World, x: number, z: number): number | null {
 
 type Outcome = 'pass' | 'fall' | 'time';
 
-function runStage(w: World, st: WorldStage, seed: number): Outcome {
+function runStage(w: World, st: WorldStage, seed: number, below = 0): Outcome {
   const r = rand(seed);
   const level = buildLevel(w);
   const sim: Sim = createSim(level, tuning, {
     balance,
     speedCurve: balance.speedCurve,
-    stat: levelThreshold(st.level, balance.levels!),
+    stat: levelThreshold(st.level - below, balance.levels!),
     threat: { threat: { ...w.threat }, balance, avalanche: tuning.avalanche, scriptedPending: false, normalWavesDone: 99 },
     ...(game.threat.boss ? { boss: game.threat.boss } : {}),
   });
@@ -88,7 +88,10 @@ function runStage(w: World, st: WorldStage, seed: number): Outcome {
   let tx = 0;
   for (let k = 0; k < 60 / DT; k++) {
     const h = sim.hero.pos;
-    if (sim.caught || sim.rollFrom > 0) return 'fall';
+    if (sim.caught || sim.rollFrom > 0) {
+      if (process.env['DEBUG_BOT']) process.stdout.write(`[FALL ${st.type} ${seed} x${h.x.toFixed(1)} y${h.y.toFixed(1)} z${h.z.toFixed(1)} vz${sim.hero.vel.z.toFixed(1)} reach ${sim.params.airSpeedMult}] `);
+      return 'fall';
+    }
     if (h.z >= st.end + 2) return 'pass';
     if (process.env['DEBUG_BOT'] && k % 120 === 0) process.stdout.write(`[${st.type} ${seed} t${(k * DT).toFixed(0)} x${h.x.toFixed(1)} y${h.y.toFixed(1)} z${h.z.toFixed(1)} g${sim.hero.onGround} rt${sim.respawnTicksLeft} ph${sim.threat?.state.phase} sp${sim.params.speed.toFixed(0)} tb${String(!!sim.tumble)} sl${String(!!sim.slow)} vz${sim.hero.vel.z.toFixed(1)}] `);
     const t = k * DT;
@@ -149,6 +152,17 @@ describe('the stage bot at the level of the ridge (LV-02, LV-03)', () => {
       it(`mountain ${mi + 1}, stage ${st.n} (${st.type}, level ${st.level}, v ${st.speed}): 9 of 10`, () => {
         const res = Array.from({ length: TRIES }, (_, i) => runStage(w, st, 1000 * st.n + i));
         expect(res.filter((x) => x === 'pass').length, res.join(' ')).toBeGreaterThanOrEqual(9);
+      }, 60_000);
+    }
+  }
+  // SD-04 (docs/01-gdd.md 23.4): Speed decides — two levels below the stage (its ridge opened by force) the gaps and the
+  // catapult are out of reach: at most 3 of 10.
+  for (const mi of [0, 4]) {
+    const w = worlds.worlds[mi]!;
+    for (const st of w.stages!.filter((s) => s.type === 'cracks' || s.type === 'plates' || s.type === 'catapult')) {
+      it(`mountain ${mi + 1}, stage ${st.n} (${st.type}) two levels below: at most 3 of 10`, () => {
+        const res = Array.from({ length: TRIES }, (_, i) => runStage(w, st, 1000 * st.n + i, 2));
+        expect(res.filter((x) => x === 'pass').length, res.join(' ')).toBeLessThanOrEqual(3);
       }, 60_000);
     }
   }
