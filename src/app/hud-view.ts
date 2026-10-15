@@ -12,6 +12,7 @@ import type { Sim } from '../sim/world.ts';
 import type { Hud } from '../ui/hud.ts';
 import { formatMult, formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
+import { levelProgress } from '../sim/levels.ts';
 
 /** «Wall open!» stays this long (docs/01-gdd.md 6.2: 2 s). */
 const GOAL_OPEN_SEC = 2;
@@ -28,6 +29,8 @@ export interface HudViewDeps {
   numSuffix(k: string): string;
   /** On the base (docs/01-gdd.md 19.4): the goal «To the portal: {mountain}» instead of the bar and the wall; null — off it. */
   baseGoal?: () => string | null;
+  /** A new level of the stat (docs/01-gdd.md 22.2): «Level up!», confetti and the chime — main.ts does the effects. */
+  onLevelUp?: (level: number) => void;
 }
 
 export interface HudView {
@@ -54,6 +57,8 @@ export function createHudView(d: HudViewDeps): HudView {
     }
     return true;
   };
+  /** The level the bar showed last frame (0 — not yet): a rise is «Level up!». */
+  let shownLevel = 0;
   let openedAt = -Infinity;
   /** The gate that opened last is a ridge of the open slope (docs/01-gdd.md 17.3): «Ridge open!». */
   let openedRidge = false;
@@ -95,6 +100,14 @@ export function createHudView(d: HudViewDeps): HudView {
       // The blizzard doubles every step on its section (docs/01-gdd.md 18.4): the plaque shows it.
       const perStep = d.balance.gainPerStep * sim.progress.gainMult * (sim.rare?.stepMultAt(sim.hero.pos.z) ?? 1);
       d.hud.setStat(fmt(stat), t('hud.perStep', { n: fmt(perStep) }), section);
+      // Level bar of the stages pace (docs/01-gdd.md 22.2); the other paces have no levels.
+      const lv = d.balance.levels;
+      if (lv) {
+        const p = levelProgress(stat, lv);
+        d.hud.setLevel({ title: t('level.bar', { n: p.level }), progress: `${fmt(p.have)} / ${fmt(p.need)}`, frac: p.frac });
+        if (shownLevel > 0 && p.level > shownLevel) d.onLevelUp?.(p.level);
+        shownLevel = p.level;
+      } else d.hud.setLevel(null);
       d.hud.setSlow(sim.slow ? t('hud.slow', { n: formatMult(sim.slow.mult, d.numSuffix) }) : null);
       if (pendingPop !== null && timeSec - lastPopAt >= STAT_POP_MIN_SEC) {
         d.hud.popStatGain(`+${fmt(pendingPop)}`);

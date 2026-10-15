@@ -60,6 +60,8 @@ export interface TestState {
   /** Stat (Speed) and steps taken (M2-01). */
   stat: number;
   steps: number;
+  /** «Level up!» shown this run (docs/01-gdd.md 22.2). */
+  levelUps: number;
   /** Open state per gate of the current mountain (M2-02). */
   gatesOpen: boolean[];
   /** Coin balance and taken state per gift of the current mountain (M2-04). */
@@ -608,6 +610,7 @@ export function installTestApi(g: GameHandles): TestApi {
           : null,
         stat: g.sim?.progress.stat ?? 0,
         steps: g.sim?.progress.steps ?? 0,
+        levelUps: g.levelUps ?? 0,
         gatesOpen: g.sim ? [...g.sim.gatesOpen] : [],
         coins: g.sim?.coins ?? 0,
         giftsTaken: g.sim ? g.sim.gifts.map((x) => x.taken) : [],

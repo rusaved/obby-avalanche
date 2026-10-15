@@ -13,7 +13,7 @@ import type { BalanceJson, OpenSpecJson, Segment, TuningJson, WorldsJson } from 
 // PS-02, PS-03: the pace open (docs/01-gdd.md 17.1–17.5; docs/01a-content.md 16.1–16.7).
 const root = resolve(__dirname, '../..');
 const json = <T>(...p: string[]): T => JSON.parse(readFileSync(resolve(root, 'content', ...p), 'utf8')) as T;
-const PACES = ['fast', 'open'];
+const PACES = ['fast', 'open', 'stages'];
 function openPack(): PackFiles {
   const files: Partial<PackFiles> = {};
   for (const f of PACK_FILES) files[f] = json('avalanche', f);
@@ -45,21 +45,22 @@ describe('pace open by default (PS-02)', () => {
     expect(shared.camera.distance).toBe(10);
   });
 
-  it('choosePace: open by default, fast and classic by ?pace=', () => {
+  it('choosePace: stages by default since LV (15.10, docs/01-gdd.md 22.1), open, fast and classic by ?pace=', () => {
     const def = json<{ pace: string }>('avalanche', 'game.json').pace;
-    expect(def).toBe('open');
-    expect(choosePace(def, PACES, null)).toBe('open');
+    expect(def).toBe('stages');
+    expect(choosePace(def, PACES, null)).toBe('stages');
+    expect(choosePace(def, PACES, 'open')).toBe('open');
     expect(choosePace(def, PACES, 'fast')).toBe('fast');
     expect(choosePace(def, PACES, 'classic')).toBe(CLASSIC_PACE);
-    expect(choosePace(def, PACES, 'turbo')).toBe('open');
+    expect(choosePace(def, PACES, 'turbo')).toBe('stages');
   });
 
   it('the remote flag pace (docs/06 8.1 row 6) passes the validator by its values; a bad default or no values fails', () => {
     const game = files['game.json'] as { flags: Record<string, { path: string; values?: string[] }> };
-    expect(game.flags['pace']).toEqual({ path: 'game.pace', values: ['open', 'fast'] });
+    expect(game.flags['pace']).toEqual({ path: 'game.pace', values: ['stages', 'open', 'fast'] });
     expect(validatePack(files, { paces: PACES }).errors).toEqual([]);
     const bad = JSON.parse(JSON.stringify(files)) as PackFiles;
-    (bad['game.json'] as { flags: Record<string, { values?: string[] }> }).flags['pace']!.values = ['fast'];
+    (bad['game.json'] as { flags: Record<string, { values?: string[] }> }).flags['pace']!.values = ['fast', 'open'];
     expect(validatePack(bad, { paces: PACES }).errors.some((e) => e.includes('flags.pace') && e.includes('not in values'))).toBe(true);
     delete (bad['game.json'] as { flags: Record<string, { values?: string[] }> }).flags['pace']!.values;
     expect(validatePack(bad, { paces: PACES }).errors.some((e) => e.includes('flags.pace') && e.includes('needs values'))).toBe(true);

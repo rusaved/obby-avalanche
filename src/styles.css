@@ -87,6 +87,15 @@ canvas.fallback {
 /* Left column (docs/01-gdd.md 10.1): Speed plaque, coins under it. */
 .hud-left { position: absolute; left: calc(8px + env(safe-area-inset-left)); top: calc(8px + env(safe-area-inset-top)); display: flex; flex-direction: column; align-items: flex-start; gap: 6px; pointer-events: none; }
 .hud-stat { position: relative; display: flex; align-items: center; gap: 8px; box-sizing: border-box; min-width: max(140px, min(16vw, 250px)); min-height: max(36px, min(8vh, 76px)); padding: 4px 14px 4px 6px; border-radius: 12px; border: 2px solid rgba(27, 42, 58, 0.55); background: var(--stat); box-shadow: inset 0 0 0 3px rgba(255, 255, 255, 0.85), 0 3px 10px rgba(0, 0, 0, 0.12); color: #fff; }
+.hud-level { position: absolute; left: 50%; bottom: calc(8px + env(safe-area-inset-bottom)); transform: translateX(-50%); width: min(40vw, 380px); display: none; flex-direction: column; align-items: center; gap: 4px; pointer-events: none; z-index: 2; }
+.hud-level.shown { display: flex; }
+.hud-level .hud-stat { min-width: 0; min-height: 0; padding: 2px 12px 2px 4px; }
+.hud-level .hud-stat-icon { width: 26px; height: 26px; }
+.hud-level .hud-stat-value { font-size: clamp(20px, 2.8vmin, 30px); }
+.hud-level-bar { position: relative; width: 100%; height: max(22px, min(4.4vh, 30px)); box-sizing: border-box; border-radius: 12px; border: 2px solid rgba(255, 255, 255, 0.9); background: rgba(27, 42, 58, 0.6); overflow: hidden; }
+.hud-level-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--stat); transition: width 0.2s; }
+.hud-level-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 8px; color: #fff; font-weight: 800; font-size: clamp(13px, 2.3vmin, 19px); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7); white-space: nowrap; }
+.hud.levels .hud-shoes { bottom: calc(96px + env(safe-area-inset-bottom)); }
 .hud-stat-icon { flex: none; width: 34px; height: 34px; color: #1b4a7a; }
 .hud-stat-icon svg { width: 100%; height: 100%; display: block; }
 .hud-stat-body { display: flex; flex-direction: column; line-height: 1; }

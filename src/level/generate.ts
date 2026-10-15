@@ -13,6 +13,7 @@ import { GIFT_HALF, GIFT_HEIGHT } from '../sim/gifts.ts';
 import { HERO_HEIGHT, HERO_RADIUS } from '../sim/controller.ts';
 import { PAD_SIZE, SLIDE_LENGTH, SLIDE_WIDTH, TICK, padArc, padGiftBand, type ArcTuning } from './pad-arc.ts';
 import { ceilToSeries, generateOpenWorlds, isOpenSpec, round3 } from './open-slope.ts';
+import { generateStageWorlds, isStageSpec } from './stage-slope.ts';
 
 export { ceilToSeries };
 
@@ -82,11 +83,13 @@ export function zoneOfStretch(i: number, n: number, layout: WorldLayout | undefi
 export interface GenerateInput {
   /** The open slope (layout openSlope, docs/01-gdd.md 17.2) has a spec of its own: sections, ridges, the giant. */
   spec: WorldsSpecJson | OpenSpecJson;
-  balance: { coins: { gatePass: number; chest: number }; speedCurve?: Curve };
+  balance: { coins: { gatePass: number; chest: number }; speedCurve?: Curve; levels?: { first: number; growth: number } };
   tuning?: ArcTuning;
 }
 
 export function generateWorlds({ spec, balance, tuning }: GenerateInput): WorldsJson {
+  // The stages pace (docs/01-gdd.md 22): its own generator over the same spec fields.
+  if (isStageSpec(spec)) return { schema: 1, generator: GENERATOR_VERSION, worlds: generateStageWorlds({ spec, balance, tuning }) };
   if (isOpenSpec(spec)) return { schema: 1, generator: GENERATOR_VERSION, worlds: generateOpenWorlds({ spec, balance, tuning }) };
   const worlds = spec.mountains.map((m, mi) => generateWorld(spec, balance, mi + 1, tuning));
   return { schema: 1, generator: GENERATOR_VERSION, worlds };

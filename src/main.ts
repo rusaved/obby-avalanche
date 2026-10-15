@@ -1803,6 +1803,14 @@ async function boot(): Promise<void> {
       const own = basePortals.find((p) => p.state === 'own');
       return own ? t('base.goal', { name: t(`world.${own.id}`) }) : t('base.name');
     },
+    // «Level up!» (docs/01-gdd.md 22.2): the toast, confetti over the hero and the chime.
+    onLevelUp: () => {
+      hud?.toast(t('level.up'));
+      const p = sim.hero.pos;
+      fx?.burst('confetti', p.x, p.y + 3, p.z, [theme.ui.coins, theme.ui.stat, '#ffffff'], 40, 9, 3);
+      audio?.play('levelUp');
+      g.levelUps = (g.levelUps ?? 0) + 1;
+    },
   });
   hudView.wire(sim);
   hud.setAutoRun(save.settings.autoRun);

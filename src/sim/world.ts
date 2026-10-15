@@ -15,6 +15,7 @@ import type { BalanceJson, Curve, GameEvents, TuningJson } from '../content/type
 import { moveSpeed } from './effects/moveSpeed.ts';
 import { createStepTracker, type StepGain, type StepTracker } from './steps.ts';
 import { gateIsOpen, gateRequirement, type WallCount } from './gates.ts';
+import { levelNeeded, levelThreshold } from './levels.ts';
 import { scaled } from './economy.ts';
 import { giftsFromLevel, touchesGift, type Gift } from './gifts.ts';
 import { createCollisionWorld, type CollisionWorld } from './collision.ts';
@@ -161,6 +162,7 @@ export interface SimOptions {
     niche?: BalanceJson['niche'];
     coins?: BalanceJson['coins'];
     caught?: BalanceJson['caught'];
+    levels?: BalanceJson['levels'];
     ui?: Partial<BalanceJson['ui']>;
   };
   /** The avalanche (docs/02-tech.md 8.1): world threat, balance and tuning, save counters. */
@@ -513,7 +515,11 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     },
     gateRequirement(index) {
       const gate = level.gates[index];
-      return gate ? gateRequirement(gate.requires, level.worldIndex, gate.index, tier, opts.balance.rebirth, opts.walls) : Infinity;
+      if (!gate) return Infinity;
+      const req = gateRequirement(gate.requires, level.worldIndex, gate.index, tier, opts.balance.rebirth, opts.walls);
+      // Stages pace (docs/01-gdd.md 22.3): the ridge asks for a level — the requirement is that level's threshold.
+      const lv = opts.balance.levels;
+      return lv && gate.kind !== 'boss' ? levelThreshold(levelNeeded(req, lv), lv) : req;
     },
     sectionMult() {
       const z = hero.pos.z;

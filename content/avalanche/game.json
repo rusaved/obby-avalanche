@@ -1,7 +1,7 @@
 {
   "id": "avalanche",
   "schema": 1,
-  "pace": "open",
+  "pace": "stages",
   "stat": { "key": "speed", "effect": "moveSpeed" },
   "threat": {
     "kind": "wave",
@@ -36,7 +36,7 @@
     "skipGateCooldownSec": { "path": "balance.ads.skipGate.cooldownSec", "min": 240, "max": 1800 },
     "goldGift_mult": { "path": "game.threat.bonus.mult", "min": 3, "max": 10 },
     "sneakers1_price": { "path": "balance.upgrade.tiers.1.price", "min": 10, "max": 60 },
-    "pace": { "path": "game.pace", "values": ["open", "fast"] }
+    "pace": { "path": "game.pace", "values": ["stages", "open", "fast"] }
   },
   "events": {
     "minGapSec": 40,

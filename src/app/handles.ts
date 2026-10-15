@@ -58,6 +58,8 @@ export interface GameHandles {
   sim: Sim | null;
   level: LevelData | null;
   world: World;
+  /** «Level up!» shown this run (docs/01-gdd.md 22.2; the e2e of LV-01 reads it). */
+  levelUps?: number;
   input: InputManager;
   frame: ControlFrame;
   camera: CameraRig | null;

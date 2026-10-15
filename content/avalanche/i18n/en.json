@@ -49,6 +49,8 @@
   "hint.portal": "Into the portal!",
   "toast.newPet": "New pet! +{n}% per step",
   "toast.newShoes": "{name}: ×{m} per step",
+  "level.bar": "Level {n}",
+  "level.up": "Level up!",
   "toast.statMilestone": "{n} Speed!",
   "egg.gift": "Mountain Gift",
   "pet.bunny": "Bunny",

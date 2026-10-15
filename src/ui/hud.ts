@@ -181,6 +181,9 @@ export interface Hud {
   setAdButtons(list: ReadonlyArray<{ id: string; text: string; busy: boolean }>): void;
   /** Trophy plaque under the coins (docs/01-gdd.md 6.4: from the first summit); null hides it. */
   setTrophies(text: string | null): void;
+  /** Level bar at the bottom centre (docs/01-gdd.md 22.2, pace stages): «Level N · x / need» with the Speed plaque moved
+   * over it; null — no bar (the other paces), the plaque stays in the left column. */
+  setLevel(state: { title: string; progress: string; frac: number } | null): void;
   readonly jumpButton: HTMLButtonElement;
   /** Body of the pause and settings window (the caller opens it in the window frame). */
   readonly pausePanel: HTMLElement;
@@ -308,6 +311,20 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const statGain = el('span', 'hud-stat-gain');
   stat.append(statIcon, statBody, statGain);
   left.appendChild(stat);
+
+  // Level bar (docs/01-gdd.md 22.2): bottom centre, the Speed plaque moves over it while it shows.
+  const levelBox = el('div', 'hud-level');
+  levelBox.dataset['role'] = 'level';
+  const levelBar = el('div', 'hud-level-bar');
+  const levelFill = el('div', 'hud-level-fill');
+  levelFill.style.setProperty('--stat', opts.statColor);
+  const levelText = el('div', 'hud-level-text');
+  const levelTitle = el('span', 'hud-level-title');
+  const levelProgress = el('span', 'hud-level-progress');
+  levelText.append(levelTitle, levelProgress);
+  levelBar.append(levelFill, levelText);
+  levelBox.appendChild(levelBar);
+  root.appendChild(levelBox);
 
   // Mountain bar at the top centre: a slope rising left to right, zone colours, wall and cave marks, the hero's face.
   const mountain = el('div', 'hud-mountain');
@@ -923,6 +940,19 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (eggBtn.textContent !== state.text) eggBtn.textContent = state.text;
       eggBtn.classList.toggle('can', state.can);
       eggBtn.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
+    },
+    setLevel(state) {
+      const on = state !== null;
+      if (on !== levelBox.classList.contains('shown')) {
+        levelBox.classList.toggle('shown', on);
+        root.classList.toggle('levels', on);
+        if (on) levelBox.insertBefore(stat, levelBar);
+        else left.insertBefore(stat, left.firstChild);
+      }
+      if (!state) return;
+      if (levelTitle.textContent !== state.title) levelTitle.textContent = state.title;
+      if (levelProgress.textContent !== state.progress) levelProgress.textContent = state.progress;
+      levelFill.style.width = `${Math.round(Math.max(0, Math.min(1, state.frac)) * 1000) / 10}%`;
     },
     setTrophies(text) {
       trophies.classList.toggle('shown', text !== null);

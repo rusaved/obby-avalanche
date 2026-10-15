@@ -11,6 +11,7 @@ import * as v from 'valibot';
 import type { AurasJson, BalanceJson, BotsJson, Curve, EggsJson, TrailsJson, GameJson, OpenSpecJson, Reward, Segment, SkinsJson, TuningJson, World, WorldsJson, WorldsSpecJson } from '../content/types.ts';
 import { summitTrophies } from '../sim/economy.ts';
 import { LEADERBOARD_SCORES } from '../meta/trophies.ts';
+import { validateStageWorlds } from './validate-stages.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 import { buildLevel, GATE_THICKNESS } from './builder.ts';
 import { PAD_SIZE, TICK, apexOf, padArc, padGiftBand } from './pad-arc.ts';
@@ -254,7 +255,9 @@ const balanceSchema = v.object({
   coins: v.object({ gatePass: positive, waveSurvived: positive, chest: positive }),
   pets: v.object({ slots: v.pipe(v.number(), v.integer()), inventory: v.pipe(v.number(), v.integer()) }),
   boost: v.object({ x2Sec: positive, x2Mult: positive, statNowSec: positive }),
-  caught: v.object({ rollSec: positive, maxSec: v.pipe(v.number(), v.maxValue(2)), to: v.optional(v.picklist(['flag', 'caveBelow'])) }),
+  caught: v.object({ rollSec: positive, maxSec: v.pipe(v.number(), v.maxValue(2)), to: v.optional(v.picklist(['flag', 'caveBelow', 'prevStage'])) }),
+  levels: v.optional(v.object({ first: positive, growth: v.pipe(v.number(), v.minValue(1.01)) })),
+  currency: v.optional(v.picklist(['coins', 'trophies'])),
   threat: v.object({ newbieWaves: v.object({ count: v.pipe(v.number(), v.integer(), v.minValue(0)), warnBonusSec: nonNeg }), resumeSec: positive }),
   niche: v.object({ graceDist: nonNeg, graceMoving: nonNeg }),
   ui: v.object({
@@ -521,7 +524,7 @@ const specSchema = v.object({
 /** worlds-spec.json of the open slope (docs/01a-content.md 16.1–16.5): sections, ridges, the giant. */
 const openSpecSchema = v.object({
   schema: v.literal(1),
-  layout: v.literal('openSlope'),
+  layout: v.picklist(['openSlope', 'stageSlope']),
   campLength: positive,
   summitLength: positive,
   portalWidth: v.optional(positive),
@@ -733,7 +736,8 @@ const SCHEMAS: Record<PackFile, v.GenericSchema> = {
 };
 
 function schemaErrors(file: PackFile, data: unknown): string[] {
-  const open = file === 'worlds-spec.json' && (data as { layout?: unknown } | null)?.layout === 'openSlope';
+  const layout = (data as { layout?: unknown } | null)?.layout;
+  const open = file === 'worlds-spec.json' && (layout === 'openSlope' || layout === 'stageSlope');
   const res = v.safeParse(open ? openSpecSchema : SCHEMAS[file], data);
   if (res.success) return [];
   return res.issues.map((issue) => `${file}: ${v.getDotPath(issue) || '(root)'} — ${issue.message}`);
@@ -960,7 +964,10 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
     errors.push(...(open ? validateOpenFun(worlds, tuning, speedAt) : validateFun(worlds, tuning, speedAt)));
   }
   // The count of 01a against the generated mountains (M3-05): after fairness, so a broken number still gets its seconds named.
-  if (open)
+  // The stages pace (docs/01-gdd.md 22): its own level checks instead of the counts of the open slope.
+  const stagesPace = (files['worlds-spec.json'] as { layout?: string }).layout === 'stageSlope';
+  if (stagesPace) errors.push(...validateStageWorlds(worlds, (balance as BalanceJson).levels));
+  else if (open)
     errors.push(
       ...validateOpenCount(worlds, files['worlds-spec.json'] as OpenSpecJson),
       ...validateOpenShapes(worlds, files['worlds-spec.json'] as OpenSpecJson),

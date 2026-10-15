@@ -185,7 +185,11 @@ export interface BalanceJson {
   boost: { x2Sec: number; x2Mult: number; statNowSec: number };
   /** `to` (RL-02, docs/01-gdd.md 21.2): «flag» — a fall, «Snowed in!» and the giant roll the hero to the flag of the ridge
    * below; absent or «caveBelow» — to the cave below (4.5). */
-  caught: { rollSec: number; maxSec: number; to?: 'flag' | 'caveBelow' };
+  caught: { rollSec: number; maxSec: number; to?: 'flag' | 'caveBelow' | 'prevStage' };
+  /** Levels of the stat (docs/01-gdd.md 22.2, pace stages): level 2 from `first`, each next ×`growth`; absent — no levels. */
+  levels?: { first: number; growth: number };
+  /** The wallet of shoes, eggs and coin rewards (docs/01-gdd.md 22.8): `trophies` on the stages pace; absent — coins. */
+  currency?: 'coins' | 'trophies';
   /** `resumeSec`: the first avalanche after F5 or another day comes this late (docs/01-gdd.md 6.6). */
   threat: { newbieWaves: { count: number; warnBonusSec: number }; resumeSec: number };
   niche: { graceDist: number; graceMoving: number };
@@ -639,7 +643,8 @@ export interface WorldsSpecJson {
  */
 export interface OpenSpecJson {
   schema: number;
-  layout: 'openSlope';
+  /** `stageSlope` — the stages pace (docs/01-gdd.md 22) over the same fields plus `stages`. */
+  layout: 'openSlope' | 'stageSlope';
   campLength: number;
   summitLength: number;
   /** Width of the summit portal arch (docs/01-gdd.md 19.8, FM-02): the hero enters across all of it; absent — 10. */
