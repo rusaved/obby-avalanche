@@ -22,6 +22,7 @@
     "e2e:release": "node scripts/e2e-static.mjs release",
     "e2e:sample": "node scripts/e2e-sample.mjs",
     "validate:content": "node scripts/validate-content.mjs",
+    "verify:fast": "npm run typecheck && npm test && npm run validate:content",
     "gen:worlds": "node scripts/gen-worlds.mjs",
     "sim:balance": "node scripts/sim-balance.mjs",
     "studio": "vite --open /?studio=1",
