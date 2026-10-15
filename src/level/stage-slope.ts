@@ -312,7 +312,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
         const shift = plan.slice(0, s - 1).includes('plates') ? bw : 0;
         let p = zb + gap;
         for (let k = 0; k < n; k++) {
-          const x = (k % 2 === 0 ? -1 : 1) * shift;
+          const x = k === 0 ? 0 : (k % 2 === 1 ? 1 : -1) * shift;
           floor(p, plate, y, x - bw, x + bw);
           p += plate + gap;
         }
@@ -359,7 +359,8 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
         const L = legs * leg;
         pit(zb, L, y, s);
         for (let k = 0; k < legs; k++) {
-          const x = (k % 2 === 0 ? -1 : 1) * off;
+          // The first leg on the axis, where the run comes from (LV-12 review: off it, a straight run fell at once).
+          const x = k === 0 ? 0 : (k % 2 === 1 ? 1 : -1) * off;
           floor(zb + k * leg, leg, y, x - lw, x + lw);
           // The turn: a piece across from this leg to the next one.
           if (k < legs - 1) floor(zb + (k + 1) * leg - 2 * lw, 2 * lw, y, -off - lw, off + lw);
