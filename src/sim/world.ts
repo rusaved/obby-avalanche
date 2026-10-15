@@ -63,6 +63,8 @@ export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, BossEvent
   eggHatch: { tick: number; pet: string };
   /** The stat crossed a round number of balance.ui.statMilestones for the first time in this load (M2-13, no analytics). */
   statMilestone: { tick: number; value: number };
+  /** A trophy button taken (docs/01-gdd.md 22.8): the stage, the trophies (coins of the stages pace) and the total. */
+  trophyTake: { tick: number; stage: number; amount: number; x: number; y: number; z: number; total: number };
   /** A gift touched: `coins` added (zone gift × wallScale[tier]), `total` is the coin balance after it; `path` — a gift on the path. */
   giftTake: { tick: number; index: number; coins: number; zone: number; rarity: string; total: number; path: boolean };
   /** A trampoline threw the hero up (docs/01-gdd.md 16.4): `index` of `fun.pads`, where. */
@@ -99,6 +101,12 @@ export interface Sim {
   checkpoint: number;
   /** -1 when not respawning; otherwise ticks left of the ≤0.5 s fade (docs/02-tech.md 6.1). */
   respawnTicksLeft: number;
+  /** Stages pace (docs/01-gdd.md 22.9): the stage of the last roll-back (its «Continue from stage N»), 0 — none. */
+  rollFrom: number;
+  /** Per stage of `level.stages`: its trophy button taken on this pass (docs/01-gdd.md 22.8). */
+  readonly padTaken: boolean[];
+  /** The flag of stage n (docs/01-gdd.md 22.9): where «Continue from stage N» puts the hero; the camp for stage 1. */
+  stageStart(n: number): { x: number; y: number; z: number };
   /** Gifts of this mountain (M2-04) and the coin balance. */
   readonly gifts: Gift[];
   coins: number;
@@ -198,6 +206,16 @@ export interface SimOptions {
   boss?: { margin: number; reach: number; run?: number | undefined } | undefined;
 }
 
+/** Half side of the trophy button square the hero stands in to take it (docs/01-gdd.md 22.8; the pad is 6 × 6). */
+const PAD_REACH = 3.5;
+
+/** The stage the hero is on at z (docs/01-gdd.md 22.4): the last one whose ridge is below him; 0 — no stages. */
+export function stageAt(level: Pick<LevelData, 'stages'>, z: number): number {
+  let n = 0;
+  for (const st of level.stages ?? []) if (z >= st.z0 || n === 0) n = st.n;
+  return n;
+}
+
 /** «The giant caught you!»: the hero rolls back to this far below the start of the zone (docs/01-gdd.md 17.6). */
 const BOSS_BACK = 3;
 
@@ -269,14 +287,29 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   let inTunnel = false;
   // RL-02 (docs/01-gdd.md 21.2): `caught.to` «flag» — a fall (below killY or into a pit), «Snowed in!» and the giant's
   // slap roll the hero to the flag of the ridge below (the camp before the first); the avalanche pauses again from zero.
-  const toFlag = opts.balance.caught?.to === 'flag';
+  // LV-08 (docs/01-gdd.md 22.9): `prevStage` — the same roll to the flag of the stage before the hero's (stage 1 — the camp).
+  const toPrev = opts.balance.caught?.to === 'prevStage' && !!level.stages;
+  const toFlag = opts.balance.caught?.to === 'flag' || toPrev;
   const pits = (level.shapes ?? []).filter((c) => c.kind === 'pit');
   const inPit = (): boolean => pits.some((q) => hero.pos.y < q.y && hero.pos.x > q.x0 && hero.pos.x < q.x1 && hero.pos.z > q.z0 && hero.pos.z < q.z1);
   const flagPoint = (): { x: number; y: number; z: number } => {
+    if (toPrev) {
+      const target = stageStart(stageAt(level, hero.pos.z) - 1);
+      sim.rollFrom = stageAt(level, hero.pos.z);
+      return target;
+    }
     const c = level.checkpoints[sim.checkpoint];
     return c ? { x: c.x, y: c.y, z: c.z } : { x: level.spawn[0], y: level.spawn[1], z: level.spawn[2] };
   };
   let waveReset = false;
+  /** The flag of stage n (its first checkpoint), the camp for stage 1 and below (docs/01-gdd.md 22.9). */
+  const stageStart = (n: number): { x: number; y: number; z: number } => {
+    const st = level.stages?.find((x) => x.n === n);
+    const c = st && n > 1 ? level.checkpoints.find((k) => k.z >= st.z0 && k.z <= st.start + 1e-6) : undefined;
+    return c ? { x: c.x, y: c.y, z: c.z } : { x: level.spawn[0], y: level.spawn[1], z: level.spawn[2] };
+  };
+  // Trophy buttons (docs/01-gdd.md 22.8): taken once a pass — free again once the hero is below the stage's start.
+  const padTaken = (level.stages ?? []).map(() => false);
 
   const sim: Sim = {
     hero,
@@ -294,6 +327,9 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     tick: 0,
     checkpoint: -1,
     respawnTicksLeft: -1,
+    rollFrom: 0,
+    padTaken,
+    stageStart,
     portalEntered: false,
     onBelt: false,
     threat: null,
@@ -493,6 +529,17 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
           sim.checkpoint = i;
           events.emit('checkpoint', { index: i, z: c.z });
           break;
+        }
+      }
+      // Trophy buttons of the stage finishes (docs/01-gdd.md 22.8): stand on one — its trophies, once a pass.
+      if (level.stages) for (let k = 0; k < level.stages.length; k++) {
+        const st = level.stages[k]!;
+        if (hero.pos.z < st.z0) padTaken[k] = false;
+        else if (!padTaken[k] && st.trophies > 0 && hero.onGround && Math.abs(hero.pos.x - st.pad.x) <= PAD_REACH && Math.abs(hero.pos.z - st.pad.z) <= PAD_REACH && Math.abs(hero.pos.y - st.pad.y) < 2) {
+          padTaken[k] = true;
+          const amount = scaled(st.trophies, tier, opts.balance.rebirth);
+          sim.coins += amount;
+          events.emit('trophyTake', { tick: sim.tick, stage: st.n, amount, x: st.pad.x, y: st.pad.y, z: st.pad.z, total: sim.coins });
         }
       }
       if (hero.pos.y < level.killY || inPit()) {

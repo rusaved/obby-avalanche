@@ -12,12 +12,15 @@ import type { Sim } from '../sim/world.ts';
 import type { Hud } from '../ui/hud.ts';
 import { formatMult, formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
-import { levelProgress } from '../sim/levels.ts';
+import { levelNeeded, levelOf, levelProgress } from '../sim/levels.ts';
+import { stageAt } from '../sim/world.ts';
 
 /** «Wall open!» stays this long (docs/01-gdd.md 6.2: 2 s). */
 const GOAL_OPEN_SEC = 2;
 /** «+N» over the plaque at most this often (docs/01-gdd.md 10.3: 4 a second). */
 const STAT_POP_MIN_SEC = 0.25;
+/** The pill «yours 7 / need 8» shows this close below a closed ridge (docs/01-gdd.md 22.3: from the safe finish before it). */
+const NEED_NEAR = 60;
 
 export interface HudViewDeps {
   balance: BalanceJson;
@@ -129,7 +132,25 @@ export function createHudView(d: HudViewDeps): HudView {
       const label = ridges > 0
         ? t('summit.progress', { a: level.worldIndex, b: level.gates.filter((g, i) => g.kind === 'ridge' && sim.gatesOpen[i]).length, c: ridges })
         : t('hud.mountain', { a: level.worldIndex, b: open, c: level.gates.length });
-      d.hud.updateMountain(label, sim.hero.pos.z / len, wave, ts?.phase === 'warn' ? ts.shelter : -1);
+      // Stages pace (docs/01-gdd.md 22.4): «Mountain 1 · stage 3/10» instead of ridges.
+      const stages = level.stages;
+      const stageN = stages ? stageAt(level, sim.hero.pos.z) : 0;
+      d.hud.updateMountain(stages ? t('stage.progress', { a: level.worldIndex, b: stageN, c: stages.length }) : label, sim.hero.pos.z / len, wave, ts?.phase === 'warn' ? ts.shelter : -1);
+      if (stages && lv) {
+        // The next closed ridge asks for a level (22.3): the goal names its stage, the pill by it compares the levels.
+        const gi = sim.gatesOpen.findIndex((o, i) => !o && level.gates[i]?.kind !== 'boss');
+        const g = level.gates[gi];
+        const mine = levelOf(stat, lv);
+        if (g) {
+          const need = levelNeeded(sim.gateRequirement(gi), lv);
+          const st = stages.find((x) => Math.abs(x.z0 - g.z) < 1e-6);
+          d.hud.setGoal(t('stage.goal', { a: st?.n ?? stageN, b: stages.length, n: need }), { text: `${fmt(stat)}/${fmt(sim.gateRequirement(gi))}`, frac: stat / sim.gateRequirement(gi) });
+          const near = g.z - sim.hero.pos.z;
+          d.hud.setNeed(near >= -2 && near <= NEED_NEAR ? { text: t('stage.need', { have: mine, need }), ok: mine >= need } : null);
+          return;
+        }
+        d.hud.setNeed(null);
+      } else d.hud.setNeed(null);
 
       // Goal: the next closed wall with the count, «Wall open!» for 2 s, then the summit and the portal.
       const next = sim.gatesOpen.findIndex((o, i) => !o && level.gates[i]?.kind !== 'boss');

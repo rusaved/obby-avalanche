@@ -14,7 +14,7 @@
  * It needs no second of standing (it comes at the pop) and takes an avalanche that has passed the hero for over.
  */
 import type { BalanceJson } from '../content/types.ts';
-import type { Sim } from '../sim/world.ts';
+import { stageAt, type Sim } from '../sim/world.ts';
 import type { Hud } from '../ui/hud.ts';
 import type { PauseManager } from '../core/pause.ts';
 import type { Platform } from '../platform/types.ts';
@@ -56,6 +56,10 @@ export function createAdsView(d: AdsViewDeps): AdsView {
   /** The hero was in a snowball last frame; play second the «continue from here» offer ends at. */
   let caughtBefore = false;
   let continueUntil = -Infinity;
+  /** Stages pace (docs/01-gdd.md 22.9): «Continue from stage N» after a roll-back — the stage and the play second it ends;
+   * the mountains whose free continue is spent this run. */
+  let stageOffer: { stage: number; until: number; world: number } | null = null;
+  const freeSpent = new Set<number>();
   let shown: string[] = [];
   let busy: string | null = null;
   /** Play seconds of the last reward of each place (its cooldown counts from there). */
@@ -91,8 +95,14 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       standSec = still ? standSec + dt : 0;
       // The snowball popped: «continue from here» for continueShowSec, until the first move (docs/01-gdd.md 17.11).
       if (caughtBefore && !sim.caught && sim.record && ads.continueCooldownSec !== undefined) continueUntil = playSec + (ads.continueShowSec ?? 0);
+      if (caughtBefore && !sim.caught && sim.level.stages && sim.rollFrom > 1) {
+        stageOffer = { stage: sim.rollFrom, until: playSec + (ads.stageContinueSec ?? 60), world: sim.level.worldIndex };
+        continueUntil = -Infinity;
+      }
       caughtBefore = !!sim.caught;
       if (moving) continueUntil = -Infinity;
+      // The offer ends by its time, on another mountain, or once the hero is back on that stage by himself.
+      if (stageOffer && (playSec >= stageOffer.until || stageOffer.world !== sim.level.worldIndex || stageAt(sim.level, sim.hero.pos.z) >= stageOffer.stage)) stageOffer = null;
       const common =
         playSec >= ads.rewardedMinPlaySec &&
         (d.save.flags?.['firstWaveDone'] ?? false) &&
@@ -110,12 +120,25 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       const passed = calm || (phase === 'run' && sim.threat?.state.outcome !== 'none');
       const offer = common && passed && playSec < continueUntil && !sim.caught && cooled('continue_here', ads.continueCooldownSec ?? Infinity);
       if (offer || busy === 'continue_here') list.push({ id: 'continue_here', text: t('ad.continueHere'), busy: busy === 'continue_here' });
+      if (stageOffer && !sim.caught && !d.windowOpen()) {
+        const free = !freeSpent.has(stageOffer.world);
+        // The first of a mountain is free (no ad, no word «Ad»); then the rewarded ad by the common rules (9.1).
+        if (free) list.push({ id: 'continue_free', text: t('stage.continueFree', { n: stageOffer.stage }), busy: false });
+        else if (common || busy === 'continue_here') list.push({ id: 'continue_here', text: t('stage.continueAd', { n: stageOffer.stage }), busy: busy === 'continue_here' });
+      }
       shown = list.map((b) => b.id);
       d.hud.setAdButtons(list);
     },
     press(id) {
       if (busy || !shown.includes(id)) return;
       const sim = d.getSim();
+      if (id === 'continue_free' && stageOffer) {
+        const at = sim.stageStart(stageOffer.stage);
+        freeSpent.add(stageOffer.world);
+        sim.teleport(at.x, at.y, at.z);
+        stageOffer = null;
+        return;
+      }
       const amount = id === 'stat_now' ? statNow(sim) : 0;
       // «Speed now» by mountain (docs/01-gdd.md 20.13: the share of the ads against F19; 0 — the base).
       const where = id === 'stat_now' ? { mountain: sim.level.worldIndex } : {};
@@ -132,7 +155,11 @@ export function createAdsView(d: AdsViewDeps): AdsView {
             }
             // Back on the record flag, where the hero was caught (docs/01-gdd.md 17.11).
             const r = d.getSim().record;
-            if (id === 'continue_here' && r) {
+            if (id === 'continue_here' && stageOffer) {
+              const at = d.getSim().stageStart(stageOffer.stage);
+              d.getSim().teleport(at.x, at.y, at.z);
+              stageOffer = null;
+            } else if (id === 'continue_here' && r) {
               d.getSim().teleport(r.x, r.y, r.z);
               continueUntil = -Infinity;
             }

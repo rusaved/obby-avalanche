@@ -629,6 +629,7 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
 
   const minY = Math.min(0, ...floors.map((f) => num(f, 'y')));
   return {
+    ...(world.stages ? { stages: world.stages } : {}),
     worldId: world.id,
     worldIndex: world.index,
     length: world.length,

@@ -1,1303 +1,1499 @@
 {
- "schema": 1,
- "layout": "stageSlope",
- "campLength": 40,
- "summitLength": 60,
- "portalWidth": 32,
- "summit": {
-  "funnel": true,
-  "funnelLength": 40
- },
- "width": 56,
- "widthTaper": 40,
- "passEvery": 30,
- "passAxis": true,
- "island": {
-  "size": 12,
-  "every": 2,
-  "minWidth": 120
- },
- "nearRun": {
-  "mountain": 1,
-  "section": 2,
-  "gap": 4,
-  "axis": true
- },
- "ridgeDigits": {
-  "field": 8,
-  "other": 6
- },
- "forkSplit": {
-  "depth": 3,
-  "rampEvery": 60,
-  "converge": 40,
-  "bottomGifts": 3
- },
- "relief": {
-  "approachSlope": 0.2,
-  "passSlope": 0.5,
-  "padFrom": 2,
-  "stairs": {
-   "fromWorld": 2,
-   "count": [
-    3,
-    5
-   ],
-   "step": 2,
-   "plate": 8,
-   "gapMin": 1,
-   "gapMax": 1.5,
-   "inner": 8,
-   "deep": 12,
-   "fall": 1
+  "schema": 1,
+  "layout": "stageSlope",
+  "campLength": 40,
+  "summitLength": 60,
+  "portalWidth": 32,
+  "summit": {
+    "funnel": true,
+    "funnelLength": 40
   },
-  "chute": {
-   "fromSection": 2,
-   "share": [
-    0.3,
-    0.5
-   ],
-   "minLength": 120,
-   "width": 8,
-   "mult": 1.6
-  }
- },
- "spawnZ": 20,
- "threat": {
-  "spawnAhead": 160,
-  "firstIntervalSec": 30,
-  "laterFirstIntervalSec": [
-   10,
-   12
+  "width": 56,
+  "widthTaper": 40,
+  "passEvery": 30,
+  "passAxis": true,
+  "island": {
+    "size": 12,
+    "every": 2,
+    "minWidth": 120
+  },
+  "nearRun": {
+    "mountain": 1,
+    "section": 2,
+    "gap": 4,
+    "axis": true
+  },
+  "ridgeDigits": {
+    "field": 8,
+    "other": 6
+  },
+  "forkSplit": {
+    "depth": 3,
+    "rampEvery": 60,
+    "converge": 40,
+    "bottomGifts": 3
+  },
+  "relief": {
+    "approachSlope": 0.2,
+    "passSlope": 0.5,
+    "padFrom": 2,
+    "stairs": {
+      "fromWorld": 2,
+      "count": [
+        3,
+        5
+      ],
+      "step": 2,
+      "plate": 8,
+      "gapMin": 1,
+      "gapMax": 1.5,
+      "inner": 8,
+      "deep": 12,
+      "fall": 1
+    },
+    "chute": {
+      "fromSection": 2,
+      "share": [
+        0.3,
+        0.5
+      ],
+      "minLength": 120,
+      "width": 8,
+      "mult": 1.6
+    }
+  },
+  "spawnZ": 20,
+  "threat": {
+    "spawnAhead": 160,
+    "firstIntervalSec": 30,
+    "laterFirstIntervalSec": [
+      10,
+      12
+    ],
+    "from": "aboveHero",
+    "firstWaveScripted": true
+  },
+  "rarities": [
+    "common",
+    "uncommon",
+    "rare",
+    "epic",
+    "legendary",
+    "mythic"
   ],
-  "from": "aboveHero",
-  "firstWaveScripted": true
- },
- "rarities": [
-  "common",
-  "uncommon",
-  "rare",
-  "epic",
-  "legendary",
-  "mythic"
- ],
- "boss": {
-  "turnSec": 0.5,
-  "returnMult": 1.5,
-  "seeDist": 0,
-  "zoneGap": 30,
-  "helper": {
-   "throwEverySec": 2.5,
-   "flightSec": 1,
-   "slow": 0.85,
-   "slowSec": 1,
-   "hitRadius": 1.5,
-   "x": 24
+  "boss": {
+    "turnSec": 0.5,
+    "returnMult": 1.5,
+    "seeDist": 0,
+    "zoneGap": 30,
+    "helper": {
+      "throwEverySec": 2.5,
+      "flightSec": 1,
+      "slow": 0.85,
+      "slowSec": 1,
+      "hitRadius": 1.5,
+      "x": 24
+    },
+    "patrol": "chase",
+    "cover": {
+      "at": [
+        0.3,
+        0.55,
+        0.75,
+        0.9
+      ],
+      "x": 0.25,
+      "r": 4,
+      "h": 6
+    },
+    "edgeGrottos": 4
   },
-  "patrol": "chase",
-  "cover": {
-   "at": [
-    0.3,
-    0.55,
-    0.75,
-    0.9
-   ],
-   "x": 0.25,
-   "r": 4,
-   "h": 6
+  "shapeFrom": {
+    "chasm": 1,
+    "throat": 3,
+    "tunnel": 6,
+    "hump": 2,
+    "dip": 1
   },
-  "edgeGrottos": 4
- },
- "shapeFrom": {
-  "chasm": 1,
-  "throat": 3,
-  "tunnel": 6,
-  "hump": 2,
-  "dip": 1
- },
- "risk": {
-  "fromSection": 2
- },
- "shapes": {
-  "grotto": {
-   "width": 10,
-   "fromWorld": 2
+  "risk": {
+    "fromSection": 2
   },
-  "chasm": {
-   "width": 14,
-   "depth": 3,
-   "giftsAir": 2,
-   "giftsBottom": 3,
-   "ramp": 6,
-   "padBefore": 6,
-   "widthByWorld": {
-    "1": 12,
-    "2": 13,
-    "3": 13,
-    "4": 14,
-    "5": 14,
-    "6": 15,
-    "7": 15,
-    "8": 16,
-    "9": 16,
-    "10": 16
-   },
-   "pit": {
-    "margin": 10,
-    "walk": 12,
-    "deep": 12,
-    "fall": 1
-   }
+  "shapes": {
+    "grotto": {
+      "width": 10,
+      "fromWorld": 2
+    },
+    "chasm": {
+      "width": 14,
+      "depth": 3,
+      "giftsAir": 2,
+      "giftsBottom": 3,
+      "ramp": 6,
+      "padBefore": 6,
+      "widthByWorld": {
+        "1": 12,
+        "2": 13,
+        "3": 13,
+        "4": 14,
+        "5": 14,
+        "6": 15,
+        "7": 15,
+        "8": 16,
+        "9": 16,
+        "10": 16
+      },
+      "pit": {
+        "margin": 10,
+        "walk": 12,
+        "deep": 12,
+        "fall": 1
+      }
+    },
+    "throat": {
+      "width": 20,
+      "length": 80,
+      "slideMult": 1.6,
+      "holdSec": 0,
+      "fieldGifts": 1.5,
+      "fieldGrotto": 20,
+      "height": 16,
+      "funnel": 8,
+      "lengthByWorld": {
+        "3": 60,
+        "9": 100,
+        "10": 100
+      }
+    },
+    "tunnel": {
+      "width": 16,
+      "height": 12,
+      "length": 110,
+      "openGifts": 2,
+      "lengthByWorld": {
+        "6": 80,
+        "10": 140
+      }
+    },
+    "hump": {
+      "rise": 20,
+      "slideLength": 40,
+      "top": 6,
+      "flight": 140,
+      "giftsAir": 6,
+      "landing": 20,
+      "flightByWorld": {
+        "2": 80,
+        "3": 90,
+        "4": 90,
+        "5": 100,
+        "6": 110,
+        "7": 120,
+        "8": 120,
+        "10": 160
+      }
+    },
+    "dip": {
+      "depth": 5,
+      "down": 8,
+      "bottom": 6,
+      "up": 12,
+      "kick": 1,
+      "depthByWorld": {
+        "1": 4,
+        "2": 4,
+        "3": 5,
+        "4": 5,
+        "5": 5,
+        "6": 5,
+        "7": 6,
+        "8": 6,
+        "9": 6,
+        "10": 6
+      }
+    }
   },
-  "throat": {
-   "width": 20,
-   "length": 80,
-   "slideMult": 1.6,
-   "holdSec": 0,
-   "fieldGifts": 1.5,
-   "fieldGrotto": 20,
-   "height": 16,
-   "funnel": 8,
-   "lengthByWorld": {
-    "3": 60,
-    "9": 100,
-    "10": 100
-   }
-  },
-  "tunnel": {
-   "width": 16,
-   "height": 12,
-   "length": 110,
-   "openGifts": 2,
-   "lengthByWorld": {
-    "6": 80,
-    "10": 140
-   }
-  },
-  "hump": {
-   "rise": 20,
-   "slideLength": 40,
-   "top": 6,
-   "flight": 140,
-   "giftsAir": 6,
-   "landing": 20,
-   "flightByWorld": {
-    "2": 80,
-    "3": 90,
-    "4": 90,
-    "5": 100,
-    "6": 110,
-    "7": 120,
-    "8": 120,
-    "10": 160
-   }
-  },
-  "dip": {
-   "depth": 5,
-   "down": 8,
-   "bottom": 6,
-   "up": 12,
-   "kick": 1,
-   "depthByWorld": {
-    "1": 4,
-    "2": 4,
-    "3": 5,
-    "4": 5,
-    "5": 5,
-    "6": 5,
-    "7": 6,
-    "8": 6,
-    "9": 6,
-    "10": 6
-   }
+  "mountains": [
+    {
+      "id": "slope",
+      "look": "slope",
+      "egg": "snow",
+      "terraceRise": 12,
+      "ridgeRise": 4,
+      "intervalSec": 50,
+      "firstIntervalSec": 30,
+      "warnSec": 8,
+      "speed": 45,
+      "sections": [
+        {
+          "length": 280,
+          "stepMult": 1,
+          "shelterEvery": 63,
+          "gift": 12,
+          "fork": false,
+          "width": 100
+        },
+        {
+          "length": 310,
+          "stepMult": 1.2,
+          "shelterEvery": 88,
+          "gift": 14,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 30,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "width": 180
+        },
+        {
+          "length": 400,
+          "stepMult": 1.5,
+          "shelterEvery": 138,
+          "gift": 18,
+          "fork": false,
+          "width": 110,
+          "shape": [
+            "chasm",
+            "dip"
+          ]
+        }
+      ],
+      "ridges": [
+        {
+          "requires": 50
+        },
+        {
+          "requires": 520
+        },
+        {
+          "requires": 1500
+        }
+      ],
+      "boss": {
+        "stretch": 360,
+        "requires": 2200,
+        "margin": 0.05,
+        "stepMult": 2,
+        "gift": 20,
+        "speed": 43.2,
+        "width": 160,
+        "covers": 2
+      }
+    },
+    {
+      "id": "pines",
+      "look": "slope",
+      "egg": "snow",
+      "terraceRise": 13,
+      "ridgeRise": 4,
+      "cliffHeight": 12,
+      "intervalSec": 49,
+      "firstIntervalSec": 12,
+      "warnSec": 8,
+      "speed": 46,
+      "sections": [
+        {
+          "length": 330,
+          "stepMult": 2.5,
+          "shelterEvery": 65,
+          "gift": 40,
+          "fork": false,
+          "width": 110
+        },
+        {
+          "length": 380,
+          "stepMult": 3,
+          "shelterEvery": 95,
+          "gift": 40,
+          "fork": false,
+          "shape": [
+            "chasm",
+            "dip"
+          ],
+          "width": 120
+        },
+        {
+          "length": 420,
+          "stepMult": 4,
+          "shelterEvery": 130,
+          "gift": 50,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 36,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "chasm",
+            "dip"
+          ],
+          "width": 200
+        },
+        {
+          "length": 470,
+          "stepMult": 5,
+          "shelterEvery": 176,
+          "gift": 60,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 36,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "width": 124,
+          "shape": [
+            "chasm",
+            "hump",
+            "dip"
+          ]
+        }
+      ],
+      "ridges": [
+        {
+          "requires": 7100
+        },
+        {
+          "requires": 13000
+        },
+        {
+          "requires": 23000
+        },
+        {
+          "requires": 36000
+        }
+      ],
+      "boss": {
+        "stretch": 400,
+        "requires": 56000,
+        "margin": 0.05,
+        "stepMult": 6,
+        "gift": 80,
+        "speed": 55,
+        "width": 170,
+        "covers": 2
+      }
+    },
+    {
+      "id": "pass",
+      "look": "pass",
+      "egg": "frost",
+      "terraceRise": 15,
+      "ridgeRise": 4,
+      "cliffHeight": 12,
+      "intervalSec": 48,
+      "firstIntervalSec": 11.75,
+      "warnSec": 8,
+      "speed": 48,
+      "sections": [
+        {
+          "length": 390,
+          "stepMult": 8,
+          "shelterEvery": 68,
+          "gift": 120,
+          "fork": false,
+          "width": 110
+        },
+        {
+          "length": 430,
+          "stepMult": 10,
+          "shelterEvery": 96,
+          "gift": 150,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 36,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "throat",
+            "chasm"
+          ],
+          "width": 124
+        },
+        {
+          "length": 480,
+          "stepMult": 12,
+          "shelterEvery": 135,
+          "gift": 200,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 36,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "chasm",
+            "hump",
+            "dip"
+          ],
+          "width": 124
+        },
+        {
+          "length": 530,
+          "stepMult": 17,
+          "shelterEvery": 182,
+          "gift": 200,
+          "fork": false,
+          "shape": [
+            "throat",
+            "chasm",
+            "dip"
+          ],
+          "width": 200
+        }
+      ],
+      "ridges": [
+        {
+          "requires": 92000
+        },
+        {
+          "requires": 140000
+        },
+        {
+          "requires": 210000
+        },
+        {
+          "requires": 290000
+        }
+      ],
+      "boss": {
+        "stretch": 450,
+        "requires": 420000,
+        "margin": 0.05,
+        "stepMult": 20,
+        "gift": 250,
+        "speed": 62.3,
+        "width": 170,
+        "covers": 2
+      }
+    },
+    {
+      "id": "falls",
+      "look": "pass",
+      "egg": "frost",
+      "terraceRise": 16,
+      "ridgeRise": 5,
+      "cliffHeight": 13,
+      "intervalSec": 47,
+      "firstIntervalSec": 11.5,
+      "warnSec": 8,
+      "speed": 50,
+      "sections": [
+        {
+          "length": 440,
+          "stepMult": 25,
+          "shelterEvery": 68,
+          "gift": 600,
+          "fork": false,
+          "width": 120
+        },
+        {
+          "length": 490,
+          "stepMult": 30,
+          "shelterEvery": 100,
+          "gift": 1000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 44,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "width": 200,
+          "shape": [
+            "chasm",
+            "hump",
+            "dip"
+          ]
+        },
+        {
+          "length": 540,
+          "stepMult": 40,
+          "shelterEvery": 139,
+          "gift": 1200,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 44,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "chasm",
+            "dip"
+          ],
+          "width": 132
+        },
+        {
+          "length": 580,
+          "stepMult": 40,
+          "shelterEvery": 183,
+          "gift": 1500,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 44,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "throat",
+            "chasm"
+          ],
+          "width": 132
+        }
+      ],
+      "ridges": [
+        {
+          "requires": 650000
+        },
+        {
+          "requires": 940000
+        },
+        {
+          "requires": 1300000
+        },
+        {
+          "requires": 1700000
+        }
+      ],
+      "boss": {
+        "stretch": 510,
+        "requires": 3000000,
+        "margin": 0.05,
+        "stepMult": 60,
+        "gift": 2000,
+        "speed": 59,
+        "helpers": [
+          {
+            "side": "left"
+          }
+        ],
+        "width": 180,
+        "covers": 3
+      }
+    },
+    {
+      "id": "canyon",
+      "look": "canyon",
+      "egg": "ice",
+      "terraceRise": 18,
+      "ridgeRise": 5,
+      "cliffHeight": 13,
+      "intervalSec": 45,
+      "firstIntervalSec": 11.25,
+      "warnSec": 7,
+      "speed": 52,
+      "sections": [
+        {
+          "length": 490,
+          "stepMult": 60,
+          "shelterEvery": 69,
+          "gift": 2400,
+          "fork": false,
+          "width": 100
+        },
+        {
+          "length": 540,
+          "stepMult": 80,
+          "shelterEvery": 100,
+          "gift": 3000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 44,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "throat",
+            "chasm",
+            "hump"
+          ],
+          "width": 132
+        },
+        {
+          "length": 590,
+          "stepMult": 100,
+          "shelterEvery": 140,
+          "gift": 4000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 44,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "chasm",
+            "dip"
+          ],
+          "width": 132
+        },
+        {
+          "length": 640,
+          "stepMult": 150,
+          "shelterEvery": 187,
+          "gift": 5000,
+          "fork": false,
+          "shape": [
+            "throat",
+            "chasm",
+            "dip"
+          ],
+          "width": 220
+        }
+      ],
+      "ridges": [
+        {
+          "requires": 4200000
+        },
+        {
+          "requires": 6000000
+        },
+        {
+          "requires": 8500000
+        },
+        {
+          "requires": 13000000
+        }
+      ],
+      "boss": {
+        "stretch": 560,
+        "requires": 19000000,
+        "margin": 0.05,
+        "stepMult": 150,
+        "gift": 6000,
+        "speed": 64.8,
+        "helpers": [
+          {
+            "side": "left"
+          }
+        ],
+        "width": 180,
+        "covers": 3
+      }
+    },
+    {
+      "id": "crystal",
+      "look": "canyon",
+      "egg": "ice",
+      "terraceRise": 19,
+      "ridgeRise": 5,
+      "cliffHeight": 14,
+      "intervalSec": 44,
+      "firstIntervalSec": 11,
+      "warnSec": 7,
+      "speed": 54,
+      "sections": [
+        {
+          "length": 550,
+          "stepMult": 200,
+          "shelterEvery": 71,
+          "gift": 12000,
+          "fork": false,
+          "width": 120
+        },
+        {
+          "length": 600,
+          "stepMult": 250,
+          "shelterEvery": 103,
+          "gift": 20000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 44,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "chasm",
+            "tunnel",
+            "dip"
+          ],
+          "width": 132
+        },
+        {
+          "length": 650,
+          "stepMult": 300,
+          "shelterEvery": 143,
+          "gift": 30000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 44,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "chasm",
+            "tunnel",
+            "dip"
+          ],
+          "width": 200
+        },
+        {
+          "length": 690,
+          "stepMult": 400,
+          "shelterEvery": 188,
+          "gift": 40000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 44,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "throat",
+            "chasm",
+            "tunnel"
+          ],
+          "width": 132
+        }
+      ],
+      "ridges": [
+        {
+          "requires": 30000000
+        },
+        {
+          "requires": 47000000
+        },
+        {
+          "requires": 61000000
+        },
+        {
+          "requires": 97000000
+        }
+      ],
+      "boss": {
+        "stretch": 620,
+        "requires": 160000000,
+        "margin": 0.05,
+        "stepMult": 500,
+        "gift": 60000,
+        "speed": 71.3,
+        "helpers": [
+          {
+            "side": "left"
+          }
+        ],
+        "width": 180,
+        "covers": 3
+      }
+    },
+    {
+      "id": "blizzard",
+      "look": "blizzard",
+      "egg": "blizzard",
+      "terraceRise": 21,
+      "ridgeRise": 6,
+      "cliffHeight": 14,
+      "intervalSec": 42,
+      "firstIntervalSec": 10.75,
+      "warnSec": 7,
+      "speed": 56,
+      "sections": [
+        {
+          "length": 600,
+          "stepMult": 600,
+          "shelterEvery": 71,
+          "gift": 120000,
+          "fork": false,
+          "width": 110
+        },
+        {
+          "length": 650,
+          "stepMult": 800,
+          "shelterEvery": 103,
+          "gift": 200000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 52,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "chasm",
+            "tunnel",
+            "dip"
+          ],
+          "width": 200
+        },
+        {
+          "length": 700,
+          "stepMult": 1000,
+          "shelterEvery": 143,
+          "gift": 300000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 52,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "throat",
+            "chasm",
+            "hump"
+          ],
+          "width": 140
+        },
+        {
+          "length": 750,
+          "stepMult": 1200,
+          "shelterEvery": 191,
+          "gift": 400000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 52,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "chasm",
+            "tunnel",
+            "dip"
+          ],
+          "width": 140
+        }
+      ],
+      "ridges": [
+        {
+          "requires": 260000000
+        },
+        {
+          "requires": 410000000
+        },
+        {
+          "requires": 530000000
+        },
+        {
+          "requires": 800000000
+        }
+      ],
+      "boss": {
+        "stretch": 670,
+        "requires": 1300000000,
+        "margin": 0.05,
+        "stepMult": 1500,
+        "gift": 600000,
+        "speed": 77.8,
+        "helpers": [
+          {
+            "side": "left"
+          },
+          {
+            "side": "right"
+          }
+        ],
+        "width": 190,
+        "covers": 4
+      }
+    },
+    {
+      "id": "clouds",
+      "look": "blizzard",
+      "egg": "blizzard",
+      "terraceRise": 22,
+      "ridgeRise": 6,
+      "cliffHeight": 15,
+      "intervalSec": 41,
+      "firstIntervalSec": 10.5,
+      "warnSec": 7,
+      "speed": 58,
+      "sections": [
+        {
+          "length": 660,
+          "stepMult": 2000,
+          "shelterEvery": 72,
+          "gift": 1600000,
+          "fork": false,
+          "width": 120
+        },
+        {
+          "length": 710,
+          "stepMult": 2500,
+          "shelterEvery": 105,
+          "gift": 2400000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 52,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "chasm",
+            "hump",
+            "dip"
+          ],
+          "width": 140
+        },
+        {
+          "length": 760,
+          "stepMult": 3000,
+          "shelterEvery": 146,
+          "gift": 4000000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 52,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "chasm",
+            "tunnel",
+            "hump",
+            "dip"
+          ],
+          "width": 140
+        },
+        {
+          "length": 810,
+          "stepMult": 4000,
+          "shelterEvery": 194,
+          "gift": 6000000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 52,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "throat",
+            "chasm",
+            "hump"
+          ],
+          "width": 220
+        }
+      ],
+      "ridges": [
+        {
+          "requires": 2100000000
+        },
+        {
+          "requires": 3300000000
+        },
+        {
+          "requires": 4400000000
+        },
+        {
+          "requires": 7300000000
+        }
+      ],
+      "boss": {
+        "stretch": 730,
+        "requires": 12000000000,
+        "margin": 0.05,
+        "stepMult": 5000,
+        "gift": 8000000,
+        "speed": 84.7,
+        "helpers": [
+          {
+            "side": "left"
+          },
+          {
+            "side": "right"
+          }
+        ],
+        "width": 190,
+        "covers": 4
+      }
+    },
+    {
+      "id": "aurora",
+      "look": "aurora",
+      "egg": "aurora",
+      "terraceRise": 23,
+      "ridgeRise": 6,
+      "cliffHeight": 15,
+      "intervalSec": 40,
+      "firstIntervalSec": 10.25,
+      "warnSec": 6,
+      "speed": 60,
+      "sections": [
+        {
+          "length": 710,
+          "stepMult": 6000,
+          "shelterEvery": 73,
+          "gift": 24000000,
+          "fork": false,
+          "width": 110
+        },
+        {
+          "length": 760,
+          "stepMult": 8000,
+          "shelterEvery": 105,
+          "gift": 40000000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 60,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "throat",
+            "chasm",
+            "hump"
+          ],
+          "width": 148
+        },
+        {
+          "length": 810,
+          "stepMult": 10000,
+          "shelterEvery": 146,
+          "gift": 60000000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 60,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "chasm",
+            "tunnel",
+            "dip"
+          ],
+          "width": 220
+        },
+        {
+          "length": 870,
+          "stepMult": 12000,
+          "shelterEvery": 197,
+          "gift": 100000000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 60,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "throat",
+            "chasm",
+            "hump"
+          ],
+          "width": 148
+        }
+      ],
+      "ridges": [
+        {
+          "requires": 17000000000
+        },
+        {
+          "requires": 28000000000
+        },
+        {
+          "requires": 48000000000
+        },
+        {
+          "requires": 91000000000
+        }
+      ],
+      "boss": {
+        "stretch": 810,
+        "requires": 150000000000,
+        "margin": 0.05,
+        "stepMult": 15000,
+        "gift": 160000000,
+        "speed": 92.5,
+        "helpers": [
+          {
+            "side": "left"
+          },
+          {
+            "side": "right"
+          }
+        ],
+        "giants": [
+          {
+            "phase": 0
+          },
+          {
+            "phase": 0.5
+          }
+        ],
+        "width": 200,
+        "covers": 4
+      }
+    },
+    {
+      "id": "stars",
+      "look": "aurora",
+      "egg": "aurora",
+      "terraceRise": 24,
+      "ridgeRise": 6,
+      "cliffHeight": 16,
+      "intervalSec": 40,
+      "firstIntervalSec": 10,
+      "warnSec": 6,
+      "speed": 60,
+      "sections": [
+        {
+          "length": 800,
+          "stepMult": 20000,
+          "shelterEvery": 77,
+          "gift": 500000000,
+          "fork": false,
+          "width": 120
+        },
+        {
+          "length": 870,
+          "stepMult": 25000,
+          "shelterEvery": 113,
+          "gift": 800000000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 60,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "throat",
+            "chasm",
+            "tunnel"
+          ],
+          "width": 148
+        },
+        {
+          "length": 930,
+          "stepMult": 30000,
+          "shelterEvery": 158,
+          "gift": 1200000000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 60,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "chasm",
+            "hump",
+            "dip"
+          ],
+          "width": 148
+        },
+        {
+          "length": 1000,
+          "stepMult": 40000,
+          "shelterEvery": 214,
+          "gift": 2400000000,
+          "fork": {
+            "kind": "split",
+            "track": 44,
+            "between": 60,
+            "length": [
+              150,
+              300
+            ]
+          },
+          "shape": [
+            "throat",
+            "chasm",
+            "tunnel",
+            "hump"
+          ],
+          "width": 220
+        }
+      ],
+      "ridges": [
+        {
+          "requires": 280000000000
+        },
+        {
+          "requires": 440000000000
+        },
+        {
+          "requires": 640000000000
+        },
+        {
+          "requires": 940000000000
+        }
+      ],
+      "boss": {
+        "stretch": 940,
+        "requires": 1300000000000,
+        "margin": 0.05,
+        "stepMult": 40000,
+        "gift": 4000000000,
+        "speed": 97.1,
+        "helpers": [
+          {
+            "side": "left"
+          },
+          {
+            "side": "right"
+          }
+        ],
+        "giants": [
+          {
+            "phase": 0
+          },
+          {
+            "phase": 0.5
+          }
+        ],
+        "width": 200,
+        "covers": 4
+      }
+    }
+  ],
+  "stages": {
+    "start": 12,
+    "finish": 24,
+    "rise": 4,
+    "pitDepth": 15,
+    "field": 100,
+    "bridge": 10,
+    "trophyGrowth": 2.5,
+    "snowflake": {
+      "mult": 2,
+      "stages": 2
+    },
+    "avalanche": {
+      "firstSec": 1,
+      "warnSec": 4,
+      "intervalSec": 30,
+      "every": 2,
+      "x": 18
+    },
+    "maze": {
+      "cell": 12,
+      "wall": 1.5,
+      "height": 12,
+      "cols": [
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        7,
+        7,
+        7,
+        7
+      ],
+      "rows": [
+        4,
+        4,
+        5,
+        5,
+        5,
+        5,
+        6,
+        6,
+        6,
+        6
+      ],
+      "falseExits": [
+        2,
+        3
+      ]
+    },
+    "plan": [
+      [
+        "intro",
+        "giant",
+        "cracks",
+        "plates",
+        "chute",
+        "avalanche",
+        "catapult",
+        "throat",
+        "maze",
+        "plates"
+      ],
+      [
+        "dips",
+        "giant",
+        "cracks",
+        "plates",
+        "chute",
+        "avalanche",
+        "throat",
+        "maze",
+        "blizzard",
+        "plates"
+      ],
+      [
+        "dips",
+        "giant",
+        "cracks",
+        "plates",
+        "chute",
+        "avalanche",
+        "catapult",
+        "throat",
+        "maze",
+        "blizzard",
+        "plates"
+      ],
+      [
+        "dips",
+        "giant",
+        "cracks",
+        "plates",
+        "chute",
+        "avalanche",
+        "catapult",
+        "throat",
+        "maze",
+        "blizzard",
+        "plates"
+      ],
+      [
+        "dips",
+        "giant",
+        "cracks",
+        "plates",
+        "chute",
+        "avalanche",
+        "catapult",
+        "cracks",
+        "throat",
+        "maze",
+        "blizzard",
+        "plates"
+      ],
+      [
+        "dips",
+        "giant",
+        "cracks",
+        "plates",
+        "chute",
+        "avalanche",
+        "catapult",
+        "cracks",
+        "throat",
+        "maze",
+        "blizzard",
+        "plates"
+      ],
+      [
+        "dips",
+        "giant",
+        "cracks",
+        "plates",
+        "chute",
+        "avalanche",
+        "catapult",
+        "cracks",
+        "dips",
+        "throat",
+        "maze",
+        "blizzard",
+        "plates"
+      ],
+      [
+        "dips",
+        "giant",
+        "cracks",
+        "plates",
+        "chute",
+        "avalanche",
+        "catapult",
+        "cracks",
+        "dips",
+        "throat",
+        "maze",
+        "blizzard",
+        "plates"
+      ],
+      [
+        "dips",
+        "giant",
+        "cracks",
+        "plates",
+        "chute",
+        "avalanche",
+        "catapult",
+        "cracks",
+        "dips",
+        "catapult",
+        "throat",
+        "maze",
+        "blizzard",
+        "plates"
+      ],
+      [
+        "dips",
+        "giant",
+        "cracks",
+        "plates",
+        "chute",
+        "avalanche",
+        "catapult",
+        "cracks",
+        "dips",
+        "catapult",
+        "cracks",
+        "throat",
+        "maze",
+        "blizzard",
+        "plates"
+      ]
+    ]
   }
- },
- "mountains": [
-  {
-   "id": "slope",
-   "look": "slope",
-   "egg": "snow",
-   "terraceRise": 12,
-   "ridgeRise": 4,
-   "intervalSec": 50,
-   "firstIntervalSec": 30,
-   "warnSec": 8,
-   "speed": 45,
-   "sections": [
-    {
-     "length": 280,
-     "stepMult": 1,
-     "shelterEvery": 63,
-     "gift": 12,
-     "fork": false,
-     "width": 100
-    },
-    {
-     "length": 310,
-     "stepMult": 1.2,
-     "shelterEvery": 88,
-     "gift": 14,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 30,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "width": 180
-    },
-    {
-     "length": 400,
-     "stepMult": 1.5,
-     "shelterEvery": 138,
-     "gift": 18,
-     "fork": false,
-     "width": 110,
-     "shape": [
-      "chasm",
-      "dip"
-     ]
-    }
-   ],
-   "ridges": [
-    {
-     "requires": 50
-    },
-    {
-     "requires": 520
-    },
-    {
-     "requires": 1500
-    }
-   ],
-   "boss": {
-    "stretch": 360,
-    "requires": 2200,
-    "margin": 0.05,
-    "stepMult": 2,
-    "gift": 20,
-    "speed": 43.2,
-    "width": 160,
-    "covers": 2
-   }
-  },
-  {
-   "id": "pines",
-   "look": "slope",
-   "egg": "snow",
-   "terraceRise": 13,
-   "ridgeRise": 4,
-   "cliffHeight": 12,
-   "intervalSec": 49,
-   "firstIntervalSec": 12,
-   "warnSec": 8,
-   "speed": 46,
-   "sections": [
-    {
-     "length": 330,
-     "stepMult": 2.5,
-     "shelterEvery": 65,
-     "gift": 40,
-     "fork": false,
-     "width": 110
-    },
-    {
-     "length": 380,
-     "stepMult": 3,
-     "shelterEvery": 95,
-     "gift": 40,
-     "fork": false,
-     "shape": [
-      "chasm",
-      "dip"
-     ],
-     "width": 120
-    },
-    {
-     "length": 420,
-     "stepMult": 4,
-     "shelterEvery": 130,
-     "gift": 50,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 36,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "chasm",
-      "dip"
-     ],
-     "width": 200
-    },
-    {
-     "length": 470,
-     "stepMult": 5,
-     "shelterEvery": 176,
-     "gift": 60,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 36,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "width": 124,
-     "shape": [
-      "chasm",
-      "hump",
-      "dip"
-     ]
-    }
-   ],
-   "ridges": [
-    {
-     "requires": 7100
-    },
-    {
-     "requires": 13000
-    },
-    {
-     "requires": 23000
-    },
-    {
-     "requires": 36000
-    }
-   ],
-   "boss": {
-    "stretch": 400,
-    "requires": 56000,
-    "margin": 0.05,
-    "stepMult": 6,
-    "gift": 80,
-    "speed": 55,
-    "width": 170,
-    "covers": 2
-   }
-  },
-  {
-   "id": "pass",
-   "look": "pass",
-   "egg": "frost",
-   "terraceRise": 15,
-   "ridgeRise": 4,
-   "cliffHeight": 12,
-   "intervalSec": 48,
-   "firstIntervalSec": 11.75,
-   "warnSec": 8,
-   "speed": 48,
-   "sections": [
-    {
-     "length": 390,
-     "stepMult": 8,
-     "shelterEvery": 68,
-     "gift": 120,
-     "fork": false,
-     "width": 110
-    },
-    {
-     "length": 430,
-     "stepMult": 10,
-     "shelterEvery": 96,
-     "gift": 150,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 36,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "throat",
-      "chasm"
-     ],
-     "width": 124
-    },
-    {
-     "length": 480,
-     "stepMult": 12,
-     "shelterEvery": 135,
-     "gift": 200,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 36,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "chasm",
-      "hump",
-      "dip"
-     ],
-     "width": 124
-    },
-    {
-     "length": 530,
-     "stepMult": 17,
-     "shelterEvery": 182,
-     "gift": 200,
-     "fork": false,
-     "shape": [
-      "throat",
-      "chasm",
-      "dip"
-     ],
-     "width": 200
-    }
-   ],
-   "ridges": [
-    {
-     "requires": 92000
-    },
-    {
-     "requires": 140000
-    },
-    {
-     "requires": 210000
-    },
-    {
-     "requires": 290000
-    }
-   ],
-   "boss": {
-    "stretch": 450,
-    "requires": 420000,
-    "margin": 0.05,
-    "stepMult": 20,
-    "gift": 250,
-    "speed": 62.3,
-    "width": 170,
-    "covers": 2
-   }
-  },
-  {
-   "id": "falls",
-   "look": "pass",
-   "egg": "frost",
-   "terraceRise": 16,
-   "ridgeRise": 5,
-   "cliffHeight": 13,
-   "intervalSec": 47,
-   "firstIntervalSec": 11.5,
-   "warnSec": 8,
-   "speed": 50,
-   "sections": [
-    {
-     "length": 440,
-     "stepMult": 25,
-     "shelterEvery": 68,
-     "gift": 600,
-     "fork": false,
-     "width": 120
-    },
-    {
-     "length": 490,
-     "stepMult": 30,
-     "shelterEvery": 100,
-     "gift": 1000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 44,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "width": 200,
-     "shape": [
-      "chasm",
-      "hump",
-      "dip"
-     ]
-    },
-    {
-     "length": 540,
-     "stepMult": 40,
-     "shelterEvery": 139,
-     "gift": 1200,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 44,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "chasm",
-      "dip"
-     ],
-     "width": 132
-    },
-    {
-     "length": 580,
-     "stepMult": 40,
-     "shelterEvery": 183,
-     "gift": 1500,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 44,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "throat",
-      "chasm"
-     ],
-     "width": 132
-    }
-   ],
-   "ridges": [
-    {
-     "requires": 650000
-    },
-    {
-     "requires": 940000
-    },
-    {
-     "requires": 1300000
-    },
-    {
-     "requires": 1700000
-    }
-   ],
-   "boss": {
-    "stretch": 510,
-    "requires": 3000000,
-    "margin": 0.05,
-    "stepMult": 60,
-    "gift": 2000,
-    "speed": 59,
-    "helpers": [
-     {
-      "side": "left"
-     }
-    ],
-    "width": 180,
-    "covers": 3
-   }
-  },
-  {
-   "id": "canyon",
-   "look": "canyon",
-   "egg": "ice",
-   "terraceRise": 18,
-   "ridgeRise": 5,
-   "cliffHeight": 13,
-   "intervalSec": 45,
-   "firstIntervalSec": 11.25,
-   "warnSec": 7,
-   "speed": 52,
-   "sections": [
-    {
-     "length": 490,
-     "stepMult": 60,
-     "shelterEvery": 69,
-     "gift": 2400,
-     "fork": false,
-     "width": 100
-    },
-    {
-     "length": 540,
-     "stepMult": 80,
-     "shelterEvery": 100,
-     "gift": 3000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 44,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "throat",
-      "chasm",
-      "hump"
-     ],
-     "width": 132
-    },
-    {
-     "length": 590,
-     "stepMult": 100,
-     "shelterEvery": 140,
-     "gift": 4000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 44,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "chasm",
-      "dip"
-     ],
-     "width": 132
-    },
-    {
-     "length": 640,
-     "stepMult": 150,
-     "shelterEvery": 187,
-     "gift": 5000,
-     "fork": false,
-     "shape": [
-      "throat",
-      "chasm",
-      "dip"
-     ],
-     "width": 220
-    }
-   ],
-   "ridges": [
-    {
-     "requires": 4200000
-    },
-    {
-     "requires": 6000000
-    },
-    {
-     "requires": 8500000
-    },
-    {
-     "requires": 13000000
-    }
-   ],
-   "boss": {
-    "stretch": 560,
-    "requires": 19000000,
-    "margin": 0.05,
-    "stepMult": 150,
-    "gift": 6000,
-    "speed": 64.8,
-    "helpers": [
-     {
-      "side": "left"
-     }
-    ],
-    "width": 180,
-    "covers": 3
-   }
-  },
-  {
-   "id": "crystal",
-   "look": "canyon",
-   "egg": "ice",
-   "terraceRise": 19,
-   "ridgeRise": 5,
-   "cliffHeight": 14,
-   "intervalSec": 44,
-   "firstIntervalSec": 11,
-   "warnSec": 7,
-   "speed": 54,
-   "sections": [
-    {
-     "length": 550,
-     "stepMult": 200,
-     "shelterEvery": 71,
-     "gift": 12000,
-     "fork": false,
-     "width": 120
-    },
-    {
-     "length": 600,
-     "stepMult": 250,
-     "shelterEvery": 103,
-     "gift": 20000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 44,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "chasm",
-      "tunnel",
-      "dip"
-     ],
-     "width": 132
-    },
-    {
-     "length": 650,
-     "stepMult": 300,
-     "shelterEvery": 143,
-     "gift": 30000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 44,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "chasm",
-      "tunnel",
-      "dip"
-     ],
-     "width": 200
-    },
-    {
-     "length": 690,
-     "stepMult": 400,
-     "shelterEvery": 188,
-     "gift": 40000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 44,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "throat",
-      "chasm",
-      "tunnel"
-     ],
-     "width": 132
-    }
-   ],
-   "ridges": [
-    {
-     "requires": 30000000
-    },
-    {
-     "requires": 47000000
-    },
-    {
-     "requires": 61000000
-    },
-    {
-     "requires": 97000000
-    }
-   ],
-   "boss": {
-    "stretch": 620,
-    "requires": 160000000,
-    "margin": 0.05,
-    "stepMult": 500,
-    "gift": 60000,
-    "speed": 71.3,
-    "helpers": [
-     {
-      "side": "left"
-     }
-    ],
-    "width": 180,
-    "covers": 3
-   }
-  },
-  {
-   "id": "blizzard",
-   "look": "blizzard",
-   "egg": "blizzard",
-   "terraceRise": 21,
-   "ridgeRise": 6,
-   "cliffHeight": 14,
-   "intervalSec": 42,
-   "firstIntervalSec": 10.75,
-   "warnSec": 7,
-   "speed": 56,
-   "sections": [
-    {
-     "length": 600,
-     "stepMult": 600,
-     "shelterEvery": 71,
-     "gift": 120000,
-     "fork": false,
-     "width": 110
-    },
-    {
-     "length": 650,
-     "stepMult": 800,
-     "shelterEvery": 103,
-     "gift": 200000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 52,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "chasm",
-      "tunnel",
-      "dip"
-     ],
-     "width": 200
-    },
-    {
-     "length": 700,
-     "stepMult": 1000,
-     "shelterEvery": 143,
-     "gift": 300000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 52,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "throat",
-      "chasm",
-      "hump"
-     ],
-     "width": 140
-    },
-    {
-     "length": 750,
-     "stepMult": 1200,
-     "shelterEvery": 191,
-     "gift": 400000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 52,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "chasm",
-      "tunnel",
-      "dip"
-     ],
-     "width": 140
-    }
-   ],
-   "ridges": [
-    {
-     "requires": 260000000
-    },
-    {
-     "requires": 410000000
-    },
-    {
-     "requires": 530000000
-    },
-    {
-     "requires": 800000000
-    }
-   ],
-   "boss": {
-    "stretch": 670,
-    "requires": 1300000000,
-    "margin": 0.05,
-    "stepMult": 1500,
-    "gift": 600000,
-    "speed": 77.8,
-    "helpers": [
-     {
-      "side": "left"
-     },
-     {
-      "side": "right"
-     }
-    ],
-    "width": 190,
-    "covers": 4
-   }
-  },
-  {
-   "id": "clouds",
-   "look": "blizzard",
-   "egg": "blizzard",
-   "terraceRise": 22,
-   "ridgeRise": 6,
-   "cliffHeight": 15,
-   "intervalSec": 41,
-   "firstIntervalSec": 10.5,
-   "warnSec": 7,
-   "speed": 58,
-   "sections": [
-    {
-     "length": 660,
-     "stepMult": 2000,
-     "shelterEvery": 72,
-     "gift": 1600000,
-     "fork": false,
-     "width": 120
-    },
-    {
-     "length": 710,
-     "stepMult": 2500,
-     "shelterEvery": 105,
-     "gift": 2400000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 52,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "chasm",
-      "hump",
-      "dip"
-     ],
-     "width": 140
-    },
-    {
-     "length": 760,
-     "stepMult": 3000,
-     "shelterEvery": 146,
-     "gift": 4000000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 52,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "chasm",
-      "tunnel",
-      "hump",
-      "dip"
-     ],
-     "width": 140
-    },
-    {
-     "length": 810,
-     "stepMult": 4000,
-     "shelterEvery": 194,
-     "gift": 6000000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 52,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "throat",
-      "chasm",
-      "hump"
-     ],
-     "width": 220
-    }
-   ],
-   "ridges": [
-    {
-     "requires": 2100000000
-    },
-    {
-     "requires": 3300000000
-    },
-    {
-     "requires": 4400000000
-    },
-    {
-     "requires": 7300000000
-    }
-   ],
-   "boss": {
-    "stretch": 730,
-    "requires": 12000000000,
-    "margin": 0.05,
-    "stepMult": 5000,
-    "gift": 8000000,
-    "speed": 84.7,
-    "helpers": [
-     {
-      "side": "left"
-     },
-     {
-      "side": "right"
-     }
-    ],
-    "width": 190,
-    "covers": 4
-   }
-  },
-  {
-   "id": "aurora",
-   "look": "aurora",
-   "egg": "aurora",
-   "terraceRise": 23,
-   "ridgeRise": 6,
-   "cliffHeight": 15,
-   "intervalSec": 40,
-   "firstIntervalSec": 10.25,
-   "warnSec": 6,
-   "speed": 60,
-   "sections": [
-    {
-     "length": 710,
-     "stepMult": 6000,
-     "shelterEvery": 73,
-     "gift": 24000000,
-     "fork": false,
-     "width": 110
-    },
-    {
-     "length": 760,
-     "stepMult": 8000,
-     "shelterEvery": 105,
-     "gift": 40000000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 60,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "throat",
-      "chasm",
-      "hump"
-     ],
-     "width": 148
-    },
-    {
-     "length": 810,
-     "stepMult": 10000,
-     "shelterEvery": 146,
-     "gift": 60000000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 60,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "chasm",
-      "tunnel",
-      "dip"
-     ],
-     "width": 220
-    },
-    {
-     "length": 870,
-     "stepMult": 12000,
-     "shelterEvery": 197,
-     "gift": 100000000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 60,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "throat",
-      "chasm",
-      "hump"
-     ],
-     "width": 148
-    }
-   ],
-   "ridges": [
-    {
-     "requires": 17000000000
-    },
-    {
-     "requires": 28000000000
-    },
-    {
-     "requires": 48000000000
-    },
-    {
-     "requires": 91000000000
-    }
-   ],
-   "boss": {
-    "stretch": 810,
-    "requires": 150000000000,
-    "margin": 0.05,
-    "stepMult": 15000,
-    "gift": 160000000,
-    "speed": 92.5,
-    "helpers": [
-     {
-      "side": "left"
-     },
-     {
-      "side": "right"
-     }
-    ],
-    "giants": [
-     {
-      "phase": 0
-     },
-     {
-      "phase": 0.5
-     }
-    ],
-    "width": 200,
-    "covers": 4
-   }
-  },
-  {
-   "id": "stars",
-   "look": "aurora",
-   "egg": "aurora",
-   "terraceRise": 24,
-   "ridgeRise": 6,
-   "cliffHeight": 16,
-   "intervalSec": 40,
-   "firstIntervalSec": 10,
-   "warnSec": 6,
-   "speed": 60,
-   "sections": [
-    {
-     "length": 800,
-     "stepMult": 20000,
-     "shelterEvery": 77,
-     "gift": 500000000,
-     "fork": false,
-     "width": 120
-    },
-    {
-     "length": 870,
-     "stepMult": 25000,
-     "shelterEvery": 113,
-     "gift": 800000000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 60,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "throat",
-      "chasm",
-      "tunnel"
-     ],
-     "width": 148
-    },
-    {
-     "length": 930,
-     "stepMult": 30000,
-     "shelterEvery": 158,
-     "gift": 1200000000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 60,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "chasm",
-      "hump",
-      "dip"
-     ],
-     "width": 148
-    },
-    {
-     "length": 1000,
-     "stepMult": 40000,
-     "shelterEvery": 214,
-     "gift": 2400000000,
-     "fork": {
-      "kind": "split",
-      "track": 44,
-      "between": 60,
-      "length": [
-       150,
-       300
-      ]
-     },
-     "shape": [
-      "throat",
-      "chasm",
-      "tunnel",
-      "hump"
-     ],
-     "width": 220
-    }
-   ],
-   "ridges": [
-    {
-     "requires": 280000000000
-    },
-    {
-     "requires": 440000000000
-    },
-    {
-     "requires": 640000000000
-    },
-    {
-     "requires": 940000000000
-    }
-   ],
-   "boss": {
-    "stretch": 940,
-    "requires": 1300000000000,
-    "margin": 0.05,
-    "stepMult": 40000,
-    "gift": 4000000000,
-    "speed": 97.1,
-    "helpers": [
-     {
-      "side": "left"
-     },
-     {
-      "side": "right"
-     }
-    ],
-    "giants": [
-     {
-      "phase": 0
-     },
-     {
-      "phase": 0.5
-     }
-    ],
-    "width": 200,
-    "covers": 4
-   }
-  }
- ]
 }

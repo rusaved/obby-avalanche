@@ -210,6 +210,8 @@ export interface BalanceJson {
     continueCooldownSec?: number;
     /** …and how long the offer stays after the snowball pops (until the first move). */
     continueShowSec?: number;
+    /** Stages pace (docs/01-gdd.md 22.9): «Continue from stage N» shows this long after a roll-back; absent — 60. */
+    stageContinueSec?: number;
     eggViews: number;
     eggPauseSec: number;
     skipFirstPortal: boolean;
@@ -489,6 +491,8 @@ export type SegmentType =
   | 'block'
   | 'basePortal'
   | 'stand'
+  // LV (docs/01-gdd.md 22.8): the trophy button at the side of a stage finish.
+  | 'trophyPad'
   // RL (docs/01-gdd.md 21): where a fall rolls the hero back to the flag; the stairs of plates to a ridge; a dip across the slope.
   | 'pit'
   | 'stairs'
@@ -513,6 +517,12 @@ export interface WorldThreat {
   safeZoneZ: [number, number];
   /** Open slope (docs/01-gdd.md 17.5): the front never starts above this z — the start line of the giant's zone. */
   spawnMaxZ?: number;
+  /** Stages pace (docs/01-gdd.md 22.5): the avalanche runs only while the hero is inside one of these [z0, z1]; the
+   * first wave of an entry comes after `zoneFirstSec`. Absent — the whole slope as before. */
+  zones?: Array<[number, number]>;
+  zoneFirstSec?: number;
+  /** The warning of a wave inside a zone (no newbie bonus: the stage is built for it). */
+  zoneWarnSec?: number;
 }
 
 export interface WorldZone {
@@ -599,6 +609,46 @@ export interface World {
   /** SP-04 (docs/01-gdd.md 20.4): half-width of the slope along it — [z, half] points, linear between, constant past the
    * ends (two points at one z — a step); absent — `width` / 2 everywhere. */
   profile?: Array<[number, number]>;
+  /** Stages pace (docs/01-gdd.md 22.4): the mountain as a chain of stages; absent — the other layouts. */
+  stages?: WorldStage[];
+}
+
+/** Types of a stage (docs/01-gdd.md 22.5); `intro` — the first minute of mountain 1 as built (22.1). */
+export type StageType = 'intro' | 'dips' | 'cracks' | 'giant' | 'plates' | 'catapult' | 'chute' | 'throat' | 'avalanche' | 'blizzard' | 'maze';
+
+/** The maze of a cave stage (docs/01-gdd.md 22.7): a grid of cells, open edges between them, the way in and the exits. */
+export interface StageMaze {
+  x0: number;
+  z0: number;
+  cell: number;
+  cols: number;
+  rows: number;
+  /** Open passages between neighbour cells: [col, row, col2, row2]. */
+  open: Array<[number, number, number, number]>;
+  entrance: number;
+  /** Exits through the outer wall: the cell, the side and whether it leads to the finish (one) or into the pit. */
+  exits: Array<{ col: number; row: number; side: 'top' | 'left' | 'right'; real: boolean }>;
+}
+
+export interface WorldStage {
+  n: number;
+  type: StageType;
+  /** The gate (z of the ridge; the camp end for stage 1), the body [start, end], the safe finish [end, end + finish]. */
+  z0: number;
+  start: number;
+  end: number;
+  finish: [number, number];
+  y: number;
+  /** The level the ridge asks for (1 — no ridge) and the run speed at its threshold (docs/01-gdd.md 22.4). */
+  level: number;
+  speed: number;
+  width: 'field' | 'bridge' | 'cave';
+  /** The trophy button at the side of the finish (docs/01-gdd.md 22.8). */
+  trophies: number;
+  pad: { x: number; z: number; y: number };
+  /** The shortcut of 1.3× speed (docs/01-gdd.md 22.4): a long jump to the golden snowflake; absent — none on this stage. */
+  cut?: { gap: number; x: number; z: number };
+  maze?: StageMaze;
 }
 
 export type WorldLayout = 'classic' | 'gateSide' | 'openSlope';
@@ -645,6 +695,8 @@ export interface OpenSpecJson {
   schema: number;
   /** `stageSlope` — the stages pace (docs/01-gdd.md 22) over the same fields plus `stages`. */
   layout: 'openSlope' | 'stageSlope';
+  /** The stages pace (docs/01-gdd.md 22, layout stageSlope): how a mountain is cut into stages. */
+  stages?: StageSpec;
   campLength: number;
   summitLength: number;
   /** Width of the summit portal arch (docs/01-gdd.md 19.8, FM-02): the hero enters across all of it; absent — 10. */
@@ -899,3 +951,24 @@ export interface ContentPack {
   /** The base of the pace (pace/<pace>/base.json); absent — none (classic, fast). */
   base?: BaseJson;
 }
+
+/** worlds-spec.json → stages (docs/01-gdd.md 22; docs/01a-content.md 20). */
+export interface StageSpec {
+  /** Flat run past the ridge before the trial, the safe finish, the ridge rise, the depth of the pit floor. */
+  start: number;
+  finish: number;
+  rise: number;
+  pitDepth: number;
+  /** The field width and the bridge width (1–3 steps). */
+  field: number;
+  bridge: number;
+  /** Trophies of the last stage over the first (×2–3 across a mountain, Q-075); the golden snowflake ×stage trophies. */
+  trophyGrowth: number;
+  snowflake: { mult: number; stages: number };
+  /** The avalanche stage: the first wave after entering, the pause between waves inside, grottos every `every` × v. */
+  avalanche: { firstSec: number; warnSec: number; intervalSec: number; every: number; x: number };
+  maze: { cell: number; wall: number; height: number; cols: number[]; rows: number[]; falseExits: [number, number] };
+  /** The stages of each mountain in order (the types of 22.5). */
+  plan: StageType[][];
+}
+

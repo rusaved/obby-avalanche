@@ -68,6 +68,7 @@ export const STAT_EFFECTS = ['moveSpeed', 'jumpPower', 'gateOnly'] as const;
 export const SEGMENT_TYPES = [
   'floor', 'wall', 'gate', 'niche', 'gap', 'ramp', 'steps', 'treadmill', 'checkpoint', 'coins', 'chest',
   'portal', 'decor', 'gift', 'eggStand', 'zoneArch', 'summit', 'jumpPad', 'slide', 'fork', 'cliff', 'chestGrotto', 'chasm', 'throat', 'tunnel', 'hump', 'funnel', 'taper', 'island', 'cover', 'pit', 'stairs', 'dip',
+  'block', 'trophyPad',
 ] as const;
 /** Mountain layouts of the generator (docs/01-gdd.md 5.2, 16.3). */
 export const WORLD_LAYOUTS = ['classic', 'gateSide', 'openSlope'] as const;
@@ -279,6 +280,7 @@ const balanceSchema = v.object({
     /** «Continue from here» (continue_here, docs/01-gdd.md 17.11): seconds between two offers. */
     continueCooldownSec: v.optional(nonNeg),
     continueShowSec: v.optional(nonNeg),
+    stageContinueSec: v.optional(nonNeg),
     eggViews: v.pipe(v.number(), v.integer(), v.minValue(1)),
     eggPauseSec: nonNeg,
     skipFirstPortal: v.boolean(),
@@ -943,8 +945,10 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
   const tuning = files['tuning.json'] as TuningJson;
   const curve = { ...(balance.speedCurve as Curve), base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed };
   const speedAt = (stat: number): number => (game.stat.effect === 'moveSpeed' ? moveSpeed(stat, curve) : tuning.controller.baseSpeed);
-  if (errors.length === 0) errors.push(...(open ? validateOpenGround(worlds, tuning, speedAt) : validateReachability(worlds, tuning)));
-  if (errors.length === 0) {
+  // The stages pace (docs/01-gdd.md 22): its trials are checked by validate-stages.ts, not by the open slope's lanes.
+  const stagesPace = (files['worlds-spec.json'] as { layout?: string }).layout === 'stageSlope';
+  if (errors.length === 0 && !stagesPace) errors.push(...(open ? validateOpenGround(worlds, tuning, speedAt) : validateReachability(worlds, tuning)));
+  if (errors.length === 0 && !stagesPace) {
     errors.push(...(open ? validateOpenFairness(worlds, speedAt) : validateFairness(worlds, speedAt)));
     if (open) {
       // Giants need game.json threat.boss, their look in theme.json and their texts (docs/01a-content.md 16.4, 16.9).
@@ -965,8 +969,7 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
   }
   // The count of 01a against the generated mountains (M3-05): after fairness, so a broken number still gets its seconds named.
   // The stages pace (docs/01-gdd.md 22): its own level checks instead of the counts of the open slope.
-  const stagesPace = (files['worlds-spec.json'] as { layout?: string }).layout === 'stageSlope';
-  if (stagesPace) errors.push(...validateStageWorlds(worlds, (balance as BalanceJson).levels));
+  if (stagesPace) errors.push(...validateStageWorlds(worlds, (balance as BalanceJson).levels, tuning, game.threat.boss?.margin ?? 0.05));
   else if (open)
     errors.push(
       ...validateOpenCount(worlds, files['worlds-spec.json'] as OpenSpecJson),
@@ -1046,7 +1049,8 @@ export function validateWorlds(worlds: WorldsJson, rarityColors: Record<string, 
     if (gates.length !== w.wallCount) errors.push(`${at}: gates — expected ${w.wallCount}, found ${gates.length}`);
     for (const [gi, g] of gates.entries()) {
       const req = num(g, 'requires');
-      if (!(req > lastRequires)) errors.push(`${at}: gate ${gi + 1} — requires ${req} must grow (previous ${lastRequires})`);
+      // A stage may ask for the level of the stage before (docs/01-gdd.md 22.2: not every stage is a new level).
+      if (!(req > lastRequires || (w.stages && req === lastRequires))) errors.push(`${at}: gate ${gi + 1} — requires ${req} must grow (previous ${lastRequires})`);
       lastRequires = req;
       if (w.layout === 'openSlope') continue;
       const zone = zoneOfStretch(gi + 1, w.wallCount, w.layout);
@@ -1055,7 +1059,8 @@ export function validateWorlds(worlds: WorldsJson, rarityColors: Record<string, 
     }
     // One cave with a treadmill in every stretch (docs/01-gdd.md 5.2), caves between consecutive gates.
     const camp = w.safeZones[0]?.[1] ?? 0;
-    if (w.layout === 'openSlope') errors.push(...validateOpenWorld(w, at));
+    // The stages pace (docs/01-gdd.md 22) has its own checks (validate-stages.ts) instead of the ridges of 17.3.
+    if (w.layout === 'openSlope' && !w.stages) errors.push(...validateOpenWorld(w, at));
     for (let i = 1; i <= (w.layout === 'openSlope' ? 0 : gates.length); i++) {
       const zStart = i === 1 ? camp : (gates[i - 2] as Segment).z;
       const zEnd = (gates[i - 1] as Segment).z;

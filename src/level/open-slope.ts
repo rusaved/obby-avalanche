@@ -825,7 +825,7 @@ function generateOpenWorld(spec: Spec, balance: OpenInput['balance'], index: num
  * The step of a ridge at z0 (docs/01-gdd.md 17.3): the carniz top of the upper terrace (a block from the lower floor up,
  * so nothing passes under it) with three passages where a ramp climbs `ridgeRise` over `passLength`.
  */
-function pushPassages(seg: Segment[], z0: number, yLow: number, yHigh: number, half: number, passes: readonly number[], len: number): void {
+export function pushPassages(seg: Segment[], z0: number, yLow: number, yHigh: number, half: number, passes: readonly number[], len: number): void {
   const O = OPEN_SLOPE;
   const w = O.passWidth / 2;
   let x = -half;

@@ -31,6 +31,7 @@ import { CAMERA_THROUGH, GATE_THICKNESS, PORTAL_WIDTH, prismTriangles } from '..
 import { createWayMarks, PORTAL_HEIGHT, type WayMarks } from './way-marks.ts';
 import type { ThemeJson } from '../content/types.ts';
 import { createDigitLabels, type DigitLabels } from './digits.ts';
+import { createWordLabels } from './word-label.ts';
 import { formatNumber } from '../ui/format.ts';
 import { GIFT_HALF, GIFT_HEIGHT } from '../sim/gifts.ts';
 
@@ -172,7 +173,7 @@ const _p = new Vector3();
 const _q = new Quaternion();
 const _s = new Vector3();
 
-export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k: string) => string, fade = 1): LevelMeshes {
+export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k: string) => string, fade = 1, levelWord?: string): LevelMeshes {
   const group = new Group();
   group.name = `level-${level.worldId}`;
   const material = new MeshLambertMaterial({ vertexColors: true });
@@ -407,6 +408,8 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   if (plugCount > 0) group.add(ridgePlugs, ridgeCrests);
 
   const digits = createDigitLabels(level.gates.length * 10 + 8);
+  // Stages pace (docs/01-gdd.md 22.3): «LEVEL NEEDED» over the level of every ridge.
+  const words = levelWord && level.stages ? createWordLabels(levelWord, level.gates.length) : null;
   const signState = level.gates.map((g) => ({ text: formatNumber(g.requires, suffix), open: false, hidden: false }));
   const signColor = new Color();
   const signOpenColor = materialColor(theme, 'gateSignOpen');
@@ -417,6 +420,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     if (!g || !st) return;
     const d = g.box.max[2] - g.box.min[2];
     if (st.hidden) {
+      words?.hide(i);
       digits.clear(i);
       dummy.position.set(0, g.y + g.signHeight, g.z - d / 2 - 0.3);
       dummy.scale.setScalar(1e-4);
@@ -428,6 +432,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     const ridge = g.kind === 'ridge';
     const size = signText(g);
     digits.setLabel(i, st.text, 0, g.y + g.signHeight, g.z - d / 2 - 0.52, size, '#ffffff');
+    if (words && ridge) words.set(i, 0, g.y + g.signHeight + size * 0.95, g.z - d / 2 - 0.55, size * 0.42);
     // The plaque fits the text it shows now, «4,2K/12K» included (playtest M2: the text ran past it).
     dummy.position.set(0, g.y + g.signHeight, g.z - d / 2 - 0.3);
     dummy.rotation.set(0, 0, 0);
@@ -444,6 +449,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     applySign(i);
   });
   group.add(digits.mesh);
+  if (words) group.add(words.mesh);
 
   // Gifts (M2-04): one InstancedMesh in zone rarity colours; a taken gift scales to zero until the respawn.
   const giftPoints = level.points.filter((p) => p.type === 'gift');
@@ -652,6 +658,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       giftMat.dispose();
       funGeo.dispose();
       digits.dispose();
+      words?.dispose();
       wayMarks.dispose();
     },
   };

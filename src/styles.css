@@ -135,6 +135,9 @@ canvas.fallback {
 .hud-mountain-flag svg, .hud-mountain-wave svg { width: 100%; height: 100%; display: block; }
 /* Goal under the bar: «Wall 2K», fill bar «1.2K/2K» (docs/01-gdd.md 10.1, up to 30% W). */
 .hud-goal { position: absolute; left: 50%; top: calc(48px + env(safe-area-inset-top)); width: min(30%, 360px); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 3px; pointer-events: none; }
+.hud-need { display: none; margin-top: 4px; max-width: 24vw; padding: 2px 12px; border-radius: 10px; border: 2px solid rgba(255, 255, 255, 0.9); background: #e5484d; color: #fff; font-size: clamp(13px, 2.2vmin, 18px); font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); }
+.hud-need.shown { display: block; }
+.hud-need.ok { background: #2fb457; }
 .hud-goal-text { font-size: 18px; font-weight: 800; color: #fff; white-space: nowrap; text-shadow: -2px -2px 0 #1b2a3a, 2px -2px 0 #1b2a3a, -2px 2px 0 #1b2a3a, 2px 2px 0 #1b2a3a; }
 .hud-goal-bar { position: relative; display: none; width: 100%; height: 16px; overflow: hidden; border-radius: 8px; border: 2px solid rgba(27, 42, 58, 0.6); background: rgba(27, 42, 58, 0.35); box-sizing: border-box; }
 .hud-goal-bar.shown { display: block; }
@@ -235,6 +238,10 @@ canvas.fallback {
 .hud-egg { position: absolute; left: 0; top: 0; display: none; min-height: 48px; padding: 0 16px; border: 2px solid rgba(27, 42, 58, 0.6); border-radius: 12px; background: #9aa7b4; color: #fff; font: 800 18px/1 var(--font); white-space: nowrap; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25); cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
 .hud-egg.shown { display: flex; align-items: center; }
 .hud-egg.can { background: var(--ok); }
+.hud-pad { background: var(--trophies); gap: 6px; font-size: 20px; }
+.hud-pad-icon { width: 22px; height: 22px; display: inline-flex; }
+.hud-pad-icon svg { width: 100%; height: 100%; }
+.hud-coin-icon svg { width: 100%; height: 100%; display: block; }
 /* One message near the hero at a time: the egg button steps aside while a toast is up (after a hatch). */
 .hud.toasting .hud-egg { visibility: hidden; }
 .hud-toast { display: flex; flex-direction: column; align-items: center; }

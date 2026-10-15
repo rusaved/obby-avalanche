@@ -25,6 +25,8 @@ export interface HudOptions {
   onQuality: (level: 'auto' | 'low' | 'medium' | 'high') => void;
   /** Coin plaque colour (theme.json ui.coins). */
   coinColor: string;
+  /** Stages pace (docs/01-gdd.md 22.8, balance.json currency trophies): the coin plaque shows trophies. */
+  coinsAsTrophies?: boolean;
   /** Avalanche colour for the banner outline, frost frame and cave arrow (theme.json threat.front[1]). */
   threatColor: string;
   /** Golden gift colour (theme.json bonus.color, docs/01-gdd.md 4.9): the golden toast; absent — the plain one. */
@@ -184,6 +186,10 @@ export interface Hud {
   /** Level bar at the bottom centre (docs/01-gdd.md 22.2, pace stages): «Level N · x / need» with the Speed plaque moved
    * over it; null — no bar (the other paces), the plaque stays in the left column. */
   setLevel(state: { title: string; progress: string; frac: number } | null): void;
+  /** «yours 7 / need 8» under the goal by a ridge of the stages pace (docs/01-gdd.md 22.3); null — hidden. */
+  setNeed(state: { text: string; ok: boolean } | null): void;
+  /** «+N» with a trophy over the trophy button of a stage (docs/01-gdd.md 22.8); null — hidden. */
+  setPadLabel(state: { text: string; x: number; y: number } | null): void;
   readonly jumpButton: HTMLButtonElement;
   /** Body of the pause and settings window (the caller opens it in the window frame). */
   readonly pausePanel: HTMLElement;
@@ -354,7 +360,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const goalFill = el('span', 'hud-goal-fill');
   const goalNum = el('span', 'hud-goal-num');
   goalBar.append(goalFill, goalNum);
-  goal.append(goalText, goalBar);
+  // Stages pace (docs/01-gdd.md 22.3): «yours 7 / need 8» by a closed ridge — red short, green enough; a pill, not a board.
+  const need = el('div', 'hud-need');
+  need.dataset['role'] = 'need';
+  goal.append(goalText, goalBar, need);
   root.appendChild(goal);
 
   // Coins under the Speed plaque (docs/01-gdd.md 10.1): a coin with a snowflake and the number.
@@ -363,6 +372,13 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   coins.setAttribute('aria-label', t('hud.coins'));
   coins.style.setProperty('--coins', opts.coinColor);
   const coinIcon = el('span', 'hud-coin-icon', '\u2744');
+  // Stages pace (docs/01-gdd.md 22.8): the wallet is trophies — the cup on the trophy colour, the old trophy plaque off.
+  if (opts.coinsAsTrophies) {
+    coinIcon.textContent = '';
+    coinIcon.innerHTML = icon('trophy');
+    coins.style.setProperty('--coins', opts.trophyColor);
+    coins.setAttribute('aria-label', t('hud.trophies'));
+  }
   const coinValue = el('span', 'hud-coin-value', '0');
   const coinGain = el('span', 'hud-coin-gain');
   coinGain.dataset['role'] = 'coin-gain';
@@ -403,6 +419,16 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   standLabel.dataset['role'] = 'stand-label';
   standLabel.style.pointerEvents = 'none';
   root.appendChild(standLabel);
+  // The trophy button of a stage finish (docs/01-gdd.md 22.8): «+N 🏆» over it, the trophy colour.
+  const padLabel = el('div', 'hud-egg hud-pad');
+  padLabel.dataset['role'] = 'pad-label';
+  padLabel.style.pointerEvents = 'none';
+  padLabel.style.setProperty('--trophies', opts.trophyColor);
+  const padIcon = el('span', 'hud-pad-icon');
+  padIcon.innerHTML = icon('trophy');
+  const padText = el('span', '');
+  padLabel.append(padText, padIcon);
+  root.appendChild(padLabel);
 
   // Avalanche (docs/01-gdd.md 4.8): banner, frost frame, arrow to the cave, toast, veil. Never red (docs/03, 3.2).
   root.style.setProperty('--threat', opts.threatColor);
@@ -941,6 +967,18 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       eggBtn.classList.toggle('can', state.can);
       eggBtn.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
     },
+    setPadLabel(state) {
+      padLabel.classList.toggle('shown', state !== null);
+      if (!state) return;
+      if (padText.textContent !== state.text) padText.textContent = state.text;
+      padLabel.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
+    },
+    setNeed(state) {
+      need.classList.toggle('shown', state !== null);
+      if (!state) return;
+      if (need.textContent !== state.text) need.textContent = state.text;
+      need.classList.toggle('ok', state.ok);
+    },
     setLevel(state) {
       const on = state !== null;
       if (on !== levelBox.classList.contains('shown')) {
@@ -955,6 +993,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       levelFill.style.width = `${Math.round(Math.max(0, Math.min(1, state.frac)) * 1000) / 10}%`;
     },
     setTrophies(text) {
+      if (opts.coinsAsTrophies) text = null;
       trophies.classList.toggle('shown', text !== null);
       if (text !== null && trophyValue.textContent !== text) trophyValue.textContent = text;
     },

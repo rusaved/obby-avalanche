@@ -66,8 +66,15 @@ export function trophyPrice(text: string): HTMLElement {
   return p;
 }
 
-/** Coin (a snowflake on the coin colour, as the HUD plaque) and a number. */
+/** Stages pace (docs/01-gdd.md 22.8): the coin wallet is shown as trophies everywhere — set once at boot. */
+let walletTrophies = false;
+export function setWalletTrophies(on: boolean): void {
+  walletTrophies = on;
+}
+
+/** Coin (a snowflake on the coin colour, as the HUD plaque) and a number; trophies on the stages pace. */
 export function coinPrice(text: string): HTMLElement {
+  if (walletTrophies) return trophyPrice(text);
   const p = el('span', 'card-price');
   p.append(el('span', 'card-coin', '❄'), el('span', '', text));
   return p;

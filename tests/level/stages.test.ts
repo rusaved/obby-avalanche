@@ -17,10 +17,86 @@ describe('stages pace: ridges ask for a level (docs/01-gdd.md 22.2)', () => {
         expect(s.requires).toBe(Math.round(levelThreshold(s.level!, levels) * 1000) / 1000);
       }
   });
-  it('the hardest ridge of a mountain within ±9% of the open one (one value moved, the balance not recounted)', () => {
+  it('the last stage asks for the giant number of the open mountain within ±9% (one value moved, the balance not recounted)', () => {
     stages.forEach((w, i) => {
-      const max = (ws: W): number => Math.max(...ws.segments.filter((x) => x.type === 'gate' && x.kind === 'ridge').map((x) => x.requires!));
-      expect(Math.abs(Math.log(max(w) / max(open[i]!)))).toBeLessThanOrEqual(Math.log(1.18) / 2 + 1e-9);
+      const max = (ws: W, kinds: string[]): number => Math.max(...ws.segments.filter((x) => x.type === 'gate' && kinds.includes(x.kind ?? '')).map((x) => x.requires!));
+      expect(Math.abs(Math.log(max(w, ['ridge']) / max(open[i]!, ['ridge', 'boss'])))).toBeLessThanOrEqual(Math.log(1.18) / 2 + 1e-9);
     });
+  });
+});
+
+import { generateWorlds, stringifyWorlds } from '../../src/level/generate.ts';
+import { mergePatch } from '../../src/content/pace.ts';
+import { mazeOf } from '../../src/level/stage-slope.ts';
+import { validateStageWorld, validateStageWorlds, widthChanges } from '../../src/level/validate-stages.ts';
+import type { TuningJson, World } from '../../src/content/types.ts';
+
+const tuning = mergePatch(read('tuning.json'), read('pace/stages/tuning.json')) as unknown as TuningJson;
+const balance = mergePatch(read('balance.json'), read('pace/stages/balance.json')) as { levels: { first: number; growth: number }; speedCurve: { base: number; k: number; max: number }; coins: { gatePass: number; chest: number } };
+const full = (read('pace/stages/worlds.json') as { worlds: World[] }).worlds;
+const clone = <T>(x: T): T => JSON.parse(JSON.stringify(x)) as T;
+
+describe('stages pace: the mountain of stages (LV-03…LV-07, docs/01-gdd.md 22.4–22.8)', () => {
+  it('gen:worlds is deterministic and matches the committed pace/stages/worlds.json; the validator passes it', () => {
+    const spec = read('pace/stages/worlds-spec.json') as Parameters<typeof generateWorlds>[0]['spec'];
+    const a = stringifyWorlds(generateWorlds({ spec, balance, tuning }));
+    expect(stringifyWorlds(generateWorlds({ spec, balance, tuning }))).toBe(a);
+    expect(a).toBe(readFileSync(new URL('../../content/avalanche/pace/stages/worlds.json', import.meta.url), 'utf8'));
+    expect(validateStageWorlds({ schema: 1, generator: '', worlds: full }, balance.levels, tuning)).toEqual([]);
+  }, 60_000);
+  it('the first minute of mountain 1 is the open one byte for byte (up to ridge 1)', () => {
+    const r1 = open[0]!.segments.find((s) => s.type === 'gate' && s.kind === 'ridge')!.z;
+    const before = (w: W): string => JSON.stringify(w.segments.filter((s) => s.z < r1));
+    expect(before(stages[0]!)).toBe(before(open[0]!));
+  });
+  it('10–15 stages a mountain, 2–3 changes of width, no coins on the track past the first minute, ×2–3 trophies, ±20% of the open coins', () => {
+    full.forEach((w, i) => {
+      const st = w.stages!;
+      expect(st.length).toBeGreaterThanOrEqual(10);
+      expect(st.length).toBeLessThanOrEqual(15);
+      const ch = widthChanges(st);
+      expect(ch).toBeGreaterThanOrEqual(2);
+      expect(ch).toBeLessThanOrEqual(3);
+      const intro = st[0]!.type === 'intro' ? st[0]!.end : 0;
+      const coins = w.segments.filter((s) => s.type === 'gift' && s.z >= intro && s['snowflake'] !== true);
+      expect(coins, `mountain ${i + 1}`).toEqual([]);
+      expect(w.segments.filter((s) => s['snowflake'] === true).length).toBeLessThanOrEqual(2);
+      const paid = st.filter((s) => s.trophies > 0);
+      const k = paid.at(-1)!.trophies / paid[0]!.trophies;
+      expect(k).toBeGreaterThanOrEqual(2);
+      expect(k).toBeLessThanOrEqual(3.2);
+      const sum = paid.reduce((a, s) => a + s.trophies, 0);
+      let openCoins = 0;
+      for (const s of (open[i] as unknown as World).segments) {
+        if (s.type === 'gift' || s.type === 'chestGrotto' || s.type === 'chest') openCoins += (s['coins'] as number) ?? 0;
+        if (s.type === 'gate') openCoins += (s['reward'] as { coins?: number } | undefined)?.coins ?? 0;
+      }
+      expect(Math.abs(sum / openCoins - 1)).toBeLessThanOrEqual(0.2);
+    });
+  });
+  it('the maze: deterministic, one real exit, 2–3 false; the validator names a broken one', () => {
+    expect(JSON.stringify(mazeOf(5, 4, 2, 7))).toBe(JSON.stringify(mazeOf(5, 4, 2, 7)));
+    const w = clone(full[1]!);
+    const mz = w.stages!.find((s) => s.type === 'maze')!.maze!;
+    mz.exits = mz.exits.filter((e) => e.real);
+    expect(validateStageWorld(w, balance.levels, tuning, 0.05).some((e) => e.includes('false exits'))).toBe(true);
+    const w2 = clone(full[1]!);
+    w2.stages!.find((s) => s.type === 'maze')!.maze!.exits.forEach((e) => (e.real = true));
+    expect(validateStageWorld(w2, balance.levels, tuning, 0.05).some((e) => e.includes('real exits'))).toBe(true);
+  });
+  it('the validator names a free strip, a wrong order, a bridge too wide, a lost trophy button and a field-wide avalanche', () => {
+    const errs = (f: (w: World) => void): string[] => {
+      const w = clone(full[2]!);
+      f(w);
+      return validateStageWorld(w, balance.levels, tuning, 0.05);
+    };
+    // A free strip: the pits of the cracks stage gone.
+    const cracks = full[2]!.stages!.find((s) => s.type === 'cracks')!;
+    expect(errs((w) => (w.segments = w.segments.filter((s) => !(s.type === 'pit' && s.z >= cracks.start && s.z < cracks.end)))).some((e) => e.includes('without its trial'))).toBe(true);
+    expect(errs((w) => ([w.stages![1]!.type, w.stages![2]!.type] = ['cracks', 'giant'])).some((e) => e.includes('the giant second'))).toBe(true);
+    const plates = full[2]!.stages!.find((s) => s.type === 'plates')!;
+    expect(errs((w) => w.segments.forEach((s) => s.type === 'floor' && s.z > plates.start && s.z < plates.end && (s['x1'] as number) - (s['x0'] as number) <= 12 && ((s['x0'] = -20), (s['x1'] = 20)))).some((e) => e.includes('bridge'))).toBe(true);
+    expect(errs((w) => (w.segments = w.segments.filter((s) => s.type !== 'trophyPad'))).some((e) => e.includes('trophy buttons'))).toBe(true);
+    expect(errs((w) => (w.threat.zones = [[w.stages![2]!.z0, w.stages![2]!.end]])).some((e) => e.includes('outside an avalanche stage'))).toBe(true);
   });
 });

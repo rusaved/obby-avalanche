@@ -10,7 +10,7 @@
     "respawn": "never"
   },
   "caught": {
-    "to": "flag"
+    "to": "prevStage"
   },
   "ui": {
     "summitGroup": {
@@ -126,7 +126,8 @@
     },
     "continueCooldownSec": 120,
     "continueShowSec": 6,
-    "statNowCooldownSec": 200
+    "statNowCooldownSec": 200,
+    "stageContinueSec": 60
   },
   "boost": {
     "statNowSec": 40
@@ -256,5 +257,6 @@
   "levels": {
     "first": 50,
     "growth": 1.18
-  }
+  },
+  "currency": "trophies"
 }

@@ -138,9 +138,9 @@ export function createEvents(level: LevelData, cfg: GameEvents, seed: number, ga
       if (state.snowball) stepSnowball(dt, ctx, state.snowball);
       if (state.blizzard && (state.blizzard.left -= dt) <= 1e-9) end('blizzard', 'over', ctx.tick);
       const k = sectionAt(ctx.hero.z);
-      if (k !== section) {
+      if (k !== section) { // stages pace (docs/01-gdd.md 22.5): the blizzard is its stage's trial, no random events
         [section, armedAt] = [k, time];
-        armed = !force && owed && k >= owed && !busy() ? 'blizzard' : k >= cfg.sections[0] && k <= cfg.sections[1] && !busy() && quiet(ctx) ? roll() : null;
+        armed = level.stages ? (level.stages[k - 1]?.type === 'blizzard' ? 'blizzard' : null) : !force && owed && k >= owed && !busy() ? 'blizzard' : k >= cfg.sections[0] && k <= cfg.sections[1] && !busy() && quiet(ctx) ? roll() : null;
       }
       if (!armed || busy() || time - armedAt < cfg.delaySec - 1e-9 || !quiet(ctx) || !start(armed, ctx, k)) return;
       emit('eventStart', { tick: ctx.tick, id: armed, section: k });

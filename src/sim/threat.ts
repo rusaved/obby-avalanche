@@ -111,6 +111,10 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
   const lastGateZ = level.gates.reduce((m, g) => Math.max(m, g.z), campTop + avalanche.spawnMinFromCamp);
   // Open slope (docs/01-gdd.md 17.5): the front never starts above the line of the giant's zone; above it the hero is safe.
   const spawnMax = threat.spawnMaxZ ?? Infinity;
+  // Stages pace (docs/01-gdd.md 22.5): waves only inside the avalanche stages; the front melts at the bottom of its stage.
+  const zones = threat.zones;
+  const zoneOf = (z: number): [number, number] | null => zones?.find(([a, b]) => z >= a && z < b) ?? null;
+  let zoneLo = -Infinity;
   // The scripted wave comes at the first shelter of stretch `scriptedWaveWall` (the cave of that stretch in classic and
   // fast; the first grotto of section 2 on the open slope, 17.8).
   const scriptedCave = level.niches[firstShelter(level, balance.ftue.scriptedWaveWall)] ?? null;
@@ -160,8 +164,11 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
       state.spawnZ = (cave?.z ?? hero.z) + balance.ftue.spawnAhead;
     } else {
       const newbie = balance.threat.newbieWaves;
-      state.warnSec = threat.warnSec + (state.normalWavesDone < newbie.count ? newbie.warnBonusSec : 0);
-      state.spawnZ = Math.min(lastGateZ, spawnMax, Math.max(campTop + avalanche.spawnMinFromCamp, hero.z + threat.spawnAhead));
+      const inZone = zones ? zoneOf(hero.z) : null;
+      state.warnSec = inZone && threat.zoneWarnSec ? threat.zoneWarnSec : threat.warnSec + (state.normalWavesDone < newbie.count ? newbie.warnBonusSec : 0);
+      const zone = zones ? zoneOf(hero.z) : null;
+      zoneLo = zone ? zone[0] : -Infinity;
+      state.spawnZ = zone ? Math.min(zone[1], hero.z + threat.spawnAhead) : Math.min(lastGateZ, spawnMax, Math.max(campTop + avalanche.spawnMinFromCamp, hero.z + threat.spawnAhead));
       state.normalWaves++;
       state.normalWavesDone++;
       state.shelter = nearestShelter(level, gatesOpen, hero.x, hero.z);
@@ -240,6 +247,11 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
             if (zoneReached || state.playSec >= balance.ftue.fallbackSec) startWarn(hero, gatesOpen, tick);
             return;
           }
+          // Out of every avalanche stage the pause holds at its first delay: entering one starts it (22.5).
+          if (zones && !forced && !zoneOf(hero.z)) {
+            state.timer = threat.zoneFirstSec ?? threat.firstIntervalSec;
+            return;
+          }
           state.timer -= dt;
           if (state.timer <= 0) {
             forced = false;
@@ -269,7 +281,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
           else if (state.outcome === 'none' && scriptedRow.includes(state.shelter)) state.shelter = scriptedShelter(hero);
           state.frontZ -= threat.speed * dt;
           if (state.outcome === 'none' && state.frontZ <= hero.z) resolve(hero, tick);
-          if (state.frontZ <= campTop) {
+          if (state.frontZ <= Math.max(campTop, state.scripted ? -Infinity : zoneLo)) {
             // A scripted wave the front never reached (the hero ran above it) still ends the lesson.
             if (state.scripted && state.outcome === 'none') resolve(hero, tick);
             // The front melts at the camp: a hero waiting there was never reached, he is safe.

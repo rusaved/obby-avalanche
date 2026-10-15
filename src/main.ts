@@ -51,6 +51,9 @@ import { createCosmeticsView, type CosmeticsView } from './app/cosmetics-view.ts
 import { createCosmeticsVisual, type CosmeticsVisual } from './render/cosmetics.ts';
 import { createWindowFrame, type WindowFrame } from './ui/window.ts';
 import { createHudView, type HudView } from './app/hud-view.ts';
+import { createStageView, type StageView } from './app/stage-view.ts';
+import { setWalletTrophies } from './ui/shop-panel.ts';
+import { levelNeeded } from './sim/levels.ts';
 import { createBotsView, type BotsView, type HudMode } from './app/bots-view.ts';
 import { faceDataUrl } from './render/characters.ts';
 import { createAudio, type GameAudio } from './audio/index.ts';
@@ -379,6 +382,7 @@ async function boot(): Promise<void> {
   let questsView: QuestsView | null = null;
   let windows: WindowFrame | null = null;
   let hudView: HudView | null = null;
+  let stageView: StageView | null = null;
   let audio: GameAudio | null = null;
   let botsView: BotsView | null = null;
   let bonusVisual: BonusVisual | null = null;
@@ -604,6 +608,7 @@ async function boot(): Promise<void> {
     ftueView?.wire(s);
     funView?.wire(s);
     hudView?.wire(s);
+    stageView?.wire(s);
     bossView?.wire(s);
     decorWire(s);
     questsView?.wire(s);
@@ -887,7 +892,7 @@ async function boot(): Promise<void> {
       gr.scene.remove(levelMeshes.group);
       levelMeshes.dispose();
       gr.setTint(tintOf(world));
-      levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`), seeFade());
+      levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`), seeFade(), t('gate.needLevel'));
       gr.scene.add(levelMeshes.group);
       applyQualityNow();
     }
@@ -947,7 +952,7 @@ async function boot(): Promise<void> {
       gr.scene.remove(levelMeshes.group);
       levelMeshes.dispose();
       gr.setTint(null);
-      levelMeshes = createLevelMeshes(level, theme, (k) => t(`num.${k}`));
+      levelMeshes = createLevelMeshes(level, theme, (k) => t(`num.${k}`), 1, t('gate.needLevel'));
       gr.scene.add(levelMeshes.group);
       applyQualityNow();
     }
@@ -1335,6 +1340,7 @@ async function boot(): Promise<void> {
     hud?.setMenu(menuShown);
     ftueView?.update(gameDt, playSec, renderPos);
     hudView?.update(playSec);
+    stageView?.update();
     if (cameraRig) {
       // FM-03 (docs/01-gdd.md 19.8): running up a giant's zone, the giant ahead stays in the view.
       const zone = sim.boss?.zones.find((z) => renderPos.z >= z.zone[0] && renderPos.z <= z.zone[1]);
@@ -1374,9 +1380,12 @@ async function boot(): Promise<void> {
         if (k >= 1) melting.delete(index);
       }
       const statText = formatNumber(sim.progress.stat, numSuffix);
+      const lv = balance.levels;
       level.gates.forEach((_, i) => {
-        const req = formatNumber(sim.gateRequirement(i), numSuffix);
         const open = sim.gatesOpen[i] ?? false;
+        // Stages pace (docs/01-gdd.md 22.3): the ridge shows the level it asks for under «LEVEL NEEDED».
+        if (lv) return levelMeshes!.setGateSign(i, String(levelNeeded(sim.gateRequirement(i), lv)), open);
+        const req = formatNumber(sim.gateRequirement(i), numSuffix);
         levelMeshes!.setGateSign(i, open ? req : `${statText}/${req}`, open);
       });
       if (hud && cameraRig) guardBannerSigns(hud, levelMeshes, level, cameraRig.camera, field, renderPos, sim.gatesPassed);
@@ -1460,7 +1469,7 @@ async function boot(): Promise<void> {
   gr = createGameRenderer(canvas, gl, theme, quality.params.antialias);
   bootState.glRenderer = gr.glRenderer;
   gr.setTint(tintOf(world));
-  levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`), seeFade());
+  levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`), seeFade(), t('gate.needLevel'));
   gr.scene.add(levelMeshes.group);
   // Walls open from the save stand as arches at once (M3-07), no melt; gifts taken before F5 are gone (RL-08).
   sim.gatesOpen.forEach((open, i) => open && levelMeshes!.setGateOpen(i, 1));
@@ -1524,6 +1533,7 @@ async function boot(): Promise<void> {
     onAutoRun: (on) => g.setAutoRun(on),
     onQuality: (level) => g.setQualitySetting(level),
     coinColor: theme.ui.coins,
+    coinsAsTrophies: balance.currency === 'trophies',
     threatColor: theme.threat.front[1],
     bonusColor: theme.bonus?.color,
     onShoes: () => void meta?.buyShoes(),
@@ -1790,6 +1800,8 @@ async function boot(): Promise<void> {
   });
   ftueView.wire(sim);
   const skin = skins.skins.find((x) => x.id === skins.default) ?? skins.skins[0];
+  // Stages pace (docs/01-gdd.md 22.8): the coin wallet is trophies in the windows too.
+  setWalletTrophies(balance.currency === 'trophies');
   hudView = createHudView({
     balance,
     theme,
@@ -1813,6 +1825,9 @@ async function boot(): Promise<void> {
     },
   });
   hudView.wire(sim);
+  // The stage finishes of the stages pace (docs/01-gdd.md 22.8): the trophy buttons.
+  stageView = createStageView({ getSim: () => sim, hud, camera: cameraRig, theme, field: () => field, fx: () => fx, play: (n) => audio?.play(n), numSuffix });
+  stageView.wire(sim);
   hud.setAutoRun(save.settings.autoRun);
   hud.setQuality(save.settings.quality);
   hud.setTouchMode(mobile);

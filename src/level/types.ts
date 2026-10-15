@@ -119,6 +119,8 @@ export interface LevelPoint {
 }
 
 export interface LevelData {
+  /** Stages pace (docs/01-gdd.md 22.4): the stages of worlds.json as they are; absent — the other layouts. */
+  stages?: import('../content/types.ts').WorldStage[];
   worldId: string;
   worldIndex: number;
   length: number;
