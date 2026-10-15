@@ -99,7 +99,8 @@ describe('stages pace: the mountain of stages (LV-03…LV-07, docs/01-gdd.md 22.
     const plates = full[2]!.stages!.find((s) => s.type === 'plates')!;
     expect(errs((w) => w.segments.forEach((s) => s.type === 'floor' && s.z > plates.start && s.z < plates.end && (s['x1'] as number) - (s['x0'] as number) <= 12 && ((s['x0'] = -20), (s['x1'] = 20)))).some((e) => e.includes('bridge'))).toBe(true);
     expect(errs((w) => (w.segments = w.segments.filter((s) => s.type !== 'trophyPad'))).some((e) => e.includes('trophy buttons'))).toBe(true);
-    expect(errs((w) => (w.threat.zones = [[w.stages![2]!.z0, w.stages![2]!.end]])).some((e) => e.includes('outside an avalanche stage'))).toBe(true);
+    // SD-06: an avalanche on the giant's stage (he is its trial) is named.
+    expect(errs((w) => (w.threat.zones = [[w.stages![1]!.z0, w.stages![1]!.end]])).some((e) => e.includes("on the giant's"))).toBe(true);
   });
 });
 

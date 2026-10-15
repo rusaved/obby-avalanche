@@ -105,7 +105,8 @@ export function createCampView(d: CampViewDeps): CampView {
       // The avalanche of a stage (LV-12 re-check: «Run up!» and «Take the trophies» stood under the wave): to a grotto.
       const ws = sim.threat?.state;
       const wave = !!ws && (ws.phase === 'warn' || (ws.phase === 'run' && ws.outcome === 'none'));
-      if (st?.type === 'avalanche' && wave) show = sim.inShelter() ? null : t('hint.cover');
+      // SD-06: the avalanche comes on almost every stage — the same plaque on any of them.
+      if (st && st.type !== 'intro' && wave) show = sim.inShelter() ? null : t('hint.cover');
       d.hud.setTutor(show);
       // The teleport pad of the camp: stepping on it opens the window once a step-on.
       const p = w.campTeleport;

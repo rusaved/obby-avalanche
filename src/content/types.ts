@@ -542,7 +542,8 @@ export interface WorldThreat {
   spawnMaxZ?: number;
   /** Stages pace (docs/01-gdd.md 22.5): the avalanche runs only while the hero is inside one of these [z0, z1]; the
    * first wave of an entry comes after `zoneFirstSec`. Absent — the whole slope as before. */
-  zones?: Array<[number, number]>;
+  /** SD-06: a zone's own first delay of the wave (s) as a third number; absent — zoneFirstSec. */
+  zones?: Array<[number, number] | [number, number, number]>;
   zoneFirstSec?: number;
   /** The warning of a wave inside a zone (no newbie bonus: the stage is built for it). */
   zoneWarnSec?: number;
@@ -1030,7 +1031,8 @@ export interface StageSpec {
   catapultK?: number;
   snowflake: { mult: number; stages: number };
   /** The avalanche stage: the first wave after entering, the pause between waves inside, grottos every `every` × v. */
-  avalanche: { firstSec: number; warnSec: number; intervalSec: number; every: number; x: number };
+  /** SD-06: `stageExtraSec` — the avalanche on every stage but the giant's, its first wave that long after a clean run. */
+  avalanche: { firstSec: number; warnSec: number; intervalSec: number; every: number; x: number; stageExtraSec?: number };
   maze: { cell: number; wall: number; height: number; cols: number[]; rows: number[]; falseExits: [number, number] };
   /** The giant of a stage slower than v(N) by this share, by mountain (LV-12 review: on mountains 1–2 a gentler one for
    * the first runs); absent — the margin of the mountain's giant. */

@@ -113,7 +113,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
   const spawnMax = threat.spawnMaxZ ?? Infinity;
   // Stages pace (docs/01-gdd.md 22.5): waves only inside the avalanche stages; the front melts at the bottom of its stage.
   const zones = threat.zones;
-  const zoneOf = (z: number): [number, number] | null => zones?.find(([a, b]) => z >= a && z < b) ?? null;
+  const zoneOf = (z: number): readonly [number, number, number?] | null => zones?.find(([a, b]) => z >= a && z < b) ?? null;
   let zoneLo = -Infinity;
   let wasInZone = false;
   // The scripted wave comes at the first shelter of stretch `scriptedWaveWall` (the cave of that stretch in classic and
@@ -258,7 +258,9 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
             wasInZone = false;
             return;
           }
-          if (zones && inZone && !wasInZone) state.timer = Math.min(state.timer, threat.zoneFirstSec ?? state.timer);
+          // SD-06 (docs/01-gdd.md 23.6): a zone of its own first delay (the stages but the avalanche's) — that one on entering.
+          const own = zones ? zoneOf(hero.z)?.[2] : undefined;
+          if (zones && inZone && !wasInZone) state.timer = own ?? Math.min(state.timer, threat.zoneFirstSec ?? state.timer);
           wasInZone = inZone;
           state.timer -= dt;
           if (state.timer <= 0) {

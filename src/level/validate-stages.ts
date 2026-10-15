@@ -123,7 +123,8 @@ export function freeRuns(w: World, st: WorldStage, tuning: Physics): Array<[numb
     else if (s.type === 'floor' && num(s, 'x1') - num(s, 'x0') <= BRIDGE_WIDTH[1] + 1e-6) cover.push([z0, z1]);
   }
   for (const b of w.bosses ?? []) cover.push([b.zone[0], b.zone[1]]);
-  for (const zn of w.threat.zones ?? []) cover.push([zn[0], zn[1]]);
+  // The avalanche is the trial of its own stage only; on the others (SD-06, a zone of its own delay) it is a push to hurry.
+  for (const zn of w.threat.zones ?? []) if (zn[2] === undefined) cover.push([zn[0], zn[1]]);
   const free: Array<[number, number]> = [];
   let from = -1;
   for (let z = st.start; z <= st.end; z += 1) {
@@ -225,10 +226,27 @@ export function validateStageWorld(w: World, levels: Levels, tuning: Physics, ma
   for (let k = 1; k < paid.length; k++) if (!(paid[k]!.trophies > paid[k - 1]!.trophies)) errors.push(`${at}: stage ${paid[k]!.n} — ${paid[k]!.trophies} trophies, more than stage ${paid[k - 1]!.n} (${paid[k - 1]!.trophies}) expected (docs/01-gdd.md 23.3)`);
   if (w.index === 1 && paid[0] && paid[0].trophies !== 1) errors.push(`${at}: the first trophy button of the game gives ${paid[0].trophies}, 1 expected (docs/01-gdd.md 23.3)`);
   if (snow > 2) errors.push(`${at}: ${snow} golden snowflakes, 2 at most`);
-  // One trial a stage: the avalanche only on its stages, the giant only on his.
-  for (const zn of w.threat.zones ?? []) {
+  // SD-06 (docs/01-gdd.md 23.6): the avalanche on every stage but the giant's (he is its trial), never on the first minute;
+  // a zone with its own first delay has a grotto, and from any point of the body a grotto or the safe finish is within
+  // the warning at v(N).
+  const zones = w.threat.zones ?? [];
+  for (const zn of zones) {
     const st = stages.find((s) => zn[0] >= s.z0 - 1e-6 && zn[1] <= s.end + 1e-6);
-    if (!st || (st.type !== 'avalanche' && st.type !== 'intro')) errors.push(`${at}: an avalanche zone ${zn.join('–')} outside an avalanche stage`);
+    if (!st || st.type === 'giant') errors.push(`${at}: an avalanche zone ${zn.join('–')} outside a stage of its own or on the giant's`);
+  }
+  const extra = zones.some((zn) => zn[2] !== undefined);
+  for (const st of extra ? stages : []) {
+    if (st.type === 'giant' || st.type === 'intro' || st.type === 'avalanche') continue;
+    const zn = zones.find((x) => x[0] >= st.z0 - 1e-6 && x[1] <= st.end + 1e-6);
+    const isl = w.segments.filter((s) => s.type === 'island' && s.z >= st.z0 - 1e-6 && s.z <= st.end + 1e-6).map((s) => s.z);
+    if (!zn || isl.length === 0) {
+      errors.push(`${at}: stage ${st.n} (${st.type}) — no avalanche or no grotto (docs/01-gdd.md 23.6)`);
+      continue;
+    }
+    const marks = [...isl, st.end].sort((a, b) => a - b);
+    let far = Math.max(0, marks[0]! - st.start);
+    for (let k = 1; k < marks.length; k++) far = Math.max(far, (marks[k]! - marks[k - 1]!) / 2);
+    if (far > (w.threat.zoneWarnSec ?? 0) * st.speed + 1e-6) errors.push(`${at}: stage ${st.n} (${st.type}) — ${round3(far)} to the nearest grotto or the finish, more than the warning at v(N)`);
   }
   for (const b of w.bosses ?? []) {
     const st = stages.find((s) => b.zone[0] >= s.start - 1e-6 && b.zone[1] <= s.end + 1e-6);

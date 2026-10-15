@@ -1320,7 +1320,8 @@
       "warnSec": 4,
       "intervalSec": 30,
       "every": 2,
-      "x": 18
+      "x": 18,
+      "stageExtraSec": 3
     },
     "maze": {
       "cell": 12,

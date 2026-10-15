@@ -172,7 +172,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
   const seg: Segment[] = [];
   const stages: WorldStage[] = [];
   const bosses: WorldBoss[] = [];
-  const waveZones: Array<[number, number]> = [];
+  const waveZones: Array<[number, number] | [number, number, number]> = [];
   const safe: Array<[number, number]> = [[0, spec.campLength]];
 
   // Ridge numbers of the open mountain and its giant, spread over the gates of stages 2…K on the log scale (22.2).
@@ -436,6 +436,14 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
       zb += gap;
     }
 
+    // SD-06 (docs/01-gdd.md 23.6): the avalanche on almost every stage — not the giant's (one trial a stage there) and not
+    // the first minute. A grotto in a rock on the start pad beside the axis; the first wave `stageExtraSec` later than a
+    // clean run of the body at v(N) — the slow one hides in it or runs on to the safe finish.
+    const extra = cfg.avalanche.stageExtraSec;
+    if (extra !== undefined && type !== 'giant' && type !== 'avalanche') {
+      seg.push({ type: 'island', z: round3(start - cfg.start / 2), x: (s % 2 === 0 ? -1 : 1) * cfg.avalanche.x, y: round3(y), size: cfg.start, zone: s, stretch: s });
+      waveZones.push([round3(z0), round3(zb), round3((zb - start) / v + extra)]);
+    }
     // The safe finish with the trophy button at the side (22.8): the threats stay out of it.
     const end = round3(zb);
     floor(end, cfg.finish, y);
