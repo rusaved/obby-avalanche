@@ -1978,7 +1978,8 @@ async function boot(): Promise<void> {
   persist();
   if (!pause.paused) platform.gameplayStart();
 
-  if (__BUILD_LABEL__) mountLabel(__BUILD_LABEL__, ui);
+  // SD-08 (docs/01-gdd.md 23.8): the build label of the producer link only with ?debug=1 — the game itself is clean.
+  if (__BUILD_LABEL__ && params.get('debug') === '1') mountLabel(__BUILD_LABEL__, ui);
   if (__DEBUG_TOOLS__ && params.get('debug') === '1') {
     const mod = await import('./debug/index.ts');
     debug = mod.mountDebug(g, ui, mobile);

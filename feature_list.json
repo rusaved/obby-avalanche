@@ -1309,7 +1309,7 @@
     "milestone": "SD",
     "description": "Метка сборки «PR • дата • хеш» видна только с ?debug=1",
     "acceptance": "e2e: без ?debug=1 метки сборки в DOM нет или она скрыта; с ?debug=1 — видна",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

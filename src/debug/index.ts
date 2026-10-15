@@ -125,6 +125,8 @@ export function mountDebug(g: GameHandles, host: HTMLElement, isMobile: boolean)
 
   const controller = gui.addFolder('Controller');
   for (const [key, range] of Object.entries(CONTROLLER_RANGES) as Array<[keyof TuningJson['controller'], Range | null]>) {
+    // Not a number or a box (levelJump of the stages pace, SD-04): no slider for it, the JSON carries it.
+    if (typeof g.tuning.controller[key] !== 'number' && typeof g.tuning.controller[key] !== 'boolean') continue;
     const ctl = range ? controller.add(g.tuning.controller, key, range[0], range[1], range[2]) : controller.add(g.tuning.controller, key);
     ctl.onChange(persist);
   }
