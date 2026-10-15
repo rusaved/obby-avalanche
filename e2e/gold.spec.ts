@@ -63,6 +63,7 @@ test('2nd normal wave: a golden gift, carried into the cave → gold_take, gold_
     }).observe(node, { attributes: true, attributeFilter: ['class'] });
   });
   const coins0 = s.coins;
+  const surv0 = await page.evaluate(() => window.__TEST__!.simEvents.filter((e) => e.name === 'waveSurvived').length);
   await walk(page, [mouth, [b.x, b.z]]);
   await page.waitForFunction(() => window.__TEST__!.state().bonus?.carried === true, undefined, { timeout: 10_000 });
   expect(await page.evaluate(() => (window as unknown as { __hintOff: number }).__hintOff)).toBeLessThanOrEqual(1);
@@ -76,11 +77,16 @@ test('2nd normal wave: a golden gift, carried into the cave → gold_take, gold_
   await page.waitForFunction(() => window.__TEST__!.analytics().some((e) => e.name === 'gold_saved'), undefined, { timeout: 60_000 });
   await page.evaluate(() => window.__TEST__!.setTimeScale(1));
   expect(await goldEvents(page)).toEqual(['gold_take', 'gold_saved']);
+  // SD-02 (docs/01-gdd.md 23.2): saved at once on the way into the cave (not after the wave), hands free.
+  const saved = await page.evaluate(() => window.__TEST__!.simEvents.filter((e) => e.name === 'bonusSaved').at(-1)!);
+  expect(saved['where']).toBe('cave');
+  expect(Number(saved['coins'])).toBeGreaterThan(0);
+  expect((await testState(page)).bonus).toBeNull();
+  await page.waitForFunction((n) => window.__TEST__!.simEvents.filter((e) => e.name === 'waveSurvived').length > n, surv0, { timeout: 60_000 });
   const surv = await page.evaluate(() => window.__TEST__!.simEvents.filter((e) => e.name === 'waveSurvived').at(-1)!);
-  expect(Number(surv['gold'])).toBeGreaterThan(0);
+  expect(Number(surv['gold'])).toBe(0);
   s = await testState(page);
-  expect(s.bonus).toBeNull();
-  expect(s.coins - coins0).toBe(Number(surv['coins']));
+  expect(s.coins - coins0).toBe(Number(surv['coins']) + Number(saved['coins']));
   // Only names in the buffer, no extra params (Metrika gets params({ goldGift }) instead of goals).
   const gold = await page.evaluate(() => window.__TEST__!.analytics().filter((e) => e.name.startsWith('gold_')));
   expect(gold.every((e) => e.params === undefined)).toBe(true);

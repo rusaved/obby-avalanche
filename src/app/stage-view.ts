@@ -24,8 +24,10 @@ export interface StageViewDeps {
   fx(): FxParticles | null;
   play(name: string): void;
   numSuffix(k: string): string;
-  /** A trophy button taken (the tutorial step, docs/01-gdd.md 22.12). */
-  onTrophy?: () => void;
+  /** A trophy button taken (the tutorial step, docs/01-gdd.md 22.12); SD-03: `trophies` — they go to the trophy wallet. */
+  onTrophy?: (amount: number, trophies: boolean) => void;
+  /** SD-03 (docs/01-gdd.md 23.3): back in the camp after the trophies — a flash over the jump. */
+  onCampReturn?: () => void;
   /** The teleport pad of the camp of this mountain (docs/01-gdd.md 22.12); absent — none. */
   campTeleport?: () => { x: number; y: number; z: number } | undefined;
 }
@@ -52,14 +54,15 @@ export function createStageView(d: StageViewDeps): StageView {
       return taken;
     },
     wire(sim) {
-      sim.events.on('trophyTake', ({ amount, x, y, z }) => {
+      sim.events.on('trophyTake', ({ amount, x, y, z, trophies }) => {
         taken++;
         d.hud.toast(t('toast.trophyPad', { n: fmt(amount) }));
-        d.hud.popCoinGain(`+${fmt(amount)}`);
+        if (!trophies) d.hud.popCoinGain(`+${fmt(amount)}`);
         d.fx()?.burst('confetti', x, y + 1.5, z, [d.theme.ui.trophies, '#ffffff', d.theme.ui.coins], 36, 9, 3);
         d.play('levelUp');
-        d.onTrophy?.();
+        d.onTrophy?.(amount, trophies);
       });
+      sim.events.on('campReturn', () => d.onCampReturn?.());
     },
     update() {
       const sim = d.getSim();

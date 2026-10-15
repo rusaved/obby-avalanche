@@ -646,7 +646,7 @@
           "x": -26,
           "y": 12,
           "stage": 2,
-          "trophies": 130
+          "trophies": 1
         },
         {
           "type": "block",
@@ -920,7 +920,7 @@
           "x": 26,
           "y": 16,
           "stage": 3,
-          "trophies": 150
+          "trophies": 3
         },
         {
           "type": "block",
@@ -1061,7 +1061,7 @@
           "x": -26,
           "y": 20,
           "stage": 4,
-          "trophies": 160
+          "trophies": 10
         },
         {
           "type": "block",
@@ -1215,7 +1215,7 @@
           "x": 26,
           "y": 24,
           "stage": 5,
-          "trophies": 180
+          "trophies": 20
         },
         {
           "type": "block",
@@ -1391,7 +1391,7 @@
           "x": -26,
           "y": 28,
           "stage": 6,
-          "trophies": 200
+          "trophies": 30
         },
         {
           "type": "block",
@@ -1660,7 +1660,7 @@
           "x": 26,
           "y": 32,
           "stage": 7,
-          "trophies": 220
+          "trophies": 40
         },
         {
           "type": "block",
@@ -1822,7 +1822,7 @@
           "x": -26,
           "y": 36,
           "stage": 8,
-          "trophies": 250
+          "trophies": 50
         },
         {
           "type": "block",
@@ -2153,7 +2153,7 @@
           "x": 26,
           "y": 40,
           "stage": 9,
-          "trophies": 270
+          "trophies": 60
         },
         {
           "type": "block",
@@ -2307,7 +2307,7 @@
           "x": -26,
           "y": 44,
           "stage": 10,
-          "trophies": 300
+          "trophies": 70
         },
         {
           "type": "block",
@@ -2464,7 +2464,7 @@
           "level": 2,
           "speed": 31.027,
           "width": "field",
-          "trophies": 130,
+          "trophies": 1,
           "pad": {
             "x": -26,
             "z": 507.135,
@@ -2485,7 +2485,7 @@
           "level": 8,
           "speed": 34.775,
           "width": "field",
-          "trophies": 150,
+          "trophies": 3,
           "pad": {
             "x": 26,
             "z": 685.369,
@@ -2511,7 +2511,7 @@
           "level": 14,
           "speed": 38.552,
           "width": "bridge",
-          "trophies": 160,
+          "trophies": 10,
           "pad": {
             "x": -26,
             "z": 845.025,
@@ -2532,7 +2532,7 @@
           "level": 18,
           "speed": 41.077,
           "width": "bridge",
-          "trophies": 180,
+          "trophies": 20,
           "pad": {
             "x": 26,
             "z": 1059.902,
@@ -2553,7 +2553,7 @@
           "level": 20,
           "speed": 42.341,
           "width": "field",
-          "trophies": 200,
+          "trophies": 30,
           "pad": {
             "x": -26,
             "z": 1400.289,
@@ -2574,7 +2574,7 @@
           "level": 23,
           "speed": 44.237,
           "width": "field",
-          "trophies": 220,
+          "trophies": 40,
           "pad": {
             "x": 26,
             "z": 1639.012,
@@ -2600,7 +2600,7 @@
           "level": 24,
           "speed": 44.869,
           "width": "bridge",
-          "trophies": 250,
+          "trophies": 50,
           "pad": {
             "x": -26,
             "z": 1844.541,
@@ -2621,7 +2621,7 @@
           "level": 25,
           "speed": 45.502,
           "width": "cave",
-          "trophies": 270,
+          "trophies": 60,
           "pad": {
             "x": 26,
             "z": 1944.541,
@@ -2786,7 +2786,7 @@
           "level": 26,
           "speed": 46.134,
           "width": "bridge",
-          "trophies": 300,
+          "trophies": 70,
           "pad": {
             "x": -26,
             "z": 2180.458,
@@ -3202,7 +3202,7 @@
           "x": 26,
           "y": 0,
           "stage": 1,
-          "trophies": 580
+          "trophies": 4
         },
         {
           "type": "block",
@@ -3369,7 +3369,7 @@
           "x": -26,
           "y": 4,
           "stage": 2,
-          "trophies": 650
+          "trophies": 11
         },
         {
           "type": "block",
@@ -3643,7 +3643,7 @@
           "x": 26,
           "y": 8,
           "stage": 3,
-          "trophies": 710
+          "trophies": 38
         },
         {
           "type": "block",
@@ -3797,7 +3797,7 @@
           "x": -26,
           "y": 12,
           "stage": 4,
-          "trophies": 790
+          "trophies": 76
         },
         {
           "type": "block",
@@ -3938,7 +3938,7 @@
           "x": 26,
           "y": 16,
           "stage": 5,
-          "trophies": 880
+          "trophies": 110
         },
         {
           "type": "block",
@@ -4114,7 +4114,7 @@
           "x": -26,
           "y": 20,
           "stage": 6,
-          "trophies": 970
+          "trophies": 150
         },
         {
           "type": "block",
@@ -4276,7 +4276,7 @@
           "x": 26,
           "y": 24,
           "stage": 7,
-          "trophies": 1100
+          "trophies": 190
         },
         {
           "type": "block",
@@ -4607,7 +4607,7 @@
           "x": -26,
           "y": 28,
           "stage": 8,
-          "trophies": 1200
+          "trophies": 230
         },
         {
           "type": "block",
@@ -4753,7 +4753,7 @@
           "x": 26,
           "y": 32,
           "stage": 9,
-          "trophies": 1300
+          "trophies": 260
         },
         {
           "type": "block",
@@ -4907,7 +4907,7 @@
           "x": -26,
           "y": 36,
           "stage": 10,
-          "trophies": 1500
+          "trophies": 300
         },
         {
           "type": "block",
@@ -5043,7 +5043,7 @@
           "level": 25,
           "speed": 45.502,
           "width": "field",
-          "trophies": 580,
+          "trophies": 4,
           "pad": {
             "x": 26,
             "z": 190,
@@ -5064,7 +5064,7 @@
           "level": 33,
           "speed": 50.561,
           "width": "field",
-          "trophies": 650,
+          "trophies": 11,
           "pad": {
             "x": -26,
             "z": 486.805,
@@ -5085,7 +5085,7 @@
           "level": 35,
           "speed": 51.826,
           "width": "field",
-          "trophies": 710,
+          "trophies": 38,
           "pad": {
             "x": 26,
             "z": 723.015,
@@ -5111,7 +5111,7 @@
           "level": 37,
           "speed": 53.091,
           "width": "bridge",
-          "trophies": 790,
+          "trophies": 76,
           "pad": {
             "x": -26,
             "z": 987.874,
@@ -5132,7 +5132,7 @@
           "level": 38,
           "speed": 53.723,
           "width": "bridge",
-          "trophies": 880,
+          "trophies": 110,
           "pad": {
             "x": 26,
             "z": 1193.043,
@@ -5153,7 +5153,7 @@
           "level": 40,
           "speed": 54.988,
           "width": "field",
-          "trophies": 970,
+          "trophies": 150,
           "pad": {
             "x": -26,
             "z": 1621.959,
@@ -5174,7 +5174,7 @@
           "level": 41,
           "speed": 55.621,
           "width": "bridge",
-          "trophies": 1100,
+          "trophies": 190,
           "pad": {
             "x": 26,
             "z": 1866.194,
@@ -5195,7 +5195,7 @@
           "level": 43,
           "speed": 56.886,
           "width": "cave",
-          "trophies": 1200,
+          "trophies": 230,
           "pad": {
             "x": -26,
             "z": 1966.194,
@@ -5366,7 +5366,7 @@
           "level": 44,
           "speed": 57.519,
           "width": "bridge",
-          "trophies": 1300,
+          "trophies": 260,
           "pad": {
             "x": 26,
             "z": 2194.254,
@@ -5387,7 +5387,7 @@
           "level": 46,
           "speed": 58.784,
           "width": "bridge",
-          "trophies": 1500,
+          "trophies": 300,
           "pad": {
             "x": -26,
             "z": 2482.795,
@@ -5815,7 +5815,7 @@
           "x": 26,
           "y": 0,
           "stage": 1,
-          "trophies": 1700
+          "trophies": 10
         },
         {
           "type": "block",
@@ -5982,7 +5982,7 @@
           "x": -26,
           "y": 4,
           "stage": 2,
-          "trophies": 1900
+          "trophies": 30
         },
         {
           "type": "block",
@@ -6256,7 +6256,7 @@
           "x": 26,
           "y": 8,
           "stage": 3,
-          "trophies": 2100
+          "trophies": 100
         },
         {
           "type": "block",
@@ -6410,7 +6410,7 @@
           "x": -26,
           "y": 12,
           "stage": 4,
-          "trophies": 2300
+          "trophies": 200
         },
         {
           "type": "block",
@@ -6551,7 +6551,7 @@
           "x": 26,
           "y": 16,
           "stage": 5,
-          "trophies": 2500
+          "trophies": 300
         },
         {
           "type": "block",
@@ -6727,7 +6727,7 @@
           "x": -26,
           "y": 20,
           "stage": 6,
-          "trophies": 2800
+          "trophies": 400
         },
         {
           "type": "block",
@@ -6996,7 +6996,7 @@
           "x": 26,
           "y": 24,
           "stage": 7,
-          "trophies": 3000
+          "trophies": 500
         },
         {
           "type": "block",
@@ -7158,7 +7158,7 @@
           "x": -26,
           "y": 28,
           "stage": 8,
-          "trophies": 3300
+          "trophies": 600
         },
         {
           "type": "block",
@@ -7525,7 +7525,7 @@
           "x": 26,
           "y": 32,
           "stage": 9,
-          "trophies": 3600
+          "trophies": 700
         },
         {
           "type": "block",
@@ -7671,7 +7671,7 @@
           "x": -26,
           "y": 36,
           "stage": 10,
-          "trophies": 4000
+          "trophies": 800
         },
         {
           "type": "block",
@@ -7825,7 +7825,7 @@
           "x": 26,
           "y": 40,
           "stage": 11,
-          "trophies": 4400
+          "trophies": 900
         },
         {
           "type": "block",
@@ -7961,7 +7961,7 @@
           "level": 44,
           "speed": 57.519,
           "width": "field",
-          "trophies": 1700,
+          "trophies": 10,
           "pad": {
             "x": 26,
             "z": 190,
@@ -7982,7 +7982,7 @@
           "level": 49,
           "speed": 60.681,
           "width": "field",
-          "trophies": 1900,
+          "trophies": 30,
           "pad": {
             "x": -26,
             "z": 537.405,
@@ -8003,7 +8003,7 @@
           "level": 50,
           "speed": 61.314,
           "width": "field",
-          "trophies": 2100,
+          "trophies": 100,
           "pad": {
             "x": 26,
             "z": 805.87,
@@ -8029,7 +8029,7 @@
           "level": 51,
           "speed": 61.946,
           "width": "bridge",
-          "trophies": 2300,
+          "trophies": 200,
           "pad": {
             "x": -26,
             "z": 1107.565,
@@ -8050,7 +8050,7 @@
           "level": 52,
           "speed": 62.579,
           "width": "bridge",
-          "trophies": 2500,
+          "trophies": 300,
           "pad": {
             "x": 26,
             "z": 1339.302,
@@ -8071,7 +8071,7 @@
           "level": 53,
           "speed": 63.212,
           "width": "field",
-          "trophies": 2800,
+          "trophies": 400,
           "pad": {
             "x": -26,
             "z": 1825.786,
@@ -8092,7 +8092,7 @@
           "level": 54,
           "speed": 63.844,
           "width": "field",
-          "trophies": 3000,
+          "trophies": 500,
           "pad": {
             "x": 26,
             "z": 2134.859,
@@ -8118,7 +8118,7 @@
           "level": 55,
           "speed": 64.477,
           "width": "bridge",
-          "trophies": 3300,
+          "trophies": 600,
           "pad": {
             "x": -26,
             "z": 2410.975,
@@ -8139,7 +8139,7 @@
           "level": 56,
           "speed": 65.109,
           "width": "cave",
-          "trophies": 3600,
+          "trophies": 700,
           "pad": {
             "x": 26,
             "z": 2522.975,
@@ -8334,7 +8334,7 @@
           "level": 57,
           "speed": 65.742,
           "width": "bridge",
-          "trophies": 4000,
+          "trophies": 800,
           "pad": {
             "x": -26,
             "z": 2777.349,
@@ -8355,7 +8355,7 @@
           "level": 58,
           "speed": 66.374,
           "width": "bridge",
-          "trophies": 4400,
+          "trophies": 900,
           "pad": {
             "x": 26,
             "z": 3097.462,
@@ -8783,7 +8783,7 @@
           "x": 26,
           "y": 0,
           "stage": 1,
-          "trophies": 13000
+          "trophies": 76
         },
         {
           "type": "block",
@@ -8950,7 +8950,7 @@
           "x": -26,
           "y": 4,
           "stage": 2,
-          "trophies": 15000
+          "trophies": 230
         },
         {
           "type": "block",
@@ -9251,7 +9251,7 @@
           "x": 26,
           "y": 8,
           "stage": 3,
-          "trophies": 16000
+          "trophies": 760
         },
         {
           "type": "block",
@@ -9405,7 +9405,7 @@
           "x": -26,
           "y": 12,
           "stage": 4,
-          "trophies": 18000
+          "trophies": 1500
         },
         {
           "type": "block",
@@ -9546,7 +9546,7 @@
           "x": 26,
           "y": 16,
           "stage": 5,
-          "trophies": 19000
+          "trophies": 2300
         },
         {
           "type": "block",
@@ -9722,7 +9722,7 @@
           "x": -26,
           "y": 20,
           "stage": 6,
-          "trophies": 21000
+          "trophies": 3000
         },
         {
           "type": "block",
@@ -9991,7 +9991,7 @@
           "x": 26,
           "y": 24,
           "stage": 7,
-          "trophies": 23000
+          "trophies": 3800
         },
         {
           "type": "block",
@@ -10153,7 +10153,7 @@
           "x": -26,
           "y": 28,
           "stage": 8,
-          "trophies": 25000
+          "trophies": 4600
         },
         {
           "type": "block",
@@ -10532,7 +10532,7 @@
           "x": 26,
           "y": 32,
           "stage": 9,
-          "trophies": 28000
+          "trophies": 5300
         },
         {
           "type": "block",
@@ -10678,7 +10678,7 @@
           "x": -26,
           "y": 36,
           "stage": 10,
-          "trophies": 30000
+          "trophies": 6100
         },
         {
           "type": "block",
@@ -10832,7 +10832,7 @@
           "x": 26,
           "y": 40,
           "stage": 11,
-          "trophies": 33000
+          "trophies": 6900
         },
         {
           "type": "block",
@@ -10968,7 +10968,7 @@
           "level": 57,
           "speed": 65.742,
           "width": "field",
-          "trophies": 13000,
+          "trophies": 76,
           "pad": {
             "x": 26,
             "z": 190,
@@ -10989,7 +10989,7 @@
           "level": 60,
           "speed": 67.64,
           "width": "field",
-          "trophies": 15000,
+          "trophies": 230,
           "pad": {
             "x": -26,
             "z": 572.2,
@@ -11010,7 +11010,7 @@
           "level": 61,
           "speed": 68.272,
           "width": "field",
-          "trophies": 16000,
+          "trophies": 760,
           "pad": {
             "x": 26,
             "z": 924.948,
@@ -11036,7 +11036,7 @@
           "level": 62,
           "speed": 68.905,
           "width": "bridge",
-          "trophies": 18000,
+          "trophies": 1500,
           "pad": {
             "x": -26,
             "z": 1255.594,
@@ -11057,7 +11057,7 @@
           "level": 63,
           "speed": 69.537,
           "width": "bridge",
-          "trophies": 19000,
+          "trophies": 2300,
           "pad": {
             "x": 26,
             "z": 1508.205,
@@ -11078,7 +11078,7 @@
           "level": 64,
           "speed": 70.17,
           "width": "field",
-          "trophies": 21000,
+          "trophies": 3000,
           "pad": {
             "x": -26,
             "z": 2043.395,
@@ -11099,7 +11099,7 @@
           "level": 65,
           "speed": 70.802,
           "width": "field",
-          "trophies": 23000,
+          "trophies": 3800,
           "pad": {
             "x": 26,
             "z": 2377.432,
@@ -11125,7 +11125,7 @@
           "level": 66,
           "speed": 71.435,
           "width": "bridge",
-          "trophies": 25000,
+          "trophies": 4600,
           "pad": {
             "x": -26,
             "z": 2678.598,
@@ -11146,7 +11146,7 @@
           "level": 67,
           "speed": 72.067,
           "width": "cave",
-          "trophies": 28000,
+          "trophies": 5300,
           "pad": {
             "x": 26,
             "z": 2790.598,
@@ -11377,7 +11377,7 @@
           "level": 68,
           "speed": 72.7,
           "width": "bridge",
-          "trophies": 30000,
+          "trophies": 6100,
           "pad": {
             "x": -26,
             "z": 3067.238,
@@ -11398,7 +11398,7 @@
           "level": 70,
           "speed": 73.965,
           "width": "bridge",
-          "trophies": 33000,
+          "trophies": 6900,
           "pad": {
             "x": 26,
             "z": 3418.932,
@@ -11838,7 +11838,7 @@
           "x": 26,
           "y": 0,
           "stage": 1,
-          "trophies": 36000
+          "trophies": 180
         },
         {
           "type": "block",
@@ -12005,7 +12005,7 @@
           "x": -26,
           "y": 4,
           "stage": 2,
-          "trophies": 39000
+          "trophies": 550
         },
         {
           "type": "block",
@@ -12306,7 +12306,7 @@
           "x": 26,
           "y": 8,
           "stage": 3,
-          "trophies": 42000
+          "trophies": 1800
         },
         {
           "type": "block",
@@ -12468,7 +12468,7 @@
           "x": -26,
           "y": 12,
           "stage": 4,
-          "trophies": 46000
+          "trophies": 3700
         },
         {
           "type": "block",
@@ -12609,7 +12609,7 @@
           "x": 26,
           "y": 16,
           "stage": 5,
-          "trophies": 50000
+          "trophies": 5500
         },
         {
           "type": "block",
@@ -12785,7 +12785,7 @@
           "x": -26,
           "y": 20,
           "stage": 6,
-          "trophies": 54000
+          "trophies": 7300
         },
         {
           "type": "block",
@@ -13054,7 +13054,7 @@
           "x": 26,
           "y": 24,
           "stage": 7,
-          "trophies": 59000
+          "trophies": 9200
         },
         {
           "type": "block",
@@ -13311,7 +13311,7 @@
           "x": -26,
           "y": 28,
           "stage": 8,
-          "trophies": 64000
+          "trophies": 11000
         },
         {
           "type": "block",
@@ -13473,7 +13473,7 @@
           "x": 26,
           "y": 32,
           "stage": 9,
-          "trophies": 70000
+          "trophies": 13000
         },
         {
           "type": "block",
@@ -13864,7 +13864,7 @@
           "x": -26,
           "y": 36,
           "stage": 10,
-          "trophies": 76000
+          "trophies": 15000
         },
         {
           "type": "block",
@@ -14010,7 +14010,7 @@
           "x": 26,
           "y": 40,
           "stage": 11,
-          "trophies": 83000
+          "trophies": 16000
         },
         {
           "type": "block",
@@ -14172,7 +14172,7 @@
           "x": -26,
           "y": 44,
           "stage": 12,
-          "trophies": 90000
+          "trophies": 18000
         },
         {
           "type": "block",
@@ -14308,7 +14308,7 @@
           "level": 68,
           "speed": 72.7,
           "width": "field",
-          "trophies": 36000,
+          "trophies": 180,
           "pad": {
             "x": 26,
             "z": 190,
@@ -14329,7 +14329,7 @@
           "level": 72,
           "speed": 75.23,
           "width": "field",
-          "trophies": 39000,
+          "trophies": 550,
           "pad": {
             "x": -26,
             "z": 594,
@@ -14350,7 +14350,7 @@
           "level": 72,
           "speed": 75.23,
           "width": "field",
-          "trophies": 42000,
+          "trophies": 1800,
           "pad": {
             "x": 26,
             "z": 976.585,
@@ -14376,7 +14376,7 @@
           "level": 73,
           "speed": 75.863,
           "width": "bridge",
-          "trophies": 46000,
+          "trophies": 3700,
           "pad": {
             "x": -26,
             "z": 1409.977,
@@ -14397,7 +14397,7 @@
           "level": 74,
           "speed": 76.495,
           "width": "bridge",
-          "trophies": 50000,
+          "trophies": 5500,
           "pad": {
             "x": 26,
             "z": 1683.462,
@@ -14418,7 +14418,7 @@
           "level": 75,
           "speed": 77.128,
           "width": "field",
-          "trophies": 54000,
+          "trophies": 7300,
           "pad": {
             "x": -26,
             "z": 2267.358,
@@ -14439,7 +14439,7 @@
           "level": 76,
           "speed": 77.76,
           "width": "field",
-          "trophies": 59000,
+          "trophies": 9200,
           "pad": {
             "x": 26,
             "z": 2626.36,
@@ -14465,7 +14465,7 @@
           "level": 77,
           "speed": 78.393,
           "width": "field",
-          "trophies": 64000,
+          "trophies": 11000,
           "pad": {
             "x": -26,
             "z": 2964.812,
@@ -14486,7 +14486,7 @@
           "level": 78,
           "speed": 79.026,
           "width": "bridge",
-          "trophies": 70000,
+          "trophies": 13000,
           "pad": {
             "x": 26,
             "z": 3293.305,
@@ -14507,7 +14507,7 @@
           "level": 79,
           "speed": 79.658,
           "width": "cave",
-          "trophies": 76000,
+          "trophies": 15000,
           "pad": {
             "x": -26,
             "z": 3405.305,
@@ -14732,7 +14732,7 @@
           "level": 80,
           "speed": 80.291,
           "width": "bridge",
-          "trophies": 83000,
+          "trophies": 16000,
           "pad": {
             "x": 26,
             "z": 3706.237,
@@ -14753,7 +14753,7 @@
           "level": 81,
           "speed": 80.923,
           "width": "bridge",
-          "trophies": 90000,
+          "trophies": 18000,
           "pad": {
             "x": -26,
             "z": 4165.599,
@@ -15193,7 +15193,7 @@
           "x": 26,
           "y": 0,
           "stage": 1,
-          "trophies": 280000
+          "trophies": 1400
         },
         {
           "type": "block",
@@ -15360,7 +15360,7 @@
           "x": -26,
           "y": 4,
           "stage": 2,
-          "trophies": 300000
+          "trophies": 4200
         },
         {
           "type": "block",
@@ -15661,7 +15661,7 @@
           "x": 26,
           "y": 8,
           "stage": 3,
-          "trophies": 330000
+          "trophies": 14000
         },
         {
           "type": "block",
@@ -15823,7 +15823,7 @@
           "x": -26,
           "y": 12,
           "stage": 4,
-          "trophies": 360000
+          "trophies": 28000
         },
         {
           "type": "block",
@@ -15964,7 +15964,7 @@
           "x": 26,
           "y": 16,
           "stage": 5,
-          "trophies": 390000
+          "trophies": 42000
         },
         {
           "type": "block",
@@ -16140,7 +16140,7 @@
           "x": -26,
           "y": 20,
           "stage": 6,
-          "trophies": 420000
+          "trophies": 56000
         },
         {
           "type": "block",
@@ -16409,7 +16409,7 @@
           "x": 26,
           "y": 24,
           "stage": 7,
-          "trophies": 460000
+          "trophies": 71000
         },
         {
           "type": "block",
@@ -16666,7 +16666,7 @@
           "x": -26,
           "y": 28,
           "stage": 8,
-          "trophies": 500000
+          "trophies": 85000
         },
         {
           "type": "block",
@@ -16828,7 +16828,7 @@
           "x": 26,
           "y": 32,
           "stage": 9,
-          "trophies": 540000
+          "trophies": 99000
         },
         {
           "type": "block",
@@ -17219,7 +17219,7 @@
           "x": -26,
           "y": 36,
           "stage": 10,
-          "trophies": 590000
+          "trophies": 110000
         },
         {
           "type": "block",
@@ -17365,7 +17365,7 @@
           "x": 26,
           "y": 40,
           "stage": 11,
-          "trophies": 640000
+          "trophies": 130000
         },
         {
           "type": "block",
@@ -17527,7 +17527,7 @@
           "x": -26,
           "y": 44,
           "stage": 12,
-          "trophies": 690000
+          "trophies": 140000
         },
         {
           "type": "block",
@@ -17663,7 +17663,7 @@
           "level": 80,
           "speed": 80.291,
           "width": "field",
-          "trophies": 280000,
+          "trophies": 1400,
           "pad": {
             "x": 26,
             "z": 190,
@@ -17684,7 +17684,7 @@
           "level": 83,
           "speed": 82.188,
           "width": "field",
-          "trophies": 300000,
+          "trophies": 4200,
           "pad": {
             "x": -26,
             "z": 594,
@@ -17705,7 +17705,7 @@
           "level": 85,
           "speed": 83.454,
           "width": "field",
-          "trophies": 330000,
+          "trophies": 14000,
           "pad": {
             "x": 26,
             "z": 1011.85,
@@ -17731,7 +17731,7 @@
           "level": 86,
           "speed": 84.086,
           "width": "bridge",
-          "trophies": 360000,
+          "trophies": 28000,
           "pad": {
             "x": -26,
             "z": 1487.447,
@@ -17752,7 +17752,7 @@
           "level": 87,
           "speed": 84.719,
           "width": "bridge",
-          "trophies": 390000,
+          "trophies": 42000,
           "pad": {
             "x": 26,
             "z": 1785.604,
@@ -17773,7 +17773,7 @@
           "level": 87,
           "speed": 84.719,
           "width": "field",
-          "trophies": 420000,
+          "trophies": 56000,
           "pad": {
             "x": -26,
             "z": 2422.637,
@@ -17794,7 +17794,7 @@
           "level": 88,
           "speed": 85.351,
           "width": "field",
-          "trophies": 460000,
+          "trophies": 71000,
           "pad": {
             "x": 26,
             "z": 2803.788,
@@ -17820,7 +17820,7 @@
           "level": 89,
           "speed": 85.984,
           "width": "field",
-          "trophies": 500000,
+          "trophies": 85000,
           "pad": {
             "x": -26,
             "z": 3169.2,
@@ -17841,7 +17841,7 @@
           "level": 90,
           "speed": 86.616,
           "width": "bridge",
-          "trophies": 540000,
+          "trophies": 99000,
           "pad": {
             "x": 26,
             "z": 3525.017,
@@ -17862,7 +17862,7 @@
           "level": 91,
           "speed": 87.249,
           "width": "cave",
-          "trophies": 590000,
+          "trophies": 110000,
           "pad": {
             "x": -26,
             "z": 3637.017,
@@ -18093,7 +18093,7 @@
           "level": 92,
           "speed": 87.881,
           "width": "bridge",
-          "trophies": 640000,
+          "trophies": 130000,
           "pad": {
             "x": 26,
             "z": 3962.237,
@@ -18114,7 +18114,7 @@
           "level": 94,
           "speed": 89.147,
           "width": "bridge",
-          "trophies": 690000,
+          "trophies": 140000,
           "pad": {
             "x": -26,
             "z": 4463.81,
@@ -18566,7 +18566,7 @@
           "x": 26,
           "y": 0,
           "stage": 1,
-          "trophies": 2600000
+          "trophies": 12000
         },
         {
           "type": "block",
@@ -18733,7 +18733,7 @@
           "x": -26,
           "y": 4,
           "stage": 2,
-          "trophies": 2800000
+          "trophies": 36000
         },
         {
           "type": "block",
@@ -19034,7 +19034,7 @@
           "x": 26,
           "y": 8,
           "stage": 3,
-          "trophies": 3000000
+          "trophies": 120000
         },
         {
           "type": "block",
@@ -19196,7 +19196,7 @@
           "x": -26,
           "y": 12,
           "stage": 4,
-          "trophies": 3200000
+          "trophies": 240000
         },
         {
           "type": "block",
@@ -19337,7 +19337,7 @@
           "x": 26,
           "y": 16,
           "stage": 5,
-          "trophies": 3500000
+          "trophies": 360000
         },
         {
           "type": "block",
@@ -19513,7 +19513,7 @@
           "x": -26,
           "y": 20,
           "stage": 6,
-          "trophies": 3800000
+          "trophies": 480000
         },
         {
           "type": "block",
@@ -19782,7 +19782,7 @@
           "x": 26,
           "y": 24,
           "stage": 7,
-          "trophies": 4100000
+          "trophies": 590000
         },
         {
           "type": "block",
@@ -20039,7 +20039,7 @@
           "x": -26,
           "y": 28,
           "stage": 8,
-          "trophies": 4400000
+          "trophies": 710000
         },
         {
           "type": "block",
@@ -20305,7 +20305,7 @@
           "x": 26,
           "y": 32,
           "stage": 9,
-          "trophies": 4800000
+          "trophies": 830000
         },
         {
           "type": "block",
@@ -20467,7 +20467,7 @@
           "x": -26,
           "y": 36,
           "stage": 10,
-          "trophies": 5100000
+          "trophies": 950000
         },
         {
           "type": "block",
@@ -20906,7 +20906,7 @@
           "x": 26,
           "y": 40,
           "stage": 11,
-          "trophies": 5500000
+          "trophies": 1100000
         },
         {
           "type": "block",
@@ -21052,7 +21052,7 @@
           "x": -26,
           "y": 44,
           "stage": 12,
-          "trophies": 6000000
+          "trophies": 1200000
         },
         {
           "type": "block",
@@ -21214,7 +21214,7 @@
           "x": 26,
           "y": 48,
           "stage": 13,
-          "trophies": 6500000
+          "trophies": 1300000
         },
         {
           "type": "block",
@@ -21350,7 +21350,7 @@
           "level": 92,
           "speed": 87.881,
           "width": "field",
-          "trophies": 2600000,
+          "trophies": 12000,
           "pad": {
             "x": 26,
             "z": 190,
@@ -21371,7 +21371,7 @@
           "level": 97,
           "speed": 91.044,
           "width": "field",
-          "trophies": 2800000,
+          "trophies": 36000,
           "pad": {
             "x": -26,
             "z": 594,
@@ -21392,7 +21392,7 @@
           "level": 98,
           "speed": 91.677,
           "width": "field",
-          "trophies": 3000000,
+          "trophies": 120000,
           "pad": {
             "x": 26,
             "z": 1047.11,
@@ -21418,7 +21418,7 @@
           "level": 99,
           "speed": 92.309,
           "width": "bridge",
-          "trophies": 3200000,
+          "trophies": 240000,
           "pad": {
             "x": -26,
             "z": 1564.918,
@@ -21439,7 +21439,7 @@
           "level": 99,
           "speed": 92.309,
           "width": "bridge",
-          "trophies": 3500000,
+          "trophies": 360000,
           "pad": {
             "x": 26,
             "z": 1885.845,
@@ -21460,7 +21460,7 @@
           "level": 100,
           "speed": 92.942,
           "width": "field",
-          "trophies": 3800000,
+          "trophies": 480000,
           "pad": {
             "x": -26,
             "z": 2580.439,
@@ -21481,7 +21481,7 @@
           "level": 101,
           "speed": 93.575,
           "width": "field",
-          "trophies": 4100000,
+          "trophies": 590000,
           "pad": {
             "x": 26,
             "z": 2983.28,
@@ -21507,7 +21507,7 @@
           "level": 101,
           "speed": 93.575,
           "width": "field",
-          "trophies": 4400000,
+          "trophies": 710000,
           "pad": {
             "x": -26,
             "z": 3375.66,
@@ -21528,7 +21528,7 @@
           "level": 102,
           "speed": 94.207,
           "width": "field",
-          "trophies": 4800000,
+          "trophies": 830000,
           "pad": {
             "x": 26,
             "z": 3545.66,
@@ -21549,7 +21549,7 @@
           "level": 103,
           "speed": 94.84,
           "width": "bridge",
-          "trophies": 5100000,
+          "trophies": 950000,
           "pad": {
             "x": -26,
             "z": 3931.084,
@@ -21570,7 +21570,7 @@
           "level": 104,
           "speed": 95.472,
           "width": "cave",
-          "trophies": 5500000,
+          "trophies": 1100000,
           "pad": {
             "x": 26,
             "z": 4055.084,
@@ -21867,7 +21867,7 @@
           "level": 105,
           "speed": 96.105,
           "width": "bridge",
-          "trophies": 6000000,
+          "trophies": 1200000,
           "pad": {
             "x": -26,
             "z": 4399.084,
@@ -21888,7 +21888,7 @@
           "level": 106,
           "speed": 96.737,
           "width": "bridge",
-          "trophies": 6500000,
+          "trophies": 1300000,
           "pad": {
             "x": 26,
             "z": 4939.617,
@@ -22340,7 +22340,7 @@
           "x": 26,
           "y": 0,
           "stage": 1,
-          "trophies": 37000000
+          "trophies": 170000
         },
         {
           "type": "block",
@@ -22507,7 +22507,7 @@
           "x": -26,
           "y": 4,
           "stage": 2,
-          "trophies": 40000000
+          "trophies": 520000
         },
         {
           "type": "block",
@@ -22835,7 +22835,7 @@
           "x": 26,
           "y": 8,
           "stage": 3,
-          "trophies": 44000000
+          "trophies": 1700000
         },
         {
           "type": "block",
@@ -22997,7 +22997,7 @@
           "x": -26,
           "y": 12,
           "stage": 4,
-          "trophies": 47000000
+          "trophies": 3500000
         },
         {
           "type": "block",
@@ -23138,7 +23138,7 @@
           "x": 26,
           "y": 16,
           "stage": 5,
-          "trophies": 51000000
+          "trophies": 5200000
         },
         {
           "type": "block",
@@ -23314,7 +23314,7 @@
           "x": -26,
           "y": 20,
           "stage": 6,
-          "trophies": 55000000
+          "trophies": 6900000
         },
         {
           "type": "block",
@@ -23583,7 +23583,7 @@
           "x": 26,
           "y": 24,
           "stage": 7,
-          "trophies": 59000000
+          "trophies": 8600000
         },
         {
           "type": "block",
@@ -23867,7 +23867,7 @@
           "x": -26,
           "y": 28,
           "stage": 8,
-          "trophies": 64000000
+          "trophies": 10000000
         },
         {
           "type": "block",
@@ -24133,7 +24133,7 @@
           "x": 26,
           "y": 32,
           "stage": 9,
-          "trophies": 69000000
+          "trophies": 12000000
         },
         {
           "type": "block",
@@ -24295,7 +24295,7 @@
           "x": -26,
           "y": 36,
           "stage": 10,
-          "trophies": 74000000
+          "trophies": 14000000
         },
         {
           "type": "block",
@@ -24722,7 +24722,7 @@
           "x": 26,
           "y": 40,
           "stage": 11,
-          "trophies": 80000000
+          "trophies": 16000000
         },
         {
           "type": "block",
@@ -24868,7 +24868,7 @@
           "x": -26,
           "y": 44,
           "stage": 12,
-          "trophies": 87000000
+          "trophies": 17000000
         },
         {
           "type": "block",
@@ -25030,7 +25030,7 @@
           "x": 26,
           "y": 48,
           "stage": 13,
-          "trophies": 94000000
+          "trophies": 19000000
         },
         {
           "type": "block",
@@ -25166,7 +25166,7 @@
           "level": 105,
           "speed": 96.105,
           "width": "field",
-          "trophies": 37000000,
+          "trophies": 170000,
           "pad": {
             "x": 26,
             "z": 190,
@@ -25187,7 +25187,7 @@
           "level": 109,
           "speed": 98.635,
           "width": "field",
-          "trophies": 40000000,
+          "trophies": 520000,
           "pad": {
             "x": -26,
             "z": 594,
@@ -25208,7 +25208,7 @@
           "level": 110,
           "speed": 99.268,
           "width": "field",
-          "trophies": 44000000,
+          "trophies": 1700000,
           "pad": {
             "x": 26,
             "z": 1167.811,
@@ -25234,7 +25234,7 @@
           "level": 111,
           "speed": 99.9,
           "width": "bridge",
-          "trophies": 47000000,
+          "trophies": 3500000,
           "pad": {
             "x": -26,
             "z": 1724.579,
@@ -25255,7 +25255,7 @@
           "level": 112,
           "speed": 100.533,
           "width": "bridge",
-          "trophies": 51000000,
+          "trophies": 5200000,
           "pad": {
             "x": 26,
             "z": 2068.579,
@@ -25276,7 +25276,7 @@
           "level": 113,
           "speed": 101.165,
           "width": "field",
-          "trophies": 55000000,
+          "trophies": 6900000,
           "pad": {
             "x": -26,
             "z": 2820.734,
@@ -25297,7 +25297,7 @@
           "level": 113,
           "speed": 101.165,
           "width": "field",
-          "trophies": 59000000,
+          "trophies": 8600000,
           "pad": {
             "x": 26,
             "z": 3243.592,
@@ -25323,7 +25323,7 @@
           "level": 114,
           "speed": 101.798,
           "width": "field",
-          "trophies": 64000000,
+          "trophies": 10000000,
           "pad": {
             "x": -26,
             "z": 3755.577,
@@ -25344,7 +25344,7 @@
           "level": 115,
           "speed": 102.43,
           "width": "field",
-          "trophies": 69000000,
+          "trophies": 12000000,
           "pad": {
             "x": 26,
             "z": 3925.577,
@@ -25365,7 +25365,7 @@
           "level": 116,
           "speed": 103.063,
           "width": "bridge",
-          "trophies": 74000000,
+          "trophies": 14000000,
           "pad": {
             "x": -26,
             "z": 4340.605,
@@ -25386,7 +25386,7 @@
           "level": 118,
           "speed": 104.328,
           "width": "cave",
-          "trophies": 80000000,
+          "trophies": 16000000,
           "pad": {
             "x": 26,
             "z": 4464.605,
@@ -25689,7 +25689,7 @@
           "level": 119,
           "speed": 104.961,
           "width": "bridge",
-          "trophies": 87000000,
+          "trophies": 17000000,
           "pad": {
             "x": -26,
             "z": 4808.605,
@@ -25710,7 +25710,7 @@
           "level": 120,
           "speed": 105.593,
           "width": "bridge",
-          "trophies": 94000000,
+          "trophies": 19000000,
           "pad": {
             "x": 26,
             "z": 5394.588,
@@ -26174,7 +26174,7 @@
           "x": 26,
           "y": 0,
           "stage": 1,
-          "trophies": 590000000
+          "trophies": 2500000
         },
         {
           "type": "block",
@@ -26341,7 +26341,7 @@
           "x": -26,
           "y": 4,
           "stage": 2,
-          "trophies": 640000000
+          "trophies": 7500000
         },
         {
           "type": "block",
@@ -26669,7 +26669,7 @@
           "x": 26,
           "y": 8,
           "stage": 3,
-          "trophies": 680000000
+          "trophies": 25000000
         },
         {
           "type": "block",
@@ -26831,7 +26831,7 @@
           "x": -26,
           "y": 12,
           "stage": 4,
-          "trophies": 730000000
+          "trophies": 50000000
         },
         {
           "type": "block",
@@ -26972,7 +26972,7 @@
           "x": 26,
           "y": 16,
           "stage": 5,
-          "trophies": 780000000
+          "trophies": 75000000
         },
         {
           "type": "block",
@@ -27157,7 +27157,7 @@
           "x": -26,
           "y": 20,
           "stage": 6,
-          "trophies": 840000000
+          "trophies": 99000000
         },
         {
           "type": "block",
@@ -27426,7 +27426,7 @@
           "x": 26,
           "y": 24,
           "stage": 7,
-          "trophies": 900000000
+          "trophies": 120000000
         },
         {
           "type": "block",
@@ -27710,7 +27710,7 @@
           "x": -26,
           "y": 28,
           "stage": 8,
-          "trophies": 970000000
+          "trophies": 150000000
         },
         {
           "type": "block",
@@ -27976,7 +27976,7 @@
           "x": 26,
           "y": 32,
           "stage": 9,
-          "trophies": 1000000000
+          "trophies": 170000000
         },
         {
           "type": "block",
@@ -28201,7 +28201,7 @@
           "x": -26,
           "y": 36,
           "stage": 10,
-          "trophies": 1100000000
+          "trophies": 200000000
         },
         {
           "type": "block",
@@ -28363,7 +28363,7 @@
           "x": 26,
           "y": 40,
           "stage": 11,
-          "trophies": 1200000000
+          "trophies": 220000000
         },
         {
           "type": "block",
@@ -28790,7 +28790,7 @@
           "x": -26,
           "y": 44,
           "stage": 12,
-          "trophies": 1300000000
+          "trophies": 250000000
         },
         {
           "type": "block",
@@ -28936,7 +28936,7 @@
           "x": 26,
           "y": 48,
           "stage": 13,
-          "trophies": 1400000000
+          "trophies": 270000000
         },
         {
           "type": "block",
@@ -29098,7 +29098,7 @@
           "x": -26,
           "y": 52,
           "stage": 14,
-          "trophies": 1500000000
+          "trophies": 300000000
         },
         {
           "type": "block",
@@ -29234,7 +29234,7 @@
           "level": 119,
           "speed": 104.961,
           "width": "field",
-          "trophies": 590000000,
+          "trophies": 2500000,
           "pad": {
             "x": 26,
             "z": 190,
@@ -29255,7 +29255,7 @@
           "level": 122,
           "speed": 106.858,
           "width": "field",
-          "trophies": 640000000,
+          "trophies": 7500000,
           "pad": {
             "x": -26,
             "z": 594,
@@ -29276,7 +29276,7 @@
           "level": 123,
           "speed": 107.491,
           "width": "field",
-          "trophies": 680000000,
+          "trophies": 25000000,
           "pad": {
             "x": 26,
             "z": 1205.588,
@@ -29302,7 +29302,7 @@
           "level": 124,
           "speed": 108.123,
           "width": "bridge",
-          "trophies": 730000000,
+          "trophies": 50000000,
           "pad": {
             "x": -26,
             "z": 1804.561,
@@ -29323,7 +29323,7 @@
           "level": 125,
           "speed": 108.756,
           "width": "bridge",
-          "trophies": 780000000,
+          "trophies": 75000000,
           "pad": {
             "x": 26,
             "z": 2148.561,
@@ -29344,7 +29344,7 @@
           "level": 126,
           "speed": 109.389,
           "width": "field",
-          "trophies": 840000000,
+          "trophies": 99000000,
           "pad": {
             "x": -26,
             "z": 2958.284,
@@ -29365,7 +29365,7 @@
           "level": 127,
           "speed": 110.021,
           "width": "field",
-          "trophies": 900000000,
+          "trophies": 120000000,
           "pad": {
             "x": 26,
             "z": 3404.498,
@@ -29391,7 +29391,7 @@
           "level": 128,
           "speed": 110.654,
           "width": "field",
-          "trophies": 970000000,
+          "trophies": 150000000,
           "pad": {
             "x": -26,
             "z": 3946.458,
@@ -29412,7 +29412,7 @@
           "level": 129,
           "speed": 111.286,
           "width": "field",
-          "trophies": 1000000000,
+          "trophies": 170000000,
           "pad": {
             "x": 26,
             "z": 4116.458,
@@ -29433,7 +29433,7 @@
           "level": 131,
           "speed": 112.551,
           "width": "field",
-          "trophies": 1100000000,
+          "trophies": 200000000,
           "pad": {
             "x": -26,
             "z": 4486.508,
@@ -29454,7 +29454,7 @@
           "level": 132,
           "speed": 113.184,
           "width": "bridge",
-          "trophies": 1200000000,
+          "trophies": 220000000,
           "pad": {
             "x": 26,
             "z": 4937.971,
@@ -29475,7 +29475,7 @@
           "level": 133,
           "speed": 113.817,
           "width": "cave",
-          "trophies": 1300000000,
+          "trophies": 250000000,
           "pad": {
             "x": -26,
             "z": 5061.971,
@@ -29772,7 +29772,7 @@
           "level": 134,
           "speed": 114.449,
           "width": "bridge",
-          "trophies": 1400000000,
+          "trophies": 270000000,
           "pad": {
             "x": 26,
             "z": 5405.971,
@@ -29793,7 +29793,7 @@
           "level": 135,
           "speed": 115.082,
           "width": "bridge",
-          "trophies": 1500000000,
+          "trophies": 300000000,
           "pad": {
             "x": -26,
             "z": 6040.665,
@@ -30269,7 +30269,7 @@
           "x": 26,
           "y": 0,
           "stage": 1,
-          "trophies": 13000000000
+          "trophies": 49000000
         },
         {
           "type": "block",
@@ -30436,7 +30436,7 @@
           "x": -26,
           "y": 4,
           "stage": 2,
-          "trophies": 14000000000
+          "trophies": 150000000
         },
         {
           "type": "block",
@@ -30764,7 +30764,7 @@
           "x": 26,
           "y": 8,
           "stage": 3,
-          "trophies": 15000000000
+          "trophies": 490000000
         },
         {
           "type": "block",
@@ -30926,7 +30926,7 @@
           "x": -26,
           "y": 12,
           "stage": 4,
-          "trophies": 16000000000
+          "trophies": 980000000
         },
         {
           "type": "block",
@@ -31067,7 +31067,7 @@
           "x": 26,
           "y": 16,
           "stage": 5,
-          "trophies": 17000000000
+          "trophies": 1500000000
         },
         {
           "type": "block",
@@ -31252,7 +31252,7 @@
           "x": -26,
           "y": 20,
           "stage": 6,
-          "trophies": 18000000000
+          "trophies": 2000000000
         },
         {
           "type": "block",
@@ -31521,7 +31521,7 @@
           "x": 26,
           "y": 24,
           "stage": 7,
-          "trophies": 19000000000
+          "trophies": 2500000000
         },
         {
           "type": "block",
@@ -31805,7 +31805,7 @@
           "x": -26,
           "y": 28,
           "stage": 8,
-          "trophies": 20000000000
+          "trophies": 2900000000
         },
         {
           "type": "block",
@@ -32071,7 +32071,7 @@
           "x": 26,
           "y": 32,
           "stage": 9,
-          "trophies": 22000000000
+          "trophies": 3400000000
         },
         {
           "type": "block",
@@ -32296,7 +32296,7 @@
           "x": -26,
           "y": 36,
           "stage": 10,
-          "trophies": 23000000000
+          "trophies": 3900000000
         },
         {
           "type": "block",
@@ -32580,7 +32580,7 @@
           "x": 26,
           "y": 40,
           "stage": 11,
-          "trophies": 25000000000
+          "trophies": 4400000000
         },
         {
           "type": "block",
@@ -32742,7 +32742,7 @@
           "x": -26,
           "y": 44,
           "stage": 12,
-          "trophies": 26000000000
+          "trophies": 4900000000
         },
         {
           "type": "block",
@@ -33217,7 +33217,7 @@
           "x": 26,
           "y": 48,
           "stage": 13,
-          "trophies": 28000000000
+          "trophies": 5400000000
         },
         {
           "type": "block",
@@ -33363,7 +33363,7 @@
           "x": -26,
           "y": 52,
           "stage": 14,
-          "trophies": 30000000000
+          "trophies": 5900000000
         },
         {
           "type": "block",
@@ -33525,7 +33525,7 @@
           "x": 26,
           "y": 56,
           "stage": 15,
-          "trophies": 32000000000
+          "trophies": 6400000000
         },
         {
           "type": "block",
@@ -33661,7 +33661,7 @@
           "level": 134,
           "speed": 114.449,
           "width": "field",
-          "trophies": 13000000000,
+          "trophies": 49000000,
           "pad": {
             "x": 26,
             "z": 190,
@@ -33682,7 +33682,7 @@
           "level": 139,
           "speed": 117.612,
           "width": "field",
-          "trophies": 14000000000,
+          "trophies": 150000000,
           "pad": {
             "x": -26,
             "z": 594,
@@ -33703,7 +33703,7 @@
           "level": 140,
           "speed": 118.244,
           "width": "field",
-          "trophies": 15000000000,
+          "trophies": 490000000,
           "pad": {
             "x": 26,
             "z": 1245.758,
@@ -33729,7 +33729,7 @@
           "level": 140,
           "speed": 118.244,
           "width": "bridge",
-          "trophies": 16000000000,
+          "trophies": 980000000,
           "pad": {
             "x": -26,
             "z": 1896.682,
@@ -33750,7 +33750,7 @@
           "level": 141,
           "speed": 118.877,
           "width": "bridge",
-          "trophies": 17000000000,
+          "trophies": 1500000000,
           "pad": {
             "x": 26,
             "z": 2240.682,
@@ -33771,7 +33771,7 @@
           "level": 142,
           "speed": 119.51,
           "width": "field",
-          "trophies": 18000000000,
+          "trophies": 2000000000,
           "pad": {
             "x": -26,
             "z": 3121.252,
@@ -33792,7 +33792,7 @@
           "level": 143,
           "speed": 120,
           "width": "field",
-          "trophies": 19000000000,
+          "trophies": 2500000000,
           "pad": {
             "x": 26,
             "z": 3591.199,
@@ -33818,7 +33818,7 @@
           "level": 143,
           "speed": 120,
           "width": "field",
-          "trophies": 20000000000,
+          "trophies": 2900000000,
           "pad": {
             "x": -26,
             "z": 4161.199,
@@ -33839,7 +33839,7 @@
           "level": 144,
           "speed": 120,
           "width": "field",
-          "trophies": 22000000000,
+          "trophies": 3400000000,
           "pad": {
             "x": 26,
             "z": 4331.199,
@@ -33860,7 +33860,7 @@
           "level": 145,
           "speed": 120,
           "width": "field",
-          "trophies": 23000000000,
+          "trophies": 3900000000,
           "pad": {
             "x": -26,
             "z": 4712.826,
@@ -33881,7 +33881,7 @@
           "level": 145,
           "speed": 120,
           "width": "field",
-          "trophies": 25000000000,
+          "trophies": 4400000000,
           "pad": {
             "x": 26,
             "z": 5282.826,
@@ -33902,7 +33902,7 @@
           "level": 146,
           "speed": 120,
           "width": "bridge",
-          "trophies": 26000000000,
+          "trophies": 4900000000,
           "pad": {
             "x": -26,
             "z": 5758.826,
@@ -33923,7 +33923,7 @@
           "level": 147,
           "speed": 120,
           "width": "cave",
-          "trophies": 28000000000,
+          "trophies": 5400000000,
           "pad": {
             "x": 26,
             "z": 5882.826,
@@ -34226,7 +34226,7 @@
           "level": 147,
           "speed": 120,
           "width": "bridge",
-          "trophies": 30000000000,
+          "trophies": 5900000000,
           "pad": {
             "x": -26,
             "z": 6226.826,
@@ -34247,7 +34247,7 @@
           "level": 148,
           "speed": 120,
           "width": "bridge",
-          "trophies": 32000000000,
+          "trophies": 6400000000,
           "pad": {
             "x": 26,
             "z": 6885.226,

@@ -16,8 +16,21 @@ export function nextShoes(tiers: readonly ShoeTier[], level: number): ShoeTier |
   return tiers[level + 1] ?? null;
 }
 
-export function shoesPrice(tier: ShoeTier, rebirthTier: number, rebirth: BalanceJson['rebirth']): number {
-  return scaled(tier.price, rebirthTier, rebirth);
+export function shoesPrice(tier: ShoeTier, rebirthTier: number, rebirth: BalanceJson['rebirth'], upgrade?: Pick<BalanceJson['upgrade'], 'currency' | 'trophyRate'>): number {
+  const coins = scaled(tier.price, rebirthTier, rebirth);
+  return upgrade?.currency === 'trophies' ? trophiesOfCoins(coins, upgrade.trophyRate ?? 1) : coins;
+}
+
+/**
+ * SD-03 (docs/01-gdd.md 23.3): a coin price in trophies — over upgrade.trophyRate (the coins of a trophy, as the stage
+ * buttons are scaled), two significant digits; the price data stays in coins (the remote flag of the first pair too).
+ */
+export function trophiesOfCoins(coins: number, rate: number): number {
+  const x = coins / rate;
+  if (x <= 0) return 0;
+  if (x < 10) return Math.max(1, Math.round(x));
+  const p = 10 ** (Math.floor(Math.log10(x)) - 1);
+  return Math.round(x / p) * p;
 }
 
 /** Coins and the shoe level the purchase works on (SaveData and the simulation hold them). */
@@ -30,10 +43,10 @@ export interface ShoeWallet {
  * One tap buys the next pair (docs/01-gdd.md 7.1): coins − price × wallScale[n], level + 1. Short of coins or the
  * best pair already on — nothing changes and null comes back.
  */
-export function buyNextShoes(w: ShoeWallet, tiers: readonly ShoeTier[], rebirthTier: number, rebirth: BalanceJson['rebirth']): ShoeTier | null {
+export function buyNextShoes(w: ShoeWallet, tiers: readonly ShoeTier[], rebirthTier: number, rebirth: BalanceJson['rebirth'], upgrade?: Pick<BalanceJson['upgrade'], 'currency' | 'trophyRate'>): ShoeTier | null {
   const next = nextShoes(tiers, w.level);
   if (!next) return null;
-  const price = shoesPrice(next, rebirthTier, rebirth);
+  const price = shoesPrice(next, rebirthTier, rebirth, upgrade);
   if (!(w.coins >= price)) return null;
   w.coins -= price;
   w.level += 1;

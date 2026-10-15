@@ -11,6 +11,7 @@
   "hud.goal.portal": "Into the portal!",
   "hud.goal.rebirth": "Time to rebirth!",
   "hud.shoesBtn": "Sneakers ×{m} · {price}",
+  "hud.shoesBtnTrophies": "Sneakers ×{m} · {price} 🏆",
   "hud.shoesMax": "Best sneakers",
   "hud.boost": "×2 {time}",
   "hud.tier": "Tier {n}",

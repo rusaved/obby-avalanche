@@ -45,6 +45,7 @@ const CONTROLLER_RANGES: Record<keyof TuningJson['controller'], Range | null> = 
   jumpBufferSec: [0, 0.3, 0.01],
   variableJump: null,
   stepUp: [0, 2, 0.1],
+  levelJump: null,
 };
 const CAMERA_RANGES: Partial<Record<keyof TuningJson['camera'], Range>> = {
   distance: [6, 30, 0.5],

@@ -169,7 +169,8 @@ export interface BalanceJson {
   gainTrigger: 'step';
   speedCurve: Curve;
   jumpCurve?: Curve;
-  upgrade: { attach: 'feet' | 'head' | 'back' | 'hand'; tiers: Array<{ id: string; mult: number; price: number }> };
+  /** SD-03 (docs/01-gdd.md 23.3): `currency` trophies — the shoes are bought with the stage trophies; absent — coins. */
+  upgrade: { attach: 'feet' | 'head' | 'back' | 'hand'; tiers: Array<{ id: string; mult: number; price: number }>; currency?: 'coins' | 'trophies'; trophyRate?: number };
   rebirth: {
     stepMult: number;
     wallScale: number[];
@@ -314,6 +315,9 @@ export interface TuningJson {
     variableJump: boolean;
     stepUp: number;
     maxSpeed: number;
+    /** SD-04 (docs/01-gdd.md 23.4): on a stage the run speed in the air × g^(level − the stage's level), within min–max:
+     * a level above the stage jumps farther, two below falls short; absent — ×1. */
+    levelJump?: { g: number; min: number; max: number };
   };
   camera: {
     distance: number;
@@ -1008,6 +1012,13 @@ export interface StageSpec {
   bridge: number;
   /** Trophies of the last stage over the first (×2–3 across a mountain, Q-075); the golden snowflake ×stage trophies. */
   trophyGrowth: number;
+  /** SD-03 (docs/01-gdd.md 23.3): trophies of stages 2… of a mountain before scaling (1, 3, 10, 20 …), scaled by
+   * balance.json upgrade.trophyRate; absent — the stage pays its coins as before. */
+  trophyLadder?: number[];
+  /** SD-04 (docs/01-gdd.md 23.4): a crack and a gap between plates as this share of the jump at v(N), the catapult pit of
+   * its flight; absent — 0.45 / 0.42 and 0.7 (LV). */
+  gapK?: number;
+  catapultK?: number;
   snowflake: { mult: number; stages: number };
   /** The avalanche stage: the first wave after entering, the pause between waves inside, grottos every `every` × v. */
   avalanche: { firstSec: number; warnSec: number; intervalSec: number; every: number; x: number };

@@ -32,6 +32,8 @@ export interface ControllerParams {
   jumpBufferSec: number;
   variableJump: boolean;
   stepUp: number;
+  /** SD-04 (docs/01-gdd.md 23.4): the run speed in the air × this (the level against the stage); absent — ×1. */
+  airSpeedMult?: number;
 }
 
 export interface HeroInput {
@@ -130,8 +132,11 @@ export function stepHero(hero: HeroState, input: HeroInput, dt: number, world: C
   else hero.jumpBufferLeft = Math.max(0, hero.jumpBufferLeft - dt);
 
   // Horizontal velocity towards the wanted direction with accel/decel, 75% in the air.
-  const wantX = input.moveX * p.speed;
-  const wantZ = input.moveZ * p.speed;
+  // SD-04: in the air (and off the ground this tick by a jump) the speed × airSpeedMult — the jump reaches by the level.
+  const reach = p.airSpeedMult ?? 1;
+  const air = hero.onGround ? 1 : reach;
+  const wantX = input.moveX * p.speed * air;
+  const wantZ = input.moveZ * p.speed * air;
   const moving = input.moveX !== 0 || input.moveZ !== 0;
   const rate = (moving ? p.speed / Math.max(1e-3, p.accelSec) : p.speed / Math.max(1e-3, p.decelSec)) * (hero.onGround ? 1 : p.airControl);
   const dx = wantX - hero.vel.x;
@@ -149,6 +154,11 @@ export function stepHero(hero: HeroState, input: HeroInput, dt: number, world: C
   // Jump: buffered press while grounded or within coyote time.
   if (hero.jumpBufferLeft > 0 && (hero.onGround || hero.coyoteLeft > 0)) {
     hero.vel.y = p.jumpSpeed;
+    // SD-04: the take-off carries the level's reach at once (the air control alone would bring only part of it).
+    if (reach !== 1) {
+      hero.vel.x *= reach;
+      hero.vel.z *= reach;
+    }
     hero.jumpBufferLeft = 0;
     hero.coyoteLeft = 0;
     hero.onGround = false;

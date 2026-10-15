@@ -397,7 +397,8 @@ export function runCycle(pack: ModelPack, opts: CycleOpts): CycleRun {
     const pathGifts = world.segments
       // The stages pace (docs/01-gdd.md 22.8): the trophy button of every finish is taken on the way like a path gift.
       .filter((s) => (s.type === 'gift' && s['path'] === true && axis(s)) || s.type === 'trophyPad')
-      .map((s) => ({ z: s.z, coins: num(s, s.type === 'trophyPad' ? 'trophies' : 'coins'), taken: false }))
+      // SD-03: a button pays trophies — worth upgrade.trophyRate coins each, as the shoes are priced from coins.
+      .map((s) => ({ z: s.z, coins: s.type === 'trophyPad' ? num(s, 'trophies') * (balance.upgrade.trophyRate ?? 1) : num(s, 'coins'), taken: false }))
       .sort((a, b) => a.z - b.z);
     const takePath = (from: number, to: number): void => {
       for (const pg of pathGifts) {

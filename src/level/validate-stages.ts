@@ -5,6 +5,7 @@
 import type { Segment, TuningJson, World, WorldStage, WorldsJson } from '../content/types.ts';
 import { levelThreshold, type Levels } from '../sim/levels.ts';
 import { STAGE_WIDTH, jumpDistance, mazeDistances, padFlight } from './stage-slope.ts';
+import type { LevelData } from './types.ts';
 
 const round3 = (x: number): number => Math.round(x * 1000) / 1000;
 /** No strip of a trial body longer than this without its trial (docs/01-gdd.md 22.4). */
@@ -16,6 +17,33 @@ export const FIELD_MIN = 60;
 export const CUT_SPEED = 1.3;
 
 type Physics = Pick<TuningJson, 'controller' | 'fun'>;
+
+/** Kinds that are the ground itself or hang by design (roofs on their walls, the beacon over the maze). */
+const GROUND_KINDS = new Set(['floor', 'border', 'pitFloor', 'nicheFloor', 'beacon']);
+/** SD-02: how far the bottom of an object may stand over the floor under it. */
+export const FLOAT_MAX = 0.5;
+
+/**
+ * SD-02 (docs/01-gdd.md 23.2; producer 15.10: a big blue plate over the floor): no box of the built level hangs in the air —
+ * its bottom stands on the floor under its middle and corners (within FLOAT_MAX); roofs (on their walls) and the ground
+ * kinds aside, and off the track (grottos of the edges, floorAt −∞) nothing to check.
+ */
+export function floatingErrors(level: LevelData): string[] {
+  const errors: string[] = [];
+  for (const b of level.boxes) {
+    if (GROUND_KINDS.has(b.kind) || b.kind.endsWith('Roof')) continue;
+    const w = b.max[0] - b.min[0];
+    const d = b.max[2] - b.min[2];
+    let gap = Infinity;
+    for (const [fx, fz] of [[0.5, 0.5], [0.1, 0.1], [0.9, 0.9], [0.1, 0.9], [0.9, 0.1]] as const) {
+      const f = level.floorAt(b.min[0] + fx * w, b.min[2] + fz * d);
+      // Off the track floorAt is a far-down sentinel: nothing under it to stand on, nothing to check.
+      if (Number.isFinite(f) && f > level.killY - FLOAT_MAX) gap = Math.min(gap, b.min[1] - f);
+    }
+    if (Number.isFinite(gap) && gap > FLOAT_MAX) errors.push(`${b.kind} at x ${round3((b.min[0] + b.max[0]) / 2)} z ${round3((b.min[2] + b.max[2]) / 2)} hangs ${round3(gap)} over the floor`);
+  }
+  return errors;
+}
 
 /** Ridges of a mountain ask for a level (docs/01-gdd.md 22.2–22.3): requires = the threshold of `level`. */
 export function validateStageLevels(w: World, levels: Levels): string[] {
@@ -113,18 +141,26 @@ export function fairErrors(w: World, st: WorldStage, tuning: Physics, margin: nu
   const v = st.speed;
   const D = jumpDistance(tuning, v);
   const inBody = (s: Segment): boolean => s.z >= st.start - 1e-6 && s.z < st.end - 1e-6;
+  // SD-04: with controller.levelJump the reach two levels below is g^−2 (at most) and a gap may take up to 0.9 of the jump.
+  const lj = tuning.controller.levelJump;
+  const below2 = lj ? Math.max(lj.min, lj.g ** -2) : 0;
+  const reachK = lj ? 0.9 : 0.6;
   const pits = w.segments.filter((s) => s.type === 'pit' && inBody(s) && num(s, 'x0') <= 0 && num(s, 'x1') >= 0);
   if (st.type === 'cracks' || st.type === 'plates')
     for (const p of pits) {
       const gap = num(p, 'length');
       // A plate run over the whole pit: the gap is between plates, the plates take the landing.
       const plates = w.segments.filter((s) => s.type === 'floor' && s.z >= p.z && s.z < p.z + gap && num(s, 'x0') <= 0 && num(s, 'x1') >= 0 && s['material'] !== 'pit');
-      if (plates.length === 0 && gap > 0.6 * D + 1e-6) errors.push(`stage ${st.n}: a gap ${gap} at z ${p.z} — more than 0.6 of the jump ${round3(D)} at v(N) ${v}`);
+      if (plates.length === 0 && gap > reachK * D + 1e-6) errors.push(`stage ${st.n}: a gap ${gap} at z ${p.z} — more than ${reachK} of the jump ${round3(D)} at v(N) ${v}`);
+      // SD-04 (docs/01-gdd.md 23.4): Speed decides — two levels below the stage the jump falls short (v(N−2) < v(N)).
+      if (plates.length === 0 && below2 && gap <= below2 * D + 1e-6) errors.push(`stage ${st.n}: a gap ${gap} at z ${p.z} — within the jump two levels below (${round3(below2 * D)})`);
     }
   if (st.type === 'catapult')
     for (const pad of w.segments.filter((s) => s.type === 'jumpPad' && inBody(s))) {
       const pit = w.segments.find((s) => s.type === 'pit' && s.z >= pad.z && s.z <= pad.z + 6);
-      if (pit && num(pit, 'length') > 0.85 * padFlight(tuning, v, num(pad, 'forward'))) errors.push(`stage ${st.n}: the catapult at z ${pad.z} falls short at v(N) ${v}`);
+      const F = padFlight(tuning, v, num(pad, 'forward'));
+      if (pit && num(pit, 'length') > Math.max(0.85, reachK) * F) errors.push(`stage ${st.n}: the catapult at z ${pad.z} falls short at v(N) ${v}`);
+      if (pit && below2 && num(pit, 'length') <= below2 * F + 1e-6) errors.push(`stage ${st.n}: the catapult at z ${pad.z} — its pit within the flight two levels below`);
     }
   if (st.type === 'giant')
     for (const b of (w.bosses ?? []).filter((b) => b.zone[0] >= st.start - 1e-6 && b.zone[1] <= st.end + 1e-6))
@@ -179,10 +215,9 @@ export function validateStageWorld(w: World, levels: Levels, tuning: Physics, ma
     for (const e of [...fairErrors(w, st, tuning, margin), ...widthErrors(w, st)]) errors.push(`${at}: ${e}`);
   }
   const paid = stages.filter((s) => s.trophies > 0);
-  if (paid.length >= 2) {
-    const k = paid[paid.length - 1]!.trophies / paid[0]!.trophies;
-    if (k < 2 || k > 3.2) errors.push(`${at}: trophies of the last stage ×${round3(k)} the first, ×2–3 expected (docs/01-gdd.md 22.8)`);
-  }
+  // SD-03 (docs/01-gdd.md 23.3): small numbers growing stage by stage, the first of mountain 1 is one trophy.
+  for (let k = 1; k < paid.length; k++) if (!(paid[k]!.trophies > paid[k - 1]!.trophies)) errors.push(`${at}: stage ${paid[k]!.n} — ${paid[k]!.trophies} trophies, more than stage ${paid[k - 1]!.n} (${paid[k - 1]!.trophies}) expected (docs/01-gdd.md 23.3)`);
+  if (w.index === 1 && paid[0] && paid[0].trophies !== 1) errors.push(`${at}: the first trophy button of the game gives ${paid[0].trophies}, 1 expected (docs/01-gdd.md 23.3)`);
   if (snow > 2) errors.push(`${at}: ${snow} golden snowflakes, 2 at most`);
   // One trial a stage: the avalanche only on its stages, the giant only on his.
   for (const zn of w.threat.zones ?? []) {

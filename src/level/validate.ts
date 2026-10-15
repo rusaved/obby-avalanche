@@ -11,7 +11,7 @@ import * as v from 'valibot';
 import type { AurasJson, BalanceJson, BotsJson, Curve, EggsJson, TrailsJson, GameJson, OpenSpecJson, Reward, Segment, SfxJson, SkinsJson, TuningJson, World, WorldsJson, WorldsSpecJson } from '../content/types.ts';
 import { summitTrophies } from '../sim/economy.ts';
 import { LEADERBOARD_SCORES } from '../meta/trophies.ts';
-import { validateStageWorlds } from './validate-stages.ts';
+import { floatingErrors, validateStageWorlds } from './validate-stages.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 import { buildLevel, GATE_THICKNESS } from './builder.ts';
 import { PAD_SIZE, TICK, apexOf, padArc, padGiftBand } from './pad-arc.ts';
@@ -243,6 +243,8 @@ const balanceSchema = v.object({
   upgrade: v.object({
     attach: v.picklist(['feet', 'head', 'back', 'hand']),
     tiers: v.pipe(v.array(v.object({ id: id, mult: positive, price: nonNeg })), v.minLength(1)),
+    currency: v.optional(v.picklist(['coins', 'trophies'])),
+    trophyRate: v.optional(positive),
   }),
   rebirth: v.object({
     stepMult: positive,
@@ -358,6 +360,7 @@ const tuningSchema = v.object({
     jumpBufferSec: nonNeg,
     variableJump: v.boolean(),
     stepUp: nonNeg,
+    levelJump: v.optional(v.object({ g: positive, min: positive, max: positive })),
   }),
   camera: v.object({
     distance: positive,
@@ -1003,7 +1006,11 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
   }
   // The count of 01a against the generated mountains (M3-05): after fairness, so a broken number still gets its seconds named.
   // The stages pace (docs/01-gdd.md 22): its own level checks instead of the counts of the open slope.
-  if (stagesPace) errors.push(...validateStageWorlds(worlds, (balance as BalanceJson).levels, tuning, game.threat.boss?.margin ?? 0.05));
+  if (stagesPace) {
+    errors.push(...validateStageWorlds(worlds, (balance as BalanceJson).levels, tuning, game.threat.boss?.margin ?? 0.05));
+    // SD-02: nothing hangs in the air on the built mountains.
+    for (const w of worlds.worlds) for (const e of floatingErrors(buildLevel(w))) errors.push(`worlds.json: ${w.id}: ${e}`);
+  }
   else if (open)
     errors.push(
       ...validateOpenCount(worlds, files['worlds-spec.json'] as OpenSpecJson),

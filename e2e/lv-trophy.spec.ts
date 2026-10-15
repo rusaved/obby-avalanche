@@ -1,10 +1,10 @@
 import { test, expect, testState, waitTicks } from './fixtures.ts';
 import { STAGES } from './lv-stage-data.ts';
 
-// LV-07 (docs/01-gdd.md 22.8): the safe finish of a stage has the trophy button at its side — «+N» over it, standing on
-// it gives N trophies once a pass; the wallet plaque is a cup.
+// LV-07 (docs/01-gdd.md 22.8), SD-03 (23.3): the safe finish of a stage has the trophy button at its side — «+N» over it;
+// standing on it gives N trophies (their own wallet, not coins), then the hero flies to the camp: once a run.
 const st = STAGES[0]!.stages[1]!;
-test(`stage ${st.n}: the trophy button gives +${st.trophies} once a pass; the wallet is a cup`, async ({ page, openGame }) => {
+test(`stage ${st.n}: the trophy button gives +${st.trophies} trophies once a run, then the camp`, async ({ page, openGame }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await openGame('pace=stages');
   await waitTicks(page, 10);
@@ -13,17 +13,18 @@ test(`stage ${st.n}: the trophy button gives +${st.trophies} once a pass; the wa
   const label = page.locator('[data-role=pad-label]');
   await expect(label).toBeVisible();
   await expect(label).toContainText(`+${st.trophies}`);
-  expect(await page.locator('[data-role=coins] svg').count(), 'the wallet plaque shows a cup').toBeGreaterThan(0);
-  const before = (await testState(page)).coins;
+  const before = await testState(page);
   await page.evaluate(([x, z]) => window.__TEST__!.botPath([[x, z]]), [st.pad.x, st.pad.z] as const);
   await page.waitForFunction(() => window.__TEST__!.state().padsTaken >= 1, undefined, { timeout: 20_000 });
   await page.evaluate(() => window.__TEST__!.botPath(null));
   await waitTicks(page, 5);
-  expect((await testState(page)).coins - before).toBe(st.trophies);
-  await page.screenshot({ path: 'docs/evidence/lv/trophy-pad.png' });
-  // Off it and back on: no second pay on the same pass.
-  await page.evaluate(([x, z]) => window.__TEST__!.botPath([[0, z - 6], [x, z]]), [st.pad.x, st.pad.z] as const);
-  await page.waitForFunction(() => window.__TEST__!.botLeft() === 0, undefined, { timeout: 20_000 });
-  await waitTicks(page, 10);
-  expect((await testState(page)).coins - before).toBe(st.trophies);
+  let s = await testState(page);
+  expect(s.trophies.now - before.trophies.now).toBe(st.trophies);
+  expect(s.coins).toBe(before.coins);
+  await expect(page.locator('[data-role=trophies]')).toHaveClass(/shown/);
+  await page.screenshot({ path: 'docs/evidence/sd/trophy-pad.png' });
+  // Then the camp: a new run.
+  await page.waitForFunction((z0) => window.__TEST__!.state().hero!.z < z0, STAGES[0]!.stages[1]!.z0, { timeout: 10_000 });
+  s = await testState(page);
+  expect(s.trophies.now - before.trophies.now).toBe(st.trophies);
 });

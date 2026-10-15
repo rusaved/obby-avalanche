@@ -40,7 +40,7 @@ test('the stage tutorial step by step, then the camp teleport to a passed stage 
   await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.5), [s3.start + 2, s3.y] as const);
   await page.waitForFunction((n) => window.__TEST__!.state().stageBest >= n, s3.n);
   await page.evaluate(() => window.__TEST__!.givePet('bunny'));
-  await page.evaluate((c) => window.__TEST__!.setCoins(c), s3.trophies + 5);
+  await page.evaluate((c) => window.__TEST__!.setTrophies(c), s3.trophies + 5);
   await page.evaluate(() => window.__TEST__!.teleport(8, 0, 0.5));
   await waitTicks(page, 10);
   const pets0 = await testState(page);
@@ -58,7 +58,7 @@ test('the stage tutorial step by step, then the camp teleport to a passed stage 
   await waitTicks(page, 10);
   const s = await testState(page);
   expect(Math.abs(s.hero!.z - flagOf(1, s3).z)).toBeLessThanOrEqual(4);
-  expect(s.coins).toBe(5);
+  expect(s.trophies.now).toBe(5);
   expect(s.petsOn).toEqual(pets0.petsOn);
   expect(s.petsShown).toBe(pets0.petsShown);
 });

@@ -51,7 +51,7 @@ describe('stages pace: the mountain of stages (LV-03…LV-07, docs/01-gdd.md 22.
     const before = (w: W): string => JSON.stringify(w.segments.filter((s) => s.z < r1 && s.kind !== 'campTeleport'));
     expect(before(stages[0]!)).toBe(before(open[0]!));
   });
-  it('10–15 stages a mountain, 2–3 changes of width, no coins on the track past the first minute, ×2–3 trophies, ±20% of the open coins', () => {
+  it('10–15 stages a mountain, 2–3 changes of width, no coins on the track past the first minute, trophies growing (SD-03), ±20% of the open coins', () => {
     full.forEach((w, i) => {
       const st = w.stages!;
       expect(st.length).toBeGreaterThanOrEqual(10);
@@ -63,11 +63,11 @@ describe('stages pace: the mountain of stages (LV-03…LV-07, docs/01-gdd.md 22.
       const coins = w.segments.filter((s) => s.type === 'gift' && s.z >= intro && s['snowflake'] !== true);
       expect(coins, `mountain ${i + 1}`).toEqual([]);
       expect(w.segments.filter((s) => s['snowflake'] === true).length).toBeLessThanOrEqual(2);
+      // SD-03 (23.3): the trophies grow stage by stage; their sum is the open coins over upgrade.trophyRate.
       const paid = st.filter((s) => s.trophies > 0);
-      const k = paid.at(-1)!.trophies / paid[0]!.trophies;
-      expect(k).toBeGreaterThanOrEqual(2);
-      expect(k).toBeLessThanOrEqual(3.2);
-      const sum = paid.reduce((a, s) => a + s.trophies, 0);
+      for (let k = 1; k < paid.length; k++) expect(paid[k]!.trophies).toBeGreaterThan(paid[k - 1]!.trophies);
+      const rate = (read('pace/stages/balance.json') as { upgrade: { trophyRate: number } }).upgrade.trophyRate;
+      const sum = paid.reduce((a, s) => a + s.trophies, 0) * rate;
       let openCoins = 0;
       for (const s of (open[i] as unknown as World).segments) {
         if (s.type === 'gift' || s.type === 'chestGrotto' || s.type === 'chest') openCoins += (s['coins'] as number) ?? 0;
@@ -100,5 +100,18 @@ describe('stages pace: the mountain of stages (LV-03…LV-07, docs/01-gdd.md 22.
     expect(errs((w) => w.segments.forEach((s) => s.type === 'floor' && s.z > plates.start && s.z < plates.end && (s['x1'] as number) - (s['x0'] as number) <= 12 && ((s['x0'] = -20), (s['x1'] = 20)))).some((e) => e.includes('bridge'))).toBe(true);
     expect(errs((w) => (w.segments = w.segments.filter((s) => s.type !== 'trophyPad'))).some((e) => e.includes('trophy buttons'))).toBe(true);
     expect(errs((w) => (w.threat.zones = [[w.stages![2]!.z0, w.stages![2]!.end]])).some((e) => e.includes('outside an avalanche stage'))).toBe(true);
+  });
+});
+
+import { buildLevel } from '../../src/level/builder.ts';
+import { floatingErrors } from '../../src/level/validate-stages.ts';
+// SD-02 (docs/01-gdd.md 23.2): nothing hangs in the air on the built mountains; a plate lifted off the floor is caught.
+describe('nothing hangs in the air (SD-02)', () => {
+  it('mountains 1–10 of the stages pace: no box over the floor; a lifted plate is named', () => {
+    for (const w of stages) expect(floatingErrors(buildLevel(w as unknown as World)), w.id).toEqual([]);
+    const level = buildLevel(stages[0] as unknown as World);
+    const y = level.floorAt(0, 1200);
+    level.boxes.push({ min: [-5, y + 3, 1195], max: [5, y + 4, 1205], material: 'cave', solid: true, kind: 'plate' });
+    expect(floatingErrors(level)).toHaveLength(1);
   });
 });

@@ -24,6 +24,8 @@ export interface ShopTabSource {
   /** Coins now, formatted (the window head). */
   balance(): string;
   buy(id: string): void;
+  /** SD-03: the tab is priced in trophies (the shoes of the stages pace); absent — coins. */
+  trophies?(): boolean;
 }
 import { renderWardrobePanel, skinFigure, type LookCard, type WardrobeTab, type WingsLook } from '../ui/wardrobe-panel.ts';
 import { formatMult, formatNumber } from '../ui/format.ts';
@@ -51,6 +53,8 @@ export interface CosmeticsViewDeps {
   shopTabs?: Partial<Record<'shoes' | 'eggs', ShopTabSource>>;
   /** The trophy plaque is due (docs/01-gdd.md 6.4: after the «Mountain cleared» window of the first summit). */
   trophiesDue?(): boolean;
+  /** SD-03 (docs/01-gdd.md 23.3): trophies come from the stage buttons — the plaque shows once there are any. */
+  stageTrophies?: boolean;
 }
 
 export interface CosmeticsView {
@@ -95,7 +99,7 @@ export function createCosmeticsView(d: CosmeticsViewDeps): CosmeticsView {
     };
     const source = tab === 'shoes' || tab === 'eggs' ? d.shopTabs?.[tab] : undefined;
     if (source) {
-      renderShopPanel(body, head, { tab, tabs: tabs(), balance: source.balance(), coin: true, cards: source.cards() }, { tab: toTab, buy: (id) => source.buy(id), equip: () => undefined });
+      renderShopPanel(body, head, { tab, tabs: tabs(), balance: source.balance(), coin: !(source.trophies?.() ?? false), cards: source.cards() }, { tab: toTab, buy: (id) => source.buy(id), equip: () => undefined });
       return;
     }
     const kind = kindOf(tab);
@@ -201,7 +205,8 @@ export function createCosmeticsView(d: CosmeticsViewDeps): CosmeticsView {
         shown = key;
         d.visual.set(trail, aura);
       }
-      d.hud.setTrophies(summitDone() && (d.trophiesDue?.() ?? true) ? formatNumber(d.save.trophies ?? 0, d.numSuffix) : null);
+      const stageOn = !!d.stageTrophies && (d.save.trophies ?? 0) > 0;
+      d.hud.setTrophies(stageOn || (summitDone() && (d.trophiesDue?.() ?? true)) ? formatNumber(d.save.trophies ?? 0, d.numSuffix) : null);
     },
     openShop(next) {
       if (next) tab = next;

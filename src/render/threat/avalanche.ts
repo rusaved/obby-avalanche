@@ -142,7 +142,8 @@ export function createAvalancheVisual(initial: LevelData, theme: ThemeJson, tuni
 
   // Lit cave (docs/01-gdd.md 4.3): glowing ice in the entrance and a pulsing marker above it, one draw call.
   const firstCave = level.niches[0];
-  const glow = new PlaneGeometry(firstCave ? firstCave.box.max[2] - firstCave.box.min[2] : 1, NICHE_HEIGHT);
+  const glowLength = firstCave ? firstCave.box.max[2] - firstCave.box.min[2] : 1;
+  const glow = new PlaneGeometry(glowLength, NICHE_HEIGHT);
   glow.rotateY(Math.PI / 2);
   glow.translate(0, NICHE_HEIGHT / 2, 0);
   const gem = new OctahedronGeometry(1.2, 0);
@@ -223,8 +224,17 @@ export function createAvalancheVisual(initial: LevelData, theme: ThemeJson, tuni
       if (cave && marker.visible) {
         const sign = cave.side === 'left' ? -1 : 1;
         // At its mouth: the edge where it stands (SP-04), a rock grotto's face towards the camp.
-        if (cave.kind === 'island') marker.position.set((cave.box.min[0] + cave.box.max[0]) / 2, cave.y, cave.box.min[2] - 0.2);
-        else marker.position.set(entranceX(level, cave) + sign * 0.2, cave.y, cave.z);
+        // SD-02 (docs/01-gdd.md 23.2): a rock grotto opens to −z — its glow turned across its mouth and as wide as it
+        // (producer 15.10: a big blue plate stuck out of the rock, the glow across the slope).
+        if (cave.kind === 'island') {
+          marker.position.set((cave.box.min[0] + cave.box.max[0]) / 2, cave.y, cave.box.min[2] - 0.2);
+          marker.rotation.y = Math.PI / 2;
+          marker.scale.set(1, 1, (cave.box.max[0] - cave.box.min[0]) / glowLength);
+        } else {
+          marker.position.set(entranceX(level, cave) + sign * 0.2, cave.y, cave.z);
+          marker.rotation.y = 0;
+          marker.scale.set(1, 1, 1);
+        }
         markerMat.opacity = 0.35 + 0.25 * (0.5 + 0.5 * Math.sin(timeSec * 6));
       }
     },

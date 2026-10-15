@@ -10,7 +10,7 @@ import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 
 export interface StageInput {
   spec: OpenSpecJson;
-  balance: OpenInput['balance'] & { levels?: Levels; speedCurve?: { k: number } };
+  balance: OpenInput['balance'] & { levels?: Levels; speedCurve?: { k: number }; upgrade?: { trophyRate?: number } };
   tuning?: OpenInput['tuning'];
 }
 
@@ -141,7 +141,8 @@ export function generateStageWorlds({ spec, balance, tuning }: StageInput): Worl
   const open = generateOpenWorlds({ spec: { ...spec, layout: 'openSlope' }, balance, tuning });
   const curve = { base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed, k: balance.speedCurve.k };
   const speedOf = (level: number): number => round3(moveSpeed(levelThreshold(level, levels), curve));
-  return open.map((ow, i) => stageWorld(spec, cfg, ow, i + 1, levels, speedOf, tuning as Pick<TuningJson, 'controller' | 'fun'>));
+  const rate = balance.upgrade?.trophyRate ?? 1;
+  return open.map((ow, i) => stageWorld(spec, cfg, ow, i + 1, levels, speedOf, tuning as Pick<TuningJson, 'controller' | 'fun'>, rate));
 }
 
 /** The coins a mountain of the open slope gives (gifts, ridges, chests): the trophies of its stages (22.8: moved, not recounted). */
@@ -161,7 +162,7 @@ function nice(x: number): number {
   return Math.round(x / p) * p;
 }
 
-function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number, levels: Levels, speedOf: (level: number) => number, tuning: Pick<TuningJson, 'controller' | 'fun'>): World {
+function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number, levels: Levels, speedOf: (level: number) => number, tuning: Pick<TuningJson, 'controller' | 'fun'>, rate: number): World {
   const m = spec.mountains[index - 1]!;
   const plan = cfg.plan[index - 1];
   if (!plan || plan.length < 2) throw new Error(`${m.id}: worlds-spec.json stages.plan has no stages for mountain ${index}`);
@@ -195,7 +196,16 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
   const total = coinsOf(ow);
   const weights = plan.map((_, k) => g ** k);
   const wsum = weights.reduce((a, b) => a + b, 0);
-  const trophiesOf = (s: number): number => nice((total * weights[s - 1]!) / wsum);
+  // The coins of a stage as LV built them (the golden snowflake still pays coins of this size).
+  const coinsAt = (s: number): number => nice((total * weights[s - 1]!) / wsum);
+  // SD-03 (docs/01-gdd.md 23.3): the trophies of a stage — a ladder of small numbers (1 → 3 → 10 → 20 …) scaled so the
+  // mountain's sum is its coins over balance.json upgrade.trophyRate (the coins of a trophy, as the shoes are priced): value
+  // moved, not recounted.
+  // Stage 1 of mountain 1 is the first minute (no button): its ladder starts at stage 2; on the others at stage 1.
+  const ladderFrom = index === 1 ? 1 : 0;
+  const ladder = plan.map((_, k) => (k < ladderFrom ? 0 : cfg.trophyLadder?.[k - ladderFrom] ?? cfg.trophyLadder?.[cfg.trophyLadder.length - 1] ?? 1));
+  const lsum = ladder.reduce((a, b) => a + b, 0);
+  const trophiesOf = (s: number): number => (cfg.trophyLadder ? nice((ladder[s - 1]! * total) / (lsum * rate)) : coinsAt(s));
   // The golden snowflake on the riskiest line (22.8): the first `snowflake.stages` stages of cracks or catapult.
   const cutStages = new Set(plan.flatMap((t, k) => (t === 'cracks' || t === 'catapult' ? [k + 1] : [])).slice(0, cfg.snowflake.stages));
 
@@ -276,7 +286,9 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
       }
       case 'cracks': {
         const n = 3 + (index >= 4 ? 1 : 0) + (index >= 8 ? 1 : 0);
-        const w = round3(clamp(0.45 * D, 5, 30));
+        // SD-04 (docs/01-gdd.md 23.4): with `gapK` the crack is that share of the jump of v(N) — out of reach two levels
+        // below (controller.levelJump); absent — 0.45 as LV built it.
+        const w = round3(cfg.gapK ? clamp(cfg.gapK * D, 5, 80) : clamp(0.45 * D, 5, 30));
         const run = round3(Math.max(16, 0.6 * v));
         floor(zb, run, y);
         zb += run;
@@ -304,7 +316,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
       }
       case 'plates': {
         const n = 4 + (index >= 5 ? 1 : 0);
-        const gap = round3(clamp(0.42 * D, 3, 32));
+        const gap = round3(cfg.gapK ? clamp(cfg.gapK * D, 3, 80) : clamp(0.42 * D, 3, 32));
         const plate = round3(clamp(1.1 * D, 10, 90));
         const L = n * plate + (n + 1) * gap;
         pit(zb, L, y, s);
@@ -324,7 +336,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
         // The landing past each pit as long as 0.6 of the flight: the throw of v(N) lands in its middle, before the next pad.
         const forward = round3(clamp(0.5 * v, 8, 40));
         const F = padFlight(tuning, v, forward);
-        const c = round3(clamp(0.7 * F, 12, 90));
+        const c = round3(cfg.catapultK ? clamp(cfg.catapultK * F, 12, 120) : clamp(0.7 * F, 12, 90));
         const land = round3(0.6 * F + 10);
         floor(zb, 10, y);
         for (let k = 0; k < 2; k++) {
@@ -418,7 +430,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
       seg.push({ type: 'floor', z: round3(zb), length: gap, y: round3(y - cfg.pitDepth), x0: round3(p0), x1: round3(p1), material: 'pit', solid: false });
       seg.push({ type: 'pit', z: round3(zb), length: gap, y: round3(y - PIT_TRIGGER), x0: round3(p0), x1: round3(p1), section: s });
       const apex = (tuning.controller.jumpSpeed * tuning.controller.jumpSpeed) / (2 * tuning.controller.gravity);
-      seg.push({ type: 'gift', z: round3(zb + gap / 2), x: lx, y: round3(y + apex * 0.8), height: 0, zone: s, rarity: 'mythic', coins: cfg.snowflake.mult * trophiesOf(s), n: 0, air: true, col: [round3(y + apex * 0.4), round3(y + apex * 1.2)], snowflake: true });
+      seg.push({ type: 'gift', z: round3(zb + gap / 2), x: lx, y: round3(y + apex * 0.8), height: 0, zone: s, rarity: 'mythic', coins: cfg.snowflake.mult * coinsAt(s), n: 0, air: true, col: [round3(y + apex * 0.4), round3(y + apex * 1.2)], snowflake: true });
       cut = { gap, x: lx, z: round3(zb) };
       zb += gap;
     }

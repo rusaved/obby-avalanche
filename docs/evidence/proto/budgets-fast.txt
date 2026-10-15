@@ -1,4 +1,4 @@
-fast pace, quality high, 960x540, 2026-10-15T11:39:46.198Z; max draw calls 30
+fast pace, quality high, 960x540, 2026-10-15T20:15:46.540Z; max draw calls 30
 mountain 1 (slope) z=20: draw calls 25, triangles 48054
 mountain 1 (slope) z=395: draw calls 29, triangles 46888
 mountain 1 (slope) z=730: draw calls 28, triangles 45292

@@ -11,6 +11,7 @@
   "hud.goal.portal": "В портал!",
   "hud.goal.rebirth": "Переродись!",
   "hud.shoesBtn": "Кроссовки ×{m} · {price}",
+  "hud.shoesBtnTrophies": "Кроссовки ×{m} · {price} 🏆",
   "hud.shoesMax": "Лучшие кроссовки",
   "hud.boost": "×2 {time}",
   "hud.tier": "Ступень {n}",

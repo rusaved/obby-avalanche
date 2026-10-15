@@ -104,7 +104,9 @@
         "mult": 1200,
         "price": 40000000000
       }
-    ]
+    ],
+    "currency": "trophies",
+    "trophyRate": 7
   },
   "ftue": {
     "scriptedWaveWall": 2
@@ -258,6 +260,5 @@
   "levels": {
     "first": 50,
     "growth": 1.18
-  },
-  "currency": "trophies"
+  }
 }

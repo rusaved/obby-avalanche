@@ -15,7 +15,7 @@ import type { BalanceJson, Curve, GameEvents, TuningJson } from '../content/type
 import { moveSpeed } from './effects/moveSpeed.ts';
 import { createStepTracker, type StepGain, type StepTracker } from './steps.ts';
 import { gateIsOpen, gateRequirement, type WallCount } from './gates.ts';
-import { levelNeeded, levelThreshold } from './levels.ts';
+import { levelNeeded, levelOf, levelThreshold } from './levels.ts';
 import { scaled } from './economy.ts';
 import { giftsFromLevel, touchesGift, type Gift } from './gifts.ts';
 import { createCollisionWorld, type CollisionWorld } from './collision.ts';
@@ -33,6 +33,9 @@ import { createHero, placeHero, stepHero, type ControllerParams, type HeroInput,
 import { createFun, funInput, resetFun, stepFun, type FunState } from './fun.ts';
 import { createBoss, type Boss, type BossEvents } from './boss.ts';
 import { createEvents, type EventEvents, type EventId, type Events, type EventsContext } from './events.ts';
+
+/** SD-03: from the trophy button to the camp after this many ticks (the toast and the confetti first). */
+const CAMP_RETURN_TICKS = 50;
 
 export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, BossEvents, EventEvents, Record<string, unknown> {
   /**
@@ -64,7 +67,9 @@ export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, BossEvent
   /** The stat crossed a round number of balance.ui.statMilestones for the first time in this load (M2-13, no analytics). */
   statMilestone: { tick: number; value: number };
   /** A trophy button taken (docs/01-gdd.md 22.8): the stage, the trophies (coins of the stages pace) and the total. */
-  trophyTake: { tick: number; stage: number; amount: number; x: number; y: number; z: number; total: number };
+  trophyTake: { tick: number; stage: number; amount: number; x: number; y: number; z: number; total: number; trophies: boolean };
+  /** SD-03 (docs/01-gdd.md 23.3): after the trophies of a stage the hero is back in the camp — a new run. */
+  campReturn: { tick: number; stage: number };
   /** A gift touched: `coins` added (zone gift × wallScale[tier]), `total` is the coin balance after it; `path` — a gift on the path. */
   giftTake: { tick: number; index: number; coins: number; zone: number; rarity: string; total: number; path: boolean };
   /** A trampoline threw the hero up (docs/01-gdd.md 16.4): `index` of `fun.pads`, where. */
@@ -165,7 +170,7 @@ export interface Sim {
 }
 
 export interface SimOptions {
-  balance: Pick<BalanceJson, 'stepLength' | 'gainPerStep' | 'rebirth'> & {
+  balance: Pick<BalanceJson, 'stepLength' | 'gainPerStep' | 'rebirth'> & { upgrade?: { currency?: 'coins' | 'trophies' };
     gifts?: BalanceJson['gifts'];
     niche?: BalanceJson['niche'];
     coins?: BalanceJson['coins'];
@@ -317,6 +322,10 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   };
   // Trophy buttons (docs/01-gdd.md 22.8): taken once a pass — free again once the hero is below the stage's start.
   const padTaken = (level.stages ?? []).map(() => false);
+  // SD-03 (docs/01-gdd.md 23.3): the buttons pay trophies (the shoes are bought with them) — once a run, then the camp.
+  const padsPayTrophies = opts.balance.upgrade?.currency === 'trophies';
+  let campIn = 0;
+  let campFrom = 0;
 
   const sim: Sim = {
     hero,
@@ -434,9 +443,15 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         }
       }
       params.speed = runSpeed();
+      params.airSpeedMult = levelReach();
       stepHero(hero, funInput(sim.fun, tb ? NO_INPUT : input, params, tuning.fun), dt, collision, params, level.killY);
       // Trampolines and slides (docs/01-gdd.md 16.4): a launch leaves the ground, so this tick counts no steps.
       const fun = stepFun(sim.fun, hero, tuning.fun, dt);
+      // SD-04 (docs/01-gdd.md 23.4): a trampoline throws as far as the level reaches, as a jump does.
+      if (fun.pad >= 0 && params.airSpeedMult !== undefined && params.airSpeedMult !== 1) {
+        hero.vel.x *= params.airSpeedMult;
+        hero.vel.z *= params.airSpeedMult;
+      }
       if (fun.pad >= 0) events.emit('padLaunch', { tick: sim.tick, index: fun.pad, x: hero.pos.x, y: hero.pos.y, z: hero.pos.z });
       if (fun.slide >= 0) events.emit('slideEnter', { tick: sim.tick, index: fun.slide });
       // Portal: the hero crosses the arch plane inside its opening (docs/01-gdd.md 5.2).
@@ -548,9 +563,18 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         else if (!padTaken[k] && st.trophies > 0 && hero.onGround && Math.abs(hero.pos.x - st.pad.x) <= PAD_REACH && Math.abs(hero.pos.z - st.pad.z) <= PAD_REACH && Math.abs(hero.pos.y - st.pad.y) < 2) {
           padTaken[k] = true;
           const amount = scaled(st.trophies, tier, opts.balance.rebirth);
-          sim.coins += amount;
-          events.emit('trophyTake', { tick: sim.tick, stage: st.n, amount, x: st.pad.x, y: st.pad.y, z: st.pad.z, total: sim.coins });
+          if (padsPayTrophies) {
+            campIn = CAMP_RETURN_TICKS;
+            campFrom = st.n;
+          } else sim.coins += amount;
+          events.emit('trophyTake', { tick: sim.tick, stage: st.n, amount, x: st.pad.x, y: st.pad.y, z: st.pad.z, total: sim.coins, trophies: padsPayTrophies });
         }
+      }
+      if (campIn > 0 && --campIn === 0 && !sim.caught) {
+        const at = stageStart(1);
+        sim.teleport(at.x, at.y, at.z);
+        padTaken.fill(false);
+        events.emit('campReturn', { tick: sim.tick, stage: campFrom });
       }
       if (hero.pos.y < level.killY || inPit()) {
         if (toFlag && opts.balance.caught) {
@@ -619,6 +643,15 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     },
   };
   // The run speed of the stat × the «slowed» status (docs/01-gdd.md 18.5) × the blizzard where the hero is (18.4).
+  // SD-04 (docs/01-gdd.md 23.4): the reach of a jump on a stage by the level against the stage's (controller.levelJump).
+  const lj = tuning.controller.levelJump;
+  const levelReach = (): number => {
+    const levels = opts.balance.levels;
+    if (!lj || !levels || !level.stages) return 1;
+    const st = level.stages.find((x) => x.n === stageAt(level, hero.pos.z));
+    if (!st) return 1;
+    return Math.min(lj.max, Math.max(lj.min, lj.g ** (levelOf(progress.stat, levels) - st.level)));
+  };
   const runSpeed = (): number => moveSpeed(progress.stat, speedCurve) * (sim.slow?.mult ?? 1) * (rare?.speedMultAt(hero.pos.z) ?? 1);
   // The avalanche emits through the sim bus; «Phew, made it!» pays coins first (docs/01-gdd.md 4.4).
   const zoneGift = new Map<number, number>();

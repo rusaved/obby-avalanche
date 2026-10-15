@@ -50,10 +50,15 @@ export interface MetaView {
   resetShoes(): void;
   /** Cards of the shop tab «Sneakers»: lower pairs owned, the pair on, the next one to buy, the rest locked in order. */
   shopCards(): ShopCard[];
+  /** SD-03 (docs/01-gdd.md 23.3): what the shoes are paid with now — coins, or the trophies (upgrade.currency). */
+  shoeFunds(): number;
+  readonly shoesInTrophies: boolean;
 }
 
 export function createMetaView(d: MetaViewDeps): MetaView {
   const tiers = d.balance.upgrade.tiers;
+  const inTrophies = d.balance.upgrade.currency === 'trophies';
+  const funds = (): number => (inTrophies ? (d.save.trophies ?? 0) : d.getSim().coins);
   const flags = (): Record<string, boolean> => (d.save.flags ??= {});
   const view: MetaView = {
     get shoeLevel() {
@@ -76,8 +81,8 @@ export function createMetaView(d: MetaViewDeps): MetaView {
     update() {
       const sim = d.getSim();
       const next = nextShoes(tiers, view.shoeLevel);
-      const price = next ? shoesPrice(next, sim.tier, d.balance.rebirth) : 0;
-      if (!view.shoesShown && next && sim.coins >= price) {
+      const price = next ? shoesPrice(next, sim.tier, d.balance.rebirth, d.balance.upgrade) : 0;
+      if (!view.shoesShown && next && funds() >= price) {
         flags()['shoesBtn'] = true;
         d.persist();
       }
@@ -90,21 +95,23 @@ export function createMetaView(d: MetaViewDeps): MetaView {
         return;
       }
       d.hud.setShoes({
-        text: t('hud.shoesBtn', { m: formatNumber(next.mult, d.numSuffix), price: formatNumber(price, d.numSuffix) }),
-        can: sim.coins >= price,
-        progress: price > 0 ? sim.coins / price : 1,
+        text: t(inTrophies ? 'hud.shoesBtnTrophies' : 'hud.shoesBtn', { m: formatNumber(next.mult, d.numSuffix), price: formatNumber(price, d.numSuffix) }),
+        can: funds() >= price,
+        progress: price > 0 ? funds() / price : 1,
       });
     },
     buyShoes() {
       const sim = d.getSim();
-      const wallet = { coins: sim.coins, level: view.shoeLevel };
-      const next = buyNextShoes(wallet, tiers, sim.tier, d.balance.rebirth);
+      const wallet = { coins: funds(), level: view.shoeLevel };
+      const next = buyNextShoes(wallet, tiers, sim.tier, d.balance.rebirth, d.balance.upgrade);
       if (!next) return false;
-      sim.coins = wallet.coins;
+      if (inTrophies) d.save.trophies = wallet.coins;
+      else sim.coins = wallet.coins;
       d.save.shoes = wallet.level;
       d.persist(true);
       view.apply();
-      d.hud.setCoins(formatNumber(sim.coins, d.numSuffix));
+      if (inTrophies) d.hud.setTrophies(formatNumber(wallet.coins, d.numSuffix));
+      else d.hud.setCoins(formatNumber(sim.coins, d.numSuffix));
       d.hud.toast(t('toast.newShoes', { name: t(`shoes.${next.id}`), m: formatNumber(next.mult, d.numSuffix) }));
       d.trackOnce('shoes_1');
       d.onShoes?.();
@@ -115,8 +122,8 @@ export function createMetaView(d: MetaViewDeps): MetaView {
       const sim = d.getSim();
       const level = view.shoeLevel;
       return tiers.map((x, i): ShopCard => {
-        const price = shoesPrice(x, sim.tier, d.balance.rebirth);
-        const state: ShopCard['state'] = i < level ? 'done' : i === level ? 'on' : i > level + 1 ? 'locked' : sim.coins >= price ? 'buy' : 'short';
+        const price = shoesPrice(x, sim.tier, d.balance.rebirth, d.balance.upgrade);
+        const state: ShopCard['state'] = i < level ? 'done' : i === level ? 'on' : i > level + 1 ? 'locked' : funds() >= price ? 'buy' : 'short';
         return {
           id: x.id,
           name: t(`shoes.${x.id}`),
@@ -124,12 +131,14 @@ export function createMetaView(d: MetaViewDeps): MetaView {
           price: formatNumber(price, d.numSuffix),
           color: d.shoesColor ?? '#ffffff',
           state,
-          need: t('shop.need', { n: formatNumber(Math.max(0, price - sim.coins), d.numSuffix) }),
-          coin: true,
+          need: t('shop.need', { n: formatNumber(Math.max(0, price - funds()), d.numSuffix) }),
+          coin: !inTrophies,
           lock: t('shop.next', { name: t(`shoes.${tiers[level + 1]?.id ?? x.id}`) }),
         };
       });
     },
+    shoeFunds: funds,
+    shoesInTrophies: inTrophies,
     resetShoes() {
       d.save.shoes = SHOES_AFTER_REBIRTH;
       d.persist(true);

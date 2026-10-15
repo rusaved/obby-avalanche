@@ -35,6 +35,9 @@ export interface CampViewDeps {
   levels: Levels | undefined;
   persist(): void;
   numSuffix(k: string): string;
+  /** SD-03 (docs/01-gdd.md 23.3): the teleports cost stage trophies (the trophy wallet); absent — coins. */
+  trophyWallet?: boolean;
+  onTrophies?(left: number): void;
 }
 
 export interface CampView {
@@ -129,7 +132,7 @@ export function createCampView(d: CampViewDeps): CampView {
         const list = document.createElement('div');
         list.className = 'tp-list';
         const top = best(w);
-        const coins = d.getSim().coins;
+        const coins = d.trophyWallet ? (d.save.trophies ?? 0) : d.getSim().coins;
         for (const st of stages.filter((x) => x.n >= 2)) {
           const b = document.createElement('button');
           b.className = 'tp-item';
@@ -156,8 +159,13 @@ export function createCampView(d: CampViewDeps): CampView {
     teleport(n) {
       const sim = d.getSim();
       const st = sim.level.stages?.find((x) => x.n === n);
-      if (!st || n > best(d.getWorld()) || sim.coins < st.trophies) return false;
-      sim.coins -= st.trophies;
+      const have = d.trophyWallet ? (d.save.trophies ?? 0) : sim.coins;
+      if (!st || n > best(d.getWorld()) || have < st.trophies) return false;
+      if (d.trophyWallet) {
+        d.save.trophies = have - st.trophies;
+        d.onTrophies?.(d.save.trophies);
+        d.persist();
+      } else sim.coins -= st.trophies;
       const at = sim.stageStart(n);
       sim.teleport(at.x, at.y, at.z);
       track('camp_teleport', { world: sim.level.worldIndex, stage: n });

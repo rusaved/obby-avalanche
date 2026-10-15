@@ -77,7 +77,7 @@ import { createRewards } from './app/rewards.ts';
 import { createDailyView, type DailyView } from './app/daily-view.ts';
 import { createQuestsView, type QuestsView } from './app/quests-view.ts';
 import { createSave, type SaveData } from './meta/save.ts';
-import { addTrophies } from './meta/trophies.ts';
+import { addTrophies, migrateStageTrophies } from './meta/trophies.ts';
 import { scaled, summitTrophies } from './sim/economy.ts';
 import type { GameHandles, BootState } from './app/handles.ts';
 import type { TestApi } from './test-api/index.ts';
@@ -169,6 +169,8 @@ async function boot(): Promise<void> {
   const loaded = await platform.loadSave();
   let save: SaveData = loaded ?? createSave(platform.serverTime());
   save.sessions += 1;
+  // SD-03 (docs/01-gdd.md 23.3): a save from before the stage trophies gets the trophies of the stages it passed, once.
+  if (balance.upgrade.currency === 'trophies') migrateStageTrophies(save, content.worlds);
   const persist = (flush = false): void => {
     syncSave();
     save.rev += 1;
@@ -1699,7 +1701,8 @@ async function boot(): Promise<void> {
     shopTabs: {
       shoes: {
         cards: () => meta?.shopCards() ?? [],
-        balance: () => formatNumber(sim.coins, numSuffix),
+        balance: () => formatNumber(meta?.shoeFunds() ?? sim.coins, numSuffix),
+        trophies: () => meta?.shoesInTrophies ?? false,
         buy: () => {
           meta?.buyShoes();
           windows?.refresh();
@@ -1714,6 +1717,7 @@ async function boot(): Promise<void> {
       },
     },
     trophiesDue: () => hudDueNow().has('trophies'),
+    stageTrophies: balance.upgrade.currency === 'trophies',
   });
   // The points of the base (docs/01-gdd.md 19.3). The shop: with «Shop» of the HUD; its tab — the sneakers if they are
   // affordable, else the eggs if the egg of the own mountain is, else the sneakers; the hand when one is affordable.
@@ -1726,7 +1730,7 @@ async function boot(): Promise<void> {
     const next = nextShoes(balance.upgrade.tiers, meta?.shoeLevel ?? 0);
     const egg = ownEgg();
     return {
-      shoes: next !== null && sim.coins >= shoesPrice(next, sim.tier, balance.rebirth),
+      shoes: next !== null && (meta?.shoeFunds() ?? sim.coins) >= shoesPrice(next, sim.tier, balance.rebirth, balance.upgrade),
       egg: egg !== null && sim.coins >= eggPrice(egg, sim.tier, balance.rebirth),
     };
   };
@@ -1868,10 +1872,24 @@ async function boot(): Promise<void> {
   });
   hudView.wire(sim);
   // The stage finishes of the stages pace (docs/01-gdd.md 22.8): the trophy buttons.
-  stageView = createStageView({ getSim: () => sim, hud, camera: cameraRig, theme, field: () => field, fx: () => fx, play: (n) => audio?.play(n), numSuffix, onTrophy: () => campView?.trophyTaken(), campTeleport: () => (campView?.hasPassed() ? g.world.campTeleport : undefined) });
+  stageView = createStageView({ getSim: () => sim, hud, camera: cameraRig, theme, field: () => field, fx: () => fx, play: (n) => audio?.play(n), numSuffix, onTrophy: (n, trophies) => {
+      campView?.trophyTaken();
+      // SD-03 (docs/01-gdd.md 23.3): the stage trophies to spend (not the all-time count of summits: it opens the summit group).
+      if (trophies) {
+        save.trophies = Math.min(Number.MAX_SAFE_INTEGER, (save.trophies ?? 0) + Math.max(0, Math.floor(n)));
+        hud.setTrophies(formatNumber(save.trophies, numSuffix));
+        persist(true);
+      }
+    },
+    onCampReturn: () => {
+      const flash = document.createElement('div');
+      flash.className = 'fade-flash';
+      ui.appendChild(flash);
+      setTimeout(() => flash.remove(), 1000);
+    }, campTeleport: () => (campView?.hasPassed() ? g.world.campTeleport : undefined) });
   stageView.wire(sim);
   // The stage tutorial and the camp teleport (docs/01-gdd.md 22.12).
-  campView = createCampView({ getSim: () => sim, getWorld: () => g.world, hud, windows, save, levels: balance.levels, persist, numSuffix });
+  campView = createCampView({ getSim: () => sim, getWorld: () => g.world, hud, windows, save, levels: balance.levels, persist, numSuffix, trophyWallet: balance.upgrade.currency === 'trophies', onTrophies: (n) => hud.setTrophies(formatNumber(n, numSuffix)) });
   hud.setAutoRun(save.settings.autoRun);
   hud.setQuality(save.settings.quality);
   hud.setTouchMode(mobile);
