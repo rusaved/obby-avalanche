@@ -22,6 +22,8 @@ type Physics = Pick<TuningJson, 'controller' | 'fun'>;
 const GROUND_KINDS = new Set(['floor', 'border', 'pitFloor', 'nicheFloor', 'beacon']);
 /** SD-02: how far the bottom of an object may stand over the floor under it. */
 export const FLOAT_MAX = 0.5;
+/** SD-05: a giant that slaps on touch is at least this much slower than v(N) (a dodge, then the hero runs away). */
+const GIANT_TOUCH_MARGIN = 0.01;
 
 /**
  * SD-02 (docs/01-gdd.md 23.2; producer 15.10: a big blue plate over the floor): no box of the built level hangs in the air —
@@ -164,7 +166,11 @@ export function fairErrors(w: World, st: WorldStage, tuning: Physics, margin: nu
     }
   if (st.type === 'giant')
     for (const b of (w.bosses ?? []).filter((b) => b.zone[0] >= st.start - 1e-6 && b.zone[1] <= st.end + 1e-6))
-      for (const g of b.giants) if (g.speed * (1 + margin) > v * (1 + 1e-6)) errors.push(`stage ${st.n}: the giant ${g.speed} is not ${margin * 100}% slower than v(N) ${v}`);
+      // SD-05 (docs/01-gdd.md 23.5): a giant that slaps on touch (slipPast false) runs close to v(N) — 1% slower at least.
+      for (const g of b.giants) {
+        const m = g.slipPast === false ? GIANT_TOUCH_MARGIN : margin;
+        if (g.speed * (1 + m) > v * (1 + 1e-6)) errors.push(`stage ${st.n}: the giant ${g.speed} is not ${m * 100}% slower than v(N) ${v}`);
+      }
   if (st.type === 'avalanche') {
     const isl = w.segments.filter((s) => s.type === 'island' && inBody(s)).map((s) => s.z);
     let prev = st.start;

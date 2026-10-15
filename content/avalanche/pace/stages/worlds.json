@@ -2398,10 +2398,12 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 25.855,
+              "speed": 29.549,
               "patrol": "chase",
               "seeDist": 0,
-              "turnSec": 0.5
+              "turnSec": 0.5,
+              "slipPast": false,
+              "side": 0.3
             }
           ],
           "width": 100,
@@ -4998,10 +5000,12 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 45.143,
+              "speed": 49.088,
               "patrol": "chase",
               "seeDist": 0,
-              "turnSec": 0.5
+              "turnSec": 0.5,
+              "slipPast": false,
+              "side": 0.3
             }
           ],
           "width": 100,
@@ -7916,10 +7920,12 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 57.791,
+              "speed": 59.491,
               "patrol": "chase",
               "seeDist": 0,
-              "turnSec": 0.5
+              "turnSec": 0.5,
+              "slipPast": false,
+              "side": 0.3
             }
           ],
           "width": 100,
@@ -10923,10 +10929,12 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 64.419,
+              "speed": 66.313,
               "patrol": "chase",
               "seeDist": 0,
-              "turnSec": 0.5
+              "turnSec": 0.5,
+              "slipPast": false,
+              "side": 0.3
             }
           ],
           "width": 100,
@@ -14263,10 +14271,12 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 71.647,
+              "speed": 73.754,
               "patrol": "chase",
               "seeDist": 0,
-              "turnSec": 0.5
+              "turnSec": 0.5,
+              "slipPast": false,
+              "side": 0.3
             }
           ],
           "width": 100,
@@ -17618,10 +17628,12 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 78.274,
+              "speed": 80.576,
               "patrol": "chase",
               "seeDist": 0,
-              "turnSec": 0.5
+              "turnSec": 0.5,
+              "slipPast": false,
+              "side": 0.3
             }
           ],
           "width": 100,
@@ -21305,10 +21317,12 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 86.708,
+              "speed": 89.258,
               "patrol": "chase",
               "seeDist": 0,
-              "turnSec": 0.5
+              "turnSec": 0.5,
+              "slipPast": false,
+              "side": 0.3
             }
           ],
           "width": 100,
@@ -25121,10 +25135,12 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 93.938,
+              "speed": 96.7,
               "patrol": "chase",
               "seeDist": 0,
-              "turnSec": 0.5
+              "turnSec": 0.5,
+              "slipPast": false,
+              "side": 0.3
             }
           ],
           "width": 100,
@@ -29189,10 +29205,12 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 101.769,
+              "speed": 104.762,
               "patrol": "chase",
               "seeDist": 0,
-              "turnSec": 0.5
+              "turnSec": 0.5,
+              "slipPast": false,
+              "side": 0.3
             }
           ],
           "width": 100,
@@ -33616,10 +33634,12 @@
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 112.011,
+              "speed": 115.305,
               "patrol": "chase",
               "seeDist": 0,
-              "turnSec": 0.5
+              "turnSec": 0.5,
+              "slipPast": false,
+              "side": 0.3
             }
           ],
           "width": 100,

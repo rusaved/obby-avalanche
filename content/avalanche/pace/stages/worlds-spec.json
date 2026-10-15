@@ -1356,9 +1356,12 @@
       ]
     },
     "giantMargin": [
-      0.2,
-      0.12
+      0.05,
+      0.03
     ],
+    "giantMarginRest": 0.02,
+    "giantSlipPast": false,
+    "giantSide": 0.3,
     "gateK": 1.2,
     "plan": [
       [

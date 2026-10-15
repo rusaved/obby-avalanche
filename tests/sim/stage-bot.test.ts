@@ -66,7 +66,7 @@ function narrowAhead(w: World, x: number, z: number): number | null {
 
 type Outcome = 'pass' | 'fall' | 'time';
 
-function runStage(w: World, st: WorldStage, seed: number, below = 0): Outcome {
+function runStage(w: World, st: WorldStage, seed: number, below = 0, straight = false): Outcome {
   const r = rand(seed);
   const level = buildLevel(w);
   const sim: Sim = createSim(level, tuning, {
@@ -129,8 +129,9 @@ function runStage(w: World, st: WorldStage, seed: number, below = 0): Outcome {
       tx = ahead ?? 0;
       // The giant ahead: a step aside from him, as a player does (22.5).
       if (st.type === 'giant' && sim.boss) {
-        const g = sim.boss.zones.flatMap((z) => z.giants).find((q) => q.z > h.z - 2 && q.z - h.z < 30);
-        if (g) tx = g.x > 0 ? -30 : 30;
+        // SD-05: he keeps to the run line — round him by the edge, seen from 2 s ahead (straight on, he slaps).
+        const g = sim.boss.zones.flatMap((z) => z.giants).find((q) => q.z > h.z - 2 && q.z - h.z < 2 * st.speed);
+        if (g && !straight) tx = g.x > h.x ? -40 : 40;
       }
       const sloppy = tx + Math.sin(t * drift + phase) * (ahead === null ? 3 : 1);
       mx = Math.max(-1, Math.min(1, (sloppy - h.x) * 0.3));
@@ -165,6 +166,16 @@ describe('the stage bot at the level of the ridge (LV-02, LV-03)', () => {
         expect(res.filter((x) => x === 'pass').length, res.join(' ')).toBeLessThanOrEqual(3);
       }, 60_000);
     }
+  }
+  // SD-05 (docs/01-gdd.md 23.5): the giant stands on the run line; holding forward two levels below — he slaps 7+ of 10.
+  for (const mi of [0, 4]) {
+    const w = worlds.worlds[mi]!;
+    const st = w.stages!.find((s) => s.type === 'giant')!;
+    it(`mountain ${mi + 1}, the giant: on the run line; straight on two levels below — caught 7+ of 10`, () => {
+      expect(w.bosses!.find((b) => b.zone[0] >= st.start - 1e-6)!.giants[0]!.slipPast).toBe(false);
+      const res = Array.from({ length: TRIES }, (_, i) => runStage(w, st, 7000 + i, 2, true));
+      expect(res.filter((x) => x === 'fall').length, res.join(' ')).toBeGreaterThanOrEqual(7);
+    }, 60_000);
   }
   it('one level less is not let in: the ridge of every stage of mountains 1–10 asks for more than level N − 1', () => {
     for (const w of worlds.worlds)

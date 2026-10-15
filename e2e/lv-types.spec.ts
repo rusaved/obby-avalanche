@@ -40,7 +40,9 @@ async function pass(page: Page, world: number, st: WorldStage): Promise<void> {
   }, [threshold(st.level) * 1.01, f.z, f.y] as const);
   await waitTicks(page, 10);
   const roll0 = (await testState(page)).rollFrom;
-  const path = st.type === 'maze' ? mazeRoute(st) : st.type === 'throat' || st.type === 'blizzard' || st.type === 'plates' || st.type === 'chute' ? legs(world, st) : [[0, st.end + 6] as [number, number]];
+  // SD-05 (docs/01-gdd.md 23.5): the giant keeps to the run line — round him by the edge of the field.
+  const giantPath: Array<[number, number]> = [[40, st.start + 20], [40, st.end - 10], [0, st.end + 6]];
+  const path = st.type === 'maze' ? mazeRoute(st) : st.type === 'throat' || st.type === 'blizzard' || st.type === 'plates' || st.type === 'chute' ? legs(world, st) : st.type === 'giant' ? giantPath : [[0, st.end + 6] as [number, number]];
   await page.evaluate((on) => window.__TEST__!.botJump(on), st.type !== 'catapult');
   await page.evaluate((p) => window.__TEST__!.botPath(p), path);
   if (st.type === 'avalanche') {

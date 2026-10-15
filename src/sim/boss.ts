@@ -166,7 +166,7 @@ export function createBoss(
   // The chase in the plane of the slope (SP-06): straight at (tx, tz), a rock met — along its face towards the side of
   // the target (beyond the rock — the side it lies off the rock's middle), `pad` off it; inside the zone's width.
   const pad = cfg.cover?.pad ?? 0;
-  const run = (g: GiantState, b: WorldBoss, tx: number, tz: number, step: number): boolean => {
+  const run = (g: GiantState, b: WorldBoss, tx: number, tz: number, step: number, side = 1): boolean => {
     for (const c of b.covers ?? []) {
       // A target by the rock (the hero against it): the nearest point the giant can stand.
       const e = c.r + pad;
@@ -178,7 +178,9 @@ export function createBoss(
     const d = Math.hypot(tx - g.x, tz - g.z);
     if (d < 1e-9) return true;
     const len = Math.min(step, d);
-    let nx = g.x + ((tx - g.x) * len) / d;
+    // SD-05 (docs/01-gdd.md 23.5): a giant of `side` < 1 keeps to the run line — across the slope it moves that share of
+    // its step at most, so a run round him by the edge gets past and a straight run meets him.
+    let nx = g.x + Math.max(-side * len, Math.min(side * len, ((tx - g.x) * len) / d));
     let nz = g.z + ((tz - g.z) * len) / d;
     for (const c of b.covers ?? []) {
       const e = c.r + pad;
@@ -344,7 +346,7 @@ export function createBoss(
                 }
                 g.dir = at[1] >= g.z ? 1 : -1;
                 // At the point it lost him: it searches there (hideSec).
-                if (run(g, data0, at[0], at[1], g.speed * dt) && g.sight === 'lost' && g.search < 0) g.search = 0;
+                if (run(g, data0, at[0], at[1], g.speed * dt, data0.giants[gi]!.side ?? 1) && g.sight === 'lost' && g.search < 0) g.search = 0;
                 break;
               }
               const tz = target(g);
@@ -366,7 +368,9 @@ export function createBoss(
               }
           // The slap: within reach of a giant that walks at him (and sees him); only a run faster than speed × (1 + margin)
           // slips past.
-          if (s.hero === 'in' && g.mode === 'chase' && !blind(g) && near(g, chase, hero.x, hero.z) && hero.speed <= slip(g)) {
+          // SD-05 (docs/01-gdd.md 23.5): a giant with slipPast false slaps at any speed — a dodge or a rock, not a straight run.
+          const slips = data0.giants[gi]!.slipPast !== false && hero.speed > slip(g);
+          if (s.hero === 'in' && g.mode === 'chase' && !blind(g) && near(g, chase, hero.x, hero.z) && !slips) {
             s.hero = 'out';
             s.giants.forEach((o) => {
               o.mode = 'back';

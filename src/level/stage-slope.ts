@@ -310,7 +310,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
           { x: round3(-half / 2), z: round3(zb + 0.7 * L), r: 4, h: 6 },
         ];
         for (const c of covers) seg.push({ type: 'cover', z: c.z, x: c.x, y, r: c.r, h: c.h, zone: s });
-        bosses.push({ zone: [round3(zb), round3(zb + L)], requires: round3(levelThreshold(level, levels)), returnMult: 1.5, giants: [{ speed: Math.floor((v / (1 + (cfg.giantMargin?.[index - 1] ?? m.boss.margin))) * 1000) / 1000, patrol: 'chase', seeDist: 0, turnSec: 0.5 }], width: cfg.field, covers } as WorldBoss);
+        bosses.push({ zone: [round3(zb), round3(zb + L)], requires: round3(levelThreshold(level, levels)), returnMult: 1.5, giants: [{ speed: Math.floor((v / (1 + (cfg.giantMargin?.[index - 1] ?? cfg.giantMarginRest ?? m.boss.margin))) * 1000) / 1000, patrol: 'chase', seeDist: 0, turnSec: 0.5, ...(cfg.giantSlipPast === false ? { slipPast: false } : {}), ...(cfg.giantSide !== undefined ? { side: cfg.giantSide } : {}) }], width: cfg.field, covers } as WorldBoss);
         zb += L;
         break;
       }

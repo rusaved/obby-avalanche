@@ -359,7 +359,7 @@
   "boss.name": "Giant",
   "boss.nameNorth": "Northern Giant",
   "boss.sign": "Giant: Speed ~{n}",
-  "boss.start": "Slip past the giant!",
+  "boss.start": "Run round the giant!",
   "boss.gap": "Giant {n} away",
   "boss.passed": "You slipped past the giant!",
   "boss.caught": "The giant caught you!",

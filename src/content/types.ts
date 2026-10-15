@@ -570,6 +570,11 @@ export interface WorldGiant {
   turnSec: number;
   /** Where on its patrol (up the zone and back) it starts, a share of the round (docs/01a-content.md 17.4: 0 — at the
    * start going up, 0.5 — at the end coming down); absent — spread evenly over the zone as on PS. */
+  /** SD-05 (docs/01-gdd.md 23.5): false — within reach it slaps whatever the speed (no slipping past by running at it);
+   * absent — a run faster than speed × (1 + margin) slips past. */
+  slipPast?: boolean;
+  /** SD-05: the share of its step a chasing giant may move across the slope (keeps to the run line); absent — 1. */
+  side?: number;
   phase?: number;
 }
 
@@ -1018,6 +1023,10 @@ export interface StageSpec {
   /** SD-04 (docs/01-gdd.md 23.4): a crack and a gap between plates as this share of the jump at v(N), the catapult pit of
    * its flight; absent — 0.45 / 0.42 and 0.7 (LV). */
   gapK?: number;
+  /** SD-05 (docs/01-gdd.md 23.5): the giant margin of mountains past giantMargin[] and whether a run slips past him. */
+  giantMarginRest?: number;
+  giantSlipPast?: boolean;
+  giantSide?: number;
   catapultK?: number;
   snowflake: { mult: number; stages: number };
   /** The avalanche stage: the first wave after entering, the pause between waves inside, grottos every `every` × v. */
