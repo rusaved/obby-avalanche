@@ -48,6 +48,8 @@ export interface InputOptions {
    * a move within lookAfterDragMs of a drag is the hand going back, not a look. */
   mouseLook?: boolean;
   mouseYawPerPx?: number;
+  /** The outer share of the field where a move without a button turns nothing (the way to a corner button). */
+  mouseEdge?: number;
   lookAfterDragMs?: number;
   sensitivity: number;
   /** Autorun: tap shorter than this (ms) and smaller than tapMovePx is a jump. */

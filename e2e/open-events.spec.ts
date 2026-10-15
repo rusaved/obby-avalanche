@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test';
 import { test, expect, testState, waitReady, waitTicks } from './fixtures.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 import fastWorlds from '../content/avalanche/pace/fast/worlds.json' with { type: 'json' };
+import stagesWorlds from '../content/avalanche/pace/stages/worlds.json' with { type: 'json' };
 
 // PS-13: the events of the open slope and the pace flag (docs/06 2, 4, 8.1–8.2). gameReady carries the pace; the remote
 // flag `pace` (getFlags of the mock) picks the pace without ?pace=, ?pace= of a debug build still wins; the giant's catch
@@ -12,6 +13,8 @@ const zone = world.bosses[0]!.zone;
 const advice = world.bosses[0]!.requires;
 const fastGates = (fastWorlds as unknown as { worlds: Array<{ wallCount: number }> }).worlds[0]!.wallCount;
 const openGates = (openWorlds as unknown as { worlds: Array<{ wallCount: number }> }).worlds[0]!.wallCount;
+// LV (15.10, docs/01-gdd.md 22.1): the stages pace is the default of game.json.
+const stagesGates = (stagesWorlds as unknown as { worlds: Array<{ wallCount: number }> }).worlds[0]!.wallCount;
 
 async function open(page: Page, query: string): Promise<void> {
   await page.goto(`/?${query}`);
@@ -24,8 +27,8 @@ const ready = (page: Page): Promise<Record<string, unknown> | undefined> =>
 test('gameReady carries the pace; the flag pace of getFlags picks fast without ?pace=; an unknown value — game.json; ?pace= wins', async ({ page }) => {
   test.setTimeout(150_000);
   await open(page, '');
-  expect((await testState(page)).pace).toBe('open');
-  expect(await ready(page)).toEqual({ pace: 'open' });
+  expect((await testState(page)).pace).toBe('stages');
+  expect(await ready(page)).toEqual({ pace: 'stages' });
 
   await open(page, `mock_flags=${encodeURIComponent(JSON.stringify({ pace: 'fast' }))}`);
   let s = await testState(page);
@@ -35,8 +38,9 @@ test('gameReady carries the pace; the flag pace of getFlags picks fast without ?
 
   await open(page, `mock_flags=${encodeURIComponent(JSON.stringify({ pace: 'nope' }))}`);
   s = await testState(page);
-  expect(s.pace).toBe('open');
-  expect(s.gatesOpen).toHaveLength(openGates);
+  expect(s.pace).toBe('stages');
+  expect(s.gatesOpen).toHaveLength(stagesGates);
+  void openGates;
 
   await open(page, `pace=open&mock_flags=${encodeURIComponent(JSON.stringify({ pace: 'fast' }))}`);
   expect((await testState(page)).pace).toBe('open');

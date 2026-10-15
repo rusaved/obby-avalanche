@@ -77,7 +77,7 @@ export function createStageView(d: StageViewDeps): StageView {
       // In the camp — the teleport pad (docs/01-gdd.md 22.12) instead of a trophy button.
       const tp = d.campTeleport?.();
       const tpAt = !st && tp && h.z < tp.z + LABEL_NEAR / 4 ? project(tp.x, tp.y + LABEL_ABOVE, tp.z) : null;
-      d.hud.setPadLabel(st && at ? { text: `+${fmt(st.trophies)}`, x: at.x, y: at.y } : tpAt ? { text: t('teleport.title'), x: tpAt.x, y: tpAt.y } : null);
+      d.hud.setPadLabel(st && at ? { text: `+${fmt(st.trophies)}`, x: at.x, y: at.y } : tpAt ? { text: t('teleport.title'), x: tpAt.x, y: tpAt.y, tap: true } : null);
     },
   };
 }

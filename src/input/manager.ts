@@ -93,7 +93,8 @@ export class InputManager {
     onEl(document, 'selectstart', prevent);
     onEl(document, 'dblclick', prevent);
     onEl(document, 'gesturestart' as keyof HTMLElementEventMap, prevent);
-    onEl(document, 'touchmove', prevent, { passive: false });
+    // A range slider of a window (the footsteps volume) moves under the finger (LV-12 review); everything else stays put.
+    onEl(document, 'touchmove', (ev) => ((ev.target as Element | null)?.closest?.('input[type=range]') ? undefined : ev.preventDefault()), { passive: false });
   }
 
   detach(): void {
@@ -344,6 +345,9 @@ export class InputManager {
     if (this.eventTime(ev) - this.dragEndAt < (this.opts.lookAfterDragMs ?? 0)) return;
     const dx = ev.movementX;
     if (!dx) return;
+    // The hand on its way to a corner button (pause, sound, menu) turns nothing (LV-12 review): the outer band of the field.
+    const edge = this.opts.mouseEdge ?? 0;
+    if (edge > 0 && (ev.clientX < innerWidth * edge || ev.clientX > innerWidth * (1 - edge) || ev.clientY < innerHeight * edge)) return;
     this.yawDelta -= (dx * (this.opts.mouseYawPerPx ?? this.opts.mouseDegPerPx) * this.opts.sensitivity * Math.PI) / 180;
     this.lookEdge = true;
   }

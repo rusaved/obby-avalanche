@@ -9,6 +9,8 @@ export interface WordLabels {
   /** Puts label i centred at (x, y, z), `height` world units tall (the width follows the text). */
   set(i: number, x: number, y: number, z: number, height: number): void;
   hide(i: number): void;
+  /** Width over height of the word (a label `h` tall is `aspect × h` wide). */
+  readonly aspect: number;
   dispose(): void;
 }
 
@@ -60,6 +62,7 @@ export function createWordLabels(text: string, count: number): WordLabels {
   for (let i = 0; i < count; i++) place(i, 0, -FAR, 0, TINY);
   return {
     mesh,
+    aspect,
     set: (i, x, y, z, height) => place(i, x, y, z, height),
     hide: (i) => place(i, 0, -FAR, 0, TINY),
     dispose() {

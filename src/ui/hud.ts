@@ -29,6 +29,8 @@ export interface HudOptions {
   coinColor: string;
   /** Stages pace (docs/01-gdd.md 22.8, balance.json currency trophies): the coin plaque shows trophies. */
   coinsAsTrophies?: boolean;
+  /** The teleport label of the camp tapped (docs/01-gdd.md 22.12). */
+  onPadLabel?: () => void;
   /** Avalanche colour for the banner outline, frost frame and cave arrow (theme.json threat.front[1]). */
   threatColor: string;
   /** Golden gift colour (theme.json bonus.color, docs/01-gdd.md 4.9): the golden toast; absent — the plain one. */
@@ -193,7 +195,9 @@ export interface Hud {
   /** The step of the stage tutorial under the goal (docs/01-gdd.md 22.12); null — none. */
   setTutor(text: string | null): void;
   /** «+N» with a trophy over the trophy button of a stage (docs/01-gdd.md 22.8); null — hidden. */
-  setPadLabel(state: { text: string; x: number; y: number } | null): void;
+  setPadLabel(state: { text: string; x: number; y: number; tap?: boolean } | null): void;
+  /** The portrait of a phone (the game is landscape, docs/03): «Turn your phone» over everything; false — hidden. */
+  setRotate(on: boolean): void;
   readonly jumpButton: HTMLButtonElement;
   /** Body of the pause and settings window (the caller opens it in the window frame). */
   readonly pausePanel: HTMLElement;
@@ -333,7 +337,11 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const levelProgress = el('span', 'hud-level-progress');
   levelText.append(levelTitle, levelProgress);
   levelBar.append(levelFill, levelText);
-  levelBox.appendChild(levelBar);
+  // The stage tutorial (docs/01-gdd.md 22.12): one step at a time over the Speed plaque (LV-12: under the goal it met the
+  // toasts and hints).
+  const tutor = el('div', 'hud-tutor');
+  tutor.dataset['role'] = 'tutor';
+  levelBox.append(tutor, levelBar);
   root.appendChild(levelBox);
 
   // Mountain bar at the top centre: a slope rising left to right, zone colours, wall and cave marks, the hero's face.
@@ -367,10 +375,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   // Stages pace (docs/01-gdd.md 22.3): «yours 7 / need 8» by a closed ridge — red short, green enough; a pill, not a board.
   const need = el('div', 'hud-need');
   need.dataset['role'] = 'need';
-  // The stage tutorial (docs/01-gdd.md 22.12): one step at a time under the goal.
-  const tutor = el('div', 'hud-tutor');
-  tutor.dataset['role'] = 'tutor';
-  goal.append(goalText, goalBar, need, tutor);
+  goal.append(goalText, goalBar, need);
   root.appendChild(goal);
 
   // Coins under the Speed plaque (docs/01-gdd.md 10.1): a coin with a snowflake and the number.
@@ -429,13 +434,23 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   // The trophy button of a stage finish (docs/01-gdd.md 22.8): «+N 🏆» over it, the trophy colour.
   const padLabel = el('div', 'hud-egg hud-pad');
   padLabel.dataset['role'] = 'pad-label';
-  padLabel.style.pointerEvents = 'none';
+  // The teleport label of the camp is a button too (LV-12: it looked like one).
+  padLabel.addEventListener('pointerdown', (ev) => {
+    if (!padLabel.classList.contains('tap')) return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    opts.onPadLabel?.();
+  });
   padLabel.style.setProperty('--trophies', opts.trophyColor);
   const padIcon = el('span', 'hud-pad-icon');
   padIcon.innerHTML = icon('trophy');
   const padText = el('span', '');
   padLabel.append(padText, padIcon);
   root.appendChild(padLabel);
+  const rotate = el('div', 'hud-rotate');
+  rotate.dataset['role'] = 'rotate';
+  rotate.append(el('div', 'hud-rotate-phone'), el('div', '', t('hud.rotate')));
+  root.appendChild(rotate);
 
   // Avalanche (docs/01-gdd.md 4.8): banner, frost frame, arrow to the cave, toast, veil. Never red (docs/03, 3.2).
   root.style.setProperty('--threat', opts.threatColor);
@@ -983,8 +998,14 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       eggBtn.classList.toggle('can', state.can);
       eggBtn.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
     },
+    setRotate(on) {
+      rotate.classList.toggle('shown', on);
+    },
     setPadLabel(state) {
       padLabel.classList.toggle('shown', state !== null);
+      padLabel.classList.toggle('tap', !!state?.tap);
+      if (state?.tap) padLabel.dataset['hud'] = 'pad';
+      else delete padLabel.dataset['hud'];
       if (!state) return;
       if (padText.textContent !== state.text) padText.textContent = state.text;
       padLabel.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
@@ -995,6 +1016,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     },
     setNeed(state) {
       need.classList.toggle('shown', state !== null);
+      root.classList.toggle('need-on', state !== null);
       if (!state) return;
       if (need.textContent !== state.text) need.textContent = state.text;
       need.classList.toggle('ok', state.ok);

@@ -18,6 +18,8 @@ export const TELEPORT_WINDOW = 'campTeleport';
 const PAD_REACH = 3.2;
 /** Levels the last tutorial step asks for (docs/01-gdd.md 22.12: «+3 levels»). */
 const TUTOR_LEVELS = 3;
+/** «Jump!» shows this close before a pit on the line of the run. */
+const JUMP_HINT_AHEAD = 14;
 
 export interface CampViewDeps {
   getSim(): Sim;
@@ -70,11 +72,20 @@ export function createCampView(d: CampViewDeps): CampView {
         if (levelAtStep3 < 0) levelAtStep3 = lv;
         if (lv >= levelAtStep3 + TUTOR_LEVELS) {
           d.save.tutor = 3;
+          // The hook for tomorrow (LV-12 review: nothing in the first session said «come back»).
+          d.hud.toast(t('tutor.done'), 4, false, t('tutor.tomorrow'));
           d.persist();
         }
       }
       const now = d.save.tutor ?? 0;
-      const show = now === 0 ? (st && (st.type !== 'intro' || w.index > 1) ? t('tutor.run') : null) : now === 1 ? t('tutor.take') : now === 2 ? t('tutor.levels', { n: TUTOR_LEVELS }) : null;
+      let show = now === 0 ? (st && (st.type !== 'intro' || w.index > 1) ? t('tutor.run') : null) : now === 1 ? t('tutor.take') : now === 2 ? t('tutor.levels', { n: TUTOR_LEVELS }) : null;
+      // «Jump!» before a pit on the line of the run until three are jumped (LV-12 review: no hint at the first jump).
+      const jumps = d.save.flags?.['jumpsTaught'] === true;
+      if (!jumps && st && (st.type === 'cracks' || st.type === 'plates') && sim.hero.onGround) {
+        const pit = sim.level.shapes?.find((q) => q.kind === 'pit' && q.z0 > h.z && q.z0 - h.z < JUMP_HINT_AHEAD && h.x >= q.x0 && h.x <= q.x1);
+        if (pit) show = t('tutor.jump');
+      }
+      if (!jumps && st && h.z > st.end && (st.type === 'cracks' || st.type === 'plates')) (d.save.flags ??= {})['jumpsTaught'] = true;
       d.hud.setTutor(show);
       // The teleport pad of the camp: stepping on it opens the window once a step-on.
       const p = w.campTeleport;
@@ -93,21 +104,30 @@ export function createCampView(d: CampViewDeps): CampView {
     open() {
       const w = d.getWorld();
       const stages = w.stages ?? [];
+      // A stage tapped once is armed («Yes, for N»), the second tap pays (LV-12 review: one tap spent all trophies).
+      let armed = 0;
       const render = (body: HTMLElement): void => {
         body.textContent = '';
         const list = document.createElement('div');
         list.className = 'tp-list';
         const top = best(w);
+        const coins = d.getSim().coins;
         for (const st of stages.filter((x) => x.n >= 2)) {
           const b = document.createElement('button');
           b.className = 'tp-item';
           b.dataset['stage'] = String(st.n);
           const passed = st.n <= top;
-          const can = passed && d.getSim().coins >= st.trophies;
+          const can = passed && coins >= st.trophies;
           b.disabled = !can;
-          b.textContent = passed ? t('teleport.stage', { n: st.n, price: fmt(st.trophies) }) : t('teleport.locked', { n: st.n });
+          const line = document.createElement('small');
+          line.textContent = !passed ? t('teleport.locked') : !can ? t('teleport.short', { n: fmt(st.trophies - coins) }) : armed === st.n ? t('teleport.confirm', { price: fmt(st.trophies) }) : t('teleport.price', { price: fmt(st.trophies) });
+          b.append(t('teleport.stage', { n: st.n }), line);
+          if (armed === st.n) b.classList.add('armed');
           b.addEventListener('click', () => {
-            if (view.teleport(st.n)) d.windows.close();
+            if (armed !== st.n) {
+              armed = st.n;
+              d.windows.refresh();
+            } else if (view.teleport(st.n)) d.windows.close();
           });
           list.appendChild(b);
         }

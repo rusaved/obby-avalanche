@@ -121,7 +121,8 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       const offer = common && passed && playSec < continueUntil && !sim.caught && cooled('continue_here', ads.continueCooldownSec ?? Infinity);
       if (offer || busy === 'continue_here') list.push({ id: 'continue_here', text: t('ad.continueHere'), busy: busy === 'continue_here' });
       if (stageOffer && !sim.caught && !d.windowOpen()) {
-        const free = !freeSpent.has(stageOffer.world);
+        // Free while an ad may not be offered yet (the first 60 s, the first wave; LV-12 review: no button at all then).
+        const free = !freeSpent.has(stageOffer.world) || !common;
         // The first of a mountain is free (no ad, no word «Ad»); then the rewarded ad by the common rules (9.1).
         if (free) list.push({ id: 'continue_free', text: t('stage.continueFree', { n: stageOffer.stage }), busy: false });
         else if (common || busy === 'continue_here') list.push({ id: 'continue_here', text: t('stage.continueAd', { n: stageOffer.stage }), busy: busy === 'continue_here' });

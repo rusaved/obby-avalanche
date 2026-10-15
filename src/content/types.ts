@@ -388,6 +388,8 @@ export interface TuningJson {
      * player's, and a move within mouseReturnSec of a drag is not a look); absent or false — only a drag turns it. */
     mouseLook?: boolean;
     mouseYawPerPx?: number;
+    /** LV-12: the outer share of the field where the mouse turns nothing (on its way to the corner buttons). */
+    mouseEdge?: number;
     mouseReturnSec?: number;
   };
   input: {
@@ -1005,6 +1007,11 @@ export interface StageSpec {
   /** The avalanche stage: the first wave after entering, the pause between waves inside, grottos every `every` × v. */
   avalanche: { firstSec: number; warnSec: number; intervalSec: number; every: number; x: number };
   maze: { cell: number; wall: number; height: number; cols: number[]; rows: number[]; falseExits: [number, number] };
+  /** The giant of a stage slower than v(N) by this share, by mountain (LV-12 review: on mountains 1–2 a gentler one for
+   * the first runs); absent — the margin of the mountain's giant. */
+  giantMargin?: number[];
+  /** Every ridge requirement × this before it becomes a level (LV-12: the gates held the run again); absent — 1. */
+  gateK?: number;
   /** The stages of each mountain in order (the types of 22.5). */
   plan: StageType[][];
 }

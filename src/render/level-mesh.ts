@@ -432,7 +432,13 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     const ridge = g.kind === 'ridge';
     const size = signText(g);
     digits.setLabel(i, st.text, 0, g.y + g.signHeight, g.z - d / 2 - 0.52, size, '#ffffff');
-    if (words && ridge) words.set(i, 0, g.y + g.signHeight + size * 0.95, g.z - d / 2 - 0.55, size * 0.42);
+    // One line «LEVEL NEEDED 7»: the word left of the number, as tall as half the digits (LV-12: over the number it stood
+    // in the top HUD band on a phone).
+    if (words && ridge) {
+      const wh = size * 0.5;
+      // The camera looks up +Z: +X is the left of the screen.
+      words.set(i, digits.measure(st.text, size) / 2 + SIGN_PAD + (words.aspect * wh) / 2, g.y + g.signHeight, g.z - d / 2 - 0.55, wh);
+    }
     // The plaque fits the text it shows now, «4,2K/12K» included (playtest M2: the text ran past it).
     dummy.position.set(0, g.y + g.signHeight, g.z - d / 2 - 0.3);
     dummy.rotation.set(0, 0, 0);

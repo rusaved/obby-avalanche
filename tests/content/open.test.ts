@@ -217,5 +217,6 @@ describe('generator openSlope and its validator (PS-03)', () => {
     const w4 = (lonely['worlds.json'] as WorldsJson).worlds[4]!;
     w4.segments = w4.segments.filter((s) => !(s.type === 'niche' && s['kind'] === 'grotto' && num(s, 'zone') === 4));
     expect(validatePack(lonely, { paces: PACES }).errors.some((e) => e.includes('fairness') || e.includes('shelterEvery'))).toBe(true);
-  });
+    // Five whole packs through the validator (about 20 s beside the other tests since LV added a pace).
+  }, 60_000);
 });

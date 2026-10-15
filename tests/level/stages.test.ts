@@ -17,10 +17,11 @@ describe('stages pace: ridges ask for a level (docs/01-gdd.md 22.2)', () => {
         expect(s.requires).toBe(Math.round(levelThreshold(s.level!, levels) * 1000) / 1000);
       }
   });
-  it('the last stage asks for the giant number of the open mountain within ±9% (one value moved, the balance not recounted)', () => {
+  it('the last stage asks for the giant number of the open mountain × gateK within ±9% (one value moved, the balance not recounted)', () => {
+    const k = (read('pace/stages/worlds-spec.json') as { stages: { gateK?: number } }).stages.gateK ?? 1;
     stages.forEach((w, i) => {
       const max = (ws: W, kinds: string[]): number => Math.max(...ws.segments.filter((x) => x.type === 'gate' && kinds.includes(x.kind ?? '')).map((x) => x.requires!));
-      expect(Math.abs(Math.log(max(w, ['ridge']) / max(open[i]!, ['ridge', 'boss'])))).toBeLessThanOrEqual(Math.log(1.18) / 2 + 1e-9);
+      expect(Math.abs(Math.log(max(w, ['ridge']) / (k * max(open[i]!, ['ridge', 'boss']))))).toBeLessThanOrEqual(Math.log(1.18) / 2 + 1e-9);
     });
   });
 });

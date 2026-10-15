@@ -138,7 +138,9 @@ export function createHudView(d: HudViewDeps): HudView {
       d.hud.updateMountain(stages ? t('stage.progress', { a: level.worldIndex, b: stageN, c: stages.length }) : label, sim.hero.pos.z / len, wave, ts?.phase === 'warn' ? ts.shelter : -1);
       if (stages && lv) {
         // The next closed ridge asks for a level (22.3): the goal names its stage, the pill by it compares the levels.
-        const gi = sim.gatesOpen.findIndex((o, i) => !o && level.gates[i]?.kind !== 'boss');
+        // The nearest closed ridge ahead (behind the hero only when none is ahead — a teleport past one).
+        const ahead = sim.gatesOpen.findIndex((o, i) => !o && level.gates[i]?.kind !== 'boss' && level.gates[i]!.z >= sim.hero.pos.z - 2);
+        const gi = ahead >= 0 ? ahead : sim.gatesOpen.findIndex((o, i) => !o && level.gates[i]?.kind !== 'boss');
         const g = level.gates[gi];
         const mine = levelOf(stat, lv);
         // The pill by the nearest ridge ahead, open or closed (green once the level is there, until it is passed).
@@ -151,7 +153,12 @@ export function createHudView(d: HudViewDeps): HudView {
         if (g) {
           const need = levelNeeded(sim.gateRequirement(gi), lv);
           const st = stages.find((x) => Math.abs(x.z0 - g.z) < 1e-6);
-          d.hud.setGoal(t('stage.goal', { a: st?.n ?? stageN, b: stages.length, n: need }), { text: `${fmt(stat)}/${fmt(sim.gateRequirement(gi))}`, frac: stat / sim.gateRequirement(gi) });
+          // LV-12 (review): the goal names the same ridge as the pill — the nearest one ahead; open — «the way is open».
+          const ai = level.gates.findIndex((q) => q.kind !== 'boss' && q.z >= sim.hero.pos.z - 2);
+          const aOpen = ai >= 0 && sim.gatesOpen[ai] === true && ai !== gi;
+          if (aOpen) d.hud.setGoal(t('stage.goalOpen'), null);
+          else d.hud.setGoal(t('stage.goal', { n: need }), { text: `${fmt(stat)}/${fmt(sim.gateRequirement(gi))}`, frac: stat / sim.gateRequirement(gi) });
+          void st;
           pill(mine);
           return;
         }

@@ -3,6 +3,9 @@ import { test, expect, testState, waitReady, waitTicks } from './fixtures.ts';
 import classicWorlds from '../content/avalanche/worlds.json' with { type: 'json' };
 import fastWorlds from '../content/avalanche/pace/fast/worlds.json' with { type: 'json' };
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
+import stagesWorlds from '../content/avalanche/pace/stages/worlds.json' with { type: 'json' };
+/** LV (15.10, docs/01-gdd.md 22.1): mountain 1 of the default pace. */
+const STAGES_W = (stagesWorlds as unknown as { worlds: Array<{ width: number; wallCount: number }> }).worlds[0]!;
 
 // PR-01, PS-02: the pace flag (docs/01-gdd.md 16.1, 17.1). Without ?pace — game.json `pace` (open: ridge 50 first on
 // mountain 1, the slope as wide as its data), ?pace=fast — 15 gates, ?pace=classic — the M3 game (12 walls); each pace keeps its own
@@ -37,15 +40,15 @@ async function passGate(page: Page, gates: number[], wall: number, stat: number)
   await waitTicks(page, 30);
 }
 
-test('without ?pace the pace of game.json (open: ridge 50, the width of the data); ?pace=fast — 15 gates; ?pace=classic — 12 walls; unknown pace — game.json', async ({ page, openGame }) => {
+test('without ?pace the pace of game.json (stages since LV: ridge 1 asks for level 2); ?pace=fast — 15 gates; ?pace=classic — 12 walls; unknown pace — game.json', async ({ page, openGame }) => {
   await open(page, '');
   let s = await testState(page);
-  expect(s.pace).toBe('open');
+  expect(s.pace).toBe('stages');
   expect(s.world).toBe('slope');
-  // The widest section of mountain 1 (SP-04: the width by section, docs/01a-content.md 19.2).
-  expect(s.width).toBe((openWorlds as { worlds: Array<{ width: number }> }).worlds[0]!.width);
-  expect(s.gatesOpen).toHaveLength(4);
-  expect((await page.evaluate(() => window.__TEST__!.gateSign(0))).text).toBe('0/50');
+  expect(s.width).toBe(STAGES_W.width);
+  expect(s.gatesOpen).toHaveLength(STAGES_W.wallCount);
+  expect((await page.evaluate(() => window.__TEST__!.gateSign(0))).text).toBe('2');
+  void openWorlds;
 
   await open(page, 'pace=fast');
   s = await testState(page);
@@ -62,8 +65,8 @@ test('without ?pace the pace of game.json (open: ridge 50, the width of the data
 
   await open(page, 'pace=nope');
   s = await testState(page);
-  expect(s.pace).toBe('open');
-  expect(s.gatesOpen).toHaveLength(4);
+  expect(s.pace).toBe('stages');
+  expect(s.gatesOpen).toHaveLength(STAGES_W.wallCount);
 });
 
 test('separate saves: classic progress (wall 3) is not seen in fast and not erased by it; F5 brings each pace to its flag', async ({ page }) => {

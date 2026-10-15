@@ -402,6 +402,7 @@ const tuningSchema = v.object({
     backBehind: v.optional(v.picklist(['run', 'before'])),
     mouseLook: v.optional(v.boolean()),
     mouseYawPerPx: v.optional(positive),
+    mouseEdge: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.4))),
     mouseReturnSec: v.optional(positive),
   }),
   input: v.object({

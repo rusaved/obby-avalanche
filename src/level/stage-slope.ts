@@ -185,7 +185,8 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
   };
   const carried = index > 1 ? nearestLevel(spec.mountains[index - 2]!.boss.requires, levels) : 1;
   const levelOfStage: number[] = [];
-  for (let s = 1; s <= K; s++) levelOfStage.push(s === 1 ? carried : Math.max(levelOfStage[s - 2] ?? 1, nearestLevel(reqAt(s), levels)));
+  // `gateK` (LV-12 review «the gates never hold»): every requirement × it before it becomes a level — one data knob.
+  for (let s = 1; s <= K; s++) levelOfStage.push(s === 1 ? carried : Math.max(levelOfStage[s - 2] ?? 1, nearestLevel(reqAt(s) * (s === 2 && index === 1 ? 1 : cfg.gateK ?? 1), levels)));
 
   // Step multipliers and gift zones of the open sections along the same share of the mountain (17.4: moved, not recounted).
   const openZone = (s: number): WorldZone => ow.zones[Math.min(ow.zones.length - 1, Math.floor(((s - 1) * ow.zones.length) / K))]!;
@@ -223,7 +224,6 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     wall = 1;
     y = round3((r1['y'] as number) + ((r1['rise'] as number | undefined) ?? 4));
     z = round3(r1.z + PASS_LENGTH);
-    waveZones.push([spec.campLength, r1.z]);
     stages.push({ n: 1, type: 'intro', z0: spec.campLength, start: spec.campLength, end: r1.z, finish: [r1.z - 12, r1.z], y: 0, level: 1, speed: speedOf(1), width: 'field', trophies: 0, pad: { x: 0, z: r1.z, y: 0 } });
   } else {
     for (const s of ow.segments) if (s.z < spec.campLength && s.type !== 'gift' && s.type !== 'niche') seg.push(s);
@@ -246,7 +246,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
       const yHigh = round3(y + cfg.rise);
       pushPassages(seg, z, y, yHigh, half, width === 'field' ? passesOf(spec, half) : [0], PASS_LENGTH);
       wall++;
-      seg.push({ type: 'gate', z, y, kind: 'ridge', requires: round3(levelThreshold(level, levels)), level, reward: { coins: 0 }, height: 10, signHeight: 7.5, rise: cfg.rise, passes: width === 'field' ? passesOf(spec, half) : [0], digits: 6, passWidth: 11, passLength: PASS_LENGTH, wall, zone: s, rarity: zone.rarity });
+      seg.push({ type: 'gate', z, y, kind: 'ridge', requires: round3(levelThreshold(level, levels)), level, reward: { coins: 0 }, height: 10, signHeight: 5.5, rise: cfg.rise, passes: width === 'field' ? passesOf(spec, half) : [0], digits: 6, passWidth: 11, passLength: PASS_LENGTH, wall, zone: s, rarity: zone.rarity });
       y = yHigh;
       z = round3(z + PASS_LENGTH);
       seg.push({ type: 'checkpoint', z: round3(z + FLAG_PAST), y, x: 0, zone: s, rarity: zone.rarity, wall });
@@ -298,7 +298,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
           { x: round3(-half / 2), z: round3(zb + 0.7 * L), r: 4, h: 6 },
         ];
         for (const c of covers) seg.push({ type: 'cover', z: c.z, x: c.x, y, r: c.r, h: c.h, zone: s });
-        bosses.push({ zone: [round3(zb), round3(zb + L)], requires: round3(levelThreshold(level, levels)), returnMult: 1.5, giants: [{ speed: Math.floor((v / (1 + m.boss.margin)) * 1000) / 1000, patrol: 'chase', seeDist: 0, turnSec: 0.5 }], width: cfg.field, covers } as WorldBoss);
+        bosses.push({ zone: [round3(zb), round3(zb + L)], requires: round3(levelThreshold(level, levels)), returnMult: 1.5, giants: [{ speed: Math.floor((v / (1 + (cfg.giantMargin?.[index - 1] ?? m.boss.margin))) * 1000) / 1000, patrol: 'chase', seeDist: 0, turnSec: 0.5 }], width: cfg.field, covers } as WorldBoss);
         zb += L;
         break;
       }
@@ -308,9 +308,12 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
         const plate = round3(clamp(1.1 * D, 10, 90));
         const L = n * plate + (n + 1) * gap;
         pit(zb, L, y, s);
+        // The second plates of a mountain step side to side (LV-12 review: the same pattern twice).
+        const shift = plan.slice(0, s - 1).includes('plates') ? bw : 0;
         let p = zb + gap;
         for (let k = 0; k < n; k++) {
-          floor(p, plate, y, -bw, bw);
+          const x = (k % 2 === 0 ? -1 : 1) * shift;
+          floor(p, plate, y, x - bw, x + bw);
           p += plate + gap;
         }
         zb += L;
@@ -393,6 +396,9 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
         const real = shape.exits.find((e) => e.real)!;
         const cx = x0 + (real.col + 0.5) * mc.cell;
         floor(zb + rows * mc.cell, strip, y, cx - mc.cell / 2 + mc.wall, cx + mc.cell / 2 - mc.wall);
+        // A golden beacon over the real way out, above the walls (LV-12 review: without it the maze was a lottery).
+        const bz = zb + rows * mc.cell + strip + 3;
+        seg.push({ type: 'block', z: round3(bz - 1), z1: round3(bz + 1), x0: round3(cx - 1), x1: round3(cx + 1), y0: y, y1: round3(y + mc.height + 8), material: 'trophyPad', kind: 'beacon', solid: false });
         zb += L;
         break;
       }
@@ -419,7 +425,8 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     // The safe finish with the trophy button at the side (22.8): the threats stay out of it.
     const end = round3(zb);
     floor(end, cfg.finish, y);
-    const padX = round3((s % 2 === 0 ? -1 : 1) * (half - 8));
+    // In the frame of the run (LV-12 review: at the fence it stood at the edge of the frame).
+    const padX = round3((s % 2 === 0 ? -1 : 1) * Math.min(half - 8, 26));
     const pad = { x: padX, z: round3(end + cfg.finish / 2), y };
     seg.push({ type: 'trophyPad', z: pad.z, x: pad.x, y, stage: s, trophies: trophiesOf(s) });
     seg.push({ type: 'block', z: round3(pad.z - 3), z1: round3(pad.z + 3), x0: round3(pad.x - 3), x1: round3(pad.x + 3), y0: round3(y - 0.5), y1: round3(y + 0.25), material: 'trophyPad', kind: 'trophyPad' });

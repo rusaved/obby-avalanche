@@ -7,6 +7,7 @@ import { buildLevel } from '../../src/level/builder.ts';
 import { mergePatch } from '../../src/content/pace.ts';
 import { levelThreshold } from '../../src/sim/levels.ts';
 import { mazeDistances } from '../../src/level/stage-slope.ts';
+import { distToEntrance, shelterIndex } from '../../src/sim/shelter.ts';
 import type { BalanceJson, GameJson, TuningJson, World, WorldStage, WorldsJson } from '../../src/content/types.ts';
 
 // LV-02, LV-03 (docs/01-gdd.md 22.3–22.4): the ridge sign is honest — the controller's own bot at the speed of the level
@@ -83,6 +84,7 @@ function runStage(w: World, st: WorldStage, seed: number): Outcome {
   let jumpAt = early();
   const route = st.type === 'maze' ? mazeRoute(st) : null;
   let wp = 0;
+  let mouth: [number, number] | null = null;
   let tx = 0;
   for (let k = 0; k < 60 / DT; k++) {
     const h = sim.hero.pos;
@@ -101,11 +103,24 @@ function runStage(w: World, st: WorldStage, seed: number): Outcome {
       [mx, mz] = [(px - h.x) / len, (pz - h.z) / len];
     } else if (st.type === 'avalanche' && ts && (ts.phase === 'warn' || ts.phase === 'run') && ts.outcome === 'none' && ts.shelter >= 0) {
       // On the warning — into the grotto the game lights, wait there.
+      // To the mouth of the lit grotto, then in (the back of a rock is a wall).
       const n = level.niches[ts.shelter]!;
+      const e = distToEntrance(level, n, h.x, h.z);
+      const inside = shelterIndex(level, balance.niche.graceDist, h.x, h.y, h.z) >= 0;
       const cx = (n.box.min[0] + n.box.max[0]) / 2;
       const cz = (n.box.min[2] + n.box.max[2]) / 2;
-      const len = Math.hypot(cx - h.x, cz - h.z);
-      [mx, mz] = len < 1.5 ? [0, 0] : [(cx - h.x) / len, (cz - h.z) / len];
+      const [px, pz] = e.dist > 1 ? [e.tx, e.tz] : [cx, cz];
+      // The way out: past the mouth, away from the middle of the rock.
+      const ol = Math.hypot(e.tx - cx, e.tz - cz) || 1;
+      mouth = [e.tx + ((e.tx - cx) / ol) * 3, e.tz + ((e.tz - cz) / ol) * 3];
+      const len = Math.hypot(px - h.x, pz - h.z);
+      [mx, mz] = inside || len < 1 ? [0, 0] : [(px - h.x) / len, (pz - h.z) / len];
+    } else if (mouth) {
+      // Out of the grotto by its mouth first (the back of a rock is a wall), then on up.
+      const [px, pz] = mouth;
+      const len = Math.hypot(px - h.x, pz - h.z);
+      if (len < 1.2) mouth = null;
+      else [mx, mz] = [(px - h.x) / len, (pz - h.z) / len];
     } else {
       const ahead = narrowAhead(w, h.x, h.z + 0.3 * st.speed);
       tx = ahead ?? 0;

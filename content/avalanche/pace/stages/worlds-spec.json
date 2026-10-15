@@ -1352,13 +1352,18 @@
         3
       ]
     },
+    "giantMargin": [
+      0.2,
+      0.12
+    ],
+    "gateK": 1.2,
     "plan": [
       [
         "intro",
         "giant",
         "cracks",
-        "plates",
         "chute",
+        "plates",
         "avalanche",
         "catapult",
         "throat",

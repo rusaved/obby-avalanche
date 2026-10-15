@@ -51,9 +51,12 @@ async function pass(page: Page, world: number, st: WorldStage): Promise<void> {
       return window.__TEST__!.shelters()[i]!;
     });
     await page.evaluate((p) => window.__TEST__!.botPath(p), [[sh.mouth[0], sh.mouth[1]], [sh.inside[0], sh.inside[1]]] as Array<[number, number]>);
-    await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'gone' || window.__TEST__!.state().wave?.phase === 'idle', undefined, { timeout: 30_000 });
+    await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'gone' || window.__TEST__!.state().wave?.phase === 'idle', undefined, { timeout: 90_000 });
     // Out by the mouth, to the axis, up to the finish (the back of the rock is a wall).
-    await page.evaluate(([m, z]) => window.__TEST__!.botPath([[m[0], m[1] - 2], [0, m[1] - 2], [0, z]]), [sh.mouth, st.end + 6] as const);
+    const [ox, oz] = [sh.mouth[0] - sh.inside[0], sh.mouth[1] - sh.inside[1]];
+    const ol = Math.hypot(ox, oz) || 1;
+    const out: [number, number] = [sh.mouth[0] + (ox / ol) * 4, sh.mouth[1] + (oz / ol) * 4];
+    await page.evaluate(([o, z]) => window.__TEST__!.botPath([o, [0, o[1]], [0, z]]), [out, st.end + 6] as const);
   }
   await page.waitForFunction(([z, r]) => window.__TEST__!.state().hero!.z > z || window.__TEST__!.state().rollFrom !== r, [st.end + 1, roll0] as const, { timeout: 90_000 });
   const s = await testState(page);

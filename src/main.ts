@@ -346,6 +346,7 @@ async function boot(): Promise<void> {
     // LV-10: on a PC the mouse moved without a button turns the camera; a phone keeps its swipe only.
     mouseLook: !!tuning.camera.mouseLook && !mobile,
     mouseYawPerPx: tuning.camera.mouseYawPerPx ?? tuning.camera.mouseDegPerPx,
+    mouseEdge: tuning.camera.mouseEdge ?? 0,
     lookAfterDragMs: (tuning.camera.mouseReturnSec ?? 0) * 1000,
     sensitivity: tuning.camera.sensitivity * save.settings.cameraSens,
     tapMaxMs: tuning.input.tapMaxMs,
@@ -1567,6 +1568,7 @@ async function boot(): Promise<void> {
     ...(sfx.footsteps ? { onFootsteps: () => footstepsView?.openWindow() } : {}),
     coinColor: theme.ui.coins,
     coinsAsTrophies: balance.currency === 'trophies',
+    onPadLabel: () => campView?.open(),
     threatColor: theme.threat.front[1],
     bonusColor: theme.bonus?.color,
     onShoes: () => void meta?.buyShoes(),
@@ -1851,8 +1853,9 @@ async function boot(): Promise<void> {
       return own ? t('base.goal', { name: t(`world.${own.id}`) }) : t('base.name');
     },
     // «Level up!» (docs/01-gdd.md 22.2): the toast, confetti over the hero and the chime.
-    onLevelUp: () => {
-      hud?.toast(t('level.up'));
+    onLevelUp: (n) => {
+      // The toast on every 5th level (LV-12 review: every 1–3 s it was noise); the confetti and the chime always.
+      if (n % 5 === 0) hud?.toast(t('level.up'));
       const p = sim.hero.pos;
       fx?.burst('confetti', p.x, p.y + 3, p.z, [theme.ui.coins, theme.ui.stat, '#ffffff'], 40, 9, 3);
       audio?.play('levelUp');
@@ -1919,7 +1922,11 @@ async function boot(): Promise<void> {
   if (document.hidden) pause.add('hidden');
   if (mobile) {
     const portrait = window.matchMedia('(orientation: portrait)');
-    const apply = (): void => pause.set_('orientation', portrait.matches);
+    // LV-12 (review): «Turn your phone» over everything while the portrait pauses the game.
+    const apply = (): void => {
+      pause.set_('orientation', portrait.matches);
+      hud?.setRotate(portrait.matches);
+    };
     portrait.addEventListener('change', apply);
     apply();
   }

@@ -294,8 +294,11 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   const inPit = (): boolean => pits.some((q) => hero.pos.y < q.y && hero.pos.x > q.x0 && hero.pos.x < q.x1 && hero.pos.z > q.z0 && hero.pos.z < q.z1);
   const flagPoint = (): { x: number; y: number; z: number } => {
     if (toPrev) {
-      const target = stageStart(stageAt(level, hero.pos.z) - 1);
-      sim.rollFrom = stageAt(level, hero.pos.z);
+      // A false exit of the maze rolls back to its own way in (LV-12 review: back over the whole stage before it the
+      // maze was a lottery with a long walk); any other fall — to the stage before (22.9).
+      const n = stageAt(level, hero.pos.z);
+      const target = stageStart(level.stages?.find((x) => x.n === n)?.type === 'maze' ? n : n - 1);
+      sim.rollFrom = n;
       return target;
     }
     const c = level.checkpoints[sim.checkpoint];

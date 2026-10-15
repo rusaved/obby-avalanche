@@ -29,7 +29,7 @@ test('the stage tutorial step by step, then the camp teleport to a passed stage 
   await page.waitForFunction(() => window.__TEST__!.state().padsTaken >= 1, undefined, { timeout: 20_000 });
   await page.evaluate(() => window.__TEST__!.botPath(null));
   // 3. «+3 levels», gone with three more levels.
-  await expect(tutor).toContainText(/\+3/);
+  await expect(tutor).toContainText(/3 уровня|3 more levels/);
   await page.screenshot({ path: 'docs/evidence/lv/tutor-levels.png' });
   const lv = await page.evaluate(() => window.__TEST__!.state().stat);
   await page.evaluate((s) => window.__TEST__!.setStat(s), lv * 1.18 ** 3.2);
@@ -51,6 +51,9 @@ test('the stage tutorial step by step, then the camp teleport to a passed stage 
   await expect(win.locator(`.tp-item[data-stage="${s3.n}"]`)).toBeEnabled();
   await expect(win.locator(`.tp-item[data-stage="${s3.n + 2}"]`)).toBeDisabled();
   await page.screenshot({ path: 'docs/evidence/lv/camp-teleport.png' });
+  // The first tap arms it («Yes, for N»), the second pays.
+  await win.locator(`.tp-item[data-stage="${s3.n}"]`).click();
+  await expect(win.locator(`.tp-item[data-stage="${s3.n}"]`)).toHaveClass(/armed/);
   await win.locator(`.tp-item[data-stage="${s3.n}"]`).click();
   await waitTicks(page, 10);
   const s = await testState(page);
