@@ -297,6 +297,8 @@ export interface TestApi {
   giveBonus(): boolean;
   /** Is the camera inside the snow body of the avalanche (docs/02-tech.md 7). */
   cameraInsideAvalanche(): boolean;
+  /** LV-10: the middle of the running avalanche front in line with the hero (world point), null — no wave running. */
+  avalancheFront(): [number, number, number] | null;
   /** Sets the stat (docs/02-tech.md 17.3); gates whose number it reaches open on the next tick. */
   setStat(n: number): void;
   /** SP-02: a number of tuning.json by its path («controller.maxSpeed»), applied as a ?debug=1 slider would. */
@@ -1038,6 +1040,13 @@ export function installTestApi(g: GameHandles): TestApi {
     cameraInsideAvalanche() {
       const cam = g.camera?.camera.position;
       return cam ? (g.avalanche?.insideBody(cam) ?? false) : false;
+    },
+    avalancheFront() {
+      const sim = g.sim;
+      const ts = sim?.threat?.state;
+      if (!sim || !ts || ts.phase !== 'run') return null;
+      // As render/threat/avalanche.ts stands the front: from 1 under the floor at frontZ, theme height tall.
+      return [sim.hero.pos.x, sim.level.floorYAt(ts.frontZ) - 1 + content.theme.threat.height / 2, ts.frontZ];
     },
   };
   window.__TEST__ = api;

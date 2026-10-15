@@ -1,4 +1,4 @@
-// What: Third-person camera rig: damped follow with velocity lead, wall avoidance by a sphere against the Octree, speed FOV, scripted shot and the fixed cave frame.
+// What: Third-person camera rig: damped follow with velocity lead, wall avoidance by a sphere against the Octree, speed FOV, scripted shot, the fixed cave frame and the way back after a mouse look.
 // Called by: main.ts; app/ftue-view.ts, fun-view.ts, handles.ts, pets-view.ts, wave-view.ts, way-view.ts; tests/render/avalanche.test.ts.
 // Keep: Changes only viewYaw of the control frame; never ends inside level geometry (re-checked after shake); HEAD must match characters.ts PART; numbers from tuning.json.
 
@@ -20,6 +20,8 @@ export interface CameraTarget {
   vel: Vector3;
   speed: number;
   maxSpeed: number;
+  /** Where the hero faces (rad, as viewYaw): behind him when he stands (LV-10). */
+  yaw?: number;
 }
 
 export interface CameraInputInfo {
@@ -27,6 +29,8 @@ export interface CameraInputInfo {
   moveX: number;
   moveY: number;
   autoRun: boolean;
+  /** LV-10: that turn by hand was the mouse moved without a button (camera.mouseLook): it eases back behind the hero. */
+  mouseLook?: boolean;
 }
 
 export interface CameraRig {
@@ -162,6 +166,10 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
   const behindRun = c.backBehind === 'run';
   let runBack = false;
   let hadShelter = false;
+  /** LV-10 (docs/01-gdd.md 22.11): seconds since the last turn by the mouse moved without a button, and the way back behind
+   * the hero it owes (a drag or a swipe after it keeps the view the player's, as before). */
+  let sinceLook = 0;
+  let lookOwed = false;
   const runYaw = (vel: Vector3): number => (Math.hypot(vel.x, vel.z) > 1 ? Math.atan2(vel.x, vel.z) : 0);
   /** SP-03 (docs/01-gdd.md 20.3, camera.speedPow): the share of the run speed over the ceiling of the controller, so the
    * FOV and the distance grow as the run does; without speedPow — the speed over the stat's own run speed, as before. */
@@ -256,6 +264,13 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
     update(dt, target, input, collision) {
       if (input.manualCamera) rig.sinceManual = 0;
       else rig.sinceManual += dt;
+      if (input.mouseLook) {
+        sinceLook = 0;
+        lookOwed = true;
+      } else {
+        sinceLook += dt;
+        if (input.manualCamera) lookOwed = false;
+      }
       // In the grotto frame a turn by hand takes the frame round the hero (from the mouth's side, grottoShot.orbitDeg).
       if (tight) {
         const lim = ((c.grottoShot.orbitDeg ?? 0) * Math.PI) / 180;
@@ -322,6 +337,17 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
         runBack = true;
       }
       hadShelter = rig.shelter !== null;
+      // LV-10: mouseReturnSec after the last look by the mouse the view eases back behind the hero by the same way back —
+      // where he runs, standing — where he faces; the movement frame stays the player's. Not over a frame or a shot.
+      if (lookOwed && sinceLook >= (c.mouseReturnSec ?? Infinity) && !rig.fixed && !tight && !rig.shot && backYaw === null && dt > 0) {
+        lookOwed = false;
+        const moving = Math.hypot(target.vel.x, target.vel.z) > 1;
+        backYaw = moving ? runYaw(target.vel) : (target.yaw ?? 0);
+        retFrom = frame.viewYaw;
+        retK = 0;
+        retFollow = false;
+        runBack = moving;
+      }
       if (!rig.fixed && backYaw !== null) {
         if (input.manualCamera) {
           backYaw = null;

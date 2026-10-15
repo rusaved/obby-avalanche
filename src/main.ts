@@ -342,6 +342,10 @@ async function boot(): Promise<void> {
     deadZoneFrac: tuning.input.deadZoneFrac,
     mouseDegPerPx: tuning.camera.mouseDegPerPx,
     touchDegPerPx: tuning.camera.touchDegPerPx,
+    // LV-10: on a PC the mouse moved without a button turns the camera; a phone keeps its swipe only.
+    mouseLook: !!tuning.camera.mouseLook && !mobile,
+    mouseYawPerPx: tuning.camera.mouseYawPerPx ?? tuning.camera.mouseDegPerPx,
+    lookAfterDragMs: (tuning.camera.mouseReturnSec ?? 0) * 1000,
     sensitivity: tuning.camera.sensitivity * save.settings.cameraSens,
     tapMaxMs: tuning.input.tapMaxMs,
     tapMovePx: tuning.input.tapMovePx,
@@ -395,6 +399,8 @@ async function boot(): Promise<void> {
   let lastSnap: InputSnapshot | null = null;
   /** The camera was turned by hand in a tick since the last rendered frame (a turn is an edge of one tick; PR-13). */
   let turnedByHand = false;
+  /** LV-10: the last turn by hand since the last camera update was a look by the mouse without a button. */
+  let lookedByMouse = false;
   let pendingGain: number | null = null;
   let lastGainPopAt = -1;
   // Gates melt into an arch over GATE_MELT_SEC; funnel events gate_N for mountain 1 on tier 0 (docs/06, steps 5–15).
@@ -677,6 +683,9 @@ async function boot(): Promise<void> {
       Object.assign(sim.params, controllerParams(tuning, maxSpeed));
       inputOpts.mouseDegPerPx = tuning.camera.mouseDegPerPx;
       inputOpts.touchDegPerPx = tuning.camera.touchDegPerPx;
+      inputOpts.mouseLook = !!tuning.camera.mouseLook && !mobile;
+      inputOpts.mouseYawPerPx = tuning.camera.mouseYawPerPx ?? tuning.camera.mouseDegPerPx;
+      inputOpts.lookAfterDragMs = (tuning.camera.mouseReturnSec ?? 0) * 1000;
       inputOpts.sensitivity = tuning.camera.sensitivity * save.settings.cameraSens;
       inputOpts.stickRadiusFrac = tuning.input.stickRadiusFrac;
       inputOpts.deadZoneFrac = tuning.input.deadZoneFrac;
@@ -1196,7 +1205,10 @@ async function boot(): Promise<void> {
     const t0 = performance.now();
     const snap = input.consume();
     lastSnap = snap;
-    if (snap.manualCamera) turnedByHand = true;
+    if (snap.manualCamera) {
+      turnedByHand = true;
+      lookedByMouse = snap.mouseLook;
+    }
     if (snap.moveStarted) onMoveStarted(frame);
     applyManualTurn(frame, snap.camYawDelta, snap.camPitchDelta, tuning.camera.pitchMinDeg * DEG, tuning.camera.pitchMaxDeg * DEG);
     if (snap.zoomDelta !== 0) frame.distance = Math.min(tuning.camera.zoomMax, Math.max(tuning.camera.zoomMin, frame.distance + snap.zoomDelta));
@@ -1360,16 +1372,18 @@ async function boot(): Promise<void> {
       cameraRig.keep = giant ? bossKeep.set(ahead.x, sim.level.floorAt(ahead.x, ahead.z) + (theme.boss?.height ?? 0) / 2, ahead.z) : (waveView?.keep ?? null);
       cameraRig.keepIdle = !giant;
       // RL-02 (docs/01-gdd.md 21.2): the ball rolls back to the flag of the ridge — up to hundreds of units in a second; the
-      // damped follow would lag behind it and the ball run through the camera: the camera rides with the ball.
-      if (sim.caught && balance.caught?.to === 'flag') cameraRig.snapTo({ pos: renderPos, vel: hero.vel, speed: 0, maxSpeed });
+      // damped follow would lag behind it and the ball run through the camera: the camera rides with the ball (LV-08: and to
+      // the stage before).
+      if (sim.caught && (balance.caught?.to === 'flag' || balance.caught?.to === 'prevStage')) cameraRig.snapTo({ pos: renderPos, vel: hero.vel, speed: 0, maxSpeed });
       else
         cameraRig.update(
           frameDt,
-          { pos: renderPos, vel: hero.vel, speed: hero.speed, maxSpeed },
-          { manualCamera: turnedByHand, moveX: lastSnap?.moveX ?? 0, moveY: lastSnap?.moveY ?? 0, autoRun: input.autoRun },
+          { pos: renderPos, vel: hero.vel, speed: hero.speed, maxSpeed, yaw: hero.yaw },
+          { manualCamera: turnedByHand, moveX: lastSnap?.moveX ?? 0, moveY: lastSnap?.moveY ?? 0, autoRun: input.autoRun, mouseLook: lookedByMouse },
           sim.collision,
         );
       turnedByHand = false;
+      lookedByMouse = false;
       // Hidden by this frame's camera: a cut into or out of a fixed frame moves it many units at once (PR-11).
       if (heroChar) {
         heroChar.visible = !cameraRig.heroHidden && sim.respawnTicksLeft < 0;
