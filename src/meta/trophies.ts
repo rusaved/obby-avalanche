@@ -45,3 +45,25 @@ export function migrateStageTrophies(save: Pick<SaveData, 'trophies' | 'stageBes
   save.trophies = Math.min(Number.MAX_SAFE_INTEGER, (save.trophies ?? 0) + add);
   return add;
 }
+
+/** SD-11 (Q-088): the coins of a stage-button trophy when they go back to coins (the SD-03 rate). */
+export const STAGE_TROPHY_COINS = 7;
+
+/**
+ * SD-11 (docs/01-gdd.md 23.3, Q-088): once, a save of the SD-03 build — the trophies of the stage buttons (to spend, over
+ * the all-time trophies of summits: buttons never added to that count) go back to coins at STAGE_TROPHY_COINS each.
+ * Summit trophies stay; a save that never ran that build (no flag stageTrophies) is left as it is. Marked in flags; returns the coins added.
+ */
+export function migrateStageTrophiesBack(save: Pick<SaveData, 'trophies' | 'trophiesTotal' | 'coins' | 'flags'>): number {
+  const flags = (save.flags ??= {});
+  if (flags['stageTrophiesBack']) return 0;
+  flags['stageTrophiesBack'] = true;
+  // Only a save that ran the SD-03 build (its migration flag): other spendable-only trophies (the starter pack) stay.
+  if (!flags['stageTrophies']) return 0;
+  const extra = Math.max(0, Math.floor((save.trophies ?? 0) - (save.trophiesTotal ?? 0)));
+  if (extra === 0) return 0;
+  save.trophies = (save.trophies ?? 0) - extra;
+  const coins = extra * STAGE_TROPHY_COINS;
+  save.coins = Math.min(Number.MAX_SAFE_INTEGER, (save.coins ?? 0) + coins);
+  return coins;
+}

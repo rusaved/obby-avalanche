@@ -24,7 +24,7 @@ test('the stage tutorial step by step, then the camp teleport to a passed stage 
   await expect(tutor).toContainText(/Добеги до награды|Run to the reward/);
   // 2. In the safe finish: «Take the trophies».
   await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.5), [s2.finish[0] + 2, s2.y] as const);
-  await expect(tutor).toContainText(/Возьми кубки|Take the trophies/);
+  await expect(tutor).toContainText(/Возьми награду|Take the reward/);
   await page.evaluate(([x, z]) => window.__TEST__!.botPath([[x, z]]), [s2.pad.x, s2.pad.z] as const);
   await page.waitForFunction(() => window.__TEST__!.state().padsTaken >= 1, undefined, { timeout: 20_000 });
   await page.evaluate(() => window.__TEST__!.botPath(null));
@@ -40,7 +40,7 @@ test('the stage tutorial step by step, then the camp teleport to a passed stage 
   await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.5), [s3.start + 2, s3.y] as const);
   await page.waitForFunction((n) => window.__TEST__!.state().stageBest >= n, s3.n);
   await page.evaluate(() => window.__TEST__!.givePet('bunny'));
-  await page.evaluate((c) => window.__TEST__!.setTrophies(c), s3.trophies + 5);
+  await page.evaluate((c) => window.__TEST__!.setCoins(c), s3.trophies + 5);
   await page.evaluate(() => window.__TEST__!.teleport(8, 0, 0.5));
   await waitTicks(page, 10);
   const pets0 = await testState(page);
@@ -58,7 +58,7 @@ test('the stage tutorial step by step, then the camp teleport to a passed stage 
   await waitTicks(page, 10);
   const s = await testState(page);
   expect(Math.abs(s.hero!.z - flagOf(1, s3).z)).toBeLessThanOrEqual(4);
-  expect(s.trophies.now).toBe(5);
+  expect(s.coins).toBe(5);
   expect(s.petsOn).toEqual(pets0.petsOn);
   expect(s.petsShown).toBe(pets0.petsShown);
 });

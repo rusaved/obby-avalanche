@@ -6,7 +6,7 @@ import { NO_INPUT } from '../../src/sim/controller.ts';
 import { buildLevel } from '../../src/level/builder.ts';
 import { mergePatch } from '../../src/content/pace.ts';
 import { levelThreshold } from '../../src/sim/levels.ts';
-import { migrateStageTrophies } from '../../src/meta/trophies.ts';
+import { migrateStageTrophies, migrateStageTrophiesBack, STAGE_TROPHY_COINS } from '../../src/meta/trophies.ts';
 import { buyNextShoes, shoesPrice } from '../../src/meta/shoes.ts';
 import type { BalanceJson, TuningJson, WorldsJson } from '../../src/content/types.ts';
 
@@ -18,16 +18,15 @@ const balance = mergePatch(read('balance.json'), read('pace/stages/balance.json'
 const worlds = read('pace/stages/worlds.json') as WorldsJson;
 const DT = 1 / 60;
 
-describe('stage trophies (SD-03)', () => {
-  it('mountain 1 pays 1, 3, 10, 20 … trophies, growing stage by stage on every mountain', () => {
-    expect(worlds.worlds[0]!.stages!.filter((s) => s.trophies > 0).map((s) => s.trophies)).toEqual([1, 3, 10, 20, 30, 40, 50, 60, 70]);
+describe('the stage button (SD-03, SD-11 — Q-088: it pays coins)', () => {
+  it('the reward of a button grows stage by stage on every mountain', () => {
     for (const w of worlds.worlds) {
       const paid = w.stages!.filter((s) => s.trophies > 0).map((s) => s.trophies);
       for (let k = 1; k < paid.length; k++) expect(paid[k]!, w.id).toBeGreaterThan(paid[k - 1]!);
     }
   });
 
-  it('a button pays trophies, not coins; the hero flies to the camp; the same button again only on the next run', () => {
+  it('a button pays coins; the hero flies to the camp; the same button again only on the next run', () => {
     const w = worlds.worlds[0]!;
     const level = buildLevel(w);
     const st = w.stages!.find((s) => s.n === 3)!;
@@ -39,8 +38,8 @@ describe('stage trophies (SD-03)', () => {
     const coins0 = sim.coins;
     sim.teleport(st.pad.x, st.pad.y + 0.05, st.pad.z);
     for (let i = 0; i < 5; i++) sim.step(NO_INPUT, DT);
-    expect(got).toEqual([{ amount: st.trophies, trophies: true }]);
-    expect(sim.coins).toBe(coins0);
+    expect(got).toEqual([{ amount: st.trophies, trophies: false }]);
+    expect(sim.coins - coins0).toBe(st.trophies);
     for (let i = 0; i < 120 && camp === 0; i++) sim.step(NO_INPUT, DT);
     expect(camp).toBe(1);
     expect(sim.hero.pos.z).toBeLessThan(w.stages![1]!.z0);
@@ -50,25 +49,32 @@ describe('stage trophies (SD-03)', () => {
     expect(got).toHaveLength(2);
   });
 
-  it('the shoes are priced in trophies over upgrade.trophyRate; bought from the trophy wallet', () => {
+  it('the shoes are priced and bought in coins (no trophy wallet on the stages pace)', () => {
     const tiers = balance.upgrade.tiers;
-    const rate = balance.upgrade.trophyRate!;
-    expect(balance.upgrade.currency).toBe('trophies');
-    expect(shoesPrice(tiers[1]!, 0, balance.rebirth, balance.upgrade)).toBe(Math.round(tiers[1]!.price / rate));
-    const wallet = { coins: 3, level: 0 };
-    expect(buyNextShoes(wallet, tiers, 0, balance.rebirth, balance.upgrade)).toBeNull();
-    wallet.coins = 10;
+    expect(balance.upgrade.currency).toBeUndefined();
+    expect(shoesPrice(tiers[1]!, 0, balance.rebirth, balance.upgrade)).toBe(tiers[1]!.price);
+    const wallet = { coins: tiers[1]!.price, level: 0 };
     expect(buyNextShoes(wallet, tiers, 0, balance.rebirth, balance.upgrade)?.id).toBe(tiers[1]!.id);
-    expect(wallet.coins).toBe(10 - shoesPrice(tiers[1]!, 0, balance.rebirth, balance.upgrade));
+    expect(wallet.coins).toBe(0);
   });
 
-  it('migration: coins stay, the stages passed bring their trophies once', () => {
-    const save = { coins: 5000, trophies: 2, stageBest: { '1': 5 } } as { coins: number; trophies?: number; stageBest?: Record<string, number>; flags?: Record<string, boolean> };
+  it('migration back (SD-11): the stage trophies of an SD-03 save become coins, summit trophies stay; once', () => {
+    const save: { coins?: number; trophies?: number; trophiesTotal?: number; flags?: Record<string, boolean> } = { coins: 100, trophies: 50, trophiesTotal: 6, flags: { stageTrophies: true } };
+    expect(migrateStageTrophiesBack(save)).toBe(44 * STAGE_TROPHY_COINS);
+    expect(save.trophies).toBe(6);
+    expect(save.coins).toBe(100 + 44 * STAGE_TROPHY_COINS);
+    expect(migrateStageTrophiesBack(save)).toBe(0);
+    // A save that never ran the SD-03 build: left as it is (the starter pack trophies are spendable only).
+    const old: typeof save = { coins: 5, trophies: 10, trophiesTotal: 0 };
+    expect(migrateStageTrophiesBack(old)).toBe(0);
+    expect(old.trophies).toBe(10);
+  });
+
+  it('the SD-03 migration (kept for a trophy wallet): the stages passed bring their trophies once', () => {
+    const save = { coins: 5000, trophies: 2, stageBest: { '1': 3 } } as { coins: number; trophies?: number; stageBest?: Record<string, number>; flags?: Record<string, boolean> };
+    const st = worlds.worlds[0]!.stages!;
     const add = migrateStageTrophies(save, worlds);
-    expect(add).toBe(1 + 3 + 10);
-    expect(save.trophies).toBe(2 + 14);
-    expect(save.coins).toBe(5000);
+    expect(add).toBe(st[0]!.trophies + st[1]!.trophies);
     expect(migrateStageTrophies(save, worlds)).toBe(0);
-    expect(save.trophies).toBe(16);
   });
 });

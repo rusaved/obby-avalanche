@@ -322,7 +322,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   };
   // Trophy buttons (docs/01-gdd.md 22.8): taken once a pass — free again once the hero is below the stage's start.
   const padTaken = (level.stages ?? []).map(() => false);
-  // SD-03 (docs/01-gdd.md 23.3): the buttons pay trophies (the shoes are bought with them) — once a run, then the camp.
+  // SD-03 (docs/01-gdd.md 23.3): a button is taken once a run, then the camp; SD-11 (Q-088): it pays coins (trophies only
+  // with upgrade.currency trophies, the SD-03 test of the stages wallet).
   const padsPayTrophies = opts.balance.upgrade?.currency === 'trophies';
   let campIn = 0;
   let campFrom = 0;
@@ -563,10 +564,9 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         else if (!padTaken[k] && st.trophies > 0 && hero.onGround && Math.abs(hero.pos.x - st.pad.x) <= PAD_REACH && Math.abs(hero.pos.z - st.pad.z) <= PAD_REACH && Math.abs(hero.pos.y - st.pad.y) < 2) {
           padTaken[k] = true;
           const amount = scaled(st.trophies, tier, opts.balance.rebirth);
-          if (padsPayTrophies) {
-            campIn = CAMP_RETURN_TICKS;
-            campFrom = st.n;
-          } else sim.coins += amount;
+          campIn = CAMP_RETURN_TICKS;
+          campFrom = st.n;
+          if (!padsPayTrophies) sim.coins += amount;
           events.emit('trophyTake', { tick: sim.tick, stage: st.n, amount, x: st.pad.x, y: st.pad.y, z: st.pad.z, total: sim.coins, trophies: padsPayTrophies });
         }
       }

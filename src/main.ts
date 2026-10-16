@@ -77,7 +77,7 @@ import { createRewards } from './app/rewards.ts';
 import { createDailyView, type DailyView } from './app/daily-view.ts';
 import { createQuestsView, type QuestsView } from './app/quests-view.ts';
 import { createSave, type SaveData } from './meta/save.ts';
-import { addTrophies, migrateStageTrophies } from './meta/trophies.ts';
+import { addTrophies, migrateStageTrophies, migrateStageTrophiesBack } from './meta/trophies.ts';
 import { scaled, summitTrophies } from './sim/economy.ts';
 import type { GameHandles, BootState } from './app/handles.ts';
 import type { TestApi } from './test-api/index.ts';
@@ -171,6 +171,8 @@ async function boot(): Promise<void> {
   save.sessions += 1;
   // SD-03 (docs/01-gdd.md 23.3): a save from before the stage trophies gets the trophies of the stages it passed, once.
   if (balance.upgrade.currency === 'trophies') migrateStageTrophies(save, content.worlds);
+  // SD-11 (Q-088): the button pays coins again — a save of the SD-03 build gets its stage trophies back as coins, once.
+  else migrateStageTrophiesBack(save);
   const persist = (flush = false): void => {
     syncSave();
     save.rev += 1;

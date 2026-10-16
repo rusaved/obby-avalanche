@@ -66,7 +66,7 @@ describe('stages pace: the mountain of stages (LV-03…LV-07, docs/01-gdd.md 22.
       // SD-03 (23.3): the trophies grow stage by stage; their sum is the open coins over upgrade.trophyRate.
       const paid = st.filter((s) => s.trophies > 0);
       for (let k = 1; k < paid.length; k++) expect(paid[k]!.trophies).toBeGreaterThan(paid[k - 1]!.trophies);
-      const rate = (read('pace/stages/balance.json') as { upgrade: { trophyRate: number } }).upgrade.trophyRate;
+      const rate = (read('pace/stages/balance.json') as { upgrade: { trophyRate?: number } }).upgrade.trophyRate ?? 1;
       const sum = paid.reduce((a, s) => a + s.trophies, 0) * rate;
       let openCoins = 0;
       for (const s of (open[i] as unknown as World).segments) {

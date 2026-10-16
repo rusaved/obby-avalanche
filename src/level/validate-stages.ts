@@ -222,9 +222,8 @@ export function validateStageWorld(w: World, levels: Levels, tuning: Physics, ma
     for (const e of [...fairErrors(w, st, tuning, margin), ...widthErrors(w, st)]) errors.push(`${at}: ${e}`);
   }
   const paid = stages.filter((s) => s.trophies > 0);
-  // SD-03 (docs/01-gdd.md 23.3): small numbers growing stage by stage, the first of mountain 1 is one trophy.
+  // SD-03 (docs/01-gdd.md 23.3): the reward of a button grows stage by stage.
   for (let k = 1; k < paid.length; k++) if (!(paid[k]!.trophies > paid[k - 1]!.trophies)) errors.push(`${at}: stage ${paid[k]!.n} — ${paid[k]!.trophies} trophies, more than stage ${paid[k - 1]!.n} (${paid[k - 1]!.trophies}) expected (docs/01-gdd.md 23.3)`);
-  if (w.index === 1 && paid[0] && paid[0].trophies !== 1) errors.push(`${at}: the first trophy button of the game gives ${paid[0].trophies}, 1 expected (docs/01-gdd.md 23.3)`);
   if (snow > 2) errors.push(`${at}: ${snow} golden snowflakes, 2 at most`);
   // SD-06 (docs/01-gdd.md 23.6): the avalanche on every stage but the giant's (he is its trial), never on the first minute;
   // a zone with its own first delay has a grotto, and from any point of the body a grotto or the safe finish is within
