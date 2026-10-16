@@ -106,6 +106,8 @@ test('mountain 2: by the walk at the edge down into the chasm, its gift, out up 
   await page.evaluate(([z, x]) => window.__TEST__!.teleport(z!, x!), [c1 - 4, WALK]);
   await waitTicks(page, 20);
   expect((await testState(page)).hero!.y).toBeLessThan(chasm.y! - 1);
+  // A wave of the timer still fading out (gone) takes no trigger: wait it out first (verify SD: a race, not a bug).
+  await page.waitForFunction(() => (window.__TEST__!.state().wave?.phase ?? 'idle') === 'idle', undefined, { timeout: 60_000 });
   await page.evaluate(() => window.__TEST__!.triggerWave());
   await waitTicks(page, 2);
   s = await testState(page);
