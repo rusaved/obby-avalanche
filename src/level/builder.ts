@@ -409,10 +409,11 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
 
   /** A grotto in a rock: walls on three sides and a roof, open towards the camp (−z); `a` half its width, z0–z1 its length;
    * `sides` false — a canopy: the back wall and the roof only, open to the sides too. */
-  const rock = (x: number, y: number, a: number, z0: number, z1: number, sides = true): LevelNiche['box'] => {
+  const rock = (x: number, y: number, a: number, z0: number, z1: number, sides = true, back = true): LevelNiche['box'] => {
     if (sides) boxes.push(box([x - a, y, z0], [x - a + NICHE_WALL, y + NICHE_HEIGHT, z1], 'cave', 'islandWall'));
     if (sides) boxes.push(box([x + a - NICHE_WALL, y, z0], [x + a, y + NICHE_HEIGHT, z1], 'cave', 'islandWall'));
-    boxes.push(box([x - a + NICHE_WALL, y, z1 - NICHE_WALL], [x + a - NICHE_WALL, y + NICHE_HEIGHT, z1], 'cave', 'islandWall'));
+    // SD-11 (Q-088): a grotto «through» has no back wall — out of it up the slope, no dead end.
+    if (back) boxes.push(box([x - a + NICHE_WALL, y, z1 - NICHE_WALL], [x + a - NICHE_WALL, y + NICHE_HEIGHT, z1], 'cave', 'islandWall'));
     boxes.push(box([x - a, y + NICHE_HEIGHT, z0], [x + a, y + NICHE_HEIGHT + NICHE_WALL, z1], 'cave', 'islandRoof'));
     return { min: [x - a + NICHE_WALL, y, z0], max: [x + a - NICHE_WALL, y + NICHE_HEIGHT, z1 - NICHE_WALL] };
   };
@@ -484,7 +485,7 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
     const x = num(r, 'x');
     const y = num(r, 'y');
     const a = num(r, 'size') / 2;
-    const b = rock(x, y, a, r.z - a, r.z + a);
+    const b = rock(x, y, a, r.z - a, r.z + a, true, r['through'] !== true);
     niches.push({
       stretch: num(r, 'stretch'),
       z: r.z,

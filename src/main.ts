@@ -1892,7 +1892,7 @@ async function boot(): Promise<void> {
     }, campTeleport: () => (campView?.hasPassed() ? g.world.campTeleport : undefined) });
   stageView.wire(sim);
   // The stage tutorial and the camp teleport (docs/01-gdd.md 22.12).
-  campView = createCampView({ getSim: () => sim, getWorld: () => g.world, hud, windows, save, levels: balance.levels, persist, numSuffix, trophyWallet: balance.upgrade.currency === 'trophies', onTrophies: (n) => hud.setTrophies(formatNumber(n, numSuffix)) });
+  campView = createCampView({ getSim: () => sim, getWorld: () => g.world, hud, windows, save, levels: balance.levels, persist, numSuffix, trophyWallet: balance.upgrade.currency === 'trophies', shoesAffordable: () => shopAfford().shoes, onTrophies: (n) => hud.setTrophies(formatNumber(n, numSuffix)) });
   hud.setAutoRun(save.settings.autoRun);
   hud.setQuality(save.settings.quality);
   hud.setTouchMode(mobile);

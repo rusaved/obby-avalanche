@@ -358,6 +358,7 @@
   "hint.fork": "Two ways: pick one",
   "hint.cover": "Duck behind a rock!",
   "hint.toFinish": "Run on to the finish!",
+  "hint.buyShoes": "Buy sneakers — run faster!",
   "boss.name": "Giant",
   "boss.nameNorth": "Northern Giant",
   "boss.sign": "Giant: Speed ~{n}",

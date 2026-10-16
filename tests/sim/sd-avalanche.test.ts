@@ -51,4 +51,16 @@ describe('the avalanche on the stages (SD-06)', () => {
       expect(out[0]).toBe('waveWarn');
       expect(out[1]).toBe(hide ? 'waveSurvived' : 'waveCaught');
     });
+
+  it('SD-11 (Q-088): the grottos of the stages are through — no back wall, out up the slope', () => {
+    const w = worlds.worlds[0]!;
+    const level = buildLevel(w);
+    const through = w.segments.filter((s) => s.type === 'island' && s['through'] === true);
+    expect(through.length).toBeGreaterThan(0);
+    for (const r of through) {
+      const z1 = r.z + (r['size'] as number) / 2;
+      const back = level.boxes.filter((b) => b.kind === 'islandWall' && Math.abs(b.max[2] - z1) < 1e-6 && b.min[0] > (r['x'] as number) - (r['size'] as number) / 2 + 0.5 && b.max[0] < (r['x'] as number) + (r['size'] as number) / 2 - 0.5);
+      expect(back, `island at z ${r.z}`).toEqual([]);
+    }
+  });
 });

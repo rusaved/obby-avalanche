@@ -13,6 +13,9 @@ import { formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
 import { track } from '../analytics/index.ts';
 
+/** SD-11: «Buy sneakers» shows at a closed ridge this close ahead (units). */
+const SHOES_HINT_AHEAD = 40;
+
 export const TELEPORT_WINDOW = 'campTeleport';
 /** The hero stands on the teleport pad within this half side (the pad is 6 × 6). */
 const PAD_REACH = 3.2;
@@ -37,6 +40,8 @@ export interface CampViewDeps {
   numSuffix(k: string): string;
   /** SD-03 (docs/01-gdd.md 23.3): the teleports cost stage trophies (the trophy wallet); absent — coins. */
   trophyWallet?: boolean;
+  /** SD-11: the next pair of sneakers can be bought now (the plaque at a closed ridge). */
+  shoesAffordable?(): boolean;
   onTrophies?(left: number): void;
 }
 
@@ -102,6 +107,9 @@ export function createCampView(d: CampViewDeps): CampView {
         if (pit) show = t('tutor.jump');
       }
       if (!jumps && st && h.z > st.end && (st.type === 'cracks' || st.type === 'plates')) (d.save.flags ??= {})['jumpsTaught'] = true;
+      // SD-11 (Q-088, producer: «show the purchase of sneakers»): at a closed ridge ahead with enough for the next pair.
+      const gi = sim.level.gates.findIndex((g) => g.kind === 'ridge' && g.z > h.z && g.z - h.z < SHOES_HINT_AHEAD);
+      if (gi >= 0 && !sim.gatesOpen[gi] && d.shoesAffordable?.()) show = t('hint.buyShoes');
       // The avalanche of a stage (LV-12 re-check: «Run up!» and «Take the trophies» stood under the wave): to a grotto.
       const ws = sim.threat?.state;
       const wave = !!ws && (ws.phase === 'warn' || (ws.phase === 'run' && ws.outcome === 'none'));

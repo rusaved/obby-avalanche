@@ -1308,7 +1308,7 @@
     "field": 100,
     "bridge": 10,
     "trophyGrowth": 2.5,
-    "gapK": 0.83,
+    "gapK": 0.79,
     "catapultK": 0.83,
     "snowflake": {
       "mult": 2,
@@ -1320,7 +1320,8 @@
       "intervalSec": 30,
       "every": 2,
       "x": 18,
-      "stageExtraSec": 3
+      "stageExtraSec": 3,
+      "through": true
     },
     "maze": {
       "cell": 12,
@@ -1362,7 +1363,7 @@
     "giantMarginRest": 0.02,
     "giantSlipPast": false,
     "giantSide": 0.3,
-    "gateK": 1.2,
+    "gateK": 1.1,
     "plan": [
       [
         "intro",

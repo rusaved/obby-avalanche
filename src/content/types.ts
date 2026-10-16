@@ -1032,7 +1032,7 @@ export interface StageSpec {
   snowflake: { mult: number; stages: number };
   /** The avalanche stage: the first wave after entering, the pause between waves inside, grottos every `every` × v. */
   /** SD-06: `stageExtraSec` — the avalanche on every stage but the giant's, its first wave that long after a clean run. */
-  avalanche: { firstSec: number; warnSec: number; intervalSec: number; every: number; x: number; stageExtraSec?: number };
+  avalanche: { firstSec: number; warnSec: number; intervalSec: number; every: number; x: number; stageExtraSec?: number; through?: boolean };
   maze: { cell: number; wall: number; height: number; cols: number[]; rows: number[]; falseExits: [number, number] };
   /** The giant of a stage slower than v(N) by this share, by mountain (LV-12 review: on mountains 1–2 a gentler one for
    * the first runs); absent — the margin of the mountain's giant. */
