@@ -359,6 +359,9 @@ export class InputManager {
     // SD-01 (docs/01-gdd.md 23.1): nor the top band (pause, goal) nor near any HUD button (producer 15.10: the camera
     // turned on the way to a button).
     if (ev.clientY < innerHeight * (this.opts.mouseTop ?? 0)) return;
+    // SD-10 (review: with W held the hand on its way to «Sneakers» turned the run off the ice chute): while a move key
+    // is held the mouse turns nothing — the run keeps its way, the look comes between runs.
+    if ([...MOVE_KEYS].some((k) => this.keys.has(k))) return;
     if (this.nearButton(ev.clientX, ev.clientY, this.eventTime(ev))) return;
     this.yawDelta -= (dx * (this.opts.mouseYawPerPx ?? this.opts.mouseDegPerPx) * this.opts.sensitivity * Math.PI) / 180;
     this.lookEdge = true;

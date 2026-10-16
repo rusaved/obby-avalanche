@@ -106,7 +106,8 @@ export function createCampView(d: CampViewDeps): CampView {
       const ws = sim.threat?.state;
       const wave = !!ws && (ws.phase === 'warn' || (ws.phase === 'run' && ws.outcome === 'none'));
       // SD-06: the avalanche comes on almost every stage — the same plaque on any of them.
-      if (st && st.type !== 'intro' && wave) show = sim.inShelter() ? null : t('hint.cover');
+      // No grotto within reach of the warning (SD-10 review: «hide» pointed back past the finish) — run on to the finish.
+      if (st && st.type !== 'intro' && wave) show = sim.inShelter() ? null : ws!.shelter >= 0 ? t('hint.cover') : t('hint.toFinish');
       d.hud.setTutor(show);
       // The teleport pad of the camp: stepping on it opens the window once a step-on.
       const p = w.campTeleport;

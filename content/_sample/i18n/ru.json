@@ -222,5 +222,6 @@
   "shop.lockedWorld": "Откроется на горе {n}",
   "shop.chances": "Шансы",
   "shop.next": "Сначала: {name}",
-  "world.slope": "Лавовый склон"
+  "world.slope": "Лавовый склон",
+  "hint.toFinish": "Беги к финишу!"
 }

@@ -222,5 +222,6 @@
   "shop.lockedWorld": "Unlocks on mountain {n}",
   "shop.chances": "Chances",
   "shop.next": "First: {name}",
-  "world.slope": "Lava Slope"
+  "world.slope": "Lava Slope",
+  "hint.toFinish": "Run on to the finish!"
 }

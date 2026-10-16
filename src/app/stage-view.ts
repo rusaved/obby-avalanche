@@ -68,6 +68,9 @@ export function createStageView(d: StageViewDeps): StageView {
       const sim = d.getSim();
       const stages = sim.level.stages;
       if (!stages) return d.hud.setPadLabel(null);
+      // SD-10 (review: «+N 🏆» covered the avalanche banner): no label while a wave is on.
+      const ws = sim.threat?.state;
+      if (ws && (ws.phase === 'warn' || ws.phase === 'run')) return d.hud.setPadLabel(null);
       const h = sim.hero.pos;
       let best = -1;
       for (let k = 0; k < stages.length; k++) {

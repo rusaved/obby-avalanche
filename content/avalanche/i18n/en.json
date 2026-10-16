@@ -357,6 +357,7 @@
   "hint.stuckRidge": "Build speed: run or treadmill",
   "hint.fork": "Two ways: pick one",
   "hint.cover": "Duck behind a rock!",
+  "hint.toFinish": "Run on to the finish!",
   "boss.name": "Giant",
   "boss.nameNorth": "Northern Giant",
   "boss.sign": "Giant: Speed ~{n}",
