@@ -54,10 +54,14 @@ export function createStageView(d: StageViewDeps): StageView {
       return taken;
     },
     wire(sim) {
-      sim.events.on('trophyTake', ({ amount, x, y, z, trophies }) => {
+      sim.events.on('trophyTake', ({ amount, x, y, z, trophies, total }) => {
         taken++;
         d.hud.toast(t('toast.trophyPad', { n: fmt(amount) }));
-        if (!trophies) d.hud.popCoinGain(`+${fmt(amount)}`);
+        if (!trophies) {
+          // SD-11 (review: the coin plaque stayed hidden after a button): the wallet shows at once.
+          d.hud.setCoins(fmt(total));
+          d.hud.popCoinGain(`+${fmt(amount)}`);
+        }
         d.fx()?.burst('confetti', x, y + 1.5, z, [d.theme.ui.trophies, '#ffffff', d.theme.ui.coins], 36, 9, 3);
         d.play('levelUp');
         d.onTrophy?.(amount, trophies);

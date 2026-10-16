@@ -431,7 +431,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   standLabel.dataset['role'] = 'stand-label';
   standLabel.style.pointerEvents = 'none';
   root.appendChild(standLabel);
-  // The trophy button of a stage finish (docs/01-gdd.md 22.8): «+N 🏆» over it, the trophy colour.
+  // The reward button of a stage finish (docs/01-gdd.md 22.8): «+N ❄» over it on the coin colour — it pays coins (SD-11,
+  // Q-088: trophies are only those of summits); the teleport of the camp — the plain plaque, no currency mark.
   const padLabel = el('div', 'hud-egg hud-pad');
   padLabel.dataset['role'] = 'pad-label';
   // The teleport label of the camp is a button too (LV-12: it looked like one).
@@ -441,9 +442,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     ev.stopPropagation();
     opts.onPadLabel?.();
   });
-  padLabel.style.setProperty('--trophies', opts.trophyColor);
-  const padIcon = el('span', 'hud-pad-icon');
-  padIcon.innerHTML = icon('trophy');
+  padLabel.style.setProperty('--coins', opts.coinColor);
+  const padIcon = el('span', 'hud-pad-icon', '\u2744');
   const padText = el('span', '');
   padLabel.append(padText, padIcon);
   root.appendChild(padLabel);

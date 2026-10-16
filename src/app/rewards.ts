@@ -54,7 +54,12 @@ export function createRewards(d: RewardsDeps): Rewards {
       const sim = d.getSim();
       const zone = zoneAt(sim.level, sim.hero.pos.z);
       const gift = sim.gifts.find((g) => g.zone === zone) ?? sim.gifts[0];
-      return scaled(gifts * (gift?.coins ?? 0), sim.tier, d.balance.rebirth);
+      // SD-11 (review: «Coins +0» on the base and the stages, no gifts there): the zone value of the mountain (SD-02).
+      const zg = sim.level.zoneGifts ?? {};
+      // The base has no zones: the first zone of the player's mountain.
+      const own = d.worlds.find((w) => w.index === (d.save.world ?? 1))?.zones[0]?.gift;
+      const value = gift?.coins ?? zg[zone] ?? Object.values(zg)[0] ?? own ?? 0;
+      return scaled(gifts * value, sim.tier, d.balance.rebirth);
     },
     eggOf(id) {
       if (id !== 'best') return d.eggs.eggs.find((e) => e.id === id);
