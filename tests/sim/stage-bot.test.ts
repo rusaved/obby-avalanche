@@ -177,7 +177,7 @@ describe('the stage bot at the level of the ridge (LV-02, LV-03)', () => {
  * forward on the run line (a sloppy hand); `dodge` runs the line and, at a random moment 0.2–1 s before the meeting,
  * cuts to the side away from the giant and runs on up — a player who sees him charge.
  */
-function runGiant(w: World, st: WorldStage, seed: number, below: number, dodge: boolean, level = buildLevel(w)): Outcome {
+function runGiant(w: World, st: WorldStage, seed: number, below: number, dodge: boolean, level = buildLevel(w), stepAside = false): Outcome {
   const r = rand(seed);
   const sim: Sim = createSim(level, tuning, {
     balance,
@@ -194,6 +194,7 @@ function runGiant(w: World, st: WorldStage, seed: number, below: number, dodge: 
   const zone = sim.boss!.zones.find((z) => z.zone[0] >= st.start - 1e-6)!;
   let hold = 0;
   let cut = false;
+  let from = 0;
   for (let k = 0; k < 60 / DT; k++) {
     const h = sim.hero.pos;
     if (sim.caught || sim.rollFrom > 0) return 'fall';
@@ -201,8 +202,11 @@ function runGiant(w: World, st: WorldStage, seed: number, below: number, dodge: 
     const g = zone.giants[0]!;
     if (dodge && !cut && zone.hero === 'in' && g.z > h.z - 2 && Math.hypot(g.x - h.x, g.z - h.z) / (sim.params.speed + g.speed) < cutAt) {
       cut = true;
+      from = h.x;
       hold = h.x + (Math.abs(g.x - h.x) < 2 ? (r() < 0.5 ? -1 : 1) : g.x > h.x ? -1 : 1) * 40;
     }
+    // SD-15 (review): a step aside of 14 units, then straight up again (a turn back costs a little speed).
+    if (stepAside && cut && Math.abs(h.x - from) >= 14) hold = h.x;
     if (h.z > zone.zone[1]) hold = 0;
     const mx = Math.max(-1, Math.min(1, (hold + Math.sin(k * DT * drift + phase) * 3 - h.x) * 0.3));
     const len = Math.hypot(mx, 1);
@@ -217,15 +221,20 @@ describe('the giant is a trial of every run (SD-12)', () => {
   for (const mi of [0, 1, 4, 9]) {
     const w = worlds.worlds[mi]!;
     const st = w.stages!.find((s) => s.type === 'giant')!;
-    it(`mountain ${mi + 1}: forward at N caught 9+ of 10, a dodge at N gets past 7–9 of 10, at N − 2 at most 3 of 10`, () => {
+    it(`mountain ${mi + 1}: forward at N caught 9+ of 10, a dodge at N gets past 7–9 of 10 (a step aside and up — 5+), at N − 2 at most 3 of 10, forward at N + 2 — 7+`, () => {
       const level = buildLevel(w);
       const pass = (below: number, dodge: boolean): number => Array.from({ length: TRIES }, (_, i) => runGiant(w, st, 7000 + i, below, dodge, level)).filter((x) => x === 'pass').length;
-      expect(TRIES - pass(0, false), 'forward at N: caught').toBeGreaterThanOrEqual(9);
+      expect.soft(TRIES - pass(0, false), 'forward at N: caught').toBeGreaterThanOrEqual(9);
       const n = pass(0, true);
-      expect(n, 'a dodge at N').toBeGreaterThanOrEqual(7);
-      expect(n, 'a dodge at N').toBeLessThanOrEqual(9);
-      expect(pass(2, true), 'a dodge at N − 2').toBeLessThanOrEqual(3);
-    }, 240_000);
+      expect.soft(n, 'a dodge at N').toBeGreaterThanOrEqual(7);
+      expect.soft(n, 'a dodge at N').toBeLessThanOrEqual(9);
+      expect.soft(pass(2, true), 'a dodge at N − 2').toBeLessThanOrEqual(3);
+      // SD-15 (review: a dodge that got past was caught from behind on the turn back up): past him he lets go.
+      const aside = Array.from({ length: TRIES }, (_, i) => runGiant(w, st, 7000 + i, 0, true, level, true)).filter((x) => x === 'pass').length;
+      expect.soft(aside, 'a step aside of 14 units and up again at N: half at least').toBeGreaterThanOrEqual(5);
+      // SD-15 (review: «Speed does not save»): two levels above the stage he is slow and a straight run slips past.
+      expect.soft(pass(-2, false), 'forward at N + 2').toBeGreaterThanOrEqual(7);
+    }, 300_000);
   }
   it('passed, he walks back to patrol (no win pose); after the trophy button and the camp the next run meets him again', () => {
     const w = worlds.worlds[0]!;

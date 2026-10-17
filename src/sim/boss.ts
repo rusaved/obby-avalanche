@@ -164,8 +164,10 @@ export function createBoss(
       helpers: (b.helpers ?? []).map((h) => ({ x: h.x, z: (a + c) / 2, t: h.throwEverySec, ball: null, wave: sitting(zi) })),
     };
   });
-  // Speeds of the tier; SD-12: × `rel` of the hero's level against the zone's, every tick.
+  // Speeds of the tier; SD-12: × `rel` of the hero's level against the zone's — SD-15: as he steps in (levels cheap on
+  // mountain 1 grow inside the zone; the giant he met stays the one he meets).
   const base = zones.map((s) => s.giants.map((g) => g.speed));
+  const kIn = zones.map(() => 1);
   // SD-12: where the hero was, a tick at a time (x, z pairs) while he is in a zone — a giant with `lag` runs at the past.
   const trails = zones.map(() => [] as number[]);
   const zoneOf = (z: number): number => zones.findIndex((s) => z >= s.zone[0] && z <= s.zone[1]);
@@ -253,8 +255,8 @@ export function createBoss(
       zones.forEach((s, zi) => {
         const [a, c] = s.zone;
         const data0 = data[zi]!;
-        const k = rel?.(zi) ?? 1;
-        s.giants.forEach((g, gi) => (g.speed = base[zi]![gi]! * k));
+        if (s.hero !== 'in') kIn[zi] = rel?.(zi) ?? 1;
+        s.giants.forEach((g, gi) => (g.speed = base[zi]![gi]! * kIn[zi]!));
         // SD-12: the hero below a rearming zone he passed — its giants are his again.
         if (s.hero === 'passed' && data0.rearm && hero.z < a) {
           s.hero = 'out';
@@ -390,6 +392,13 @@ export function createBoss(
                   g.mode = 'back';
                   break;
                 }
+                // SD-15 (review: a dodge that got past was caught from behind by a turn back up): a giant of every run left
+                // behind keeps on only while he is quicker than the hero's Speed (two levels below); else he walks back.
+                if (data0.rearm && s.hero === 'in' && hero.z > g.z + cfg.reach && g.speed <= (hero.top ?? hero.speed)) {
+                  g.mode = 'back';
+                  g.dir = -1;
+                  break;
+                }
                 g.dir = at[1] >= g.z ? 1 : -1;
                 // At the point it lost him: it searches there (hideSec).
                 if (run(g, data0, at[0], at[1], g.speed * dt, data0.giants[gi]!.side ?? 1) && g.sight === 'lost' && g.search < 0) g.search = 0;
@@ -415,7 +424,9 @@ export function createBoss(
           // The slap: within reach of a giant that walks at him (and sees him); only a run faster than speed × (1 + margin)
           // slips past.
           // SD-05 (docs/01-gdd.md 23.5): a giant with slipPast false slaps at any speed — a dodge or a rock, not a straight run.
-          const slips = data0.giants[gi]!.slipPast !== false && hero.speed > slip(g);
+          // SD-15: with `slipMargin` a run that much faster than him slips past (Speed two levels above the stage).
+          const sm = data0.giants[gi]!.slipMargin;
+          const slips = (data0.giants[gi]!.slipPast !== false && hero.speed > slip(g)) || (sm !== undefined && hero.speed > g.speed * (1 + sm));
           if (s.hero === 'in' && g.mode === 'chase' && !blind(g) && near(g, chase, hero.x, hero.z) && !slips) {
             s.hero = 'out';
             s.giants.forEach((o) => {

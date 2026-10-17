@@ -579,6 +579,8 @@ export interface WorldGiant {
   /** SD-12 (docs/01-gdd.md 23.9): a chasing giant runs at where the hero was this many seconds ago (heavy: a sharp
    * dodge at the last moment beats it, a straight run or an early one does not); absent — 0, where he is. */
   lag?: number;
+  /** SD-15: with slipPast false — a run faster than speed × (1 + slipMargin) still slips past (Speed well above). */
+  slipMargin?: number;
   phase?: number;
 }
 
@@ -1050,6 +1052,8 @@ export interface StageSpec {
   giantEveryRun?: boolean;
   giantLag?: number;
   giantLevel?: { g: number; min: number; max: number };
+  /** SD-15: WorldGiant.slipMargin of the stage giants. */
+  giantSlipMargin?: number;
   catapultK?: number;
   snowflake: { mult: number; stages: number };
   /** The avalanche stage: the first wave after entering, the pause between waves inside, grottos every `every` × v. */

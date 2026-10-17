@@ -490,7 +490,7 @@ const worldSchema = v.object({
         zone: v.tuple([nonNeg, nonNeg]),
         requires: positive,
         returnMult: positive,
-        giants: v.pipe(v.array(v.object({ speed: positive, patrol: v.picklist(['alongZ', 'chase']), seeDist: nonNeg, turnSec: nonNeg, phase: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))), slipPast: v.optional(v.boolean()), side: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))), lag: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2))) })), v.minLength(1)),
+        giants: v.pipe(v.array(v.object({ speed: positive, patrol: v.picklist(['alongZ', 'chase']), seeDist: nonNeg, turnSec: nonNeg, phase: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))), slipPast: v.optional(v.boolean()), side: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))), lag: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2))), slipMargin: v.optional(nonNeg) })), v.minLength(1)),
         width: v.optional(positive),
         covers: v.optional(v.array(v.object({ x: v.number(), z: nonNeg, r: positive, h: positive }))),
         rearm: v.optional(v.boolean()),
