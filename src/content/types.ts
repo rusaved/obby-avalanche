@@ -948,17 +948,22 @@ export interface BotsJson {
  * — an audio file the producer adds later (null — the synth plays). */
 export interface FootstepSet {
   id: string;
-  snow: number[];
-  ice: number[];
+  /** How it opens: at once, by a rewarded ad, or bought in the shop for summit trophies (`price`). */
   unlock: 'free' | 'ad' | 'shop';
-  file: string | null;
+  price?: number;
+  /** SD-14: its snow steps — audio files under assets/audio/ (the variants), `weights` — how often each comes (1 each). */
+  files: string[];
+  weights?: number[];
 }
 
-/** sfx.json `footsteps` (LV-09): the volume by default (a share of the effects, 0–1), the random pitch of a step
- * (± semitones), the sets; the first `free` set is the one on by default. */
+/** sfx.json `footsteps` (LV-09, SD-14): the volume by default (a share of the effects, 0–1), the random pitch of a step
+ * (± semitones), at most `perSec` steps a second whatever the run speed, the ice steps of every set; the first `free`
+ * set is the one on by default. */
 export interface FootstepsJson {
   volume: number;
   pitch: number;
+  perSec: number;
+  ice: string[];
   sets: FootstepSet[];
 }
 
@@ -966,7 +971,9 @@ export interface FootstepsJson {
  * absent — the hero steps silently. */
 export interface SfxJson {
   footsteps?: FootstepsJson;
-  [name: string]: number[] | FootstepsJson | undefined;
+  /** SD-14: sound events played from audio files under assets/audio/ (instead of ZzFX of the same name). */
+  files?: Record<string, string>;
+  [name: string]: number[] | FootstepsJson | Record<string, string> | undefined;
 }
 
 /**

@@ -698,14 +698,24 @@ const aurasSchema = v.object({ auras: v.array(cosmetic) });
 
 /** ZzFX takes up to 21 numbers (docs/02-tech.md 10). */
 const zzfx = v.pipe(v.array(v.number()), v.minLength(1), v.maxLength(21));
-/** Footstep sets (LV-09): snow and ice sounds, how a set opens, a future audio file (null — the synth); one free at least. */
+/** Footstep sets (LV-09, SD-14): audio files of the snow steps (weights optional), how a set opens (a shop set — its
+ * price in trophies), the ice steps of all; one free at least. */
 export const FOOTSTEP_UNLOCKS = ['free', 'ad', 'shop'] as const;
+const audioFile = v.pipe(v.string(), v.regex(/^[a-z0-9_/-]+\.mp3$/, 'expected a path of an .mp3 under assets/audio'));
 const footstepsSchema = v.pipe(
   v.object({
     volume: v.pipe(v.number(), v.minValue(0), v.maxValue(1)),
     pitch: nonNeg,
+    perSec: v.pipe(v.number(), v.minValue(1), v.maxValue(10)),
+    ice: v.pipe(v.array(audioFile), v.minLength(1)),
     sets: v.pipe(
-      v.array(v.object({ id: id, snow: zzfx, ice: zzfx, unlock: v.picklist(FOOTSTEP_UNLOCKS), file: v.nullable(v.pipe(v.string(), v.minLength(1))) })),
+      v.array(
+        v.pipe(
+          v.object({ id: id, unlock: v.picklist(FOOTSTEP_UNLOCKS), price: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))), files: v.pipe(v.array(audioFile), v.minLength(1)), weights: v.optional(v.array(v.pipe(v.number(), v.minValue(0)))) }),
+          v.check((x) => !x.weights || x.weights.length === x.files.length, 'weights — one a file'),
+          v.check((x) => x.unlock !== 'shop' || x.price !== undefined, 'a shop set needs its price'),
+        ),
+      ),
       v.minLength(1),
     ),
   }),
@@ -713,7 +723,7 @@ const footstepsSchema = v.pipe(
   v.check((f) => new Set(f.sets.map((x) => x.id)).size === f.sets.length, 'duplicate set id'),
 );
 const sfxSchema = v.pipe(
-  v.objectWithRest({ footsteps: v.optional(footstepsSchema) }, zzfx),
+  v.objectWithRest({ footsteps: v.optional(footstepsSchema), files: v.optional(v.record(name, audioFile)) }, zzfx),
   v.check((o) => Object.keys(o).every((k) => v.is(name, k)), 'expected latin sound names'),
 );
 

@@ -1,19 +1,24 @@
-// What: Renders the «Footsteps» window body: the footsteps volume slider (0–100%) and a card per set — choose, «▶ Ad: unlock», or a lock «soon in the shop».
+// What: Renders the «Footsteps» window body: the footsteps volume slider (0–100%) and a card per set — choose, «▶ Ad: unlock», or a shop set with its trophy price and «Buy» / «N more».
 // Called by: app/footsteps-view.ts.
 // Keep: Pure view over FootstepsPanelModel; texts via t(), names from i18n footsteps.set.<id>; the ad button text carries the word of 03 2.3 («Реклама»); the slider applies on input without a re-render.
 
 /**
  * «Footsteps» window body (LV-09, docs/01-gdd.md 11): the volume of the steps on its own slider, applied at once; the
  * sets as cards — an open one has «Choose» («Selected» when on; a tap chooses and plays it), one by an ad has the
- * rewarded button, one of the shop a lock with «From the shop» (no «soon»: a dev trace, docs/03 4.2).
+ * rewarded button, one of the shop its trophy price with «Buy» (SD-14) or «N more» while short — as the wardrobe; a shop
+ * set with no price a lock with «From the shop» (no «soon»: a dev trace, docs/03 4.2).
  */
 import { t } from './i18n.ts';
 import { icon } from './icons.ts';
+import { trophyPrice } from './shop-panel.ts';
 
 export interface FootstepCard {
   id: string;
-  /** `on` — the set on; `open` — can be chosen; `ad` — opens by an ad (`busy` — the ad is running); `shop` — locked. */
-  state: 'on' | 'open' | 'ad' | 'busy' | 'shop';
+  /** `on` — the set on; `open` — can be chosen; `ad` — opens by an ad (`busy` — the ad is running); `buy` / `short` — a
+   * shop set to buy for `price` trophies or `need` more (SD-14); `shop` — locked. */
+  state: 'on' | 'open' | 'ad' | 'busy' | 'buy' | 'short' | 'shop';
+  price?: string;
+  need?: string;
 }
 
 export interface FootstepsPanelModel {
@@ -25,6 +30,8 @@ export interface FootstepsPanelModel {
 export interface FootstepsPanelActions {
   choose(id: string): void;
   ad(id: string): void;
+  /** SD-14: buy the shop set for its trophies. */
+  buy(id: string): void;
   /** The slider moved (`done` — released: the preview plays). */
   volume(v: number, done: boolean): void;
 }
@@ -76,6 +83,13 @@ export function renderFootstepsPanel(body: HTMLElement, m: FootstepsPanelModel, 
       i.innerHTML = icon('lock');
       lock.append(i, el('span', '', t('footsteps.soon')));
       card.appendChild(lock);
+    } else if (c.state === 'buy' || c.state === 'short') {
+      card.appendChild(trophyPrice(c.price ?? ''));
+      const btn = el('button', c.state === 'short' ? 'card-btn off' : 'card-btn', c.state === 'short' ? (c.need ?? '') : t('btn.buy'));
+      btn.dataset['hud'] = 'footsteps-buy';
+      btn.disabled = c.state === 'short';
+      btn.addEventListener('click', () => a.buy(c.id));
+      card.appendChild(btn);
     } else {
       const ad = c.state === 'ad' || c.state === 'busy';
       const btn = el('button', c.state === 'on' ? 'card-btn alt' : c.state === 'busy' ? 'card-btn off' : 'card-btn', t(ad ? 'footsteps.ad' : c.state === 'on' ? 'footsteps.chosen' : 'footsteps.choose'));

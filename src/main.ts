@@ -562,6 +562,8 @@ async function boot(): Promise<void> {
         // SD-02: never «+0» (pace stages: no gifts on the track, the zone value may still be 0).
         hud?.toast(coins > 0 ? t('wave.survived', { n: formatNumber(coins, numSuffix) }) : t('wave.survivedPlain'), gold > 0 ? 3 : 2, gold > 0, undefined, scripted ? showEgg : undefined);
         if (coins > 0) hud?.setCoins(formatNumber(total, numSuffix));
+        // SD-14: a reward of coins — its sound from ui/.
+        if (coins > 0) audio?.play('rewardCoins');
       };
       if (tuning.avalanche.shotUntilClear) survivedShow = show;
       else show();
@@ -572,7 +574,10 @@ async function boot(): Promise<void> {
     s.events.on('bonusSaved', ({ coins, total, where }) => {
       track('gold_saved');
       // SD-02: saved in the shelter at once — its own golden toast (no longer folded into «Phew» after the wave).
-      if (coins > 0) hud?.toast(t('wave.goldSaved', { n: formatNumber(coins, numSuffix) }), 3, true);
+      if (coins > 0) {
+        hud?.toast(t('wave.goldSaved', { n: formatNumber(coins, numSuffix) }), 3, true);
+        audio?.play('rewardCoins');
+      }
       hud?.setCoins(formatNumber(total, numSuffix));
     });
     s.events.on('bonusLost', (at) => {
@@ -1044,6 +1049,8 @@ async function boot(): Promise<void> {
         go(flow({ kind: 'summit', world: info.from, replay: false }));
       },
     });
+    // SD-14: the trophy of the summit — its fanfare from ui/ (the window keeps the sound, see createAudio).
+    if (info.trophies > 0) audio?.play('rewardTrophy');
     return true;
   };
 
@@ -1607,8 +1614,9 @@ async function boot(): Promise<void> {
   audio = createAudio({
     sfx,
     enabled: save.settings.sound,
-    // Any pause reason stops the sound; the «Footsteps» window alone (reason `menu` only) keeps it for its previews.
-    paused: () => pause.paused && !(windows?.current === FOOTSTEPS_WINDOW && pause.reasons.length === 1 && pause.has('menu')),
+    // Any pause reason stops the sound; the «Footsteps» window alone (reason `menu` only) keeps it for its previews, the
+    // summit window (SD-14) for its trophy fanfare.
+    paused: () => pause.paused && !((windows?.current === FOOTSTEPS_WINDOW || windows?.current === 'summit') && pause.reasons.length === 1 && pause.has('menu')),
     onPauseChange: (fn) => void pause.onChange(fn),
     gestureTarget: window,
   });
@@ -1650,7 +1658,7 @@ async function boot(): Promise<void> {
   meta.apply();
   // Windows (docs/01-gdd.md 10.2): one at a time, the game and the avalanche stand while it is open (pause `menu`).
   windows = createWindowFrame(ui, { closeLabel: t('btn.close'), okLabel: t('btn.ok'), onChange: (id) => pause.set_('menu', id !== null) });
-  if (sfx.footsteps) footstepsView = createFootstepsView({ manifest: sfx.footsteps, save, windows, platform, pause, hud, audio: () => audio, persist });
+  if (sfx.footsteps) footstepsView = createFootstepsView({ manifest: sfx.footsteps, save, windows, platform, pause, hud, audio: () => audio, persist, numSuffix, onTrophies: (n) => hud.setTrophies(formatNumber(n, numSuffix)) });
   const petsVisual = createPetsVisual(theme);
   gr.scene.add(petsVisual.group);
   petsView = createPetsView({

@@ -76,9 +76,9 @@ export interface SaveData {
   baseTread?: number;
   /** RL-08 (docs/01-gdd.md 21.8): the gifts taken on mountain `world` since it was entered (indices of LevelData gifts). */
   gifts?: { world: number; taken: number[] };
-  /** Footsteps (LV-09; src/meta/footsteps.ts): the set on, the sets opened by an ad (forever), the volume 0–1; an absent
-   * or bad field — the default of sfx.json footsteps. */
-  footsteps?: { set?: string; ads?: string[]; volume?: number };
+  /** Footsteps (LV-09; src/meta/footsteps.ts): the set on, the sets opened by an ad (forever), the shop sets bought
+   * (SD-14), the volume 0–1; an absent or bad field — the default of sfx.json footsteps. */
+  footsteps?: { set?: string; ads?: string[]; bought?: string[]; volume?: number };
   /** Stages pace (docs/01-gdd.md 22.12): the farthest stage reached on each mountain (its index → stage n) and the step of
    * the stage tutorial done (0–3). */
   stageBest?: Record<string, number>;

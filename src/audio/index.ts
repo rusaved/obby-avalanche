@@ -1,6 +1,6 @@
-// What: Sound layer: one AudioContext started by the first gesture, ZzFX buffers built once from sfx.json (footstep sets too), play() with pitch shift and delay, pause suspends it.
+// What: Sound layer: one AudioContext started by the first gesture, ZzFX buffers built once from sfx.json, audio files of assets/audio (sfx.json files, footsteps) fetched after it, play() with pitch shift and delay, one voice of steps, pause suspends it.
 // Called by: main.ts (createAudio); app/handles.ts, app/fun-view.ts and app/footsteps-view.ts (GameAudio type).
-// Keep: Sounds come only from content sfx.json; nothing plays before a gesture or while paused; max 3 equal sounds per 100 ms; zzfx stays a lazy import.
+// Keep: Sounds come only from content sfx.json; nothing plays or loads before a gesture (no bytes before ready()), nothing while paused; max 3 equal sounds per 100 ms; zzfx stays a lazy import.
 
 /**
  * Sound (docs/02-tech.md 10), minimal for M2: one AudioContext started by the first gesture of the player
@@ -10,12 +10,72 @@
  */
 import type { SfxJson } from '../content/types.ts';
 
-/** Buffer name of the step of footstep set `id` on `surface` (LV-09). */
-export const stepSound = (id: string, surface: 'snow' | 'ice'): string => `footsteps.${id}.${surface}`;
-
 /** Not more than this many equal sounds inside SAME_WINDOW_MS (docs/02-tech.md 10). */
 const SAME_MAX = 3;
 const SAME_WINDOW_MS = 100;
+/** SD-14: a step fades out over this many seconds when the next one starts (one voice, no click). */
+const STEP_FADE_SEC = 0.04;
+/** SD-14: silence of a file below this level is cut off its start and end (−50 dB): a step is heard at once. */
+const SILENT = 0.003;
+
+/** The audio files of assets/audio, by their path under it (`steps/ice/1.mp3`): URLs of the build, fetched on demand. */
+const FILES: Record<string, string> = Object.fromEntries(
+  Object.entries(import.meta.glob('../../assets/audio/**/*.mp3', { query: '?url', import: 'default', eager: true }) as Record<string, string>).map(([k, url]) => [k.replace(/^.*\/assets\/audio\//, ''), url]),
+);
+
+/** The bits of an AudioContext the step voice uses (a fake one in tests). */
+export interface VoiceContext {
+  readonly currentTime: number;
+  createBufferSource(): AudioBufferSourceNode;
+  createGain(): GainNode;
+}
+
+/** SD-14 (producer 16.10: no steps over each other): one voice — a step still sounding fades out over STEP_FADE_SEC as
+ * the next one starts; `play` starts the audible part [from, to] of `buf`. */
+export function createStepVoice(ctx: VoiceContext, out: AudioNode): (buf: AudioBuffer, from: number, to: number, semitones: number, volume: number) => void {
+  let voice: { src: AudioBufferSourceNode; gain: GainNode } | null = null;
+  return (buf, from, to, semitones, volume) => {
+    const t = ctx.currentTime;
+    if (voice) {
+      const g = voice.gain.gain;
+      g.cancelScheduledValues(t);
+      g.setValueAtTime(g.value, t);
+      g.linearRampToValueAtTime(0, t + STEP_FADE_SEC);
+      try {
+        voice.src.stop(t + STEP_FADE_SEC);
+      } catch {
+        // Already stopped: nothing to fade.
+      }
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    if (semitones !== 0) src.playbackRate.value = Math.pow(2, semitones / 12);
+    const gain = ctx.createGain();
+    gain.gain.value = Math.min(1, volume);
+    src.connect(gain).connect(out);
+    src.start(t, from, to - from);
+    const v = { src, gain };
+    src.onended = () => {
+      if (voice === v) voice = null;
+    };
+    voice = v;
+  };
+}
+
+/** SD-14: the part of a decoded file louder than SILENT (seconds from its start), a little air kept at its end. */
+export function audibleRange(channels: readonly Float32Array[], rate: number): [number, number] {
+  let first = Infinity;
+  let last = -1;
+  for (const ch of channels)
+    for (let i = 0; i < ch.length; i++)
+      if (Math.abs(ch[i]!) > SILENT) {
+        if (i < first) first = i;
+        if (i > last) last = i;
+      }
+  if (last < 0) return [0, 0];
+  const len = Math.max(...channels.map((c) => c.length));
+  return [Math.max(0, first - 0.005 * rate) / rate, Math.min(len, last + 0.02 * rate) / rate];
+}
 
 interface ZzfxModule {
   ZZFX: { sampleRate: number; audioContext: AudioContext; buildSamples(...params: number[]): number[] };
@@ -24,8 +84,11 @@ interface ZzfxModule {
 export interface GameAudio {
   /** `semitones` above the sound as made (a rising note, docs/01-gdd.md 16.4, 16.5); `delaySec` — later (a chime of notes). */
   play(name: string, semitones?: number, delaySec?: number): void;
-  /** A footstep (LV-09): `name` of stepSound, at `volume` (0–1) of the effects; not listed in `played`. True — it started. */
-  playStep(name: string, semitones: number, volume: number): boolean;
+  /** A footstep (LV-09, SD-14): audio file `file` (under assets/audio), at `volume` (0–1) of the effects; one voice — the
+   * step before fades out; not listed in `played`. True — it started (false: not loaded yet, off, paused). */
+  playStep(file: string, semitones: number, volume: number): boolean;
+  /** SD-14: fetch these audio files now (after the first gesture; at once if it was): a set chosen, the window of sets. */
+  load(files: readonly string[]): void;
   /** Re-reads `paused()` now (the pause predicate changed without a pause transition: the footsteps window). */
   sync(): void;
   setEnabled(on: boolean): void;
@@ -33,6 +96,8 @@ export interface GameAudio {
   readonly running: boolean;
   /** Names of the sounds actually started (e2e). */
   readonly played: string[];
+  /** SD-14: audio files decoded so far (e2e waits for them before a preview). */
+  readonly loaded: number;
 }
 
 export function createAudio(opts: {
@@ -46,8 +111,32 @@ export function createAudio(opts: {
   let sfxGain: GainNode | null = null;
   let enabled = opts.enabled;
   const buffers = new Map<string, AudioBuffer>();
+  /** SD-14: decoded audio files by path, with their audible part. */
+  const clips = new Map<string, { buf: AudioBuffer; from: number; to: number }>();
+  const asked = new Set<string>();
+  let stepVoice: ReturnType<typeof createStepVoice> | null = null;
   const recent = new Map<string, number[]>();
   const played: string[] = [];
+  const fileOf = (name: string): string | undefined => opts.sfx.files?.[name];
+  const fetchClip = (c: AudioContext, file: string): void => {
+    const url = FILES[file];
+    if (!url || clips.has(file)) return;
+    void fetch(url)
+      .then((r) => r.arrayBuffer())
+      .then((data) => c.decodeAudioData(data))
+      .then((buf) => {
+        const [from, to] = audibleRange(Array.from({ length: buf.numberOfChannels }, (_, i) => buf.getChannelData(i)), buf.sampleRate);
+        clips.set(file, { buf, from, to: Math.max(from + 0.01, to) });
+      })
+      .catch(() => asked.delete(file));
+  };
+  const load = (files: readonly string[]): void => {
+    for (const f of files) {
+      if (asked.has(f)) continue;
+      asked.add(f);
+      if (ctx) fetchClip(ctx, f);
+    }
+  };
 
   const apply = (): void => {
     if (!ctx) return;
@@ -63,6 +152,7 @@ export function createAudio(opts: {
       ctx = c;
       sfxGain = c.createGain();
       sfxGain.connect(c.destination);
+      stepVoice = createStepVoice(c, sfxGain);
       // ZzFX makes its own context on import: close it, build our buffers with its sample generator.
       const mod = (await import('zzfx')) as unknown as ZzfxModule;
       void mod.ZZFX.audioContext.close().catch(() => undefined);
@@ -73,10 +163,9 @@ export function createAudio(opts: {
         buffers.set(name, buf);
       };
       for (const [name, params] of Object.entries(opts.sfx)) if (Array.isArray(params)) build(name, params);
-      for (const set of opts.sfx.footsteps?.sets ?? []) {
-        build(stepSound(set.id, 'snow'), set.snow);
-        build(stepSound(set.id, 'ice'), set.ice);
-      }
+      // SD-14: the files of the events and the ones asked for before the gesture, now.
+      load(Object.values(opts.sfx.files ?? {}));
+      for (const f of asked) fetchClip(c, f);
       apply();
     } catch {
       ctx = null;
@@ -94,7 +183,10 @@ export function createAudio(opts: {
 
   /** Starts sound `name` (`volume` < 1 — through a gain of its own); false — not now (no buffer, off, paused, too many). */
   const fire = (name: string, semitones: number, delaySec: number, volume: number): boolean => {
-    const buf = buffers.get(name);
+    // SD-14: an event with an audio file plays the file (its audible part).
+    const file = fileOf(name);
+    const clip = file ? clips.get(file) : undefined;
+    const buf = clip?.buf ?? (file ? undefined : buffers.get(name));
     if (!ctx || !sfxGain || !buf || !enabled || opts.paused() || !(volume > 0)) return false;
     const now = performance.now();
     const times = (recent.get(name) ?? []).filter((t) => now - t < SAME_WINDOW_MS);
@@ -109,7 +201,8 @@ export function createAudio(opts: {
       g.gain.value = volume;
       src.connect(g).connect(sfxGain);
     } else src.connect(sfxGain);
-    src.start(ctx.currentTime + Math.max(0, delaySec));
+    if (clip) src.start(ctx.currentTime + Math.max(0, delaySec), clip.from, clip.to - clip.from);
+    else src.start(ctx.currentTime + Math.max(0, delaySec));
     return true;
   };
 
@@ -122,8 +215,15 @@ export function createAudio(opts: {
       enabled = on;
     },
     sync: apply,
-    playStep(name, semitones, volume) {
-      return fire(name, semitones, 0, Math.min(1, volume));
+    load,
+    get loaded() {
+      return clips.size;
+    },
+    playStep(file, semitones, volume) {
+      const clip = clips.get(file);
+      if (!stepVoice || !clip || !enabled || opts.paused() || !(volume > 0)) return false;
+      stepVoice(clip.buf, clip.from, clip.to, semitones, volume);
+      return true;
     },
     play(name, semitones = 0, delaySec = 0) {
       if (!fire(name, semitones, delaySec, 1)) return;

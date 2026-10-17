@@ -63,7 +63,8 @@ export function createStageView(d: StageViewDeps): StageView {
           d.hud.popCoinGain(`+${fmt(amount)}`);
         }
         d.fx()?.burst('confetti', x, y + 1.5, z, [d.theme.ui.trophies, '#ffffff', d.theme.ui.coins], 36, 9, 3);
-        d.play('levelUp');
+        // SD-14: the button pays coins (SD-11) — the coin reward of ui/ (trophies — the SD-03 wallet test — the trophy one).
+        d.play(trophies ? 'rewardTrophy' : 'rewardCoins');
         d.onTrophy?.(amount, trophies);
       });
       sim.events.on('campReturn', () => d.onCampReturn?.());

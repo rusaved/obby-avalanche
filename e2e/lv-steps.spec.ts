@@ -3,15 +3,16 @@ import { test, expect, testState, waitReady, waitTicks } from './fixtures.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 import sfxJson from '../content/avalanche/sfx.json' with { type: 'json' };
 
-// LV-09 (producer 15.10; docs/01-gdd.md 11): a soft sound at every hero step — snow on the slope, ice on an ice slide —
-// quiet by default; the «Footsteps» window from the pause: 3 free sets chosen at once, 2 by a rewarded ad, 1 locked;
-// its volume slider applies at once and survives F5.
+// LV-09 (producer 15.10; docs/01-gdd.md 11): a soft sound of the steps — snow on the slope, ice on an ice slide — quiet
+// by default; SD-14 (producer 16.10): the producer's files, at most ~3 steps a second at any Speed; the «Footsteps» window
+// from the pause: 3 free sets chosen at once, 2 of the shop bought for summit trophies; its volume slider applies at once
+// and survives F5 with the set and the bought ones.
 type Seg = { type: string; z: number; x?: number; y?: number; length?: number; width?: number; shape?: string };
 const w1 = (openWorlds as unknown as { worlds: Array<{ segments: Seg[] }> }).worlds[0]!;
 const slide = w1.segments.find((s) => s.type === 'slide' && !s.shape)!;
 const steps = sfxJson.footsteps;
 const free = steps.sets.filter((s) => s.unlock === 'free').map((s) => s.id);
-const ads = steps.sets.filter((s) => s.unlock === 'ad').map((s) => s.id);
+const shop = steps.sets.filter((s) => s.unlock === 'shop');
 const fs = async (page: Page) => (await testState(page)).footsteps!;
 
 async function openFootsteps(page: Page): Promise<void> {
@@ -21,11 +22,11 @@ async function openFootsteps(page: Page): Promise<void> {
   await page.waitForFunction(() => window.__TEST__!.state().window === 'footsteps', undefined, { timeout: 10_000 });
 }
 
-test('every step sounds: snow on the slope, ice on the slide; quiet by default', async ({ page, openGame }) => {
+test('steps sound at most ~3 a second: snow on the slope, ice on the slide; quiet by default', async ({ page, openGame }) => {
   await openGame('pace=open');
   await page.evaluate(() => window.__TEST__!.holdWave(300));
   let f = await fs(page);
-  expect(f).toMatchObject({ count: 0, surface: null, set: free[0], volume: steps.volume, ads: [] });
+  expect(f).toMatchObject({ count: 0, surface: null, set: free[0], volume: steps.volume, ads: [], bought: [] });
   expect(steps.volume).toBeLessThan(0.5);
   // The first key press starts the sound; the hero runs up the slope.
   await page.keyboard.down('KeyW');
@@ -35,8 +36,11 @@ test('every step sounds: snow on the slope, ice on the slide; quiet by default',
   const b = await testState(page);
   await page.keyboard.up('KeyW');
   expect(b.steps - a.steps).toBeGreaterThanOrEqual(3);
-  // One sound a step (none lost to the limit of equal sounds at this pace).
-  expect(b.footsteps!.count - a.footsteps!.count).toBe(b.steps - a.steps);
+  // SD-14: not a sound a step — at most perSec a second (2 s of play here), still a step every third of a second.
+  const heard = b.footsteps!.count - a.footsteps!.count;
+  expect(heard).toBeLessThanOrEqual(2 * steps.perSec + 1);
+  expect(heard).toBeGreaterThanOrEqual(3);
+  expect(heard).toBeLessThan(b.steps - a.steps);
   expect(b.footsteps!.surface).toBe('snow');
   // The steps are not in the list of the other sounds (it keeps the events the specs look for).
   expect(b.sfx.filter((n) => n.startsWith('footsteps'))).toEqual([]);
@@ -63,71 +67,62 @@ test('every step sounds: snow on the slope, ice on the slide; quiet by default',
   expect(f.surface).toBe('snow');
 });
 
-test('«Footsteps» from the pause: 3 free sets chosen at once with a preview, 2 by «Реклама» (opened forever), 1 locked', async ({ page, openGame }) => {
-  await openGame('pace=open&mock_ad=ok');
+test('«Footsteps» from the pause: 3 free sets chosen at once with a preview, 2 of the shop for trophies (short — «N more», bought — on)', async ({ page, openGame }) => {
+  await openGame('pace=open');
+  await page.evaluate((n) => window.__TEST__!.setTrophies(n), shop[0]!.price!);
   await openFootsteps(page);
   const win = page.locator('[data-role="window"][data-window="footsteps"]');
   await expect(win.locator('.win-title')).toHaveText('Звук шагов');
-  await expect(win.locator('[data-footsteps]')).toHaveCount(6);
+  await expect(win.locator('[data-footsteps]')).toHaveCount(5);
   await expect(win.locator('[data-hud="footsteps-choose"]')).toHaveCount(3);
   await expect(win.locator(`[data-footsteps="${free[0]}"][data-state="on"]`)).toBeVisible();
-  const adBtns = win.locator('[data-hud="footsteps-ad"]');
-  await expect(adBtns).toHaveCount(2);
-  for (const t of await adBtns.allTextContents()) expect(t).toContain('Реклама');
-  const locked = win.locator('.card.locked');
-  await expect(locked).toHaveCount(1);
-  await expect(locked.locator('.card-lock')).toContainText('Из магазина');
-  await expect(locked.locator('.card-lock svg')).toHaveCount(1);
-  await expect(locked.locator('button')).toHaveCount(0);
+  await expect(win.locator(`[data-footsteps="${free[0]}"] .card-name`)).toHaveText('Лёгкий снег');
+  await expect(win.locator('[data-hud="footsteps-ad"]')).toHaveCount(0);
+  await expect(win.locator(`[data-footsteps="${shop[0]!.id}"][data-state="buy"] [data-hud="footsteps-buy"]`)).toBeEnabled();
+  await expect(win.locator(`[data-footsteps="${shop[1]!.id}"][data-state="short"] [data-hud="footsteps-buy"]`)).toBeDisabled();
+  await expect(win.locator(`[data-footsteps="${shop[1]!.id}"] .card-price`)).toContainText(String(shop[1]!.price));
 
-  // The window alone holds the game (menu): the sound stays on, a tap chooses the set and plays it.
+  // The window alone holds the game (menu): the sound stays on, a tap chooses the set and plays it (its files loaded).
   await page.waitForFunction(() => window.__TEST__!.state().audioRunning, undefined, { timeout: 30_000 });
   expect((await testState(page)).pauseReasons).toEqual(['menu']);
+  const all = steps.sets.reduce((n, s) => n + s.files.length, 0);
+  await page.waitForFunction((n) => window.__TEST__!.state().footsteps!.loaded >= n, all, { timeout: 30_000 });
   const c0 = (await fs(page)).count;
   await win.locator(`[data-footsteps="${free[1]}"] [data-hud="footsteps-choose"]`).click();
   await expect.poll(async () => (await fs(page)).set).toBe(free[1]);
   expect((await fs(page)).count).toBeGreaterThan(c0);
   await expect(win.locator(`[data-footsteps="${free[1]}"][data-state="on"]`)).toBeVisible();
-  // A set by an ad cannot be chosen before its ad.
-  expect((await fs(page)).ads).toEqual([]);
 
-  // The ad: the game and the sound stand while it runs; the reward opens the set for ever and puts it on.
-  await win.locator(`[data-footsteps="${ads[0]}"] [data-hud="footsteps-ad"]`).click();
-  await page.waitForFunction(() => {
-    const s = window.__TEST__!.state();
-    return s.footsteps!.busy !== null && s.pauseReasons.includes('ad') && !s.audioRunning;
-  }, undefined, { timeout: 10_000 });
-  await page.waitForFunction(() => window.__TEST__!.state().footsteps!.busy === null, undefined, { timeout: 30_000 });
+  // Bought for its trophies: on at once, for ever; the trophies spent.
+  await win.locator(`[data-footsteps="${shop[0]!.id}"] [data-hud="footsteps-buy"]`).click();
+  await expect.poll(async () => (await fs(page)).set).toBe(shop[0]!.id);
   const f = await fs(page);
-  expect(f.ads).toEqual([ads[0]]);
-  expect(f.set).toBe(ads[0]);
-  expect((await testState(page)).pauseReasons).toEqual(['menu']);
-  await expect(win.locator(`[data-footsteps="${ads[0]}"][data-state="on"]`)).toBeVisible();
-  await expect(win.locator('[data-hud="footsteps-ad"]')).toHaveCount(1);
-  const resume = await page.evaluate(() => window.__TEST__!.analytics().filter((e) => e.name === 'ad_resume_ok').map((e) => e.params));
-  expect(resume).toEqual([{ placement: 'footsteps', type: 'rewarded' }]);
+  expect(f.bought).toEqual([shop[0]!.id]);
+  expect((await testState(page)).trophies.now).toBe(0);
+  await expect(win.locator(`[data-footsteps="${shop[0]!.id}"][data-state="on"]`)).toBeVisible();
   // Closed: the game goes on, the sound with it.
   await page.locator('[data-hud="win-close"]').click();
   await page.waitForFunction(() => window.__TEST__!.state().window === null && window.__TEST__!.state().pauseReasons.length === 0, undefined, { timeout: 10_000 });
 });
 
-test('the footsteps volume slider applies at once and survives F5 with the set and the opened ones', async ({ page, openGame }) => {
-  await openGame('pace=open&mock_ad=ok');
+test('the footsteps volume slider applies at once and survives F5 with the set and the bought ones', async ({ page, openGame }) => {
+  await openGame('pace=open');
+  await page.evaluate((n) => window.__TEST__!.setTrophies(n), shop[1]!.price!);
   await openFootsteps(page);
   const slider = page.locator('[data-hud="footsteps-volume"]');
   await expect(slider).toHaveValue(String(Math.round(steps.volume * 100)));
   await slider.fill('70');
   await expect(page.locator('[data-role="window"] [data-role="footsteps-volume"]')).toHaveText('70%');
   await expect.poll(async () => (await fs(page)).volume).toBeCloseTo(0.7, 5);
-  await page.locator(`[data-footsteps="${ads[1]}"] [data-hud="footsteps-ad"]`).click();
-  await page.waitForFunction((id) => window.__TEST__!.state().footsteps!.set === id && window.__TEST__!.state().footsteps!.busy === null, ads[1], { timeout: 30_000 });
+  await page.locator(`[data-footsteps="${shop[1]!.id}"] [data-hud="footsteps-buy"]`).click();
+  await page.waitForFunction((id) => window.__TEST__!.state().footsteps!.set === id, shop[1]!.id, { timeout: 30_000 });
   await page.reload();
   await waitReady(page);
   const f = await fs(page);
   expect(f.volume).toBeCloseTo(0.7, 5);
-  expect(f.set).toBe(ads[1]);
-  expect(f.ads).toEqual([ads[1]]);
+  expect(f.set).toBe(shop[1]!.id);
+  expect(f.bought).toEqual([shop[1]!.id]);
   await openFootsteps(page);
   await expect(page.locator('[data-hud="footsteps-volume"]')).toHaveValue('70');
-  await expect(page.locator(`[data-footsteps="${ads[1]}"][data-state="on"]`)).toBeVisible();
+  await expect(page.locator(`[data-footsteps="${shop[1]!.id}"][data-state="on"]`)).toBeVisible();
 });
