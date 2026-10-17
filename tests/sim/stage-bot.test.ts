@@ -65,8 +65,9 @@ function narrowAhead(w: World, x: number, z: number): number | null {
 }
 
 type Outcome = 'pass' | 'fall' | 'time';
+const NO_MOVE: HeroInput = { moveX: 0, moveZ: 0, jump: false, jumpHeld: false };
 
-function runStage(w: World, st: WorldStage, seed: number, below = 0, straight = false): Outcome {
+function runStage(w: World, st: WorldStage, seed: number, below = 0): Outcome {
   const r = rand(seed);
   const level = buildLevel(w);
   const sim: Sim = createSim(level, tuning, {
@@ -127,12 +128,6 @@ function runStage(w: World, st: WorldStage, seed: number, below = 0, straight = 
     } else {
       const ahead = narrowAhead(w, h.x, h.z + 0.3 * st.speed);
       tx = ahead ?? 0;
-      // The giant ahead: a step aside from him, as a player does (22.5).
-      if (st.type === 'giant' && sim.boss) {
-        // SD-05: he keeps to the run line — round him by the edge, seen from 2 s ahead (straight on, he slaps).
-        const g = sim.boss.zones.flatMap((z) => z.giants).find((q) => q.z > h.z - 2 && q.z - h.z < 2 * st.speed);
-        if (g && !straight) tx = g.x > h.x ? -40 : 40;
-      }
       const sloppy = tx + Math.sin(t * drift + phase) * (ahead === null ? 3 : 1);
       mx = Math.max(-1, Math.min(1, (sloppy - h.x) * 0.3));
       if (st.type !== 'catapult' && sim.hero.onGround && level.floorAt(h.x, h.z + jumpAt) < h.y - 1) {
@@ -149,7 +144,8 @@ function runStage(w: World, st: WorldStage, seed: number, below = 0, straight = 
 describe('the stage bot at the level of the ridge (LV-02, LV-03)', () => {
   for (const mi of [0, 4]) {
     const w = worlds.worlds[mi]!;
-    for (const st of w.stages!.filter((s) => s.type !== 'intro')) {
+    // The giant's stage — its own bots below (SD-12).
+    for (const st of w.stages!.filter((s) => s.type !== 'intro' && s.type !== 'giant')) {
       it(`mountain ${mi + 1}, stage ${st.n} (${st.type}, level ${st.level}, v ${st.speed}): 9 of 10`, () => {
         const res = Array.from({ length: TRIES }, (_, i) => runStage(w, st, 1000 * st.n + i));
         expect(res.filter((x) => x === 'pass').length, res.join(' ')).toBeGreaterThanOrEqual(9);
@@ -167,22 +163,91 @@ describe('the stage bot at the level of the ridge (LV-02, LV-03)', () => {
       }, 60_000);
     }
   }
-  // SD-05 (docs/01-gdd.md 23.5): the giant stands on the run line; holding forward two levels below — he slaps 7+ of 10.
-  for (const mi of [0, 4]) {
-    const w = worlds.worlds[mi]!;
-    const st = w.stages!.find((s) => s.type === 'giant')!;
-    it(`mountain ${mi + 1}, the giant: on the run line; straight on two levels below — caught 7+ of 10`, () => {
-      expect(w.bosses!.find((b) => b.zone[0] >= st.start - 1e-6)!.giants[0]!.slipPast).toBe(false);
-      const res = Array.from({ length: TRIES }, (_, i) => runStage(w, st, 7000 + i, 2, true));
-      expect(res.filter((x) => x === 'fall').length, res.join(' ')).toBeGreaterThanOrEqual(7);
-    }, 60_000);
-  }
   it('one level less is not let in: the ridge of every stage of mountains 1–10 asks for more than level N − 1', () => {
     for (const w of worlds.worlds)
       for (const st of w.stages!.filter((s) => s.n > 1)) {
         const g = w.segments.find((s) => s.type === 'gate' && Math.abs(s.z - st.z0) < 1e-6)!;
         expect(g['requires'] as number).toBeGreaterThan(levelThreshold(st.level - 1, balance.levels!));
       }
+  });
+});
+
+/**
+ * SD-12 (docs/01-gdd.md 23.9): the giant's bots with a stick (|move| ≤ 1, as the input layer gives it). `straight` holds
+ * forward on the run line (a sloppy hand); `dodge` runs the line and, at a random moment 0.2–1 s before the meeting,
+ * cuts to the side away from the giant and runs on up — a player who sees him charge.
+ */
+function runGiant(w: World, st: WorldStage, seed: number, below: number, dodge: boolean, level = buildLevel(w)): Outcome {
+  const r = rand(seed);
+  const sim: Sim = createSim(level, tuning, {
+    balance,
+    speedCurve: balance.speedCurve,
+    stat: levelThreshold(st.level - below, balance.levels!),
+    threat: { threat: { ...w.threat }, balance, avalanche: tuning.avalanche, scriptedPending: false, normalWavesDone: 99 },
+    ...(game.threat.boss ? { boss: game.threat.boss } : {}),
+  });
+  const at = sim.stageStart(st.n);
+  sim.teleport(at.x, at.y + 0.05, at.z);
+  const drift = 1 + r() * 2;
+  const phase = r() * 6;
+  const cutAt = 0.2 + r() * 0.8;
+  const zone = sim.boss!.zones.find((z) => z.zone[0] >= st.start - 1e-6)!;
+  let hold = 0;
+  let cut = false;
+  for (let k = 0; k < 60 / DT; k++) {
+    const h = sim.hero.pos;
+    if (sim.caught || sim.rollFrom > 0) return 'fall';
+    if (h.z >= st.end + 2) return 'pass';
+    const g = zone.giants[0]!;
+    if (dodge && !cut && zone.hero === 'in' && g.z > h.z - 2 && Math.hypot(g.x - h.x, g.z - h.z) / (sim.params.speed + g.speed) < cutAt) {
+      cut = true;
+      hold = h.x + (Math.abs(g.x - h.x) < 2 ? (r() < 0.5 ? -1 : 1) : g.x > h.x ? -1 : 1) * 40;
+    }
+    if (h.z > zone.zone[1]) hold = 0;
+    const mx = Math.max(-1, Math.min(1, (hold + Math.sin(k * DT * drift + phase) * 3 - h.x) * 0.3));
+    const len = Math.hypot(mx, 1);
+    sim.step({ moveX: mx / len, moveZ: 1 / len, jump: false, jumpHeld: false }, DT);
+  }
+  return 'time';
+}
+
+describe('the giant is a trial of every run (SD-12)', () => {
+  // First, second, middle and last mountain: holding forward is caught, a dodge at the right moment gets past most
+  // times (not always), two levels below he is quicker and catches up.
+  for (const mi of [0, 1, 4, 9]) {
+    const w = worlds.worlds[mi]!;
+    const st = w.stages!.find((s) => s.type === 'giant')!;
+    it(`mountain ${mi + 1}: forward at N caught 9+ of 10, a dodge at N gets past 7–9 of 10, at N − 2 at most 3 of 10`, () => {
+      const level = buildLevel(w);
+      const pass = (below: number, dodge: boolean): number => Array.from({ length: TRIES }, (_, i) => runGiant(w, st, 7000 + i, below, dodge, level)).filter((x) => x === 'pass').length;
+      expect(TRIES - pass(0, false), 'forward at N: caught').toBeGreaterThanOrEqual(9);
+      const n = pass(0, true);
+      expect(n, 'a dodge at N').toBeGreaterThanOrEqual(7);
+      expect(n, 'a dodge at N').toBeLessThanOrEqual(9);
+      expect(pass(2, true), 'a dodge at N − 2').toBeLessThanOrEqual(3);
+    }, 240_000);
+  }
+  it('passed, he walks back to patrol (no win pose); after the trophy button and the camp the next run meets him again', () => {
+    const w = worlds.worlds[0]!;
+    const st = w.stages!.find((s) => s.type === 'giant')!;
+    const level = buildLevel(w);
+    const sim = createSim(level, tuning, { balance, speedCurve: balance.speedCurve, stat: levelThreshold(st.level, balance.levels!), ...(game.threat.boss ? { boss: game.threat.boss } : {}) });
+    const zone = sim.boss!.zones[0]!;
+    // Past the zone: put the hero on its far side and let him stand there.
+    sim.teleport(0, st.y + 0.05, zone.zone[0] + 2);
+    sim.step(NO_MOVE, DT);
+    sim.teleport(0, st.y + 0.05, zone.zone[1] + 3);
+    for (let k = 0; k < 30; k++) sim.step(NO_MOVE, DT);
+    expect(zone.hero).toBe('passed');
+    expect(zone.giants.every((g) => g.mode !== 'sit')).toBe(true);
+    for (let k = 0; k < 600; k++) sim.step(NO_MOVE, DT);
+    expect(zone.giants.every((g) => g.mode === 'patrol' || g.mode === 'back')).toBe(true);
+    // Back in the camp (as after the button): the zone is his again; the next run straight on is caught.
+    const camp = sim.stageStart(1);
+    sim.teleport(camp.x, camp.y + 0.05, camp.z);
+    sim.step(NO_MOVE, DT);
+    expect(zone.hero).toBe('out');
+    expect(runGiant(w, st, 7000, 0, false, level)).toBe('fall');
   });
 });
 

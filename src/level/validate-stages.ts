@@ -2,7 +2,8 @@
 // Called by: level/validate.ts (validatePack, when worlds-spec.json has layout stageSlope); tests/level/stages.test.ts.
 // Keep: Pure; reads worlds.json, balance and tuning only; every message names the mountain and the stage; the physics numbers as stage-slope.ts builds them.
 
-import type { Segment, TuningJson, World, WorldStage, WorldsJson } from '../content/types.ts';
+import type { Curve, Segment, TuningJson, World, WorldStage, WorldsJson } from '../content/types.ts';
+import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 import { levelThreshold, type Levels } from '../sim/levels.ts';
 import { STAGE_WIDTH, jumpDistance, mazeDistances, padFlight } from './stage-slope.ts';
 import type { LevelData } from './types.ts';
@@ -24,6 +25,30 @@ const GROUND_KINDS = new Set(['floor', 'border', 'pitFloor', 'nicheFloor', 'beac
 export const FLOAT_MAX = 0.5;
 /** SD-05: a giant that slaps on touch is at least this much slower than v(N) (a dodge, then the hero runs away). */
 const GIANT_TOUCH_MARGIN = 0.01;
+/** SD-12: two levels below the stage the giant is at least this much faster than the hero (he catches up from behind). */
+const GIANT_CATCH_MARGIN = 0.05;
+
+/**
+ * SD-12 (docs/01-gdd.md 23.9; producer 16.10: «passing him is easier than easy, after one pass he just stands arms up»):
+ * the giant of a stage is a trial of every run — he meets every run (rearm), runs at where the hero was a moment ago
+ * (lag: a straight run is caught, a dodge needs its moment) and two levels below the stage (by `level`) he is quicker
+ * than the hero; without the speed curve the last rule is not checked.
+ */
+export function giantErrors(w: World, st: WorldStage, levels: Levels, curve?: Curve): string[] {
+  const errors: string[] = [];
+  if (st.type !== 'giant') return errors;
+  for (const b of (w.bosses ?? []).filter((b) => b.zone[0] >= st.start - 1e-6 && b.zone[1] <= st.end + 1e-6)) {
+    if (!b.rearm) errors.push(`stage ${st.n}: the giant meets one run only (rearm expected)`);
+    const k2 = b.level ? Math.min(b.level.max, Math.max(b.level.min, b.level.g ** 2)) : 1;
+    const v2 = curve ? moveSpeed(levelThreshold(st.level - 2, levels), curve) : 0;
+    for (const g of b.giants) {
+      if (!((g.lag ?? 0) > 0)) errors.push(`stage ${st.n}: the giant runs at where the hero is (lag expected) — a dodge needs no moment`);
+      if (g.slipPast !== false) errors.push(`stage ${st.n}: a straight run slips past the giant (slipPast false expected)`);
+      if (curve && g.speed * k2 < v2 * (1 + GIANT_CATCH_MARGIN)) errors.push(`stage ${st.n}: two levels below (v ${round3(v2)}) the giant ${round3(g.speed * k2)} does not catch up`);
+    }
+  }
+  return errors;
+}
 
 /**
  * SD-02 (docs/01-gdd.md 23.2; producer 15.10: a big blue plate over the floor): no box of the built level hangs in the air —
@@ -198,7 +223,7 @@ function widthErrors(w: World, st: WorldStage): string[] {
   return errors;
 }
 
-export function validateStageWorld(w: World, levels: Levels, tuning: Physics, margin: number): string[] {
+export function validateStageWorld(w: World, levels: Levels, tuning: Physics, margin: number, curve?: Curve): string[] {
   const at = `worlds.json: worlds[${w.index - 1}] (${w.id})`;
   const stages = w.stages ?? [];
   const errors = validateStageLevels(w, levels);
@@ -219,7 +244,7 @@ export function validateStageWorld(w: World, levels: Levels, tuning: Physics, ma
       if (p && !(p.z >= st.finish[0] && p.z <= st.finish[1] && w.safeZones.some(([a, b]) => p.z >= a && p.z <= b))) errors.push(`${at}: stage ${st.n} — the trophy button out of the safe finish`);
     }
     if (st.cut) snow++;
-    for (const e of [...fairErrors(w, st, tuning, margin), ...widthErrors(w, st)]) errors.push(`${at}: ${e}`);
+    for (const e of [...fairErrors(w, st, tuning, margin), ...widthErrors(w, st), ...giantErrors(w, st, levels, curve)]) errors.push(`${at}: ${e}`);
   }
   const paid = stages.filter((s) => s.trophies > 0);
   // SD-03 (docs/01-gdd.md 23.3): the reward of a button grows stage by stage.
@@ -254,7 +279,7 @@ export function validateStageWorld(w: World, levels: Levels, tuning: Physics, ma
   return errors;
 }
 
-export function validateStageWorlds(worlds: WorldsJson, levels: Levels | undefined, tuning: Physics, margin = 0.05): string[] {
+export function validateStageWorlds(worlds: WorldsJson, levels: Levels | undefined, tuning: Physics, margin = 0.05, curve?: Curve): string[] {
   if (!levels) return ['balance.json: levels — required by the stages pace (docs/01-gdd.md 22.2)'];
-  return worlds.worlds.flatMap((w) => validateStageWorld(w, levels, tuning, margin));
+  return worlds.worlds.flatMap((w) => validateStageWorld(w, levels, tuning, margin, curve));
 }

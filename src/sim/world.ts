@@ -820,6 +820,12 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
               }
             }
           },
+          // SD-12 (docs/01-gdd.md 23.9): Speed decides — the giant is quicker against a hero below the stage's level.
+          (zi) => {
+            const L = level.bosses[zi]!.level;
+            const levels = opts.balance.levels;
+            return L && levels ? Math.min(L.max, Math.max(L.min, L.g ** (L.n - levelOf(progress.stat, levels)))) : 1;
+          },
         )
       : null;
   (sim as { boss: Boss | null }).boss = boss;

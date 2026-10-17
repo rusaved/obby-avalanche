@@ -490,9 +490,11 @@ const worldSchema = v.object({
         zone: v.tuple([nonNeg, nonNeg]),
         requires: positive,
         returnMult: positive,
-        giants: v.pipe(v.array(v.object({ speed: positive, patrol: v.picklist(['alongZ', 'chase']), seeDist: nonNeg, turnSec: nonNeg, phase: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))), slipPast: v.optional(v.boolean()), side: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))) })), v.minLength(1)),
+        giants: v.pipe(v.array(v.object({ speed: positive, patrol: v.picklist(['alongZ', 'chase']), seeDist: nonNeg, turnSec: nonNeg, phase: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))), slipPast: v.optional(v.boolean()), side: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))), lag: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(2))) })), v.minLength(1)),
         width: v.optional(positive),
         covers: v.optional(v.array(v.object({ x: v.number(), z: nonNeg, r: positive, h: positive }))),
+        rearm: v.optional(v.boolean()),
+        level: v.optional(v.object({ n: positive, g: positive, min: positive, max: positive })),
       }),
     ),
   ),
@@ -1007,7 +1009,7 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
   // The count of 01a against the generated mountains (M3-05): after fairness, so a broken number still gets its seconds named.
   // The stages pace (docs/01-gdd.md 22): its own level checks instead of the counts of the open slope.
   if (stagesPace) {
-    errors.push(...validateStageWorlds(worlds, (balance as BalanceJson).levels, tuning, game.threat.boss?.margin ?? 0.05));
+    errors.push(...validateStageWorlds(worlds, (balance as BalanceJson).levels, tuning, game.threat.boss?.margin ?? 0.05, (balance as BalanceJson).speedCurve));
     // SD-02: nothing hangs in the air on the built mountains.
     for (const w of worlds.worlds) for (const e of floatingErrors(buildLevel(w))) errors.push(`worlds.json: ${w.id}: ${e}`);
   }

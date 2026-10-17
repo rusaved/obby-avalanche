@@ -7,7 +7,7 @@
  * flat silhouette of the same blocky shape in the fog colour (kept within the far plane at the same angular size),
  * nearer as the blocky giant of the hero's parts in the colours of theme.json boss. The start of his zone: a line
  * across the snow and the sign «Giant: Speed ~4.1K» (the advice of the tier). Walks — run pose, turns — stands,
- * passed — sits with hands up (the «win» pose).
+ * passed — sits with hands up (the «win» pose); a zone of every run (SD-12, `rearm`) never sits — he walks back.
  */
 import { BoxGeometry, CanvasTexture, Color, IcosahedronGeometry, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, MeshLambertMaterial, PlaneGeometry, Vector3, type PerspectiveCamera, type Scene } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';

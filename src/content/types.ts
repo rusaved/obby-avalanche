@@ -576,6 +576,9 @@ export interface WorldGiant {
   slipPast?: boolean;
   /** SD-05: the share of its step a chasing giant may move across the slope (keeps to the run line); absent — 1. */
   side?: number;
+  /** SD-12 (docs/01-gdd.md 23.9): a chasing giant runs at where the hero was this many seconds ago (heavy: a sharp
+   * dodge at the last moment beats it, a straight run or an early one does not); absent — 0, where he is. */
+  lag?: number;
   phase?: number;
 }
 
@@ -605,6 +608,11 @@ export interface WorldBoss {
   /** SP-06 (docs/01a-content.md 19.4): the zone's width and its rocks to hide behind (a box 2r × 2r × h); absent — none. */
   width?: number;
   covers?: WorldCover[];
+  /** SD-12 (docs/01-gdd.md 23.9): a trial of every run — passed, its giants walk back to patrol (no win pose) and meet
+   * the hero again once he is below the zone; absent — passed once and for all (they sit). */
+  rearm?: boolean;
+  /** SD-12: Speed decides — the giants' speed × g^(n − the hero's level), within [min, max]; absent — × 1. */
+  level?: { n: number; g: number; min: number; max: number };
 }
 
 export interface WorldCover {
@@ -1027,7 +1035,14 @@ export interface StageSpec {
   /** SD-05 (docs/01-gdd.md 23.5): the giant margin of mountains past giantMargin[] and whether a run slips past him. */
   giantMarginRest?: number;
   giantSlipPast?: boolean;
-  giantSide?: number;
+  /** SD-12: by mountain (the last for the rest) — the faster the run on the same field, the less the giant steps aside. */
+  giantSide?: number | number[];
+  /** SD-12 (docs/01-gdd.md 23.9): the giant meets every run (WorldBoss.rearm), runs at where the hero was `giantLag` s ago
+   * (WorldGiant.lag) and his speed goes by the hero's level against the stage's (WorldBoss.level: g^(N − level) within
+   * [min, max]); absent — once and for all, where the hero is, × 1. */
+  giantEveryRun?: boolean;
+  giantLag?: number;
+  giantLevel?: { g: number; min: number; max: number };
   catapultK?: number;
   snowflake: { mult: number; stages: number };
   /** The avalanche stage: the first wave after entering, the pause between waves inside, grottos every `every` × v. */

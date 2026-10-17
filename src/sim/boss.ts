@@ -9,6 +9,8 @@
  * slower — he is caught, rolls back to the start of the zone (the sim plays it), the giant walks back × `returnMult`.
  * Out of the zone uphill — the zone is passed; downhill — the giants go back to their patrol. Several zones on a
  * mountain and several giants in a zone are data only. `scale` — speeds of the rebirth tier (v of the scaled advice).
+ * SD-12: a zone with `rearm` is a trial of every run (its giants walk back to patrol once passed, the hero below it
+ * meets them again); `rel` — the speed by the hero's level against the zone's (`level`), every tick.
  *
  * A giant of patrol `chase` (SP-06, docs/01-gdd.md 20.6) runs at the hero in the plane of the slope instead, sliding
  * along a rock it meets (no path search). A rock between them hides the hero: the giant runs to where it saw him last
@@ -94,6 +96,9 @@ export interface BossHero {
 /** A helper keeps this far ahead of the hero along its border, and its snowball flies this high over the line. */
 const HELPER_AHEAD = 14;
 const BALL_ARC = 3;
+/** SD-12: a giant with `lag` takes the hero's way over this much of his trail, and looks ahead at most this far. */
+const VEL_SEC = 0.1;
+const MEET_MAX_SEC = 1.5;
 
 /** Does the line (ax, az)–(bx, bz) cross the rock's square (half `r`) in the plane of the slope? */
 function crosses(ax: number, az: number, bx: number, bz: number, c: WorldCover): boolean {
@@ -131,13 +136,16 @@ export function createBoss(
   scale: (zone: number) => number,
   passed: (zone: number) => boolean,
   emit: <K extends keyof BossEvents>(name: K, payload: BossEvents[K]) => void,
+  rel?: (zone: number) => number,
 ): Boss {
+  // SD-12 (docs/01-gdd.md 23.9): a rearming zone is never passed for good — its giants meet every run.
+  const sitting = (zi: number): boolean => !data[zi]!.rearm && passed(zi);
   const zones: BossZoneState[] = data.map((b, zi) => {
     const [a, c] = b.zone;
     const n = b.giants.length;
     return {
       zone: [a, c],
-      hero: passed(zi) ? 'passed' : 'out',
+      hero: sitting(zi) ? 'passed' : 'out',
       cover: false,
       giants: b.giants.map((g, gi) => ({
         x: 0,
@@ -149,13 +157,17 @@ export function createBoss(
         search: -1,
         lastX: 0,
         lastZ: 0,
-        mode: passed(zi) ? 'sit' : 'patrol',
+        mode: sitting(zi) ? 'sit' : 'patrol',
         t: 0,
         speed: g.speed * scale(zi),
       })),
-      helpers: (b.helpers ?? []).map((h) => ({ x: h.x, z: (a + c) / 2, t: h.throwEverySec, ball: null, wave: passed(zi) })),
+      helpers: (b.helpers ?? []).map((h) => ({ x: h.x, z: (a + c) / 2, t: h.throwEverySec, ball: null, wave: sitting(zi) })),
     };
   });
+  // Speeds of the tier; SD-12: × `rel` of the hero's level against the zone's, every tick.
+  const base = zones.map((s) => s.giants.map((g) => g.speed));
+  // SD-12: where the hero was, a tick at a time (x, z pairs) while he is in a zone — a giant with `lag` runs at the past.
+  const trails = zones.map(() => [] as number[]);
   const zoneOf = (z: number): number => zones.findIndex((s) => z >= s.zone[0] && z <= s.zone[1]);
 
   const walk = (g: GiantState, zone: [number, number], dz: number): void => {
@@ -241,6 +253,13 @@ export function createBoss(
       zones.forEach((s, zi) => {
         const [a, c] = s.zone;
         const data0 = data[zi]!;
+        const k = rel?.(zi) ?? 1;
+        s.giants.forEach((g, gi) => (g.speed = base[zi]![gi]! * k));
+        // SD-12: the hero below a rearming zone he passed — its giants are his again.
+        if (s.hero === 'passed' && data0.rearm && hero.z < a) {
+          s.hero = 'out';
+          s.cover = false;
+        }
         // Bots in this zone (docs/01-gdd.md 18.5): until the hero has passed it; one slapped this tick runs no more.
         const runners = s.hero === 'passed' ? [] : bots.filter((r) => r.z >= a && r.z <= c);
         const covers = data0.covers ?? [];
@@ -257,6 +276,7 @@ export function createBoss(
           if (inside && s.hero === 'out') {
             s.hero = 'in';
             s.cover = false;
+            trails[zi]!.length = 0;
             emit('bossEnter', { tick, zone: zi });
             s.giants.forEach((g, gi) => {
               g.mode = 'turn';
@@ -269,7 +289,12 @@ export function createBoss(
             });
           } else if (free && hero.z > c && s.hero === 'in') {
             s.hero = 'passed';
-            s.giants.forEach((g) => (g.mode = 'sit'));
+            // SD-12: a rearming zone's giants walk back to patrol — no win pose, the next run meets them.
+            s.giants.forEach((g) => {
+              g.mode = data0.rearm ? 'back' : 'sit';
+              g.dir = -1;
+              g.sight = 'sees';
+            });
             s.helpers.forEach((h) => (h.wave = true));
             emit('bossPassed', { tick, zone: zi, cover: s.cover });
             return;
@@ -287,7 +312,12 @@ export function createBoss(
         };
         // A chasing giant (SP-06): the hero where it sees him (or knows: hideSec gone), else where it saw him last; a bot.
         const slip = (g: GiantState): number => g.speed * (1 + cfg.margin);
-        const chaseAt = (g: GiantState): [number, number] | null => {
+        const trail = trails[zi]!;
+        if (s.hero === 'in') {
+          trail.push(hero.x, hero.z);
+          if (trail.length > 512) trail.splice(0, trail.length - 512);
+        }
+        const chaseAt = (g: GiantState, lag: number): [number, number] | null => {
           if (s.hero === 'in') {
             if (!covers.some((cv) => crosses(g.x, g.z, hero.x, hero.z, cv))) {
               g.sight = 'sees';
@@ -304,7 +334,23 @@ export function createBoss(
               g.search += dt;
               if (g.search >= (cfg.cover?.hideSec ?? 0)) g.sight = 'knows';
             }
-            return g.sight === 'lost' ? [g.lastX, g.lastZ] : [hero.x, hero.z];
+            if (g.sight === 'lost') return [g.lastX, g.lastZ];
+            if (lag <= 0) return [hero.x, hero.z];
+            // SD-12: what it saw `lag` ago, carried on along his way of then up to the meeting — a run straight, or to the
+            // edge early, meets it; a sharp turn within `lag` of it, not.
+            const tick = Math.max(dt, 1e-6);
+            const n = trail.length / 2;
+            const back = Math.min(n - 1, Math.round(lag / tick));
+            const w = Math.min(n - 1 - back, Math.round(VEL_SEC / tick));
+            const px = trail[2 * (n - 1 - back)]!;
+            const pz = trail[2 * (n - 1 - back) + 1]!;
+            if (w <= 0) return [px, pz];
+            const vx = (px - trail[2 * (n - 1 - back - w)]!) / (w * tick);
+            const vz = (pz - trail[2 * (n - 1 - back - w) + 1]!) / (w * tick);
+            const nx = px + vx * back * tick;
+            const nz = pz + vz * back * tick;
+            const meet = Math.min(MEET_MAX_SEC, Math.hypot(nx - g.x, nz - g.z) / Math.max(1e-6, g.speed + Math.hypot(vx, vz)));
+            return [nx + vx * meet, nz + vz * meet];
           }
           g.sight = 'sees';
           let best: BossRunner | null = null;
@@ -339,7 +385,7 @@ export function createBoss(
               break;
             case 'chase': {
               if (chase) {
-                const at = chaseAt(g);
+                const at = chaseAt(g, data0.giants[gi]!.lag ?? 0);
                 if (!at) {
                   g.mode = 'back';
                   break;

@@ -102,6 +102,17 @@ describe('stages pace: the mountain of stages (LV-03…LV-07, docs/01-gdd.md 22.
     // SD-06: an avalanche on the giant's stage (he is its trial) is named.
     expect(errs((w) => (w.threat.zones = [[w.stages![1]!.z0, w.stages![1]!.end]])).some((e) => e.includes("on the giant's"))).toBe(true);
   });
+  it('SD-12: the giant of mountains 1–10 is a trial of every run; one that meets once, runs at the hero or is slow two levels below is named', () => {
+    expect(validateStageWorlds({ schema: 1, generator: '', worlds: full }, balance.levels, tuning, 0.05, balance.speedCurve)).toEqual([]);
+    const errs = (f: (w: World) => void): string[] => {
+      const w = clone(full[2]!);
+      f(w);
+      return validateStageWorld(w, balance.levels, tuning, 0.05, balance.speedCurve);
+    };
+    expect(errs((w) => delete w.bosses![0]!.rearm).some((e) => e.includes('meets one run only'))).toBe(true);
+    expect(errs((w) => delete w.bosses![0]!.giants[0]!.lag).some((e) => e.includes('lag expected'))).toBe(true);
+    expect(errs((w) => delete w.bosses![0]!.level).some((e) => e.includes('does not catch up'))).toBe(true);
+  });
 });
 
 import { buildLevel } from '../../src/level/builder.ts';
