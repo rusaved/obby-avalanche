@@ -802,7 +802,9 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
               const p = payload as BossEvents['bossCaught'];
               const a = level.bosses[p.zone]!.zone[0] - BOSS_BACK;
               if (sim.respawnTicksLeft >= 0) sim.respawnTicksLeft = -1;
-              sim.caught = createCaught(level, { x: p.x, y: p.y, z: p.z }, opts.balance.caught!, tuning.avalanche, toFlag ? flagPoint() : { x: 0, y: level.floorAt(0, a), z: a });
+              // SD-15: `caught.giant` «stage» — back to the start of the giant's own stage, not a stage below (the camp).
+              const own = opts.balance.caught!.giant === 'stage' && level.stages ? stageStart(stageAt(level, level.bosses[p.zone]!.zone[0])) : null;
+              sim.caught = createCaught(level, { x: p.x, y: p.y, z: p.z }, opts.balance.caught!, tuning.avalanche, own ?? (toFlag ? flagPoint() : { x: 0, y: level.floorAt(0, a), z: a }));
               if (toFlag) waveReset = true;
             } else if (name === 'helperHit') {
               // A helper's snowball (docs/01-gdd.md 18.5): slowed for a moment; nothing is lost.

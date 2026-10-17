@@ -10,7 +10,8 @@
     "respawn": "never"
   },
   "caught": {
-    "to": "prevStage"
+    "to": "prevStage",
+    "giant": "stage"
   },
   "ui": {
     "summitGroup": {

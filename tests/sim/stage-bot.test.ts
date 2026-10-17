@@ -257,6 +257,14 @@ describe('the giant is a trial of every run (SD-12)', () => {
     sim.step(NO_MOVE, DT);
     expect(zone.hero).toBe('out');
     expect(runGiant(w, st, 7000, 0, false, level)).toBe('fall');
+    // SD-15 (review: every slap sent him to the camp): the slap rolls him to the start of the giant's own stage.
+    const at = sim.stageStart(st.n);
+    sim.teleport(at.x, at.y + 0.05, at.z);
+    for (let k = 0; k < 900 && !sim.caught; k++) sim.step({ moveX: 0, moveZ: 1, jump: false, jumpHeld: false }, DT);
+    expect(sim.caught, 'slapped').not.toBeNull();
+    for (let k = 0; k < 600 && sim.caught; k++) sim.step(NO_MOVE, DT);
+    expect(Math.hypot(sim.hero.pos.x - at.x, sim.hero.pos.z - at.z), 'at the start of the giant stage, not the camp').toBeLessThanOrEqual(3);
+    expect(sim.rollFrom).toBe(0);
   });
 });
 
