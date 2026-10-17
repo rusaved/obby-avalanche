@@ -1889,7 +1889,7 @@ async function boot(): Promise<void> {
       flash.className = 'fade-flash';
       ui.appendChild(flash);
       setTimeout(() => flash.remove(), 1000);
-    }, campTeleport: () => (campView?.hasPassed() ? g.world.campTeleport : undefined) });
+    }, campTeleport: () => (campView?.known() ? g.world.campTeleport : undefined) });
   stageView.wire(sim);
   // The stage tutorial and the camp teleport (docs/01-gdd.md 22.12).
   campView = createCampView({ getSim: () => sim, getWorld: () => g.world, hud, windows, save, levels: balance.levels, persist, numSuffix, trophyWallet: balance.upgrade.currency === 'trophies', shoesAffordable: () => shopAfford().shoes, onTrophies: (n) => hud.setTrophies(formatNumber(n, numSuffix)) });

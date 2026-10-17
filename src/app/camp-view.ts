@@ -53,6 +53,8 @@ export interface CampView {
   open(): void;
   /** A stage past the first is passed on this mountain: the teleport pad of the camp has something to offer. */
   hasPassed(): boolean;
+  /** SD-13: a stage past the first is passed on any mountain — the pad answers (its window shows what is open here). */
+  known(): boolean;
   /** Teleports to stage n paying its trophies; false — not passed or short. */
   teleport(n: number): boolean;
 }
@@ -118,12 +120,15 @@ export function createCampView(d: CampViewDeps): CampView {
       if (st && st.type !== 'intro' && wave) show = sim.inShelter() ? null : ws!.shelter >= 0 ? t('hint.cover') : t('hint.toFinish');
       d.hud.setTutor(show);
       // The teleport pad of the camp: stepping on it opens the window once a step-on.
+      // SD-13 (producer 16.10: «it worked once, then broke»): on the next mountain the pad stood dead until its own
+      // stage 2 — now it answers once the player knows it (a stage 2 passed anywhere), the stages not passed locked.
       const p = w.campTeleport;
       const on = !!p && Math.abs(h.x - p.x) <= PAD_REACH && Math.abs(h.z - p.z) <= PAD_REACH && sim.hero.onGround;
-      if (on && !onPad && !d.windows.current && view.hasPassed()) view.open();
+      if (on && !onPad && !d.windows.current && view.known()) view.open();
       onPad = on;
     },
     hasPassed: () => best(d.getWorld()) >= 2,
+    known: () => Object.values(d.save.stageBest ?? {}).some((n) => n >= 2),
     trophyTaken() {
       takenTick = d.getSim().tick;
       if ((d.save.tutor ?? 0) <= 1) {
