@@ -369,7 +369,8 @@ function coinPlaque(): { shown: boolean; text: string } {
 
 function shoesButton(): { shown: boolean; text: string; can: boolean } {
   const node = document.querySelector('[data-hud="shoes"]');
-  return { shown: node?.classList.contains('shown') ?? false, text: node?.textContent ?? '', can: node?.classList.contains('can') ?? false };
+  // MU-01: the coin mark is an SVG between the words — the text as read, spaces collapsed.
+  return { shown: node?.classList.contains('shown') ?? false, text: (node?.textContent ?? '').replace(/\s+/g, ' ').trim(), can: node?.classList.contains('can') ?? false };
 }
 
 /** A hero closer than this to a closed gate below it, and slower than STAND_SPEED, stands at the gate. */

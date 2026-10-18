@@ -123,7 +123,7 @@ test('no «▶ Ad: open the wall» at any ridge; «▶ Ad: +N speed» in the rid
   await page.evaluate(([x, z]) => window.__TEST__!.teleport(z, x), b1);
   await page.waitForFunction(() => window.__TEST__!.state().adButtons.includes('stat_now'), undefined, { timeout: 15_000 });
   const btn = page.locator('[data-hud="ad-stat_now"]');
-  await expect(btn).toHaveText(/^▶ Реклама: \+.+ скорости$/);
+  await expect(btn).toHaveText(/^Реклама: \+.+ Скорости$/);
   // The reward comes only with the ad (mock ok): the stat grows, the button rests for its cooldown.
   const before = (await testState(page)).stat;
   await btn.dispatchEvent('click');

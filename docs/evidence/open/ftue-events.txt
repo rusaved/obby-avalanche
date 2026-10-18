@@ -1,12 +1,12 @@
    0.0 s  game_ready {"pace":"open"}
    0.4 s  gameTutorialStart
-   3.9 s  shoes_1
-   5.7 s  ridge_1
+   4.3 s  shoes_1
+   6.0 s  ridge_1
   19.9 s  first_wave_survived {"inShelter":true}
   28.9 s  egg_1
   37.1 s  treadmill_first
-  38.6 s  ridge_2
-  55.8 s  ridge_3
+  38.7 s  ridge_2
+  55.9 s  ridge_3
   60.0 s  session_60s
   65.3 s  boss_enter
   72.5 s  boss_passed {"cover":false}

@@ -17,9 +17,7 @@
 }
 
 /* MU-01 marks (docs/07-mobile-ui.md «Знаки»): SVG only, 1.15 em of the text by them, 4 px apart. */
-.mark { display: inline-block; flex: none; width: 1.15em; height: 1.15em; margin: 0 4px; vertical-align: -0.22em; line-height: 0; }
-.mark:first-child { margin-left: 0; }
-.mark:last-child { margin-right: 0; }
+.mark { display: inline-block; flex: none; width: 1.15em; height: 1.15em; margin: 0; vertical-align: -0.22em; line-height: 0; }
 .mark svg { width: 100%; height: 100%; display: block; overflow: visible; }
 .coin-face { fill: var(--mu-gold); stroke: var(--ink); }
 .coin-ink { stroke: var(--ink); stroke-width: 1.7; stroke-linecap: round; }

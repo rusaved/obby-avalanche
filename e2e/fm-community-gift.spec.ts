@@ -36,7 +36,7 @@ test('«Egg for subscribing»: the window, «Go» opens the channel, the egg onc
   await openGame('pace=open');
   const pets0 = (await testState(page)).pets.length;
   await page.locator('[data-hud="pause"]').click();
-  for (const id of IDS) await expect(page.locator(`[data-hud="gift-sub-${id}"]`)).toHaveText('Яйцо за подписку');
+  for (const id of IDS) await expect(page.locator(`[data-hud="gift-sub-${id}"]`)).toHaveText('Яйцо за визит');
   // The plain channel button: a new tab, nothing given.
   await page.locator(`[data-hud="community-${IDS[1]}"]`).click();
   await awayAndBack(page);
@@ -45,7 +45,7 @@ test('«Egg for subscribing»: the window, «Go» opens the channel, the egg onc
   expect((await testState(page)).pets.length).toBe(pets0);
   // The card of the first channel: its window and «Go».
   await page.locator(`[data-hud="gift-sub-${IDS[0]}"]`).click();
-  await expect(page.locator('[data-role="window"] .win-body')).toHaveText('Подпишись на сообщество игры и получи яйцо!');
+  await expect(page.locator('[data-role="window"] .win-body')).toHaveText('Загляни в группу игры и получи яйцо!');
   await expect(page.locator('[data-hud="win-next"]')).toHaveText('Перейти');
   await page.screenshot({ path: 'docs/evidence/sp/community_gift_window_1920x1080_ru.png' });
   await page.locator('[data-hud="win-next"]').click();

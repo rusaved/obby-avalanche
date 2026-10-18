@@ -33,8 +33,9 @@ test('the stage tutorial step by step, then the camp teleport to a passed stage 
   await page.screenshot({ path: 'docs/evidence/lv/tutor-levels.png' });
   const lv = await page.evaluate(() => window.__TEST__!.state().stat);
   await page.evaluate((s) => window.__TEST__!.setStat(s), lv * 1.18 ** 3.2);
+  // MU-02: the slot may hide the step under the gate plaque before the step is done — wait for the step itself.
+  await expect.poll(async () => (await testState(page)).tutor).toBe(3);
   await expect(tutor).toBeHidden();
-  expect((await testState(page)).tutor).toBe(3);
 
   // The camp teleport: stage 3 reached, back in the camp, onto the pad.
   await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.5), [s3.start + 2, s3.y] as const);

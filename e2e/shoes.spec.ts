@@ -15,7 +15,7 @@ test('shoes button: shows when coins first suffice, one tap buys, then stays gre
   await page.evaluate(() => window.__TEST__!.setCoins(30));
   await waitTicks(page, 5);
   s = await testState(page);
-  expect(s.shoesButton).toEqual({ shown: true, text: 'Кроссовки ×2 · 30', can: true });
+  expect(s.shoesButton).toEqual({ shown: true, text: 'Кроссовки +2 за шаг · 30', can: true });
   // Bottom centre (docs/01-gdd.md 10.1).
   const box = (await page.locator('[data-hud="shoes"]').boundingBox())!;
   expect(Math.abs(box.x + box.width / 2 - 960)).toBeLessThan(4);
@@ -28,7 +28,7 @@ test('shoes button: shows when coins first suffice, one tap buys, then stays gre
   expect(s.shoeLevel).toBe(1);
   expect(s.coins).toBe(0);
   expect(s.gainMult).toBe(2);
-  expect(s.shoesButton).toEqual({ shown: true, text: 'Кроссовки ×3 · 200', can: false });
+  expect(s.shoesButton).toEqual({ shown: true, text: 'Кроссовки +3 за шаг · 200', can: false });
   // Short of coins: the button stays, grey, a tap does nothing.
   await page.evaluate(() => window.__TEST__!.setCoins(120));
   await waitTicks(page, 5);

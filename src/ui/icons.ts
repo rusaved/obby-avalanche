@@ -96,8 +96,8 @@ export function hasMark(text: string): boolean {
   return MARK_RE.test(text);
 }
 
-/** Fills `node` with `text`, each {coin} / {trophy} / {ad} an inline SVG mark 1,15 em, 4 px from its neighbours (the
- * spaces round a mark are its margins). */
+/** Fills `node` with `text`, each {coin} / {trophy} / {ad} an inline SVG mark 1,15 em; the spaces of the text round a
+ * mark keep it apart from its words (the text reads the same in the DOM). */
 export function setRich(node: HTMLElement, text: string): void {
   if (node.dataset['rich'] === text) return;
   node.dataset['rich'] = text;
@@ -113,6 +113,6 @@ export function setRich(node: HTMLElement, text: string): void {
       m.className = `mark mark-${id}`;
       m.innerHTML = ICONS[id]!;
       node.appendChild(m);
-    } else if (part.trim() !== '') node.appendChild(document.createTextNode(part.trim()));
+    } else if (part !== '') node.appendChild(document.createTextNode(part));
   }
 }

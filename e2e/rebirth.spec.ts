@@ -49,7 +49,7 @@ test('rebirth window ru: locked until mountain 5, then rebirth to tier 1 — cam
   await expect(page.locator('[data-role="rebirth-resets"]')).toContainText('Обнулится');
   await expect(page.locator('[data-role="rebirth-resets"] li')).toHaveText(['Скорость', 'Монеты', 'Кроссовки', 'Горы — снова с первой']);
   await expect(page.locator('[data-role="rebirth-keeps"] li')).toHaveText(['Питомцы', 'Скины и крылья', 'Трейлы и ауры', 'Кубки', 'Календарь и задания']);
-  await expect(page.locator('[data-role="rebirth-gets"]')).toContainText('Каждый шаг ×3 навсегда: ×1 → ×3');
+  await expect(page.locator('[data-role="rebirth-gets"]')).toContainText('Каждый шаг ×3 навсегда: было ×1, станет ×3');
   await expect(page.locator('[data-role="rebirth-reward"]')).toContainText('Снежный ниндзя');
   await expect(page.locator('[data-role="rebirth-gets"]')).toContainText('Больше кубков за каждую вершину');
   await expect(win).toContainText('Горы станут выше');

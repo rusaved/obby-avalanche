@@ -3,7 +3,7 @@ import { test, expect, testState, waitTicks } from './fixtures.ts';
 import openWorlds from '../content/avalanche/pace/open/worlds.json' with { type: 'json' };
 import openBalance from '../content/avalanche/pace/open/balance.json' with { type: 'json' };
 
-// PS-11: «▶ Ad: continue from here» of the open slope (docs/01-gdd.md 9.1, 17.11; docs/03 section 2) on the SDK mock.
+// PS-11: «Ad: continue from here» (MU-01: the ad mark is an SVG by the word) of the open slope (docs/01-gdd.md 9.1, 17.11; docs/03 section 2) on the SDK mock.
 // After «Snowed in!» or «The giant caught you!» the button comes at the pop of the snowball, for 6 s or until the first
 // move; the reward (onRewarded only) puts the hero back on the record flag with the threat over; once in 2 min.
 type OpenWorld = { bosses: Array<{ zone: [number, number]; requires: number }> };
@@ -57,7 +57,7 @@ test('no button before 60 s of play and the first avalanche; then at the pop of 
   const pop = (await testState(page)).timeSec;
   await page.waitForFunction(() => window.__TEST__!.state().adButtons.includes('continue_here'), undefined, { timeout: 10_000 });
   expect((await testState(page)).timeSec - pop).toBeLessThanOrEqual(1);
-  await expect(page.locator(BUTTON)).toHaveText('▶ Реклама: продолжить отсюда');
+  await expect(page.locator(BUTTON)).toHaveText('Реклама: продолжить отсюда');
   // Play seconds, as the game clock.
   await page.waitForFunction(() => !window.__TEST__!.state().adButtons.includes('continue_here'), undefined, { timeout: 20_000 });
   const sec = (await testState(page)).timeSec - pop;
@@ -144,7 +144,7 @@ for (const lang of ['ru', 'en'] as const) {
     await giantCatch(page);
     await page.waitForFunction(() => window.__TEST__!.state().adButtons.includes('continue_here'), undefined, { timeout: 10_000 });
     const btn = page.locator(BUTTON);
-    await expect(btn).toHaveText(lang === 'ru' ? '▶ Реклама: продолжить отсюда' : '▶ Ad: continue from here');
+    await expect(btn).toHaveText(lang === 'ru' ? 'Реклама: продолжить отсюда' : 'Ad: continue from here');
     const fit = await btn.evaluate((b) => ({ sw: b.scrollWidth, cw: b.clientWidth, sh: b.scrollHeight, ch: b.clientHeight }));
     expect(fit.sw).toBeLessThanOrEqual(fit.cw);
     expect(fit.sh).toBeLessThanOrEqual(fit.ch);
