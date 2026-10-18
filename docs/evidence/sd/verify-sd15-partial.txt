@@ -1,0 +1,121 @@
+verify SD-15 на 1130d4e, 2026-10-18T00:10:58Z — частичный: сессия остановлена по лимиту 6 часов
+
+> obby-avalanche@0.1.0 verify
+> node scripts/verify.mjs
+
+
+== verify: typecheck
+-- verify: typecheck ok, 3.2 s
+
+== verify: test
+
+ RUN  v5.0.3 /home/user/obby-avalanche
+
+
+ Test Files  90 passed (90)
+      Tests  518 passed (518)
+   Start at  00:11:02
+   Duration  505.75s (tests 98%, import 1%, transform 1%)
+
+-- verify: test ok, 506.6 s
+
+== verify: validate:content
+validate:content: _sample — ok
+validate:content: avalanche — ok
+validate:content: avalanche/pace/fast — ok
+validate:content: avalanche/pace/open — ok
+validate:content: avalanche/pace/stages — ok
+-- verify: validate:content ok, 3.8 s
+
+== verify: build:e2e
+vite v8.3.2 building client environment for e2e...
+transforming...
+<script src="/sdk.js"> in "/index.html" can't be bundled without type="module" attribute
+✓ 183 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-e2e/index.html                                           1.70 kB │ gzip:   0.93 kB
+dist-e2e/assets/rubik-cyrillic-800-normal-wonQiwhm.woff2      7.85 kB
+dist-e2e/assets/rubik-cyrillic-500-normal-Didq2w9O.woff2      7.92 kB
+dist-e2e/assets/rubik-cyrillic-800-normal-DocVmW4N.woff       9.85 kB
+dist-e2e/assets/rubik-cyrillic-500-normal-BH_pkKR0.woff       9.92 kB
+dist-e2e/assets/en-mPY_gauK.json                             14.86 kB │ gzip:   4.88 kB
+dist-e2e/assets/1-BN7IT56u.mp3                               17.17 kB
+dist-e2e/assets/1-BVny-jN9.mp3                               17.17 kB
+dist-e2e/assets/1-CP3C_qXY.mp3                               17.17 kB
+dist-e2e/assets/1-DQLOuCnM.mp3                               17.17 kB
+dist-e2e/assets/1-DUTY0SV5.mp3                               17.17 kB
+dist-e2e/assets/1-gSaViLAo.mp3                               17.17 kB
+dist-e2e/assets/2-83wtGG6r.mp3                               17.17 kB
+dist-e2e/assets/2-BzuV1erg.mp3                               17.17 kB
+dist-e2e/assets/2-CK6gaR7E.mp3                               17.17 kB
+dist-e2e/assets/2-CzofyL7K.mp3                               17.17 kB
+dist-e2e/assets/2-D-PP5Pz4.mp3                               17.17 kB
+dist-e2e/assets/2-vl6dV_Xq.mp3                               17.17 kB
+dist-e2e/assets/3-C8SPF8Q5.mp3                               17.17 kB
+dist-e2e/assets/3-CaWfxQbg.mp3                               17.17 kB
+dist-e2e/assets/3-Cvtbo-7Q.mp3                               17.17 kB
+dist-e2e/assets/3-D8pGxtPh.mp3                               17.17 kB
+dist-e2e/assets/3-EDy5jjBy.mp3                               17.17 kB
+dist-e2e/assets/4-BvGHYDEo.mp3                               17.17 kB
+dist-e2e/assets/4-C-jIC94z.mp3                               17.17 kB
+dist-e2e/assets/4-CHs3j__0.mp3                               17.17 kB
+dist-e2e/assets/4-CJ7_h6Iw.mp3                               17.17 kB
+dist-e2e/assets/4-CjOsbRXB.mp3                               17.17 kB
+dist-e2e/assets/rubik-latin-500-normal-1os41rQk.woff2        19.03 kB
+dist-e2e/assets/rubik-latin-800-normal-BtaGuVpR.woff2        19.06 kB
+dist-e2e/assets/ru-8gvlDw0m.json                             19.48 kB │ gzip:   6.22 kB
+dist-e2e/assets/rubik-latin-800-normal-Dq1miTTj.woff         24.17 kB
+dist-e2e/assets/rubik-latin-500-normal-LZYVHeqz.woff         24.21 kB
+dist-e2e/assets/level-up-CA_B7FUa.mp3                        33.06 kB
+dist-e2e/assets/reward-coins-Cb3RXhlr.mp3                    33.06 kB
+dist-e2e/assets/reward-trophy-CEJUg0DD.mp3                   33.06 kB
+dist-e2e/assets/index-o35EVK0A.css                           33.41 kB │ gzip:   7.20 kB
+dist-e2e/assets/ZzFX-C1HKDoVW.js                              2.00 kB │ gzip:   1.17 kB
+dist-e2e/assets/test-api-LmFBDvPW.js                         19.86 kB │ gzip:   7.86 kB
+dist-e2e/assets/debug-BqdylVyA.js                            47.26 kB │ gzip:  15.09 kB
+dist-e2e/assets/index-B5Iyvl_0.js                         1,691.86 kB │ gzip: 364.17 kB
+
+✓ built in 1.55s
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 900 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+-- verify: build:e2e ok, 2.2 s
+
+== verify: e2e
+
+Running 261 tests using 2 workers
+
+bot-world1: {"sec":387.53333333333336,"shoes":3,"walls":12,"caught":1,"waves":5,"portal":true} — game minutes 6.46
+  ✓    1 [desktop] › e2e/bot-world1.spec.ts:116:1 › bot on game time plays mountain 1 to the portal with shoe purchases, no console errors (38.1s)
+  ✓    3 [desktop] › e2e/bots.spec.ts:8:1 › 6 bots with character names, unique on the mountain; no names in shots, promo or with showNames: false (16.4s)
+  ✓    2 [desktop] › e2e/avalanche.spec.ts:21:1 › avalanche: scripted wave in cave 1, then a normal wave — warn and shelter screenshots, camera in the cave, gifts back after gone (1.0m)
+  ✓    4 [desktop] › e2e/bots.spec.ts:47:1 › photo studio: bots without names (6.7s)
+  ✓    5 [desktop] › e2e/bots.spec.ts:55:1 › quality low: 3 bots (4.8s)
+  ✓    7 [desktop] › e2e/camera.spec.ts:6:3 › camera › at three points near walls the camera is never inside the geometry (11.2s)
+  ✓    8 [desktop] › e2e/camera.spec.ts:32:3 › camera › with camera.autoTurn = true the auto-turn pulls the view towards +Z and changes only viewYaw (11.7s)
+  ✓    9 [desktop] › e2e/camera.spec.ts:52:3 › camera › FOV at full speed exceeds the resting FOV by fovSpeedAdd from tuning.json (10.4s)
+  ✓    6 [desktop] › e2e/bots.spec.ts:61:1 › 5 minutes of play: on warn ≥ 90% of the bots run to caves; no bot ever above a wall closed for the hero (57.9s)
+camera walk: walls 12, waves 2, shot true, {"frames":749,"inside":0,"heroHidden":0,"heroNear":0,"heroBlocked":1,"signBlocked":0,"tight":296,"bad":["hero blocked t=96 hero=(10.7,24.0,364.0) cam=(17.2,28.2,359.0)"],"headFrames":344,"headBlocked":0,"headBy":{},"bossFrames":0,"bossSeen":0,"portal":0,"flagBlocked":0,"flagFrames":0,"headMin":2.6249999999999423,"headMinAt":"hero (-0.0,72.0,1118.3) camera (0.9,78.8,1118.9) tight false fixed 0.00 raise 1.44 dist 2.9 pitch -0.17 view 0.00 shot false belt false shelter -1","shelterRun":91,"shelterWhite":0}
+  ✓   10 [desktop] › e2e/camera.spec.ts:70:1 › walk of mountain 1 by botPath: the camera is never inside a collider and never loses the hero (1.7m)
+  ✓   11 [desktop] › e2e/camera.spec.ts:160:1 › open, mountain 10 at 120 units/s: in 600 frames the camera never within hideDistance of the hero (1.4m)
+  ✓   13 [desktop] › e2e/characters.spec.ts:4:1 › faces.png: eight emotions in a row; nine characters still fit in 8 draw calls (8.2s)
+  ✓   14 [desktop] › e2e/characters.spec.ts:17:1 › hero close-up: three-quarter view screenshot (11.9s)
+  ✓   12 [desktop] › e2e/caught.spec.ts:4:1 › snowed in on the slope: toast, the ball rolls into the cave below within 2 s, nothing lost; screenshot caught_1920x1080_ru.png (56.9s)
+  ✓   16 [desktop] › e2e/daily.spec.ts:99:1 › calendar on a phone 844×390: cards 4 + 3, «Claim» inside the screen (5.7s)
+  ✓   15 [desktop] › e2e/daily.spec.ts:16:1 › calendar: claim day 1, F5 keeps it, 19 h later still locked, 20 h later day 2; boost and ad egg survive F5 and the day change (40.2s)
+  ✘   17 [desktop] › e2e/debug.spec.ts:8:3 › debug panel › a slider change applies at once: doubled baseSpeed doubles the run speed (6.6s)
+  ✓   18 [desktop] › e2e/debug.spec.ts:30:3 › debug panel › Export gives JSON that passes the tuning.json schema (5.1s)
+  ✓   19 [desktop] › e2e/debug.spec.ts:40:3 › debug panel › on a phone the panel starts collapsed and the overlay shows level, DPR and frame time (6.1s)
+fast-mountain: {"sec":105.13333333333334,"walls":15,"passSec":[4.1,6.7,7.9,9.3,11.1,12.5,30.5,36.7,41.5,47.3,52.8,58.9,65.6,72.6,103.8],"maxDown":2.59637317039693,"standOffBelt":0,"gateStandMax":0,"shoes":2,"waves":2,"caught":0,"portal":true,"standAt":[],"firstBelt":{"passed":6,"shelter":6,"playSec":14.116666666666948},"axisMax6":15.886473907879338,"axisAt":"(15.9,6.0,117.6) gate:0 t=5.6 wave idle fun {\"padFlight\":false,\"launches\":1,\"top\":12.81250000000001,\"onSlide\":-1,\"slideLeft\":0,\"runSpeed\":22.346652614722814}","arrive":[null,null,null,"76",null,"112",null,null,null,null,null,"4809.200000000014"]} — game seconds 105.1
+  ✓   20 [desktop] › e2e/fast-mountain.spec.ts:220:1 › fast pace: the bot plays mountain 1 to the portal within 120 s of game time, never down the slope, at a closed gate only on its belt (55.3s)
+fast-gates: gates [3.5,5.4,6.6,7.9,10.4,11.6,39.4,67.4]; shoes_1 4.8 s, treadmill_first 13.0 s; first belt {"passed":6,"shelter":6,"playSec":13.000000000000226}; off the axis before gate 6 10.2 at (-10.2,15.0,257.0) cave:4 t=9.8 wave idle fun {"padFlight":false,"launches":2,"top":12.812500000000014,"onSlide":-1,"slideLeft":0,"runSpeed":25.055155480827914}; stat at the gates [null,"22","44",null,"72 closed",null,"1010.3999999999999 closed","1207.2000000000057 closed"]
+  ✓   22 [desktop] › e2e/fast-mountain.spec.ts:291:1 › fast pace, gates 1–6 on the way: the straight bot passes them without a belt; the first belt and treadmill_first are in the cave of gate 7 (40.1s)
+ftue-fast: gate_1 2.3 s, shoes_1 5.0 s, gate_3 6.4 s, first_wave_survived 19.4 s, egg_1 21.4 s, treadmill_first 5.4 s; gate 8 34.9 s; summit 103.8 s; gates [3.6,6.4,7.6,8.9,10.4,11.5,29,34.9,39.6,45.5,51.1,57.3,64.1,70.4,102.4]
+  ✓   21 [desktop] › e2e/fast-mountain.spec.ts:238:1 › fast pace, first 2 minutes: gate_1 ≤ 8 s, gate_3 ≤ 20 s, the scripted wave in a cave ≤ 50 s, egg after it, gate 8 ≤ 75 s, summit ≤ 120 s; no window or interstitial before 180 s (2.1m)
+  ✓   24 [desktop] › e2e/fast-mountain.spec.ts:354:1 › fast pace: «Гора a/10» on the rebirth button and in its window; the rebirth opens only after the summit of mountain 10 (6.3s)
+Terminated
+EXIT=143
+== остановлено вручную в 00:26 UTC: лимит сессии 6 часов; e2e на этот момент — 24 прошли, 1 упал
