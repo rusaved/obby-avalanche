@@ -34,6 +34,16 @@ export interface HudViewDeps {
   baseGoal?: () => string | null;
   /** A new level of the stat (docs/01-gdd.md 22.2): «Level up!», confetti and the chime — main.ts does the effects. */
   onLevelUp?: (level: number) => void;
+  /** MU-02/MU-03 (docs/07-mobile-ui.md): the phone layout — stage ticks on the strip, the gate as one plaque in the slot. */
+  mu?: boolean;
+}
+
+/** «уровень / уровня / уровней» by n (ru plural; en has one/many through the same keys). */
+function levelWord(n: number): string {
+  const m10 = n % 10;
+  const m100 = n % 100;
+  const k = m10 === 1 && m100 !== 11 ? 'one' : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? 'few' : 'many';
+  return t(`stage.levelWord.${k}`);
 }
 
 export interface HudView {
@@ -74,7 +84,8 @@ export function createHudView(d: HudViewDeps): HudView {
       const len = Math.max(1, sim.level.length);
       d.hud.setMountain({
         zones: d.getWorld().zones.map((z) => ({ from: z.zStart / len, to: z.zEnd / len, color: d.theme.rarity[z.rarity] ?? '#ffffff' })),
-        walls: sim.level.gates.map((g) => g.z / len),
+        // The phone strip (MU-02): a tick at every border of the stages; the other layout — the walls.
+        walls: d.mu && sim.level.stages ? sim.level.stages.slice(1).map((s) => s.z0 / len) : sim.level.gates.map((g) => g.z / len),
         caves: sim.level.niches.map((n) => n.z / len),
         faceUrl: d.faceUrl,
       });
@@ -100,7 +111,9 @@ export function createHudView(d: HudViewDeps): HudView {
       const len = Math.max(1, level.length);
       const stat = sim.progress.stat;
       // Open slope: «×1.2 this section» by «+N per step» (docs/01-gdd.md 17.4); classic and fast have no sections.
-      const section = level.sections.length > 0 ? t('hud.sectionMult', { n: formatMult(sim.sectionMult(), d.numSuffix) }) : null;
+      const section = d.mu
+        ? (sim.sectionMult() > 1 ? `×${formatMult(sim.sectionMult(), d.numSuffix)}` : null)
+        : level.sections.length > 0 ? t('hud.sectionMult', { n: formatMult(sim.sectionMult(), d.numSuffix) }) : null;
       // The blizzard doubles every step on its section (docs/01-gdd.md 18.4): the plaque shows it.
       const perStep = d.balance.gainPerStep * sim.progress.gainMult * (sim.rare?.stepMultAt(sim.hero.pos.z) ?? 1);
       d.hud.setStat(fmt(stat), t('hud.perStep', { n: fmt(perStep) }), section);
@@ -136,7 +149,9 @@ export function createHudView(d: HudViewDeps): HudView {
       // Stages pace (docs/01-gdd.md 22.4): «Mountain 1 · stage 3/10» instead of ridges.
       const stages = level.stages;
       const stageN = stages ? stageAt(level, sim.hero.pos.z) : 0;
-      d.hud.updateMountain(stages ? t('stage.progress', { a: level.worldIndex, b: stageN, c: stages.length }) : label, sim.hero.pos.z / len, wave, ts?.phase === 'warn' ? ts.shelter : -1);
+      const camp = level.safeZones[0];
+      const campLabel = d.mu && !!stages && camp !== undefined && sim.hero.pos.z <= camp[1];
+      d.hud.updateMountain(campLabel ? t('camp.label', { n: level.worldIndex }) : stages ? t('stage.progress', { a: level.worldIndex, b: stageN, c: stages.length }) : label, sim.hero.pos.z / len, wave, ts?.phase === 'warn' ? ts.shelter : -1);
       if (stages && lv) {
         // The next closed ridge asks for a level (22.3): the goal names its stage, the pill by it compares the levels.
         // The nearest closed ridge ahead (behind the hero only when none is ahead — a teleport past one).
@@ -149,6 +164,12 @@ export function createHudView(d: HudViewDeps): HudView {
           const ai = level.gates.findIndex((q) => q.kind !== 'boss' && q.z >= sim.hero.pos.z - 2);
           const q = level.gates[ai];
           const need = q ? levelNeeded(sim.gateRequirement(ai), lv) : 0;
+          // MU-03 (l2-gate): one plaque in the slot «N more levels to the gate», only while levels are short.
+          if (d.mu) {
+            const short = need - have;
+            d.hud.setNeed(q && q.z - sim.hero.pos.z <= NEED_NEAR && short > 0 && !sim.gatesOpen[ai] ? { text: t('stage.needMore', { n: short, word: levelWord(short) }), ok: false } : null);
+            return;
+          }
           d.hud.setNeed(q && q.z - sim.hero.pos.z <= NEED_NEAR ? { text: t('stage.need', { have, need }), ok: have >= need } : null);
         };
         if (g) {

@@ -199,6 +199,8 @@ const themeSchema = v.object({
     plaqueText: hex,
     toastPlate: v.optional(v.object({ bg: hex, alpha: v.pipe(v.number(), v.minValue(0.5), v.maxValue(1)), radius: nonNeg, padX: nonNeg, padY: nonNeg })),
     gainText: v.optional(v.object({ scale: v.pipe(v.number(), v.minValue(1), v.maxValue(3)), outline: nonNeg })),
+    // MU-01 (docs/07-mobile-ui.md, tokens): the colours of the phone layout, a hex or an rgba() each.
+    mu: v.optional(v.record(name, v.pipe(v.string(), v.regex(/^(#[0-9a-fA-F]{6}|rgba\(\d{1,3}, \d{1,3}, \d{1,3}, (0|1|0?\.\d+)\))$/)))),
   }),
   threat: v.object({ front: v.tuple([hex, hex]), edge: hex, body: hex, dust: hex, height: positive }),
   bonus: v.optional(v.object({ color: hex })),

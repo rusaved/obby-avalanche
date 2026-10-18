@@ -60,8 +60,8 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, te
 /** Trophy icon and a number (prices and the balance in the window head). */
 export function trophyPrice(text: string): HTMLElement {
   const p = el('span', 'card-price');
-  const i = el('span', '');
-  i.innerHTML = icon('trophy');
+  const i = el('span', 'mark mark-cup');
+  i.innerHTML = icon('cup');
   p.append(i, el('span', '', text));
   return p;
 }
@@ -76,7 +76,9 @@ export function setWalletTrophies(on: boolean): void {
 export function coinPrice(text: string): HTMLElement {
   if (walletTrophies) return trophyPrice(text);
   const p = el('span', 'card-price');
-  p.append(el('span', 'card-coin', '❄'), el('span', '', text));
+  const c = el('span', 'mark mark-coin');
+  c.innerHTML = icon('coin');
+  p.append(c, el('span', '', text));
   return p;
 }
 

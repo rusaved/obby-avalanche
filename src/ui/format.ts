@@ -22,6 +22,15 @@ export function setNumberLocale(lang: string): void {
   nf = makeFormat(lang);
 }
 
+/** MU-01 (docs/07-mobile-ui.md, rule 10): numbers below this are written in full, thousands apart by a narrow space
+ * («1 024», «5 300»); 0 — the suffix format from 1000 on (the comparison paces). */
+let fullBelow = 0;
+const NARROW_SPACE = '\u202f';
+
+export function setFullNumbersBelow(limit: number): void {
+  fullBelow = limit;
+}
+
 export const SUFFIX_KEYS = ['K', 'M', 'B', 'T', 'Qa', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'Dc'] as const;
 
 /** Float slack: 1e33 / 1000^11 may land a hair under 1, the display must still read «1Dc». */
@@ -36,6 +45,7 @@ export function formatNumber(n: number, suffix: (key: string) => string = (k) =>
   const sign = n < 0 ? '-' : '';
   const v = Math.abs(n);
   if (v < 1000) return sign + String(Math.floor(v));
+  if (v < fullBelow) return sign + String(Math.floor(v)).replace(/\B(?=(\d{3})+(?!\d))/g, NARROW_SPACE);
   let group = 0;
   while (group < SUFFIX_KEYS.length && v >= Math.pow(1000, group + 1) * (1 - EPS)) group++;
   const m = v / Math.pow(1000, group);

@@ -33,8 +33,7 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, te
 /** A reward picture: an icon of the set, or the coin snowflake of the HUD plaque. */
 export function rewardIcon(id: string): HTMLElement {
   const i = el('span', `rw-icon rw-${id}`);
-  if (id === 'coins') i.textContent = '❄';
-  else i.innerHTML = icon(id);
+  i.innerHTML = icon(id);
   return i;
 }
 

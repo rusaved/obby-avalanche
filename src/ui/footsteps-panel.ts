@@ -9,7 +9,7 @@
  * set with no price a lock with «From the shop» (no «soon»: a dev trace, docs/03 4.2).
  */
 import { t } from './i18n.ts';
-import { icon } from './icons.ts';
+import { icon, setRich } from './icons.ts';
 import { trophyPrice } from './shop-panel.ts';
 
 export interface FootstepCard {
@@ -92,7 +92,8 @@ export function renderFootstepsPanel(body: HTMLElement, m: FootstepsPanelModel, 
       card.appendChild(btn);
     } else {
       const ad = c.state === 'ad' || c.state === 'busy';
-      const btn = el('button', c.state === 'on' ? 'card-btn alt' : c.state === 'busy' ? 'card-btn off' : 'card-btn', t(ad ? 'footsteps.ad' : c.state === 'on' ? 'footsteps.chosen' : 'footsteps.choose'));
+      const btn = el('button', c.state === 'on' ? 'card-btn alt' : c.state === 'busy' ? 'card-btn off' : 'card-btn');
+      setRich(btn, t(ad ? 'footsteps.ad' : c.state === 'on' ? 'footsteps.chosen' : 'footsteps.choose'));
       btn.dataset['hud'] = ad ? 'footsteps-ad' : 'footsteps-choose';
       btn.disabled = c.state === 'busy';
       btn.addEventListener('click', () => (ad ? a.ad(c.id) : a.choose(c.id)));

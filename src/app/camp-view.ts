@@ -11,6 +11,7 @@ import type { World } from '../content/types.ts';
 import { levelOf, type Levels } from '../sim/levels.ts';
 import { formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
+import { setRich } from '../ui/icons.ts';
 import { track } from '../analytics/index.ts';
 
 /** SD-11: «Buy sneakers» shows at a closed ridge this close ahead (units). */
@@ -156,7 +157,7 @@ export function createCampView(d: CampViewDeps): CampView {
           const can = passed && coins >= st.trophies;
           b.disabled = !can;
           const line = document.createElement('small');
-          line.textContent = !passed ? t('teleport.locked') : !can ? t('teleport.short', { n: fmt(st.trophies - coins) }) : armed === st.n ? t('teleport.confirm', { price: fmt(st.trophies) }) : t('teleport.price', { price: fmt(st.trophies) });
+          setRich(line, !passed ? t('teleport.locked') : !can ? t('teleport.short', { n: fmt(st.trophies - coins) }) : armed === st.n ? t('teleport.confirm', { price: fmt(st.trophies) }) : t('teleport.price', { price: fmt(st.trophies) }));
           b.append(t('teleport.stage', { n: st.n }), line);
           if (armed === st.n) b.classList.add('armed');
           b.addEventListener('click', () => {

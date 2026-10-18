@@ -121,6 +121,8 @@ export interface ThemeJson {
     plaqueText: string;
     /** FM-04 (docs/01-gdd.md 19.8): the dark see-through plaque under the toasts (text contrast over snow ≥ 4.5:1). */
     toastPlate?: { bg: string; alpha: number; radius: number; padX: number; padY: number };
+    /** MU-01 tokens of the phone layout (docs/07-mobile-ui.md «Токены»): set as CSS variables --mu-<key> on the page. */
+    mu?: Record<string, string>;
     /** FM-04: «+N» `scale` times its old size, in the Speed plaque colour with a dark `outline` (px). */
     gainText?: { scale: number; outline: number };
   };

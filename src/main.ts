@@ -68,7 +68,7 @@ import { buildLevel } from './level/builder.ts';
 import { eggSpotIn } from './sim/gift-egg.ts';
 import { createSim, controllerParams, type Sim } from './sim/world.ts';
 import { HERO_HEIGHT } from './sim/controller.ts';
-import { formatNumber, formatTimer, setNumberLocale } from './ui/format.ts';
+import { setFullNumbersBelow, formatNumber, formatTimer, setNumberLocale } from './ui/format.ts';
 import { moveSpeed } from './sim/effects/moveSpeed.ts';
 import { InputManager } from './input/manager.ts';
 import { applyManualTurn, createControlFrame, onMoveStarted, toWorld } from './input/control-frame.ts';
@@ -95,6 +95,13 @@ import { shortcutWanted } from './meta/shortcut.ts';
 const DEG = Math.PI / 180;
 /** «+N» above the hero at most 4 times a second (docs/01-gdd.md 10.3). */
 const GAIN_POP_MIN_SEC = 0.25;
+/** MU-05 (docs/07-mobile-ui.md, rule 11): the level toast holds the slot this long. */
+const LEVEL_TOAST_SEC = 1.2;
+/** MU-01: numbers in full below this (above — «1,23M»). */
+const FULL_NUMBERS_BELOW = 1_000_000;
+/** MU-05: «+N» right of the hero's head — at this share of the hero's height, this many px to the right. */
+const MU_GAIN_HEAD = 0.85;
+const MU_GAIN_SIDE = 26;
 /** A gate melts into an arch in 0.4 s (docs/01-gdd.md 3.3). */
 const GATE_MELT_SEC = 0.4;
 /** The camera's far plane at least (src/render/camera.ts), and over the fog's end by this share. */
@@ -157,6 +164,10 @@ async function boot(): Promise<void> {
   const dict = await loadDictionary(i18nUrls[platform.lang]);
   setDictionary(platform.lang, dict);
   setNumberLocale(platform.lang);
+  // MU-01 (docs/07-mobile-ui.md «Токены»): the colours of the phone layout from theme.json as CSS variables.
+  for (const [k, v] of Object.entries(content.theme.ui.mu ?? {})) document.documentElement.style.setProperty(k === 'ink' ? '--ink' : `--mu-${k.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`, v);
+  // MU-01 (docs/07-mobile-ui.md, rule 10): the stages pace writes numbers below a million in full, «1 024».
+  if (content.balance.levels) setFullNumbersBelow(FULL_NUMBERS_BELOW);
   document.documentElement.lang = platform.lang;
   document.title = t('game.title');
 
@@ -1056,6 +1067,10 @@ async function boot(): Promise<void> {
 
   /** A button of the HUD column (docs/01-gdd.md 10.1); «More» lists them all with captions on a short window. */
   let menuShown: MenuItem[] = [];
+  /** MU-02: how many pets the player had when the pets window was last open (−1 — not counted yet). */
+  let petsSeen = -1;
+  /** MU-02 (docs/07-mobile-ui.md): the phone layout of the mockups is the layout of the stages pace. */
+  const muLayout = !!balance.levels;
   /**
    * The desktop shortcut (FM-13; docs/01-gdd.md 19.10, 03 SDK-08): on the base from summit `fromSummit` with the
    * summit group, when the platform can offer it (asked once a session) and its reward was never given; declined —
@@ -1173,6 +1188,7 @@ async function boot(): Promise<void> {
   };
   const openMenuWindow = (id: string): void => {
     if (id === 'pets') petsView?.openWindow();
+    else if (id === 'teleport') campView?.open();
     else if (id === 'shortcut') addShortcut();
     else if (id === 'shop') cosmeticsView?.openShop();
     else if (id === 'wardrobe') cosmeticsView?.openWardrobe();
@@ -1383,7 +1399,23 @@ async function boot(): Promise<void> {
     menuShown = [cm?.shop, petsView?.menuItem(), cm?.wardrobe, dailyView?.menuItem(), questsView?.questsItem(), questsView?.timeItem(), rebirthView?.menuItem(), shortcutItem(due)].filter(
       (x): x is MenuItem => !!x && due.has(x.id),
     );
-    hud?.setMenu(menuShown);
+    if (muLayout) {
+      // MU-02 (docs/07-mobile-ui.md, Q-MU-3): the column is always Teleport · Shop · Pets · More; a dot on Pets — a new pet.
+      const pets = save.pets?.length ?? 0;
+      if (petsSeen < 0) petsSeen = pets;
+      if (windows?.current === 'pets') petsSeen = pets;
+      hud?.setMenu([
+        { id: 'teleport', label: t('btn.teleport'), icon: 'teleport' },
+        { id: 'shop', label: t('btn.shop'), icon: 'bag' },
+        { id: 'pets', label: t('btn.pets'), icon: 'paw', badge: pets > petsSeen ? '!' : '' },
+        { id: 'more', label: t('btn.more'), icon: 'dots' },
+      ]);
+      // Rule 8: the balance of coins and trophies always in the counters (the test hooks and the windows change it too).
+      hud?.setCoins(formatNumber(sim.coins, numSuffix));
+      hud?.setTrophies(formatNumber(save.trophies ?? 0, numSuffix));
+      const gift = questsView?.timeItem();
+      hud?.setGift(gift ? { text: gift.badge === '!' ? t('btn.claim') : (gift.badge ?? ''), ready: gift.badge === '!' } : null);
+    } else hud?.setMenu(menuShown);
     ftueView?.update(gameDt, playSec, renderPos);
     hudView?.update(playSec);
     stageView?.update();
@@ -1452,9 +1484,11 @@ async function boot(): Promise<void> {
       if (pendingGain !== null && cameraRig && playSec - lastGainPopAt >= GAIN_POP_MIN_SEC && heroChar?.visible) {
         headPos.copy(renderPos);
         // «+N» at the feet (Q-019; tuning.hud.gainHeight), floating up past the hero; over the golden gift while carried.
-        headPos.y += sim.bonus?.carried ? HERO_HEIGHT + BONUS_HEIGHT : tuning.hud.gainHeight;
+        headPos.y += sim.bonus?.carried ? HERO_HEIGHT + BONUS_HEIGHT : muLayout ? HERO_HEIGHT * MU_GAIN_HEAD : tuning.hud.gainHeight;
         headPos.project(cameraRig.camera);
-        if (headPos.z < 1) hud.popGain(`+${formatNumber(pendingGain, (k) => t(`num.${k}`))}`, (headPos.x * 0.5 + 0.5 + tuning.hud.gainSide) * field.width, (0.5 - headPos.y * 0.5) * field.height);
+        // MU-05 (docs/07-mobile-ui.md): on the phone layout «+N» stands right of the head, MU_GAIN_SIDE px off it.
+        const gx = (headPos.x * 0.5 + 0.5) * field.width + (muLayout ? MU_GAIN_SIDE : tuning.hud.gainSide * field.width);
+        if (headPos.z < 1) hud.popGain(`+${formatNumber(pendingGain, (k) => t(`num.${k}`))}`, gx, (0.5 - headPos.y * 0.5) * field.height);
         lastGainPopAt = playSec;
         pendingGain = null;
       }
@@ -1602,6 +1636,8 @@ async function boot(): Promise<void> {
     okColor: theme.ui.ok,
     statColor: theme.ui.stat,
     statIcon: theme.ui.statIcon,
+    mu: muLayout,
+    onGift: () => openMenuWindow('timeRewards'),
     onSound: () => {
       save.settings.sound = !save.settings.sound;
       hud?.setSound(save.settings.sound);
@@ -1866,6 +1902,7 @@ async function boot(): Promise<void> {
     getWorld: () => g.world,
     faceUrl: skin ? faceDataUrl(skin.colors.head, skin.face) : '',
     numSuffix,
+    mu: muLayout,
     baseGoal: () => {
       if (!onBase) return null;
       const own = basePortals.find((p) => p.state === 'own');
@@ -1874,7 +1911,11 @@ async function boot(): Promise<void> {
     // «Level up!» (docs/01-gdd.md 22.2): the toast, confetti over the hero and the chime.
     onLevelUp: (n) => {
       // The toast on every 5th level (LV-12 review: every 1–3 s it was noise); the confetti and the chime always.
-      if (n % 5 === 0) hud?.toast(t('level.up'));
+      // MU-05 (l4-level-up): «LEVEL UP!» gold in the slot for 1.2 s with «Level N» under it.
+      if (n % 5 === 0) {
+        if (muLayout) hud?.toast(t('level.up').toLocaleUpperCase(), LEVEL_TOAST_SEC, true, t('level.bar', { n }));
+        else hud?.toast(t('level.up'));
+      }
       const p = sim.hero.pos;
       fx?.burst('confetti', p.x, p.y + 3, p.z, [theme.ui.coins, theme.ui.stat, '#ffffff'], 40, 9, 3);
       audio?.play('levelUp');

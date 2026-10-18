@@ -10,7 +10,7 @@
  * hand over the free egg and the shoes button (M2-08).
  */
 import { t } from './i18n.ts';
-import { icon } from './icons.ts';
+import { icon, setRich } from './icons.ts';
 import type { StickState } from '../input/types.ts';
 
 export interface HudOptions {
@@ -65,6 +65,11 @@ export interface HudOptions {
   gainText?: { scale: number; outline: number } | undefined;
   /** FM-04: the arrow to the shelter this many times its old size (tuning avalanche.arrowScale); absent — 1. */
   arrowScale?: number | undefined;
+  /** MU-02 (docs/07-mobile-ui.md): the phone layout of the mockups — counters in a row, the 2×2 column, the stage strip,
+   * one message slot, «N Speed» over the bar; absent — the layout of docs/01-gdd.md 10.1 (the comparison paces). */
+  mu?: boolean;
+  /** The gift plaque under pause and sound pressed (docs/07-mobile-ui.md: the «Gifts» window). */
+  onGift?: () => void;
 }
 
 /** A button of the right column: id, caption under the icon, icon id, optional counter on it («2/27»). */
@@ -198,6 +203,10 @@ export interface Hud {
   setPadLabel(state: { text: string; x: number; y: number; tap?: boolean } | null): void;
   /** The portrait of a phone (the game is landscape, docs/03): «Turn your phone» over everything; false — hidden. */
   setRotate(on: boolean): void;
+  /** MU-02: the gift plaque under pause and sound — a timer, or «Take» in gold when a gift is ready; null hides it. */
+  setGift(state: { text: string; ready: boolean } | null): void;
+  /** MU-02: who holds the message slot now ('' — nobody): wave, toast, ads, need, tutor, hint. */
+  readonly slot: string;
   readonly jumpButton: HTMLButtonElement;
   /** Body of the pause and settings window (the caller opens it in the window frame). */
   readonly pausePanel: HTMLElement;
@@ -216,6 +225,11 @@ const SHORT_BTN = 44;
 const SHORT_GAP = 6;
 const MENU_EDGE = 8;
 const MENU_BOTTOM = 0.72;
+
+/** MU-02 (l1-run-hud-a): the stick ring 84 px, its centre at (76, 258) — the ring from y 216, 40 px under the column. */
+const MU_STICK = 84;
+const MU_STICK_X = 76;
+const MU_STICK_Y = 258;
 
 /** The click a browser sends after a tap comes within this many ms of the finger lifting. */
 const TAP_CLICK_MS = 800;
@@ -273,11 +287,25 @@ function onPress(b: HTMLElement, fn: () => void): void {
 }
 
 export function createHud(host: HTMLElement, opts: HudOptions): Hud {
-  const root = el('div', 'hud');
+  const root = el('div', opts.mu ? 'hud mu' : 'hud');
   root.dataset['role'] = 'hud';
   host.appendChild(root);
+  /** MU-02 (docs/07-mobile-ui.md «Поля кадра»): a touch screen taller than the 330 px a phone shows under the browser
+   * panels keeps its bottom 45 px free (the layout is counted from the visible 330). */
+  const VISIBLE_H = 330;
+  const BOTTOM_PANEL_MAX = 45;
 
-  const pauseBtn = el('button', 'hud-btn hud-pause', '‖');
+  const pauseBtn = el('button', 'hud-btn hud-pause');
+  pauseBtn.innerHTML = icon('pause');
+  // MU-02: the gift plaque under pause and sound — the «Gifts» window (rewards for the time in the game).
+  const giftBtn = el('button', 'hud-btn hud-gift');
+  giftBtn.dataset['hud'] = 'gift';
+  const giftIcon = el('span', 'hud-gift-icon');
+  giftIcon.innerHTML = icon('giftLine');
+  const giftText = el('span', 'hud-gift-text');
+  giftBtn.append(giftIcon, giftText);
+  onPress(giftBtn, () => opts.onGift?.());
+  if (opts.mu) root.appendChild(giftBtn);
   pauseBtn.dataset['hud'] = 'pause';
   pauseBtn.setAttribute('aria-label', t('btn.pause'));
   onPress(pauseBtn, () => opts.onPause());
@@ -289,7 +317,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   onPress(soundBtn, () => opts.onSound());
   root.appendChild(soundBtn);
 
-  const jumpButton = el('button', 'hud-btn hud-jump', '↑');
+  const jumpButton = el('button', 'hud-btn hud-jump');
+  jumpButton.innerHTML = icon('jump');
   jumpButton.dataset['hud'] = 'jump';
   jumpButton.setAttribute('aria-label', t('btn.jump'));
   jumpButton.addEventListener('pointerdown', (ev) => {
@@ -323,6 +352,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   statSlow.dataset['role'] = 'slow';
   statBody.append(statValue, statPer, statSection, statSlow);
   const statGain = el('span', 'hud-stat-gain');
+  // MU-02: «N Speed» — the word after the number (the phone layout only).
+  statValue.after(el('span', 'hud-stat-word', t('hud.speed')));
   stat.append(statIcon, statBody, statGain);
   left.appendChild(stat);
 
@@ -343,6 +374,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   tutor.dataset['role'] = 'tutor';
   levelBox.append(tutor, levelBar);
   root.appendChild(levelBox);
+  // MU-02: the tutorial step is a message of the slot on the phone layout.
+  if (opts.mu) root.appendChild(tutor);
 
   // Mountain bar at the top centre: a slope rising left to right, zone colours, wall and cave marks, the hero's face.
   const mountain = el('div', 'hud-mountain');
@@ -357,6 +390,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   mountainWave.innerHTML = icon('wave');
   // The slope (zones, wall and cave marks) is clipped to a wedge; the hero, the flag and the wave sit on top unclipped.
   const mountainSlope = el('div', 'hud-mountain-slope');
+  // MU-02: the strip filled in the Speed colour up to the hero's face.
+  const mountainFill = el('span', 'hud-mfill');
   mountain.append(mountainLabel, mountainBar);
   mountainBar.append(mountainSlope, mountainFlag, mountainWave, mountainHero);
   root.appendChild(mountain);
@@ -383,11 +418,11 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   coins.dataset['role'] = 'coins';
   coins.setAttribute('aria-label', t('hud.coins'));
   coins.style.setProperty('--coins', opts.coinColor);
-  const coinIcon = el('span', 'hud-coin-icon', '\u2744');
+  const coinIcon = el('span', 'hud-coin-icon');
+  coinIcon.innerHTML = icon('coin');
   // Stages pace (docs/01-gdd.md 22.8): the wallet is trophies — the cup on the trophy colour, the old trophy plaque off.
   if (opts.coinsAsTrophies) {
-    coinIcon.textContent = '';
-    coinIcon.innerHTML = icon('trophy');
+    coinIcon.innerHTML = icon('cup');
     coins.style.setProperty('--coins', opts.trophyColor);
     coins.setAttribute('aria-label', t('hud.trophies'));
   }
@@ -401,7 +436,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   trophies.setAttribute('aria-label', t('hud.trophies'));
   trophies.style.setProperty('--trophies', opts.trophyColor);
   const trophyIcon = el('span', 'hud-trophy-icon');
-  trophyIcon.innerHTML = icon('trophy');
+  trophyIcon.innerHTML = icon('cup');
   const trophyValue = el('span', 'hud-trophy-value', '0');
   trophies.append(trophyIcon, trophyValue);
   left.appendChild(trophies);
@@ -443,7 +478,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     opts.onPadLabel?.();
   });
   padLabel.style.setProperty('--coins', opts.coinColor);
-  const padIcon = el('span', 'hud-pad-icon', '\u2744');
+  const padIcon = el('span', 'hud-pad-icon');
+  padIcon.innerHTML = icon('coin');
   const padText = el('span', '');
   padLabel.append(padText, padIcon);
   root.appendChild(padLabel);
@@ -479,7 +515,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   veil.dataset['role'] = 'veil';
   const banner = el('div', 'hud-wave');
   banner.dataset['role'] = 'wave-banner';
-  const arrow = el('div', 'hud-cave-arrow', '\u27a4');
+  const arrow = el('div', 'hud-cave-arrow');
+  arrow.innerHTML = ARROW_SVG;
   arrow.dataset['role'] = 'cave-arrow';
   const wayArrow = el('div', 'hud-way');
   wayArrow.dataset['role'] = 'way-arrow';
@@ -497,7 +534,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   let currentToast: Toast | null = null;
   const showToast = (text: string, sec: number, gold: boolean, sub: string | undefined, onShow?: () => void): void => {
     currentToast = { text, sec, gold, sub };
-    toastMain.textContent = text;
+    setRich(toastMain, text);
     toastSub.textContent = sub ?? '';
     toastEl.classList.toggle('gold', gold);
     toastEl.classList.remove('shown');
@@ -506,6 +543,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     onShow?.();
     // The hint plaque steps aside while a toast is up: one message near the hero at a time.
     root.classList.add('toasting');
+    updateSlot();
     if (toastTimer) clearTimeout(toastTimer);
     toastTimer = setTimeout(() => {
       toastTimer = null;
@@ -514,6 +552,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       root.classList.remove('toasting');
       const next = banner.classList.contains('shown') ? undefined : pendingToasts.shift();
       if (next) showToast(next.text, next.sec, next.gold, next.sub, next.onShow);
+      else updateSlot();
     }, sec * 1000);
   };
 
@@ -674,6 +713,28 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   cont.addEventListener('click', () => opts.onContinue());
   pauseMain.appendChild(cont);
 
+  /**
+   * MU-02 (docs/07-mobile-ui.md, rule 11): one message slot under the stage strip — the avalanche banner, a toast, the
+   * ad button of the camp, the gate plaque, the tutorial step or a hint; the first of them that is up holds it, the rest
+   * wait hidden.
+   */
+  const slotOwner = (): string => {
+    if (banner.classList.contains('shown')) return 'wave';
+    if (toastEl.classList.contains('shown')) return 'toast';
+    if (ads.classList.contains('shown')) return 'ads';
+    if (need.classList.contains('shown')) return 'need';
+    if (tutor.classList.contains('shown')) return 'tutor';
+    if (hint.classList.contains('shown')) return 'hint';
+    return '';
+  };
+  const updateSlot = (): void => {
+    if (!opts.mu) return;
+    const o = slotOwner();
+    if (root.dataset['slot'] !== o) root.dataset['slot'] = o;
+  };
+  /** The single «+N» of the phone layout (docs/07-mobile-ui.md, rule 18): one number at a time. */
+  const muGain = gainPool[0]!;
+
   let touchMode = false;
   let fieldW = 1;
   let fieldH = 1;
@@ -681,6 +742,15 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     root,
     jumpButton,
     pausePanel,
+    get slot() {
+      return root.dataset['slot'] ?? '';
+    },
+    setGift(state) {
+      giftBtn.classList.toggle('shown', state !== null);
+      if (!state) return;
+      if (giftText.textContent !== state.text) giftText.textContent = state.text;
+      giftBtn.classList.toggle('ready', state.ready);
+    },
     setCommunityGifts(s) {
       for (const [key, c] of giftCards) {
         const k = key.startsWith('base-') ? key.slice(5) : key;
@@ -688,8 +758,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       }
     },
     setTouchMode(touch) {
+      const was = touchMode;
       touchMode = touch;
       root.classList.toggle('touch', touch);
+      if (opts.mu && was !== touch) hud.layout(fieldW, fieldH);
     },
     setAutoRun(on) {
       autoRunToggle.dataset['on'] = String(on);
@@ -699,6 +771,13 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       qualitySel.value = level;
     },
     updateStick(stick, fieldLeft, fieldTop) {
+      if (opts.mu && touchMode && !stick.active) {
+        // MU-02 (l1-run-hud-a): the stick rests at the bottom left, its ring from y 216, visible on the snow.
+        stickBase.style.opacity = '1';
+        stickBase.style.transform = `translate(${MU_STICK_X}px, ${MU_STICK_Y}px)`;
+        stickKnob.style.transform = 'translate(0px, 0px)';
+        return;
+      }
       if (!touchMode || !stick.active) {
         stickBase.style.opacity = '0';
         return;
@@ -710,6 +789,20 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     layout(width, height) {
       fieldW = width;
       fieldH = height;
+      if (opts.mu) {
+        // MU-02: fixed sizes of docs/07-mobile-ui.md (jump 64, round buttons 44, stick 84); the bottom band of a phone
+        // taller than its visible 330 px stays free.
+        const panel = touchMode ? Math.max(0, Math.min(BOTTOM_PANEL_MAX, height - VISIBLE_H)) : 0;
+        root.style.setProperty('--mu-bottom', `${panel}px`);
+        jumpButton.style.width = jumpButton.style.height = '';
+        for (const b of [pauseBtn, soundBtn]) b.style.width = b.style.height = '';
+        soundBtn.style.marginRight = '';
+        menu.style.top = '';
+        stickBase.style.width = stickBase.style.height = `${MU_STICK}px`;
+        stickBase.style.marginLeft = stickBase.style.marginTop = `${-MU_STICK / 2}px`;
+        hud.setMenu(menuAll);
+        return;
+      }
       const short = Math.min(width, height);
       const size = Math.max(44, Math.round(short * opts.jumpButtonFrac));
       jumpButton.style.width = `${size}px`;
@@ -732,12 +825,15 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     setHint(h) {
       hint.classList.toggle('shown', h !== null);
       root.classList.toggle('urgent', h?.urgent === true);
+      updateSlot();
       if (!h) return;
       if (hintText.textContent !== h.text) hintText.textContent = h.text;
       hint.dataset['pict'] = h.pict ?? '';
       const turn = h.arrow ?? null;
       hintArrow.classList.toggle('shown', turn !== null);
       if (turn !== null) hintArrow.style.transform = `rotate(${turn.toFixed(3)}rad)`;
+      // The phone layout: the hint is the text of the slot, not a plaque by the hero.
+      if (opts.mu) return;
       // Inside the field, below the top HUD band and above the bottom buttons (docs/01-gdd.md 6.5: never over the HUD).
       const w = hint.offsetWidth;
       const hh = hint.offsetHeight;
@@ -756,7 +852,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     setShoes(state) {
       shoes.classList.toggle('shown', state !== null);
       if (!state) return;
-      if (shoesText.textContent !== state.text) shoesText.textContent = state.text;
+      setRich(shoesText, state.text);
       shoes.classList.toggle('can', state.can);
       shoesFill.style.transform = `scaleX(${state.can ? 1 : Math.max(0, Math.min(1, state.progress)).toFixed(3)})`;
     },
@@ -778,6 +874,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
         const next = pendingToasts.shift();
         if (next) showToast(next.text, next.sec, next.gold, next.sub, next.onShow);
       }
+      if (was !== (text !== null)) updateSlot();
     },
     waveBannerRect() {
       if (!banner.classList.contains('shown')) return null;
@@ -851,7 +948,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       statGain.classList.add('show');
     },
     setMountain(bar) {
-      mountainSlope.replaceChildren();
+      mountainSlope.replaceChildren(mountainFill);
       const pct = (f: number): string => `${(Math.max(0, Math.min(1, f)) * 100).toFixed(2)}%`;
       for (const z of bar.zones) {
         const n = el('span', 'hud-mz');
@@ -881,6 +978,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     updateMountain(label, hero, wave, blinkCave) {
       if (mountainLabel.textContent !== label) mountainLabel.textContent = label;
       mountainHero.style.left = `${(Math.max(0, Math.min(1, hero)) * 100).toFixed(2)}%`;
+      if (opts.mu) mountainFill.style.width = mountainHero.style.left;
       mountainWave.classList.toggle('shown', wave !== null);
       if (wave !== null) mountainWave.style.left = `${(Math.max(0, Math.min(1, wave)) * 100).toFixed(2)}%`;
       if (blinkCave !== blinking) {
@@ -905,7 +1003,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       menuAll = items;
       // Short window (< 420 px): 3 icon buttons + «More» while they fit above 72% H, otherwise one less (10.1).
       let shown: readonly MenuItem[] = items;
-      if (fieldH < SHORT_H) {
+      if (fieldH < SHORT_H && !opts.mu) {
         const top = MENU_EDGE + SHORT_BTN + SHORT_GAP;
         const fit = Math.max(1, Math.floor((fieldH * MENU_BOTTOM - top + SHORT_GAP) / (SHORT_BTN + SHORT_GAP)));
         if (items.length > fit) {
@@ -942,7 +1040,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       }
     },
     setAdButtons(list) {
-      ads.classList.toggle('shown', list.length > 0);
+      if (ads.classList.contains('shown') !== list.length > 0) {
+        ads.classList.toggle('shown', list.length > 0);
+        updateSlot();
+      }
       while (adBtns.length < list.length) {
         const b = el('button', 'hud-ad');
         let down: { x: number; y: number } | null = null;
@@ -971,7 +1072,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
         if (!item) return;
         b.dataset['ad'] = item.id;
         b.dataset['hud'] = `ad-${item.id}`;
-        if (b.textContent !== item.text) b.textContent = item.text;
+        setRich(b, item.text);
         b.disabled = item.busy;
       });
     },
@@ -1007,15 +1108,21 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (state?.tap) padLabel.dataset['hud'] = 'pad';
       else delete padLabel.dataset['hud'];
       if (!state) return;
-      if (padText.textContent !== state.text) padText.textContent = state.text;
+      setRich(padText, state.text);
       padLabel.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
     },
     setTutor(text) {
-      tutor.classList.toggle('shown', text !== null);
+      if (tutor.classList.contains('shown') !== (text !== null)) {
+        tutor.classList.toggle('shown', text !== null);
+        updateSlot();
+      }
       if (text !== null && tutor.textContent !== text) tutor.textContent = text;
     },
     setNeed(state) {
-      need.classList.toggle('shown', state !== null);
+      if (need.classList.contains('shown') !== (state !== null)) {
+        need.classList.toggle('shown', state !== null);
+        updateSlot();
+      }
       root.classList.toggle('need-on', state !== null);
       if (!state) return;
       if (need.textContent !== state.text) need.textContent = state.text;
@@ -1040,7 +1147,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (text !== null && trophyValue.textContent !== text) trophyValue.textContent = text;
     },
     popGain(text, x, y) {
-      const node = gainPool[gainNext % gainPool.length]!;
+      const node = opts.mu ? muGain : gainPool[gainNext % gainPool.length]!;
       gainNext++;
       node.textContent = text;
       node.style.left = `${Math.round(x)}px`;

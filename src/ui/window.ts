@@ -2,6 +2,8 @@
 // Called by: main.ts, app/handles.ts and the app/* views cosmetics, daily, footsteps, pets, quests, rebirth.
 // Keep: Opened only by a player's button; never a dead end (docs/03 GD-05): close cross or next button always present; onChange pauses game and avalanche; data-hud on both.
 
+import { icon } from './icons.ts';
+
 /**
  * Window frame (docs/01-gdd.md 10.2): one window at a time over a 50% veil, opened only by a player's button;
  * closes by the 48 px cross at the top right, a tap on the veil or Esc (the caller routes Esc to `close`).
@@ -53,7 +55,7 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
   close.className = 'win-close';
   close.dataset['hud'] = 'win-close';
   close.setAttribute('aria-label', opts.closeLabel);
-  close.textContent = '✕';
+  close.innerHTML = icon('close');
   top.append(title, head, close);
   const body = document.createElement('div');
   body.className = 'win-body';

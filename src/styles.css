@@ -1,11 +1,28 @@
 @import '@fontsource/rubik/cyrillic-500.css';
 @import '@fontsource/rubik/latin-500.css';
+@import '@fontsource/rubik/cyrillic-600.css';
+@import '@fontsource/rubik/latin-600.css';
+@import '@fontsource/rubik/cyrillic-700.css';
+@import '@fontsource/rubik/latin-700.css';
 @import '@fontsource/rubik/cyrillic-800.css';
 @import '@fontsource/rubik/latin-800.css';
 
 :root {
   --font: 'Rubik', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* MU-01 tokens (docs/07-mobile-ui.md «Токены»): --ink, --mu-plaque, --mu-stat, --mu-gold … come from theme.json ui.mu
+     (main.ts sets them on the page). */
+  /* Text on the scene: an ink outline 1.5 px up to 14 px, 2 px from 18 px. */
+  --mu-o15: -1.5px 0 0 var(--ink), 1.5px 0 0 var(--ink), 0 -1.5px 0 var(--ink), 0 1.5px 0 var(--ink), -1px -1px 0 var(--ink), 1px 1px 0 var(--ink), -1px 1px 0 var(--ink), 1px -1px 0 var(--ink);
+  --mu-o2: -2px 0 0 var(--ink), 2px 0 0 var(--ink), 0 -2px 0 var(--ink), 0 2px 0 var(--ink), -1.5px -1.5px 0 var(--ink), 1.5px 1.5px 0 var(--ink), -1.5px 1.5px 0 var(--ink), 1.5px -1.5px 0 var(--ink);
 }
+
+/* MU-01 marks (docs/07-mobile-ui.md «Знаки»): SVG only, 1.15 em of the text by them, 4 px apart. */
+.mark { display: inline-block; flex: none; width: 1.15em; height: 1.15em; margin: 0 4px; vertical-align: -0.22em; line-height: 0; }
+.mark:first-child { margin-left: 0; }
+.mark:last-child { margin-right: 0; }
+.mark svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.coin-face { fill: var(--mu-gold); stroke: var(--ink); }
+.coin-ink { stroke: var(--ink); stroke-width: 1.7; stroke-linecap: round; }
 
 #ui {
   position: absolute;
@@ -434,3 +451,92 @@ canvas.fallback {
 .tp-item.armed { background: #4cd964; }
 .hud-pad.tap { pointer-events: auto; cursor: pointer; }
 @media (max-height: 430px) { .pause-body .howto { display: none; } }
+
+/* ===== MU-02…MU-06: the phone layout of docs/07-mobile-ui.md (l1-run-hud-a … l5-camp), the stages pace ===== */
+.hud.mu { --mu-bottom: 0px; font-variant-numeric: tabular-nums; }
+.hud.mu .hud-btn { box-shadow: none; }
+/* Counters in one row of text at (16, 8): coin 240 · cup 3; the balance of both is always there. */
+.hud.mu .hud-left { left: calc(16px + env(safe-area-inset-left)); top: calc(8px + env(safe-area-inset-top)); height: 32px; flex-direction: row; align-items: center; gap: 16px; }
+.hud.mu .hud-left .hud-stat { display: none; }
+.hud.mu .hud-coins, .hud.mu .hud-trophies { display: flex; min-width: 0; height: 32px; padding: 0; gap: 4px; background: none; border-radius: 0; font-size: 14px; font-weight: 700; color: #fff; text-shadow: var(--mu-o15); transform: none; opacity: 1; transition: none; }
+.hud.mu .hud-coin-icon, .hud.mu .hud-trophy-icon { width: 16px; height: 16px; padding: 0; background: none; box-shadow: none; border-radius: 0; color: #fff; }
+.hud.mu .hud-trophy-icon svg { filter: drop-shadow(0 0 1px var(--ink)) drop-shadow(0 0 0.5px var(--ink)); }
+.hud.mu .hud-coin-gain { display: none; }
+.hud.mu .hud-coins.shown.pulse { animation: mu-pulse 0.4s ease-out; }
+@keyframes mu-pulse { 40% { transform: scale(1.12); } }
+/* The column 2×2 under the counters at (16, 48): tiles 44 px, captions 12 px under them, columns 68 px 12 apart. */
+.hud.mu .hud-menu { left: calc(16px + env(safe-area-inset-left)); right: auto; top: calc(48px + env(safe-area-inset-top)); display: grid; grid-template-columns: 68px 68px; column-gap: 12px; row-gap: 8px; align-items: start; justify-items: center; }
+.hud.mu .hud-menu-btn { position: relative; width: 68px; height: 60px; padding: 0; border-radius: 0; background: none; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 2px; }
+.hud.mu .hud-menu-icon { width: 44px; height: 44px; padding: 10px; box-sizing: border-box; border-radius: 12px; background: var(--mu-plaque); color: #fff; }
+.hud.mu .hud-menu-label { display: block; font-size: 12px; font-weight: 600; line-height: 14px; color: #fff; text-shadow: var(--mu-o15); white-space: nowrap; }
+.hud.mu .hud-menu-badge { right: 8px; top: -3px; width: 10px; height: 10px; padding: 0; border-radius: 50%; background: var(--mu-ok); border: 2px solid #fff; font-size: 0; line-height: 0; }
+.hud.mu .hud-menu-btn.glow { animation: none; }
+.hud.mu .hud-menu-btn.glow .hud-menu-icon { animation: menu-glow 1.4s ease-out 1; }
+/* Top centre: «Mountain 1 · stage 3/10» 14 px and the stage strip 300×10 with ticks, the hero's face and the flag. */
+.hud.mu .hud-mountain { top: calc(8px + env(safe-area-inset-top)); width: 300px; }
+.hud.mu .hud-mountain-label { font-size: 14px; line-height: 16px; font-weight: 800; word-spacing: 2px; text-shadow: var(--mu-o15); }
+.hud.mu .hud-mountain-bar { height: 10px; margin: 8px 0 0; border-radius: 5px; background: rgba(255, 255, 255, 0.55); }
+.hud.mu .hud-mountain-slope { clip-path: none; background: none; border-radius: 5px; overflow: hidden; }
+.hud.mu .hud-mz, .hud.mu .hud-mcave, .hud.mu .hud-mountain-wave { display: none; }
+.hud.mu .hud-mwall { top: 2px; bottom: auto; width: 2px; height: 6px; margin-left: -1px; background: rgba(27, 42, 58, 0.45); }
+.hud.mu .hud-mfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--mu-stat); }
+.hud.mu .hud-mountain-hero { bottom: -4px; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%; border: 2px solid var(--ink); }
+.hud.mu .hud-mountain-flag { right: -4px; bottom: 2px; width: 16px; height: 16px; color: #fff; }
+/* The message slot under the strip (top 50): min-height 32, 14 px on one line, not wider than 54 % of the frame. */
+.hud.mu .hud-goal { display: none; }
+.hud.mu .hud-hint, .hud.mu .hud-need, .hud.mu .hud-tutor, .hud.mu .hud-wave { position: absolute; left: 50%; top: calc(50px + env(safe-area-inset-top)); transform: translateX(-50%); box-sizing: border-box; max-width: 54%; min-height: 32px; margin: 0; padding: 6px 14px; display: none; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 12px; background: var(--mu-plaque-strong); color: #fff; font-size: 14px; font-weight: 600; line-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: none; box-shadow: none; animation: none; opacity: 1; z-index: 4; }
+.hud.mu[data-slot='hint'] .hud-hint.shown, .hud.mu[data-slot='need'] .hud-need.shown, .hud.mu[data-slot='tutor'] .hud-tutor.shown, .hud.mu[data-slot='wave'] .hud-wave.shown { display: flex; visibility: visible; }
+.hud.mu .hud-wave { border: 2px solid var(--threat); }
+.hud.mu .hud-hint .hud-pict, .hud.mu .hud-hint-arrow { display: none !important; }
+.hud.mu .hud-need.ok { background: var(--mu-plaque-strong); }
+.hud.mu .hud-tutor { background: var(--mu-plaque-strong); color: #fff; }
+.hud.mu.need-on .hud-hint, .hud.mu.toasting .hud-hint { visibility: visible; }
+/* The ad button of the camp in the slot: blue, the ad mark and the word «Ad». */
+.hud.mu .hud-ads { left: 50%; top: calc(48px + env(safe-area-inset-top)); transform: translateX(-50%); flex-direction: row; max-width: 60%; gap: 8px; }
+.hud.mu:not([data-slot='ads']) .hud-ads { display: none; }
+.hud.mu .hud-ad { min-height: 44px; padding: 0 18px; border: 0; border-radius: 12px; background: var(--mu-blue); color: #fff; font: 600 14px/1.2 var(--font); text-shadow: none; white-space: nowrap; display: flex; align-items: center; }
+/* Toasts in the slot: gold 24 px with the ink outline, the line under it 14 px; top 40, never over the hero. */
+.hud.mu .hud-toast, .hud.mu.plated .hud-toast { top: calc(40px + env(safe-area-inset-top)); transform: translateX(-50%) scale(0.9); padding: 0; background: none; border-radius: 0; color: var(--mu-gold); font-size: 24px; line-height: 28px; font-weight: 800; text-shadow: var(--mu-o2); z-index: 4; }
+.hud.mu .hud-toast.shown { transform: translateX(-50%) scale(1); }
+.hud.mu .hud-toast-sub { font-size: 14px; line-height: 18px; color: #fff; text-shadow: var(--mu-o15); }
+.hud.mu:not([data-slot='toast']) .hud-toast { opacity: 0; }
+.hud.mu.urgent .hud-toast.shown { opacity: 1; }
+.hud.mu.levels .hud-toast { top: calc(40px + env(safe-area-inset-top)); }
+/* Sound and pause: circles 44 at the top right; the gift plaque 44 high under them (top 60). */
+.hud.mu .hud-pause, .hud.mu .hud-sound { width: 44px; height: 44px; top: calc(8px + env(safe-area-inset-top)); background: var(--mu-plaque); color: #fff; }
+.hud.mu .hud-pause { right: calc(16px + env(safe-area-inset-right)); }
+.hud.mu .hud-sound { right: calc(68px + env(safe-area-inset-right)); margin-right: 0; }
+.hud.mu .hud-pause svg, .hud.mu .hud-sound svg { width: 22px; height: 22px; }
+.hud-gift { display: none; }
+.hud.mu .hud-gift.shown { display: flex; top: calc(60px + env(safe-area-inset-top)); right: calc(16px + env(safe-area-inset-right)); height: 44px; min-width: 88px; padding: 0 14px; gap: 8px; border-radius: 22px; background: var(--mu-plaque); color: #fff; font-size: 14px; font-weight: 700; }
+.hud.mu .hud-gift-icon { width: 20px; height: 20px; display: flex; }
+.hud.mu .hud-gift-icon svg { width: 100%; height: 100%; }
+.hud.mu .hud-gift.ready { color: var(--mu-gold); }
+/* Bottom centre: «N Speed» 18 px (bottom 102) → the level bar 320×26 (bottom 68) → the shoes button (bottom 16). */
+.hud.mu .hud-level { bottom: calc(68px + var(--mu-bottom) + env(safe-area-inset-bottom)); width: 320px; gap: 8px; }
+.hud.mu .hud-level .hud-stat { min-width: 0; min-height: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; animation: none; filter: none; }
+.hud.mu .hud-stat-icon, .hud.mu .hud-stat-per, .hud.mu .hud-stat-gain { display: none; }
+.hud.mu .hud-stat-body { flex-direction: row; align-items: baseline; gap: 6px; }
+.hud.mu .hud-level .hud-stat-value, .hud.mu .hud-stat-word { font-size: 18px; line-height: 22px; font-weight: 800; color: #fff; text-shadow: var(--mu-o2); }
+.hud-stat-word { display: none; }
+.hud.mu .hud-stat-word { display: inline; }
+.hud.mu .hud-stat-section { margin: 0; padding: 0; background: none; color: var(--mu-stat); font-size: 18px; line-height: 22px; text-shadow: var(--mu-o2); }
+.hud.mu .hud-stat-slow { margin: 0; padding: 0; background: none; color: #fff; font-size: 14px; text-shadow: var(--mu-o15); }
+.hud.mu .hud-level-bar { height: 26px; border-radius: 13px; border: 1.5px solid rgba(255, 255, 255, 0.45); background: var(--mu-plaque); }
+.hud.mu .hud-level-text { justify-content: space-between; padding: 0 12px; font-size: 14px; text-shadow: var(--mu-o15); }
+.hud.mu .hud-level-title { font-weight: 700; }
+.hud.mu .hud-level-progress { font-weight: 500; }
+.hud.mu .hud-shoes, .hud.mu.levels .hud-shoes, .hud.mu.touch .hud-shoes { left: 50%; right: auto; bottom: calc(16px + var(--mu-bottom) + env(safe-area-inset-bottom)); transform: translateX(-50%); height: auto; min-height: 44px; min-width: 0; padding: 0 16px; border: 2px solid transparent; border-radius: 12px; background: var(--mu-plaque); color: #fff; font: 600 14px/1.2 var(--font); text-shadow: none; }
+.hud.mu .hud-shoes.can { background: var(--mu-plaque); border-color: var(--mu-stat); }
+.hud.mu .hud-shoes.can::after, .hud.mu .hud-shoes-fill { display: none; }
+.hud.mu .hud-shoes-text { display: flex; align-items: center; }
+/* Jump 64 px, 16 px from the right and bottom edges, an ink arrow on green; the stick 84 px with a dark rim. */
+.hud.mu .hud-jump { width: 64px; height: 64px; right: calc(16px + env(safe-area-inset-right)); bottom: calc(16px + var(--mu-bottom) + env(safe-area-inset-bottom)); background: var(--mu-ok); color: var(--ink); }
+.hud.mu .hud-jump svg { width: 30px; height: 30px; }
+.hud.mu .hud-stick { border: 2px solid rgba(27, 42, 58, 0.45); background: rgba(255, 255, 255, 0.28); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7); }
+.hud.mu .hud-stick-knob { width: 36px; height: 36px; margin: -18px 0 0 -18px; border: 2px solid rgba(27, 42, 58, 0.45); box-sizing: border-box; background: rgba(255, 255, 255, 0.92); }
+/* «+N» by the hero: 18 px in the Speed colour with the ink outline, one number; hidden while a toast is up. */
+.hud.mu .hud-gain, .hud.mu.gain-outlined .hud-gain { font-size: 18px; font-weight: 800; color: var(--mu-stat); text-shadow: var(--mu-o2); transform: translate(0, -50%); }
+.hud.mu .hud-gain.show { animation: mu-gain 0.5s ease-out forwards; }
+@keyframes mu-gain { 0% { opacity: 0; transform: translate(0, -30%); } 20% { opacity: 1; transform: translate(0, -50%); } 100% { opacity: 0; transform: translate(0, -120%); } }
+.hud.mu.toasting .hud-gain { visibility: hidden; }
