@@ -21,10 +21,10 @@ test('the stage tutorial step by step, then the camp teleport to a passed stage 
     window.__TEST__!.teleport(z, 0, y + 0.5);
   }, [threshold(s3.level) * 0.5, f2.z, f2.y] as const);
   await expect(tutor).toBeVisible();
-  await expect(tutor).toContainText(/Добеги до награды|Run to the reward/);
+  await expect(tutor).toContainText(/Каждый шаг даёт Скорость|Every step gives Speed/);
   // 2. In the safe finish: «Take the trophies».
   await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.5), [s2.finish[0] + 2, s2.y] as const);
-  await expect(tutor).toContainText(/Возьми награду|Take the reward/);
+  await expect(tutor).toContainText(/Встань на площадку|Step on the pad/);
   await page.evaluate(([x, z]) => window.__TEST__!.botPath([[x, z]]), [s2.pad.x, s2.pad.z] as const);
   await page.waitForFunction(() => window.__TEST__!.state().padsTaken >= 1, undefined, { timeout: 20_000 });
   await page.evaluate(() => window.__TEST__!.botPath(null));

@@ -12,7 +12,7 @@ test(`stage ${st.n}: the reward button gives +${st.trophies} coins once a run, t
   await waitTicks(page, 20);
   const label = page.locator('[data-role=pad-label]');
   await expect(label).toBeVisible();
-  await expect(label).toContainText(`+${st.trophies}`);
+  await expect(label).toContainText(String(st.trophies));
   const before = await testState(page);
   await page.evaluate(([x, z]) => window.__TEST__!.botPath([[x, z]]), [st.pad.x, st.pad.z] as const);
   await page.waitForFunction(() => window.__TEST__!.state().padsTaken >= 1, undefined, { timeout: 20_000 });

@@ -14,7 +14,8 @@ for (const [w, h] of [
     await expect(bar).toBeVisible();
     await expect(bar).toContainText(/(Уровень|Level) 1/);
     const box = (await bar.boundingBox())!;
-    expect(box.y + box.height, 'bar at the bottom').toBeGreaterThan(h * 0.85);
+    // MU-02 (l1-run-hud-a): the bar ends 68 px over the bottom (the shoes button is under it).
+    expect(Math.abs(box.y + box.height - (h - 68)), 'bar at the bottom').toBeLessThanOrEqual(2);
     expect(Math.abs(box.x + box.width / 2 - w / 2), 'bar centred').toBeLessThan(4);
     const stat = (await page.locator('[data-role=stat]').boundingBox())!;
     expect(stat.y + stat.height, 'Speed over the bar').toBeLessThanOrEqual(box.y + box.height - (await page.locator('.hud-level-bar').boundingBox())!.height + 1);

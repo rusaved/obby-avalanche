@@ -691,3 +691,7 @@ canvas.fallback {
 #ui.mu .card-price svg { color: #fff; }
 #ui.mu .card-price .mark-cup svg, #ui.mu .win-head .mark-cup svg { color: #fff; }
 #ui.mu .records-row { display: flex; align-items: center; min-height: 44px; padding: 0 16px; margin-bottom: 8px; border-radius: 12px; background: var(--mu-card); font-size: 14px; font-weight: 600; }
+#ui.mu .qs-num { font-size: 12px; }
+#ui.mu .win-head { flex-wrap: wrap; min-width: 0; }
+#ui.mu .win-row, #ui.mu .slots { flex-wrap: wrap; }
+#ui.mu .win-panel { overflow-x: hidden; }

@@ -21,7 +21,8 @@ for (const wi of [1, 2]) {
       await waitTicks(page, 20);
       const s = await testState(page);
       expect(s.stage, `stage ${st.n} under the hero`).toBe(st.n);
-      await expect(page.locator('[data-role=mountain]')).toContainText(`${st.n}/${stages.length}`);
+      // MU-06: the start of stage 1 is the camp — «Camp · mountain N».
+      await expect(page.locator('[data-role=mountain]')).toContainText(st.n === 1 ? new RegExp(`${st.n}/${stages.length}|Лагерь · гора ${wi}`) : `${st.n}/${stages.length}`);
       if (st.type === 'maze' || st.type === 'avalanche') {
         const calls = await page.evaluate(() => window.__TEST__!.renderInfo()?.calls ?? 0);
         expect(calls, `draw calls on ${st.type}`).toBeLessThanOrEqual(60);

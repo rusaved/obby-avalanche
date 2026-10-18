@@ -93,9 +93,11 @@ test('SD-13: the camp teleport 10 times in a row, after the trophy button, after
   await page.evaluate(() => window.__TEST__!.botPath(null));
   await expect(win.locator('.tp-item').first()).toBeDisabled();
   await expect(win.locator('.tp-item').first()).toContainText(/ещё не пройден|not passed yet/);
-  await expect(page.locator('[data-role=pad-label]')).toBeVisible();
+  // MU-07 (rule 13): the HUD under an open window is hidden, the pad label with it; back once the window is closed.
+  await expect(page.locator('[data-role=pad-label]')).toBeHidden();
   await page.screenshot({ path: 'docs/evidence/sd/teleport-next-mountain.png' });
   await page.locator('[data-hud=win-close]').click();
+  await expect(page.locator('[data-role=pad-label]')).toBeVisible();
   const m2s3 = W2.stages.find((s) => s.n === 3)!;
   await page.evaluate(([s, z, y]) => {
     window.__TEST__!.setStat(s);

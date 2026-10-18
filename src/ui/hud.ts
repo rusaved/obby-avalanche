@@ -816,15 +816,16 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
 
   /**
    * MU-02 (docs/07-mobile-ui.md, rule 11): one message slot under the stage strip — the avalanche banner, a toast, the
-   * ad button of the camp, the gate plaque, the tutorial step or a hint; the first of them that is up holds it, the rest
+   * ad button of the camp, the tutorial step, the gate plaque or a hint; the first of them that is up holds it, the rest
    * wait hidden.
    */
   const slotOwner = (): string => {
     if (banner.classList.contains('shown')) return 'wave';
     if (toastEl.classList.contains('shown')) return 'toast';
     if (ads.classList.contains('shown')) return 'ads';
-    if (need.classList.contains('shown')) return 'need';
+    // The step of the tutorial says what to do now; the gate plaque comes back once it is done.
     if (tutor.classList.contains('shown')) return 'tutor';
+    if (need.classList.contains('shown')) return 'need';
     if (hint.classList.contains('shown')) return 'hint';
     return '';
   };
