@@ -498,6 +498,8 @@ canvas.fallback {
 /* Toasts in the slot: gold 24 px with the ink outline, the line under it 14 px; top 40, never over the hero. */
 .hud.mu .hud-toast, .hud.mu.plated .hud-toast { top: calc(40px + env(safe-area-inset-top)); transform: translateX(-50%) scale(0.9); padding: 0; background: none; border-radius: 0; color: var(--mu-gold); font-size: 24px; line-height: 28px; font-weight: 800; text-shadow: var(--mu-o2); z-index: 4; }
 .hud.mu .hud-toast.shown { transform: translateX(-50%) scale(1); }
+/* One message at a time: the toast leaves at once, no fade over the next message. */
+.hud.mu .hud-toast { transition: transform 0.2s; }
 .hud.mu .hud-toast-sub { font-size: 14px; line-height: 18px; color: #fff; text-shadow: var(--mu-o15); }
 .hud.mu:not([data-slot='toast']) .hud-toast { opacity: 0; }
 .hud.mu.urgent .hud-toast.shown { opacity: 1; }
@@ -688,3 +690,4 @@ canvas.fallback {
 #ui.mu .dim.win { bottom: var(--mu-bottom, 0px); }
 #ui.mu .card-price svg { color: #fff; }
 #ui.mu .card-price .mark-cup svg, #ui.mu .win-head .mark-cup svg { color: #fff; }
+#ui.mu .records-row { display: flex; align-items: center; min-height: 44px; padding: 0 16px; margin-bottom: 8px; border-radius: 12px; background: var(--mu-card); font-size: 14px; font-weight: 600; }

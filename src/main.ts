@@ -1307,7 +1307,10 @@ async function boot(): Promise<void> {
     else if (id === 'daily') dailyView?.openWindow();
     else if (id === 'quests') questsView?.openQuests();
     else if (id === 'timeRewards') questsView?.openTime();
-    else if (id === 'records') recordsView?.open();
+    else if (id === 'records') {
+      if (recordsView?.available) recordsView.open();
+      else recordsView?.openOwn(recordsView.boardLines(save, summitsDone(save), content.worlds.worlds.length));
+    }
     else if (id === 'footsteps') footstepsView?.openWindow();
     else if (id === 'more' && muLayout) {
       // MU-07 (w6-more): six tiles into the windows of the second wave.

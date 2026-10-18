@@ -421,6 +421,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   need.dataset['role'] = 'need';
   goal.append(goalText, goalBar, need);
   root.appendChild(goal);
+  // MU-03: the gate plaque is a message of the slot on the phone layout (the goal line is gone there).
+  if (opts.mu) root.appendChild(need);
 
   // Coins under the Speed plaque (docs/01-gdd.md 10.1): a coin with a snowflake and the number.
   const coins = el('div', 'hud-coins');
@@ -903,7 +905,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (opts.mu) {
         // MU-02: fixed sizes of docs/07-mobile-ui.md (jump 64, round buttons 44, stick 84); the bottom band of a phone
         // taller than its visible 330 px stays free.
-        const panel = touchMode ? Math.max(0, Math.min(BOTTOM_PANEL_MAX, height - VISIBLE_H)) : 0;
+        // A touch screen (the finger, not the last input: a window opened by a tap must not jump).
+        const touchScreen = touchMode || window.matchMedia('(pointer: coarse)').matches;
+        const panel = touchScreen ? Math.max(0, Math.min(BOTTOM_PANEL_MAX, height - VISIBLE_H)) : 0;
         // On the interface layer: the windows keep out of that band too.
         host.style.setProperty('--mu-bottom', `${panel}px`);
         jumpButton.style.width = jumpButton.style.height = '';

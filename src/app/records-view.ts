@@ -26,6 +26,8 @@ export interface RecordsView {
   /** The lines of the «My records» board: the title, best Speed, trophies over all time, summits a/b, the tier. */
   boardLines(save: SaveData, summits: number, mountains: number): string[];
   open(): void;
+  /** MU-07 (w6-more «Records»): no leaderboard — the window shows the player's own records (`lines`, the title first). */
+  openOwn(lines: readonly string[]): void;
 }
 
 export function createRecordsView(d: RecordsViewDeps): RecordsView {
@@ -58,6 +60,20 @@ export function createRecordsView(d: RecordsViewDeps): RecordsView {
         t('records.summits', { a: summits, b: mountains }),
         t('records.tier', { n: save.tier ?? 0 }),
       ];
+    },
+    openOwn(lines) {
+      d.windows.open('records', lines[0] ?? t('btn.records'), (body) => {
+        const list = document.createElement('div');
+        list.dataset['role'] = 'records-list';
+        for (const text of lines.slice(1)) {
+          const line = document.createElement('div');
+          line.className = 'records-row';
+          line.dataset['role'] = 'records-row';
+          line.textContent = text;
+          list.appendChild(line);
+        }
+        body.appendChild(list);
+      });
     },
     open() {
       if (!view.available) return;
