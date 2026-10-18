@@ -1698,6 +1698,8 @@ async function boot(): Promise<void> {
   }
 
   gr = createGameRenderer(canvas, gl, theme, quality.params.antialias);
+  // MU-10 (review): on the phone layout the hero stands over «N Speed» and the bar (tuning camera.muLift).
+  if (muLayout) gr.setLift(tuning.camera.muLift ?? 0);
   bootState.glRenderer = gr.glRenderer;
   gr.setTint(tintOf(world));
   levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`), seeFade(), t('gate.needLevel'));

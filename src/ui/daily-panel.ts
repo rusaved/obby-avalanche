@@ -54,7 +54,7 @@ export function renderDailyPanel(body: HTMLElement, m: DailyPanelModel, claim: (
   body.appendChild(row);
   const foot = el('div', 'rb-btns dl-foot');
   if (m.claim) {
-    const b = el('button', 'btn-primary rb-go', m.claim);
+    const b = el('button', 'btn-primary rb-go ok', m.claim);
     b.dataset['hud'] = 'daily-claim';
     b.addEventListener('click', claim);
     foot.appendChild(b);

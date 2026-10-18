@@ -121,7 +121,8 @@ export function createCampView(d: CampViewDeps): CampView {
       // SD-06: the avalanche comes on almost every stage — the same plaque on any of them.
       // No grotto within reach of the warning (SD-10 review: «hide» pointed back past the finish) — run on to the finish.
       if (st && st.type !== 'intro' && wave) show = sim.inShelter() ? null : ws!.shelter >= 0 ? t('hint.cover') : t('hint.toFinish');
-      d.hud.setTutor(show);
+      // MU-02 (one message slot): a jump and the wave go before the gate plaque, the other steps after it.
+      d.hud.setTutor(show, show !== null && (show === t('tutor.jump') || wave));
       // The teleport pad of the camp: stepping on it opens the window once a step-on.
       // SD-13 (producer 16.10: «it worked once, then broke»): on the next mountain the pad stood dead until its own
       // stage 2 — now it answers once the player knows it (a stage 2 passed anywhere), the stages not passed locked.

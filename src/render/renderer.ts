@@ -38,6 +38,8 @@ export interface GameRenderer {
   readonly sun: DirectionalLight;
   readonly glRenderer: string;
   resize(width: number, height: number, dpr: number): void;
+  /** MU-10 (review): the picture moves up by this share of the height (the hero over «N Speed» and the bar); 0 — none. */
+  setLift(share: number): void;
   render(): void;
   info(): RenderInfo;
   compile(): Promise<void>;
@@ -120,6 +122,7 @@ export function createGameRenderer(canvas: HTMLCanvasElement, gl: WebGL2Renderin
   const glRenderer = describeGl(gl);
   const sunDir = new Vector3(theme.light.sunDir[0], theme.light.sunDir[1], theme.light.sunDir[2]).normalize();
 
+  let lift = 0;
   return {
     renderer,
     scene,
@@ -130,7 +133,13 @@ export function createGameRenderer(canvas: HTMLCanvasElement, gl: WebGL2Renderin
       renderer.setPixelRatio(dpr);
       renderer.setSize(width, height, false);
       camera.aspect = width / Math.max(1, height);
+      // The view window slides down the full picture: the scene stands higher on the screen, the HUD projections follow.
+      if (lift > 0) camera.setViewOffset(width, height, 0, Math.round(height * lift), width, height);
+      else camera.clearViewOffset();
       camera.updateProjectionMatrix();
+    },
+    setLift(share) {
+      lift = Math.max(0, share);
     },
     render() {
       renderer.render(scene, camera);

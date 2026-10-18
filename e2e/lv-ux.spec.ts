@@ -41,8 +41,9 @@ test('812×375: the tutorial step in the message slot under the stage strip (MU-
   const s2 = STAGES[0]!.stages[1]!;
   await page.evaluate(() => window.__TEST__!.setPlaySec(61));
   await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.5), [s2.finish[0] + 2, s2.y] as const);
-  const tutor = page.locator('[data-role=tutor]');
-  await expect(tutor).toBeVisible();
+  // The slot holds one of them: the step of the tutorial, or the gate plaque when the ridge ahead is short of levels.
+  const tutor = page.locator('[data-role=tutor]:visible, [data-role=need]:visible');
+  await expect(tutor).toHaveCount(1);
   const t = (await tutor.boundingBox())!;
   const strip = (await page.locator('[data-role=mountain]').boundingBox())!;
   expect(t.y, 'under the strip').toBeGreaterThanOrEqual(strip.y + strip.height);

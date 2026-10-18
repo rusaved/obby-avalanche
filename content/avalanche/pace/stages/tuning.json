@@ -23,7 +23,7 @@
   },
     "speedPow": 0.4,
     "zoomMax": 26,
-    "mobileFovAdd": 4,
+    "mobileFovAdd": 4, "muLift": 0.15,
     "flagHide": 2,
     "backBehind": "run"
   },

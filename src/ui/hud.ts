@@ -203,7 +203,7 @@ export interface Hud {
   /** «yours 7 / need 8» under the goal by a ridge of the stages pace (docs/01-gdd.md 22.3); null — hidden. */
   setNeed(state: { text: string; ok: boolean } | null): void;
   /** The step of the stage tutorial under the goal (docs/01-gdd.md 22.12); null — none. */
-  setTutor(text: string | null): void;
+  setTutor(text: string | null, urgent?: boolean): void;
   /** «+N» with a trophy over the trophy button of a stage (docs/01-gdd.md 22.8); null — hidden. */
   setPadLabel(state: { text: string; x: number; y: number; tap?: boolean; sub?: string } | null): void;
   /** The portrait of a phone (the game is landscape, docs/03): «Turn your phone» over everything; false — hidden. */
@@ -816,16 +816,17 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
 
   /**
    * MU-02 (docs/07-mobile-ui.md, rule 11): one message slot under the stage strip — the avalanche banner, a toast, the
-   * ad button of the camp, the tutorial step, the gate plaque or a hint; the first of them that is up holds it, the rest
+   * ad button of the camp, an urgent tutorial step (jump, the wave), the gate plaque, the other tutorial steps or a hint; the first of them that is up holds it, the rest
    * wait hidden.
    */
   const slotOwner = (): string => {
     if (banner.classList.contains('shown')) return 'wave';
     if (toastEl.classList.contains('shown')) return 'toast';
     if (ads.classList.contains('shown')) return 'ads';
-    // The step of the tutorial says what to do now; the gate plaque comes back once it is done.
-    if (tutor.classList.contains('shown')) return 'tutor';
+    // An urgent tutorial step (jump, hide from the wave) goes before the gate plaque, the others after it.
+    if (tutor.classList.contains('shown') && tutor.classList.contains('urgent')) return 'tutor';
     if (need.classList.contains('shown')) return 'need';
+    if (tutor.classList.contains('shown')) return 'tutor';
     if (hint.classList.contains('shown')) return 'hint';
     return '';
   };
@@ -1231,9 +1232,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (padSub.textContent !== (state.sub ?? '')) padSub.textContent = state.sub ?? '';
       padLabel.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
     },
-    setTutor(text) {
-      if (tutor.classList.contains('shown') !== (text !== null)) {
+    setTutor(text, urgent = false) {
+      if (tutor.classList.contains('shown') !== (text !== null) || tutor.classList.contains('urgent') !== urgent) {
         tutor.classList.toggle('shown', text !== null);
+        tutor.classList.toggle('urgent', urgent);
         updateSlot();
       }
       if (text !== null && tutor.textContent !== text) tutor.textContent = text;

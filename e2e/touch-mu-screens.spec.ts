@@ -1,6 +1,7 @@
 import { test, expect, testState } from './fixtures.ts';
 import { forbiddenSymbols, hudBoxes, MU_VIEW, VISIBLE_H } from './mu-checks.ts';
 import { STAGES, threshold } from './lv-stage-data.ts';
+import stagesWorlds from '../content/avalanche/pace/stages/worlds.json' with { type: 'json' };
 import type { Page } from '@playwright/test';
 
 // MU-03…MU-09, MU-12, MU-13 (docs/07-mobile-ui.md, docs/mockups): the screens of the phone at 812×375 with touch.
@@ -237,6 +238,35 @@ test.describe('MU phone screens', () => {
       } else await page.keyboard.press('Escape');
       await expect(page.locator('[data-role="window"].open')).toHaveCount(0);
     }
+  });
+
+  test('MU-07 w5-summit: no cross, rows «chest · cup · next · tomorrow», the quiet «Ad: ×2» by the chest, the blue «Next»', async ({ page, openGame }) => {
+    await openGame('pace=stages');
+    await prepare(page);
+    const w = (stagesWorlds as unknown as { worlds: Array<{ segments: Array<{ type: string; z: number }> }> }).worlds[0]!;
+    const portal = w.segments.find((x) => x.type === 'portal')!;
+    const last = STAGES[0]!.stages[STAGES[0]!.stages.length - 1]!;
+    await page.evaluate(([s, z, y]) => {
+      window.__TEST__!.setStat(s);
+      window.__TEST__!.teleport(z, 0, y + 0.5);
+    }, [threshold(last.level) * 2, last.finish[0] + 2, last.y] as const);
+    await page.waitForTimeout(300);
+    await page.evaluate((z) => window.__TEST__!.botPath([[0, z + 2]]), portal.z);
+    await expect(page.locator('[data-role="window"][data-window="summit"]')).toBeVisible({ timeout: 40_000 });
+    await page.evaluate(() => window.__TEST__!.botPath(null));
+    const win = page.locator('[data-role="window"].open');
+    await expect(win.locator('[data-hud="win-close"]')).toBeHidden();
+    await expect(win.locator('[data-hud="win-next"]')).toBeVisible();
+    await expect(win.locator('.sm-label')).toContainText(['Сундук', 'Кубок вершины', 'Следующая гора']);
+    const panel = (await win.locator('.win-panel').boundingBox())!;
+    expect(Math.abs(panel.width - 480)).toBeLessThanOrEqual(2);
+    expect(panel.height).toBeLessThanOrEqual(300.5);
+    const ad = win.locator('[data-hud="summit-ad"]');
+    await expect(ad).toContainText('Реклама: ×2');
+    const a = (await ad.boundingBox())!;
+    expect(a.y + a.height, 'the ad is not in the bottom third').toBeLessThan(panel.y + (panel.height * 2) / 3);
+    expect(await forbiddenSymbols(page)).toEqual([]);
+    await page.screenshot({ path: 'docs/evidence/MU/w-summit.png' });
   });
 
   test('MU-12: a set of steps bought in the «Steps» tab of the shop is chosen in the «Footsteps» window; no second purchase', async ({ page, openGame }) => {
