@@ -19,7 +19,7 @@ import type { Hud } from '../ui/hud.ts';
 import type { PauseManager } from '../core/pause.ts';
 import type { Platform } from '../platform/types.ts';
 import type { SaveData } from '../meta/save.ts';
-import { formatNumber } from '../ui/format.ts';
+import { formatNumber, formatTimer } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
 import { track } from '../analytics/index.ts';
 
@@ -27,6 +27,9 @@ import { track } from '../analytics/index.ts';
 const STAND_SPEED = 0.5;
 
 export interface AdsViewDeps {
+  /** MU-06 (l5-camp): the phone layout — only the stage offer stands in the slot, with its timer; the Speed ad lives in
+   * the «Gifts» window. */
+  mu?: boolean;
   balance: BalanceJson;
   hud: Hud;
   platform: Platform;
@@ -49,6 +52,12 @@ export interface AdsView {
   readonly busy: string | null;
   update(dt: number, playSec: number): void;
   press(id: string): void;
+  /** MU-07 (w1-gifts): the Speed of «+N Speed · Ad» of the «Gifts» window — a belt run of the best belt of the mountain. */
+  giftStat(): number;
+  /** MU-07: that ad (place stat_now); `done` — after any outcome (the window re-renders). */
+  giftAd(done: () => void): void;
+  /** MU-07 (w5-summit): «Ad: ×2» by the chest (place x2_chest) — `coins` once more on `rewarded`. */
+  chestAd(coins: number, done: () => void): void;
 }
 
 export function createAdsView(d: AdsViewDeps): AdsView {
@@ -78,8 +87,51 @@ export function createAdsView(d: AdsViewDeps): AdsView {
     return d.balance.gainPerStep * sim.progress.gainMult * belt * steps;
   };
   const cooled = (id: string, sec: number): boolean => now - (lastAt.get(id) ?? -Infinity) >= sec;
+  /** A rewarded ad of a window (MU-07): the game and the avalanche stand while it runs, `give` only on `rewarded`, the
+   * game goes on after any outcome. */
+  const rewardAd = (place: string, give: () => void, done: () => void): void => {
+    if (busy) return;
+    busy = place;
+    d.pause.add('ad');
+    done();
+    void d.platform
+      .showRewarded(place)
+      .then((r) => {
+        if (r.rewarded) {
+          lastAt.set(place, now);
+          give();
+          d.hud.toast(t('toast.reward'));
+        } else d.hud.toast(t(r.error ? 'toast.adUnavailable' : 'toast.noReward'));
+      })
+      .finally(() => {
+        busy = null;
+        d.pause.remove('ad');
+        track('ad_resume_ok', { placement: place, type: 'rewarded' });
+        done();
+      });
+  };
+  /** The Speed for an ad in the «Gifts» window: as statNow on the best belt of this mountain (1 — none). */
+  const giftStat = (sim: Sim): number => {
+    const belt = Math.max(1, ...sim.level.niches.map((n) => n.treadmill));
+    const steps = (sim.params.speed * d.balance.boost.statNowSec) / d.balance.stepLength;
+    return Math.max(statNow(sim), d.balance.gainPerStep * sim.progress.gainMult * belt * steps);
+  };
 
   const view: AdsView = {
+    giftStat: () => giftStat(d.getSim()),
+    giftAd(done) {
+      const amount = giftStat(d.getSim());
+      rewardAd('stat_now', () => {
+        d.getSim().progress.stat += amount;
+        d.onStat();
+      }, done);
+    },
+    chestAd(coins, done) {
+      rewardAd('x2_chest', () => {
+        d.getSim().coins += coins;
+        d.onStat();
+      }, done);
+    },
     get shown() {
       return shown;
     },
@@ -112,20 +164,24 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       const calm = phase === 'idle' || phase === 'gone';
       const ok = common && standSec >= ads.standStillSec && calm;
       const list: Array<{ id: string; text: string; busy: boolean }> = [];
-      if (ok || busy) {
+      if ((ok || busy) && !d.mu) {
         const n = statNow(sim);
         if ((n > 0 && cooled('stat_now', ads.statNowCooldownSec)) || busy === 'stat_now') list.push({ id: 'stat_now', text: t('ad.statNow', { n: fmt(n) }), busy: busy === 'stat_now' });
       }
       // The avalanche that caught the hero is over for him once its front is below him.
       const passed = calm || (phase === 'run' && sim.threat?.state.outcome !== 'none');
       const offer = common && passed && playSec < continueUntil && !sim.caught && cooled('continue_here', ads.continueCooldownSec ?? Infinity);
-      if (offer || busy === 'continue_here') list.push({ id: 'continue_here', text: t('ad.continueHere'), busy: busy === 'continue_here' });
+      if ((offer && !d.mu) || (busy === 'continue_here' && !stageOffer)) list.push({ id: 'continue_here', text: t('ad.continueHere'), busy: busy === 'continue_here' });
       if (stageOffer && !sim.caught && !d.windowOpen()) {
         // Free while an ad may not be offered yet (the first 60 s, the first wave; LV-12 review: no button at all then).
         const free = !freeSpent.has(stageOffer.world) || !common;
         // The first of a mountain is free (no ad, no word «Ad»); then the rewarded ad by the common rules (9.1).
         if (free) list.push({ id: 'continue_free', text: t('stage.continueFree', { n: stageOffer.stage }), busy: false });
-        else if (common || busy === 'continue_here') list.push({ id: 'continue_here', text: t('stage.continueAd', { n: stageOffer.stage }), busy: busy === 'continue_here' });
+        else if (common || busy === 'continue_here') {
+          // MU-06: «Ad: from stage N · 0:54» — how long the offer stands.
+          const text = t('stage.continueAd', { n: stageOffer.stage });
+          list.push({ id: 'continue_here', text: d.mu ? `${text} · ${formatTimer(Math.max(0, stageOffer.until - playSec))}` : text, busy: busy === 'continue_here' });
+        }
       }
       shown = list.map((b) => b.id);
       d.hud.setAdButtons(list);

@@ -12,6 +12,8 @@ export interface SaveSettings {
   autoRun: boolean;
   cameraSens: number;
   quality: 'auto' | 'low' | 'medium' | 'high';
+  /** MU-07 (w3-pause): the volume of the sounds, 0–1. */
+  volume: number;
 }
 
 export interface SaveData {
@@ -87,7 +89,7 @@ export interface SaveData {
 
 export const SAVE_VERSION = 2;
 
-export const DEFAULT_SETTINGS: SaveSettings = { sound: true, music: true, autoRun: false, cameraSens: 1, quality: 'auto' };
+export const DEFAULT_SETTINGS: SaveSettings = { sound: true, music: true, autoRun: false, cameraSens: 1, quality: 'auto', volume: 1 };
 
 export function createSave(now: number): SaveData {
   return {

@@ -19,11 +19,15 @@ const pack = loadPack('avalanche');
 const steps = (pack['sfx.json'] as SfxJson).footsteps as FootstepsJson;
 
 describe('footsteps manifest (sfx.json)', () => {
-  it('SD-14: 5 sets of files — 3 free («Light snow» first), 2 of the shop for trophies; the common ice; ~3 a second, ± 1 semitone; every file on disk; no synth', () => {
+  it('SD-14, MU-12 (Q-MU-6): 5 sets of files — «Light snow» free, «Whisper» of the calendar day 2, «Velvet» for coins, 2 for trophies; the common ice; ~3 a second, ± 1 semitone; every file on disk; no synth', () => {
     expect(steps.sets.map((s) => s.id)).toEqual(['light_snow', 'whisper_snow', 'velvet_snow', 'magic_snow', 'quiet_crust']);
     const by = (u: string): string[] => steps.sets.filter((s) => s.unlock === u).map((s) => s.id);
-    expect(by('free')).toEqual(['light_snow', 'whisper_snow', 'velvet_snow']);
-    expect(by('shop')).toEqual(['magic_snow', 'quiet_crust']);
+    expect(by('free')).toEqual(['light_snow']);
+    expect(by('daily')).toEqual(['whisper_snow']);
+    expect(steps.sets.find((s) => s.id === 'whisper_snow')!.day).toBe(2);
+    expect(by('shop')).toEqual(['velvet_snow', 'magic_snow', 'quiet_crust']);
+    expect(steps.sets.filter((s) => s.currency === 'coins').map((s) => s.id)).toEqual(['velvet_snow']);
+    expect(steps.sets.filter((s) => s.unlock === 'shop' && s.currency !== 'coins').map((s) => s.price)).toEqual([3, 6]);
     expect(by('ad')).toEqual([]);
     for (const s of steps.sets.filter((x) => x.unlock === 'shop')) expect(s.price).toBeGreaterThan(0);
     expect(steps.sets[0]!.weights![0]).toBeGreaterThan(Math.max(...steps.sets[0]!.weights!.slice(1)));
@@ -70,7 +74,7 @@ describe('footsteps manifest (sfx.json)', () => {
 
 describe('footsteps in the save', () => {
   const free = steps.sets.filter((s) => s.unlock === 'free').map((s) => s.id);
-  const shop = steps.sets.filter((s) => s.unlock === 'shop');
+  const shop = steps.sets.filter((s) => s.unlock === 'shop' && s.currency !== 'coins');
 
   it('an old save without the field (v1 migrated, v2) or with a synth set gone: «Light snow», nothing bought, the volume of the data', () => {
     const v1 = parseSave({ v: 1, rev: 3, savedAt: 1, sessions: 2, settings: {} })!;
@@ -89,8 +93,8 @@ describe('footsteps in the save', () => {
 
   it('free sets choose at once; a shop set only bought for its trophies (short — not), then for ever; the volume clamps', () => {
     const s = createSave(0);
-    expect(chooseSet(s, steps, free[2]!)).toBe(true);
-    expect(footstepsOf(s, steps).set).toBe(free[2]);
+    expect(chooseSet(s, steps, free[0]!)).toBe(true);
+    expect(footstepsOf(s, steps).set).toBe(free[0]);
     expect(isOpen(s, steps, shop[0]!.id)).toBe(false);
     expect(chooseSet(s, steps, shop[0]!.id)).toBe(false);
     expect(unlockAd(s, steps, shop[0]!.id)).toBe(false);
@@ -109,5 +113,25 @@ describe('footsteps in the save', () => {
     setVolume(s, steps, 0);
     // Survives a reload: the save is plain JSON.
     expect(footstepsOf(parseSave(JSON.parse(JSON.stringify(s)))!, steps)).toEqual({ set: shop[0]!.id, ads: [], volume: 0, bought: [shop[0]!.id] });
+  });
+
+  it('MU-12: a set for coins takes them from the wallet once; the set of the calendar opens with its day', () => {
+    const s = createSave(0);
+    const velvet = steps.sets.find((x) => x.currency === 'coins')!;
+    const wallet = { coins: velvet.price! - 1 };
+    expect(buyShop(s, steps, velvet.id, wallet), 'short of coins').toBe(false);
+    wallet.coins = velvet.price! + 5;
+    s.trophies = 0;
+    expect(buyShop(s, steps, velvet.id, wallet)).toBe(true);
+    expect(wallet.coins).toBe(5);
+    expect(buyShop(s, steps, velvet.id, { coins: 1e9 }), 'bought once').toBe(false);
+    expect(isOpen(s, steps, velvet.id)).toBe(true);
+    const whisper = steps.sets.find((x) => x.unlock === 'daily')!;
+    expect(isOpen(s, steps, whisper.id)).toBe(false);
+    s.daily = { n: whisper.day! - 1, last: 0, dayStart: 0 };
+    expect(chooseSet(s, steps, whisper.id)).toBe(false);
+    s.daily = { n: whisper.day!, last: 0, dayStart: 0 };
+    expect(chooseSet(s, steps, whisper.id)).toBe(true);
+    expect(footstepsOf(s, steps).set).toBe(whisper.id);
   });
 });

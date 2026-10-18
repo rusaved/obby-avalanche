@@ -48,6 +48,12 @@ const RIDGE_PLAQUE = 6.5;
 const RIDGE_PLUG_OVER = 1;
 const RIDGE_CREST_OPACITY = 0.22;
 const RIDGE_CREST_THICK = 0.6;
+/** MU-03 (l2-gate): the stage sign — the word this share of the digits tall and this far over the centre, the number
+ * this far under it, the plaque this many digit heights tall. */
+const STAGE_WORD = 0.32;
+const STAGE_WORD_UP = 0.62;
+const STAGE_NUM_DOWN = 0.18;
+const STAGE_PLAQUE = 1.7;
 /** The glyph height of a gate's number: a ridge's own from the data (SP-04: larger on the field), else the defaults. */
 function signText(g: LevelData['gates'][number]): number {
   return g.kind === 'ridge' ? (g.digits ?? RIDGE_TEXT) : SIGN_TEXT;
@@ -443,6 +449,10 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   const signColor = new Color();
   const signOpenColor = materialColor(theme, 'gateSignOpen');
   const signClosedColor = materialColor(theme, 'gateSign');
+  // MU-03 (l2-gate): the stage ridge sign is a dark plaque, «LEVEL NEEDED» over the number in gold.
+  const stageSign = !!words && !!theme.materials['stageSign'];
+  const stageSignColor = materialColor(theme, 'stageSign');
+  const stageDigits = theme.materials['stageSignDigits']?.color ?? '#ffffff';
   const applySign = (i: number): void => {
     const g = level.gates[i];
     const st = signState[i];
@@ -460,6 +470,22 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     }
     const ridge = g.kind === 'ridge';
     const size = signText(g);
+    if (stageSign && ridge) {
+      // Two lines on the dark plaque: the word over the number (MU-03), the number in gold.
+      const wh = size * STAGE_WORD;
+      const y = g.y + g.signHeight;
+      digits.setLabel(i, st.text, 0, y - size * STAGE_NUM_DOWN, g.z - d / 2 - 0.52, size, stageDigits);
+      words!.set(i, 0, y + size * STAGE_WORD_UP, g.z - d / 2 - 0.55, wh);
+      dummy.position.set(0, y, g.z - d / 2 - 0.3);
+      dummy.rotation.set(0, 0, 0);
+      dummy.scale.set(Math.max(words!.aspect * wh, digits.measure(st.text, size)) + SIGN_PAD * 2, size * STAGE_PLAQUE, 0.4);
+      dummy.updateMatrix();
+      signs.setMatrixAt(i, dummy.matrix);
+      signs.instanceMatrix.needsUpdate = true;
+      signs.setColorAt(i, signColor.copy(stageSignColor));
+      if (signs.instanceColor) signs.instanceColor.needsUpdate = true;
+      return;
+    }
     digits.setLabel(i, st.text, 0, g.y + g.signHeight, g.z - d / 2 - 0.52, size, '#ffffff');
     // One line «LEVEL NEEDED 7»: the word left of the number, as tall as half the digits (LV-12: over the number it stood
     // in the top HUD band on a phone).
@@ -633,6 +659,10 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       const d = g.box.max[2] - g.box.min[2];
       const ridge = g.kind === 'ridge';
       const size = signText(g);
+      if (stageSign && ridge) {
+        const wh = size * STAGE_WORD;
+        return { center: [0, g.y + g.signHeight, g.z - d / 2 - 0.3], size: [Math.max(words!.aspect * wh, digits.measure(st.text, size)) + SIGN_PAD * 2, size * STAGE_PLAQUE, 0.4] };
+      }
       const width = Math.max(SIGN_MIN_WIDTH, digits.measure(st.text, size) + SIGN_PAD * (ridge ? 2 : 1));
       return { center: [0, g.y + g.signHeight, g.z - d / 2 - 0.3], size: [width, ridge ? (size * RIDGE_PLAQUE) / RIDGE_TEXT : 3, 0.4] };
     },

@@ -9,6 +9,7 @@
  */
 import { t } from './i18n.ts';
 import { rewardIcon } from './daily-panel.ts';
+import { setRich } from './icons.ts';
 
 export interface SummitPanelModel {
   time: string;
@@ -17,6 +18,8 @@ export interface SummitPanelModel {
   next: string;
   nextColor: string;
   tomorrow: { name: string; icon: string } | null;
+  /** MU-07 (w5-summit): the phone layout — rows «what · how much», the quiet «Ad: ×2» by the chest. */
+  mu?: { ad: { text: string; busy: boolean; press(): void } | null; nextName: string };
 }
 
 function line(cls: string, ...parts: Array<HTMLElement | string>): HTMLElement {
@@ -29,6 +32,32 @@ function line(cls: string, ...parts: Array<HTMLElement | string>): HTMLElement {
 export function renderSummitPanel(body: HTMLElement, m: SummitPanelModel): void {
   const box = line('sm-box');
   box.dataset['role'] = 'summit';
+  if (m.mu) {
+    const value = (mark: string, text: string): HTMLElement => {
+      const v = line('sm-value');
+      setRich(v, `${mark} ${text}`);
+      return v;
+    };
+    const chest = line('sm-row', line('sm-label', t('summit.chestRow')), value('{coin}', `+${m.chest}`));
+    if (m.mu.ad) {
+      const ad = m.mu.ad;
+      const b = document.createElement('button');
+      b.className = 'card-btn quiet';
+      b.dataset['hud'] = 'summit-ad';
+      setRich(b, ad.text);
+      b.disabled = ad.busy;
+      b.addEventListener('click', () => ad.press());
+      chest.appendChild(b);
+    }
+    box.append(chest, line('sm-row', line('sm-label', t('summit.cupRow')), value('{trophy}', `+${m.trophies}`)), line('sm-row sm-next', line('sm-label', t('summit.nextRow')), line('sm-value', m.mu.nextName)));
+    if (m.tomorrow) {
+      const row = line('sm-row sm-tomorrow', line('sm-label', t('summit.tomorrowRow')), line('sm-value', rewardIcon(m.tomorrow.icon), m.tomorrow.name));
+      row.dataset['role'] = 'summit-tomorrow';
+      box.appendChild(row);
+    }
+    body.appendChild(box);
+    return;
+  }
   box.append(
     line('sm-row', t('summit.time', { time: m.time })),
     line('sm-row', rewardIcon('coins'), t('summit.chest', { n: m.chest })),

@@ -101,8 +101,15 @@ export class InputManager {
     onEl(document, 'selectstart', prevent);
     onEl(document, 'dblclick', prevent);
     onEl(document, 'gesturestart' as keyof HTMLElementEventMap, prevent);
-    // A range slider of a window (the footsteps volume) moves under the finger (LV-12 review); everything else stays put.
-    onEl(document, 'touchmove', (ev) => ((ev.target as Element | null)?.closest?.('input[type=range]') ? undefined : ev.preventDefault()), { passive: false });
+    // A range slider of a window (the footsteps volume) moves under the finger (LV-12 review); the middle of a window
+    // scrolls under it (MU-13: the teleport list and the footsteps cards could not be reached on a phone); everything
+    // else stays put. A single finger only: two fingers are a pinch.
+    onEl(
+      document,
+      'touchmove',
+      (ev) => ((ev as TouchEvent).touches.length === 1 && (ev.target as Element | null)?.closest?.('input[type=range], [data-scroll]') ? undefined : ev.preventDefault()),
+      { passive: false },
+    );
   }
 
   detach(): void {

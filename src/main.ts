@@ -46,6 +46,7 @@ import { createPetsView, type PetsView } from './app/pets-view.ts';
 import { createRebirthView, type RebirthView } from './app/rebirth-view.ts';
 import { applyRebirth, summitsDone } from './meta/rebirth.ts';
 import { hudDue } from './meta/hud-schedule.ts';
+import { renderGiftsPanel } from './ui/gifts-panel.ts';
 import { renderSummitPanel } from './ui/summit-panel.ts';
 import { createPetsVisual } from './render/pets.ts';
 import { createCosmeticsView, type CosmeticsView } from './app/cosmetics-view.ts';
@@ -102,6 +103,10 @@ const FULL_NUMBERS_BELOW = 1_000_000;
 /** MU-05: «+N» right of the hero's head — at this share of the hero's height, this many px to the right. */
 const MU_GAIN_HEAD = 0.85;
 const MU_GAIN_SIDE = 26;
+/** MU-03: a ridge sign of the phone layout is drawn this close to the hero (world units) — where it reads. */
+const SIGN_READ_RANGE = 70;
+/** MU-07 (w1-gifts): tiles of the rewards for the time in the «Gifts» window. */
+const GIFT_TILES = 4;
 /** A gate melts into an arch in 0.4 s (docs/01-gdd.md 3.3). */
 const GATE_MELT_SEC = 0.4;
 /** The camera's far plane at least (src/render/camera.ts), and over the fog's end by this share. */
@@ -173,6 +178,8 @@ async function boot(): Promise<void> {
 
   const canvas = document.getElementById('game') as HTMLCanvasElement;
   const ui = document.getElementById('ui') as HTMLElement;
+  // MU-02: the phone layout of the stages pace styles the whole interface layer (bot names, windows).
+  if (content.balance.levels) ui.classList.add('mu');
   const preloader = document.getElementById('preloader') as HTMLElement;
 
   // Save and settings (docs/02-tech.md 4.4): settings live in SaveData and survive F5.
@@ -752,7 +759,12 @@ async function boot(): Promise<void> {
       const panel = hud.pausePanel;
       syncGiftCards();
       askReviewCan();
-      windows.open('pause', t('game.title'), (body) => body.appendChild(panel), { next: false, fitTitle: true });
+      // MU-07 (w3-pause): «Pause» with the name of the game small under it; the set of steps on by «Steps».
+      if (muLayout) {
+        const on = footstepsView?.state().set;
+        hud.setPauseSteps(on ? t(`footsteps.set.${on}`) : '');
+        windows.open('pause', t('settings.title'), (body) => body.appendChild(panel), { next: false, sub: t('game.title'), size: 'cards' });
+      } else windows.open('pause', t('game.title'), (body) => body.appendChild(panel), { next: false, fitTitle: true });
       track('menu_open');
     },
     teleport(x, y, z) {
@@ -1004,7 +1016,12 @@ async function boot(): Promise<void> {
       gr.scene.add(levelMeshes.group);
       applyQualityNow();
     }
-    baseView?.set(level, basePortals, t, `×${formatNumber(treadMult, numSuffix)}`, recordsView?.boardLines(save, summits, content.worlds.worlds.length));
+    // MU-06 (l5-camp): «level L · open», «any level» on a mountain passed, a lock and its condition on a locked one.
+    const firstLevel = (world: number): number => content.worlds.worlds.find((w) => w.index === world)?.stages?.[0]?.level ?? 1;
+    const light = muLayout
+      ? { sub: (p: BasePortal) => (p.state === 'locked' ? { text: t('base.portalLocked', { n: p.world - 1 }), locked: true } : p.state === 'passed' ? { text: t('base.portalAny'), locked: false } : { text: t('base.portalOpen', { n: firstLevel(p.world) }), locked: false }) }
+      : undefined;
+    baseView?.set(level, basePortals, t, `×${formatNumber(treadMult, numSuffix)}`, recordsView?.boardLines(save, summits, content.worlds.worlds.length), light);
     hud?.setMountainShown(false);
     // RL-11: the gift cards of the base column are those of the pause, shown without it.
     syncGiftCards();
@@ -1053,7 +1070,25 @@ async function boot(): Promise<void> {
       nextColor: theme.materials['portal']?.color ?? theme.sky.top,
       tomorrow: dailyView?.tomorrow() ?? null,
     };
-    windows.open('summit', t('summit.title', { n: info.from }), (body) => renderSummitPanel(body, model), {
+    // MU-07 (w5-summit): no cross (the way out is «Next»); the quiet «Ad: ×2» by the chest, once.
+    let doubled = false;
+    const muModel = (): typeof model & { mu?: NonNullable<Parameters<typeof renderSummitPanel>[1]['mu']> } =>
+      muLayout
+        ? {
+            ...model,
+            mu: {
+              nextName: model.next,
+              ad: adsView && info.chest > 0 && !doubled
+                ? { text: t('summit.ad'), busy: adsView.busy === 'x2_chest', press: () => adsView?.chestAd(info.chest, () => {
+                    if (adsView?.busy === null && windows?.current === 'summit') doubled = true;
+                    windows?.refresh();
+                  }) }
+                : null,
+            },
+          }
+        : model;
+    windows.open('summit', t('summit.title', { n: info.from }), (body) => renderSummitPanel(body, muModel()), {
+      ...(muLayout ? { closable: false, sub: t('summit.sub', { time: model.time }), size: 'summary' as const } : {}),
       next: t('btn.next'),
       onClose: () => {
         if (summitAt === Infinity) summitAt = save.totalPlaySec ?? 0;
@@ -1151,6 +1186,82 @@ async function boot(): Promise<void> {
       },
     );
   };
+  /** MU-07 (w1-gifts): the gift plaque of the HUD — the rewards for the time, the group, the review, Speed for an ad. */
+  const openGifts = (): void => {
+    askReviewCan();
+    const visitGift = communityGifts.subscribe;
+    windows?.open(
+      'gifts',
+      t('gifts.title'),
+      (body) =>
+        renderGiftsPanel(
+          body,
+          {
+            tiles: questsView?.timeTiles(GIFT_TILES) ?? [],
+            groups: community.length > 0 ? { ids: community.map(([id]) => id), sub: visitGift ? t(visitGift.kind === 'egg' ? 'gifts.visit' : 'gifts.visitCoins') : '' } : null,
+            review: communityGifts.review && !giftFlag('giftReview') ? { sub: t('gifts.reviewSub'), can: reviewCan === true } : null,
+            ad: adsView ? { title: t('gifts.speed', { n: formatNumber(adsView.giftStat(), numSuffix) }), busy: adsView.busy === 'stat_now' } : null,
+          },
+          {
+            claim: (i) => {
+              if (questsView?.claimTime(i)) windows?.refresh();
+            },
+            visit: (id) => {
+              // The reward is for the visit (no «subscribe»): given when the player is back from the group.
+              if (visitGift && !giftFlag(`giftSub_${id}`)) subAway = { id, away: false };
+              openCommunity(id);
+            },
+            review: () => reviewGift(),
+            ad: () => adsView?.giftAd(() => windows?.refresh()),
+          },
+        ),
+      { sub: t('gifts.sub'), size: 'cards' },
+    );
+  };
+  /** MU-08 (Q-MU-7): «Enter a code» of the pause window — a code of the group gives its gift once. */
+  const openPromo = (): void => {
+    let note = '';
+    windows?.open(
+      'promo',
+      t('promo.title'),
+      (body) => {
+        const row = document.createElement('div');
+        row.className = 'promo-row';
+        const input = document.createElement('input');
+        input.className = 'promo-input';
+        input.dataset['hud'] = 'promo-input';
+        input.maxLength = 16;
+        input.autocomplete = 'off';
+        input.placeholder = t('promo.hint');
+        const ok = document.createElement('button');
+        ok.className = 'card-btn';
+        ok.dataset['hud'] = 'promo-ok';
+        ok.textContent = t('promo.ok');
+        const msg = document.createElement('div');
+        msg.className = 'promo-note';
+        msg.dataset['role'] = 'promo-note';
+        msg.textContent = note;
+        ok.addEventListener('click', () => {
+          const code = input.value.trim().toUpperCase();
+          const gift = content.game.promo?.codes[code];
+          if (!gift) note = t('promo.bad');
+          else if (giftFlag(`promo_${code}`)) note = t('promo.used');
+          else {
+            save.flags = { ...(save.flags ?? {}), [`promo_${code}`]: true };
+            rewards.give(gift);
+            persist(true);
+            hud?.toast(t('promo.done'), 2, true);
+            windows?.close();
+            return;
+          }
+          msg.textContent = note;
+        });
+        row.append(input, ok);
+        body.append(row, msg);
+      },
+      { sub: t('promo.sub'), size: 'summary' },
+    );
+  };
   const subscribeBack = (): void => {
     const id = subAway?.id;
     subAway = null;
@@ -1196,7 +1307,40 @@ async function boot(): Promise<void> {
     else if (id === 'daily') dailyView?.openWindow();
     else if (id === 'quests') questsView?.openQuests();
     else if (id === 'timeRewards') questsView?.openTime();
-    else if (id === 'more') {
+    else if (id === 'records') recordsView?.open();
+    else if (id === 'footsteps') footstepsView?.openWindow();
+    else if (id === 'more' && muLayout) {
+      // MU-07 (w6-more): six tiles into the windows of the second wave.
+      const tiles: MenuItem[] = [
+        { id: 'footsteps', label: t('footsteps.title'), icon: 'footsteps' },
+        { id: 'wardrobe', label: t('btn.wardrobe'), icon: 'shirt' },
+        { id: 'rebirth', label: t('btn.rebirth'), icon: 'rebirthArrow' },
+        { id: 'records', label: t('btn.records'), icon: 'records' },
+        { id: 'quests', label: t('btn.quests'), icon: 'task' },
+        { id: 'daily', label: t('btn.daily'), icon: 'calendarLine' },
+      ];
+      windows?.open(
+        'more',
+        t('btn.more'),
+        (body) => {
+          const grid = document.createElement('div');
+          grid.className = 'more-grid';
+          for (const item of tiles) {
+            const b = document.createElement('button');
+            b.className = 'card-btn more-btn';
+            b.dataset['hud'] = `more-${item.id}`;
+            const ic = document.createElement('span');
+            ic.className = 'hud-menu-icon';
+            ic.innerHTML = icon(item.icon);
+            b.append(ic, item.label);
+            b.addEventListener('click', () => openMenuWindow(item.id));
+            grid.appendChild(b);
+          }
+          body.appendChild(grid);
+        },
+        { size: 'summary' },
+      );
+    } else if (id === 'more') {
       windows?.open('more', t('btn.more'), (body) => {
         const grid = document.createElement('div');
         grid.className = 'more-grid';
@@ -1469,7 +1613,8 @@ async function boot(): Promise<void> {
         const req = formatNumber(sim.gateRequirement(i), numSuffix);
         levelMeshes!.setGateSign(i, open ? req : `${statText}/${req}`, open);
       });
-      if (hud && cameraRig) guardBannerSigns(hud, levelMeshes, level, cameraRig.camera, field, renderPos, sim.gatesPassed);
+      // MU-03 (l2-gate): on the phone layout an open ridge has nothing to say and a far one does not read — not drawn.
+      if (hud && cameraRig) guardBannerSigns(hud, levelMeshes, level, cameraRig.camera, field, renderPos, muLayout ? sim.gatesPassed.map((p, i) => p || sim.gatesOpen[i] === true) : sim.gatesPassed, muLayout ? SIGN_READ_RANGE : Infinity);
       if (cameraRig) levelMeshes.wayMarks.guard(cameraRig.camera.position);
     }
     // SP-01: the record flag is never drawn in the way of the camera (docs/01-gdd.md 20.2).
@@ -1637,7 +1782,14 @@ async function boot(): Promise<void> {
     statColor: theme.ui.stat,
     statIcon: theme.ui.statIcon,
     mu: muLayout,
-    onGift: () => openMenuWindow('timeRewards'),
+    onGift: () => openGifts(),
+    volume: save.settings.volume,
+    onVolume: (v) => {
+      save.settings.volume = v;
+      audio?.setVolume(v);
+      persist();
+    },
+    onPromo: () => openPromo(),
     onSound: () => {
       save.settings.sound = !save.settings.sound;
       hud?.setSound(save.settings.sound);
@@ -1656,6 +1808,7 @@ async function boot(): Promise<void> {
     onPauseChange: (fn) => void pause.onChange(fn),
     gestureTarget: window,
   });
+  audio.setVolume(save.settings.volume);
   waveView = createWaveView({
     tuning,
     frame,
@@ -1671,6 +1824,7 @@ async function boot(): Promise<void> {
   wayView = createWayView({ balance, getSim: () => sim, hud, camera: cameraRig, field: () => field });
   // Rewarded ads by the common rules of docs/01-gdd.md 9.1 (stat_now in a grotto with a belt; continue_here, 17.11).
   adsView = createAdsView({
+    mu: muLayout,
     balance,
     hud,
     platform,
@@ -1693,8 +1847,35 @@ async function boot(): Promise<void> {
   meta = createMetaView({ balance, pets, trails, auras, save, getSim: () => sim, hud, numSuffix, trackOnce, persist, onShoes: () => questsView?.shoes(), shoesColor: theme.ui.stat });
   meta.apply();
   // Windows (docs/01-gdd.md 10.2): one at a time, the game and the avalanche stand while it is open (pause `menu`).
-  windows = createWindowFrame(ui, { closeLabel: t('btn.close'), okLabel: t('btn.ok'), onChange: (id) => pause.set_('menu', id !== null) });
-  if (sfx.footsteps) footstepsView = createFootstepsView({ manifest: sfx.footsteps, save, windows, platform, pause, hud, audio: () => audio, persist, numSuffix, onTrophies: (n) => hud.setTrophies(formatNumber(n, numSuffix)) });
+  windows = createWindowFrame(ui, {
+    mu: muLayout,
+    closeLabel: t('btn.close'),
+    okLabel: t('btn.ok'),
+    onChange: (id) => {
+      pause.set_('menu', id !== null);
+      // MU-07 (rule 13): the HUD under an open window is hidden whole.
+      ui.classList.toggle('win-open', id !== null);
+    },
+  });
+  if (sfx.footsteps)
+    footstepsView = createFootstepsView({
+      manifest: sfx.footsteps,
+      save,
+      windows,
+      platform,
+      pause,
+      hud,
+      audio: () => audio,
+      persist,
+      numSuffix,
+      onTrophies: (n) => hud.setTrophies(formatNumber(n, numSuffix)),
+      coins: () => sim.coins,
+      setCoins: (n) => {
+        sim.coins = n;
+        hud?.setCoins(formatNumber(n, numSuffix));
+      },
+      toShop: () => cosmeticsView?.openShop('steps'),
+    });
   const petsVisual = createPetsVisual(theme);
   gr.scene.add(petsVisual.group);
   petsView = createPetsView({
@@ -1746,6 +1927,8 @@ async function boot(): Promise<void> {
       if (characters && heroChar) characters.setWings(heroChar, id);
     },
     shopTabs: {
+      // MU-12 (Q-090 decided: B): the sets of steps are bought in the shop, the «Footsteps» window only chooses.
+      ...(footstepsView && muLayout ? { steps: footstepsView.shopTab } : {}),
       shoes: {
         cards: () => meta?.shopCards() ?? [],
         balance: () => formatNumber(meta?.shoeFunds() ?? sim.coins, numSuffix),
@@ -1903,6 +2086,7 @@ async function boot(): Promise<void> {
     faceUrl: skin ? faceDataUrl(skin.colors.head, skin.face) : '',
     numSuffix,
     mu: muLayout,
+    baseLabel: () => t('camp.label', { n: basePortals.find((p) => p.state === 'own')?.world ?? 1 }),
     baseGoal: () => {
       if (!onBase) return null;
       const own = basePortals.find((p) => p.state === 'own');
@@ -1924,7 +2108,7 @@ async function boot(): Promise<void> {
   });
   hudView.wire(sim);
   // The stage finishes of the stages pace (docs/01-gdd.md 22.8): the trophy buttons.
-  stageView = createStageView({ getSim: () => sim, hud, camera: cameraRig, theme, field: () => field, fx: () => fx, play: (n) => audio?.play(n), numSuffix, onTrophy: (n, trophies) => {
+  stageView = createStageView({ getSim: () => sim, hud, camera: cameraRig, theme, field: () => field, fx: () => fx, play: (n) => audio?.play(n), numSuffix, mu: muLayout, onTrophy: (n, trophies) => {
       campView?.trophyTaken();
       // SD-03 (docs/01-gdd.md 23.3): the stage trophies to spend (not the all-time count of summits: it opens the summit group).
       if (trophies) {
@@ -1994,14 +2178,18 @@ async function boot(): Promise<void> {
   window.addEventListener('blur', () => pause.add('blur'));
   window.addEventListener('focus', () => pause.remove('blur'));
   if (document.hidden) pause.add('hidden');
-  if (mobile) {
+  {
+    // MU-09 (p1-rotate, MU-13: a phone upright played on without it): «Turn your phone» over everything while a touch
+    // screen stands upright — the sign is the touch and the orientation of the window, not the kind of device.
     const portrait = window.matchMedia('(orientation: portrait)');
-    // LV-12 (review): «Turn your phone» over everything while the portrait pauses the game.
+    const coarse = window.matchMedia('(pointer: coarse)');
     const apply = (): void => {
-      pause.set_('orientation', portrait.matches);
-      hud?.setRotate(portrait.matches);
+      const on = portrait.matches && (coarse.matches || mobile);
+      pause.set_('orientation', on);
+      hud?.setRotate(on);
     };
     portrait.addEventListener('change', apply);
+    coarse.addEventListener('change', apply);
     apply();
   }
 

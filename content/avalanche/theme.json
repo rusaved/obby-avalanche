@@ -41,6 +41,8 @@
     "gateClosed": { "color": "#A8DFFF", "roughness": 0.3 },
     "gateSign": { "color": "#FF4D4D" },
     "gateSignOpen": { "color": "#4CD964" },
+    "stageSign": { "color": "#1B2A3A" },
+    "stageSignDigits": { "color": "#FFC53D" },
     "cave": { "color": "#7CC8F0", "roughness": 0.4, "emissive": "#2A6FA8" },
     "treadmill": { "color": "#3BA4FF", "roughness": 0.6 },
     "treadmillStripe": { "color": "#FFFFFF" },

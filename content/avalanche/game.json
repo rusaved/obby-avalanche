@@ -10,6 +10,7 @@
     "boss": { "kind": "giant", "margin": 0.05, "catch": "roll", "reach": 4, "run": 0.5, "coverBonus": 0.15, "cover": { "hideSec": 1.5, "pad": 4 } }
   },
   "leaderboard": null,
+  "promo": { "codes": { "LAVINA": { "kind": "coins", "gifts": 10 } } },
   "shortcut": { "enabled": true, "reward": { "trophies": 5 }, "fromSummit": 2, "place": "base" },
   "community": { "telegram": "https://t.me/sunhearth_games", "vk": "https://vk.ru/sunhearth_yandex" },
   "communityGifts": { "subscribe": { "kind": "egg", "id": "best" }, "review": { "kind": "coins", "gifts": 10 } },

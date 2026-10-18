@@ -22,7 +22,10 @@ export interface FootstepsState {
   bought: string[];
 }
 
-type FootstepsSave = Pick<SaveData, 'footsteps'>;
+type FootstepsSave = Pick<SaveData, 'footsteps'> & Partial<Pick<SaveData, 'daily'>>;
+
+/** MU-12: a `daily` set opens once the calendar of gifts has given its day. */
+const dailyOpen = (save: FootstepsSave, day: number | undefined): boolean => (save.daily?.n ?? 0) >= (day ?? Infinity);
 
 /** The set on by default: the first free one (the schema demands one). */
 export function defaultSet(m: FootstepsJson): string {
@@ -37,7 +40,8 @@ export function footstepsOf(save: FootstepsSave, m: FootstepsJson): FootstepsSta
   const paid: unknown[] = Array.isArray(f.bought) ? f.bought : [];
   const bought = m.sets.filter((s) => s.unlock === 'shop' && paid.includes(s.id)).map((s) => s.id);
   const volume = typeof f.volume === 'number' && Number.isFinite(f.volume) ? Math.min(1, Math.max(0, f.volume)) : m.volume;
-  const open = (id: string): boolean => m.sets.some((s) => s.id === id && (s.unlock === 'free' || (s.unlock === 'ad' && ads.includes(id)) || (s.unlock === 'shop' && bought.includes(id))));
+  const open = (id: string): boolean =>
+    m.sets.some((s) => s.id === id && (s.unlock === 'free' || (s.unlock === 'ad' && ads.includes(id)) || (s.unlock === 'shop' && bought.includes(id)) || (s.unlock === 'daily' && dailyOpen(save, s.day))));
   const set = typeof f.set === 'string' && open(f.set) ? f.set : defaultSet(m);
   return { set, ads, volume, bought };
 }
@@ -46,17 +50,19 @@ export function footstepsOf(save: FootstepsSave, m: FootstepsJson): FootstepsSta
 export function isOpen(save: FootstepsSave, m: FootstepsJson, id: string): boolean {
   const s = m.sets.find((x) => x.id === id);
   const st = footstepsOf(save, m);
-  return !!s && (s.unlock === 'free' || (s.unlock === 'ad' && st.ads.includes(id)) || (s.unlock === 'shop' && st.bought.includes(id)));
+  return !!s && (s.unlock === 'free' || (s.unlock === 'ad' && st.ads.includes(id)) || (s.unlock === 'shop' && st.bought.includes(id)) || (s.unlock === 'daily' && dailyOpen(save, s.day)));
 }
 
-/** SD-14: buys the `shop` set `id` for its price of the summit trophies (save.trophies) and puts it on; false — no
- * such set, bought already or short. */
-export function buyShop(save: Pick<SaveData, 'footsteps' | 'trophies'>, m: FootstepsJson, id: string): boolean {
+/** SD-14: buys the `shop` set `id` for its price of the summit trophies (save.trophies) and puts it on; MU-12: a set
+ * priced in coins takes them from `wallet`. False — no such set, bought already or short. */
+export function buyShop(save: Pick<SaveData, 'footsteps' | 'trophies'> & Partial<Pick<SaveData, 'daily'>>, m: FootstepsJson, id: string, wallet?: { coins: number }): boolean {
   const s = m.sets.find((x) => x.id === id && x.unlock === 'shop');
   const st = footstepsOf(save, m);
-  const have = save.trophies ?? 0;
+  const coins = s?.currency === 'coins';
+  const have = coins ? (wallet?.coins ?? 0) : (save.trophies ?? 0);
   if (!s || st.bought.includes(id) || have < (s.price ?? 0)) return false;
-  save.trophies = have - (s.price ?? 0);
+  if (coins) wallet!.coins = have - (s.price ?? 0);
+  else save.trophies = have - (s.price ?? 0);
   save.footsteps = { ...st, bought: [...st.bought, id], set: id };
   return true;
 }

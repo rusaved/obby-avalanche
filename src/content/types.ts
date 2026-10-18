@@ -32,6 +32,8 @@ export interface GameJson {
   /** FM-16 (producer 14.10): a gift for subscribing to a channel of `community` (once a channel) and for a review of
    * the game (once); absent — no card. */
   communityGifts?: { subscribe?: Extract<Reward, { kind: 'egg' | 'coins' }>; review?: Extract<Reward, { kind: 'egg' | 'coins' }> };
+  /** MU-08 (docs/07-mobile-ui.md, w3-pause «Enter a code»): promo codes of the group and their gifts, each once. */
+  promo?: { codes: Record<string, Extract<Reward, { kind: 'egg' | 'coins' }>> };
   metrikaCounterId: number;
   mobileOrientation: 'landscape' | 'portrait';
   payments: { enabled: boolean };
@@ -953,9 +955,15 @@ export interface BotsJson {
  * — an audio file the producer adds later (null — the synth plays). */
 export interface FootstepSet {
   id: string;
-  /** How it opens: at once, by a rewarded ad, or bought in the shop for summit trophies (`price`). */
-  unlock: 'free' | 'ad' | 'shop';
+  /** How it opens: at once, by a rewarded ad, bought in the shop (`price`), or by the calendar of gifts (`day`, MU-12). */
+  unlock: 'free' | 'ad' | 'shop' | 'daily';
   price?: number;
+  /** MU-12 (Q-MU-6): the currency of `price` — summit trophies by default, or coins. */
+  currency?: 'coins' | 'trophies';
+  /** MU-12: the calendar day whose claim opens a `daily` set. */
+  day?: number;
+  /** MU-07 (w4-footsteps): the colour of the set's circle. */
+  color?: string;
   /** SD-14: its snow steps — audio files under assets/audio/ (the variants), `weights` — how often each comes (1 each). */
   files: string[];
   weights?: number[];

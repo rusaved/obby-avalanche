@@ -70,6 +70,11 @@ export interface HudOptions {
   mu?: boolean;
   /** The gift plaque under pause and sound pressed (docs/07-mobile-ui.md: the «Gifts» window). */
   onGift?: () => void;
+  /** MU-07 (w3-pause): the «Sounds» slider moved (0–1) and its value at the start. */
+  onVolume?: (v: number) => void;
+  volume?: number;
+  /** MU-07: «Enter a code» of the pause window. */
+  onPromo?: () => void;
 }
 
 /** A button of the right column: id, caption under the icon, icon id, optional counter on it («2/27»). */
@@ -200,11 +205,15 @@ export interface Hud {
   /** The step of the stage tutorial under the goal (docs/01-gdd.md 22.12); null — none. */
   setTutor(text: string | null): void;
   /** «+N» with a trophy over the trophy button of a stage (docs/01-gdd.md 22.8); null — hidden. */
-  setPadLabel(state: { text: string; x: number; y: number; tap?: boolean } | null): void;
+  setPadLabel(state: { text: string; x: number; y: number; tap?: boolean; sub?: string } | null): void;
   /** The portrait of a phone (the game is landscape, docs/03): «Turn your phone» over everything; false — hidden. */
   setRotate(on: boolean): void;
   /** MU-02: the gift plaque under pause and sound — a timer, or «Take» in gold when a gift is ready; null hides it. */
   setGift(state: { text: string; ready: boolean } | null): void;
+  /** MU-07 (w3-pause): the name of the set of steps on, by «Steps» of the pause window. */
+  setPauseSteps(name: string): void;
+  /** MU-06 (l5-camp): the hero is in the camp or on the base — no shoes button there. */
+  setCamp(on: boolean): void;
   /** MU-02: who holds the message slot now ('' — nobody): wave, toast, ads, need, tutor, hint. */
   readonly slot: string;
   readonly jumpButton: HTMLButtonElement;
@@ -480,12 +489,18 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   padLabel.style.setProperty('--coins', opts.coinColor);
   const padIcon = el('span', 'hud-pad-icon');
   padIcon.innerHTML = icon('coin');
-  const padText = el('span', '');
-  padLabel.append(padText, padIcon);
+  const padText = el('span', 'hud-pad-text');
+  // MU-04: the second line of the stage finish plaque («you can run past»).
+  const padSub = el('span', 'hud-pad-sub');
+  padLabel.append(padText, padIcon, padSub);
   root.appendChild(padLabel);
+  // MU-09 (p1-rotate): a dark screen, the phone with an arc arrow, the title and one line.
   const rotate = el('div', 'hud-rotate');
   rotate.dataset['role'] = 'rotate';
-  rotate.append(el('div', 'hud-rotate-phone'), el('div', '', t('hud.rotate')));
+  const phone = el('div', 'hud-rotate-phone');
+  if (opts.mu) phone.innerHTML = icon('rotatePhone');
+  rotate.append(phone, el('div', 'hud-rotate-title', t('hud.rotate')));
+  if (opts.mu) rotate.appendChild(el('div', 'hud-rotate-line', t('hud.rotateLine')));
   root.appendChild(rotate);
 
   // Avalanche (docs/01-gdd.md 4.8): banner, frost frame, arrow to the cave, toast, veil. Never red (docs/03, 3.2).
@@ -713,6 +728,90 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   cont.addEventListener('click', () => opts.onContinue());
   pauseMain.appendChild(cont);
 
+  // MU-07 (w3-pause): the phone layout of the pause window — two columns of rows (Auto-run, Graphics, Sounds, Steps),
+  // the blue «Continue», «Promo codes and bonuses in the group» and three quiet buttons: the groups and «Enter a code».
+  const QUALITY: Array<'auto' | 'high' | 'medium' | 'low'> = ['auto', 'high', 'medium', 'low'];
+  let quality: 'auto' | 'high' | 'medium' | 'low' = 'auto';
+  const muSwitch = el('button', 'mu-switch');
+  const muQuality = el('button', 'card-btn quiet mu-select');
+  const muVolume = el('input', 'foot-slider mu-volume');
+  const muSteps = el('span', 'mu-row-value');
+  if (opts.mu) {
+    pausePanel.replaceChildren();
+    pausePanel.className = 'pause-body pause-mu';
+    const grid = el('div', 'pause-grid');
+    const muRow = (label: string, ...rest: HTMLElement[]): HTMLElement => {
+      const r = el('div', 'mu-row');
+      r.append(el('span', 'mu-row-label', label), ...rest);
+      grid.appendChild(r);
+      return r;
+    };
+    muSwitch.dataset['hud'] = 'autorun';
+    muSwitch.dataset['on'] = 'false';
+    muSwitch.setAttribute('role', 'switch');
+    muSwitch.setAttribute('aria-label', t('settings.autorun'));
+    muSwitch.addEventListener('click', () => {
+      const v = muSwitch.dataset['on'] !== 'true';
+      muSwitch.dataset['on'] = String(v);
+      opts.onAutoRun(v);
+    });
+    muRow(t('settings.autorun'), muSwitch);
+    muQuality.dataset['hud'] = 'quality';
+    muQuality.addEventListener('click', () => {
+      quality = QUALITY[(QUALITY.indexOf(quality) + 1) % QUALITY.length]!;
+      hud.setQuality(quality);
+      opts.onQuality(quality);
+    });
+    muRow(t('settings.quality'), muQuality);
+    muVolume.type = 'range';
+    muVolume.min = '0';
+    muVolume.max = '100';
+    muVolume.step = '5';
+    muVolume.value = String(Math.round((opts.volume ?? 1) * 100));
+    muVolume.style.setProperty('--fill', `${muVolume.value}%`);
+    muVolume.dataset['hud'] = 'volume';
+    muVolume.setAttribute('aria-label', t('settings.sfx'));
+    muVolume.addEventListener('input', () => {
+      muVolume.style.setProperty('--fill', `${muVolume.value}%`);
+      opts.onVolume?.(Number(muVolume.value) / 100);
+    });
+    muRow(t('settings.sfx'), muVolume);
+    if (onFootsteps) {
+      const b = el('button', 'card-btn quiet', t('footsteps.open'));
+      b.dataset['hud'] = 'footsteps';
+      b.addEventListener('click', () => onFootsteps());
+      muRow(t('settings.steps'), muSteps, b);
+    }
+    pausePanel.appendChild(grid);
+    const go = el('button', 'btn-primary mu-continue', t('btn.continue'));
+    go.dataset['hud'] = 'continue';
+    go.dataset['next'] = '1';
+    go.addEventListener('click', () => opts.onContinue());
+    pausePanel.append(go, el('div', 'mu-caption', t('community.caption')));
+    const links = el('div', 'mu-links');
+    links.dataset['role'] = 'community';
+    for (const id of opts.community?.ids ?? []) {
+      const b = el('button', `card-btn quiet community ${id}`);
+      b.dataset['hud'] = `community-${id}`;
+      const i = el('span', 'mark');
+      i.innerHTML = icon(id === 'telegram' ? 'telegram' : 'vk');
+      b.append(i, t(`community.${id}`));
+      b.addEventListener('click', () => opts.community?.open(id));
+      links.appendChild(b);
+    }
+    if (opts.onPromo) {
+      const b = el('button', 'card-btn quiet');
+      b.dataset['hud'] = 'promo';
+      const i = el('span', 'mark');
+      i.innerHTML = icon('key');
+      b.append(i, t('promo.enter'));
+      const onPromo = opts.onPromo;
+      b.addEventListener('click', () => onPromo());
+      links.appendChild(b);
+    }
+    pausePanel.appendChild(links);
+  }
+
   /**
    * MU-02 (docs/07-mobile-ui.md, rule 11): one message slot under the stage strip — the avalanche banner, a toast, the
    * ad button of the camp, the gate plaque, the tutorial step or a hint; the first of them that is up holds it, the rest
@@ -745,6 +844,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     get slot() {
       return root.dataset['slot'] ?? '';
     },
+    setCamp(on) {
+      if (root.classList.contains('camp') !== on) root.classList.toggle('camp', on);
+    },
     setGift(state) {
       giftBtn.classList.toggle('shown', state !== null);
       if (!state) return;
@@ -766,9 +868,18 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     setAutoRun(on) {
       autoRunToggle.dataset['on'] = String(on);
       autoRunToggle.textContent = on ? t('settings.on') : t('settings.off');
+      muSwitch.dataset['on'] = String(on);
     },
     setQuality(level) {
       qualitySel.value = level;
+      quality = level;
+      muQuality.replaceChildren(t(`settings.q.${level}`));
+      const chev = el('span', 'mark');
+      chev.innerHTML = icon('chevron');
+      muQuality.appendChild(chev);
+    },
+    setPauseSteps(name) {
+      if (muSteps.textContent !== name) muSteps.textContent = name;
     },
     updateStick(stick, fieldLeft, fieldTop) {
       if (opts.mu && touchMode && !stick.active) {
@@ -793,7 +904,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
         // MU-02: fixed sizes of docs/07-mobile-ui.md (jump 64, round buttons 44, stick 84); the bottom band of a phone
         // taller than its visible 330 px stays free.
         const panel = touchMode ? Math.max(0, Math.min(BOTTOM_PANEL_MAX, height - VISIBLE_H)) : 0;
-        root.style.setProperty('--mu-bottom', `${panel}px`);
+        // On the interface layer: the windows keep out of that band too.
+        host.style.setProperty('--mu-bottom', `${panel}px`);
         jumpButton.style.width = jumpButton.style.height = '';
         for (const b of [pauseBtn, soundBtn]) b.style.width = b.style.height = '';
         soundBtn.style.marginRight = '';
@@ -972,7 +1084,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       mountainHero.src = bar.faceUrl;
     },
     setMountainShown(on) {
-      mountain.classList.toggle('off', !on);
+      // MU-06: the phone layout keeps the strip on the base too («Camp · mountain N»).
+      mountain.classList.toggle('off', !on && !opts.mu);
       baseGifts.classList.toggle('off', on);
     },
     updateMountain(label, hero, wave, blinkCave) {
@@ -1109,6 +1222,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       else delete padLabel.dataset['hud'];
       if (!state) return;
       setRich(padText, state.text);
+      padLabel.classList.toggle('two', !!state.sub);
+      if (padSub.textContent !== (state.sub ?? '')) padSub.textContent = state.sub ?? '';
       padLabel.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
     },
     setTutor(text) {

@@ -1,6 +1,6 @@
-// What: Renders the «Footsteps» window body: the footsteps volume slider (0–100%) and a card per set — choose, «▶ Ad: unlock», or a shop set with its trophy price and «Buy» / «N more».
+// What: Renders the «Footsteps» window body (w4-footsteps): the volume slider on its own line and five cards of one height — a coloured «listen» circle, «Selected», «Choose», or a lock with the price and «To the shop».
 // Called by: app/footsteps-view.ts.
-// Keep: Pure view over FootstepsPanelModel; texts via t(), names from i18n footsteps.set.<id>; the ad button text carries the word of 03 2.3 («Реклама»); the slider applies on input without a re-render.
+// Keep: Pure view over FootstepsPanelModel; texts via t(), names from i18n footsteps.set.<id>; the ad button text carries the word of 03 2.3 («Реклама»); the slider applies on input without a re-render; buying is in the shop (MU-12), never here.
 
 /**
  * «Footsteps» window body (LV-09, docs/01-gdd.md 11): the volume of the steps on its own slider, applied at once; the
@@ -10,15 +10,17 @@
  */
 import { t } from './i18n.ts';
 import { icon, setRich } from './icons.ts';
-import { trophyPrice } from './shop-panel.ts';
 
 export interface FootstepCard {
   id: string;
-  /** `on` — the set on; `open` — can be chosen; `ad` — opens by an ad (`busy` — the ad is running); `buy` / `short` — a
-   * shop set to buy for `price` trophies or `need` more (SD-14); `shop` — locked. */
-  state: 'on' | 'open' | 'ad' | 'busy' | 'buy' | 'short' | 'shop';
+  /** `on` — the set on; `open` — can be chosen; `ad` — opens by an ad (`busy` — the ad is running); `locked` — not
+   * bought yet (MU-07: its price and «To the shop», the purchase is in the shop, MU-12) or a gift of the calendar. */
+  state: 'on' | 'open' | 'ad' | 'busy' | 'locked';
+  /** The colour of the set's circle (sfx.json). */
+  color?: string;
+  /** Locked: the price with its currency mark («{trophy} 3»), or the condition («Calendar · day 2»). */
   price?: string;
-  need?: string;
+  lock?: string;
 }
 
 export interface FootstepsPanelModel {
@@ -30,8 +32,10 @@ export interface FootstepsPanelModel {
 export interface FootstepsPanelActions {
   choose(id: string): void;
   ad(id: string): void;
-  /** SD-14: buy the shop set for its trophies. */
-  buy(id: string): void;
+  /** MU-07: listen to a set (any, bought or not). */
+  preview(id: string): void;
+  /** MU-12: a set not bought — its card leads to the «Steps» tab of the shop. */
+  toShop(id: string): void;
   /** The slider moved (`done` — released: the preview plays). */
   volume(v: number, done: boolean): void;
 }
@@ -43,10 +47,22 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, te
   return e;
 }
 
-const percent = (v: number): string => `${Math.round(v * 100)}%`;
+const percent = (v: number): string => `${Math.round(v * 100)}\u202f%`;
+
+/** A round «listen» button in the colour of the set (w4-footsteps). */
+export function playButton(color: string | undefined, onPlay: () => void): HTMLButtonElement {
+  const b = el('button', 'foot-play');
+  b.dataset['hud'] = 'footsteps-play';
+  if (color) b.style.background = color;
+  b.innerHTML = icon('play');
+  b.setAttribute('aria-label', t('footsteps.listen'));
+  b.addEventListener('click', onPlay);
+  return b;
+}
 
 export function renderFootstepsPanel(body: HTMLElement, m: FootstepsPanelModel, a: FootstepsPanelActions): void {
-  const row = el('div', 'row foot-vol');
+  // The volume of the steps on its own line (w4-footsteps).
+  const row = el('div', 'foot-vol');
   const slider = el('input', 'foot-slider');
   slider.type = 'range';
   slider.min = '0';
@@ -58,47 +74,56 @@ export function renderFootstepsPanel(body: HTMLElement, m: FootstepsPanelModel, 
   const value = el('span', 'foot-value', percent(m.volume));
   value.dataset['role'] = 'footsteps-volume';
   const read = (): number => Number(slider.value) / 100;
+  const paint = (): void => slider.style.setProperty('--fill', `${slider.value}%`);
+  paint();
   slider.addEventListener('input', () => {
     value.textContent = percent(read());
+    paint();
     a.volume(read(), false);
   });
   slider.addEventListener('change', () => a.volume(read(), true));
-  const control = el('span', 'foot-control');
-  control.append(slider, value);
-  row.append(el('span', 'row-label', t('footsteps.volume')), control);
+  row.append(el('span', 'foot-label', t('footsteps.volume')), slider, value);
   body.appendChild(row);
 
-  const grid = el('div', 'win-grid');
+  const grid = el('div', 'foot-grid');
   grid.dataset['role'] = 'footsteps-grid';
   for (const c of m.cards) {
-    const card = el('div', c.state === 'on' ? 'card on' : c.state === 'shop' ? 'card locked' : 'card');
+    const card = el('div', c.state === 'on' ? 'card foot-card on' : c.state === 'locked' ? 'card foot-card locked' : 'card foot-card');
     card.dataset['footsteps'] = c.id;
     card.dataset['state'] = c.state;
-    const pic = el('span', 'foot-pic');
-    pic.innerHTML = icon('soundOn');
-    card.append(pic, el('span', 'card-name', t(`footsteps.set.${c.id}`)));
-    if (c.state === 'shop') {
-      const lock = el('span', 'card-lock');
-      const i = el('span', '');
-      i.innerHTML = icon('lock');
-      lock.append(i, el('span', '', t('footsteps.soon')));
-      card.appendChild(lock);
-    } else if (c.state === 'buy' || c.state === 'short') {
-      card.appendChild(trophyPrice(c.price ?? ''));
-      const btn = el('button', c.state === 'short' ? 'card-btn off' : 'card-btn', c.state === 'short' ? (c.need ?? '') : t('btn.buy'));
-      btn.dataset['hud'] = 'footsteps-buy';
-      btn.disabled = c.state === 'short';
-      btn.addEventListener('click', () => a.buy(c.id));
-      card.appendChild(btn);
+    card.append(playButton(c.color, () => a.preview(c.id)), el('span', 'card-name', t(`footsteps.set.${c.id}`)));
+    const foot = el('div', 'foot-end');
+    if (c.state === 'on') {
+      const on = el('span', 'foot-chosen');
+      on.dataset['hud'] = 'footsteps-chosen';
+      const tick = el('span', 'mark');
+      tick.innerHTML = icon('tick');
+      on.append(tick, t('footsteps.chosen'));
+      foot.appendChild(on);
+    } else if (c.state === 'locked') {
+      const line = el('span', 'foot-lock');
+      const lock = el('span', 'mark');
+      lock.innerHTML = icon('padlock');
+      const text = el('span', '');
+      setRich(text, c.price ?? c.lock ?? '');
+      line.append(lock, text);
+      foot.appendChild(line);
+      if (c.price) {
+        const btn = el('button', 'card-btn quiet', t('footsteps.toShop'));
+        btn.dataset['hud'] = 'footsteps-shop';
+        btn.addEventListener('click', () => a.toShop(c.id));
+        foot.appendChild(btn);
+      }
     } else {
       const ad = c.state === 'ad' || c.state === 'busy';
-      const btn = el('button', c.state === 'on' ? 'card-btn alt' : c.state === 'busy' ? 'card-btn off' : 'card-btn');
-      setRich(btn, t(ad ? 'footsteps.ad' : c.state === 'on' ? 'footsteps.chosen' : 'footsteps.choose'));
+      const btn = el('button', ad ? 'card-btn' : 'card-btn quiet');
+      setRich(btn, t(ad ? 'footsteps.ad' : 'footsteps.choose'));
       btn.dataset['hud'] = ad ? 'footsteps-ad' : 'footsteps-choose';
       btn.disabled = c.state === 'busy';
       btn.addEventListener('click', () => (ad ? a.ad(c.id) : a.choose(c.id)));
-      card.appendChild(btn);
+      foot.appendChild(btn);
     }
+    card.appendChild(foot);
     grid.appendChild(card);
   }
   body.appendChild(grid);

@@ -22,7 +22,10 @@ import type { GameAudio } from '../audio/index.ts';
 import { createStepCadence } from '../audio/steps.ts';
 import { buyShop, chooseSet, footstepsOf, setVolume, unlockAd, type FootstepsState } from '../meta/footsteps.ts';
 import { formatNumber } from '../ui/format.ts';
+import { setRich } from '../ui/icons.ts';
 import { renderFootstepsPanel, type FootstepCard } from '../ui/footsteps-panel.ts';
+import type { ShopCard } from '../ui/shop-panel.ts';
+import type { ShopTabSource } from './cosmetics-view.ts';
 import { t } from '../ui/i18n.ts';
 import { track } from '../analytics/index.ts';
 
@@ -44,6 +47,11 @@ export interface FootstepsViewDeps {
   numSuffix(k: string): string;
   /** SD-14: summit trophies left after a purchase (the HUD plaque). */
   onTrophies?(left: number): void;
+  /** MU-12: the coins of the run (a set priced in coins takes them) and setting them after a purchase. */
+  coins?(): number;
+  setCoins?(n: number): void;
+  /** MU-12: «To the shop» of a set not bought — the «Steps» tab of the shop. */
+  toShop?(): void;
 }
 
 export interface FootstepsView {
@@ -56,6 +64,8 @@ export interface FootstepsView {
   /** One hero step on `surface` (a sim `gain`): heard at most perSec a second. */
   step(surface: Surface): void;
   openWindow(): void;
+  /** MU-12: the «Steps» tab of the shop — a card a set: listen, the price, «Buy» / «Selected». */
+  readonly shopTab: ShopTabSource;
 }
 
 export function createFootstepsView(d: FootstepsViewDeps): FootstepsView {
@@ -83,28 +93,34 @@ export function createFootstepsView(d: FootstepsViewDeps): FootstepsView {
   };
   const preview = (id: string): void => void play(id, 'snow', -Infinity);
 
-  const render = (body: HTMLElement): void => {
+  const fmt = (n: number): string => formatNumber(n, d.numSuffix);
+  /** The price of a set with its currency mark («{trophy} 3», «{coin} 150»). */
+  const priceOf = (s: FootstepsJson['sets'][number]): string => `${s.currency === 'coins' ? '{coin}' : '{trophy}'} ${fmt(s.price ?? 0)}`;
+  const owned = (st: FootstepsState, s: FootstepsJson['sets'][number]): boolean =>
+    s.unlock === 'free' || st.ads.includes(s.id) || st.bought.includes(s.id) || (s.unlock === 'daily' && (d.save.daily?.n ?? 0) >= (s.day ?? Infinity));
+  const buy = (id: string): boolean => {
+    const wallet = { coins: d.coins?.() ?? 0 };
+    if (!buyShop(d.save, m, id, wallet)) return false;
+    d.setCoins?.(wallet.coins);
+    d.persist(true);
+    d.onTrophies?.(d.save.trophies ?? 0);
+    d.windows.refresh();
+    preview(id);
+    return true;
+  };
+
+  const render = (body: HTMLElement, head: HTMLElement): void => {
     const st = footstepsOf(d.save, m);
-    const trophies = d.save.trophies ?? 0;
+    // MU-07 (w4-footsteps): the balances the sets are priced in, in the head.
+    const bal = document.createElement('span');
+    bal.className = 'card-price';
+    setRich(bal, `{coin} ${fmt(d.coins?.() ?? 0)}  {trophy} ${fmt(d.save.trophies ?? 0)}`);
+    head.appendChild(bal);
     const cards: FootstepCard[] = m.sets.map((s) => ({
       id: s.id,
-      state:
-        s.id === st.set
-          ? 'on'
-          : s.unlock === 'free' || st.ads.includes(s.id) || st.bought.includes(s.id)
-            ? 'open'
-            : s.unlock === 'ad'
-              ? busy === s.id
-                ? 'busy'
-                : 'ad'
-              : s.price === undefined
-                ? 'shop'
-                : trophies >= s.price
-                  ? 'buy'
-                  : 'short',
-      ...(s.unlock === 'shop' && s.price !== undefined
-        ? { price: formatNumber(s.price, d.numSuffix), need: t('shop.need', { n: formatNumber(Math.max(0, s.price - trophies), d.numSuffix) }) }
-        : {}),
+      ...(s.color ? { color: s.color } : {}),
+      state: s.id === st.set ? 'on' : owned(st, s) ? 'open' : s.unlock === 'ad' ? (busy === s.id ? 'busy' : 'ad') : 'locked',
+      ...(s.unlock === 'shop' && s.price !== undefined ? { price: priceOf(s) } : s.unlock === 'daily' ? { lock: t('footsteps.daily', { n: s.day ?? 0 }) } : {}),
     }));
     renderFootstepsPanel(body, { volume: st.volume, cards }, {
       choose(id) {
@@ -113,13 +129,8 @@ export function createFootstepsView(d: FootstepsViewDeps): FootstepsView {
         d.windows.refresh();
         preview(id);
       },
-      buy(id) {
-        if (!buyShop(d.save, m, id)) return;
-        d.persist(true);
-        d.onTrophies?.(d.save.trophies ?? 0);
-        d.windows.refresh();
-        preview(id);
-      },
+      preview,
+      toShop: () => d.toShop?.(),
       volume(v, done) {
         setVolume(d.save, m, v);
         if (!done) return;
@@ -155,7 +166,45 @@ export function createFootstepsView(d: FootstepsViewDeps): FootstepsView {
     });
   };
 
+  const shopTab: ShopTabSource = {
+    cards(): ShopCard[] {
+      const st = footstepsOf(d.save, m);
+      const coins = d.coins?.() ?? 0;
+      return m.sets.map((s) => {
+        const have = s.currency === 'coins' ? coins : (d.save.trophies ?? 0);
+        const price = s.price ?? 0;
+        const mine = owned(st, s);
+        return {
+          id: s.id,
+          name: t(`footsteps.set.${s.id}`),
+          mult: '',
+          price: fmt(price),
+          coin: s.currency === 'coins',
+          color: s.color ?? '#ffffff',
+          sound: true,
+          state: s.id === st.set ? 'on' : mine ? 'owned' : s.unlock === 'shop' ? (have >= price ? 'buy' : 'short') : 'locked',
+          need: t('shop.need', { n: fmt(Math.max(0, price - have)) }),
+          ...(s.unlock === 'daily' ? { lock: t('footsteps.daily', { n: s.day ?? 0 }) } : {}),
+        };
+      });
+    },
+    balance: () => fmt(d.save.trophies ?? 0),
+    buy: (id) => void buy(id),
+    equip(id) {
+      if (!chooseSet(d.save, m, id)) return;
+      d.persist(true);
+      d.windows.refresh();
+      preview(id);
+    },
+    preview: (id) => {
+      d.audio()?.load(filesOf(id));
+      preview(id);
+    },
+    trophies: () => true,
+  };
+
   return {
+    shopTab,
     get count() {
       return count;
     },
@@ -172,7 +221,7 @@ export function createFootstepsView(d: FootstepsViewDeps): FootstepsView {
     openWindow() {
       // The previews of every set (SD-14: the files of a set come when first needed).
       d.audio()?.load(m.sets.flatMap((s) => s.files));
-      d.windows.open(FOOTSTEPS_WINDOW, t('footsteps.title'), render, { onClose: () => d.audio()?.sync() });
+      d.windows.open(FOOTSTEPS_WINDOW, t('footsteps.title'), render, { onClose: () => d.audio()?.sync(), sub: t('footsteps.sub'), size: 'cards' });
       // Only `menu` holds the game now: the sound stays on for the previews (main.ts, the audio pause predicate).
       d.audio()?.sync();
     },

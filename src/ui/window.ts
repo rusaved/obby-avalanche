@@ -20,6 +20,12 @@ export interface WindowOptions {
   onClose?: () => void;
   /** The title stays on one line: its font shrinks down to 14 px, never cut (docs/01-gdd.md 10.2, pause). */
   fitTitle?: boolean;
+  /** MU-07 (docs/07-mobile-ui.md, rule 13): the line under the title (what the window is, the balance it spends). */
+  sub?: string;
+  /** MU-07: the panel width — 640 cards, 560 lists, 480 summaries and «More» (default 560). */
+  size?: 'cards' | 'list' | 'summary';
+  /** MU-07: false — no cross (a window with a single way out, «Mountain cleared»: «Next»). */
+  closable?: boolean;
 }
 
 export interface WindowFrame {
@@ -33,11 +39,26 @@ export interface WindowFrame {
 }
 
 export interface WindowFrameOptions {
+  /** MU-07: the phone layout — a window without its own «next» has no «OK» at the bottom (the cross closes it). */
+  mu?: boolean;
   closeLabel: string;
   /** Default caption of the «next» button («OK»). */
   okLabel: string;
   onChange(id: string | null): void;
 }
+
+/** MU-08: the width of the windows of the second wave (docs/07-mobile-ui.md, rule 13): cards 640, summaries 480. */
+const SIZE_OF: Record<string, 'cards' | 'list' | 'summary'> = {
+  shop: 'cards',
+  pets: 'cards',
+  wardrobe: 'cards',
+  daily: 'cards',
+  rebirth: 'cards',
+  timeRewards: 'cards',
+  newPet: 'summary',
+  allDone: 'summary',
+  communityGift: 'summary',
+};
 
 export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): WindowFrame {
   const dim = document.createElement('div');
@@ -49,6 +70,12 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
   top.className = 'win-top';
   const title = document.createElement('h1');
   title.className = 'panel-title win-title';
+  const heading = document.createElement('div');
+  heading.className = 'win-heading';
+  const sub = document.createElement('div');
+  sub.className = 'win-sub';
+  sub.dataset['role'] = 'win-sub';
+  heading.append(title, sub);
   const head = document.createElement('div');
   head.className = 'win-head';
   const close = document.createElement('button');
@@ -56,9 +83,11 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
   close.dataset['hud'] = 'win-close';
   close.setAttribute('aria-label', opts.closeLabel);
   close.innerHTML = icon('close');
-  top.append(title, head, close);
+  top.append(heading, head, close);
   const body = document.createElement('div');
   body.className = 'win-body';
+  // MU-13: the middle scrolls under a finger (the input manager lets a touch move there).
+  body.dataset['scroll'] = '1';
   const foot = document.createElement('div');
   foot.className = 'win-foot';
   const next = document.createElement('button');
@@ -95,9 +124,12 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
       render = fn;
       options = o;
       dim.dataset['window'] = id;
+      dim.dataset['size'] = o.size ?? SIZE_OF[id] ?? 'list';
       title.textContent = text;
       title.classList.toggle('fit', !!o.fitTitle);
-      foot.hidden = o.next === false;
+      sub.textContent = o.sub ?? '';
+      close.hidden = o.closable === false;
+      foot.hidden = o.next === false || (!!opts.mu && o.next === undefined);
       next.textContent = typeof o.next === 'string' ? o.next : opts.okLabel;
       frame.refresh();
       dim.classList.add('open');
@@ -127,7 +159,7 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
   close.addEventListener('click', () => frame.close());
   next.addEventListener('click', () => (options.onNext ? options.onNext() : frame.close()));
   dim.addEventListener('pointerdown', (ev) => {
-    if (ev.target === dim) frame.close();
+    if (ev.target === dim && options.closable !== false) frame.close();
   });
   return frame;
 }

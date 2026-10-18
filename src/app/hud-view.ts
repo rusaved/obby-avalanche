@@ -36,6 +36,8 @@ export interface HudViewDeps {
   onLevelUp?: (level: number) => void;
   /** MU-02/MU-03 (docs/07-mobile-ui.md): the phone layout — stage ticks on the strip, the gate as one plaque in the slot. */
   mu?: boolean;
+  /** MU-06: the strip label on the base («Camp · mountain N», the mountain of the own portal). */
+  baseLabel?: () => string;
 }
 
 /** «уровень / уровня / уровней» by n (ru plural; en has one/many through the same keys). */
@@ -135,6 +137,11 @@ export function createHudView(d: HudViewDeps): HudView {
       const baseGoal = d.baseGoal?.() ?? null;
       if (baseGoal !== null) {
         d.hud.setGoal(baseGoal, null);
+        if (d.mu) {
+          d.hud.setCamp(true);
+          d.hud.setNeed(null);
+          d.hud.updateMountain(d.baseLabel?.() ?? baseGoal, 0, null, -1);
+        }
         return;
       }
       // Mountain bar: k/n = open walls of the mountain; the avalanche mark at the crack on warn and at the front while it runs.
@@ -150,7 +157,8 @@ export function createHudView(d: HudViewDeps): HudView {
       const stages = level.stages;
       const stageN = stages ? stageAt(level, sim.hero.pos.z) : 0;
       const camp = level.safeZones[0];
-      const campLabel = d.mu && !!stages && camp !== undefined && sim.hero.pos.z <= camp[1];
+      const campLabel = !!d.mu && !!stages && camp !== undefined && sim.hero.pos.z <= camp[1];
+      if (d.mu) d.hud.setCamp(campLabel);
       d.hud.updateMountain(campLabel ? t('camp.label', { n: level.worldIndex }) : stages ? t('stage.progress', { a: level.worldIndex, b: stageN, c: stages.length }) : label, sim.hero.pos.z / len, wave, ts?.phase === 'warn' ? ts.shelter : -1);
       if (stages && lv) {
         // The next closed ridge asks for a level (22.3): the goal names its stage, the pill by it compares the levels.

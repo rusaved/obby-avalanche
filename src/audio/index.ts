@@ -92,6 +92,8 @@ export interface GameAudio {
   /** Re-reads `paused()` now (the pause predicate changed without a pause transition: the footsteps window). */
   sync(): void;
   setEnabled(on: boolean): void;
+  /** MU-07 (w3-pause): the volume of every sound, 0–1 (the «Sounds» slider). */
+  setVolume(v: number): void;
   /** The context runs (after the first gesture and while nothing pauses the game). */
   readonly running: boolean;
   /** Names of the sounds actually started (e2e). */
@@ -145,12 +147,15 @@ export function createAudio(opts: {
     if (!want && ctx.state === 'running') void ctx.suspend().catch(() => undefined);
   };
 
+  /** MU-07: the volume of the «Sounds» slider (0–1) on the effects gain. */
+  let volume = 1;
   const start = async (): Promise<void> => {
     if (ctx) return;
     try {
       const c = new AudioContext();
       ctx = c;
       sfxGain = c.createGain();
+      sfxGain.gain.value = volume;
       sfxGain.connect(c.destination);
       stepVoice = createStepVoice(c, sfxGain);
       // ZzFX makes its own context on import: close it, build our buffers with its sample generator.
@@ -213,6 +218,10 @@ export function createAudio(opts: {
     played,
     setEnabled(on) {
       enabled = on;
+    },
+    setVolume(v) {
+      volume = Math.min(1, Math.max(0, v));
+      if (sfxGain) sfxGain.gain.value = volume;
     },
     sync: apply,
     load,

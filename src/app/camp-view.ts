@@ -11,7 +11,7 @@ import type { World } from '../content/types.ts';
 import { levelOf, type Levels } from '../sim/levels.ts';
 import { formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
-import { setRich } from '../ui/icons.ts';
+import { icon, setRich } from '../ui/icons.ts';
 import { track } from '../analytics/index.ts';
 
 /** SD-11: «Buy sneakers» shows at a closed ridge this close ahead (units). */
@@ -143,34 +143,60 @@ export function createCampView(d: CampViewDeps): CampView {
       const stages = w.stages ?? [];
       // A stage tapped once is armed («Yes, for N»), the second tap pays (LV-12 review: one tap spent all trophies).
       let armed = 0;
-      const render = (body: HTMLElement): void => {
+      const render = (body: HTMLElement, head: HTMLElement): void => {
         body.textContent = '';
         const list = document.createElement('div');
         list.className = 'tp-list';
         const top = best(w);
         const coins = d.trophyWallet ? (d.save.trophies ?? 0) : d.getSim().coins;
+        // MU-07 (w2-teleport): the balance in the head; a row of 52 px a stage — «Stage N · trial · price · Buy», the
+        // stages not passed dimmed with a lock and «not passed yet».
+        const bal = document.createElement('span');
+        bal.className = 'card-price';
+        bal.dataset['role'] = 'teleport-balance';
+        setRich(bal, `${d.trophyWallet ? '{trophy}' : '{coin}'} ${fmt(coins)}`);
+        head.appendChild(bal);
         for (const st of stages.filter((x) => x.n >= 2)) {
-          const b = document.createElement('button');
-          b.className = 'tp-item';
-          b.dataset['stage'] = String(st.n);
+          const row = document.createElement('div');
           const passed = st.n <= top;
           const can = passed && coins >= st.trophies;
+          row.className = passed ? 'tp-row' : 'tp-row off';
+          const name = document.createElement('span');
+          name.className = 'tp-name';
+          name.textContent = t('teleport.stage', { n: st.n });
+          const kind = document.createElement('span');
+          kind.className = 'tp-kind';
+          kind.textContent = t(`stageType.${st.type}`);
+          row.append(name, kind);
+          const b = document.createElement('button');
+          b.className = passed ? 'card-btn tp-item' : 'tp-item tp-locked';
+          b.dataset['stage'] = String(st.n);
           b.disabled = !can;
-          const line = document.createElement('small');
-          setRich(line, !passed ? t('teleport.locked') : !can ? t('teleport.short', { n: fmt(st.trophies - coins) }) : armed === st.n ? t('teleport.confirm', { price: fmt(st.trophies) }) : t('teleport.price', { price: fmt(st.trophies) }));
-          b.append(t('teleport.stage', { n: st.n }), line);
-          if (armed === st.n) b.classList.add('armed');
+          if (passed) {
+            const price = document.createElement('span');
+            price.className = 'card-price tp-price';
+            setRich(price, `{coin} ${fmt(st.trophies)}`);
+            row.appendChild(price);
+            setRich(b, !can ? t('teleport.short', { n: fmt(st.trophies - coins) }) : armed === st.n ? t('teleport.yes') : t('teleport.buy'));
+          } else {
+            const lock = document.createElement('span');
+            lock.className = 'mark';
+            lock.innerHTML = icon('padlock');
+            b.append(lock, t('teleport.locked'));
+          }
+          row.appendChild(b);
+          if (armed === st.n) b.classList.add('armed', 'ok');
           b.addEventListener('click', () => {
             if (armed !== st.n) {
               armed = st.n;
               d.windows.refresh();
             } else if (view.teleport(st.n)) d.windows.close();
           });
-          list.appendChild(b);
+          list.appendChild(row);
         }
         body.appendChild(list);
       };
-      d.windows.open(TELEPORT_WINDOW, t('teleport.title'), render);
+      d.windows.open(TELEPORT_WINDOW, t('teleport.title'), render, { sub: t('teleport.sub', { n: w.index }), size: 'list' });
     },
     teleport(n) {
       const sim = d.getSim();

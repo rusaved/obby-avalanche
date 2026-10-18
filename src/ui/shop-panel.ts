@@ -10,8 +10,9 @@
  */
 import { t } from './i18n.ts';
 import { icon } from './icons.ts';
+import { playButton } from './footsteps-panel.ts';
 
-export type ShopTab = 'shoes' | 'eggs' | 'trails' | 'auras' | 'special';
+export type ShopTab = 'shoes' | 'eggs' | 'steps' | 'trails' | 'auras' | 'special';
 
 export interface ShopCard {
   id: string;
@@ -32,6 +33,8 @@ export interface ShopCard {
   lines?: string[];
   /** Caption of the buy button instead of «Buy» («No room»), still pressable. */
   action?: string;
+  /** MU-12: a set of steps — a round «listen» button in its colour instead of the swatch. */
+  sound?: boolean;
 }
 
 export interface ShopPanelModel {
@@ -48,6 +51,8 @@ export interface ShopPanelActions {
   tab(tab: ShopTab): void;
   buy(id: string): void;
   equip(id: string): void;
+  /** MU-12: listen to a set of steps. */
+  preview?(id: string): void;
 }
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string): HTMLElementTagNameMap[K] {
@@ -99,9 +104,13 @@ export function renderShopPanel(body: HTMLElement, head: HTMLElement, m: ShopPan
   for (const c of m.cards) {
     const card = el('div', c.state === 'on' ? 'card on' : c.state === 'locked' ? 'card locked' : 'card');
     card.dataset['item'] = c.id;
-    const sw = el('span', 'card-swatch');
-    sw.style.background = c.color;
-    card.append(sw, el('span', 'card-name', c.name));
+    if (c.sound) card.appendChild(playButton(c.color, () => a.preview?.(c.id)));
+    else {
+      const sw = el('span', 'card-swatch');
+      sw.style.background = c.color;
+      card.appendChild(sw);
+    }
+    card.appendChild(el('span', 'card-name', c.name));
     if (c.mult) card.appendChild(el('span', 'card-big', c.mult));
     if (c.lines?.length) {
       const list = el('span', 'card-lines');
@@ -109,7 +118,12 @@ export function renderShopPanel(body: HTMLElement, head: HTMLElement, m: ShopPan
       card.appendChild(list);
     }
     let btn: HTMLElement;
-    if (c.state === 'on') {
+    if (c.state === 'on' && c.sound) {
+      btn = el('span', 'foot-chosen', t('footsteps.chosen'));
+    } else if (c.state === 'owned' && c.sound) {
+      btn = el('button', 'card-btn quiet', t('footsteps.choose'));
+      btn.addEventListener('click', () => a.equip(c.id));
+    } else if (c.state === 'on') {
       btn = el('button', 'card-btn off', t('shop.equipped'));
     } else if (c.state === 'owned') {
       card.appendChild(el('span', 'card-sub', t('shop.owned')));

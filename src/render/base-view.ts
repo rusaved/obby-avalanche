@@ -19,6 +19,8 @@ const ATLAS_W = 512;
 const ARROWS = 3;
 const ARROW_GAP = 4;
 const FILL_OPACITY = 0.6;
+/** MU-06: the light plaque of a portal sign, white at this alpha. */
+const LIGHT_ALPHA = 0.9;
 /** The sign of the base treadmill: its height and how far before the front of its belts (units). */
 const TREAD_SIGN_Y = 3;
 const TREAD_SIGN_BACK = 1;
@@ -33,11 +35,17 @@ const GIFT_BOX = 1.1;
 /** The shop counter: width, height, depth (units). */
 const COUNTER: [number, number, number] = [3, 1.2, 1.4];
 
+/** MU-06 (l5-camp): the portal signs on light plaques — «where · level · open» or a lock and its condition. */
+export interface PortalSigns {
+  /** The second line of a portal's sign; `locked` — drawn after a padlock. */
+  sub(p: BasePortal): { text: string; locked: boolean };
+}
+
 export interface BaseView {
   group: Group;
   /** The base of `level` with its portals (a new entry: the states may have changed); `t` — the game's texts; `tread` —
    * the sign over the base treadmill («×6»); `board` — the lines of the «My records» board (FM-12). */
-  set(level: LevelData, portals: readonly BasePortal[], t: (key: string, p?: Record<string, string | number>) => string, tread?: string, board?: readonly string[]): void;
+  set(level: LevelData, portals: readonly BasePortal[], t: (key: string, p?: Record<string, string | number>) => string, tread?: string, board?: readonly string[], light?: PortalSigns): void;
   /** The lines on the records board now. */
   readonly board: readonly string[];
   /** Off the base: nothing drawn. */
@@ -127,7 +135,7 @@ export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView 
       fold(meshes.signs, meshes.signPos, a.sign, hide);
     },
     clear,
-    set(level, portals, t, tread, boardLines) {
+    set(level, portals, t, tread, boardLines, light) {
       clear();
       if (portals.length === 0) return;
       drawn = true;
@@ -189,14 +197,19 @@ export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView 
 
       // Signs: the name of the mountain, under it «ridge b/c» on the own one begun or «Clear mountain N» on a locked one;
       // the step of the base treadmill over its belts (docs/01-gdd.md 19.3), facing the spawn. One atlas, one mesh.
-      const rows: Array<{ x: number; z: number; yaw: number; y: number; text: string; sub: string; w?: number; h?: number }> = portals.map((p) => ({
-        x: p.x,
-        z: p.z,
-        yaw: p.yaw,
-        y: p.height + SIGN_OVER,
-        text: t(`world.${p.id}`),
-        sub: p.state === 'own' && p.ridge ? t('base.portalRidge', { b: p.ridge.b, c: p.ridge.c }) : p.state === 'locked' ? t('base.portalLocked', { n: p.world - 1 }) : '',
-      }));
+      const rows: Array<{ x: number; z: number; yaw: number; y: number; text: string; sub: string; w?: number; h?: number; light?: boolean; locked?: boolean }> = portals.map((p) => {
+        const ls = light?.sub(p);
+        return {
+          x: p.x,
+          z: p.z,
+          yaw: p.yaw,
+          y: p.height + SIGN_OVER,
+          text: t(`world.${p.id}`),
+          sub: ls ? ls.text : p.state === 'own' && p.ridge ? t('base.portalRidge', { b: p.ridge.b, c: p.ridge.c }) : p.state === 'locked' ? t('base.portalLocked', { n: p.world - 1 }) : '',
+          light: !!ls,
+          locked: ls?.locked ?? false,
+        };
+      });
       const belts = level.points.filter((p) => p.type === 'treadmill');
       if (tread && belts.length) {
         const x = belts.reduce((a, b) => a + b.x, 0) / belts.length;
@@ -219,11 +232,25 @@ export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView 
         ctx.textBaseline = 'middle';
         rows.forEach((g, i) => {
           const y0 = i * ROW_PX;
-          ctx.fillStyle = theme.ui.plaque;
-          ctx.globalAlpha = theme.ui.plaqueAlpha;
+          // MU-06: a light plaque (white at 90 %) with ink text — a sign of the world, not a HUD plaque.
+          const ink = theme.ui.mu?.['ink'] ?? theme.ui.plaque;
+          ctx.fillStyle = g.light ? '#ffffff' : theme.ui.plaque;
+          ctx.globalAlpha = g.light ? LIGHT_ALPHA : theme.ui.plaqueAlpha;
           ctx.fillRect(4, y0 + 4, ATLAS_W - 8, ROW_PX - 8);
           ctx.globalAlpha = 1;
-          ctx.fillStyle = theme.ui.plaqueText;
+          ctx.fillStyle = g.light ? ink : theme.ui.plaqueText;
+          if (g.light && g.locked) {
+            // A padlock before the condition (no font symbols, docs/07-mobile-ui.md).
+            ctx.font = '700 28px Rubik, sans-serif';
+            const lx = ATLAS_W / 2 - Math.min(ATLAS_W - 24, ctx.measureText(g.sub).width) / 2 - 26;
+            const ly = y0 + ROW_PX * 0.74;
+            ctx.strokeStyle = ink;
+            ctx.lineWidth = 4;
+            ctx.strokeRect(lx - 10, ly - 4, 20, 16);
+            ctx.beginPath();
+            ctx.arc(lx, ly - 4, 7, Math.PI, 0);
+            ctx.stroke();
+          }
           ctx.font = `800 ${g.sub ? 36 : 44}px Rubik, sans-serif`;
           ctx.fillText(g.text, ATLAS_W / 2, y0 + (g.sub ? ROW_PX * 0.34 : ROW_PX / 2), ATLAS_W - 24);
           if (g.sub) {

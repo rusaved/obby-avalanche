@@ -72,6 +72,8 @@ export interface QuestsView {
   spin(): number | null;
   questsItem(): MenuItem | null;
   timeItem(): MenuItem | null;
+  /** MU-07 (w1-gifts): the next `n` rewards for the time not taken yet (all taken — the last `n`), as tiles. */
+  timeTiles(n: number): Array<{ index: number; icon: string; name: string; sub: string; timer: string; state: 'run' | 'ready' | 'got' }>;
 }
 
 export function createQuestsView(d: QuestsViewDeps): QuestsView {
@@ -202,7 +204,7 @@ export function createQuestsView(d: QuestsViewDeps): QuestsView {
       if (d.getSim().onBelt) progress('q_treadmill', dt / 60);
       // Open window timers move once a second.
       const w = d.windows.current;
-      if (w === 'quests' || w === 'timeRewards') {
+      if (w === 'quests' || w === 'timeRewards' || w === 'gifts') {
         const key = `${w}:${Math.floor(d.save.timeRw?.sec ?? 0)}:${Math.floor(d.nextDaySec())}`;
         if (key !== shown) {
           shown = key;
@@ -245,6 +247,20 @@ export function createQuestsView(d: QuestsViewDeps): QuestsView {
       const shown = (d.save.trophiesTotal ?? 0) > 0 || (d.save.tier ?? 0) > 0;
       if (!shown) return null;
       return { id: 'quests', label: t('btn.quests'), icon: 'quests', badge: questsToClaim(d.save) ? '!' : '' };
+    },
+    timeTiles(n) {
+      const sec = d.save.timeRw?.sec ?? 0;
+      const got = d.save.timeRw?.got ?? [];
+      const all = times.map((x, i) => ({
+        index: i,
+        icon: x.reward.kind === 'boost' ? 'bolt' : x.reward.kind === 'trophies' ? 'cup' : x.reward.kind === 'egg' ? 'giftLine' : REWARD_ICON[x.reward.kind],
+        name: rewardName(x.reward),
+        sub: x.reward.kind === 'boost' ? t('time.for', { n: x.reward.min }) : t('time.now'),
+        timer: formatTimer(x.min * 60 - sec),
+        state: (got.includes(i) ? 'got' : timeRewardReady(d.save, times, i) ? 'ready' : 'run') as 'run' | 'ready' | 'got',
+      }));
+      const open = all.filter((x) => x.state !== 'got');
+      return (open.length > 0 ? open : all.slice(-n)).slice(0, n);
     },
     timeItem() {
       if ((d.save.totalPlaySec ?? 0) < d.balance.ui.unlockTimeRewardsSec) return null;

@@ -98,10 +98,11 @@ export function segmentMeetsBox(a: Vector3, b: Vector3, center: readonly number[
  * hero has passed is gone for good: it hid as he went through and came back behind him like a closed one (producer's
  * playtest PS).
  */
-export function guardBannerSigns(hud: Hud, meshes: LevelMeshes, level: LevelData, camera: PerspectiveCamera, field: { width: number; height: number }, hero: Vector3, passed: readonly boolean[]): void {
+export function guardBannerSigns(hud: Hud, meshes: LevelMeshes, level: LevelData, camera: PerspectiveCamera, field: { width: number; height: number }, hero: Vector3, passed: readonly boolean[], readRange = Infinity): void {
   const banner = hud.waveBannerRect();
   for (let i = 0; i < level.gates.length; i++) {
-    let hide = passed[i] === true;
+    // MU-03 (docs/07-mobile-ui.md, rule 19): a sign farther than it reads is not drawn.
+    let hide = passed[i] === true || Math.abs(level.gates[i]!.z - hero.z) > readRange;
     const near = Math.abs(level.gates[i]!.z - hero.z) < SIGHT_RANGE;
     if (!hide && (banner || near)) {
       const box = meshes.signBox(i);

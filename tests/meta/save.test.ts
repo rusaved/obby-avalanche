@@ -48,7 +48,7 @@ describe('SaveData (M3-07)', () => {
     expect(m).toEqual({ ...v1, v: 2, stat: 0, bestStat: 0, coins: 0, world: 1, frontierWall: 0 });
     const s = parseSave(structuredClone(v1))!;
     expect(s.v).toBe(SAVE_VERSION);
-    expect(s.settings).toEqual(v1.settings);
+    expect(s.settings).toEqual({ ...v1.settings, volume: 1 });
     expect(s.pets).toEqual(['bunny']);
     const cur = { ...createSave(10), stat: 120, coins: 30, world: 2, frontierWall: 5 };
     expect(parseSave(structuredClone(cur))).toEqual(cur);

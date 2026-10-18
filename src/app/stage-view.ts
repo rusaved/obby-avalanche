@@ -30,6 +30,8 @@ export interface StageViewDeps {
   onCampReturn?: () => void;
   /** The teleport pad of the camp of this mountain (docs/01-gdd.md 22.12); absent — none. */
   campTeleport?: () => { x: number; y: number; z: number } | undefined;
+  /** MU-04 (l3-stage-finish): the light plaque «Stage reward · coin N / you can run past» over the pad. */
+  mu?: boolean;
 }
 
 export interface StageView {
@@ -88,6 +90,7 @@ export function createStageView(d: StageViewDeps): StageView {
       // In the camp — the teleport pad (docs/01-gdd.md 22.12) instead of a trophy button.
       const tp = d.campTeleport?.();
       const tpAt = !st && tp && h.z < tp.z + LABEL_NEAR / 4 ? project(tp.x, tp.y + LABEL_ABOVE, tp.z) : null;
+      if (d.mu && st && at) return d.hud.setPadLabel({ text: t('stage.padReward', { n: fmt(st.trophies) }), sub: t('stage.padPass'), x: at.x, y: at.y });
       d.hud.setPadLabel(st && at ? { text: `+${fmt(st.trophies)}`, x: at.x, y: at.y } : tpAt ? { text: t('teleport.title'), x: tpAt.x, y: tpAt.y, tap: true } : null);
     },
   };

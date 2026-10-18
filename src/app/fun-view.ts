@@ -32,6 +32,9 @@ const CHIME_GAP = 0.09;
 const PUFF = 26;
 const TRAIL_EVERY = 1 / 30;
 const CONFETTI = 60;
+/** MU-04: coins of a stage finish in the fountain, out of this height over the pad. */
+const PAD_COINS = 14;
+const PAD_COINS_AT = 1.5;
 /** The points of the arch the fountain and the confetti come out of: these shares of the gate height (the camera is
  * a few units behind the hero who has just walked through: higher would be over the top of the frame). */
 const COINS_AT = 0.4;
@@ -131,6 +134,13 @@ export function createFunView(d: FunViewDeps): FunView {
         giftStreak = nextStreak(giftStreak, now, d.tuning.fun.giftStreakSec, GIFT_SCALE.length);
         st.giftNote = giftStreak.step;
         d.audio()?.play('pathGift', GIFT_SCALE[giftStreak.step] ?? 0);
+      });
+      // MU-04 (l3-stage-finish): the coins of a stage finish fly from the pad into the counter.
+      s.events.on('trophyTake', ({ amount, x, y, z, trophies }) => {
+        if (trophies) return;
+        const from = onScreen(x, y + PAD_COINS_AT, z);
+        st.fountains++;
+        fountain.start(from.x, from.y, PAD_COINS, () => d.hud.popCoinGain(`+${formatNumber(amount, d.numSuffix)}`));
       });
       s.events.on('gatePass', ({ index, wall, coins }) => {
         const g = s.level.gates[index];

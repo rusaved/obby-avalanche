@@ -453,7 +453,7 @@ canvas.fallback {
 @media (max-height: 430px) { .pause-body .howto { display: none; } }
 
 /* ===== MU-02…MU-06: the phone layout of docs/07-mobile-ui.md (l1-run-hud-a … l5-camp), the stages pace ===== */
-.hud.mu { --mu-bottom: 0px; font-variant-numeric: tabular-nums; }
+.hud.mu { font-variant-numeric: tabular-nums; }
 .hud.mu .hud-btn { box-shadow: none; }
 /* Counters in one row of text at (16, 8): coin 240 · cup 3; the balance of both is always there. */
 .hud.mu .hud-left { left: calc(16px + env(safe-area-inset-left)); top: calc(8px + env(safe-area-inset-top)); height: 32px; flex-direction: row; align-items: center; gap: 16px; }
@@ -540,3 +540,151 @@ canvas.fallback {
 .hud.mu .hud-gain.show { animation: mu-gain 0.5s ease-out forwards; }
 @keyframes mu-gain { 0% { opacity: 0; transform: translate(0, -30%); } 20% { opacity: 1; transform: translate(0, -50%); } 100% { opacity: 0; transform: translate(0, -120%); } }
 .hud.mu.toasting .hud-gain { visibility: hidden; }
+/* MU-04/MU-06: signs of the world on light plaques (white 90 %, ink text), not to be taken for the HUD plaques. */
+.hud-pad-sub { display: none; }
+.hud.mu .hud-pad, .hud.mu .hud-pad.tap { min-height: 0; padding: 6px 14px; flex-direction: column; gap: 0; border: 0; border-radius: 8px; background: rgba(255, 255, 255, 0.9); color: var(--ink); text-shadow: none; font: 600 14px/1.25 var(--font); box-shadow: 0 2px 0 rgba(27, 42, 58, 0.25); }
+.hud.mu .hud-pad .hud-pad-icon { display: none; }
+.hud.mu .hud-pad.two .hud-pad-sub { display: block; font-size: 12px; font-weight: 500; color: var(--ink); opacity: 0.75; }
+.hud.mu .hud-pad-text { display: flex; align-items: center; }
+.hud.mu .hud-pad.tap { min-height: 44px; justify-content: center; }
+/* MU-06 (l5-camp): no shoes button in the camp; the gift cards and the ads leave the scene (the «Gifts» and «Pause»
+   windows carry them); bot names 11 px without a plaque, quieter than the interface. */
+.hud.mu.camp .hud-shoes { display: none; }
+.hud.mu .base-gifts { display: none; }
+#ui.mu .bot-labels { font-size: 11px !important; }
+
+/* ===== MU-07/MU-08: windows of one style (docs/07-mobile-ui.md, rule 13; w1…w6) ===== */
+.win-sub { display: none; }
+#ui.mu.win-open .hud > *:not(.hud-rotate) { visibility: hidden; }
+#ui.mu .dim.win { background: var(--mu-veil); }
+#ui.mu .win-panel, .hud.touch ~ .win .win-panel, .hud.short ~ .win .win-panel { box-sizing: border-box; }
+#ui.mu .win .win-panel { width: min(calc(100% - 32px), 560px); height: auto; max-height: min(300px, calc(100% - 16px)); padding: 14px 16px 12px; border-radius: 16px; background: var(--mu-panel); color: #fff; box-shadow: none; }
+#ui.mu .win[data-size='cards'] .win-panel { width: min(calc(100% - 32px), 640px); }
+#ui.mu .win[data-size='summary'] .win-panel { width: min(calc(100% - 32px), 480px); }
+#ui.mu .win-top { align-items: flex-start; gap: 12px; min-height: 44px; margin-bottom: 6px; }
+#ui.mu .win-heading { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+#ui.mu .win-title { margin: 0; font-size: 18px; font-weight: 800; line-height: 22px; color: #fff; }
+#ui.mu .win-sub { display: block; font-size: 14px; font-weight: 500; line-height: 18px; color: var(--mu-muted); }
+#ui.mu .win-sub:empty { display: none; }
+#ui.mu .win-head { flex: none; align-self: center; font-size: 14px; font-weight: 700; color: #fff; }
+#ui.mu .win-close { width: 44px; height: 44px; border-radius: 50%; background: var(--mu-quiet); color: #fff; display: flex; align-items: center; justify-content: center; padding: 0; }
+#ui.mu .win-close[hidden] { display: none; }
+#ui.mu .win-close svg { width: 22px; height: 22px; }
+#ui.mu .win-body { flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; touch-action: pan-y; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+#ui.mu .win-foot { padding-top: 10px; }
+#ui.mu .btn-primary, #ui.mu .win-next { min-height: 44px; border: 0; border-radius: 12px; background: var(--mu-blue); color: #fff; font: 600 14px/1.2 var(--font); }
+#ui.mu .win-next { min-width: 200px; }
+#ui.mu .card { border: 0; border-radius: 12px; background: var(--mu-card); color: #fff; box-shadow: none; }
+#ui.mu .card.on { box-shadow: inset 0 0 0 3px var(--mu-ok); }
+#ui.mu .card-name { font-size: 13px; font-weight: 700; }
+#ui.mu .card-sub, #ui.mu .card-lines { color: var(--mu-muted); opacity: 1; font-size: 12px; }
+#ui.mu .card-btn { min-height: 44px; border: 0; border-radius: 12px; background: var(--mu-blue); color: #fff; font: 600 14px/1.2 var(--font); display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+#ui.mu .card-btn.alt, #ui.mu .card-btn.quiet { background: var(--mu-quiet); color: #fff; }
+#ui.mu .card-btn.ok { background: var(--mu-ok); color: var(--mu-ok-text); }
+#ui.mu .card-btn.off, #ui.mu .card-btn:disabled { background: var(--mu-quiet); color: var(--mu-muted); }
+#ui.mu .card-btn svg { width: 20px; height: 20px; }
+#ui.mu .card-lock, #ui.mu .card-lock svg { color: var(--mu-muted); }
+#ui.mu .win-tabs { gap: 8px; margin: 0 0 8px; }
+#ui.mu .win-tab { min-height: 44px; border-radius: 12px; background: var(--mu-quiet); color: #fff; font: 600 14px var(--font); }
+#ui.mu .win-tab.on { background: #fff; color: var(--ink); }
+#ui.mu .win-row, #ui.mu .row { color: #fff; border-color: rgba(255, 255, 255, 0.08); }
+#ui.mu .row-label { font-size: 14px; font-weight: 600; }
+#ui.mu .panel-sub { color: var(--mu-muted); opacity: 1; }
+#ui.mu .card-price { font-weight: 700; }
+#ui.mu .rb-col, #ui.mu .qs-row, #ui.mu .wh, #ui.mu .wh-sector, #ui.mu .tr-played, #ui.mu .rb-tier { background: var(--mu-card); color: #fff; border-color: transparent; }
+#ui.mu .rb-keeps, #ui.mu .rb-gets, #ui.mu .qs-row.ready, #ui.mu .qs-bonus { background: rgba(255, 255, 255, 0.12); }
+#ui.mu .qs-bar { background: var(--mu-quiet); }
+#ui.mu .wardrobe-stage { background: var(--mu-card); }
+#ui.mu .slot { border-color: var(--mu-quiet); }
+#ui.mu .rw-icon, #ui.mu .rw-icon svg { color: #fff; }
+#ui.mu .dl-card.today { border-color: transparent; box-shadow: inset 0 0 0 3px var(--mu-gold); transform: none; }
+#ui.mu .win .tp-list, #ui.mu .win .dl-cards { max-height: none; overflow: visible; }
+#ui.mu .howto { display: none; }
+/* w2-teleport: rows of 52 px, the stages not passed dimmed. */
+#ui.mu .tp-list { display: flex; flex-direction: column; gap: 8px; }
+#ui.mu .tp-row { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 4px 4px 4px 16px; box-sizing: border-box; border-radius: 12px; background: var(--mu-card); }
+#ui.mu .tp-name { font-size: 14px; font-weight: 800; white-space: nowrap; }
+#ui.mu .tp-kind { flex: 1 1 auto; min-width: 0; font-size: 14px; font-weight: 500; color: var(--mu-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#ui.mu .tp-price { white-space: nowrap; }
+#ui.mu .tp-item { flex: none; min-width: 100px; padding: 0 16px; }
+#ui.mu .tp-row.off .tp-name { color: var(--mu-muted); }
+#ui.mu .tp-locked { min-height: 44px; border: 0; background: none; color: var(--mu-muted); font: 500 14px var(--font); display: inline-flex; align-items: center; padding: 0 12px 0 0; }
+/* w4-footsteps: the volume on its own line, five cards of one height, a coloured «listen» circle, «Selected» in green. */
+#ui.mu .foot-vol { display: flex; align-items: center; gap: 12px; min-height: 44px; margin: 0 0 8px; }
+#ui.mu .foot-label { flex: none; font-size: 14px; font-weight: 500; color: var(--mu-muted); }
+#ui.mu .foot-slider { flex: 1 1 auto; width: auto; min-height: 44px; margin: 0; -webkit-appearance: none; appearance: none; background: transparent; }
+#ui.mu .foot-slider::-webkit-slider-runnable-track { height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--mu-stat) var(--fill, 50%), var(--mu-quiet) var(--fill, 50%)); }
+#ui.mu .foot-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; margin-top: -10px; border-radius: 50%; background: #fff; border: 0; }
+#ui.mu .foot-slider::-moz-range-track { height: 8px; border-radius: 4px; background: var(--mu-quiet); }
+#ui.mu .foot-slider::-moz-range-progress { height: 8px; border-radius: 4px; background: var(--mu-stat); }
+#ui.mu .foot-slider::-moz-range-thumb { width: 28px; height: 28px; border-radius: 50%; background: #fff; border: 0; }
+#ui.mu .foot-value { flex: none; min-width: 48px; font-size: 14px; font-weight: 700; color: var(--mu-muted); }
+#ui.mu .foot-grid { display: grid; grid-template-columns: repeat(5, minmax(96px, 1fr)); gap: 8px; }
+#ui.mu .foot-card { min-height: 136px; justify-content: flex-start; padding: 8px 6px; gap: 6px; }
+#ui.mu .foot-card .card-name { flex: 1 1 auto; font-size: 13px; text-align: center; }
+#ui.mu .foot-end { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; }
+#ui.mu .foot-end .card-btn { width: 100%; }
+.foot-play { width: 44px; height: 44px; flex: none; border: 0; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: var(--ink); cursor: pointer; }
+.foot-play svg { width: 18px; height: 18px; }
+#ui.mu .foot-chosen { min-height: 44px; display: inline-flex; align-items: center; gap: 4px; color: var(--mu-ok); font: 700 14px var(--font); }
+#ui.mu .foot-lock { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 700; color: var(--mu-muted); }
+#ui.mu .card.foot-card.on { box-shadow: inset 0 0 0 3px var(--mu-ok); }
+#ui.mu .win-grid { grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); }
+/* w3-pause: two columns of rows, the switch, the select button, the volume slider, «Continue», the group buttons. */
+#ui.mu .pause-mu { display: flex; flex-direction: column; align-items: stretch; gap: 6px; }
+#ui.mu .pause-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 8px; }
+#ui.mu .mu-row { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 8px 4px 16px; box-sizing: border-box; border-radius: 12px; background: var(--mu-card); }
+#ui.mu .mu-row-label { flex: none; font-size: 14px; font-weight: 700; }
+#ui.mu .mu-row-value { flex: 1 1 auto; min-width: 0; font-size: 14px; color: var(--mu-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#ui.mu .mu-row .card-btn { margin-left: auto; min-width: 96px; padding: 0 14px; }
+#ui.mu .mu-row .mu-volume { flex: 1 1 auto; margin-left: auto; max-width: 160px; }
+.mu-switch { margin-left: auto; position: relative; width: 52px; height: 44px; border: 0; padding: 0; background: none; cursor: pointer; }
+.mu-switch::before { content: ''; position: absolute; left: 0; right: 0; top: 8px; height: 28px; border-radius: 14px; background: var(--mu-quiet); transition: background 0.15s; }
+.mu-switch::after { content: ''; position: absolute; left: 2px; top: 10px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform 0.15s; }
+.mu-switch[data-on='true']::before { background: var(--mu-ok); }
+.mu-switch[data-on='true']::after { transform: translateX(24px); }
+#ui.mu .mu-continue { align-self: center; width: auto; min-width: 200px; margin: 0; }
+#ui.mu .mu-caption { text-align: center; font-size: 14px; line-height: 16px; font-weight: 500; color: var(--mu-muted); }
+#ui.mu .mu-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+#ui.mu .mu-links .card-btn { width: 100%; }
+/* «Enter a code» (MU-08). */
+#ui.mu .promo-row { display: flex; gap: 8px; }
+#ui.mu .promo-input { flex: 1 1 auto; min-width: 0; min-height: 44px; padding: 0 14px; box-sizing: border-box; border: 0; border-radius: 12px; background: var(--mu-quiet); color: #fff; font: 600 14px var(--font); text-transform: uppercase; }
+#ui.mu .promo-input::placeholder { color: var(--mu-muted); }
+#ui.mu .promo-note { min-height: 20px; margin-top: 8px; font-size: 14px; color: var(--mu-muted); }
+/* w1-gifts: four tiles of the rewards for the time, three cards under them. */
+#ui.mu .gf-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+#ui.mu .gf-tile { min-height: 116px; padding: 8px; gap: 2px; justify-content: flex-start; }
+#ui.mu .gf-tile .card-name { font-size: 14px; }
+#ui.mu .gf-tile .card-sub { flex: 1 1 auto; }
+#ui.mu .gf-tile .card-btn { width: 100%; }
+#ui.mu .gf-icon { width: 26px; height: 26px; color: #fff; }
+#ui.mu .gf-icon svg { width: 100%; height: 100%; }
+#ui.mu .gf-timer { min-height: 36px; display: flex; align-items: center; font-size: 14px; font-weight: 700; color: var(--mu-muted); font-variant-numeric: tabular-nums; }
+#ui.mu .gf-tile.got { opacity: 0.6; }
+#ui.mu .gf-cards { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px; margin-top: 8px; }
+#ui.mu .gf-card { padding: 6px 8px 8px; gap: 0; }
+#ui.mu .gf-card .card-name { font-size: 14px; }
+#ui.mu .gf-card .card-sub { margin-bottom: 4px; }
+#ui.mu .gf-card > .card-btn { width: 100%; }
+#ui.mu .gf-btns { display: flex; gap: 8px; width: 100%; }
+#ui.mu .gf-btns .card-btn { flex: 1 1 0; min-width: 0; padding: 0 8px; }
+/* w5-summit: rows «what · how much», the quiet «Ad: ×2» by the chest; w6-more: six tiles. */
+#ui.mu .sm-box { max-width: none; margin: 0; gap: 4px; font-size: 14px; }
+#ui.mu .sm-row { display: grid; grid-template-columns: 1.1fr 1fr auto; align-items: center; min-height: 36px; color: #fff; }
+#ui.mu .sm-label { color: var(--mu-muted); font-weight: 500; }
+#ui.mu .sm-value { display: flex; align-items: center; gap: 4px; font-weight: 700; }
+#ui.mu .sm-row .card-btn { min-width: 0; padding: 0 14px; }
+#ui.mu .more-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+#ui.mu .more-btn { min-height: 64px; flex-direction: column; justify-content: center; gap: 4px; background: var(--mu-card); color: #fff; }
+#ui.mu .more-btn .hud-menu-icon { width: 24px; height: 24px; color: #fff; }
+/* MU-09 (p1-rotate): over everything, the game under it on pause. */
+#ui.mu .hud-rotate { z-index: 60; gap: 0; background: var(--ink); }
+#ui.mu .hud-rotate-phone { width: 96px; height: 96px; border: 0; border-radius: 0; animation: none; margin-bottom: 20px; }
+#ui.mu .hud-rotate-phone svg { width: 100%; height: 100%; }
+#ui.mu .hud-rotate-title { font-size: 24px; font-weight: 800; color: #fff; }
+#ui.mu .hud-rotate-line { margin-top: 12px; font-size: 14px; font-weight: 500; color: var(--mu-muted); }
+#ui.mu.win-open .hud-rotate.shown { visibility: visible; }
+#ui.mu .dim.win { bottom: var(--mu-bottom, 0px); }
+#ui.mu .card-price svg { color: #fff; }
+#ui.mu .card-price .mark-cup svg, #ui.mu .win-head .mark-cup svg { color: #fff; }

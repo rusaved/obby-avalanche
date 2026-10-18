@@ -113,6 +113,8 @@ const gameSchema = v.object({
   leaderboard: v.nullable(v.object({ name: v.string(), score: v.picklist(LEADERBOARD_SCORES) })),
   community: v.optional(v.strictObject({ telegram: v.optional(communityUrl), vk: v.optional(communityUrl) })),
   communityGifts: v.optional(v.strictObject({ subscribe: v.optional(communityGift), review: v.optional(communityGift) })),
+  // MU-08 (Q-MU-7): promo codes of the group, each once a player — latin capitals and digits.
+  promo: v.optional(v.object({ codes: v.record(v.pipe(v.string(), v.regex(/^[A-Z0-9]{3,16}$/)), communityGift) })),
   shortcut: v.optional(
     v.object({ enabled: v.boolean(), reward: v.object({ trophies: v.pipe(v.number(), v.integer(), v.minValue(0)) }), fromSummit: v.pipe(v.number(), v.integer(), v.minValue(1)), place: v.literal('base') }),
   ),
@@ -702,7 +704,7 @@ const aurasSchema = v.object({ auras: v.array(cosmetic) });
 const zzfx = v.pipe(v.array(v.number()), v.minLength(1), v.maxLength(21));
 /** Footstep sets (LV-09, SD-14): audio files of the snow steps (weights optional), how a set opens (a shop set — its
  * price in trophies), the ice steps of all; one free at least. */
-export const FOOTSTEP_UNLOCKS = ['free', 'ad', 'shop'] as const;
+export const FOOTSTEP_UNLOCKS = ['free', 'ad', 'shop', 'daily'] as const;
 const audioFile = v.pipe(v.string(), v.regex(/^[a-z0-9_/-]+\.mp3$/, 'expected a path of an .mp3 under assets/audio'));
 const footstepsSchema = v.pipe(
   v.object({
@@ -713,9 +715,10 @@ const footstepsSchema = v.pipe(
     sets: v.pipe(
       v.array(
         v.pipe(
-          v.object({ id: id, unlock: v.picklist(FOOTSTEP_UNLOCKS), price: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))), files: v.pipe(v.array(audioFile), v.minLength(1)), weights: v.optional(v.array(v.pipe(v.number(), v.minValue(0)))) }),
+          v.object({ id: id, unlock: v.picklist(FOOTSTEP_UNLOCKS), price: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))), currency: v.optional(v.picklist(['coins', 'trophies'])), day: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(7))), color: v.optional(hex), files: v.pipe(v.array(audioFile), v.minLength(1)), weights: v.optional(v.array(v.pipe(v.number(), v.minValue(0)))) }),
           v.check((x) => !x.weights || x.weights.length === x.files.length, 'weights — one a file'),
           v.check((x) => x.unlock !== 'shop' || x.price !== undefined, 'a shop set needs its price'),
+          v.check((x) => x.unlock !== 'daily' || x.day !== undefined, 'a set of the calendar needs its day'),
         ),
       ),
       v.minLength(1),
