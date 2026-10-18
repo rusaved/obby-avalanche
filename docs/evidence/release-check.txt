@@ -1,11 +1,36 @@
 check-release: release/avalanche-0.1.0.zip
-date: 2026-10-14T18:24:54.593Z
-files: 14
+date: 2026-10-18T01:57:01.339Z
+files: 39
+  assets/1-BN7IT56u.mp3  16.8 KB
+  assets/1-BVny-jN9.mp3  16.8 KB
+  assets/1-CP3C_qXY.mp3  16.8 KB
+  assets/1-DQLOuCnM.mp3  16.8 KB
+  assets/1-DUTY0SV5.mp3  16.8 KB
+  assets/1-gSaViLAo.mp3  16.8 KB
+  assets/2-83wtGG6r.mp3  16.8 KB
+  assets/2-BzuV1erg.mp3  16.8 KB
+  assets/2-CK6gaR7E.mp3  16.8 KB
+  assets/2-CzofyL7K.mp3  16.8 KB
+  assets/2-D-PP5Pz4.mp3  16.8 KB
+  assets/2-vl6dV_Xq.mp3  16.8 KB
+  assets/3-C8SPF8Q5.mp3  16.8 KB
+  assets/3-CaWfxQbg.mp3  16.8 KB
+  assets/3-Cvtbo-7Q.mp3  16.8 KB
+  assets/3-D8pGxtPh.mp3  16.8 KB
+  assets/3-EDy5jjBy.mp3  16.8 KB
+  assets/4-BvGHYDEo.mp3  16.8 KB
+  assets/4-C-jIC94z.mp3  16.8 KB
+  assets/4-CHs3j__0.mp3  16.8 KB
+  assets/4-CJ7_h6Iw.mp3  16.8 KB
+  assets/4-CjOsbRXB.mp3  16.8 KB
   assets/ZzFX-C1HKDoVW.js  2.0 KB
-  assets/en-C_eGSJP-.json  12.8 KB
-  assets/index-BR9VTs22.css  28.8 KB
-  assets/index-DTwKeH9Z.js  1362.5 KB
-  assets/ru-C3jbHvmP.json  17.0 KB
+  assets/en-mPY_gauK.json  14.5 KB
+  assets/index-CNtbB55i.js  1651.4 KB
+  assets/index-o35EVK0A.css  32.6 KB
+  assets/level-up-CA_B7FUa.mp3  32.3 KB
+  assets/reward-coins-Cb3RXhlr.mp3  32.3 KB
+  assets/reward-trophy-CEJUg0DD.mp3  32.3 KB
+  assets/ru-8gvlDw0m.json  19.0 KB
   assets/rubik-cyrillic-500-normal-BH_pkKR0.woff  9.7 KB
   assets/rubik-cyrillic-500-normal-Didq2w9O.woff2  7.7 KB
   assets/rubik-cyrillic-800-normal-DocVmW4N.woff  9.6 KB
@@ -18,7 +43,7 @@ files: 14
 
 PASS  1. index.html at the root, paths only [A-Za-z0-9._/-]
 PASS  2. unpacked ≤ 10 MB and JS gzip ≤ 800 KB
-        zip 460.5 KB, unpacked 1543.9 KB, js gzip 306.9 KB
+        zip 958.5 KB, unpacked 2306.3 KB, js gzip 349.8 KB
 PASS  3. no external addresses except /sdk.js and mc.yandex.ru (namespaces allowed)
 PASS  4. <script src="/sdk.js"> exactly once
         found 1
