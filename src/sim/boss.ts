@@ -164,6 +164,10 @@ export function createBoss(
       helpers: (b.helpers ?? []).map((h) => ({ x: h.x, z: (a + c) / 2, t: h.throwEverySec, ball: null, wave: sitting(zi) })),
     };
   });
+  // MU-11: where each giant stood at the start — a giant of a rearming zone walks back there between meetings and paces
+  // the zone above it, so every meeting is the first one again (the hero below him, the giant ahead and coming down).
+  const home = zones.map((s) => s.giants.map((g) => g.z));
+  const guard = (zi: number, gi: number): boolean => data[zi]!.rearm === true && data[zi]!.giants[gi]!.patrol === 'chase';
   // Speeds of the tier; SD-12: × `rel` of the hero's level against the zone's — SD-15: as he steps in (levels cheap on
   // mountain 1 grow inside the zone; the giant he met stays the one he meets).
   const base = zones.map((s) => s.giants.map((g) => g.speed));
@@ -368,13 +372,27 @@ export function createBoss(
           switch (g.mode) {
             case 'sit':
               break;
-            case 'patrol':
+            case 'patrol': {
+              // MU-11: a giant of every run paces the zone above its start (below it — on its way up there).
+              const lo = guard(zi, gi) ? home[zi]![gi]! : a;
               walk(g, s.zone, g.dir * g.speed * dt);
-              if (g.z >= c || g.z <= a) g.dir = g.z >= c ? -1 : 1;
+              if (g.z >= c || g.z <= lo) g.dir = g.z >= c ? -1 : 1;
               break;
+            }
             case 'back':
               // Back on patrol faster than the run; the hero stepping in again turns it at once.
               g.x -= Math.sign(g.x) * Math.min(Math.abs(g.x), g.speed * data0.returnMult * dt);
+              // MU-11: the hero out of the zone (slapped, passed, below it) — a giant of every run walks back to its start.
+              if (guard(zi, gi) && s.hero !== 'in') {
+                const h = home[zi]![gi]!;
+                g.dir = h >= g.z ? 1 : -1;
+                walk(g, s.zone, g.dir * Math.min(Math.abs(h - g.z), g.speed * data0.returnMult * dt));
+                if (Math.abs(h - g.z) < 1e-6 && g.x === 0) {
+                  g.dir = 1;
+                  g.mode = 'patrol';
+                }
+                break;
+              }
               walk(g, s.zone, g.dir * g.speed * data0.returnMult * dt);
               if (g.z >= c || g.z <= a) {
                 g.dir = g.z >= c ? -1 : 1;

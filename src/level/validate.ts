@@ -11,7 +11,7 @@ import * as v from 'valibot';
 import type { AurasJson, BalanceJson, BotsJson, Curve, EggsJson, TrailsJson, GameJson, OpenSpecJson, Reward, Segment, SfxJson, SkinsJson, TuningJson, World, WorldsJson, WorldsSpecJson } from '../content/types.ts';
 import { summitTrophies } from '../sim/economy.ts';
 import { LEADERBOARD_SCORES } from '../meta/trophies.ts';
-import { floatingErrors, validateStageWorlds } from './validate-stages.ts';
+import { floatingErrors, surfaceLineErrors, validateStageWorlds } from './validate-stages.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 import { buildLevel, GATE_THICKNESS } from './builder.ts';
 import { PAD_SIZE, TICK, apexOf, padArc, padGiftBand } from './pad-arc.ts';
@@ -1025,16 +1025,21 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
   // The stages pace (docs/01-gdd.md 22): its own level checks instead of the counts of the open slope.
   if (stagesPace) {
     errors.push(...validateStageWorlds(worlds, (balance as BalanceJson).levels, tuning, game.threat.boss?.margin ?? 0.05, (balance as BalanceJson).speedCurve));
-    // SD-02: nothing hangs in the air on the built mountains.
-    for (const w of worlds.worlds) for (const e of floatingErrors(buildLevel(w))) errors.push(`worlds.json: ${w.id}: ${e}`);
+    // SD-02: nothing hangs in the air on the built mountains; MU-13: the edge lines lie on the ground.
+    for (const w of worlds.worlds) {
+      const level = buildLevel(w);
+      for (const e of [...floatingErrors(level), ...surfaceLineErrors(level)]) errors.push(`worlds.json: ${w.id}: ${e}`);
+    }
   }
-  else if (open)
+  else if (open) {
     errors.push(
       ...validateOpenCount(worlds, files['worlds-spec.json'] as OpenSpecJson),
       ...validateOpenShapes(worlds, files['worlds-spec.json'] as OpenSpecJson),
       ...validateFirstIntervals(worlds, files['worlds-spec.json'] as WorldsSpecJson),
     );
-  else errors.push(...validateContentCount(worlds, files['worlds-spec.json'] as WorldsSpecJson, (files['balance.json'] as BalanceJson).gifts.perZone));
+    // MU-13: the edge lines and ridges of the open slope lie on the ground too.
+    for (const w of worlds.worlds) for (const e of surfaceLineErrors(buildLevel(w))) errors.push(`worlds.json: ${w.id}: ${e}`);
+  } else errors.push(...validateContentCount(worlds, files['worlds-spec.json'] as WorldsSpecJson, (files['balance.json'] as BalanceJson).gifts.perZone));
 
   // The base of the pace (docs/01a-content.md 18.1): pacePack adds its base.json when the pace has one.
   const base = (files as Record<string, unknown>)['base.json'];

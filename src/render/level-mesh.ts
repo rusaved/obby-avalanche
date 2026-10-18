@@ -27,7 +27,8 @@ import {
 } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { LevelBox, LevelData, LevelPrism, LevelRamp } from '../level/types.ts';
-import { CAMERA_THROUGH, GATE_THICKNESS, PORTAL_WIDTH, prismTriangles } from '../level/builder.ts';
+import { CAMERA_THROUGH, PORTAL_WIDTH, prismTriangles } from '../level/builder.ts';
+import { levelLips, ridgePartBox, ridgeParts as ridgePartsOf } from '../level/surface-lines.ts';
 import { createWayMarks, PORTAL_HEIGHT, type WayMarks } from './way-marks.ts';
 import type { ThemeJson } from '../content/types.ts';
 import { createDigitLabels, type DigitLabels } from './digits.ts';
@@ -41,13 +42,11 @@ const SIGN_TEXT = 2.2;
 const SIGN_MIN_WIDTH = 6;
 const SIGN_PAD = 2;
 /** Ridge of the open slope (docs/01-gdd.md 17.3): its number in glyphs this tall, read from the ridge below; the
- * plaque height. The ice plugs of the passages stand this far over the carniz; the crest over the carniz is see-through. */
+ * plaque height; the crest over the carniz is see-through (its plugs and crest — level/surface-lines.ts). */
 const RIDGE_TEXT = 5;
 const CHEST_GIFT_SCALE = 1.8;
 const RIDGE_PLAQUE = 6.5;
-const RIDGE_PLUG_OVER = 1;
 const RIDGE_CREST_OPACITY = 0.22;
-const RIDGE_CREST_THICK = 0.6;
 /** MU-03 (l2-gate): the stage sign — the word this share of the digits tall and this far over the centre, the number
  * this far under it, the plaque this many digit heights tall. */
 const STAGE_WORD = 0.32;
@@ -58,8 +57,6 @@ const STAGE_PLAQUE = 1.7;
 function signText(g: LevelData['gates'][number]): number {
   return g.kind === 'ridge' ? (g.digits ?? RIDGE_TEXT) : SIGN_TEXT;
 }
-/** A plug starts at the front face of the gate slab. */
-const GATE_HALF = GATE_THICKNESS / 2;
 /** Fun parts (docs/01-gdd.md 16.4): plate and ribbon thickness, the pattern bars, chevrons a slide, the plate's spring. */
 const PAD_THICK = 0.25;
 const SLIDE_THICK = 0.1;
@@ -142,30 +139,8 @@ function boxGeometry(b: LevelBox, theme: ThemeJson): BufferGeometry {
   return geo;
 }
 
-/** SD-07: the lip is this wide (inside the edge) and stands this high over the top; a drop of more than EDGE_DROP shows it. */
 /** SD-09: the dots along a catapult strip this far apart. */
 const STRIP_DOT_STEP = 6;
-const EDGE_LIP = 0.5;
-const EDGE_RISE = 0.04;
-const EDGE_DROP = 1;
-
-/** SD-07: thin boxes along the edges of a floor box where the ground past the edge is lower by EDGE_DROP (or none). */
-function edgeLips(level: LevelData, b: LevelBox): LevelBox[] {
-  const top = b.max[1];
-  const out: LevelBox[] = [];
-  const low = (x: number, z: number): boolean => level.floorAt(x, z) < top - EDGE_DROP;
-  const lip = (x0: number, z0: number, x1: number, z1: number): void => void out.push({ min: [x0, top, z0], max: [x1, top + EDGE_RISE, z1], material: 'edge', solid: false, kind: 'edge' });
-  const [x0, x1, z0, z1] = [b.min[0], b.max[0], b.min[2], b.max[2]];
-  const xm = (x0 + x1) / 2;
-  const zm = (z0 + z1) / 2;
-  if (z1 - z0 > 2 * EDGE_LIP && x1 - x0 > 2 * EDGE_LIP) {
-    if (low(xm, z0 - 0.6)) lip(x0, z0, x1, z0 + EDGE_LIP);
-    if (low(xm, z1 + 0.6)) lip(x0, z1 - EDGE_LIP, x1, z1);
-    if (low(x0 - 0.6, zm)) lip(x0, z0, x0 + EDGE_LIP, z1);
-    if (low(x1 + 0.6, zm)) lip(x1 - EDGE_LIP, z0, x1, z1);
-  }
-  return out;
-}
 
 function rampGeometry(r: LevelRamp, theme: ThemeJson): BufferGeometry {
   const { x0, x1, z0, z1, y0, y1, thickness: t } = r;
@@ -252,7 +227,8 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   }
   // SD-07 (docs/01-gdd.md 23.7): a coloured lip on every floor edge over a drop (a pit, a gap, the end of a plate or a
   // bridge) — white over white no more; only with theme.materials.edge, merged into the chunk (no extra draw call).
-  if (theme.materials['edge']) for (const b of level.boxes) if (b.solid && b.kind === 'floor' && b.material !== 'pit') for (const g of edgeLips(level, b)) bucketOf((g.min[2] + g.max[2]) / 2).push(boxGeometry(g, theme));
+  // The lips themselves — level/surface-lines.ts (the validator checks the same boxes lie on the surface, MU-13).
+  if (theme.materials['edge']) for (const g of levelLips(level)) bucketOf((g.min[2] + g.max[2]) / 2).push(boxGeometry(g, theme));
   for (const r of level.ramps) bucketOf((r.z0 + r.z1) / 2).push(rampGeometry(r, theme));
   for (const p of level.prisms ?? []) bucketOf(p.pts.reduce((z, q) => z + q[1], 0) / p.pts.length).push(prismGeometry(p, theme));
   // Checkpoint flags and simple decor as boxes (grey slope at M1).
@@ -404,15 +380,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
 
   // Ridges (docs/01-gdd.md 17.3): ice plugs fill the passages up the step, a see-through crest over the carniz up to the
   // top of the collider (no invisible wall); both melt with the gate. Two draw calls for all ridges of the mountain.
-  const ridgeParts: Array<{ gate: number; x: number; w: number; y0: number; h: number; z: number; d: number; crest: boolean }> = [];
-  level.gates.forEach((g, i) => {
-    if (g.kind !== 'ridge') return;
-    const plugTop = (g.rise ?? 0) + RIDGE_PLUG_OVER;
-    const pass = g.passWidth ?? 0;
-    const len = (g.passLength ?? 0) + GATE_HALF;
-    for (const px of g.passes ?? []) ridgeParts.push({ gate: i, x: px, w: pass, y0: g.y, h: plugTop, z: g.z - GATE_HALF + len / 2, d: len, crest: false });
-    ridgeParts.push({ gate: i, x: 0, w: level.width, y0: g.y + plugTop, h: g.height - plugTop, z: g.z, d: RIDGE_CREST_THICK, crest: true });
-  });
+  const ridgeParts = ridgePartsOf(level);
   const crestMat = new MeshLambertMaterial({ color: materialColor(theme, 'gateClosed'), transparent: true, opacity: RIDGE_CREST_OPACITY, depthWrite: false });
   const plugCount = ridgeParts.filter((p) => !p.crest).length;
   const ridgePlugs = new InstancedMesh(gateGeo, gateMat, Math.max(1, plugCount));
@@ -423,10 +391,12 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   const melted: number[] = level.gates.map(() => 0);
   const placeRidge = (k: number, openness: number): void => {
     const p = ridgeParts[k]!;
-    const h = p.h * Math.max(0.001, 1 - openness);
-    dummy.position.set(p.x, p.y0 + h / 2, p.z);
+    // MU-13: melted — nothing left (a sliver of the crest hung as a blue line over the passage ramps).
+    const b = ridgePartBox(p, openness);
+    dummy.position.set(p.x, b ? (b.min[1] + b.max[1]) / 2 : p.y0, p.z);
     dummy.rotation.set(0, 0, 0);
-    dummy.scale.set(p.w, h, p.d);
+    if (b) dummy.scale.set(p.w, b.max[1] - b.min[1], p.d);
+    else dummy.scale.set(0, 0, 0);
     dummy.updateMatrix();
     (p.crest ? ridgeCrests : ridgePlugs).setMatrixAt(ridgeSlot[k]!, dummy.matrix);
   };

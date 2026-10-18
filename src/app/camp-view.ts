@@ -115,7 +115,9 @@ export function createCampView(d: CampViewDeps): CampView {
       if (gi >= 0 && !sim.gatesOpen[gi] && d.shoesAffordable?.()) show = t('hint.buyShoes');
       // The avalanche of a stage (LV-12 re-check: «Run up!» and «Take the trophies» stood under the wave): to a grotto.
       const ws = sim.threat?.state;
-      const wave = !!ws && (ws.phase === 'warn' || (ws.phase === 'run' && ws.outcome === 'none'));
+      // MU-11 (review: «Duck behind a rock!» hung after a catch): only the wave of the hero's own stage, not while he rolls
+      // — a fall or the giant's slap took him a stage back while the wave above ran on, its plaque stood over the giant.
+      const wave = !!ws && (ws.phase === 'warn' || (ws.phase === 'run' && ws.outcome === 'none')) && !sim.caught && stageAt(sim.level, ws.spawnZ) === n;
       // SD-06: the avalanche comes on almost every stage — the same plaque on any of them.
       // No grotto within reach of the warning (SD-10 review: «hide» pointed back past the finish) — run on to the finish.
       if (st && st.type !== 'intro' && wave) show = sim.inShelter() ? null : ws!.shelter >= 0 ? t('hint.cover') : t('hint.toFinish');

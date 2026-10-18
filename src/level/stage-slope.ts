@@ -22,6 +22,8 @@ export function isStageSpec(spec: unknown): spec is OpenSpecJson {
 }
 
 const round3 = (x: number): number => Math.round(x * 1000) / 1000;
+/** MU-11: a giant number of the spec — one for all mountains, or by mountain (the last for the rest). */
+const byMountain = (v: number | number[], index: number): number => (Array.isArray(v) ? v[Math.min(index, v.length) - 1]! : v);
 const clamp = (x: number, a: number, b: number): number => Math.max(a, Math.min(b, x));
 /** The carniz of a ridge: the passage ramps are this long (as the open slope, 16.5). */
 const PASS_LENGTH = 8;
@@ -313,7 +315,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
           { x: round3(-half / 2), z: round3(zb + 0.7 * L), r: 4, h: 6 },
         ];
         for (const c of covers) seg.push({ type: 'cover', z: c.z, x: c.x, y, r: c.r, h: c.h, zone: s });
-        bosses.push({ zone: [round3(zb), round3(zb + L)], requires: round3(levelThreshold(level, levels)), returnMult: 1.5, giants: [{ speed: Math.floor((v / (1 + (cfg.giantMargin?.[index - 1] ?? cfg.giantMarginRest ?? m.boss.margin))) * 1000) / 1000, patrol: 'chase', seeDist: 0, turnSec: 0.5, ...(cfg.giantSlipPast === false ? { slipPast: false } : {}), ...(cfg.giantSide !== undefined ? { side: Array.isArray(cfg.giantSide) ? cfg.giantSide[Math.min(index, cfg.giantSide.length) - 1]! : cfg.giantSide } : {}), ...(cfg.giantLag ? { lag: cfg.giantLag } : {}), ...(cfg.giantSlipMargin !== undefined ? { slipMargin: cfg.giantSlipMargin } : {}) }], width: cfg.field, covers, ...(cfg.giantEveryRun ? { rearm: true } : {}), ...(cfg.giantLevel ? { level: { n: level, ...cfg.giantLevel } } : {}) } as WorldBoss);
+        bosses.push({ zone: [round3(zb), round3(zb + L)], requires: round3(levelThreshold(level, levels)), returnMult: 1.5, giants: [{ speed: Math.floor((v / (1 + (cfg.giantMargin?.[index - 1] ?? cfg.giantMarginRest ?? m.boss.margin))) * 1000) / 1000, patrol: 'chase', seeDist: 0, turnSec: 0.5, ...(cfg.giantSlipPast === false ? { slipPast: false } : {}), ...(cfg.giantSide !== undefined ? { side: byMountain(cfg.giantSide, index) } : {}), ...(cfg.giantLag ? { lag: byMountain(cfg.giantLag, index) } : {}), ...(cfg.giantSlipMargin !== undefined ? { slipMargin: byMountain(cfg.giantSlipMargin, index) } : {}) }], width: cfg.field, covers, ...(cfg.giantEveryRun ? { rearm: true } : {}), ...(cfg.giantLevel ? { level: { n: level, ...cfg.giantLevel, g: byMountain(cfg.giantLevel.g, index) } } : {}) } as WorldBoss);
         zb += L;
         break;
       }

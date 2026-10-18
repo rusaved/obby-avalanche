@@ -1061,10 +1061,12 @@ export interface StageSpec {
    * (WorldGiant.lag) and his speed goes by the hero's level against the stage's (WorldBoss.level: g^(N − level) within
    * [min, max]); absent — once and for all, where the hero is, × 1. */
   giantEveryRun?: boolean;
-  giantLag?: number;
-  giantLevel?: { g: number; min: number; max: number };
-  /** SD-15: WorldGiant.slipMargin of the stage giants. */
-  giantSlipMargin?: number;
+  /** MU-11: a number, or by mountain (the last for the rest), as giantSide. */
+  giantLag?: number | number[];
+  /** MU-11: `g` a number, or by mountain (the last for the rest). */
+  giantLevel?: { g: number | number[]; min: number; max: number };
+  /** SD-15: WorldGiant.slipMargin of the stage giants; MU-11: or by mountain (the last for the rest). */
+  giantSlipMargin?: number | number[];
   catapultK?: number;
   snowflake: { mult: number; stages: number };
   /** The avalanche stage: the first wave after entering, the pause between waves inside, grottos every `every` × v. */

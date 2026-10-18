@@ -1,4 +1,4 @@
-// What: Level checks of the stages pace (layout stageSlope, docs/01-gdd.md 22): ridges ask for levels, 10–15 stages of one trial each in the order of 22.5, no strip without a trial, 2–3 width changes, mazes with one real exit and 2–3 false ones, one trophy button per finish, the trials passable at v(N).
+// What: Level checks of the stages pace (layout stageSlope, docs/01-gdd.md 22): ridges ask for levels, 10–15 stages of one trial each in the order of 22.5, no strip without a trial, 2–3 width changes, mazes with one real exit and 2–3 false ones, one trophy button per finish, the trials passable at v(N), the edge lines on the ground (MU-13).
 // Called by: level/validate.ts (validatePack, when worlds-spec.json has layout stageSlope); tests/level/stages.test.ts.
 // Keep: Pure; reads worlds.json, balance and tuning only; every message names the mountain and the stage; the physics numbers as stage-slope.ts builds them.
 
@@ -7,6 +7,7 @@ import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 import { levelThreshold, type Levels } from '../sim/levels.ts';
 import { STAGE_WIDTH, jumpDistance, mazeDistances, padFlight } from './stage-slope.ts';
 import type { LevelData } from './types.ts';
+import { EDGE_RISE, levelLips, ridgePartBox, ridgeParts } from './surface-lines.ts';
 
 const round3 = (x: number): number => Math.round(x * 1000) / 1000;
 /** No strip of a trial body longer than this without its trial (docs/01-gdd.md 22.4). */
@@ -69,6 +70,38 @@ export function floatingErrors(level: LevelData): string[] {
     }
     if (Number.isFinite(gap) && gap > FLOAT_MAX) errors.push(`${b.kind} at x ${round3((b.min[0] + b.max[0]) / 2)} z ${round3((b.min[2] + b.max[2]) / 2)} hangs ${round3(gap)} over the floor`);
   }
+  return errors;
+}
+
+/** MU-13: how far off the ground under it an edge line may lie (its own thickness and float noise). */
+export const LINE_TOL = EDGE_RISE + 0.01;
+/** The ends of a line are probed this far inside it: at the very end the next floor (a higher step) is the ground. */
+const LINE_INSET = 0.01;
+
+/**
+ * MU-13 (producer: «on a ramp with a rise the blue edge line hangs in the air over the slope», a repeated bug): every
+ * line the renderer lays on the ground lies on it. The lips of the floor edges (SD-07) — as level/surface-lines.ts gives
+ * them to the renderer — have both ends and the middle on the ground under them (within LINE_TOL); a melted ridge leaves
+ * nothing of its plugs and crest. `lines` — the lips to check (the level's own by default).
+ */
+export function surfaceLineErrors(level: LevelData, lines = levelLips(level)): string[] {
+  const errors: string[] = [];
+  for (const l of lines) {
+    const alongX = l.max[0] - l.min[0] >= l.max[2] - l.min[2];
+    const xm = (l.min[0] + l.max[0]) / 2;
+    const zm = (l.min[2] + l.max[2]) / 2;
+    const ends: Array<[number, number]> = alongX
+      ? [[l.min[0] + LINE_INSET, zm], [xm, zm], [l.max[0] - LINE_INSET, zm]]
+      : [[xm, l.min[2] + LINE_INSET], [xm, zm], [xm, l.max[2] - LINE_INSET]];
+    for (const [x, z] of ends) {
+      const f = level.floorAt(x, z);
+      // Off the track (the slanted edge of a width change) floorAt is a far-down sentinel: nothing to check, as SD-02.
+      if (!Number.isFinite(f) || Math.abs(l.min[1] - f) <= LINE_TOL) continue;
+      errors.push(`edge line at x ${round3(x)} z ${round3(z)} lies ${round3(l.min[1] - f)} ${l.min[1] > f ? 'over' : 'under'} the ground (y ${round3(l.min[1])}, ground ${round3(f)})`);
+      break;
+    }
+  }
+  for (const p of ridgeParts(level)) if (ridgePartBox(p, 1)) errors.push(`ridge at z ${round3(level.gates[p.gate]!.z)}: its ${p.crest ? 'crest' : 'plug'} stays when melted`);
   return errors;
 }
 
