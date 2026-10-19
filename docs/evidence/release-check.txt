@@ -1,6 +1,6 @@
 check-release: release/avalanche-0.1.0.zip
-date: 2026-10-18T01:57:01.339Z
-files: 39
+date: 2026-10-19T01:03:16.203Z
+files: 47
   assets/1-BN7IT56u.mp3  16.8 KB
   assets/1-BVny-jN9.mp3  16.8 KB
   assets/1-CP3C_qXY.mp3  16.8 KB
@@ -24,26 +24,34 @@ files: 39
   assets/4-CJ7_h6Iw.mp3  16.8 KB
   assets/4-CjOsbRXB.mp3  16.8 KB
   assets/ZzFX-C1HKDoVW.js  2.0 KB
-  assets/en-mPY_gauK.json  14.5 KB
-  assets/index-CNtbB55i.js  1651.4 KB
-  assets/index-o35EVK0A.css  32.6 KB
+  assets/en-BP5E9rLJ.json  16.6 KB
+  assets/index-Dgpipr0e.js  1679.1 KB
+  assets/index-qeG7fsCc.css  53.6 KB
   assets/level-up-CA_B7FUa.mp3  32.3 KB
   assets/reward-coins-Cb3RXhlr.mp3  32.3 KB
   assets/reward-trophy-CEJUg0DD.mp3  32.3 KB
-  assets/ru-8gvlDw0m.json  19.0 KB
+  assets/ru-CBgkEDC0.json  21.7 KB
   assets/rubik-cyrillic-500-normal-BH_pkKR0.woff  9.7 KB
   assets/rubik-cyrillic-500-normal-Didq2w9O.woff2  7.7 KB
+  assets/rubik-cyrillic-600-normal-AdySaCq0.woff2  7.7 KB
+  assets/rubik-cyrillic-600-normal-CtS_KWzi.woff  9.7 KB
+  assets/rubik-cyrillic-700-normal-C_jxLOfU.woff  9.6 KB
+  assets/rubik-cyrillic-700-normal-DFnztZBh.woff2  7.7 KB
   assets/rubik-cyrillic-800-normal-DocVmW4N.woff  9.6 KB
   assets/rubik-cyrillic-800-normal-wonQiwhm.woff2  7.7 KB
   assets/rubik-latin-500-normal-1os41rQk.woff2  18.6 KB
   assets/rubik-latin-500-normal-LZYVHeqz.woff  23.6 KB
+  assets/rubik-latin-600-normal-7iWW07_k.woff2  18.6 KB
+  assets/rubik-latin-600-normal-Bd1rsTk4.woff  23.6 KB
+  assets/rubik-latin-700-normal-D-tMm-eS.woff2  18.7 KB
+  assets/rubik-latin-700-normal-KHOtubUA.woff  23.7 KB
   assets/rubik-latin-800-normal-BtaGuVpR.woff2  18.6 KB
   assets/rubik-latin-800-normal-Dq1miTTj.woff  23.6 KB
   index.html  1.7 KB
 
 PASS  1. index.html at the root, paths only [A-Za-z0-9._/-]
 PASS  2. unpacked ≤ 10 MB and JS gzip ≤ 800 KB
-        zip 958.5 KB, unpacked 2306.3 KB, js gzip 349.8 KB
+        zip 1091.2 KB, unpacked 2479.0 KB, js gzip 357.1 KB
 PASS  3. no external addresses except /sdk.js and mc.yandex.ru (namespaces allowed)
 PASS  4. <script src="/sdk.js"> exactly once
         found 1

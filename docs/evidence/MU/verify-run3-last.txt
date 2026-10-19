@@ -1,0 +1,7 @@
+  ✓  1 [desktop] › e2e/sp-belt-camera.spec.ts:54:1 › belts of mountains 1–3: in, off without a turn, turned round by hand and out — the camera ≥ NEAR off the head; screenshot (3.9m)
+
+  1 passed (4.0m)
+  ✓  2 e2e/smoke-release.spec.ts:25:1 › release build ignores ?pace=classic: the save lands in the slot of the game.json pace (2.1s)
+
+  2 passed (6.7s)
+EXIT=0
