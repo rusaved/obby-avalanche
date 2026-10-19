@@ -236,5 +236,69 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
       expect(w.hero, 'the hero card inside the middle').toBeLessThanOrEqual(0.5);
       expect(w.tabs, 'the tabs inside the middle').toBeLessThanOrEqual(0.5);
     });
+
+    test('(5) HUD: the stick level with the jump, «Level N» 8 px under «LEVEL UP!» by 96, opaque plaques, the gold «Take» ≥ 4.5:1, the bar in Speed blue, «5 474»', async ({ page, openGame }) => {
+      test.setTimeout(120_000);
+      await openGame('pace=stages');
+      await prepare(page, threshold(5));
+      const h = await page.evaluate(() => {
+        const mid = (q: string) => {
+          const r = document.querySelector(q)!.getBoundingClientRect();
+          return r.top + r.height / 2;
+        };
+        const rgba = (q: string, prop: 'backgroundColor' | 'color' = 'backgroundColor') => {
+          const m = getComputedStyle(document.querySelector(q)!)[prop].match(/[\d.]+/g)!.map(Number);
+          return [m[0]!, m[1]!, m[2]!, m[3] ?? 1];
+        };
+        const lum = (c: number[]) => {
+          const f = (v: number) => {
+            const x = v / 255;
+            return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+          };
+          return 0.2126 * f(c[0]!) + 0.7152 * f(c[1]!) + 0.0722 * f(c[2]!);
+        };
+        const gold = lum(rgba('[data-hud="gift"]', 'color'));
+        const bg = lum(rgba('[data-hud="gift"]'));
+        const coin = document.querySelector('.hud-coin-value')!;
+        return {
+          stick: mid('[data-role="stick"]') - mid('[data-hud="jump"]'),
+          alpha: ['[data-hud="gift"]', '[data-hud="pause"]', '[data-hud="sound"]', '.hud-menu-icon', '.hud-level-bar', '.hud-shoes', '.hud-mountain-bar'].map((q) => `${q} ${rgba(q)[3]}`),
+          contrast: (Math.max(gold, bg) + 0.05) / (Math.min(gold, bg) + 0.05),
+          fill: getComputedStyle(document.querySelector('.hud-level-fill')!).backgroundColor,
+          coin: coin.textContent,
+          spacing: Number.parseFloat(getComputedStyle(coin).wordSpacing),
+        };
+      });
+      expect(Math.abs(h.stick), 'the stick level with the jump').toBeLessThanOrEqual(2);
+      expect(h.alpha.filter((a) => !a.endsWith(' 1')), 'opaque').toEqual([]);
+      expect(h.contrast, 'gold «Take»').toBeGreaterThanOrEqual(4.5);
+      expect(h.fill).toBe('rgb(92, 200, 255)');
+      expect(h.coin).toBe('5\u00a0300');
+      expect(h.spacing).toBeGreaterThanOrEqual(2);
+      // «LEVEL UP!» and «Level N»: 8 px between their letters, the slot ends by 96.
+      await page.evaluate((s) => window.__TEST__!.setStat(s), threshold(15) + 1);
+      await expect(page.locator('[data-role="toast"].shown .hud-toast-main')).toHaveText('УРОВЕНЬ ВЫШЕ!', { timeout: 10_000 });
+      await page.waitForTimeout(250);
+      const t = await page.evaluate(() => {
+        const ink = (e: Element, edge: 'top' | 'bottom') => {
+          const cs = getComputedStyle(e);
+          const c = document.createElement('canvas').getContext('2d')!;
+          c.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+          const m = c.measureText(e.textContent ?? '');
+          const range = document.createRange();
+          range.selectNodeContents(e);
+          const r = range.getClientRects()[0]!;
+          // The content box of a line: ascent over the baseline, descent under it.
+          const base = r.top + m.fontBoundingBoxAscent;
+          return edge === 'top' ? base - m.actualBoundingBoxAscent : base + m.actualBoundingBoxDescent;
+        };
+        const main = document.querySelector('[data-role="toast"] .hud-toast-main')!;
+        const sub = document.querySelector('[data-role="toast"] .hud-toast-sub')!;
+        return { gap: ink(sub, 'top') - ink(main, 'bottom'), bottom: document.querySelector('[data-role="toast"]')!.getBoundingClientRect().bottom };
+      });
+      expect(t.gap, '«Level N» under «LEVEL UP!»').toBeGreaterThanOrEqual(7);
+      expect(t.gap).toBeLessThanOrEqual(11);
+      expect(t.bottom, 'the slot ends by 96').toBeLessThanOrEqual(96 + 1);
+    });
   });
 }

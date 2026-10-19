@@ -78,7 +78,7 @@
     "mythic": "#FF4D8D"
   },
   "ui": {
-    "mu": { "ink": "#1b2a3a", "plaque": "rgba(27, 42, 58, 0.62)", "plaqueStrong": "rgba(27, 42, 58, 0.86)", "stat": "#5cc8ff", "ok": "#4cd964", "okText": "#0f2b17", "gold": "#ffc53d", "blue": "#1a73d9", "panel": "#152230", "veil": "rgba(10, 20, 30, 0.6)", "card": "rgba(255, 255, 255, 0.08)", "quiet": "rgba(255, 255, 255, 0.14)", "muted": "#9fb3c8" },
+    "mu": { "ink": "#1b2a3a", "plaque": "#3d4f61", "plaqueStrong": "#24364a", "track": "#c9dcec", "stat": "#5cc8ff", "ok": "#4cd964", "okText": "#0f2b17", "gold": "#ffc53d", "blue": "#1a73d9", "panel": "#152230", "veil": "rgba(10, 20, 30, 0.6)", "card": "rgba(255, 255, 255, 0.08)", "quiet": "rgba(255, 255, 255, 0.14)", "muted": "#9fb3c8" },
     "stat": "#8FD3FF",
     "coins": "#FFD34D",
     "trophies": "#A45CFF",

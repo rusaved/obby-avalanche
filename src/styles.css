@@ -794,3 +794,10 @@ canvas.fallback {
 #ui.mu .wardrobe .win-grid .card { padding: 4px 8px; gap: 2px; }
 #ui.mu .wr-top { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 34px; }
 #ui.mu .wardrobe .card .fig:not(.big) { --u: 3.5px; width: 21px; height: 34px; }
+/* MU round of fixes 2, the HUD (staff): opaque plaques (theme ui.mu plaque, the gold «Take» 5.3:1 on it), the track of the
+   stage strip opaque and ringed (it vanished on the white sky of the camp), the bar filled with the colour of Speed,
+   «Level N» 8 px under «LEVEL UP!» (the slot ends by 96), a visible space in the numbers («5 474»). */
+.hud.mu .hud-mountain-bar { background: var(--mu-track, rgba(255, 255, 255, 0.55)); box-shadow: 0 0 0 1.5px var(--mu-plaque); }
+.hud.mu .hud-level-fill { background: var(--mu-stat); }
+.hud.mu .hud-toast-sub { display: block; margin-top: 4px; line-height: 14px; }
+.hud.mu .hud-coin-value, .hud.mu .hud-trophy-value, .hud.mu .hud-stat-value, .hud.mu .hud-level-progress, .hud.mu .hud-shoes-text, .hud.mu .hud-toast-main { word-spacing: 0.15em; }

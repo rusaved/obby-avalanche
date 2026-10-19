@@ -167,7 +167,7 @@ test.describe('MU phone screens', () => {
     expect(up.main).toBe('УРОВЕНЬ ВЫШЕ!');
     expect(up.sub).toBe('Уровень 5');
     expect(up.slot).toBe('toast');
-    expect(up.bottom).toBeLessThanOrEqual(86 + 1);
+    expect(up.bottom).toBeLessThanOrEqual(96 + 1);
     expect(up.heroY).toBeGreaterThan(up.bottom);
     expect(up.gainVisible).toBe(false);
     expect(down.at - up.at).toBeGreaterThan(900);

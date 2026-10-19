@@ -259,6 +259,9 @@ const GLYPH_EM = 1.2;
 const MU_STICK = 84;
 const MU_STICK_X = 76;
 const MU_STICK_Y = 258;
+/** MU round of fixes 2 (staff: the stick 50 px over the jump on 915 × 412): the resting stick level with the jump — its
+ * centre 16 + 64 / 2 px over the bottom band, never higher than the mockup's 258. */
+const MU_JUMP_MID = 16 + 64 / 2;
 
 /** The click a browser sends after a tap comes within this many ms of the finger lifting. */
 const TAP_CLICK_MS = 800;
@@ -912,6 +915,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   let touchMode = false;
   let fieldW = 1;
   let fieldH = 1;
+  let muBottom = 0;
   const hud: Hud = {
     root,
     jumpButton,
@@ -960,7 +964,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (opts.mu && touchMode && !stick.active) {
         // MU-02 (l1-run-hud-a): the stick rests at the bottom left, its ring from y 216, visible on the snow.
         stickBase.style.opacity = '1';
-        stickBase.style.transform = `translate(${MU_STICK_X}px, ${MU_STICK_Y}px)`;
+        stickBase.style.transform = `translate(${MU_STICK_X}px, ${Math.max(MU_STICK_Y, fieldH - muBottom - MU_JUMP_MID)}px)`;
         stickKnob.style.transform = 'translate(0px, 0px)';
         return;
       }
@@ -983,6 +987,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
         const panel = touchScreen ? Math.max(0, Math.min(BOTTOM_PANEL_MAX, height - VISIBLE_H)) : 0;
         // On the interface layer: the windows keep out of that band too.
         host.style.setProperty('--mu-bottom', `${panel}px`);
+        muBottom = panel;
         jumpButton.style.width = jumpButton.style.height = '';
         for (const b of [pauseBtn, soundBtn]) b.style.width = b.style.height = '';
         soundBtn.style.marginRight = '';

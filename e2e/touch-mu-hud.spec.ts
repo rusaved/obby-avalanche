@@ -62,10 +62,11 @@ test.describe('MU phone HUD', () => {
     expect(columnBottom).toBeLessThanOrEqual(176 + 1);
     const tileButtons = await page.$$eval('.hud-menu-icon', (n) => n.map((e) => e.getBoundingClientRect()).map((r) => [r.width, r.height]));
     for (const [w, h] of tileButtons) expect(Math.min(w!, h!)).toBeGreaterThanOrEqual(44);
-    // The stick ring from y 216: ≥ 24 px under the column.
+    // The stick ring ≥ 24 px under the column; round of fixes 2 (staff): level with the jump, not 216 of the mockup.
     const ring = await page.locator('[data-role="stick"]').boundingBox();
     expect(ring).not.toBeNull();
-    near(ring!.y, 216, VISIBLE_H, 'stick ring top');
+    const jump = (await page.locator('[data-hud="jump"]').boundingBox())!;
+    expect(Math.abs(ring!.y + ring!.height / 2 - (jump.y + jump.height / 2)), 'stick level with the jump').toBeLessThanOrEqual(2);
     expect(ring!.y - columnBottom).toBeGreaterThanOrEqual(24);
     // The strip at the top centre; sound, pause and the gift at the right.
     near(byId('strip').x + byId('strip').w / 2, W / 2, W, 'strip centre');
