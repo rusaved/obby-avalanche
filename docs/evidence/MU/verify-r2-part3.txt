@@ -288,3 +288,10 @@ EXIT=1
   2 passed (18.2s)
 -- verify: e2e:release exit 0, 21 s
 EXIT=0
+
+## Vitest на итоговом коде (после двух правок)
+ Test Files  92 passed (92)
+      Tests  532 passed (532)
+   Duration  797.51s (tests 98%, import 1%, transform 1%)
+EXIT=0
+typecheck — ok; validate:content — ok
