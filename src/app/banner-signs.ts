@@ -101,12 +101,30 @@ export function segmentMeetsBox(a: Vector3, b: Vector3, center: readonly number[
  */
 export function guardBannerSigns(hud: Hud, meshes: LevelMeshes, level: LevelData, camera: PerspectiveCamera, field: { width: number; height: number }, hero: Vector3, passed: readonly boolean[], readRange = Infinity, offHud = false): void {
   const banner = hud.waveBannerRect();
+  // MU round of fixes 2 (staff: a parallelogram with 5 px words): on the phone the board of the nearest ridge ahead is a
+  // plaque of the HUD, flat to the camera, on the post of the world.
+  if (offHud) meshes.setStageBoards(false);
+  let board: { text: string; x: number; y: number } | null = null;
+  let boardZ = Infinity;
   for (let i = 0; i < level.gates.length; i++) {
     // MU-03 (docs/07-mobile-ui.md, rule 19): a sign farther than it reads is not drawn.
     let hide = passed[i] === true || Math.abs(level.gates[i]!.z - hero.z) > readRange;
     const near = Math.abs(level.gates[i]!.z - hero.z) < SIGHT_RANGE;
     if (!hide && (banner || near || offHud)) {
       const box = meshes.signBox(i);
+      const at = offHud ? meshes.signAnchor(i) : null;
+      if (at) {
+        if (!near || !SIGHT_HEIGHTS.some((h) => segmentMeetsBox(camera.position, _eye.set(hero.x, hero.y + h, hero.z), box.center, box.size, SIGHT_PAD))) {
+          _p.set(at[0], at[1], at[2]).project(camera);
+          const dz = Math.abs(level.gates[i]!.z - hero.z);
+          if (_p.z < 1 && dz < boardZ) {
+            boardZ = dz;
+            board = { text: meshes.gateSign(i).text, x: (_p.x * 0.5 + 0.5) * field.width, y: (0.5 - _p.y * 0.5) * field.height };
+          }
+        }
+        meshes.setSignHidden(i, false);
+        continue;
+      }
       if (banner || offHud) {
         const r = screenRect(camera, box.center, box.size, field);
         hide = r !== null && ((banner !== null && rectsMeet(r, banner, MARGIN)) || (offHud && !hud.clearOfHud(r)));
@@ -115,6 +133,7 @@ export function guardBannerSigns(hud: Hud, meshes: LevelMeshes, level: LevelData
     }
     meshes.setSignHidden(i, hide);
   }
+  if (offHud) hud.setGateSign(board);
 }
 
 /** Round of fixes MU (docs/07-mobile-ui.md, rule 19): a portal sign of the base within 8 px of a block of the phone HUD

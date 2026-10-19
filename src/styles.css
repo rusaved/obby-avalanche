@@ -770,6 +770,12 @@ canvas.fallback {
 #ui.mu .gf-btns .card-btn { flex: 1 1 auto; padding: 0 12px; }
 /* MU round of fixes 2: five cards of «Footsteps» in a row at 100 %, fewer when a larger text needs it (7 em of 16 px). */
 #ui.mu .foot-grid { grid-template-columns: repeat(auto-fill, minmax(7em, 1fr)); }
+/* MU round of fixes 2 (l2-gate): the board of the ridge flat to the camera — «LEVEL NEEDED» 12 px over the number 40 px
+   in gold on the dark plaque, upright letters; hung on the post of the world. */
+.hud-gate-sign { display: none; position: absolute; left: 0; top: 0; z-index: 1; flex-direction: column; align-items: center; padding: 6px 16px 2px; border-radius: 8px; background: var(--mu-plaque-strong); pointer-events: none; white-space: nowrap; }
+.hud.mu .hud-gate-sign.shown { display: flex; }
+.hud-gate-word { font: 600 12px/16px var(--font); letter-spacing: 0.04em; color: var(--mu-muted); }
+.hud-gate-num { font: 800 40px/44px var(--font); color: var(--mu-gold); font-variant-numeric: tabular-nums; }
 /* MU round of fixes 2 (staff: no plaque on l3): «Stage reward» stays on the pad under the «+N» toast (it keeps 8 px off
    the toast by itself). */
 .hud.mu.toasting .hud-pad.two { visibility: visible; }

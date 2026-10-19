@@ -212,6 +212,9 @@ export interface Hud {
    * and its condition — hung by their bottom middle at (x, y), nearest first; one within 8 px of the HUD or of a plaque
    * placed before it is not drawn; nor one over the hero's box `hero` (rule 3). An empty list hides them all. */
   setPortalLabels(list: ReadonlyArray<{ text: string; sub: string; locked: boolean; x: number; y: number }>, hero?: { x0: number; y0: number; x1: number; y1: number }): void;
+  /** MU round of fixes 2: the board of the nearest ridge ahead, «LEVEL NEEDED» over the number, its bottom middle at
+   * (x, y) — the post top on screen; not drawn off the field or within 8 px of the HUD; null — hidden. */
+  setGateSign(state: { text: string; x: number; y: number } | null): void;
   /** «+N» with a trophy over the trophy button of a stage (docs/01-gdd.md 22.8); null — hidden. */
   setPadLabel(state: { text: string; x: number; y: number; tap?: boolean; sub?: string } | null): void;
   /** The portrait of a phone (the game is landscape, docs/03): «Turn your phone» over everything; false — hidden. */
@@ -513,6 +516,12 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const padSub = el('span', 'hud-pad-sub');
   padLabel.append(padText, padIcon, padSub);
   root.appendChild(padLabel);
+  const gateBoard = el('div', 'hud-gate-sign');
+  gateBoard.dataset['role'] = 'gate-sign';
+  const gateNum = el('span', 'hud-gate-num');
+  gateBoard.append(el('span', 'hud-gate-word', t('gate.needLevel')), gateNum);
+  root.appendChild(gateBoard);
+  let gateSize = { text: '', w: 0, h: 0 };
   // MU-09 (p1-rotate): a dark screen, the phone with an arc arrow, the title and one line.
   const rotate = el('div', 'hud-rotate');
   rotate.dataset['role'] = 'rotate';
@@ -1329,6 +1338,18 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     },
     setRotate(on) {
       rotate.classList.toggle('shown', on);
+    },
+    setGateSign(state) {
+      if (gateBoard.classList.contains('shown') !== (state !== null)) gateBoard.classList.toggle('shown', state !== null);
+      if (!state) return;
+      if (gateSize.text !== state.text) {
+        gateNum.textContent = state.text;
+        gateSize = { text: state.text, w: gateBoard.offsetWidth, h: gateBoard.offsetHeight };
+      }
+      const r = { x0: state.x - gateSize.w / 2, y0: state.y - gateSize.h, x1: state.x + gateSize.w / 2, y1: state.y };
+      const ok = r.x0 >= EDGE_MU && r.x1 <= fieldW - EDGE_MU && r.y0 >= 0 && r.y1 <= fieldH && hud.clearOfHud(r);
+      gateBoard.style.visibility = ok ? '' : 'hidden';
+      if (ok) gateBoard.style.transform = `translate(${Math.round(r.x0)}px, ${Math.round(r.y0)}px)`;
     },
     setPadLabel(state) {
       padLabel.classList.toggle('shown', state !== null);

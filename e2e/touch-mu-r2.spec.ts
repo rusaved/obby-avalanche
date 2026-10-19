@@ -156,5 +156,38 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
       expect(on.shown, 'the plaque on the pad').toBe(true);
       expect(inZone(on.r, on.zones)).toBe(false);
     });
+
+    test('(3) the ridge board: flat to the camera, «LEVEL NEEDED» ≥ 12 px and the number ≥ 32 px, upright, off the HUD', async ({ page, openGame }) => {
+      test.setTimeout(120_000);
+      const W = STAGES[0]!;
+      await openGame('pace=stages');
+      await prepare(page, threshold(5));
+      const st4 = W.stages[3]!;
+      await page.evaluate(([s, z]) => {
+        window.__TEST__!.setStat(s);
+        window.__TEST__!.teleport(z);
+      }, [threshold(st4.level - 3), st4.z0 - 5] as const);
+      await expect(page.locator('[data-role="toast"].shown')).toHaveCount(0, { timeout: 10_000 });
+      const sign = page.locator('[data-role="gate-sign"].shown');
+      await expect(sign).toBeVisible();
+      const f = await sign.evaluate((e) => {
+        const w = e.querySelector('.hud-gate-word')!;
+        const n = e.querySelector('.hud-gate-num')!;
+        const cs = (x: Element) => getComputedStyle(x);
+        return { word: w.textContent, wordPx: Number.parseFloat(cs(w).fontSize), num: n.textContent, numPx: Number.parseFloat(cs(n).fontSize), italic: [cs(w).fontStyle, cs(n).fontStyle], transform: (e as HTMLElement).style.transform };
+      });
+      expect(f.word).toBe('НУЖЕН УРОВЕНЬ');
+      expect(f.num).toBe(String(st4.level));
+      expect(f.wordPx).toBeGreaterThanOrEqual(12);
+      expect(f.numPx).toBeGreaterThanOrEqual(32);
+      expect(f.italic).toEqual(['normal', 'normal']);
+      expect(f.transform).toMatch(/^translate\([-\d.]+px, [-\d.]+px\)$/);
+      expect(await page.evaluate(() => {
+        const r = document.querySelector('[data-role="gate-sign"]')!.getBoundingClientRect();
+        return Array.from(document.querySelectorAll('.hud-level, [data-role="need"], .hud-mountain, [data-role="stick"], [data-hud="jump"]'))
+          .map((e) => e.getBoundingClientRect())
+          .filter((b) => b.width > 0 && r.left < b.right + 8 && b.left < r.right + 8 && r.top < b.bottom + 8 && b.top < r.bottom + 8).length;
+      }), 'the board 8 px off the HUD').toBe(0);
+    });
   });
 }

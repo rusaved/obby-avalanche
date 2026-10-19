@@ -96,6 +96,10 @@ export interface LevelMeshes {
   signBox(index: number): { center: [number, number, number]; size: [number, number, number] };
   setSignHidden(index: number, hidden: boolean): void;
   signHidden(index: number): boolean;
+  /** MU round of fixes 2 (staff: the board in perspective, 5 px words): false — the stage ridge signs keep only their
+   * post, the board is a plaque of the phone HUD hung at `signAnchor` (the post top; null — no stage board there). */
+  setStageBoards(on: boolean): void;
+  signAnchor(index: number): [number, number, number] | null;
   /** These parts of cave `niche` are not drawn (−1 or no parts — all drawn); the boxes of the hidden ones (test API). */
   setCaveCut(niche: number, parts: readonly CavePart[]): void;
   cutBoxes(): Array<{ min: readonly number[]; max: readonly number[] }>;
@@ -430,6 +434,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   // Stages pace (docs/01-gdd.md 22.3): «LEVEL NEEDED» over the level of every ridge.
   const words = levelWord && level.stages ? createWordLabels(levelWord, level.gates.length) : null;
   const signState = level.gates.map((g) => ({ text: formatNumber(g.requires, suffix), open: false, hidden: false }));
+  let boards = true;
   const signColor = new Color();
   const signOpenColor = materialColor(theme, 'gateSignOpen');
   const signClosedColor = materialColor(theme, 'gateSign');
@@ -480,12 +485,18 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       // Two lines on the dark plaque: the word over the number (MU-03), the number in gold.
       const wh = size * STAGE_WORD;
       const p = stagePlace(i);
-      digits.setLabel(i, st.text, p.x, p.y - size * STAGE_NUM_DOWN, g.z - d / 2 - 0.52, size, stageDigits);
-      words!.set(i, p.x, p.y + size * STAGE_WORD_UP, g.z - d / 2 - 0.55, wh);
+      if (boards) {
+        digits.setLabel(i, st.text, p.x, p.y - size * STAGE_NUM_DOWN, g.z - d / 2 - 0.52, size, stageDigits);
+        words!.set(i, p.x, p.y + size * STAGE_WORD_UP, g.z - d / 2 - 0.55, wh);
+      } else {
+        words!.hide(i);
+        digits.clear(i);
+      }
       placePost(i, true);
       dummy.position.set(p.x, p.y, p.z);
       dummy.rotation.set(0, 0, 0);
-      dummy.scale.set(p.w, p.h, 0.4);
+      if (boards) dummy.scale.set(p.w, p.h, 0.4);
+      else dummy.scale.setScalar(1e-4);
       dummy.updateMatrix();
       signs.setMatrixAt(i, dummy.matrix);
       signs.instanceMatrix.needsUpdate = true;
@@ -680,6 +691,17 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       applySign(index);
     },
     signHidden: (index) => signState[index]?.hidden ?? false,
+    setStageBoards(on) {
+      if (boards === on) return;
+      boards = on;
+      level.gates.forEach((_, i) => applySign(i));
+    },
+    signAnchor(index) {
+      const g = level.gates[index];
+      if (!stageSign || !g || g.kind !== 'ridge') return null;
+      const p = stagePlace(index);
+      return [p.x, g.y + STAGE_POST, p.z];
+    },
     setCaveCut(niche, parts) {
       cutParts.forEach((w, i) => {
         const hide = w.niche === niche && parts.includes(w.part);
