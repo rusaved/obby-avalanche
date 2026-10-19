@@ -112,7 +112,7 @@ export function createMetaView(d: MetaViewDeps): MetaView {
       view.apply();
       if (inTrophies) d.hud.setTrophies(formatNumber(wallet.coins, d.numSuffix));
       else d.hud.setCoins(formatNumber(sim.coins, d.numSuffix));
-      d.hud.toast(t('toast.newShoes', { name: t(`shoes.${next.id}`), m: formatNumber(next.mult, d.numSuffix) }));
+      d.hud.toast(t('toast.newShoes', { name: t(`shoes.${next.id}`), m: formatNumber(d.balance.gainPerStep * next.mult, d.numSuffix) }));
       d.trackOnce('shoes_1');
       d.onShoes?.();
       view.update();
@@ -127,9 +127,11 @@ export function createMetaView(d: MetaViewDeps): MetaView {
         return {
           id: x.id,
           name: t(`shoes.${x.id}`),
-          mult: t('shop.perStep', { m: formatMult(x.mult, d.numSuffix) }),
+          // Q-MU-11 (staff 19.10: «+N per step» everywhere): what a step gives in these sneakers, as on the HUD button.
+          mult: t('hud.perStep', { n: formatNumber(d.balance.gainPerStep * x.mult, d.numSuffix) }),
           price: formatNumber(price, d.numSuffix),
           color: d.shoesColor ?? '#ffffff',
+          pic: 'sneaker',
           state,
           need: t('shop.need', { n: formatNumber(Math.max(0, price - funds()), d.numSuffix) }),
           coin: !inTrophies,

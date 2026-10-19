@@ -1954,6 +1954,8 @@ async function boot(): Promise<void> {
     },
     trophiesDue: () => hudDueNow().has('trophies'),
     stageTrophies: balance.upgrade.currency === 'trophies',
+    // Round of fixes MU (staff 19.10): the phone shop shows both balances in its head.
+    ...(muLayout ? { wallet: () => ({ coins: formatNumber(sim.coins, numSuffix), trophies: formatNumber(save.trophies ?? 0, numSuffix) }) } : {}),
   });
   // The points of the base (docs/01-gdd.md 19.3). The shop: with «Shop» of the HUD; its tab — the sneakers if they are
   // affordable, else the eggs if the egg of the own mountain is, else the sneakers; the hand when one is affordable.

@@ -51,7 +51,7 @@
   "hint.stuck": "Build speed on the treadmill",
   "hint.portal": "Into the portal!",
   "toast.newPet": "New pet! +{n}% per step",
-  "toast.newShoes": "{name}: ×{m} per step",
+  "toast.newShoes": "{name}: +{m} per step",
   "gate.needLevel": "LEVEL NEEDED",
   "stage.goal": "Level {n} needed",
   "stage.need": "yours {have} / need {need}",

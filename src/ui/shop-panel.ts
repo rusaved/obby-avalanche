@@ -35,6 +35,8 @@ export interface ShopCard {
   action?: string;
   /** MU-12: a set of steps — a round «listen» button in its colour instead of the swatch. */
   sound?: boolean;
+  /** Round of fixes MU: a picture (an icon id, drawn in `color`) instead of the swatch — the sneakers. */
+  pic?: string;
 }
 
 export interface ShopPanelModel {
@@ -45,6 +47,8 @@ export interface ShopPanelModel {
   balance: string;
   coin: boolean;
   cards: ShopCard[];
+  /** Round of fixes MU (staff 19.10): both balances in the head — coins and trophies — whatever the tab. */
+  wallet?: { coins: string; trophies: string };
 }
 
 export interface ShopPanelActions {
@@ -88,9 +92,17 @@ export function coinPrice(text: string): HTMLElement {
 }
 
 export function renderShopPanel(body: HTMLElement, head: HTMLElement, m: ShopPanelModel, a: ShopPanelActions): void {
-  const balance = m.coin ? coinPrice(m.balance) : trophyPrice(m.balance);
-  balance.dataset['role'] = m.coin ? 'shop-coins' : 'shop-trophies';
-  head.appendChild(balance);
+  if (m.wallet) {
+    const coins = coinPrice(m.wallet.coins);
+    coins.dataset['role'] = 'shop-coins';
+    const trophies = trophyPrice(m.wallet.trophies);
+    trophies.dataset['role'] = 'shop-trophies';
+    head.append(coins, trophies);
+  } else {
+    const balance = m.coin ? coinPrice(m.balance) : trophyPrice(m.balance);
+    balance.dataset['role'] = m.coin ? 'shop-coins' : 'shop-trophies';
+    head.appendChild(balance);
+  }
   const tabs = el('div', 'win-tabs');
   for (const id of m.tabs) {
     const b = el('button', id === m.tab ? 'win-tab on' : 'win-tab', t(`shop.tab.${id}`));
@@ -105,7 +117,12 @@ export function renderShopPanel(body: HTMLElement, head: HTMLElement, m: ShopPan
     const card = el('div', c.state === 'on' ? 'card on' : c.state === 'locked' ? 'card locked' : 'card');
     card.dataset['item'] = c.id;
     if (c.sound) card.appendChild(playButton(c.color, () => a.preview?.(c.id)));
-    else {
+    else if (c.pic) {
+      const pic = el('span', 'card-pic');
+      pic.innerHTML = icon(c.pic);
+      pic.style.color = c.color;
+      card.appendChild(pic);
+    } else {
       const sw = el('span', 'card-swatch');
       sw.style.background = c.color;
       card.appendChild(sw);

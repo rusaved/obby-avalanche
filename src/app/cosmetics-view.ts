@@ -58,6 +58,8 @@ export interface CosmeticsViewDeps {
   trophiesDue?(): boolean;
   /** SD-03 (docs/01-gdd.md 23.3): trophies come from the stage buttons — the plaque shows once there are any. */
   stageTrophies?: boolean;
+  /** Round of fixes MU: both balances for the head of the shop (the phone layout); absent — the tab's own balance. */
+  wallet?(): { coins: string; trophies: string };
 }
 
 export interface CosmeticsView {
@@ -102,7 +104,7 @@ export function createCosmeticsView(d: CosmeticsViewDeps): CosmeticsView {
     };
     const source = tab === 'shoes' || tab === 'eggs' || tab === 'steps' ? d.shopTabs?.[tab] : undefined;
     if (source) {
-      renderShopPanel(body, head, { tab, tabs: tabs(), balance: source.balance(), coin: !(source.trophies?.() ?? false), cards: source.cards() }, { tab: toTab, buy: (id) => source.buy(id), equip: (id) => source.equip?.(id), ...(source.preview ? { preview: source.preview } : {}) });
+      renderShopPanel(body, head, { tab, tabs: tabs(), balance: source.balance(), coin: !(source.trophies?.() ?? false), cards: source.cards(), ...(d.wallet ? { wallet: d.wallet() } : {}) }, { tab: toTab, buy: (id) => source.buy(id), equip: (id) => source.equip?.(id), ...(source.preview ? { preview: source.preview } : {}) });
       return;
     }
     const kind = kindOf(tab);
@@ -118,7 +120,7 @@ export function createCosmeticsView(d: CosmeticsViewDeps): CosmeticsView {
       state: on === x.id ? 'on' : have.includes(x.id) ? 'owned' : trophies >= x.price ? 'buy' : 'short',
       need: t('shop.need', { n: formatNumber(x.price - trophies, d.numSuffix) }),
     }));
-    renderShopPanel(body, head, { tab, tabs: tabs(), balance: formatNumber(trophies, d.numSuffix), coin: false, cards }, {
+    renderShopPanel(body, head, { tab, tabs: tabs(), balance: formatNumber(trophies, d.numSuffix), coin: false, cards, ...(d.wallet ? { wallet: d.wallet() } : {}) }, {
       tab: toTab,
       buy: (id) => void (buyCosmetic(d.save, kind, items(kind), id) && changed()),
       equip: (id) => void (equipCosmetic(d.save, kind, id) && changed()),

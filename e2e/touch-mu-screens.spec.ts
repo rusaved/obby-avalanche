@@ -303,6 +303,47 @@ test.describe('MU phone screens', () => {
     });
   }
 
+  test('round of fixes 6 (staff 19.10): sneakers drawn, «+N per step», buttons of a row on one line, both balances in the shop head; «Take» of the calendar no wider than «Continue»', async ({ page, openGame }) => {
+    await openGame('pace=stages');
+    await prepare(page, `window.__TEST__.setStat(${threshold(30)});`);
+    await tap(page, 'pause');
+    const cont = await page.locator('.mu-continue').boundingBox();
+    await page.keyboard.press('Escape');
+    await expect(page.locator('[data-role="window"].open')).toHaveCount(0);
+    await page.waitForTimeout(400);
+    await tap(page, 'menu-shop');
+    await page.locator('[data-hud="shop-tab-shoes"]').click();
+    const win = page.locator('[data-role="window"].open');
+    await expect(win.locator('[data-role="shop-coins"] svg')).toHaveCount(1);
+    await expect(win.locator('[data-role="shop-trophies"] svg')).toHaveCount(1);
+    await expect(win.locator('[data-role="shop-trophies"]')).toHaveText('3');
+    const cards = win.locator('[data-role="shop-grid"] .card');
+    expect(await cards.count()).toBeGreaterThan(1);
+    expect(await win.locator('[data-role="shop-grid"] .card-swatch').count(), 'no empty squares').toBe(0);
+    expect(await win.locator('[data-role="shop-grid"] .card-pic svg').count()).toBe(await cards.count());
+    await expect(win.locator('[data-role="shop-grid"] .card-big').first()).toHaveText(/^\+\d+ за шаг$/);
+    // The last element of every card (button or lock) ends on one line within a row.
+    const rows = await page.evaluate(() => {
+      const out: Record<string, number[]> = {};
+      for (const c of Array.from(document.querySelectorAll('[data-role="window"].open [data-role="shop-grid"] .card'))) {
+        const r = c.getBoundingClientRect();
+        const last = c.lastElementChild!.getBoundingClientRect();
+        (out[Math.round(r.top)] ??= []).push(Math.round(r.bottom - last.bottom));
+      }
+      return Object.values(out);
+    });
+    for (const row of rows) expect(Math.max(...row) - Math.min(...row), `bottoms of a row ${row.join(',')}`).toBeLessThanOrEqual(1);
+    await page.screenshot({ path: 'docs/evidence/MU/w-shop.png' });
+    await page.keyboard.press('Escape');
+    await expect(page.locator('[data-role="window"].open')).toHaveCount(0);
+    await page.waitForTimeout(400);
+    await tap(page, 'menu-more');
+    await page.locator('[data-hud="more-daily"]').click();
+    const take = await page.locator('[data-hud="daily-claim"]').boundingBox();
+    expect(take!.width, '«Take» no wider than «Continue»').toBeLessThanOrEqual(cont!.width + 1);
+    await page.screenshot({ path: 'docs/evidence/MU/w-daily.png' });
+  });
+
   test('MU-06 camp: «Camp · mountain 1», no shoes button, no ads or group buttons on the scene, bot names 11 px', async ({ page, openGame }) => {
     await openGame('pace=stages');
     await prepare(page, `window.__TEST__.setStat(${threshold(30)});`);
