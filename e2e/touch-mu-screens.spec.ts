@@ -1,5 +1,5 @@
 import { test, expect, testState } from './fixtures.ts';
-import { forbiddenSymbols, hudBoxes, labelsOverHud, MU_VIEW, VISIBLE_H } from './mu-checks.ts';
+import { forbiddenSymbols, hudBoxes, labelsOverHud, MU_VIEW, scaleText, VISIBLE_H } from './mu-checks.ts';
 import { STAGES, threshold } from './lv-stage-data.ts';
 import stagesWorlds from '../content/avalanche/pace/stages/worlds.json' with { type: 'json' };
 import type { Page } from '@playwright/test';
@@ -198,6 +198,49 @@ test.describe('MU phone screens', () => {
     }
     await page.evaluate(() => window.__TEST__!.stick(0, 0));
     expect([...bad]).toEqual([]);
+  });
+
+  test('round of fixes 4 (staff 19.10): «+N» with the coin, «LEVEL UP!» at 130 % text and the giant\'s words stand in the slot, 8 px under the stage strip', async ({ page, openGame }) => {
+    await openGame('pace=stages');
+    const st = STAGES[0]!.stages[2]!;
+    await prepare(page, `window.__TEST__.setStat(${threshold(st.level + 2)});`);
+    /** The glyphs of the toast shown now (a range over its text: the line box is tighter than the letters) and the strip. */
+    const gap = (): Promise<{ text: string; top: number; bottom: number; strip: number }> =>
+      page.evaluate(() => {
+        const el = document.querySelector('[data-role="toast"]')!;
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const rs = Array.from(range.getClientRects()).filter((r) => r.width > 0);
+        const icon = el.querySelector('svg')?.getBoundingClientRect();
+        if (icon) rs.push(icon);
+        return {
+          text: el.textContent ?? '',
+          top: Math.min(...rs.map((r) => r.top)),
+          bottom: Math.max(...rs.map((r) => r.bottom)),
+          strip: document.querySelector('.hud-mountain')!.getBoundingClientRect().bottom,
+        };
+      });
+    // The coins of a stage finish: «+N» with the coin.
+    await page.evaluate((p) => window.__TEST__!.teleport(p.z, p.x, p.y + 1), st.pad);
+    await page.waitForFunction(() => window.__TEST__!.state().padsTaken > 0, undefined, { timeout: 20_000 });
+    await expect(page.locator('[data-role="toast"].shown .hud-toast-main svg')).toHaveCount(1);
+    const coins = await gap();
+    expect(coins.top - coins.strip, `«${coins.text}» under the strip`).toBeGreaterThanOrEqual(8);
+    await page.screenshot({ path: 'docs/evidence/MU/l3-stage-finish.png' });
+    // The giant's words and «LEVEL UP!» at 130 % text.
+    await scaleText(page, 1.3);
+    for (const [text, sub] of [['Обеги великана сбоку!', ''], ['УРОВЕНЬ ВЫШЕ!', 'Уровень 20']] as const) {
+      await expect(page.locator('[data-role="toast"].shown')).toHaveCount(0, { timeout: 10_000 });
+      await page.evaluate(([a, b]) => {
+        window.__TEST__!.showToast(a, 2, true);
+        if (b) document.querySelector('[data-role="toast"] .hud-toast-sub')!.textContent = b;
+      }, [text, sub] as const);
+      await page.waitForTimeout(350);
+      const g = await gap();
+      expect(g.text).toContain(text);
+      expect(g.top - g.strip, `«${text}» at 130 %: under the strip`).toBeGreaterThanOrEqual(8);
+      if (sub) await page.screenshot({ path: 'docs/evidence/MU/l4-level-up-130.png' });
+    }
   });
 
   test('MU-06 camp: «Camp · mountain 1», no shoes button, no ads or group buttons on the scene, bot names 11 px', async ({ page, openGame }) => {

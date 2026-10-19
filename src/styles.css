@@ -494,14 +494,16 @@ canvas.fallback {
 .hud.mu:not([data-slot='ads']) .hud-ads { display: none; }
 .hud.mu .hud-ad { min-height: 44px; padding: 0 18px; border: 0; border-radius: 12px; background: var(--mu-blue); color: #fff; font: 600 14px/1.2 var(--font); text-shadow: none; white-space: nowrap; display: flex; align-items: center; }
 /* Toasts in the slot: gold 24 px with the ink outline, the line under it 14 px; top 40, never over the hero. */
-.hud.mu .hud-toast, .hud.mu.plated .hud-toast { top: calc(40px + env(safe-area-inset-top)); transform: translateX(-50%) scale(0.9); padding: 0; background: none; border-radius: 0; color: var(--mu-gold); font-size: 24px; line-height: 28px; font-weight: 800; text-shadow: var(--mu-o2); z-index: 4; }
+/* Round of fixes MU (staff 19.10: the toast lay on the stage strip at 130 % text): in the slot, 8 px under the strip
+   (top 50), its lines tight so the bottom stays at 86 — a bigger text grows over its line box, never up onto the strip. */
+.hud.mu .hud-toast, .hud.mu.plated .hud-toast { top: calc(50px + env(safe-area-inset-top)); transform: translateX(-50%) scale(0.9); padding: 0; background: none; border-radius: 0; color: var(--mu-gold); font-size: 24px; line-height: 24px; font-weight: 800; text-shadow: var(--mu-o2); z-index: 4; }
 .hud.mu .hud-toast.shown { transform: translateX(-50%) scale(1); }
 /* One message at a time: the toast leaves at once, no fade over the next message. */
 .hud.mu .hud-toast { transition: transform 0.2s; }
-.hud.mu .hud-toast-sub { font-size: 14px; line-height: 18px; color: #fff; text-shadow: var(--mu-o15); }
+.hud.mu .hud-toast-sub { font-size: 14px; line-height: 10px; color: #fff; text-shadow: var(--mu-o15); }
 .hud.mu:not([data-slot='toast']) .hud-toast { opacity: 0; }
 .hud.mu.urgent .hud-toast.shown { opacity: 1; }
-.hud.mu.levels .hud-toast { top: calc(40px + env(safe-area-inset-top)); }
+.hud.mu.levels .hud-toast { top: calc(50px + env(safe-area-inset-top)); }
 /* Sound and pause: circles 44 at the top right; the gift plaque 44 high under them (top 60). */
 .hud.mu .hud-pause, .hud.mu .hud-sound { width: 44px; height: 44px; top: calc(8px + env(safe-area-inset-top)); background: var(--mu-plaque); color: #fff; }
 .hud.mu .hud-pause { right: calc(16px + env(safe-area-inset-right)); }

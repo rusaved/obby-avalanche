@@ -243,8 +243,11 @@ const MENU_BOTTOM = 0.72;
  * are read this often (ms). */
 const LABEL_GAP = 8;
 const RECTS_MS = 150;
-/** The side margin of the phone frame (docs/07-mobile-ui.md, «Поля кадра»). */
+/** The side margin of the phone frame (docs/07-mobile-ui.md, «Поля кадра»); the top of the message slot; the letters
+ * of Rubik are this many em tall (ascent and descent). */
 const EDGE_MU = 16;
+const SLOT_TOP_MU = 50;
+const GLYPH_EM = 1.2;
 /** MU-02 (l1-run-hud-a): the stick ring 84 px, its centre at (76, 258) — the ring from y 216, 40 px under the column. */
 const MU_STICK = 84;
 const MU_STICK_X = 76;
@@ -559,10 +562,21 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   type Toast = { text: string; sec: number; gold: boolean; sub: string | undefined; onShow?: (() => void) | undefined };
   const pendingToasts: Toast[] = [];
   let currentToast: Toast | null = null;
+  // Round of fixes MU (staff 19.10: «+150» and «LEVEL UP!» at 130 % text lay on the stage strip): the phone toast's
+  // letters start 8 px under the strip as it is now (it grows with the text) — its line box is tighter than the letters.
+  const placeMuToast = (): void => {
+    if (!opts.mu) return;
+    const strip = mountain.getBoundingClientRect().bottom - root.getBoundingClientRect().top;
+    const cs = getComputedStyle(toastMain);
+    const fs = Number.parseFloat(cs.fontSize) || 0;
+    const lh = Number.parseFloat(cs.lineHeight) || fs;
+    toastEl.style.top = `${Math.ceil(Math.max(SLOT_TOP_MU, strip + LABEL_GAP) + Math.max(0, (fs * GLYPH_EM - lh) / 2))}px`;
+  };
   const showToast = (text: string, sec: number, gold: boolean, sub: string | undefined, onShow?: () => void): void => {
     currentToast = { text, sec, gold, sub };
     setRich(toastMain, text);
     toastSub.textContent = sub ?? '';
+    placeMuToast();
     toastEl.classList.toggle('gold', gold);
     toastEl.classList.remove('shown');
     void toastEl.offsetWidth;
