@@ -93,7 +93,8 @@ export function renderWardrobePanel(body: HTMLElement, head: HTMLElement, m: War
     tab.addEventListener('click', () => a.tab(id));
     tabs.appendChild(tab);
   }
-  head.appendChild(tabs);
+  // Round of fixes MU (staff 19.10): the tabs where the shop has them — over the list, pinned while it scrolls.
+  body.appendChild(tabs);
   const row = el('div', 'wardrobe');
   const stage = el('div', 'wardrobe-stage');
   stage.dataset['role'] = 'wardrobe-hero';

@@ -243,6 +243,66 @@ test.describe('MU phone screens', () => {
     }
   });
 
+  for (const view of [MU_VIEW, { width: 915, height: 412 }]) {
+    test(`round of fixes 5 (staff 19.10) at ${view.width} × ${view.height}: «Gifts» whole, «Shop → Steps» and «Wardrobe» show their first row whole and the next one peeking, tabs stay over the list`, async ({ page, openGame }) => {
+      await page.setViewportSize(view);
+      await openGame('pace=stages');
+      await prepare(page, `window.__TEST__.setStat(${threshold(30)});`);
+      const body = (): Promise<{ top: number; bottom: number; scroll: number; client: number; cards: Array<{ top: number; bottom: number }>; tabs: number | null }> =>
+        page.evaluate(() => {
+          const b = document.querySelector('[data-role="window"].open .win-body')!;
+          const r = b.getBoundingClientRect();
+          const tabs = b.querySelector('.win-tabs');
+          return {
+            top: r.top,
+            bottom: r.bottom,
+            scroll: b.scrollHeight,
+            client: b.clientHeight,
+            cards: Array.from(b.querySelectorAll('.card')).map((c) => c.getBoundingClientRect()).filter((c) => c.width > 0).map((c) => ({ top: c.top, bottom: c.bottom })),
+            tabs: tabs ? tabs.getBoundingClientRect().top : null,
+          };
+        });
+      // «Gifts»: everything in the panel, the bottom row whole — no scrolling at all.
+      await tap(page, 'gift');
+      await expect(page.locator('[data-role="window"].open')).toBeVisible();
+      const g = await body();
+      expect(g.scroll, 'gifts: nothing under the fold').toBeLessThanOrEqual(g.client + 1);
+      for (const c of g.cards) expect(c.bottom, 'gifts: a card cut').toBeLessThanOrEqual(g.bottom + 0.5);
+      await page.keyboard.press('Escape');
+      await expect(page.locator('[data-role="window"].open')).toHaveCount(0);
+      await page.waitForTimeout(400);
+      for (const [id, open] of [
+        ['shop steps', async () => { await tap(page, 'menu-shop'); await page.locator('[data-hud="shop-tab-steps"]').click(); }],
+        ['wardrobe', async () => { await tap(page, 'menu-more'); await page.locator('[data-hud="more-wardrobe"]').click(); }],
+      ] as const) {
+        await open();
+        await expect(page.locator('[data-role="window"].open')).toBeVisible();
+        await page.waitForTimeout(200);
+        const w = await body();
+        const first = Math.min(...w.cards.map((c) => c.top));
+        const row = w.cards.filter((c) => Math.abs(c.top - first) < 2);
+        for (const c of row) expect(c.bottom, `${id}: the first row whole`).toBeLessThanOrEqual(w.bottom + 0.5);
+        const next = w.cards.filter((c) => c.top > first + 2);
+        expect(next.length, `${id}: more rows`).toBeGreaterThan(0);
+        expect(Math.min(...next.map((c) => c.top)), `${id}: the next row peeks`).toBeLessThan(w.bottom - 8);
+        expect(w.scroll, `${id}: the list scrolls`).toBeGreaterThan(w.client);
+        // Scrolled down, the tabs stay at the top of the middle.
+        expect(w.tabs, `${id}: tabs`).not.toBeNull();
+        await page.evaluate(() => {
+          const b = document.querySelector('[data-role="window"].open .win-body')!;
+          b.scrollTop = b.scrollHeight;
+        });
+        await page.waitForTimeout(150);
+        const after = await body();
+        expect(Math.abs(after.tabs! - after.top), `${id}: tabs pinned over the list`).toBeLessThanOrEqual(1);
+        await page.screenshot({ path: `docs/evidence/MU/w-${id.replace(' ', '-')}-${view.width}-scrolled.png` });
+        await page.keyboard.press('Escape');
+        await expect(page.locator('[data-role="window"].open')).toHaveCount(0);
+        await page.waitForTimeout(400);
+      }
+    });
+  }
+
   test('MU-06 camp: «Camp · mountain 1», no shoes button, no ads or group buttons on the scene, bot names 11 px', async ({ page, openGame }) => {
     await openGame('pace=stages');
     await prepare(page, `window.__TEST__.setStat(${threshold(30)});`);

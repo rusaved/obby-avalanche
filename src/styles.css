@@ -587,6 +587,8 @@ canvas.fallback {
 #ui.mu .card-btn svg { width: 20px; height: 20px; }
 #ui.mu .card-lock, #ui.mu .card-lock svg { color: var(--mu-muted); }
 #ui.mu .win-tabs { gap: 8px; margin: 0 0 8px; }
+/* Round of fixes MU (staff 19.10: the tabs went up with the list): pinned over the scrolling middle. */
+#ui.mu .win-body > .win-tabs { position: sticky; top: 0; z-index: 2; margin: 0; padding-bottom: 8px; background: var(--mu-panel); }
 #ui.mu .win-tab { min-height: 44px; border-radius: 12px; background: var(--mu-quiet); color: #fff; font: 600 14px var(--font); }
 #ui.mu .win-tab.on { background: #fff; color: var(--ink); }
 #ui.mu .win-row, #ui.mu .row { color: #fff; border-color: rgba(255, 255, 255, 0.08); }
@@ -596,7 +598,7 @@ canvas.fallback {
 #ui.mu .rb-col, #ui.mu .qs-row, #ui.mu .wh, #ui.mu .wh-sector, #ui.mu .tr-played, #ui.mu .rb-tier { background: var(--mu-card); color: #fff; border-color: transparent; }
 #ui.mu .rb-keeps, #ui.mu .rb-gets, #ui.mu .qs-row.ready, #ui.mu .qs-bonus { background: rgba(255, 255, 255, 0.12); }
 #ui.mu .qs-bar { background: var(--mu-quiet); }
-#ui.mu .wardrobe-stage { background: var(--mu-card); }
+#ui.mu .wardrobe-stage { background: var(--mu-card); position: sticky; top: 52px; }
 #ui.mu .slot { border-color: var(--mu-quiet); }
 #ui.mu .rw-icon, #ui.mu .rw-icon svg { color: #fff; }
 #ui.mu .dl-card.today { border-color: transparent; box-shadow: inset 0 0 0 3px var(--mu-gold); transform: none; }
@@ -656,7 +658,8 @@ canvas.fallback {
 #ui.mu .promo-note { min-height: 20px; margin-top: 8px; font-size: 14px; color: var(--mu-muted); }
 /* w1-gifts: four tiles of the rewards for the time, three cards under them. */
 #ui.mu .gf-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-#ui.mu .gf-tile { min-height: 116px; padding: 8px; gap: 2px; justify-content: flex-start; }
+/* Round of fixes MU (staff 19.10: the bottom row was cut): the tiles 108 px, the whole window fits the 300 px panel. */
+#ui.mu .gf-tile { min-height: 108px; padding: 8px; gap: 2px; justify-content: flex-start; }
 #ui.mu .gf-tile .card-name { font-size: 14px; }
 #ui.mu .gf-tile .card-sub { flex: 1 1 auto; }
 #ui.mu .gf-tile .card-btn { width: 100%; }
