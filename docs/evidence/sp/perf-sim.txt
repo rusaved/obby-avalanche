@@ -1,1 +1,1 @@
-mountain 10, CPU x4, 6 bots, run 120 units/s, 300 ticks: sim.step mean 0.502 ms, median 0.100 ms, p90 1.000 ms, max 6.600 ms
+mountain 10, CPU x4, 6 bots, run 120 units/s, 300 ticks: sim.step mean 0.583 ms, median 0.200 ms, p90 1.000 ms, max 19.600 ms
