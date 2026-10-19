@@ -255,12 +255,11 @@ const RECTS_MS = 150;
 const EDGE_MU = 16;
 const SLOT_TOP_MU = 50;
 const GLYPH_EM = 1.2;
-/** MU-02 (l1-run-hud-a): the stick ring 84 px, its centre at (76, 258) — the ring from y 216, 40 px under the column. */
+/** MU-02 (l1-run-hud-a): the stick ring 84 px, its centre 76 px from the left edge. */
 const MU_STICK = 84;
 const MU_STICK_X = 76;
-const MU_STICK_Y = 258;
 /** MU round of fixes 2 (staff: the stick 50 px over the jump on 915 × 412): the resting stick level with the jump — its
- * centre 16 + 64 / 2 px over the bottom band, never higher than the mockup's 258. */
+ * centre 16 + 64 / 2 px over the bottom edge; on 815 × 290 (round 3) its ring starts 24 px under the column. */
 const MU_JUMP_MID = 16 + 64 / 2;
 
 /** The click a browser sends after a tap comes within this many ms of the finger lifting. */
@@ -322,10 +321,6 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const root = el('div', opts.mu ? 'hud mu' : 'hud');
   root.dataset['role'] = 'hud';
   host.appendChild(root);
-  /** MU-02 (docs/07-mobile-ui.md «Поля кадра»): a touch screen taller than the 330 px a phone shows under the browser
-   * panels keeps its bottom 45 px free (the layout is counted from the visible 330). */
-  const VISIBLE_H = 330;
-  const BOTTOM_PANEL_MAX = 45;
 
   const pauseBtn = el('button', 'hud-btn hud-pause');
   pauseBtn.innerHTML = icon('pause');
@@ -915,7 +910,6 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   let touchMode = false;
   let fieldW = 1;
   let fieldH = 1;
-  let muBottom = 0;
   const hud: Hud = {
     root,
     jumpButton,
@@ -964,7 +958,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (opts.mu && touchMode && !stick.active) {
         // MU-02 (l1-run-hud-a): the stick rests at the bottom left, its ring from y 216, visible on the snow.
         stickBase.style.opacity = '1';
-        stickBase.style.transform = `translate(${MU_STICK_X}px, ${Math.max(MU_STICK_Y, fieldH - muBottom - MU_JUMP_MID)}px)`;
+        stickBase.style.transform = `translate(${MU_STICK_X}px, ${fieldH - MU_JUMP_MID}px)`;
         stickKnob.style.transform = 'translate(0px, 0px)';
         return;
       }
@@ -980,14 +974,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       fieldW = width;
       fieldH = height;
       if (opts.mu) {
-        // MU-02: fixed sizes of docs/07-mobile-ui.md (jump 64, round buttons 44, stick 84); the bottom band of a phone
-        // taller than its visible 330 px stays free.
-        // A touch screen (the finger, not the last input: a window opened by a tap must not jump).
-        const touchScreen = touchMode || window.matchMedia('(pointer: coarse)').matches;
-        const panel = touchScreen ? Math.max(0, Math.min(BOTTOM_PANEL_MAX, height - VISIBLE_H)) : 0;
-        // On the interface layer: the windows keep out of that band too.
-        host.style.setProperty('--mu-bottom', `${panel}px`);
-        muBottom = panel;
+        // MU-02: fixed sizes of docs/07-mobile-ui.md (jump 64, round buttons 44, stick 84). MU round 3: no bottom band —
+        // the field is already the visible part of the window (main.ts, visualViewport).
         jumpButton.style.width = jumpButton.style.height = '';
         for (const b of [pauseBtn, soundBtn]) b.style.width = b.style.height = '';
         soundBtn.style.marginRight = '';

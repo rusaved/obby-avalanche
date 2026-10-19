@@ -42,6 +42,9 @@ export interface Platform {
   reviewCan(): Promise<boolean>;
   /** FM-16: its review dialog; true only when the player sent a review (feedbackSent). Never throws (false). */
   reviewAsk(): Promise<boolean>;
+  /** MU round 3: the whole screen (ysdk.screen.fullscreen outside the SDK — the Fullscreen API). Called from a tap; true —
+   * the screen is whole now; false — refused or not supported, the game stays in the window. Never throws. */
+  requestFullscreen(): Promise<boolean>;
   serverTime(): number;
   getFlags(defaults: Record<string, string>): Promise<Record<string, string>>;
 }

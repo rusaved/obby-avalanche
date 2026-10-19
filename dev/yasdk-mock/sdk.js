@@ -238,6 +238,27 @@
     get length() { return Object.keys(this._m).length; },
   };
 
+  var fullscreen = {
+    STATUS_ON: 'on',
+    STATUS_OFF: 'off',
+    get status() {
+      var doc = root.document;
+      return doc && doc.fullscreenElement ? 'on' : 'off';
+    },
+    request: function () {
+      record('screen.fullscreen.request');
+      if (cfg.mock_fullscreen === 'deny') return Promise.reject(new Error('yasdk-mock: fullscreen refused (mock_fullscreen=deny)'));
+      var el = root.document && root.document.documentElement;
+      if (!el || typeof el.requestFullscreen !== 'function') return Promise.reject(new Error('yasdk-mock: no Fullscreen API'));
+      return el.requestFullscreen({ navigationUI: 'hide' });
+    },
+    exit: function () {
+      record('screen.fullscreen.exit');
+      var doc = root.document;
+      return doc && doc.fullscreenElement && typeof doc.exitFullscreen === 'function' ? doc.exitFullscreen() : Promise.resolve();
+    },
+  };
+
   var sdk = {
     EVENTS: { EXIT: 'EXIT', HISTORY_BACK: 'HISTORY_BACK', ACCOUNT_SELECTION_DIALOG_OPENED: 'ACCOUNT_SELECTION_DIALOG_OPENED', ACCOUNT_SELECTION_DIALOG_CLOSED: 'ACCOUNT_SELECTION_DIALOG_CLOSED' },
     environment: {
@@ -307,7 +328,9 @@
       requestReview: function () { record('feedback.requestReview'); return Promise.resolve({ feedbackSent: reviewMode === 'sent' }); },
     },
     clipboard: { writeText: function (text) { record('clipboard.writeText', [text]); } },
-    screen: { fullscreen: { STATUS_ON: 'on', STATUS_OFF: 'off', status: 'off', request: function () { record('screen.fullscreen.request'); return Promise.resolve(); }, exit: function () { record('screen.fullscreen.exit'); return Promise.resolve(); } } },
+    // ?mock_fullscreen=deny (MU round 3): the whole screen refused. Otherwise the page itself goes whole, as the platform
+    // does with the game's frame — the producer's link runs this mock on a phone.
+    screen: { fullscreen: fullscreen },
     serverTime: function () { record('serverTime'); return now(); },
     isAvailableMethod: function (name) { record('isAvailableMethod', [name]); return Promise.resolve(true); },
     gameplayState: function () { return gameplayState; },

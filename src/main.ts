@@ -2155,9 +2155,12 @@ async function boot(): Promise<void> {
   // Field (docs/02-tech.md 6.4): the canvas and the HUD share one rectangle; margins show sky.bottom. A phone-sized touch
   // screen — the whole window whatever the SDK says (the producer's link runs the mock, a desktop by default).
   const coarsePointer = window.matchMedia('(pointer: coarse)');
+  // MU round 3 (producer 19.10: Yandex Browser on Android gives the game 815 × 290 and its bottom panel lies over the
+  // page): the field is the visible part of the window, not the window under the panels.
+  const viewport = window.visualViewport;
   const fit = (): void => {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    const w = viewport ? Math.min(window.innerWidth, viewport.width) : window.innerWidth;
+    const h = viewport ? Math.min(window.innerHeight, viewport.height) : window.innerHeight;
     field = fitField(w, h, platform.device, coarsePointer.matches);
     for (const el of [canvas, ui]) {
       el.style.position = 'absolute';
@@ -2170,8 +2173,18 @@ async function boot(): Promise<void> {
     hud?.layout(field.width, field.height);
   };
   window.addEventListener('resize', fit);
+  viewport?.addEventListener('resize', fit);
+  document.addEventListener('fullscreenchange', fit);
   coarsePointer.addEventListener('change', fit);
   fit();
+  // MU round 3: the first tap of a finger asks for the whole screen (a browser lets it only from a tap); a refusal or a
+  // later exit leaves the game whole in the window — nothing asks again.
+  const askWholeScreen = (ev: PointerEvent): void => {
+    if (ev.pointerType === 'mouse') return;
+    window.removeEventListener('pointerup', askWholeScreen, true);
+    void platform.requestFullscreen();
+  };
+  window.addEventListener('pointerup', askWholeScreen, true);
   applyQualityNow();
   await gr.compile();
 

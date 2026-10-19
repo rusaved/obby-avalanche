@@ -329,6 +329,19 @@ export class YandexPlatform implements Platform {
     }
   }
 
+  async requestFullscreen(): Promise<boolean> {
+    const fs = this.sdk?.screen?.fullscreen;
+    if (!fs) return false;
+    if (fs.status === fs.STATUS_ON) return true;
+    try {
+      await fs.request();
+      return true;
+    } catch (err) {
+      log.warn('screen.fullscreen.request failed', err);
+      return false;
+    }
+  }
+
   serverTime(): number {
     try {
       const t = this.sdk?.serverTime();

@@ -99,6 +99,19 @@ export class NullPlatform implements Platform {
     return false;
   }
 
+  async requestFullscreen(): Promise<boolean> {
+    if (typeof document === 'undefined') return false;
+    if (document.fullscreenElement) return true;
+    const el = document.documentElement;
+    if (typeof el.requestFullscreen !== 'function') return false;
+    try {
+      await el.requestFullscreen({ navigationUI: 'hide' });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   serverTime(): number {
     return Date.now();
   }

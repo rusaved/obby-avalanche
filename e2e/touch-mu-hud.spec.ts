@@ -82,7 +82,7 @@ test.describe('MU phone HUD', () => {
     near(byId('jump').y + byId('jump').h, VISIBLE_H - 16, VISIBLE_H, 'jump bottom');
     expect(Math.abs(byId('jump').w - 64)).toBeLessThanOrEqual(2);
     if (boxes.some((b) => b.id === 'shoes')) near(byId('shoes').y + byId('shoes').h, VISIBLE_H - 16, VISIBLE_H, 'shoes bottom');
-    // Nothing under the bottom 45 px of the 812×375 frame.
+    // Nothing past the bottom of the visible frame (round 3: no bottom band, the field is the visible window).
     for (const b of boxes) expect(b.y + b.h, b.id).toBeLessThanOrEqual(VISIBLE_H + 0.5);
     expect(tooClose(boxes, 8)).toEqual([]);
     // No Speed plaque with the bolt, no «+1 a step», no «×1 a section».

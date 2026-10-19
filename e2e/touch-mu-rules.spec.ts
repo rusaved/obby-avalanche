@@ -5,7 +5,7 @@ import type { Page } from '@playwright/test';
 
 // MU-10 (docs/07-mobile-ui.md, rules 1–23 «Приёмка экрана»): the automatic check of every phone screen at 812×375 —
 // tap zones ≥ 44, text ≥ 12 (≥ 14 on the HUD but its captions), button contrast ≥ 4.5:1, no overlaps (gaps ≥ 8), one
-// window at a time, nothing under the bottom 45 px, at 130 % text nothing cut and the windows scroll.
+// window at a time, nothing past the visible frame, at 130 % text nothing cut and the windows scroll.
 test.use({ viewport: MU_VIEW });
 
 async function tap(page: Page, hud: string): Promise<void> {

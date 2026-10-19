@@ -3,8 +3,9 @@ import type { Page } from '@playwright/test';
 // MU checks of docs/07-mobile-ui.md shared by the touch-mu-*.spec.ts files (tokens, layout, slot, windows).
 
 export const MU_VIEW = { width: 812, height: 375 };
-/** The visible frame of a phone under the browser panels (docs/07-mobile-ui.md «Поля кадра»). */
-export const VISIBLE_H = 330;
+/** The visible frame (docs/07-mobile-ui.md «Поля кадра»). MU round 3: the game is laid out in the visible part of the
+ * window (visualViewport), no bottom band under browser panels — the whole 375 of MU_VIEW is visible. */
+export const VISIBLE_H = MU_VIEW.height;
 
 export type Box = { id: string; x: number; y: number; w: number; h: number };
 
