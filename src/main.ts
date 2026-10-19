@@ -2137,11 +2137,13 @@ async function boot(): Promise<void> {
   input.touchActive = mobile;
   input.attach(canvas, ui);
 
-  // Field (docs/02-tech.md 6.4): the canvas and the HUD share one rectangle; margins show sky.bottom.
+  // Field (docs/02-tech.md 6.4): the canvas and the HUD share one rectangle; margins show sky.bottom. A touch screen —
+  // the whole window whatever the SDK says (the producer's link runs the mock, a desktop by default).
+  const coarsePointer = window.matchMedia('(pointer: coarse)');
   const fit = (): void => {
     const w = window.innerWidth;
     const h = window.innerHeight;
-    field = fitField(w, h, platform.device);
+    field = fitField(w, h, platform.device, coarsePointer.matches);
     for (const el of [canvas, ui]) {
       el.style.position = 'absolute';
       el.style.left = `${field.left}px`;
@@ -2153,6 +2155,7 @@ async function boot(): Promise<void> {
     hud?.layout(field.width, field.height);
   };
   window.addEventListener('resize', fit);
+  coarsePointer.addEventListener('change', fit);
   fit();
   applyQualityNow();
   await gr.compile();

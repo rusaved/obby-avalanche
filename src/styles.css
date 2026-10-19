@@ -685,7 +685,8 @@ canvas.fallback {
 #ui.mu .hud-rotate-title { font-size: 24px; font-weight: 800; color: #fff; }
 #ui.mu .hud-rotate-line { margin-top: 12px; font-size: 14px; font-weight: 500; color: var(--mu-muted); }
 #ui.mu.win-open .hud-rotate.shown { visibility: visible; }
-#ui.mu .dim.win { bottom: var(--mu-bottom, 0px); }
+/* MU round of fixes (staff 19.10): the dim covers the whole screen; the panel stays centred above the bottom band. */
+#ui.mu .dim.win { padding-bottom: var(--mu-bottom, 0px); box-sizing: border-box; }
 #ui.mu .card-price svg { color: #fff; }
 #ui.mu .card-price .mark-cup svg, #ui.mu .win-head .mark-cup svg { color: #fff; }
 #ui.mu .records-row { display: flex; align-items: center; min-height: 44px; padding: 0 16px; margin-bottom: 8px; border-radius: 12px; background: var(--mu-card); font-size: 14px; font-weight: 600; }
