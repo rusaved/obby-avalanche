@@ -42,17 +42,45 @@ test('from a clean save on mountain 1: holding forward is caught at 10 meetings 
   await openGame('pace=stages');
   await waitTicks(page, 10);
   await page.evaluate(() => window.__TEST__!.setTimeScale(3));
+  // The meetings counted in the page (simEvents keeps the last 2000 events: the cracks of a long run push the giant's out):
+  // a meeting is the hero in the zone, then caught (out with the snowball) or past it; a pass logs where both stood.
+  await page.evaluate(() => {
+    const T = window.__TEST__!;
+    const m = { caught: 0, passed: 0, log: [] as string[] };
+    (window as unknown as { __meets: typeof m }).__meets = m;
+    let prev = 'out';
+    const at = (s: ReturnType<typeof T.state>): string => {
+      const z = s.boss!.zones[0]!;
+      return `hero ${s.hero!.x.toFixed(1)},${s.hero!.z.toFixed(1)} v ${s.hero!.speed.toFixed(1)} · giant ${z.giants.map((g) => `${g.x.toFixed(1)},${g.z.toFixed(1)} ${g.mode} ${g.sight}`).join('; ')}`;
+    };
+    setInterval(() => {
+      const s = T.state();
+      const z = s.boss?.zones[0];
+      if (!z || !s.hero) return;
+      if (z.hero === 'in' && prev !== 'in') m.log.push(`in: ${at(s)}`);
+      if (prev === 'in' && z.hero === 'out' && s.caught) {
+        m.caught++;
+        m.log.push(`caught ${m.caught}: ${at(s)}`);
+      }
+      if (prev !== 'passed' && z.hero === 'passed') {
+        m.passed++;
+        m.log.push(`PASSED: ${at(s)}`);
+      }
+      if (m.log.length > 60) m.log.splice(0, m.log.length - 60);
+      prev = z.hero;
+    }, 25);
+  });
   await page.evaluate(() => window.__TEST__!.stick(0, 1));
-  const meets = (): Promise<{ caught: number; passed: number }> =>
-    page.evaluate(() => {
-      const ev = window.__TEST__!.simEvents;
-      return { caught: ev.filter((e) => e.name === 'bossCaught').length, passed: ev.filter((e) => e.name === 'bossPassed').length };
-    });
-  await page.waitForFunction(() => window.__TEST__!.simEvents.filter((e) => e.name === 'bossCaught' || e.name === 'bossPassed').length >= 10, undefined, { timeout: 400_000 });
+  type Meets = { caught: number; passed: number; log: string[] };
+  const meets = (): Promise<Meets> => page.evaluate(() => (window as unknown as { __meets: Meets }).__meets);
+  await page.waitForFunction(() => {
+    const m = (window as unknown as { __meets: { caught: number; passed: number } }).__meets;
+    return m.caught + m.passed >= 10 || m.passed > 0;
+  }, undefined, { timeout: 400_000 }).catch(() => undefined);
   await page.evaluate(() => window.__TEST__!.stick(0, 0));
   const m = await meets();
-  expect(m.passed, 'forward never gets past him').toBe(0);
-  expect(m.caught).toBeGreaterThanOrEqual(10);
+  expect(m.passed, `forward never gets past him\n${m.log.join('\n')}`).toBe(0);
+  expect(m.caught, m.log.join('\n')).toBeGreaterThanOrEqual(10);
 });
 
 test('a dodge at the last moment gets past, and the hero stays on stage 3 (a crack there keeps its own start)', async ({ page, openGame }) => {

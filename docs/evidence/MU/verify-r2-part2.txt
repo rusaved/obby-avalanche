@@ -1,0 +1,279 @@
+-- verify, часть 2: e2e, не дошедшие в части 1 (32 спеки, 87 тестов), та же сборка build:e2e
+-- спеки: e2e/belt-exit.spec.ts e2e/cave-shot.spec.ts e2e/ftue.spec.ts e2e/layout.spec.ts e2e/sp-belt-camera.spec.ts e2e/sp-camera.spec.ts e2e/sp-field.spec.ts e2e/sp-fork.spec.ts e2e/sp-giant.spec.ts e2e/sp-grotto-controls.spec.ts e2e/sp-pets-hint.spec.ts e2e/sp-relief.spec.ts e2e/sp-shelter-white.spec.ts e2e/sp-speed.spec.ts e2e/sp-wave-camera.spec.ts e2e/steps.spec.ts e2e/to-mountain.spec.ts e2e/touch-autorun.spec.ts e2e/touch-belt-shot.spec.ts e2e/touch-mu-evidence.spec.ts e2e/touch-mu-fullscreen.spec.ts e2e/touch-mu-giant.spec.ts e2e/touch-mu-hud.spec.ts e2e/touch-mu-rules.spec.ts e2e/touch-mu-screens.spec.ts e2e/touch-stuck-hint.spec.ts e2e/touch.spec.ts e2e/treadmill-shot.spec.ts e2e/treadmill.spec.ts e2e/wardrobe.spec.ts e2e/windows.spec.ts e2e/wrong-way.spec.ts 
+
+Running 87 tests using 2 workers
+
+  ✓   2 [desktop] › e2e/sp-camera.spec.ts:95:1 › 10 side grottos of mountains 1–3: out of each the view is behind the hero within shotReturnSec; screenshot (2.6m)
+  ✓   3 [desktop] › e2e/sp-camera.spec.ts:127:3 › mountain 1 summit: straight up -14 off the middle — into the portal ≤ 3 s from the funnel, the camera never in the arch or the light (18.2s)
+  ✓   4 [desktop] › e2e/sp-camera.spec.ts:127:3 › mountain 1 summit: straight up 0 off the middle — into the portal ≤ 3 s from the funnel, the camera never in the arch or the light (27.1s)
+  ✓   5 [desktop] › e2e/sp-camera.spec.ts:127:3 › mountain 1 summit: straight up 14 off the middle — into the portal ≤ 3 s from the funnel, the camera never in the arch or the light (16.9s)
+  ✓   6 [desktop] › e2e/sp-camera.spec.ts:158:1 › mountain 2: on the belt of the grotto of ridge 1 the record flag is never between the camera and the hero (300 frames) (1.9m)
+mountain 1 z 620 belt: 26 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 620 avalanche: 4 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 1020 belt: 27 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 1020 avalanche: 3 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 1050 belt: 27 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 1050 avalanche: 3 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 2 z 1660 belt: 26 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 2 z 1660 avalanche: 3 frames, hidden 0, blocked 0, at him 0, inside 0
+ridge z 320 pass x 0: 8 frames, hidden 0, at him 0, inside 0
+ridge z 630 pass x 0: 8 frames, hidden 0, at him 0, inside 0
+ridge z 1030 pass x 0: 8 frames, hidden 0, at him 0, inside 0
+  ✓   7 [desktop] › e2e/sp-camera.spec.ts:215:1 › rock grottos with a belt, mountains 1–2: on the belt and in an avalanche frame the hero is seen, the camera never at him; ridge passages (1.8m)
+  ✓   8 [desktop] › e2e/sp-field.spec.ts:25:1 › a runner at an edge of the field of mountain 1 (±(width/2 − 5)) reaches a shelter on the siren 10 of 10 (3.8m)
+belt camera (head, units; NEAR 6), 17 belts:
+m1 ridgeGrotto z 310: in 8.6, off 11.2, turn 10.5, off after the turn 9.7; 3 drags left 45°, right 45°
+m1 island z 620: in 8.3, off 8.6, turn 9.0, off after the turn 11.4; 3 drags left 45°, right 45°
+m1 chestGrotto z 411: in 8.5, off 10.3, turn 9.2, off after the turn 8.8; 3 drags left 45°, right 45°
+m1 island z 1020: in 11.5, off 7.3, turn 8.8, off after the turn 11.3; 3 drags left 45°, right 45°
+m1 island z 1050: in 11.5, off 7.3, turn 8.8, off after the turn 11.4; 3 drags left 45°, right 45°
+m2 ridgeGrotto z 360: in 13.0, off 11.8, turn 10.3, off after the turn 9.7; 3 drags left 45°, right 45°
+m2 ridgeGrotto z 740: in 7.7, off 11.3, turn 12.8, off after the turn 8.7; 3 drags left 45°, right 45°
+m2 ridgeGrotto z 1160: in 7.7, off 11.1, turn 9.9, off after the turn 9.8; 3 drags left 45°, right 45°
+m2 chestGrotto z 973: in 9.2, off 10.1, turn 8.9, off after the turn 8.7; 3 drags left 45°, right 45°
+m2 ridgeGrotto z 1630: in 8.7, off 11.3, turn 12.8, off after the turn 8.7; 3 drags left 45°, right 45°
+m2 island z 1660: in 11.5, off 7.2, turn 8.6, off after the turn 11.3; 3 drags left 45°, right 45°
+m3 ridgeGrotto z 420: in 7.8, off 11.7, turn 10.6, off after the turn 9.2; 3 drags left 45°, right 45°
+m3 ridgeGrotto z 850: in 7.8, off 11.4, turn 12.8, off after the turn 8.7; 3 drags left 45°, right 45°
+m3 chestGrotto z 643: in 9.3, off 11.1, turn 9.3, off after the turn 8.8; 3 drags left 45°, right 45°
+m3 ridgeGrotto z 1330: in 7.9, off 11.3, turn 10.3, off after the turn 7.2; 3 drags left 45°, right 45°
+m3 ridgeGrotto z 1860: in 7.9, off 11.6, turn 12.8, off after the turn 6.1; 3 drags left 45°, right 45°
+m3 island z 1890: in 11.5, off 7.6, turn 8.9, off after the turn 11.2; 3 drags left 45°, right 45°
+  ✓   1 [desktop] › e2e/sp-belt-camera.spec.ts:54:1 › belts of mountains 1–3: in, off without a turn, turned round by hand and out — the camera ≥ NEAR off the head; screenshot (11.6m)
+  ✓   9 [desktop] › e2e/sp-field.spec.ts:65:1 › in the middle of the field of mountain 1 at the hero’s level the borders are out of the frame; screenshot (28.1s)
+  ✓  11 [desktop] › e2e/sp-fork.spec.ts:68:1 › dropped on the bottom of the crevasse: out up its slope within 4 s, no fall (20.0s)
+  ✓  12 [desktop] › e2e/sp-fork.spec.ts:100:1 › «Two ways: pick one»: not while running through the fork; after a 2 s stop at it (21.6s)
+  ✓  10 [desktop] › e2e/sp-fork.spec.ts:23:1 › each lane of the fork up to ridge 2, no fall; the other lane in the frame; screenshot (1.1m)
+side grotto controls:
+mountain 1 left z 94: out by «back» at -46.1; «forward» 0° off up the slope (v 0.0, 23.9; view 0°)
+mountain 1 right z 148: out by «back» at 44.0; «forward» 0° off up the slope (v 0.0, 26.6; view 0°)
+mountain 2 left z 104: out by «back» at -50.5; «forward» 0° off up the slope (v 0.0, 30.0; view 0°)
+mountain 2 right z 168: out by «back» at 47.9; «forward» 0° off up the slope (v 0.0, 32.0; view 0°)
+  ✓  14 [desktop] › e2e/sp-grotto-controls.spec.ts:24:1 › side grottos of mountains 1–2: in sideways, out by «back», then «forward» leads up the slope (52.9s)
+  ✓  15 [desktop] › e2e/sp-pets-hint.spec.ts:6:1 › the pets hint: up with the shop on screen and the coins for the egg, never before the shop, gone without the coins (22.9s)
+advice: passed
+0.85: passed passed
+0.7: caught caught
+  ✓  13 [desktop] › e2e/sp-giant.spec.ts:216:1 › mountain 1, a run of each: the advice straight passes, 0.85 behind a rock passes, 0.7 is caught; the giant in view; the hint once; cover in the events (2.0m)
+  ✓  17 [desktop] › e2e/sp-giant.spec.ts:242:1 › draw calls in the giant’s zones of mountains 1, 5, 10 ≤ 45; screenshot of the zone of mountain 1 (1.4m)
+  ✓  18 [desktop] › e2e/sp-relief.spec.ts:83:1 › the relief of mountain 8: the terrace up to its ridge and the hump of section 2; screenshot (44.8s)
+«Phew» early: front 91.3 hero 94.0
+run 1: up to z 392, falls 0
+run 2: up to z 1235, falls 0
+run 3: up to z 1356, falls 0
+run 4: up to z 1268, falls 0
+run 5: up to z 883, falls 0
+run 6: up to z 151, falls 0
+run 7: up to z 151, falls 0
+run 8: up to z 151, falls 0
+run 9: up to z 151, falls 0
+run 10: up to z 178, falls 0
+  ✓  16 [desktop] › e2e/sp-relief.spec.ts:33:1 › mountain 1: a «child» bot, 10 runs of 40 s from the camp up the terraces — not one fall (4.3m)
+  ✓  20 [desktop] › e2e/sp-shelter-white.spec.ts:129:1 › the scripted first wave: the free egg shows only once its snow has passed the hero in the grotto (29.3s)
+«Phew» early: front 92.0 hero 94.3
+  ✓  21 [desktop] › e2e/sp-speed.spec.ts:28:1 › mountain 1: the run at ridge 2 ≥ 2.2 ×, at the giant ≥ 2.6 × the start; the camera farther and wider; screenshots (40.5s)
+  ✓  22 [desktop] › e2e/sp-speed.spec.ts:74:1 › on a belt the hero does not speed up: the belt runs, not he (15.7s)
+«Phew» early: front 92.0 hero 94.2
+«Phew» early: front 308.8 hero 310.0
+first rock, back to the mouth: in his face 98% of 57 frames without shelterKeep, 13% of 39 with it
+  ✓  23 [desktop] › e2e/sp-wave-camera.spec.ts:57:1 › the first rock: back to its mouth on the siren the camera is in his face in ≤ FACE of the frames (with shelterKeep); screenshot (1.4m)
+  ✓  24 [desktop] › e2e/steps.spec.ts:4:1 › «+N» pops above the hero on the first step; gameTutorialStart exactly once (7.6s)
+to-mountain classic 5: model {"stat":601205759.2210187,"coins":1353819265,"shoe":12,"pets":[0.8,0.5,0.4]}; game stat 601205759.2210187, coins 1353819265, shoes 12, pets ["fawn","husky","arctic_fox"]
+to-mountain classic 5: gate 1 (170) open at 23.3 s of game time on the mountain
+  ✓  25 [desktop] › e2e/to-mountain.spec.ts:24:3 › classic: «to mountain 5» — its camp with the state of the model bot, gate 1 within 30 s, the summit opens the rebirth (20.2s)
+to-mountain fast 10: model {"stat":3200585666.9492044,"coins":2746408114,"shoe":13,"pets":[0.2,0.2]}; game stat 3200585666.9492044, coins 2746408114, shoes 13, pets ["bunny","bunny"]
+to-mountain fast 10: gate 1 (102) open at 7.8 s of game time on the mountain
+  ✓  26 [desktop] › e2e/to-mountain.spec.ts:24:3 › fast: «to mountain 10» — its camp with the state of the model bot, gate 1 within 30 s, the summit opens the rebirth (16.4s)
+  ✓  27 [desktop] › e2e/treadmill.spec.ts:4:1 › belt of cave 1: steps without input × treadmill, the hero is in shelter, treadmill_first once (13.8s)
+«Phew» early: front 307.3 hero 310.0
+  ✓  28 [desktop] › e2e/wardrobe.spec.ts:4:1 › wardrobe opens with the default skin on the hero; trail and aura bought for trophies go into the step and stay after F5 (38.1s)
+  ✓  29 [desktop] › e2e/wardrobe.spec.ts:78:1 › wardrobe: a skin and wings for trophies go onto the hero, locked cards show the source; F5 keeps them (36.2s)
+«Phew» early: front 308.8 hero 310.0
+  ✓  30 [desktop] › e2e/windows.spec.ts:37:1 › no window before 180 s of play; HUD buttons come by the schedule of 6.4 in game time, never earlier (30.1s)
+«Phew» early: front 408.3 hero 411.0
+  ✓  31 [desktop] › e2e/windows.spec.ts:111:1 › every window of 10.2 opens by its button, closes by the cross, Esc, the veil and «next»; the avalanche stands; screenshots (1.3m)
+  ✓  32 [desktop] › e2e/windows.spec.ts:181:1 › «Mountain N cleared!» after every portal 1–4: the next mountain on «Next», the cross, Esc and the veil; «Tomorrow in the calendar» (39.2s)
+  ✓  33 [desktop] › e2e/windows.spec.ts:218:1 › 640×360: the column is 3 icons + «More» above 72% H, «More» lists them all and opens each window (8.3s)
+  ✓  34 [desktop] › e2e/wrong-way.spec.ts:59:3 › camera without auto-turn (classic): turned down the slope, «forward» 5 s without the mouse — viewYaw stays within 2° (14.7s)
+  ✓  35 [desktop] › e2e/wrong-way.spec.ts:78:3 › wrong-way arrow (classic): shows running down, points to the next closed gate, goes on stop and on the way up (24.1s)
+«Phew» early: front 407.5 hero 411.0
+  ✓  36 [desktop] › e2e/wrong-way.spec.ts:151:3 › no wrong-way arrow (classic) on warn and run, in a cave, in the camp, in a snowball (1.1m)
+  ✓  37 [desktop] › e2e/wrong-way.spec.ts:59:3 › camera without auto-turn (fast): turned down the slope, «forward» 5 s without the mouse — viewYaw stays within 2° (16.8s)
+«Phew» early: front 409.0 hero 411.0
+  ✓  38 [desktop] › e2e/wrong-way.spec.ts:78:3 › wrong-way arrow (fast): shows running down, points to the next closed gate, goes on stop and on the way up (26.6s)
+  ✓  39 [desktop] › e2e/wrong-way.spec.ts:151:3 › no wrong-way arrow (fast) on warn and run, in a cave, in the camp, in a snowball (1.1m)
+«Phew» early: front 619.0 hero 619.5
+  ✓  40 [mobile] › e2e/ftue.spec.ts:7:1 › first minute: bot walks walls 1–3 straight, scripted wave in cave 4, belt ×7, free egg, wall 4 — GDD-01 limits (1.2m)
+  ✓  41 [mobile] › e2e/ftue.spec.ts:81:1 › scripted wave never catches outside a cave: dusted, «Hide in a cave» toast, no snowball (12.1s)
+«Phew» early: front 619.5 hero 620.5
+  ✘  42 [mobile] › e2e/layout.spec.ts:37:3 › layout › SCR-02 desktop sizes: canvas ≤ 2:1, touches the window edges, margins in sky.bottom, HUD inside (29.2s)
+  ✓  43 [mobile] › e2e/layout.spec.ts:61:3 › layout › SCR-01 phone sizes: the whole screen, HUD inside, jump button under the right column (13.0s)
+  ✓  44 [mobile] › e2e/layout.spec.ts:76:3 › layout › SCR-07 resize and rotation keep the game state (6.5s)
+  ✓  45 [mobile] › e2e/layout.spec.ts:94:3 › layout › SCR-04 right click and long tap open no context menu, no text selection (7.3s)
+  ✓  46 [mobile] › e2e/touch-autorun.spec.ts:13:3 › auto-run › auto-run moves the hero without a stick; tap jumps, swipe does not; swipe turns the run direction (10.3s)
+  ✓  47 [mobile] › e2e/touch-autorun.spec.ts:60:3 › auto-run › the auto-run setting is in the pause menu and survives F5 (12.3s)
+  ✓  48 [mobile] › e2e/touch-mu-evidence.spec.ts:45:5 › MU evidence 812 × 375 › the run: HUD with «+N» by the hero, the ridge, the finish, the level toast (20.7s)
+  ✓  49 [mobile] › e2e/touch-mu-evidence.spec.ts:95:5 › MU evidence 812 × 375 › the camp after a fall: «Ad: from stage 2 · 0:5x» in the slot (23.3s)
+«Phew» early: front 617.3 hero 620.6
+  ✓  50 [mobile] › e2e/touch-mu-evidence.spec.ts:121:5 › MU evidence 812 × 375 › the camp between mountains: portals with their plaques; the summit window (19.8s)
+  ✓  51 [mobile] › e2e/touch-mu-evidence.spec.ts:151:5 › MU evidence 812 × 375 › every window, three of them at 130 % text, the rotate screen (54.6s)
+  ✓  52 [mobile] › e2e/touch-mu-evidence.spec.ts:45:5 › MU evidence 915 × 412 › the run: HUD with «+N» by the hero, the ridge, the finish, the level toast (20.0s)
+white frames in shelters on the run of a wave:
+grotto z 94: without the flag 4 white of 58; with it 0 of 56, «Phew» after the snow true
+grotto z 94 (ran in late): without the flag 5 white of 21; with it 0 of 21, «Phew» after the snow true
+grotto z 94 (ran in late) (turned by hand): without the flag 14 white of 21; with it 0 of 21, «Phew» after the snow true
+ridgeGrotto z 310: without the flag 0 white of 116; with it 0 of 119, «Phew» after the snow true
+ridgeGrotto z 310 (ran in late): without the flag 0 white of 82; with it 0 of 81, «Phew» after the snow true
+ridgeGrotto z 310 (ran in late) (turned by hand): without the flag 13 white of 81; with it 0 of 81, «Phew» after the snow true
+chestGrotto z 411: without the flag 0 white of 143; with it 0 of 146, «Phew» after the snow true
+chestGrotto z 411 (ran in late): without the flag 0 white of 110; with it 0 of 111, «Phew» after the snow true
+chestGrotto z 411 (ran in late) (turned by hand): without the flag 16 white of 111; with it 0 of 110, «Phew» after the snow true
+island z 620: without the flag 0 white of 208; with it 0 of 210, «Phew» after the snow true
+island z 620 (ran in late): without the flag 0 white of 172; with it 0 of 166, «Phew» after the snow true
+island z 620 (ran in late) (turned by hand): without the flag 14 white of 171; with it 0 of 167, «Phew» after the snow true
+total: without 66/1294, with 0/1289
+  ✓  19 [desktop] › e2e/sp-shelter-white.spec.ts:95:1 › shelters of mountain 1: white frames on the run of a wave ≤ WHITE with shotUntilClear, more without; «Phew» after the snow; screenshots (18.3m)
+  ✓  53 [mobile] › e2e/touch-mu-evidence.spec.ts:95:5 › MU evidence 915 × 412 › the camp after a fall: «Ad: from stage 2 · 0:5x» in the slot (18.9s)
+  ✓  54 [mobile] › e2e/touch-mu-fullscreen.spec.ts:25:3 › 812 × 375, a touch screen the SDK calls a desktop: canvas, interface and the dim of a window cover the screen (12.0s)
+  ✓  56 [mobile] › e2e/touch-mu-fullscreen.spec.ts:25:3 › 915 × 412, a touch screen the SDK calls a desktop: canvas, interface and the dim of a window cover the screen (9.6s)
+  ✓  55 [mobile] › e2e/touch-mu-evidence.spec.ts:121:5 › MU evidence 915 × 412 › the camp between mountains: portals with their plaques; the summit window (19.6s)
+  ✓  57 [mobile] › e2e/touch-mu-fullscreen.spec.ts:25:3 › 780 × 330, a touch screen the SDK calls a desktop: canvas, interface and the dim of a window cover the screen (8.7s)
+  ✓  59 [mobile] › e2e/touch-mu-fullscreen.spec.ts:44:1 › 375 × 812 upright on the producer's link: «Turn your phone» covers the whole screen, no bars (9.1s)
+  ✓  60 [mobile] › e2e/touch-mu-giant.spec.ts:9:1 › the giant of mountain 1: forward is caught at the first and the second meeting (23.4s)
+  ✓  58 [mobile] › e2e/touch-mu-evidence.spec.ts:151:5 › MU evidence 915 × 412 › every window, three of them at 130 % text, the rotate screen (52.9s)
+  ✓  62 [mobile] › e2e/touch-mu-giant.spec.ts:58:1 › a dodge at the last moment gets past, and the hero stays on stage 3 (a crack there keeps its own start) (25.7s)
+  ✓  63 [mobile] › e2e/touch-mu-giant.spec.ts:117:1 › phone: a fall on stage 4 rolls to stage 3 and the slot offers «Continue from stage 4» (13.1s)
+  ✓  64 [mobile] › e2e/touch-mu-hud.spec.ts:24:3 › MU phone HUD › MU-01 marks: a coin and a cup by the balances, no font symbols or emoji on the HUD and in the windows (10.7s)
+  ✓  65 [mobile] › e2e/touch-mu-hud.spec.ts:45:3 › MU phone HUD › MU-02 layout of l1-run-hud-a: places ±5 %, gaps ≥ 8 px, the column ends ≥ 24 px over the stick ring (9.3s)
+  ✓  66 [mobile] › e2e/touch-mu-rules.spec.ts:30:3 › MU-10 rules of docs/07 on the phone › the HUD of a run and every window: tap zones, text sizes, contrast, overlaps, the bottom band, one window (12.3s)
+  ✘  67 [mobile] › e2e/touch-mu-rules.spec.ts:59:3 › MU-10 rules of docs/07 on the phone › 130 % text: nothing on the HUD is cut, the windows stay ≤ 300 px and scroll (15.2s)
+  ✓  68 [mobile] › e2e/touch-mu-screens.spec.ts:78:3 › MU phone screens › MU-03 gate: the dark sign in the world and one plaque «N more levels to the gate» in the slot, nothing else (11.6s)
+TOASTS 1 [ '+150 ' ]
+  ✓  69 [mobile] › e2e/touch-mu-screens.spec.ts:100:3 › MU phone screens › MU-04 finish: the light plaque before the pad, one «+N» with the coin on it, the counter gets the coins (13.7s)
+  ✓  70 [mobile] › e2e/touch-mu-screens.spec.ts:135:3 › MU phone screens › MU-05 toast: «LEVEL UP!» in the slot 1.2 s over «Level N», not on the hero, the hint hides and comes back, «+N» one at a time (11.9s)
+  ✓  71 [mobile] › e2e/touch-mu-screens.spec.ts:188:3 › MU phone screens › round of fixes 3 (staff 19.10): over a run from the camp past bots, a pad and a ridge no world label comes within 8 px of the HUD (22.1s)
+  ✓  72 [mobile] › e2e/touch-mu-screens.spec.ts:203:3 › MU phone screens › round of fixes 4 (staff 19.10): «+N» with the coin, «LEVEL UP!» at 130 % text and the giant's words stand in the slot, 8 px under the stage strip (14.0s)
+  ✓  73 [mobile] › e2e/touch-mu-screens.spec.ts:247:5 › MU phone screens › round of fixes 5 (staff 19.10) at 812 × 375: «Gifts» whole, «Shop → Steps» and «Wardrobe» show their first row whole and the next one peeking, tabs stay over the list (12.7s)
+  ✓  74 [mobile] › e2e/touch-mu-screens.spec.ts:247:5 › MU phone screens › round of fixes 5 (staff 19.10) at 915 × 412: «Gifts» whole, «Shop → Steps» and «Wardrobe» show their first row whole and the next one peeking, tabs stay over the list (11.8s)
+  ✓  75 [mobile] › e2e/touch-mu-screens.spec.ts:306:3 › MU phone screens › round of fixes 6 (staff 19.10): sneakers drawn, «+N per step», buttons of a row on one line, both balances in the shop head; «Take» of the calendar no wider than «Continue» (11.8s)
+  ✓  76 [mobile] › e2e/touch-mu-screens.spec.ts:347:3 › MU phone screens › round of fixes 7 (staff 19.10): every window — numbers «5 300», a title alone on the line of the cross, 8 px from a mark to its words, body text not bold, a lock on one line inside its card, tiers counted from 1, tabs at the top of the list (21.3s)
+  ✓  77 [mobile] › e2e/touch-mu-screens.spec.ts:410:3 › MU phone screens › MU-06 camp: «Camp · mountain 1», no shoes button, no ads or group buttons on the scene, bot names 11 px (10.8s)
+  ✓  78 [mobile] › e2e/touch-mu-screens.spec.ts:422:3 › MU phone screens › MU-07, MU-08, MU-13: windows of one style — width, ≤ 300 px, the HUD hidden, one at a time, cross 44, Esc and the veil close, swipes scroll (31.9s)
+  ✓  79 [mobile] › e2e/touch-mu-screens.spec.ts:470:3 › MU phone screens › MU-07 w5-summit: no cross, rows «chest · cup · next · tomorrow», the quiet «Ad: ×2» by the chest, the blue «Next» (11.1s)
+  ✓  80 [mobile] › e2e/touch-mu-screens.spec.ts:499:3 › MU phone screens › MU-12: a set of steps bought in the «Steps» tab of the shop is chosen in the «Footsteps» window; no second purchase (9.9s)
+  ✓  81 [mobile] › e2e/touch-mu-screens.spec.ts:520:3 › MU phone screens › MU-09, MU-13 (4): an upright touch screen gets «Turn your phone», the game stands; turned back — gone without a reload (9.5s)
+stuck hint at the closed ridge on the phone: {"sec":3.6000000000000014,"arrow":3.0606140547212934,"arrows":true,"speed":4.7236670560205996}
+  ✓  82 [mobile] › e2e/touch-stuck-hint.spec.ts:23:1 › phone, a closed ridge of mountain 1: pushing the stick along it, the hint with an arrow to the belt within LIMIT s; screenshot (24.1s)
+  ✓  83 [mobile] › e2e/touch.spec.ts:20:3 › touch › SCR-06 stick, camera swipe and jump button work at the same time (three touches); zones ≥ 44 px (9.2s)
+  ✓  84 [mobile] › e2e/touch.spec.ts:50:3 › touch › a touch on a HUD button never starts the stick (6.3s)
+  ✓  85 [mobile] › e2e/touch.spec.ts:65:3 › touch › InputState resets on pointercancel and on a mock ad: stick held + ad → hero speed 0 afterwards (10.7s)
+  ✓  86 [mobile] › e2e/touch.spec.ts:92:3 › touch › blur resets held keys and the stick (7.4s)
+  ✓  87 [mobile] › e2e/touch.spec.ts:112:3 › touch › stick held: a second finger presses the shoes and the shop buttons at once (9.5s)
+  ✘  61 [mobile] › e2e/touch-mu-giant.spec.ts:40:1 › from a clean save on mountain 1: holding forward is caught at 10 meetings in a row (6.9m)
+
+
+  1) [mobile] › e2e/layout.spec.ts:37:3 › layout › SCR-02 desktop sizes: canvas ≤ 2:1, touches the window edges, margins in sky.bottom, HUD inside 
+
+    Error: 2560x1080
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 2161
+    Received:    2560
+
+      40 |       await openGame('mock_device=desktop');
+      41 |       const field = (await testState(page)).field;
+    > 42 |       expect(Math.max(field.width, field.height), `${w}x${h}`).toBeLessThanOrEqual(2 * Math.min(field.width, field.height) + 1);
+         |                                                                ^
+      43 |       expect(field.width === w || field.height === h, `${w}x${h} touches an edge`).toBe(true);
+      44 |       const rect = await page.evaluate(() => {
+      45 |         const r = document.getElementById('game')!.getBoundingClientRect();
+        at /home/user/obby-avalanche/e2e/layout.spec.ts:42:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/layout-layout-SCR-02-deskt-4a3be-ns-in-sky-bottom-HUD-inside-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/layout-layout-SCR-02-deskt-4a3be-ns-in-sky-bottom-HUD-inside-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/layout-layout-SCR-02-deskt-4a3be-ns-in-sky-bottom-HUD-inside-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/layout-layout-SCR-02-deskt-4a3be-ns-in-sky-bottom-HUD-inside-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [mobile] › e2e/touch-mu-giant.spec.ts:40:1 › from a clean save on mountain 1: holding forward is caught at 10 meetings in a row 
+
+    TimeoutError: page.waitForFunction: Timeout 400000ms exceeded.
+
+      49 |       return { caught: ev.filter((e) => e.name === 'bossCaught').length, passed: ev.filter((e) => e.name === 'bossPassed').length };
+      50 |     });
+    > 51 |   await page.waitForFunction(() => window.__TEST__!.simEvents.filter((e) => e.name === 'bossCaught' || e.name === 'bossPassed').length >= 10, undefined, { timeout: 400_000 });
+         |              ^
+      52 |   await page.evaluate(() => window.__TEST__!.stick(0, 0));
+      53 |   const m = await meets();
+      54 |   expect(m.passed, 'forward never gets past him').toBe(0);
+        at /home/user/obby-avalanche/e2e/touch-mu-giant.spec.ts:51:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/touch-mu-giant-from-a-clea-b45a7-ght-at-10-meetings-in-a-row-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/touch-mu-giant-from-a-clea-b45a7-ght-at-10-meetings-in-a-row-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/touch-mu-giant-from-a-clea-b45a7-ght-at-10-meetings-in-a-row-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/touch-mu-giant-from-a-clea-b45a7-ght-at-10-meetings-in-a-row-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [mobile] › e2e/touch-mu-rules.spec.ts:59:3 › MU-10 rules of docs/07 on the phone › 130 % text: nothing on the HUD is cut, the windows stay ≤ 300 px and scroll 
+
+    Error: daily
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "out of its box card-name: Скин «Пингвин»",
+    + ]
+
+      79 |       const panel = (await page.locator('[data-role="window"].open .win-panel').boundingBox())!;
+      80 |       expect(panel.height, id).toBeLessThanOrEqual(300.5);
+    > 81 |       expect(await cutText(page), id).toEqual([]);
+         |                                       ^
+      82 |       const body = page.locator('[data-role="window"].open .win-body');
+      83 |       const s = await body.evaluate((b) => ({ sh: b.scrollHeight, ch: b.clientHeight, oy: getComputedStyle(b).overflowY }));
+      84 |       if (s.sh > s.ch + 2) expect(s.oy, `${id}: the middle scrolls`).toBe('auto');
+        at /home/user/obby-avalanche/e2e/touch-mu-rules.spec.ts:81:39
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/touch-mu-rules-MU-10-rules-94d0c-ws-stay-≤-300-px-and-scroll-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/touch-mu-rules-MU-10-rules-94d0c-ws-stay-≤-300-px-and-scroll-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/touch-mu-rules-MU-10-rules-94d0c-ws-stay-≤-300-px-and-scroll-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/touch-mu-rules-MU-10-rules-94d0c-ws-stay-≤-300-px-and-scroll-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: [desktop] › e2e/sp-belt-camera.spec.ts (11.6m)
+  Slow test file: [desktop] › e2e/sp-camera.spec.ts (7.4m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  3 failed
+    [mobile] › e2e/layout.spec.ts:37:3 › layout › SCR-02 desktop sizes: canvas ≤ 2:1, touches the window edges, margins in sky.bottom, HUD inside 
+    [mobile] › e2e/touch-mu-giant.spec.ts:40:1 › from a clean save on mountain 1: holding forward is caught at 10 meetings in a row 
+    [mobile] › e2e/touch-mu-rules.spec.ts:59:3 › MU-10 rules of docs/07 on the phone › 130 % text: nothing on the HUD is cut, the windows stay ≤ 300 px and scroll 
+  84 passed (43.0m)
+EXIT=1
