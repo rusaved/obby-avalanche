@@ -2146,8 +2146,8 @@ async function boot(): Promise<void> {
   input.touchActive = mobile;
   input.attach(canvas, ui);
 
-  // Field (docs/02-tech.md 6.4): the canvas and the HUD share one rectangle; margins show sky.bottom. A touch screen —
-  // the whole window whatever the SDK says (the producer's link runs the mock, a desktop by default).
+  // Field (docs/02-tech.md 6.4): the canvas and the HUD share one rectangle; margins show sky.bottom. A phone-sized touch
+  // screen — the whole window whatever the SDK says (the producer's link runs the mock, a desktop by default).
   const coarsePointer = window.matchMedia('(pointer: coarse)');
   const fit = (): void => {
     const w = window.innerWidth;

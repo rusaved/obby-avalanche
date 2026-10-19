@@ -1,4 +1,4 @@
-// What: fitField() computes the canvas rectangle inside the window: desktop is capped at 2:1 with centred margins, phone/tablet/tv and any touch screen use the whole window.
+// What: fitField() computes the canvas rectangle inside the window: desktop is capped at 2:1 with centred margins, phone/tablet/tv and a phone-sized touch screen use the whole window.
 // Called by: main.ts, app/handles.ts, app/fun-view.ts; tests/ui/fit.test.ts.
 // Keep: Pure function without DOM; the 2:1 cap and margin rule are fixed by docs/02-tech.md 6.4 and SCR-02; input mapping and HUD layout rely on the returned rect.
 
@@ -6,7 +6,8 @@
  * fitField (docs/02-tech.md 6.4, docs/03 SCR-02): the canvas rectangle inside the window.
  * Desktop: touches the window on at least one axis and never stretches past 2:1; the rest is margin in
  * sky.bottom colour. Phone and tablet: the whole window. MU round of fixes (staff 19.10: the producer's link reports a
- * desktop on a phone and the game sat in 2:1 with bars): a touch screen (`touch`, coarse pointer) — the whole window too.
+ * desktop on a phone and the game sat in 2:1 with bars): a touch screen (`touch`, coarse pointer) of a phone's size — the
+ * whole window too; a touch tablet or laptop the SDK calls a desktop keeps the desktop rule (SCR-02).
  */
 export interface FieldRect {
   width: number;
@@ -15,10 +16,13 @@ export interface FieldRect {
   top: number;
 }
 
+/** The short side of a phone in CSS px, either way up (phones give 320–480; tablets and laptops from 600). */
+const PHONE_SHORT_MAX = 500;
+
 export function fitField(w: number, h: number, device: 'desktop' | 'mobile' | 'tablet' | 'tv', touch = false): FieldRect {
   w = Math.max(1, Math.floor(w));
   h = Math.max(1, Math.floor(h));
-  if (device !== 'desktop' || touch) return { width: w, height: h, left: 0, top: 0 };
+  if (device !== 'desktop' || (touch && Math.min(w, h) <= PHONE_SHORT_MAX)) return { width: w, height: h, left: 0, top: 0 };
   let width = w;
   let height = h;
   if (w > 2 * h) width = 2 * h;

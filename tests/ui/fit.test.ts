@@ -14,6 +14,10 @@ describe('fitField (docs/02-tech.md 6.4)', () => {
   it('a touch screen the SDK calls a desktop (the mock of the producer\'s link): the whole window at any ratio', () => {
     for (const [w, h] of [[812, 375], [915, 412], [780, 330], [375, 812]]) expect(fitField(w!, h!, 'desktop', true)).toEqual({ width: w, height: h, left: 0, top: 0 });
   });
+  it('a touch tablet or laptop the SDK calls a desktop keeps the 2:1 rule of SCR-02', () => {
+    expect(fitField(2560, 1080, 'desktop', true)).toEqual({ width: 2160, height: 1080, left: 200, top: 0 });
+    expect(fitField(600, 1300, 'desktop', true)).toEqual({ width: 600, height: 1200, left: 0, top: 50 });
+  });
   it('long side never exceeds twice the short side and the field touches an edge', () => {
     for (const [w, h] of [[1280, 1024], [3840, 2160], [1536, 864], [5000, 1000], [300, 3000]]) {
       const f = fitField(w!, h!, 'desktop');
