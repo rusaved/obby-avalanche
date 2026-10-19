@@ -11,7 +11,8 @@
   },
   "caught": {
     "to": "prevStage",
-    "giant": "stage"
+    "giant": "stage",
+    "pastGiant": "own"
   },
   "ui": {
     "summitGroup": {

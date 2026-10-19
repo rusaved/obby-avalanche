@@ -2497,8 +2497,7 @@
               "turnSec": 0.5,
               "slipPast": false,
               "side": 0.95,
-              "lag": 0.4,
-              "slipMargin": 0.75
+              "lag": 0.4
             }
           ],
           "width": 100,
@@ -5216,8 +5215,7 @@
               "turnSec": 0.5,
               "slipPast": false,
               "side": 0.9,
-              "lag": 0.3,
-              "slipMargin": 0.6
+              "lag": 0.3
             }
           ],
           "width": 100,
@@ -8268,8 +8266,7 @@
               "turnSec": 0.5,
               "slipPast": false,
               "side": 0.9,
-              "lag": 0.25,
-              "slipMargin": 1.3
+              "lag": 0.25
             }
           ],
           "width": 100,
@@ -11409,8 +11406,7 @@
               "turnSec": 0.5,
               "slipPast": false,
               "side": 0.9,
-              "lag": 0.25,
-              "slipMargin": 1.3
+              "lag": 0.25
             }
           ],
           "width": 100,
@@ -14898,8 +14894,7 @@
               "turnSec": 0.5,
               "slipPast": false,
               "side": 0.9,
-              "lag": 0.25,
-              "slipMargin": 1.3
+              "lag": 0.25
             }
           ],
           "width": 100,
@@ -18402,8 +18397,7 @@
               "turnSec": 0.5,
               "slipPast": false,
               "side": 0.9,
-              "lag": 0.25,
-              "slipMargin": 1.3
+              "lag": 0.25
             }
           ],
           "width": 100,
@@ -22253,8 +22247,7 @@
               "turnSec": 0.5,
               "slipPast": false,
               "side": 0.9,
-              "lag": 0.25,
-              "slipMargin": 1.3
+              "lag": 0.25
             }
           ],
           "width": 100,
@@ -26233,8 +26226,7 @@
               "turnSec": 0.5,
               "slipPast": false,
               "side": 0.9,
-              "lag": 0.25,
-              "slipMargin": 1.3
+              "lag": 0.25
             }
           ],
           "width": 100,
@@ -30481,8 +30473,7 @@
               "turnSec": 0.5,
               "slipPast": false,
               "side": 0.9,
-              "lag": 0.25,
-              "slipMargin": 1.3
+              "lag": 0.25
             }
           ],
           "width": 100,
@@ -35103,8 +35094,7 @@
               "turnSec": 0.5,
               "slipPast": false,
               "side": 0.9,
-              "lag": 0.25,
-              "slipMargin": 1.3
+              "lag": 0.25
             }
           ],
           "width": 100,

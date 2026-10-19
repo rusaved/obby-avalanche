@@ -305,7 +305,10 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       // A false exit of the maze rolls back to its own way in (LV-12 review: back over the whole stage before it the
       // maze was a lottery with a long walk); any other fall at the farthest stage — to the stage before (22.9).
       const n = stageAt(level, hero.pos.z);
-      const back = n >= stageFar && level.stages?.find((x) => x.n === n)?.type !== 'maze';
+      // MU (Q-MU-12, staff check 19.10: past the giant, the first crack of the next stage rolled him back before the
+      // giant again): `pastGiant` «own» — the stage after a giant he passed in this attempt keeps its own start.
+      const pastGiant = opts.balance.caught?.pastGiant === 'own' && level.stages?.find((x) => x.n === n - 1)?.type === 'giant' && (sim.boss?.zones.some((zs) => zs.hero === 'passed' && stageAt(level, zs.zone[0]) === n - 1) ?? false);
+      const back = n >= stageFar && level.stages?.find((x) => x.n === n)?.type !== 'maze' && !pastGiant;
       stageFar = Math.max(stageFar, n);
       sim.rollFrom = n;
       return stageStart(back ? n - 1 : n);

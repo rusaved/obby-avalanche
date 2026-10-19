@@ -221,14 +221,15 @@ function runGiant(w: World, st: WorldStage, seed: number, below: number, dodge: 
 describe('the giant is a trial of every run (SD-12, MU-11)', () => {
   // MU-11 (docs/briefs/mu-mobile-ui.md, Q-MU-5 «A»; docs/01-gdd.md 23.9): the first, second, middle and last mountain hold
   // the corridors — forward at the stage's level N is caught; a step aside without upgrades gets past 3–5 of 10 on
-  // mountain 1 and 1–2 of 10 further up; two levels above (Speed, what the shoes buy) 6–8 of 10; a straight run slips
-  // past from four levels above, never at three; two levels below he is quicker and catches up (a dodge at most 3 of 10).
+  // mountain 1 and 1–2 of 10 further up; two levels above (Speed, what the shoes buy) 6–8 of 10; two levels below he is
+  // quicker and catches up (a dodge at most 3 of 10). MU round of fixes (staff 19.10): forward is caught at any level —
+  // four and eight above too (mountain 1 levels are cheap: from a clean save the second meeting was at N+4 and slipped).
   for (const mi of [0, 1, 4, 9]) {
     const w = worlds.worlds[mi]!;
     const st = w.stages!.find((s) => s.type === 'giant')!;
     // Mountain 10 (v 117 on the same field): the closest found is 4 of 10 at N (lag, side, reach tried — MU-11 report).
     const [lo, hi] = mi === 0 ? [3, 5] : mi === 9 ? [1, 4] : [1, 2];
-    it(`mountain ${mi + 1}: forward at N caught 9+ of 10; a step aside at N ${lo}–${hi} of 10, two levels above 6–8; forward 3 above caught 9+, 4 above slips 7+; a dodge 2 below at most 3`, () => {
+    it(`mountain ${mi + 1}: forward at N caught 9+ of 10; a step aside at N ${lo}–${hi} of 10, two levels above 6–8; forward 4 and 8 above caught 9+; a dodge 2 below at most 3`, () => {
       const level = buildLevel(w);
       const pass = (below: number, dodge: boolean, aside = false): number => Array.from({ length: TRIES }, (_, i) => runGiant(w, st, 7000 + i, below, dodge, level, aside)).filter((x) => x === 'pass').length;
       expect.soft(TRIES - pass(0, false), 'forward at N: caught').toBeGreaterThanOrEqual(9);
@@ -238,8 +239,8 @@ describe('the giant is a trial of every run (SD-12, MU-11)', () => {
       const up = pass(-2, true, true);
       expect.soft(up, 'a step aside two levels above').toBeGreaterThanOrEqual(6);
       expect.soft(up, 'a step aside two levels above').toBeLessThanOrEqual(8);
-      expect.soft(TRIES - pass(-3, false), 'forward three levels above: caught').toBeGreaterThanOrEqual(9);
-      expect.soft(pass(-4, false), 'forward four levels above: slips past').toBeGreaterThanOrEqual(7);
+      expect.soft(TRIES - pass(-4, false), 'forward four levels above: caught').toBeGreaterThanOrEqual(9);
+      expect.soft(TRIES - pass(-8, false), 'forward eight levels above: caught').toBeGreaterThanOrEqual(9);
       expect.soft(pass(2, true), 'a dodge two levels below').toBeLessThanOrEqual(3);
     }, 600_000);
   }
@@ -336,5 +337,23 @@ describe('the ridge sign and the roll-back of the stages (LV-02, LV-08)', () => 
     for (let k = 0; k < 5; k++) sim.step(still, DT);
     fallAt(next.start + 4);
     expect(near(st.n), 'past the farthest stage: one back from it').toBeLessThanOrEqual(3);
+  });
+  it('past the giant (Q-MU-12, staff 19.10): a fall into the first crack of the stage after him keeps that stage, never back before him', () => {
+    const w = worlds.worlds[0]!;
+    const level = buildLevel(w);
+    const g = w.stages!.find((s) => s.type === 'giant')!;
+    const next = w.stages!.find((s) => s.n === g.n + 1)!;
+    const sim = createSim(level, tuning, { balance, speedCurve: balance.speedCurve, stat: levelThreshold(next.level, balance.levels!), ...(game.threat.boss ? { boss: game.threat.boss } : {}) });
+    sim.teleport(0, g.y + 0.05, g.start + 2);
+    sim.step(NO_MOVE, DT);
+    sim.teleport(0, g.y + 0.05, g.end + 3);
+    for (let k = 0; k < 10; k++) sim.step(NO_MOVE, DT);
+    expect(sim.boss!.zones[0]!.hero).toBe('passed');
+    // Straight on, no jump: into the first crack of the next stage.
+    for (let k = 0; k < 1200 && !sim.caught; k++) sim.step({ moveX: 0, moveZ: 1, jump: false, jumpHeld: false }, DT);
+    expect(sim.caught, 'fell into the crack').not.toBeNull();
+    for (let k = 0; k < 600 && sim.caught; k++) sim.step(NO_MOVE, DT);
+    expect(stageAt(level, sim.hero.pos.z), 'kept the stage after the giant').toBe(next.n);
+    expect(Math.hypot(sim.hero.pos.x - sim.stageStart(next.n).x, sim.hero.pos.z - sim.stageStart(next.n).z)).toBeLessThanOrEqual(3);
   });
 });

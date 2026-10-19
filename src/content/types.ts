@@ -190,8 +190,9 @@ export interface BalanceJson {
   boost: { x2Sec: number; x2Mult: number; statNowSec: number };
   /** `to` (RL-02, docs/01-gdd.md 21.2): «flag» — a fall, «Snowed in!» and the giant roll the hero to the flag of the ridge
    * below; absent or «caveBelow» — to the cave below (4.5). SD-15 (review: every slap of the giant sent the hero back to
-   * the camp): `giant` «stage» — his slap rolls to the start of his own stage; absent — as `to`. */
-  caught: { rollSec: number; maxSec: number; to?: 'flag' | 'caveBelow' | 'prevStage'; giant?: 'stage' };
+   * the camp): `giant` «stage» — his slap rolls to the start of his own stage; absent — as `to`. MU (Q-MU-12): `pastGiant`
+   * «own» — a fall on the stage right after a giant passed in this attempt rolls to that stage's start, not back to him. */
+  caught: { rollSec: number; maxSec: number; to?: 'flag' | 'caveBelow' | 'prevStage'; giant?: 'stage'; pastGiant?: 'own' };
   /** Levels of the stat (docs/01-gdd.md 22.2, pace stages): level 2 from `first`, each next ×`growth`; absent — no levels. */
   levels?: { first: number; growth: number };
   /** The wallet of shoes, eggs and coin rewards (docs/01-gdd.md 22.8): `trophies` on the stages pace; absent — coins. */
