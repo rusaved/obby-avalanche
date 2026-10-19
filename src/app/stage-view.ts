@@ -14,6 +14,9 @@ import { t } from '../ui/i18n.ts';
 /** The label shows over a button this close ahead or behind (units) and floats this high over it. */
 const LABEL_NEAR = 140;
 const LABEL_ABOVE = 3;
+/** Half the width of a trophy button (level data: a 6-unit block); the phone label's bottom this high over it (l3). */
+const PAD_HALF = 3;
+const MU_LABEL_ABOVE = 0.5;
 
 export interface StageViewDeps {
   getSim(): Sim;
@@ -86,7 +89,9 @@ export function createStageView(d: StageViewDeps): StageView {
         if (best < 0 || Math.abs(st.pad.z - h.z) < Math.abs(stages[best]!.pad.z - h.z)) best = k;
       }
       const st = best >= 0 ? stages[best]! : null;
-      const at = st ? project(st.pad.x, st.pad.y + LABEL_ABOVE, st.pad.z) : null;
+      // Round of fixes MU (l3-stage-finish): the phone label stands right of the pad and over it — its right top corner
+      // (the camera looks up +Z: −X is the right of the screen).
+      const at = st ? project(st.pad.x - (d.mu ? PAD_HALF : 0), st.pad.y + (d.mu ? MU_LABEL_ABOVE : LABEL_ABOVE), st.pad.z) : null;
       // In the camp — the teleport pad (docs/01-gdd.md 22.12) instead of a trophy button.
       const tp = d.campTeleport?.();
       const tpAt = !st && tp && h.z < tp.z + LABEL_NEAR / 4 ? project(tp.x, tp.y + LABEL_ABOVE, tp.z) : null;

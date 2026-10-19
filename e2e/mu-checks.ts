@@ -165,3 +165,47 @@ export async function cutText(page: Page): Promise<string[]> {
     return out;
   });
 }
+
+/**
+ * Round of fixes MU (docs/07-mobile-ui.md, rule 19; staff 19.10): the world labels drawn now — bot names, «Stage reward»
+ * over a pad, the ridge signs (their world box projected) — that come within `gap` px of a HUD box. Empty — all clear.
+ */
+export async function labelsOverHud(page: Page, gap = 8): Promise<string[]> {
+  const hud = await hudBoxes(page);
+  const labels = await page.evaluate(() => {
+    const out: Array<{ id: string; x: number; y: number; w: number; h: number }> = [];
+    const ui = document.getElementById('ui')!.getBoundingClientRect();
+    for (const el of Array.from(document.querySelectorAll<HTMLElement>('[data-role="bot-label"], [data-role="pad-label"].shown'))) {
+      const s = getComputedStyle(el);
+      if (s.visibility === 'hidden' || Number(s.opacity) < 0.05 || s.display === 'none') continue;
+      const r = el.getBoundingClientRect();
+      if (r.width > 0) out.push({ id: `${el.dataset['role']} «${el.textContent}»`, x: r.left, y: r.top, w: r.width, h: r.height });
+    }
+    const t = window.__TEST__!;
+    t.state().gatesOpen.forEach((_, i) => {
+      const b = t.signBox(i);
+      if (b.hidden) return;
+      let x0 = Infinity;
+      let y0 = Infinity;
+      let x1 = -Infinity;
+      let y1 = -Infinity;
+      for (let k = 0; k < 8; k++) {
+        const p = t.project(b.center[0] + ((k & 1 ? 1 : -1) * b.size[0]) / 2, b.center[1] + ((k & 2 ? 1 : -1) * b.size[1]) / 2, b.center[2] + ((k & 4 ? 1 : -1) * b.size[2]) / 2);
+        if (!p.ahead) return;
+        x0 = Math.min(x0, p.x);
+        y0 = Math.min(y0, p.y);
+        x1 = Math.max(x1, p.x);
+        y1 = Math.max(y1, p.y);
+      }
+      // Off the screen altogether — not drawn where anyone sees it.
+      if (x1 < 0 || y1 < 0 || x0 > ui.width || y0 > ui.height) return;
+      out.push({ id: `sign ${i}`, x: x0 + ui.left, y: y0 + ui.top, w: x1 - x0, h: y1 - y0 });
+    });
+    return out;
+  });
+  const bad: string[] = [];
+  for (const l of labels)
+    for (const b of hud)
+      if (l.x < b.x + b.w + gap && b.x < l.x + l.w + gap && l.y < b.y + b.h + gap && b.y < l.y + l.h + gap) bad.push(`${l.id} at (${Math.round(l.x)}, ${Math.round(l.y)}) by ${b.id}`);
+  return bad;
+}

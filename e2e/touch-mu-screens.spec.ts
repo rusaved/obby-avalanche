@@ -1,5 +1,5 @@
 import { test, expect, testState } from './fixtures.ts';
-import { forbiddenSymbols, hudBoxes, MU_VIEW, VISIBLE_H } from './mu-checks.ts';
+import { forbiddenSymbols, hudBoxes, labelsOverHud, MU_VIEW, VISIBLE_H } from './mu-checks.ts';
 import { STAGES, threshold } from './lv-stage-data.ts';
 import stagesWorlds from '../content/avalanche/pace/stages/worlds.json' with { type: 'json' };
 import type { Page } from '@playwright/test';
@@ -79,7 +79,8 @@ test.describe('MU phone screens', () => {
     await openGame('pace=stages');
     const st = STAGES[0]!.stages[3]!;
     const need = st.level;
-    await prepare(page, `window.__TEST__.setStat(${threshold(Math.max(1, need - 3))}); window.__TEST__.teleport(${st.z0 - 20});`);
+    // Round of fixes 3: by the ridge, as l2 — the sign on its post right of the hero (further off it hides under the HUD).
+    await prepare(page, `window.__TEST__.setStat(${threshold(Math.max(1, need - 3))}); window.__TEST__.teleport(${st.z0 - 5});`);
     await page.waitForTimeout(500);
     await expect(page.locator('[data-role="need"]')).toHaveText(/Ещё 3 уровня до рубежа/);
     await expect.poll(() => slotShown(page)).toEqual(['need']);
@@ -91,6 +92,8 @@ test.describe('MU phone screens', () => {
       return st.gatesOpen.map((_, i) => ({ i, box: t.signBox(i) })).filter((x) => Math.abs(x.box.center[2] - (st.hero?.z ?? 0)) > 80 && !x.box.hidden).length;
     });
     expect(far).toBe(0);
+    expect((await page.evaluate((i) => window.__TEST__!.signBox(i), st.n - 2)).hidden, 'the ridge sign by the hero is drawn').toBe(false);
+    expect(await labelsOverHud(page), 'world labels 8 px off the HUD').toEqual([]);
     await page.screenshot({ path: 'docs/evidence/MU/l2-gate.png' });
   });
 
@@ -101,6 +104,7 @@ test.describe('MU phone screens', () => {
     await expect(page.locator('[data-role="pad-label"].shown')).toBeVisible();
     await expect(page.locator('[data-role="pad-label"]')).toContainText(/Награда этапа/);
     await expect(page.locator('[data-role="pad-label"] .hud-pad-sub')).toHaveText(/можно бежать мимо/);
+    expect(await labelsOverHud(page), 'world labels 8 px off the HUD').toEqual([]);
     await page.screenshot({ path: 'docs/evidence/MU/l3-stage-finish-before.png' });
     const before = (await testState(page)).coins;
     let toasts = 0;
@@ -181,6 +185,21 @@ test.describe('MU phone screens', () => {
     expect(most).toBeLessThanOrEqual(1);
   });
 
+  test('round of fixes 3 (staff 19.10): over a run from the camp past bots, a pad and a ridge no world label comes within 8 px of the HUD', async ({ page, openGame }) => {
+    await openGame('pace=stages');
+    await prepare(page, `window.__TEST__.setStat(${threshold(30)});`);
+    await page.waitForTimeout(1500);
+    // The bots stand up the slope — on the phone camera that is the top band of the HUD, their names hide there.
+    const bad = new Set<string>();
+    await page.evaluate(() => window.__TEST__!.stick(0, 1));
+    for (let i = 0; i < 40; i++) {
+      for (const b of await labelsOverHud(page)) bad.add(b);
+      await page.waitForTimeout(250);
+    }
+    await page.evaluate(() => window.__TEST__!.stick(0, 0));
+    expect([...bad]).toEqual([]);
+  });
+
   test('MU-06 camp: «Camp · mountain 1», no shoes button, no ads or group buttons on the scene, bot names 11 px', async ({ page, openGame }) => {
     await openGame('pace=stages');
     await prepare(page, `window.__TEST__.setStat(${threshold(30)});`);
@@ -189,6 +208,7 @@ test.describe('MU phone screens', () => {
     await expect(page.locator('.base-gifts .community-gift:visible')).toHaveCount(0);
     await expect(page.locator('[data-hud^="ad-stat_now"]:visible')).toHaveCount(0);
     expect(await page.evaluate(() => getComputedStyle(document.querySelector('.bot-labels')!).fontSize)).toBe('11px');
+    expect(await labelsOverHud(page), 'world labels 8 px off the HUD').toEqual([]);
     await page.screenshot({ path: 'docs/evidence/MU/l5-camp.png' });
   });
 

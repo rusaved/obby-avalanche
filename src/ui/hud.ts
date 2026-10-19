@@ -151,6 +151,10 @@ export interface Hud {
   setWaveBanner(text: string | null): void;
   /** The banner box in field px while it shows, null otherwise (gate signs under it hide, docs/01-gdd.md 16.7). */
   waveBannerRect(): { x0: number; y0: number; x1: number; y1: number } | null;
+  /** Round of fixes MU (docs/07-mobile-ui.md, rule 19; staff 19.10: names, «Stage reward» and the ridge sign showed
+   * through the tiles, the strip and the slot): is a world label's box (field px) at least 8 px off every block of the
+   * phone HUD shown now. Always true off the phone layout. */
+  clearOfHud(r: { x0: number; y0: number; x1: number; y1: number }): boolean;
   /** «Wrong way» arrow by the hero (docs/01-gdd.md 16.7): centre in field px and the screen angle; null hides it. */
   setWayArrow(arrow: { x: number; y: number; angle: number } | null): void;
   /** Frost frame at the screen edges: 0 off, warn ≈ 0.4, front near 1 (docs/01-gdd.md 4.8). */
@@ -235,6 +239,12 @@ const SHORT_GAP = 6;
 const MENU_EDGE = 8;
 const MENU_BOTTOM = 0.72;
 
+/** Round of fixes MU (docs/07-mobile-ui.md, rule 19): a world label keeps this far off the HUD blocks (px); the blocks
+ * are read this often (ms). */
+const LABEL_GAP = 8;
+const RECTS_MS = 150;
+/** The side margin of the phone frame (docs/07-mobile-ui.md, «Поля кадра»). */
+const EDGE_MU = 16;
 /** MU-02 (l1-run-hud-a): the stick ring 84 px, its centre at (76, 258) — the ring from y 216, 40 px under the column. */
 const MU_STICK = 84;
 const MU_STICK_X = 76;
@@ -835,6 +845,27 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     const o = slotOwner();
     if (root.dataset['slot'] !== o) root.dataset['slot'] = o;
   };
+  let padKey = '';
+  let padSize = { w: 0, h: 0 };
+  // Round of fixes MU: the blocks of the phone HUD shown now (field px), read at most every RECTS_MS (they move rarely).
+  let rectsAt = -Infinity;
+  let rects: Array<{ x0: number; y0: number; x1: number; y1: number }> = [];
+  const hudRects = (): typeof rects => {
+    if (!opts.mu) return [];
+    const now = performance.now();
+    if (now - rectsAt < RECTS_MS) return rects;
+    rectsAt = now;
+    const f = root.getBoundingClientRect();
+    rects = [];
+    for (const e of [left, menu, mountain, soundBtn, pauseBtn, giftBtn, levelBox, shoes, jumpButton, stickBase, hint, need, tutor, banner, ads, toastEl]) {
+      const b = e.getBoundingClientRect();
+      if (b.width <= 0 || b.height <= 0) continue;
+      const cs = getComputedStyle(e);
+      if (cs.display === 'none' || cs.visibility === 'hidden' || Number(cs.opacity) < 0.05) continue;
+      rects.push({ x0: b.left - f.left, y0: b.top - f.top, x1: b.right - f.left, y1: b.bottom - f.top });
+    }
+    return rects;
+  };
   /** The single «+N» of the phone layout (docs/07-mobile-ui.md, rule 18): one number at a time. */
   const muGain = gainPool[0]!;
 
@@ -993,6 +1024,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
         if (next) showToast(next.text, next.sec, next.gold, next.sub, next.onShow);
       }
       if (was !== (text !== null)) updateSlot();
+    },
+    clearOfHud(r) {
+      return !hudRects().some((b) => r.x0 < b.x1 + LABEL_GAP && b.x0 < r.x1 + LABEL_GAP && r.y0 < b.y1 + LABEL_GAP && b.y0 < r.y1 + LABEL_GAP);
     },
     waveBannerRect() {
       if (!banner.classList.contains('shown')) return null;
@@ -1230,7 +1264,22 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       setRich(padText, state.text);
       padLabel.classList.toggle('two', !!state.sub);
       if (padSub.textContent !== (state.sub ?? '')) padSub.textContent = state.sub ?? '';
-      padLabel.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
+      if (!opts.mu || !state.sub) {
+        padLabel.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
+        padLabel.style.visibility = '';
+        return;
+      }
+      // Round of fixes MU (l3-stage-finish): «Stage reward» right of the pad — (x, y) is its right top corner — over it,
+      // else level with it, else under its edge: the first place inside the field and 8 px off every HUD block (rule 19).
+      const key = `${state.text}|${state.sub}`;
+      if (padKey !== key) {
+        padKey = key;
+        padSize = { w: padLabel.offsetWidth, h: padLabel.offsetHeight };
+      }
+      const x = Math.max(EDGE_MU, Math.min(fieldW - EDGE_MU - padSize.w, state.x + LABEL_GAP));
+      const y = [state.y - padSize.h, state.y - padSize.h / 2, state.y].find((v) => v >= 0 && v + padSize.h <= fieldH && hud.clearOfHud({ x0: x, y0: v, x1: x + padSize.w, y1: v + padSize.h }));
+      padLabel.style.visibility = y === undefined ? 'hidden' : '';
+      if (y !== undefined) padLabel.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
     },
     setTutor(text, urgent = false) {
       if (tutor.classList.contains('shown') !== (text !== null) || tutor.classList.contains('urgent') !== urgent) {

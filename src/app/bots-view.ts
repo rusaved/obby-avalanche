@@ -43,6 +43,8 @@ export interface BotsViewDeps {
   studio: boolean;
   /** Strides a second × this at a run speed (SP-03: render/characters.ts runCadence); absent — 1. */
   cadence?(speed: number): number;
+  /** Round of fixes MU (docs/07-mobile-ui.md, rule 19): is a name's box (field px) clear of the phone HUD; absent — yes. */
+  clear?(r: { x0: number; y0: number; x1: number; y1: number }): boolean;
 }
 
 export interface BotLabelState {
@@ -58,7 +60,7 @@ export interface BotsView {
 }
 
 export function createBotsView(d: BotsViewDeps): BotsView {
-  const slots: Array<{ ch: CharacterInstance; ball: Snowball; label: HTMLElement; text: string; shown: boolean; painted: string; prev: Vector3; cur: Vector3; tick: number }> = [];
+  const slots: Array<{ ch: CharacterInstance; ball: Snowball; label: HTMLElement; text: string; width: number; shown: boolean; painted: string; prev: Vector3; cur: Vector3; tick: number }> = [];
   const most = Math.max(d.cfg.count.high, d.cfg.count.medium, d.cfg.count.low);
   const layer = document.createElement('div');
   layer.className = 'bot-labels';
@@ -72,7 +74,7 @@ export function createBotsView(d: BotsViewDeps): BotsView {
     label.className = 'bot-label';
     label.dataset['role'] = 'bot-label';
     layer.appendChild(label);
-    slots.push({ ch, ball, label, text: '', shown: false, painted: '', prev: new Vector3(), cur: new Vector3(), tick: -1 });
+    slots.push({ ch, ball, label, text: '', width: 0, shown: false, painted: '', prev: new Vector3(), cur: new Vector3(), tick: -1 });
   }
   const pos = new Vector3();
   const head = new Vector3();
@@ -133,6 +135,12 @@ export function createBotsView(d: BotsViewDeps): BotsView {
         const tumbleSec = sim.rare?.cfg.snowball?.tumbleSec ?? 0;
         s.ball.update(b.ball ?? (b.tumble > 0 && tumbleSec > 0 ? tumbleClip(tumbleSec - b.tumble, tumbleSec, pos) : null), pos, s.ch, timeSec);
         // The name over the head.
+        const text = t(b.name);
+        if (text !== s.text) {
+          s.text = text;
+          s.label.textContent = text;
+          s.width = 0;
+        }
         let opacity = 0;
         if (namesOn && cam && !b.ball) {
           head.set(pos.x, pos.y + LABEL_LIFT, pos.z);
@@ -141,14 +149,14 @@ export function createBotsView(d: BotsViewDeps): BotsView {
           opacity = dist <= d.cfg.label.nearDist ? 1 : fade > 0 ? Math.max(0, 1 - (dist - d.cfg.label.nearDist) / fade) : 0;
           if (opacity > 0) {
             head.project(cam);
+            const x = (head.x * 0.5 + 0.5) * f.width;
+            const y = (0.5 - head.y * 0.5) * f.height;
+            if (s.width === 0 && d.clear) s.width = s.label.offsetWidth;
             if (head.z >= 1 || Math.abs(head.x) > 1.1 || Math.abs(head.y) > 1.1) opacity = 0;
-            else s.label.style.transform = `translate(${((head.x * 0.5 + 0.5) * f.width).toFixed(1)}px, ${((0.5 - head.y * 0.5) * f.height).toFixed(1)}px) translate(-50%, -100%)`;
+            // Round of fixes MU (staff 19.10: names showed through the tiles and the strip): not within 8 px of the HUD.
+            else if (d.clear && !d.clear({ x0: x - s.width / 2, y0: y - fontPx, x1: x + s.width / 2, y1: y })) opacity = 0;
+            else s.label.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -100%)`;
           }
-        }
-        const text = t(b.name);
-        if (text !== s.text) {
-          s.text = text;
-          s.label.textContent = text;
         }
         const shown = opacity > 0;
         if (shown || s.shown) s.label.style.opacity = shown ? (LABEL_OPACITY * opacity).toFixed(2) : '0';

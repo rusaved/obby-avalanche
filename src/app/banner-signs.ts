@@ -96,19 +96,20 @@ export function segmentMeetsBox(a: Vector3, b: Vector3, center: readonly number[
 /**
  * Every frame after the camera moved and the signs got their text; `hero` — his feet as drawn. The sign of a gate the
  * hero has passed is gone for good: it hid as he went through and came back behind him like a closed one (producer's
- * playtest PS).
+ * playtest PS). `offHud` (round of fixes MU, rule 19 of docs/07-mobile-ui.md): nor is a sign within 8 px of a block of
+ * the phone HUD.
  */
-export function guardBannerSigns(hud: Hud, meshes: LevelMeshes, level: LevelData, camera: PerspectiveCamera, field: { width: number; height: number }, hero: Vector3, passed: readonly boolean[], readRange = Infinity): void {
+export function guardBannerSigns(hud: Hud, meshes: LevelMeshes, level: LevelData, camera: PerspectiveCamera, field: { width: number; height: number }, hero: Vector3, passed: readonly boolean[], readRange = Infinity, offHud = false): void {
   const banner = hud.waveBannerRect();
   for (let i = 0; i < level.gates.length; i++) {
     // MU-03 (docs/07-mobile-ui.md, rule 19): a sign farther than it reads is not drawn.
     let hide = passed[i] === true || Math.abs(level.gates[i]!.z - hero.z) > readRange;
     const near = Math.abs(level.gates[i]!.z - hero.z) < SIGHT_RANGE;
-    if (!hide && (banner || near)) {
+    if (!hide && (banner || near || offHud)) {
       const box = meshes.signBox(i);
-      if (banner) {
+      if (banner || offHud) {
         const r = screenRect(camera, box.center, box.size, field);
-        hide = r !== null && rectsMeet(r, banner, MARGIN);
+        hide = r !== null && ((banner !== null && rectsMeet(r, banner, MARGIN)) || (offHud && !hud.clearOfHud(r)));
       }
       if (!hide && near) hide = SIGHT_HEIGHTS.some((h) => segmentMeetsBox(camera.position, _eye.set(hero.x, hero.y + h, hero.z), box.center, box.size, SIGHT_PAD));
     }

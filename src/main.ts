@@ -1617,7 +1617,7 @@ async function boot(): Promise<void> {
         levelMeshes!.setGateSign(i, open ? req : `${statText}/${req}`, open);
       });
       // MU-03 (l2-gate): on the phone layout an open ridge has nothing to say and a far one does not read — not drawn.
-      if (hud && cameraRig) guardBannerSigns(hud, levelMeshes, level, cameraRig.camera, field, renderPos, muLayout ? sim.gatesPassed.map((p, i) => p || sim.gatesOpen[i] === true) : sim.gatesPassed, muLayout ? SIGN_READ_RANGE : Infinity);
+      if (hud && cameraRig) guardBannerSigns(hud, levelMeshes, level, cameraRig.camera, field, renderPos, muLayout ? sim.gatesPassed.map((p, i) => p || sim.gatesOpen[i] === true) : sim.gatesPassed, muLayout ? SIGN_READ_RANGE : Infinity, muLayout);
       if (cameraRig) levelMeshes.wayMarks.guard(cameraRig.camera.position);
     }
     // SP-01: the record flag is never drawn in the way of the camera (docs/01-gdd.md 20.2).
@@ -1731,6 +1731,7 @@ async function boot(): Promise<void> {
     field: () => field,
     hudMode: () => hudMode,
     studio,
+    clear: (r) => hud?.clearOfHud(r) ?? true,
   });
   g.characters = characters;
   g.hero = heroChar;

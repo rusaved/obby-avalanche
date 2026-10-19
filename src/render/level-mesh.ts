@@ -49,10 +49,19 @@ const RIDGE_PLAQUE = 6.5;
 const RIDGE_CREST_OPACITY = 0.22;
 /** MU-03 (l2-gate): the stage sign — the word this share of the digits tall and this far over the centre, the number
  * this far under it, the plaque this many digit heights tall. */
-const STAGE_WORD = 0.32;
+const STAGE_WORD = 0.42;
 const STAGE_WORD_UP = 0.62;
 const STAGE_NUM_DOWN = 0.18;
 const STAGE_PLAQUE = 1.7;
+/** Round of fixes MU (staff 19.10, l2-gate: the sign stood over the run line and showed through the stage strip and the
+ * slot): a smaller sign (this share of the ridge digits) on a low post right of the middle pass on the screen (−X) —
+ * this far off the pass, its bottom this high over the ground; the post this thick. The phone camera puts all the slope
+ * farther than ~12 units into the top band of the HUD (strip, slot), so the sign reads near the ridge, where the hero
+ * stops, and hides under the HUD further off (docs/07-mobile-ui.md, rule 19); the slot plaque carries the number. */
+const STAGE_SIGN_K = 0.35;
+const STAGE_SIDE_GAP = 5.5;
+const STAGE_POST = 0.6;
+const STAGE_POST_W = 0.3;
 /** The glyph height of a gate's number: a ridge's own from the data (SP-04: larger on the field), else the defaults. */
 function signText(g: LevelData['gates'][number]): number {
   return g.kind === 'ridge' ? (g.digits ?? RIDGE_TEXT) : SIGN_TEXT;
@@ -363,7 +372,8 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   const signGeo = new BoxGeometry(1, 1, 1);
   // White base: the per-instance colour (red closed / green open from theme.json) is the sign colour.
   const signMat = new MeshLambertMaterial({ color: 0xffffff });
-  const signs = new InstancedMesh(signGeo, signMat, Math.max(1, level.gates.length));
+  // Round of fixes MU: the instances past the gates are the posts of the stage signs (none — scaled to nothing).
+  const signs = new InstancedMesh(signGeo, signMat, Math.max(1, level.gates.length * 2));
   const dummy = new Object3D();
   level.gates.forEach((g, i) => {
     const w = g.box.max[0] - g.box.min[0];
@@ -375,6 +385,10 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     gates.setMatrixAt(i, dummy.matrix);
   });
   gates.instanceMatrix.needsUpdate = true;
+  dummy.position.set(0, 0, 0);
+  dummy.scale.setScalar(1e-4);
+  dummy.updateMatrix();
+  level.gates.forEach((_, i) => signs.setMatrixAt(level.gates.length + i, dummy.matrix));
   signs.instanceMatrix.needsUpdate = true;
   group.add(gates, signs);
 
@@ -423,6 +437,27 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   const stageSign = !!words && !!theme.materials['stageSign'];
   const stageSignColor = materialColor(theme, 'stageSign');
   const stageDigits = theme.materials['stageSignDigits']?.color ?? '#ffffff';
+  const stagePostColor = materialColor(theme, 'stageSignPost');
+  /** Where the stage sign of gate i stands (centre, size): on its post right of the middle pass. */
+  const stagePlace = (i: number): { x: number; y: number; z: number; w: number; h: number } => {
+    const g = level.gates[i]!;
+    const size = signText(g) * STAGE_SIGN_K;
+    const w = Math.max(words!.aspect * size * STAGE_WORD, digits.measure(signState[i]!.text, size)) + SIGN_PAD * 2 * STAGE_SIGN_K;
+    const h = size * STAGE_PLAQUE;
+    const pass = (g.passes ?? [0]).reduce((a, b) => (Math.abs(b) < Math.abs(a) ? b : a));
+    return { x: pass - (g.passWidth ?? 0) / 2 - STAGE_SIDE_GAP - w / 2, y: g.y + STAGE_POST + h / 2, z: g.z - (g.box.max[2] - g.box.min[2]) / 2 - 0.3, w, h };
+  };
+  const placePost = (i: number, on: boolean): void => {
+    if (on) {
+      const p = stagePlace(i);
+      dummy.position.set(p.x, level.gates[i]!.y + STAGE_POST / 2, p.z + 0.4);
+      dummy.scale.set(STAGE_POST_W, STAGE_POST, STAGE_POST_W);
+    } else dummy.scale.setScalar(1e-4);
+    dummy.rotation.set(0, 0, 0);
+    dummy.updateMatrix();
+    signs.setMatrixAt(level.gates.length + i, dummy.matrix);
+    if (on) signs.setColorAt(level.gates.length + i, signColor.copy(stagePostColor));
+  };
   const applySign = (i: number): void => {
     const g = level.gates[i];
     const st = signState[i];
@@ -431,6 +466,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     if (st.hidden) {
       words?.hide(i);
       digits.clear(i);
+      if (stageSign) placePost(i, false);
       dummy.position.set(0, g.y + g.signHeight, g.z - d / 2 - 0.3);
       dummy.scale.setScalar(1e-4);
       dummy.updateMatrix();
@@ -439,16 +475,17 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       return;
     }
     const ridge = g.kind === 'ridge';
-    const size = signText(g);
+    const size = signText(g) * (stageSign && ridge ? STAGE_SIGN_K : 1);
     if (stageSign && ridge) {
       // Two lines on the dark plaque: the word over the number (MU-03), the number in gold.
       const wh = size * STAGE_WORD;
-      const y = g.y + g.signHeight;
-      digits.setLabel(i, st.text, 0, y - size * STAGE_NUM_DOWN, g.z - d / 2 - 0.52, size, stageDigits);
-      words!.set(i, 0, y + size * STAGE_WORD_UP, g.z - d / 2 - 0.55, wh);
-      dummy.position.set(0, y, g.z - d / 2 - 0.3);
+      const p = stagePlace(i);
+      digits.setLabel(i, st.text, p.x, p.y - size * STAGE_NUM_DOWN, g.z - d / 2 - 0.52, size, stageDigits);
+      words!.set(i, p.x, p.y + size * STAGE_WORD_UP, g.z - d / 2 - 0.55, wh);
+      placePost(i, true);
+      dummy.position.set(p.x, p.y, p.z);
       dummy.rotation.set(0, 0, 0);
-      dummy.scale.set(Math.max(words!.aspect * wh, digits.measure(st.text, size)) + SIGN_PAD * 2, size * STAGE_PLAQUE, 0.4);
+      dummy.scale.set(p.w, p.h, 0.4);
       dummy.updateMatrix();
       signs.setMatrixAt(i, dummy.matrix);
       signs.instanceMatrix.needsUpdate = true;
@@ -630,8 +667,8 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       const ridge = g.kind === 'ridge';
       const size = signText(g);
       if (stageSign && ridge) {
-        const wh = size * STAGE_WORD;
-        return { center: [0, g.y + g.signHeight, g.z - d / 2 - 0.3], size: [Math.max(words!.aspect * wh, digits.measure(st.text, size)) + SIGN_PAD * 2, size * STAGE_PLAQUE, 0.4] };
+        const p = stagePlace(index);
+        return { center: [p.x, p.y, p.z], size: [p.w, p.h, 0.4] };
       }
       const width = Math.max(SIGN_MIN_WIDTH, digits.measure(st.text, size) + SIGN_PAD * (ridge ? 2 : 1));
       return { center: [0, g.y + g.signHeight, g.z - d / 2 - 0.3], size: [width, ridge ? (size * RIDGE_PLAQUE) / RIDGE_TEXT : 3, 0.4] };

@@ -43,6 +43,7 @@
     "gateSignOpen": { "color": "#4CD964" },
     "stageSign": { "color": "#1B2A3A" },
     "stageSignDigits": { "color": "#FFC53D" },
+    "stageSignPost": { "color": "#7A5A3A" },
     "cave": { "color": "#7CC8F0", "roughness": 0.4, "emissive": "#2A6FA8" },
     "treadmill": { "color": "#3BA4FF", "roughness": 0.6 },
     "treadmillStripe": { "color": "#FFFFFF" },
