@@ -1,4 +1,4 @@
-fast pace, quality high, 960x540, 2026-10-19T19:53:33.527Z; max draw calls 30
+fast pace, quality high, 960x540, 2026-10-19T21:23:21.042Z; max draw calls 30
 mountain 1 (slope) z=20: draw calls 25, triangles 48630
 mountain 1 (slope) z=395: draw calls 29, triangles 47188
 mountain 1 (slope) z=730: draw calls 28, triangles 45628
@@ -6,11 +6,11 @@ mountain 2 (pines) z=20: draw calls 25, triangles 48682
 mountain 2 (pines) z=457: draw calls 30, triangles 48032
 mountain 2 (pines) z=806: draw calls 27, triangles 45440
 mountain 3 (pass) z=20: draw calls 25, triangles 48782
-mountain 3 (pass) z=475: draw calls 30, triangles 48228
-mountain 3 (pass) z=886: draw calls 27, triangles 45276
+mountain 3 (pass) z=475: draw calls 28, triangles 48204
+mountain 3 (pass) z=886: draw calls 25, triangles 45252
 mountain 4 (falls) z=20: draw calls 25, triangles 48966
-mountain 4 (falls) z=543: draw calls 27, triangles 47728
-mountain 4 (falls) z=970: draw calls 26, triangles 45784
+mountain 4 (falls) z=543: draw calls 29, triangles 47752
+mountain 4 (falls) z=970: draw calls 28, triangles 45808
 mountain 5 (canyon) z=20: draw calls 25, triangles 49054
 mountain 5 (canyon) z=563: draw calls 28, triangles 48536
 mountain 5 (canyon) z=1058: draw calls 26, triangles 45740
