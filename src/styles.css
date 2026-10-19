@@ -744,3 +744,29 @@ canvas.fallback {
 #ui.mu .sm-row { grid-template-columns: 40% 1fr auto; }
 /* Round of fixes MU (staff 19.10): «Take» of the calendar no wider than «Continue» of the pause. */
 #ui.mu .dl-foot .btn-primary { width: auto; min-width: 200px; margin-top: 0; padding: 0 24px; }
+/* MU round of fixes 2 (staff 19.10, windows at 130 %): the panel is 300 px at the text of 100 % and grows with the text
+   (18.75 em of the inherited 16 px) up to the visible height minus the margins; the middle scrolls and shows it — a thin
+   light scrollbar and a fade with a chevron over the last line while there is more below. Text in buttons, cards and tiles
+   keeps 8 px from their edges. */
+#ui.mu .win .win-panel { max-height: min(18.75em, calc(100% - 16px)); }
+#ui.mu .win-body { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.45) transparent; }
+#ui.mu .win-body::-webkit-scrollbar { width: 4px; }
+#ui.mu .win-body::-webkit-scrollbar-thumb { border-radius: 2px; background: rgba(255, 255, 255, 0.45); }
+#ui.mu .win-body[data-more]::after { content: ''; position: sticky; bottom: 0; z-index: 3; display: block; height: 28px; margin-top: -28px; pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center bottom 2px / 18px 18px no-repeat, linear-gradient(transparent, var(--mu-panel) 70%); }
+#ui.mu .win-body[data-more]:has(> * .rb-btns, > .rb-btns)::after { display: none; }
+#ui.mu .win-body[data-more] .rb-btns { box-shadow: 0 -14px 12px -6px var(--mu-panel); }
+#ui.mu .card, #ui.mu .win-grid .card, #ui.mu .foot-card, #ui.mu .gf-card, #ui.mu .gf-tile, #ui.mu .tr-tile, #ui.mu .more-btn { padding-left: 8px; padding-right: 8px; }
+#ui.mu .dl-card { padding: 20px 8px 8px; }
+/* MU round of fixes 2 (staff: days 5–7 a strip at 130 %): cards of 4 + 3 put the day on the line of their lock. */
+#ui.mu .dl-cards.dl-fit4 .dl-card { padding-top: 8px; }
+#ui.mu .dl-cards { padding: 8px 0; gap: 4px; }
+#ui.mu .dl-cards:not(.dl-fit4) .card-name { font-size: 12px; }
+#ui.mu .dl-cards:not(.dl-fit4) { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+#ui.mu .dl-cards.dl-fit4 > .dl-foot { position: static; margin: 0; padding: 0; box-shadow: none; background: none; display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 4px; text-align: center; }
+#ui.mu .dl-cards.dl-fit4 > .dl-foot .btn-primary { width: 100%; min-width: 0; padding: 0 8px; }
+#ui.mu .gf-cards { grid-template-columns: 2.2fr 1fr 1fr; }
+/* MU round of fixes 2: the group buttons stand side by side while their words fit with 8 px, else one under the other. */
+#ui.mu .gf-btns { flex-wrap: wrap; }
+#ui.mu .gf-btns .card-btn { flex: 1 1 auto; padding: 0 12px; }
+/* MU round of fixes 2: five cards of «Footsteps» in a row at 100 %, fewer when a larger text needs it (7 em of 16 px). */
+#ui.mu .foot-grid { grid-template-columns: repeat(auto-fill, minmax(7em, 1fr)); }

@@ -56,7 +56,7 @@ test.describe('MU-10 rules of docs/07 on the phone', () => {
     }
   });
 
-  test('130 % text: nothing on the HUD is cut, the windows stay ≤ 300 px and scroll', async ({ page, openGame }) => {
+  test('130 % text: nothing on the HUD is cut, the windows grow up to the visible height and scroll visibly', async ({ page, openGame }) => {
     await openGame('pace=stages');
     await page.evaluate((n) => {
       const t = window.__TEST__!;
@@ -77,11 +77,15 @@ test.describe('MU-10 rules of docs/07 on the phone', () => {
       await scaleText(page, 1.3);
       await page.waitForTimeout(100);
       const panel = (await page.locator('[data-role="window"].open .win-panel').boundingBox())!;
-      expect(panel.height, id).toBeLessThanOrEqual(300.5);
+      // MU round of fixes 2 (staff 19.10): at 130 % the panel grows past 300 up to the visible height minus the margins.
+      expect(panel.height, id).toBeLessThanOrEqual(VISIBLE_H - 16 + 0.5);
       expect(await cutText(page), id).toEqual([]);
       const body = page.locator('[data-role="window"].open .win-body');
       const s = await body.evaluate((b) => ({ sh: b.scrollHeight, ch: b.clientHeight, oy: getComputedStyle(b).overflowY }));
-      if (s.sh > s.ch + 2) expect(s.oy, `${id}: the middle scrolls`).toBe('auto');
+      if (s.sh > s.ch + 2) {
+        expect(s.oy, `${id}: the middle scrolls`).toBe('auto');
+        await expect(body, `${id}: the scroll shows`).toHaveAttribute('data-more', '');
+      }
       if (id === 'pause') await page.screenshot({ path: 'docs/evidence/MU/text-130-pause.png' });
       await page.keyboard.press('Escape');
       await expect(page.locator('[data-role="window"].open')).toHaveCount(0);

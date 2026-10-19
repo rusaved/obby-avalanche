@@ -433,7 +433,7 @@
   "teleport.buy": "Купить",
   "teleport.yes": "Да, купить",
   "footsteps.listen": "Прослушать",
-  "footsteps.toShop": "В магазин",
+  "footsteps.toShop": "В\u00a0магазин",
   "footsteps.sub": "каждый шаг — свой хруст",
   "footsteps.daily": "День {n}",
   "shop.tab.steps": "Шаги",

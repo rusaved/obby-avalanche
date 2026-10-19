@@ -99,6 +99,13 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
   dim.appendChild(panel);
   host.appendChild(dim);
 
+  // MU round of fixes 2: `data-more` while the middle has more below (a fade with a chevron shows it scrolls).
+  const markMore = (): void => {
+    body.toggleAttribute('data-more', body.scrollHeight - body.scrollTop - body.clientHeight > 2);
+  };
+  body.addEventListener('scroll', markMore, { passive: true });
+  const watch = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(markMore) : null;
+
   let current: string | null = null;
   let render: ((body: HTMLElement, head: HTMLElement) => void) | null = null;
   let options: WindowOptions = {};
@@ -134,6 +141,7 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
       frame.refresh();
       dim.classList.add('open');
       body.scrollTop = 0;
+      markMore();
       fitTitle();
       if (was !== id) opts.onChange(id);
     },
@@ -144,6 +152,12 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
       head.replaceChildren();
       render(body, head);
       body.scrollTop = scroll;
+      if (watch) {
+        watch.disconnect();
+        watch.observe(body);
+        for (const c of Array.from(body.children)) watch.observe(c);
+      }
+      markMore();
     },
     close() {
       if (current === null) return;
