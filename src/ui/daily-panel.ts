@@ -64,6 +64,17 @@ export function renderDailyPanel(body: HTMLElement, m: DailyPanelModel, claim: (
     row.appendChild(card);
   }
   body.appendChild(row);
+  // A name wider than its card (one long word at a large text size of the phone): 4 + 3 cards, not a word cut in two.
+  if (typeof ResizeObserver !== 'undefined') {
+    const ro = new ResizeObserver(() => {
+      if (!row.isConnected) return;
+      if (Array.from(row.querySelectorAll<HTMLElement>('.card-name')).some((n) => n.offsetWidth > (n.parentElement?.clientWidth ?? 0) + 1)) {
+        row.classList.add('dl-fit4');
+        ro.disconnect();
+      }
+    });
+    ro.observe(row);
+  }
   const foot = el('div', 'rb-btns dl-foot');
   if (m.claim) {
     const b = el('button', 'btn-primary rb-go ok', m.claim);
