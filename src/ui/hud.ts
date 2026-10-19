@@ -890,6 +890,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       const cs = getComputedStyle(e);
       if (cs.display === 'none' || cs.visibility === 'hidden' || Number(cs.opacity) < 0.05) continue;
       rects.push({ x0: b.left - f.left, y0: b.top - f.top, x1: b.right - f.left, y1: b.bottom - f.top });
+      // MU round of fixes 2 (staff: «Stage reward» hung under the stick): the thumb zones of the stick and the jump run
+      // to the bottom and the side edges of the field.
+      if (e === stickBase) rects.push({ x0: 0, y0: b.top - f.top, x1: b.right - f.left, y1: f.height });
+      if (e === jumpButton) rects.push({ x0: b.left - f.left, y0: b.top - f.top, x1: f.width, y1: f.height });
     }
     return rects;
   };
@@ -1350,10 +1354,24 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
         padKey = key;
         padSize = { w: padLabel.offsetWidth, h: padLabel.offsetHeight };
       }
-      const x = Math.max(EDGE_MU, Math.min(fieldW - EDGE_MU - padSize.w, state.x + LABEL_GAP));
-      const y = [state.y - padSize.h, state.y - padSize.h / 2, state.y].find((v) => v >= 0 && v + padSize.h <= fieldH && hud.clearOfHud({ x0: x, y0: v, x1: x + padSize.w, y1: v + padSize.h }));
-      padLabel.style.visibility = y === undefined ? 'hidden' : '';
-      if (y !== undefined) padLabel.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+      // MU round of fixes 2 (staff: the plaque of a pad behind stuck to the left edge): the pad's corner off the field —
+      // no plaque; over the hero on the pad the HUD around him leaves room higher up or further right.
+      if (state.x < 0 || state.x > fieldW || state.y < 0 || state.y > fieldH) {
+        padLabel.style.visibility = 'hidden';
+        return;
+      }
+      const { w, h } = padSize;
+      let at: { x: number; y: number } | undefined;
+      for (const dx of [LABEL_GAP, LABEL_GAP + w / 3]) {
+        const x = Math.max(EDGE_MU, Math.min(fieldW - EDGE_MU - w, state.x + dx));
+        const y = [state.y - h, state.y - h / 2, state.y, state.y - 1.5 * h, state.y - 2 * h].find((v) => v >= 0 && v + h <= fieldH && hud.clearOfHud({ x0: x, y0: v, x1: x + w, y1: v + h }));
+        if (y !== undefined) {
+          at = { x, y };
+          break;
+        }
+      }
+      padLabel.style.visibility = at ? '' : 'hidden';
+      if (at) padLabel.style.transform = `translate(${Math.round(at.x)}px, ${Math.round(at.y)}px)`;
     },
     setTutor(text, urgent = false) {
       if (tutor.classList.contains('shown') !== (text !== null) || tutor.classList.contains('urgent') !== urgent) {

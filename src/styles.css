@@ -770,3 +770,6 @@ canvas.fallback {
 #ui.mu .gf-btns .card-btn { flex: 1 1 auto; padding: 0 12px; }
 /* MU round of fixes 2: five cards of «Footsteps» in a row at 100 %, fewer when a larger text needs it (7 em of 16 px). */
 #ui.mu .foot-grid { grid-template-columns: repeat(auto-fill, minmax(7em, 1fr)); }
+/* MU round of fixes 2 (staff: no plaque on l3): «Stage reward» stays on the pad under the «+N» toast (it keeps 8 px off
+   the toast by itself). */
+.hud.mu.toasting .hud-pad.two { visibility: visible; }

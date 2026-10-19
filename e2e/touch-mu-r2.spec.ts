@@ -1,7 +1,8 @@
 import { test, expect } from './fixtures.ts';
 import type { Page } from '@playwright/test';
 import { scaleText } from './mu-checks.ts';
-import { threshold } from './lv-stage-data.ts';
+import { STAGES, threshold } from './lv-stage-data.ts';
+import { waitTicks } from './fixtures.ts';
 import ru from '../content/avalanche/i18n/ru.json' with { type: 'json' };
 
 // MU round of fixes 2 (staff pre-acceptance 19.10, second pass): windows at 130 % text, the world labels, the two rows of
@@ -113,6 +114,47 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
         }
       }
       expect((ru as Record<string, string>)['footsteps.toShop'], '«В магазин» never breaks').toBe('В\u00a0магазин');
+    });
+
+    test('(2) «Stage reward»: off the field or in the thumb zones — hidden; on the pad — held in sight', async ({ page, openGame }) => {
+      test.setTimeout(180_000);
+      const W = STAGES[0]!;
+      await openGame('pace=stages');
+      const st3 = W.stages[2]!;
+      await prepare(page, threshold(st3.level + 1));
+      const st4 = W.stages[3]!;
+      // l2-gate: at the ridge of stage 4, the pad of stage 3 behind.
+      await page.evaluate(([s, z]) => {
+        window.__TEST__!.setStat(s);
+        window.__TEST__!.teleport(z);
+      }, [threshold(st4.level - 3), st4.z0 - 5] as const);
+      await waitTicks(page, 30);
+      const plaque = (): Promise<{ shown: boolean; r: DOMRect; zones: DOMRect[] }> =>
+        page.evaluate(() => {
+          const p = document.querySelector('[data-role="pad-label"]') as HTMLElement;
+          const shown = p.classList.contains('shown') && getComputedStyle(p).visibility !== 'hidden';
+          const zones = ['[data-role="stick"]', '[data-hud="jump"]'].map((q) => document.querySelector(q)!.getBoundingClientRect());
+          return { shown, r: p.getBoundingClientRect(), zones };
+        });
+      const inZone = (r: DOMRect, zones: DOMRect[]): boolean =>
+        r.bottom > zones[0]!.top - 8 && r.left < zones[0]!.right + 8 || r.bottom > zones[1]!.top - 8 && r.right > zones[1]!.left - 8;
+      for (let i = 0; i < 10; i++) {
+        const p = await plaque();
+        if (p.shown) expect(inZone(p.r, p.zones), `the plaque at ${JSON.stringify(p.r)} in a thumb zone`).toBe(false);
+        await page.waitForTimeout(100);
+      }
+      // On the pad of stage 3: the plaque stays in sight while the hero stands there.
+      await page.evaluate(([s, z, x, y]) => {
+        window.__TEST__!.setStat(s);
+        window.__TEST__!.teleport(z, x, y);
+      }, [threshold(st3.level + 2), st3.finish[0] - 6, st3.pad.x, st3.y + 1] as const);
+      await waitTicks(page, 10);
+      await page.evaluate((p) => window.__TEST__!.teleport(p.z, p.x, p.y + 1), st3.pad);
+      await expect(page.locator('[data-role="toast"].shown .hud-toast-main svg')).toHaveCount(1, { timeout: 10_000 });
+      await page.waitForTimeout(300);
+      const on = await plaque();
+      expect(on.shown, 'the plaque on the pad').toBe(true);
+      expect(inZone(on.r, on.zones)).toBe(false);
     });
   });
 }

@@ -81,6 +81,9 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
       await page.screenshot({ path: `${dir}/l3-stage-finish-before.png` });
       await page.evaluate((p) => window.__TEST__!.teleport(p.z, p.x, p.y + 1), st3.pad);
       await expect(page.locator('[data-role="toast"].shown .hud-toast-main svg')).toHaveCount(1, { timeout: 10_000 });
+      // Round of fixes 2 (staff: no plaque on l3): on the pad «Stage reward» stays in sight next to the hero.
+      await expect(page.locator('[data-role="pad-label"].shown')).toBeVisible();
+      await page.waitForTimeout(300);
       await page.screenshot({ path: `${dir}/l3-stage-finish.png` });
       // Back in the camp after the button: the level toast.
       await page.waitForFunction(() => window.__TEST__!.state().stage <= 1, undefined, { timeout: 20_000 });
