@@ -93,6 +93,14 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
       await expect(page.locator('[data-role="toast"].shown .hud-toast-main')).toHaveText('УРОВЕНЬ ВЫШЕ!', { timeout: 10_000 });
       await page.waitForTimeout(250);
       await page.screenshot({ path: `${dir}/l4-level-up.png` });
+      // Round of fixes 2: the level toast at 130 % text too.
+      await expect(page.locator('[data-role="toast"].shown')).toHaveCount(0, { timeout: 10_000 });
+      await scaleText(page, 1.3);
+      await page.evaluate((s) => window.__TEST__!.setStat(s), threshold(20) + 1);
+      await expect(page.locator('[data-role="toast"].shown .hud-toast-main')).toHaveText('УРОВЕНЬ ВЫШЕ!', { timeout: 10_000 });
+      await page.waitForTimeout(250);
+      await page.screenshot({ path: `${dir}/l4-level-up-130.png` });
+      await scaleText(page, 1);
     });
 
     test('the camp after a fall: «Ad: from stage 2 · 0:5x» in the slot', async ({ page, openGame }) => {
@@ -164,7 +172,8 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
         ['camp-teleport', () => tap(page, 'menu-teleport')],
         ['pause', () => tap(page, 'pause')],
         ['more', () => tap(page, 'menu-more')],
-        ['shop', () => tap(page, 'menu-shop')],
+        // Round of fixes 2 (staff: «Shop» at 130 % was shot on «Steps»): the sneakers tab.
+        ['shop', async () => { await tap(page, 'menu-shop'); await page.locator('[data-hud="shop-tab-shoes"]').click(); }],
         ['shop-steps', async () => { await tap(page, 'menu-shop'); await page.locator('[data-hud="shop-tab-steps"]').click(); }],
         ['pets', () => tap(page, 'menu-pets')],
         ['footsteps', more('footsteps')],
