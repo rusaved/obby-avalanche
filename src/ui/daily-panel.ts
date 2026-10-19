@@ -30,10 +30,22 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, te
   return e;
 }
 
+/** Round of fixes MU (art review: filled and line marks mixed in one window): the phone layout draws the rewards and
+ * the locks in line marks — set once at boot. */
+let lineMarks = false;
+const LINE: Record<string, string> = { wardrobe: 'shirt', gift: 'giftLine', trophy: 'cup', pets: 'paw', iceBolt: 'bolt', calendar: 'calendarLine', shop: 'bag', lock: 'padlock' };
+export function setLineMarks(on: boolean): void {
+  lineMarks = on;
+}
+/** The mark `id`, its line twin on the phone layout. */
+export function markIcon(id: string): string {
+  return icon(lineMarks ? (LINE[id] ?? id) : id);
+}
+
 /** A reward picture: an icon of the set, or the coin snowflake of the HUD plaque. */
 export function rewardIcon(id: string): HTMLElement {
   const i = el('span', `rw-icon rw-${id}`);
-  i.innerHTML = icon(id);
+  i.innerHTML = markIcon(id);
   return i;
 }
 
@@ -46,7 +58,7 @@ export function renderDailyPanel(body: HTMLElement, m: DailyPanelModel, claim: (
     card.append(el('span', 'card-sub', c.day), rewardIcon(c.icon), el('span', 'card-name', c.name));
     if (c.state !== 'today') {
       const mark = el('span', 'dl-mark');
-      mark.innerHTML = icon(c.state === 'past' ? 'check' : 'lock');
+      mark.innerHTML = markIcon(c.state === 'past' ? 'check' : 'lock');
       card.appendChild(mark);
     }
     row.appendChild(card);

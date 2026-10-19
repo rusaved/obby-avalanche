@@ -290,10 +290,11 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       // The lead never takes the camera past the hero (PR-13: out of a cave the camera distance grows back at retreatSpeed,
       // and at 55 units/s a lead longer than it put the camera ahead of the hero; at the next closed gate he ran into it).
       const reach = Math.max(0, rig.currentDistance * Math.cos(frame.pitch) - c.hideDistance - LEAD_MARGIN);
-      const lead = Math.hypot(target.vel.x, target.vel.z) * c.leadSec;
+      const leadSec = c.muLeadSec ?? c.leadSec;
+      const lead = Math.hypot(target.vel.x, target.vel.z) * leadSec;
       const leadK = lead > reach ? reach / lead : 1;
-      _tmp.x += target.vel.x * c.leadSec * leadK;
-      _tmp.z += target.vel.z * c.leadSec * leadK;
+      _tmp.x += target.vel.x * leadSec * leadK;
+      _tmp.z += target.vel.z * leadSec * leadK;
       const k = dt > 0 ? 1 - Math.exp(-c.damping * dt) : 1;
       pivot.lerp(_tmp, k);
       if (collision) lastCollision = collision;

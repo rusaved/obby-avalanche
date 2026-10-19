@@ -139,13 +139,16 @@ export async function ruleProblems(page: Page, minText: number): Promise<string[
 /** OS text scaling of a phone (MU-10, rule 6): every font of the interface × k as inline style. */
 export async function scaleText(page: Page, k: number): Promise<void> {
   await page.evaluate((f) => {
-    // From each element's own size once (the window frame stays between windows: never scaled twice).
-    for (const e of Array.from(document.querySelectorAll('#ui *')) as HTMLElement[]) {
-      if (e.dataset['fs0']) continue;
-      const px = Number.parseFloat(getComputedStyle(e).fontSize);
-      e.dataset['fs0'] = String(px);
-      if (px > 0) e.style.fontSize = `${px * f}px`;
-    }
+    // Round of fixes MU (reviews: nested texts grew ×1.3 at every level, a window opened later grew again): undo the last
+    // scaling, read every size, then write each ×f — every text exactly f of its own size, however often it is called.
+    const els = Array.from(document.querySelectorAll('#ui *')) as HTMLElement[];
+    for (const e of els) if (e.dataset['fsk'] !== undefined) e.style.fontSize = e.dataset['fsInline'] ?? '';
+    const sizes = els.map((e) => Number.parseFloat(getComputedStyle(e).fontSize));
+    els.forEach((e, i) => {
+      if (e.dataset['fsk'] === undefined) e.dataset['fsInline'] = e.style.fontSize;
+      e.dataset['fsk'] = String(f);
+      if (sizes[i]! > 0) e.style.fontSize = `${sizes[i]! * f}px`;
+    });
   }, k);
 }
 
@@ -161,6 +164,13 @@ export async function cutText(page: Page): Promise<string[]> {
       if (e.classList.contains('win-body')) continue;
       const clip = s.overflowX === 'hidden' || s.textOverflow === 'ellipsis';
       if (clip && e.scrollWidth > e.clientWidth + 1 && (e.textContent ?? '').trim()) out.push(`${(e as HTMLElement).className}: ${(e.textContent ?? '').trim().slice(0, 30)}`);
+      // Round of fixes MU (review): a text seen running out of its card or row counts too, not only a clipped one.
+      const own = Array.from(e.childNodes).some((n) => n.nodeType === 3 && (n.textContent ?? '').trim());
+      const box = own ? e.parentElement?.closest('.card, .win-row, .mu-row, .tp-item, .records-row, .qs-row') : null;
+      if (box && box !== e) {
+        const b = box.getBoundingClientRect();
+        if (r.left < b.left - 1 || r.right > b.right + 1) out.push(`out of its box ${(e as HTMLElement).className}: ${(e.textContent ?? '').trim().slice(0, 30)}`);
+      }
     }
     return out;
   });

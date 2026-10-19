@@ -371,6 +371,9 @@ export interface TuningJson {
     mobileFovAdd?: number;
     /** MU-10: the phone layout lifts the picture by this share of the height (the hero over the bottom HUD). */
     muLift?: number;
+    /** Round of fixes MU (review: running, the hero sank under «N Speed» and the bar): the lead by velocity of the phone
+     * layout instead of `leadSec`; 1 / damping keeps a running hero where he stands. */
+    muLeadSec?: number;
     /** FM-03 (docs/01-gdd.md 19.8): a giant between the camera and the hero is drawn see-through at this share. */
     fadeAlpha?: number;
     /** FM-03: in a giant's zone running up the view never turns from the giant ahead by more than this (deg), until the

@@ -10,6 +10,7 @@
  */
 import { t } from './i18n.ts';
 import { icon } from './icons.ts';
+import { markIcon } from './daily-panel.ts';
 
 export interface RebirthPanelModel {
   /** «Tier 1» — the tier after the rebirth. */
@@ -104,7 +105,7 @@ export function renderRebirthPanel(body: HTMLElement, head: HTMLElement, m: Rebi
     const lock = el('span', 'card-lock rb-locked');
     lock.dataset['role'] = 'rebirth-locked';
     const i = el('span', '');
-    i.innerHTML = icon('lock');
+    i.innerHTML = markIcon('lock');
     lock.append(i, el('span', '', m.locked));
     row.appendChild(lock);
   }

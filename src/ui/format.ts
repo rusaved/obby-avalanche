@@ -25,7 +25,8 @@ export function setNumberLocale(lang: string): void {
 /** MU-01 (docs/07-mobile-ui.md, rule 10): numbers below this are written in full, thousands apart by a narrow space
  * («1 024», «5 300»); 0 — the suffix format from 1000 on (the comparison paces). */
 let fullBelow = 0;
-const NARROW_SPACE = '\u202f';
+// Round of fixes MU (art review: the narrow space of Rubik is ~2 px, «5300» read as one number): a no-break space.
+const NARROW_SPACE = '\u00a0';
 
 export function setFullNumbersBelow(limit: number): void {
   fullBelow = limit;

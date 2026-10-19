@@ -9,6 +9,7 @@
  */
 import { t } from './i18n.ts';
 import { icon } from './icons.ts';
+import { markIcon } from './daily-panel.ts';
 import { trophyPrice } from './shop-panel.ts';
 
 export interface SkinLook {
@@ -114,7 +115,7 @@ export function renderWardrobePanel(body: HTMLElement, head: HTMLElement, m: War
       const lock = el('span', 'card-lock');
       lock.dataset['role'] = 'look-source';
       const i = el('span', '');
-      i.innerHTML = icon('lock');
+      i.innerHTML = markIcon('lock');
       lock.append(i, el('span', '', c.source ?? ''));
       card.appendChild(lock);
     } else {

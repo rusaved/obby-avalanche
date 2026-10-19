@@ -398,6 +398,7 @@ const tuningSchema = v.object({
     raiseReturnRate: positive,
     mobileFovAdd: v.optional(v.number()),
     muLift: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.3))),
+    muLeadSec: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(0.5))),
     occludeRadius: nonNeg,
     fadeAlpha: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
     bossKeepDeg: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(90))),

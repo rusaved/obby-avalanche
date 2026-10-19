@@ -47,10 +47,19 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
       await openGame('pace=stages');
       const st3 = W.stages[2]!;
       await prepare(page, threshold(st3.level + 1));
-      await page.evaluate((z) => window.__TEST__!.teleport(z), st3.start + 4);
+      // A run on the flat of stage 1 (on stage 3 a 1.5 s run ends in its first crack).
+      await page.evaluate((z) => window.__TEST__!.teleport(z), W.stages[0]!.start + 60);
       await waitTicks(page, 10);
       await page.evaluate(() => window.__TEST__!.stick(0, 1));
+      await page.waitForTimeout(1500);
       await page.locator('.hud-gain.show').first().waitFor({ state: 'visible', timeout: 10_000 });
+      // Running, the hero's feet stand over «N Speed» and the bar (review: the camera lead sank him under them).
+      const feet = await page.evaluate(() => {
+        const t = window.__TEST__!;
+        const h = t.state().hero!;
+        return { feet: t.project(h.x, h.y, h.z).y, hud: document.querySelector('.hud-level')!.getBoundingClientRect().top };
+      });
+      expect(feet.hud - feet.feet, 'running feet over the speed line').toBeGreaterThanOrEqual(8);
       await page.screenshot({ path: `${dir}/l1-run-hud.png` });
       await page.evaluate(() => window.__TEST__!.stick(0, 0));
       const st4 = W.stages[3]!;
@@ -59,6 +68,8 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
         window.__TEST__!.teleport(z);
       }, [threshold(st4.level - 3), st4.z0 - 5] as const);
       await expect(page.locator('[data-role="need"]')).toHaveText(/Ещё 3 уровня до рубежа/);
+      // After any toast of the stat jump (review: l2 was shot under «LEVEL UP!»): the plaque of the ridge in the slot.
+      await expect(page.locator('[data-role="toast"].shown')).toHaveCount(0, { timeout: 10_000 });
       await page.waitForTimeout(400);
       await page.screenshot({ path: `${dir}/l2-gate.png` });
       await page.evaluate(([s, z, x, y]) => {
@@ -168,8 +179,14 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
         await page.screenshot({ path: `${dir}/w-${id}.png` });
         await closeWindow(page);
       }
-      await scaleText(page, 1.3);
-      for (const [id, open] of windows.filter(([x]) => x === 'gifts' || x === 'daily' || x === 'shop')) {
+      // The rotate screen at the text of 100 % (review: shot after the 130 % it showed a 31 px title).
+      await page.setViewportSize({ width: view.height, height: view.width });
+      await expect(page.locator('[data-role="rotate"].shown')).toBeVisible();
+      await page.screenshot({ path: `${dir}/p1-rotate.png` });
+      await page.setViewportSize(view);
+      await expect(page.locator('[data-role="rotate"].shown')).toHaveCount(0);
+      // Every window at 130 % text (the brief asks «Gifts», «Calendar» and «Shop»; the review asked all of them).
+      for (const [id, open] of windows) {
         await open();
         await expect(page.locator('[data-role="window"].open')).toBeVisible();
         await scaleText(page, 1.3);
@@ -177,9 +194,6 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
         await page.screenshot({ path: `${dir}/w-${id}-130.png` });
         await closeWindow(page);
       }
-      await page.setViewportSize({ width: view.height, height: view.width });
-      await expect(page.locator('[data-role="rotate"].shown')).toBeVisible();
-      await page.screenshot({ path: `${dir}/p1-rotate.png` });
     });
   });
 }

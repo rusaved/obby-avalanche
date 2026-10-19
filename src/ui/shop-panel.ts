@@ -10,6 +10,7 @@
  */
 import { t } from './i18n.ts';
 import { icon } from './icons.ts';
+import { markIcon } from './daily-panel.ts';
 import { playButton } from './footsteps-panel.ts';
 
 export type ShopTab = 'shoes' | 'eggs' | 'steps' | 'trails' | 'auras' | 'special';
@@ -150,7 +151,7 @@ export function renderShopPanel(body: HTMLElement, head: HTMLElement, m: ShopPan
       btn = el('button', 'card-btn off', t('shop.owned'));
     } else if (c.state === 'locked') {
       btn = el('span', 'card-lock');
-      btn.innerHTML = icon('lock');
+      btn.innerHTML = markIcon('lock');
       btn.appendChild(el('span', '', c.lock ?? ''));
     } else {
       card.appendChild(c.coin ? coinPrice(c.price) : trophyPrice(c.price));

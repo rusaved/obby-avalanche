@@ -56,6 +56,7 @@ import { createHudView, type HudView } from './app/hud-view.ts';
 import { createStageView, type StageView } from './app/stage-view.ts';
 import { createCampView, type CampView } from './app/camp-view.ts';
 import { setWalletTrophies } from './ui/shop-panel.ts';
+import { setLineMarks } from './ui/daily-panel.ts';
 import { levelNeeded } from './sim/levels.ts';
 import { createBotsView, type BotsView, type HudMode } from './app/bots-view.ts';
 import { faceDataUrl } from './render/characters.ts';
@@ -103,8 +104,9 @@ const FULL_NUMBERS_BELOW = 1_000_000;
 /** MU-05: «+N» right of the hero's head — at this share of the hero's height, this many px to the right. */
 const MU_GAIN_HEAD = 0.85;
 const MU_GAIN_SIDE = 26;
-/** MU-03: a ridge sign of the phone layout is drawn this close to the hero (world units) — where it reads. */
-const SIGN_READ_RANGE = 70;
+/** MU-03: a ridge sign of the phone layout is drawn this close to the hero (world units) — where it reads; round of fixes
+ * MU (docs/допущения.md 96): the smaller sign on its post reads in the last ~10 units, farther it was a speck. */
+const SIGN_READ_RANGE = 16;
 /** MU-07 (w1-gifts): tiles of the rewards for the time in the «Gifts» window. */
 const GIFT_TILES = 4;
 /** A gate melts into an arch in 0.4 s (docs/01-gdd.md 3.3). */
@@ -2086,6 +2088,7 @@ async function boot(): Promise<void> {
   const skin = skins.skins.find((x) => x.id === skins.default) ?? skins.skins[0];
   // Stages pace (docs/01-gdd.md 22.8): the coin wallet is trophies in the windows too.
   setWalletTrophies(balance.currency === 'trophies');
+  setLineMarks(muLayout);
   hudView = createHudView({
     balance,
     theme,

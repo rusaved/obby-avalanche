@@ -109,7 +109,10 @@ export function createStageView(d: StageViewDeps): StageView {
       let best = -1;
       for (let k = 0; k < stages.length; k++) {
         const st = stages[k]!;
-        if (st.trophies <= 0 || sim.padTaken[k] || Math.abs(st.pad.z - h.z) > LABEL_NEAR) continue;
+        // Round of fixes MU (mockup check, l3: the plaque went out the moment the reward came): a taken pad keeps it while
+        // the hero stands on it.
+        const onPad = d.mu && Math.abs(st.pad.x - h.x) <= PAD_HALF + 1 && Math.abs(st.pad.z - h.z) <= PAD_HALF + 1;
+        if (st.trophies <= 0 || (sim.padTaken[k] && !onPad) || Math.abs(st.pad.z - h.z) > LABEL_NEAR) continue;
         if (best < 0 || Math.abs(st.pad.z - h.z) < Math.abs(stages[best]!.pad.z - h.z)) best = k;
       }
       const st = best >= 0 ? stages[best]! : null;
