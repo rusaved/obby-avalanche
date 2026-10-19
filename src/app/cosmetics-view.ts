@@ -31,7 +31,7 @@ export interface ShopTabSource {
   preview?(id: string): void;
 }
 import { renderWardrobePanel, skinFigure, type LookCard, type WardrobeTab, type WingsLook } from '../ui/wardrobe-panel.ts';
-import { formatMult, formatNumber } from '../ui/format.ts';
+import { formatMult, formatNumber, shownTier } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
 
 export interface CosmeticsViewDeps {
@@ -137,7 +137,7 @@ export function createCosmeticsView(d: CosmeticsViewDeps): CosmeticsView {
   };
   const source = (x: LookItem): string => {
     const n = x.unlock.value ?? '';
-    if (x.unlock.kind === 'tier') return t('wardrobe.fromTier', { n });
+    if (x.unlock.kind === 'tier') return t('wardrobe.fromTier', { n: shownTier(Number(n)) });
     if (x.unlock.kind === 'daily') return t('wardrobe.fromDay', { n });
     return t('wardrobe.fromStarter');
   };

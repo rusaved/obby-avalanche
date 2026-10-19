@@ -18,7 +18,7 @@ import type { LookKind } from '../meta/cosmetics.ts';
 import { markSummit, rebirthGoal, rebirthPreview, rebirthReady, summitsDone } from '../meta/rebirth.ts';
 import { eggPrice } from '../meta/pets.ts';
 import { renderAllDonePanel, renderRebirthPanel } from '../ui/rebirth-panel.ts';
-import { formatMult } from '../ui/format.ts';
+import { formatMult, shownTier } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
 
 export interface RebirthViewDeps {
@@ -62,7 +62,7 @@ export function createRebirthView(d: RebirthViewDeps): RebirthView {
       body,
       head,
       {
-        tier: t('rebirth.toTier', { n: p.tier }),
+        tier: t('rebirth.toTier', { n: shownTier(p.tier) }),
         ready: view.ready,
         locked: `${t('rebirth.locked', { n: goal })} · ${t('rebirth.progress', { a: summitsDone(d.save), b: goal })}`,
         step: t('rebirth.step', { a: formatMult(p.stepNow, d.numSuffix), b: formatMult(p.stepNext, d.numSuffix) }),

@@ -20,7 +20,7 @@ test('after mountain 2 the board shows the save (best Speed, trophies, 2/10, tie
   await nextSummit(page, 2);
   const s = await testState(page);
   const fmt = (n: number): Promise<string> => page.evaluate((x) => window.__TEST__!.fmt(x), n);
-  expect(s.baseBoard).toEqual(['Мои рекорды', `Лучшая Скорость: ${await fmt(s.bestStat)}`, `Кубков всего: ${await fmt(s.trophies.total)}`, `Вершины 2/${worlds.length}`, 'Ступень 0']);
+  expect(s.baseBoard).toEqual(['Мои рекорды', `Лучшая Скорость: ${await fmt(s.bestStat)}`, `Кубков всего: ${await fmt(s.trophies.total)}`, `Вершины 2/${worlds.length}`, 'Ступень 1']);
   expect(s.trophies.total).toBeGreaterThan(0);
   await standAtBoard(page);
   expect((await testState(page)).standButton).toBeNull();

@@ -89,7 +89,7 @@ test('wardrobe: a skin and wings for trophies go onto the hero, locked cards sho
   await expect(page.locator('[data-hud="wardrobe-tab-skins"]')).toHaveText('Скины 1/12');
   await expect(page.locator('[data-hud="wardrobe-tab-wings"]')).toHaveText('Крылья 0/8');
   const grid = page.locator('[data-role="wardrobe-grid"]');
-  await expect(grid.locator('[data-skin="snow_ninja"] [data-role="look-source"]')).toHaveText('Ступень 1');
+  await expect(grid.locator('[data-skin="snow_ninja"] [data-role="look-source"]')).toHaveText('Ступень 2');
   await expect(grid.locator('[data-skin="penguin_suit"] [data-role="look-source"]')).toHaveText('День 2');
   await expect(grid.locator('[data-skin="golden"] [data-role="look-source"]')).toHaveText('Стартовый набор');
   await expect(grid.locator('[data-skin="ice_knight"] [data-hud="wardrobe-item"]')).toHaveText('Ещё 20');
@@ -103,7 +103,7 @@ test('wardrobe: a skin and wings for trophies go onto the hero, locked cards sho
   await page.screenshot({ path: 'docs/evidence/M3/wardrobe_skins_1920x1080_ru.png' });
   // Wings: ice wings for 10; comet wings locked behind tier 10.
   await page.locator('[data-hud="wardrobe-tab-wings"]').click();
-  await expect(grid.locator('[data-wings="wings_comet"] [data-role="look-source"]')).toHaveText('Ступень 10');
+  await expect(grid.locator('[data-wings="wings_comet"] [data-role="look-source"]')).toHaveText('Ступень 11');
   await expect(grid.locator('[data-wings="wings_snow"] [data-role="look-source"]')).toHaveText('День 7');
   await grid.locator('[data-wings="wings_ice"] [data-hud="wardrobe-item"]').click();
   s = await testState(page);

@@ -69,7 +69,7 @@ import { buildLevel } from './level/builder.ts';
 import { eggSpotIn } from './sim/gift-egg.ts';
 import { createSim, controllerParams, type Sim } from './sim/world.ts';
 import { HERO_HEIGHT } from './sim/controller.ts';
-import { setFullNumbersBelow, formatNumber, formatTimer, setNumberLocale } from './ui/format.ts';
+import { setFullNumbersBelow, formatNumber, formatTimer, setNumberLocale, shownTier } from './ui/format.ts';
 import { moveSpeed } from './sim/effects/moveSpeed.ts';
 import { InputManager } from './input/manager.ts';
 import { applyManualTurn, createControlFrame, onMoveStarted, toWorld } from './input/control-frame.ts';
@@ -1376,7 +1376,7 @@ async function boot(): Promise<void> {
     meta?.resetShoes();
     cosmeticsView?.syncHero();
     hud?.setCoins(formatNumber(r.coins, numSuffix));
-    hud?.toast(t('toast.tier', { n: r.tier }), 3, true);
+    hud?.toast(t('toast.tier', { n: shownTier(r.tier) }), 3, true);
     const flash = document.createElement('div');
     flash.className = 'fade-flash';
     ui.appendChild(flash);

@@ -45,7 +45,7 @@ test('rebirth window ru: locked until mountain 5, then rebirth to tier 1 — cam
   await page.locator('[data-hud="menu-rebirth"]').dispatchEvent('pointerdown');
   const win = page.locator('[data-role="window"][data-window="rebirth"]');
   await expect(win.locator('.win-title')).toHaveText('Перерождение');
-  await expect(page.locator('[data-role="rebirth-tier"]')).toHaveText('Ступень 1');
+  await expect(page.locator('[data-role="rebirth-tier"]')).toHaveText('Ступень 2');
   await expect(page.locator('[data-role="rebirth-resets"]')).toContainText('Обнулится');
   await expect(page.locator('[data-role="rebirth-resets"] li')).toHaveText(['Скорость', 'Монеты', 'Кроссовки', 'Горы — снова с первой']);
   await expect(page.locator('[data-role="rebirth-keeps"] li')).toHaveText(['Питомцы', 'Скины и крылья', 'Трейлы и ауры', 'Кубки', 'Календарь и задания']);
@@ -75,7 +75,7 @@ test('rebirth window ru: locked until mountain 5, then rebirth to tier 1 — cam
   expect(s.skin).toBe('snow_ninja');
   expect(s.trophies.now).toBe(3);
   expect(s.pets).toContain('bunny');
-  expect(s.waveHud.toast).toContain('Ступень 1! Шаг ×3');
+  expect(s.waveHud.toast).toContain('Ступень 2! Шаг ×3');
   // Step ×3 of the tier with the starting pair: the shoes multiplier went, the pet (Bunny +20%) stayed.
   expect(s.gainMult).toBeCloseTo(3 * 1.2, 6);
   // Walls of tier 1: × wallScale[1] = 15 (wall 1: 20 → 300).

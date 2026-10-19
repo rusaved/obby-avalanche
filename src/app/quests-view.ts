@@ -138,7 +138,7 @@ export function createQuestsView(d: QuestsViewDeps): QuestsView {
       body,
       {
         rows: (q?.list ?? []).map((x) => ({
-          text: t(`quests.${x.id}`, { n: x.n }),
+          text: t(`quests.${x.id}`, { n: formatNumber(x.n, d.numSuffix) }),
           progress: `${formatNumber(Math.floor(x.k), d.numSuffix)}/${formatNumber(x.n, d.numSuffix)}`,
           frac: x.k / x.n,
           state: x.got ? 'got' : questDone(x) ? 'ready' : 'run',

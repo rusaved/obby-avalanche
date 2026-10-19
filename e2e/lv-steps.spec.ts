@@ -77,7 +77,7 @@ test('«Footsteps» from the pause (MU-07, MU-12): five cards, «Light snow» on
   await expect(win.locator(`[data-footsteps="${free[0]}"] .card-name`)).toHaveText('Лёгкий снег');
   await expect(win.locator('[data-hud="footsteps-ad"]')).toHaveCount(0);
   await expect(win.locator('[data-hud="footsteps-buy"]')).toHaveCount(0);
-  await expect(win.locator('[data-footsteps="whisper_snow"]')).toContainText('Календарь · день 2');
+  await expect(win.locator('[data-footsteps="whisper_snow"]')).toContainText('День 2');
   for (const s of shop) await expect(win.locator(`[data-footsteps="${s.id}"] [data-hud="footsteps-shop"]`)).toBeVisible();
   await expect(win.locator(`[data-footsteps="${shop[2]!.id}"] .foot-lock`)).toContainText(String(shop[2]!.price));
 

@@ -5,7 +5,7 @@
 import type { LeaderEntry } from '../platform/types.ts';
 import type { SaveData } from '../meta/save.ts';
 import type { WindowFrame } from '../ui/window.ts';
-import { formatNumber } from '../ui/format.ts';
+import { formatNumber, shownTier } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
 
 /** The window waits this long for the table (docs/01-gdd.md 7.9). */
@@ -58,7 +58,7 @@ export function createRecordsView(d: RecordsViewDeps): RecordsView {
         `${t('records.bestStat')}: ${fmt(save.bestStat ?? 0)}`,
         `${t('records.trophiesTotal')}: ${fmt(save.trophiesTotal ?? 0)}`,
         t('records.summits', { a: summits, b: mountains }),
-        t('records.tier', { n: save.tier ?? 0 }),
+        t('records.tier', { n: shownTier(save.tier ?? 0) }),
       ];
     },
     openOwn(lines) {

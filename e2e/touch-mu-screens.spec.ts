@@ -344,6 +344,69 @@ test.describe('MU phone screens', () => {
     await page.screenshot({ path: 'docs/evidence/MU/w-daily.png' });
   });
 
+  test('round of fixes 7 (staff 19.10): every window — numbers «5 300», a title alone on the line of the cross, 8 px from a mark to its words, body text not bold, a lock on one line inside its card, tiers counted from 1, tabs at the top of the list', async ({ page, openGame }) => {
+    test.setTimeout(240_000);
+    await openGame('pace=stages');
+    await prepare(page, `window.__TEST__.setStat(${threshold(30)});`);
+    const more = (id: string) => async (): Promise<void> => {
+      await tap(page, 'menu-more');
+      await page.locator(`[data-hud="more-${id}"]`).click();
+    };
+    const open: Array<[string, () => Promise<void>]> = [
+      ['gifts', () => tap(page, 'gift')], ['camp-teleport', () => tap(page, 'menu-teleport')], ['pause', () => tap(page, 'pause')], ['more', () => tap(page, 'menu-more')],
+      ['shop', () => tap(page, 'menu-shop')], ['pets', () => tap(page, 'menu-pets')], ['footsteps', more('footsteps')], ['wardrobe', more('wardrobe')], ['rebirth', more('rebirth')],
+      ['records', more('records')], ['quests', more('quests')], ['daily', more('daily')],
+    ];
+    const tiers: string[] = [];
+    for (const [id, fn] of open) {
+      await fn();
+      await expect(page.locator('[data-role="window"].open')).toBeVisible();
+      await page.waitForTimeout(250);
+      const r = await page.evaluate(() => {
+        const w = document.querySelector('[data-role="window"].open')!;
+        const bad: string[] = [];
+        const text = (w as HTMLElement).innerText;
+        for (const m of text.matchAll(/\d{4,}/g)) bad.push(`number without a space: ${m[0]}`);
+        const title = w.querySelector('.win-title')!.getBoundingClientRect();
+        const sub = w.querySelector('.win-sub') as HTMLElement;
+        const cross = (w.querySelector('.win-close') as HTMLElement).getBoundingClientRect();
+        if (!sub.textContent && cross.width > 0 && Math.abs(title.top + title.height / 2 - (cross.top + cross.height / 2)) > 2) bad.push('the title off the line of the cross');
+        for (const b of Array.from(w.querySelectorAll('button'))) {
+          const mark = b.querySelector(':scope > .mark:first-child');
+          const words = Array.from(b.childNodes).find((n) => n.nodeType === 3 && n.textContent!.trim());
+          if (!mark || !words) continue;
+          const range = document.createRange();
+          range.selectNodeContents(words);
+          const tr = range.getBoundingClientRect();
+          const mr = mark.getBoundingClientRect();
+          const gap = mr.left < tr.left ? tr.left - mr.right : mr.left - tr.right;
+          if (gap < 6 || gap > 13) bad.push(`mark ${Math.round(gap)} px from «${b.textContent!.trim()}»`);
+        }
+        for (const e of Array.from(w.querySelectorAll('.mu-row-label, .qs-text, .rb-list, .win-row'))) if (Number(getComputedStyle(e).fontWeight) > 500) bad.push(`bold body text «${e.textContent!.trim().slice(0, 20)}»`);
+        for (const e of Array.from(w.querySelectorAll<HTMLElement>('.card-lock, .foot-lock'))) {
+          const lr = e.getBoundingClientRect();
+          const card = e.closest('.card')?.getBoundingClientRect();
+          const line = Number.parseFloat(getComputedStyle(e).fontSize) * 1.6;
+          const words = Array.from(e.querySelectorAll('span')).map((x) => x.getBoundingClientRect()).filter((x) => x.width > 0 && x.height < line);
+          if (words.length === 0 && lr.width > 0) bad.push(`lock on two lines «${e.textContent!.trim()}»`);
+          if (card && (lr.left < card.left - 0.5 || lr.right > card.right + 0.5)) bad.push(`lock out of its card «${e.textContent!.trim()}»`);
+        }
+        const tabs = w.querySelector('.win-tabs');
+        if (tabs && !tabs.parentElement!.classList.contains('win-body')) bad.push('tabs out of the list top');
+        return { bad, tiers: text.match(/Ступень \d+/g) ?? [] };
+      });
+      expect(r.bad, id).toEqual([]);
+      tiers.push(...r.tiers.map((x) => `${id}: ${x}`));
+      await page.keyboard.press('Escape');
+      await expect(page.locator('[data-role="window"].open')).toHaveCount(0);
+      await page.waitForTimeout(400);
+    }
+    // One numbering: a newcomer is on tier 1 (records), the rebirth brings tier 2, no «Ступень 0» anywhere.
+    expect(tiers).toContain('records: Ступень 1');
+    expect(tiers).toContain('rebirth: Ступень 2');
+    expect(tiers.filter((x) => x.endsWith('Ступень 0'))).toEqual([]);
+  });
+
   test('MU-06 camp: «Camp · mountain 1», no shoes button, no ads or group buttons on the scene, bot names 11 px', async ({ page, openGame }) => {
     await openGame('pace=stages');
     await prepare(page, `window.__TEST__.setStat(${threshold(30)});`);

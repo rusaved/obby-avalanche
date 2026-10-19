@@ -718,5 +718,13 @@ canvas.fallback {
 #ui.mu .win-grid .card-pic { width: 44px; height: 44px; }
 #ui.mu .win-grid .card > :last-child { margin-top: auto; }
 #ui.mu .btn-primary.ok { background: var(--mu-ok); color: var(--mu-ok-text); }
+/* Round of fixes MU, fix 7 (staff 19.10), the windows of one style: a title without a subtitle on the line of the
+   cross; 8 px between a mark and the words of its button; the body text not bold (500), card names and numbers 600;
+   a lock line on one line. */
+#ui.mu .win-heading { min-height: 44px; justify-content: center; }
+#ui.mu .win-panel button > .mark:first-child { margin-right: 6px; }
+#ui.mu .mu-row-label, #ui.mu .qs-text, #ui.mu .rb-list, #ui.mu .rb-small, #ui.mu .win-row, #ui.mu .win-row span { font-weight: 500; }
+#ui.mu .card-name, #ui.mu .qs-num, #ui.mu .gf-timer { font-weight: 600; }
+#ui.mu .card-lock, #ui.mu .foot-lock { white-space: nowrap; font-size: 12px; }
 /* Round of fixes MU (staff 19.10): «Take» of the calendar no wider than «Continue» of the pause. */
 #ui.mu .dl-foot .btn-primary { width: auto; min-width: 200px; margin-top: 0; padding: 0 24px; }

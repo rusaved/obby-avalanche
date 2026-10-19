@@ -64,6 +64,12 @@ export function formatMult(n: number, suffix: (key: string) => string = (k) => k
   return nf.format(Math.floor(n * scale * (1 + EPS)) / scale);
 }
 
+/** Round of fixes MU (staff 19.10: «Ступень 0» in the records, «Ступень 1» in the rebirth window; Q-MU-13): a tier is
+ * shown counted from 1, as the levels — a newcomer stands on «Tier 1», the first rebirth brings «Tier 2». */
+export function shownTier(tier: number): number {
+  return tier + 1;
+}
+
 /** Timer of docs/01-gdd.md 10.4: «2:41», over an hour «1:05:00». */
 export function formatTimer(sec: number): string {
   const s = Math.max(0, Math.ceil(sec));
