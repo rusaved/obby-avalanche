@@ -801,3 +801,6 @@ canvas.fallback {
 .hud.mu .hud-level-fill { background: var(--mu-stat); }
 .hud.mu .hud-toast-sub { display: block; margin-top: 4px; line-height: 14px; }
 .hud.mu .hud-coin-value, .hud.mu .hud-trophy-value, .hud.mu .hud-stat-value, .hud.mu .hud-level-progress, .hud.mu .hud-shoes-text, .hud.mu .hud-toast-main { word-spacing: 0.15em; }
+/* MU round of fixes 2 (usability review): over the pinned buttons of «Rebirth» and «Calendar» the chevron shows the scroll too. */
+#ui.mu .win-body[data-more] .rb-btns { position: sticky; }
+#ui.mu .win-body[data-more] .rb-btns::before { content: ''; position: absolute; right: 6px; top: -16px; width: 16px; height: 16px; pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 16px 16px no-repeat; }
