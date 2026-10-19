@@ -1,0 +1,13 @@
+commit bc26e40 start 19:37
+
+> obby-avalanche@0.1.0 verify
+> node scripts/verify.mjs
+
+
+== verify: typecheck
+-- verify: typecheck ok, 5.9 s
+
+== verify: test
+
+ RUN  v5.0.3 /home/user/obby-avalanche
+
