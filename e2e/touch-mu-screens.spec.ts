@@ -283,9 +283,11 @@ test.describe('MU phone screens', () => {
         const row = w.cards.filter((c) => Math.abs(c.top - first) < 2);
         for (const c of row) expect(c.bottom, `${id}: the first row whole`).toBeLessThanOrEqual(w.bottom + 0.5);
         const next = w.cards.filter((c) => c.top > first + 2);
-        expect(next.length, `${id}: more rows`).toBeGreaterThan(0);
-        expect(Math.min(...next.map((c) => c.top)), `${id}: the next row peeks`).toBeLessThan(w.bottom - 8);
-        expect(w.scroll, `${id}: the list scrolls`).toBeGreaterThan(w.client);
+        // Round of fixes 2: the five sets of steps fit one row (as «Footsteps»); a longer list peeks and scrolls.
+        if (next.length > 0) {
+          expect(Math.min(...next.map((c) => c.top)), `${id}: the next row peeks`).toBeLessThan(w.bottom - 8);
+          expect(w.scroll, `${id}: the list scrolls`).toBeGreaterThan(w.client);
+        }
         // Scrolled down, the tabs stay at the top of the middle.
         expect(w.tabs, `${id}: tabs`).not.toBeNull();
         await page.evaluate(() => {
@@ -294,7 +296,8 @@ test.describe('MU phone screens', () => {
         });
         await page.waitForTimeout(150);
         const after = await body();
-        expect(Math.abs(after.tabs! - after.top), `${id}: tabs pinned over the list`).toBeLessThanOrEqual(1);
+        // Round of fixes 2: the wardrobe keeps its tabs under the hero in the side column — they stay where they were.
+        expect(Math.abs(after.tabs! - (id === 'wardrobe' ? w.tabs! : after.top)), `${id}: tabs pinned over the list`).toBeLessThanOrEqual(1);
         await page.screenshot({ path: `docs/evidence/MU/w-${id.replace(' ', '-')}-${view.width}-scrolled.png` });
         await page.keyboard.press('Escape');
         await expect(page.locator('[data-role="window"].open')).toHaveCount(0);
@@ -392,7 +395,7 @@ test.describe('MU phone screens', () => {
           if (card && (lr.left < card.left - 0.5 || lr.right > card.right + 0.5)) bad.push(`lock out of its card «${e.textContent!.trim()}»`);
         }
         const tabs = w.querySelector('.win-tabs');
-        if (tabs && !tabs.parentElement!.classList.contains('win-body')) bad.push('tabs out of the list top');
+        if (tabs && !tabs.parentElement!.classList.contains('win-body') && !tabs.parentElement!.classList.contains('wr-side')) bad.push('tabs out of the list top');
         return { bad, tiers: text.match(/Ступень \d+/g) ?? [] };
       });
       expect(r.bad, id).toEqual([]);

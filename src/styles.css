@@ -752,7 +752,7 @@ canvas.fallback {
 #ui.mu .win-body { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.45) transparent; }
 #ui.mu .win-body::-webkit-scrollbar { width: 4px; }
 #ui.mu .win-body::-webkit-scrollbar-thumb { border-radius: 2px; background: rgba(255, 255, 255, 0.45); }
-#ui.mu .win-body[data-more]::after { content: ''; position: sticky; bottom: 0; z-index: 3; display: block; height: 28px; margin-top: -28px; pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center bottom 2px / 18px 18px no-repeat, linear-gradient(transparent, var(--mu-panel) 70%); }
+#ui.mu .win-body[data-more]::after { content: ''; position: sticky; bottom: 0; z-index: 3; display: block; height: 16px; margin-top: -16px; pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") right 6px bottom 0 / 16px 16px no-repeat, linear-gradient(transparent, var(--mu-panel)); }
 #ui.mu .win-body[data-more]:has(> * .rb-btns, > .rb-btns)::after { display: none; }
 #ui.mu .win-body[data-more] .rb-btns { box-shadow: 0 -14px 12px -6px var(--mu-panel); }
 #ui.mu .card, #ui.mu .win-grid .card, #ui.mu .foot-card, #ui.mu .gf-card, #ui.mu .gf-tile, #ui.mu .tr-tile, #ui.mu .more-btn { padding-left: 8px; padding-right: 8px; }
@@ -779,3 +779,18 @@ canvas.fallback {
 /* MU round of fixes 2 (staff: no plaque on l3): «Stage reward» stays on the pad under the «+N» toast (it keeps 8 px off
    the toast by itself). */
 .hud.mu.toasting .hud-pad.two { visibility: visible; }
+/* MU round of fixes 2 (staff: «Shop → Steps» 4 in a row, one row of skins in the wardrobe, the hero cut at the bottom):
+   the sets of steps in the shop in the grid of «Footsteps»; the wardrobe — the hero and the tabs in a side column as tall
+   as the middle, cards with the figure and the price on one line: two rows in sight. */
+.wr-side, .wr-top { display: contents; }
+.wardrobe { flex-wrap: wrap; }
+.wardrobe > .wr-side > .win-tabs { order: -1; flex: 1 0 100%; }
+#ui.mu .wardrobe { flex-wrap: nowrap; }
+#ui.mu .wr-side { position: sticky; top: 0; z-index: 4; flex: none; width: 150px; height: var(--win-body-h, 224px); display: flex; flex-direction: column; gap: 8px; }
+#ui.mu .wr-side .wardrobe-stage { position: static; flex: 1 1 auto; min-height: 0; width: auto; height: auto; }
+#ui.mu .wr-side .fig.big { --u: 10px; width: 60px; height: 98px; }
+#ui.mu .wr-side .win-tabs { order: 0; flex: none; flex-direction: column; margin: 0; }
+#ui.mu .wr-side .win-tab { width: 100%; padding: 0 8px; }
+#ui.mu .wardrobe .win-grid .card { padding: 4px 8px; gap: 2px; }
+#ui.mu .wr-top { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 34px; }
+#ui.mu .wardrobe .card .fig:not(.big) { --u: 3.5px; width: 21px; height: 34px; }

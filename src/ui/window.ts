@@ -99,8 +99,20 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
   dim.appendChild(panel);
   host.appendChild(dim);
 
+  // MU round of fixes 2 (staff: a blue «Buy» on every card): one blue button in a window — its main button if it has
+  // one, else the first card button that can be pressed; the other card buttons are quiet.
+  const oneAccent = (): void => {
+    const main = !foot.hidden || !!body.querySelector('.btn-primary');
+    let kept = main;
+    for (const b of Array.from(body.querySelectorAll<HTMLButtonElement>('.card-btn'))) {
+      if (b.matches('.quiet, .alt, .ok, .off, :disabled')) continue;
+      if (kept) b.classList.add('quiet');
+      kept = true;
+    }
+  };
   // MU round of fixes 2: `data-more` while the middle has more below (a fade with a chevron shows it scrolls).
   const markMore = (): void => {
+    body.style.setProperty('--win-body-h', `${body.clientHeight}px`);
     body.toggleAttribute('data-more', body.scrollHeight - body.scrollTop - body.clientHeight > 2);
   };
   body.addEventListener('scroll', markMore, { passive: true });
@@ -151,6 +163,7 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
       body.replaceChildren();
       head.replaceChildren();
       render(body, head);
+      if (opts.mu) oneAccent();
       body.scrollTop = scroll;
       if (watch) {
         watch.disconnect();

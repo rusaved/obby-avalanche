@@ -94,9 +94,10 @@ export function renderWardrobePanel(body: HTMLElement, head: HTMLElement, m: War
     tab.addEventListener('click', () => a.tab(id));
     tabs.appendChild(tab);
   }
-  // Round of fixes MU (staff 19.10): the tabs where the shop has them — over the list, pinned while it scrolls.
-  body.appendChild(tabs);
+  // MU round of fixes 2 (staff: one row of skins in sight): the tabs under the hero in a side column held in the middle
+  // while the cards scroll (on a computer the side column dissolves: the tabs over the list, as the shop has them).
   const row = el('div', 'wardrobe');
+  const side = el('div', 'wr-side');
   const stage = el('div', 'wardrobe-stage');
   stage.dataset['role'] = 'wardrobe-hero';
   stage.appendChild(skinFigure(m.current, true, m.currentWings));
@@ -105,7 +106,10 @@ export function renderWardrobePanel(body: HTMLElement, head: HTMLElement, m: War
   for (const c of m.cards) {
     const card = el('div', c.state === 'on' ? 'card on' : c.state === 'locked' ? 'card locked' : 'card');
     card.dataset[m.tab === 'skins' ? 'skin' : 'wings'] = c.id;
-    card.append(skinFigure(c.skin, false, c.wings), el('span', 'card-name', c.name));
+    // The figure and the price share the top line of the card (two rows of cards in sight on a phone).
+    const top = el('div', 'wr-top');
+    top.appendChild(skinFigure(c.skin, false, c.wings));
+    card.append(top, el('span', 'card-name', c.name));
     let btn: HTMLButtonElement | null = null;
     if (c.state === 'on') btn = el('button', 'card-btn off', t('shop.equipped'));
     else if (c.state === 'owned') {
@@ -119,7 +123,7 @@ export function renderWardrobePanel(body: HTMLElement, head: HTMLElement, m: War
       lock.append(i, el('span', '', c.source ?? ''));
       card.appendChild(lock);
     } else {
-      card.appendChild(trophyPrice(c.price ?? ''));
+      top.appendChild(trophyPrice(c.price ?? ''));
       btn = el('button', c.state === 'short' ? 'card-btn off' : 'card-btn', c.state === 'short' ? (c.need ?? '') : t('btn.buy'));
       if (c.state === 'buy') btn.addEventListener('click', () => a.buy(c.id));
     }
@@ -129,6 +133,7 @@ export function renderWardrobePanel(body: HTMLElement, head: HTMLElement, m: War
     }
     grid.appendChild(card);
   }
-  row.append(stage, grid);
+  side.append(stage, tabs);
+  row.append(side, grid);
   body.appendChild(row);
 }

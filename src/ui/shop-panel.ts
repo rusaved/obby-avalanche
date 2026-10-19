@@ -112,10 +112,12 @@ export function renderShopPanel(body: HTMLElement, head: HTMLElement, m: ShopPan
     tabs.appendChild(b);
   }
   body.appendChild(tabs);
-  const grid = el('div', 'win-grid');
+  // MU round of fixes 2 (staff: 4 in a row): the sets of steps — the grid and cards of the «Footsteps» window.
+  const steps = m.cards.some((c) => c.sound);
+  const grid = el('div', steps ? 'win-grid foot-grid' : 'win-grid');
   grid.dataset['role'] = 'shop-grid';
   for (const c of m.cards) {
-    const card = el('div', c.state === 'on' ? 'card on' : c.state === 'locked' ? 'card locked' : 'card');
+    const card = el('div', `${c.state === 'on' ? 'card on' : c.state === 'locked' ? 'card locked' : 'card'}${steps ? ' foot-card' : ''}`);
     card.dataset['item'] = c.id;
     if (c.sound) card.appendChild(playButton(c.color, () => a.preview?.(c.id)));
     else if (c.pic) {

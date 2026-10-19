@@ -189,5 +189,52 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
           .filter((b) => b.width > 0 && r.left < b.right + 8 && b.left < r.right + 8 && r.top < b.bottom + 8 && b.top < r.bottom + 8).length;
       }), 'the board 8 px off the HUD').toBe(0);
     });
+
+    test('(4) «Shop → Steps» five in a row as «Footsteps»; two rows of skins and the whole hero in the wardrobe; one blue button a window', async ({ page, openGame }) => {
+      test.setTimeout(180_000);
+      await openGame('pace=stages');
+      await prepare(page, threshold(30));
+      const blue = (): Promise<number> =>
+        page.evaluate(() =>
+          Array.from(document.querySelectorAll('[data-role="window"].open button')).filter((b) => {
+            const r = b.getBoundingClientRect();
+            return r.width > 0 && getComputedStyle(b).visibility !== 'hidden' && getComputedStyle(b).backgroundColor === 'rgb(26, 115, 217)';
+          }).length,
+        );
+      const firstRow = (sel: string): Promise<number> =>
+        page.evaluate((q) => {
+          const cards = Array.from(document.querySelectorAll(q)).map((c) => c.getBoundingClientRect());
+          return cards.filter((r) => Math.abs(r.top - cards[0]!.top) < 1).length;
+        }, sel);
+      await more(page, 'footsteps')();
+      const foot = await firstRow('[data-role="window"].open .foot-card');
+      expect(await blue(), 'footsteps').toBeLessThanOrEqual(1);
+      await closeWindow(page);
+      await tap(page, 'menu-shop');
+      await page.locator('[data-hud="shop-tab-steps"]').click();
+      expect(await firstRow('[data-role="window"].open [data-role="shop-grid"] .card'), 'steps in a row').toBe(foot);
+      expect(foot).toBe(5);
+      expect(await blue(), 'shop steps').toBe(1);
+      await page.locator('[data-hud="shop-tab-shoes"]').click();
+      expect(await blue(), 'shop shoes').toBeLessThanOrEqual(1);
+      await closeWindow(page);
+      await tap(page, 'menu-pets');
+      expect(await blue(), 'pets').toBeLessThanOrEqual(1);
+      await closeWindow(page);
+      await more(page, 'wardrobe')();
+      expect(await blue(), 'wardrobe').toBeLessThanOrEqual(1);
+      const w = await page.evaluate(() => {
+        const body = document.querySelector('[data-role="window"].open .win-body')!.getBoundingClientRect();
+        const cards = Array.from(document.querySelectorAll('[data-role="wardrobe-grid"] .card')).map((c) => c.getBoundingClientRect());
+        const rows = [...new Set(cards.map((r) => Math.round(r.top)))];
+        const whole = cards.filter((r) => r.top >= body.top - 0.5 && r.bottom <= body.bottom + 0.5);
+        const hero = document.querySelector('[data-role="wardrobe-hero"]')!.getBoundingClientRect();
+        const tabs = Array.from(document.querySelectorAll('[data-hud^="wardrobe-tab-"]')).map((b) => b.getBoundingClientRect().bottom);
+        return { rowsWhole: rows.filter((top) => whole.some((r) => Math.round(r.top) === top)).length, hero: hero.bottom - body.bottom, tabs: Math.max(...tabs) - body.bottom };
+      });
+      expect(w.rowsWhole, 'two whole rows of skins').toBeGreaterThanOrEqual(2);
+      expect(w.hero, 'the hero card inside the middle').toBeLessThanOrEqual(0.5);
+      expect(w.tabs, 'the tabs inside the middle').toBeLessThanOrEqual(0.5);
+    });
   });
 }
