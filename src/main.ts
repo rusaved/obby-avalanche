@@ -315,7 +315,13 @@ async function boot(): Promise<void> {
   const keepTaken = (balance.gifts?.respawn ?? 'onWaveGone') === 'never';
   if (keepTaken) for (const i of keptGifts(save, world.index, sim.gifts.length)) sim.gifts[i]!.taken = true;
   /** The climb into the save (docs/01-gdd.md 7.10): stat, best stat, coins, mountain, farthest wall passed. */
-  const frontierOf = (s: Sim): number => s.level.gates.reduce((m, g, i) => (s.gatesPassed[i] ? Math.max(m, g.index) : m), 0);
+  const frontierOf = (s: Sim): number => {
+    const passed = s.level.gates.reduce((m, g, i) => (s.gatesPassed[i] ? Math.max(m, g.index) : m), 0);
+    // MU round of fixes 2 (staff: F5 after stage 3 stood him on stage 2): on the stages pace the ridges under the farthest
+    // stage reached count too — the camp teleport skips them on foot; after F5 he stands at the start of that stage (6.6).
+    const far = s.level.stages?.find((x) => x.n === (save.stageBest?.[String(s.level.worldIndex)] ?? 0));
+    return far ? s.level.gates.reduce((m, g) => (g.kind === 'ridge' && g.z <= far.z0 + 0.01 ? Math.max(m, g.index) : m), passed) : passed;
+  };
   function syncSave(): void {
     save.stat = sim.progress.stat;
     save.bestStat = Math.max(save.bestStat ?? 0, sim.progress.stat);
