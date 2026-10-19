@@ -1,1 +1,1 @@
-mountain 10, CPU x4, 300 ticks: sim.step mean 0.501 ms, median 0.200 ms, p90 1.000 ms, max 4.800 ms; whole tick mean 0.848 ms, median 0.500 ms, p90 1.900 ms, max 18.900 ms
+mountain 10, CPU x4, 300 ticks: sim.step mean 2.298 ms, median 1.300 ms, p90 4.400 ms, max 36.500 ms; whole tick mean 3.045 ms, median 1.900 ms, p90 6.000 ms, max 41.700 ms
