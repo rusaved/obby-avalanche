@@ -208,6 +208,10 @@ export interface Hud {
   setNeed(state: { text: string; ok: boolean } | null): void;
   /** The step of the stage tutorial under the goal (docs/01-gdd.md 22.12); null — none. */
   setTutor(text: string | null, urgent?: boolean): void;
+  /** Round of fixes MU (l5-camp): the light plaques of the portals of the base — «where» over «level · open» or a lock
+   * and its condition — hung by their bottom middle at (x, y), nearest first; one within 8 px of the HUD or of a plaque
+   * placed before it is not drawn; nor one over the hero's box `hero` (rule 3). An empty list hides them all. */
+  setPortalLabels(list: ReadonlyArray<{ text: string; sub: string; locked: boolean; x: number; y: number }>, hero?: { x0: number; y0: number; x1: number; y1: number }): void;
   /** «+N» with a trophy over the trophy button of a stage (docs/01-gdd.md 22.8); null — hidden. */
   setPadLabel(state: { text: string; x: number; y: number; tap?: boolean; sub?: string } | null): void;
   /** The portrait of a phone (the game is landscape, docs/03): «Turn your phone» over everything; false — hidden. */
@@ -859,6 +863,15 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     const o = slotOwner();
     if (root.dataset['slot'] !== o) root.dataset['slot'] = o;
   };
+  /** Round of fixes MU (rule 19): a mark of the world hung at (x, y) by its bottom middle — not drawn within 8 px of the HUD. */
+  const offHud = (e: HTMLElement, x: number, y: number): void => {
+    if (!opts.mu) return;
+    const w = e.offsetWidth;
+    const h = e.offsetHeight;
+    const v = hud.clearOfHud({ x0: x - w / 2, y0: y - h, x1: x + w / 2, y1: y }) ? '' : 'hidden';
+    if (e.style.visibility !== v) e.style.visibility = v;
+  };
+  const portalLabels: Array<{ el: HTMLElement; name: HTMLElement; sub: HTMLElement; key: string; w: number; h: number }> = [];
   let padKey = '';
   let padSize = { w: 0, h: 0 };
   // Round of fixes MU: the blocks of the phone HUD shown now (field px), read at most every RECTS_MS (they move rarely).
@@ -1249,15 +1262,59 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (standBtn.textContent !== state.text) standBtn.textContent = state.text;
       standBtn.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
     },
+    setPortalLabels(list, hero) {
+      while (portalLabels.length < list.length) {
+        const e = el('div', 'hud-egg hud-pad two hud-portal');
+        e.dataset['role'] = 'portal-label';
+        const name = el('span', 'hud-pad-text');
+        const sub = el('span', 'hud-pad-sub');
+        e.append(name, sub);
+        root.appendChild(e);
+        portalLabels.push({ el: e, name, sub, key: '', w: 0, h: 0 });
+      }
+      const placed: Array<{ x0: number; y0: number; x1: number; y1: number }> = hero ? [hero] : [];
+      portalLabels.forEach((p, i) => {
+        const s = list[i];
+        p.el.classList.toggle('shown', !!s);
+        if (!s) return;
+        const key = `${s.text}|${s.sub}|${s.locked}`;
+        if (p.key !== key) {
+          p.key = key;
+          p.name.textContent = s.text;
+          p.sub.replaceChildren();
+          if (s.locked) {
+            const lock = el('span', 'mark');
+            lock.innerHTML = icon('padlock');
+            p.sub.append(lock, ' ');
+          }
+          p.sub.append(s.sub);
+          p.el.classList.toggle('locked', s.locked);
+          p.w = p.el.offsetWidth;
+          p.h = p.el.offsetHeight;
+        }
+        // Over its arch; else slid aside of the hero, not farther than its own width from the arch.
+        const xs = [s.x, ...(hero ? [hero.x0 - LABEL_GAP - p.w / 2, hero.x1 + LABEL_GAP + p.w / 2] : [])].filter((x) => Math.abs(x - s.x) <= p.w);
+        const r = xs
+          .map((x) => ({ x0: x - p.w / 2, y0: s.y - p.h, x1: x + p.w / 2, y1: s.y }))
+          .find((q) => q.x0 >= EDGE_MU && q.x1 <= fieldW - EDGE_MU && q.y0 >= 0 && q.y1 <= fieldH && hud.clearOfHud(q) && !placed.some((b) => q.x0 < b.x1 + LABEL_GAP && b.x0 < q.x1 + LABEL_GAP && q.y0 < b.y1 + LABEL_GAP && b.y0 < q.y1 + LABEL_GAP));
+        p.el.style.visibility = r ? '' : 'hidden';
+        if (!r) return;
+        placed.push(r);
+        p.el.style.transform = `translate(${Math.round(r.x0)}px, ${Math.round(r.y0)}px)`;
+      });
+    },
     setStandLabel(state) {
       standLabel.classList.toggle('shown', state !== null);
       if (!state) return;
       if (standLabel.textContent !== state.text) standLabel.textContent = state.text;
       standLabel.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
+      offHud(standLabel, state.x, state.y);
     },
     setStandHand(pos) {
       standHand.classList.toggle('shown', pos !== null);
-      if (pos) standHand.style.transform = `translate(${Math.round(pos.x)}px, ${Math.round(pos.y)}px) translate(-50%, -100%)`;
+      if (!pos) return;
+      standHand.style.transform = `translate(${Math.round(pos.x)}px, ${Math.round(pos.y)}px) translate(-50%, -100%)`;
+      offHud(standHand, pos.x, pos.y);
     },
     setEggButton(state) {
       eggBtn.classList.toggle('shown', state !== null);
@@ -1280,7 +1337,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (padSub.textContent !== (state.sub ?? '')) padSub.textContent = state.sub ?? '';
       if (!opts.mu || !state.sub) {
         padLabel.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
-        padLabel.style.visibility = '';
+        // Round of fixes MU (rule 19): the «Teleport» plaque of the camp pad is not drawn within 8 px of the HUD either.
+        const w = opts.mu ? padLabel.offsetWidth : 0;
+        const h = opts.mu ? padLabel.offsetHeight : 0;
+        padLabel.style.visibility = !opts.mu || hud.clearOfHud({ x0: state.x - w / 2, y0: state.y - h, x1: state.x + w / 2, y1: state.y }) ? '' : 'hidden';
         return;
       }
       // Round of fixes MU (l3-stage-finish): «Stage reward» right of the pad — (x, y) is its right top corner — over it,

@@ -168,14 +168,15 @@ export async function cutText(page: Page): Promise<string[]> {
 
 /**
  * Round of fixes MU (docs/07-mobile-ui.md, rule 19; staff 19.10): the world labels drawn now — bot names, «Stage reward»
- * over a pad, the ridge signs (their world box projected) — that come within `gap` px of a HUD box. Empty — all clear.
+ * over a pad, the portal plaques of the base, the ridge signs (their world box projected) — that come within `gap` px of a
+ * HUD box. Empty — all clear.
  */
 export async function labelsOverHud(page: Page, gap = 8): Promise<string[]> {
   const hud = await hudBoxes(page);
   const labels = await page.evaluate(() => {
     const out: Array<{ id: string; x: number; y: number; w: number; h: number }> = [];
     const ui = document.getElementById('ui')!.getBoundingClientRect();
-    for (const el of Array.from(document.querySelectorAll<HTMLElement>('[data-role="bot-label"], [data-role="pad-label"].shown'))) {
+    for (const el of Array.from(document.querySelectorAll<HTMLElement>('[data-role="bot-label"], [data-role="pad-label"].shown, [data-role="portal-label"].shown'))) {
       const s = getComputedStyle(el);
       if (s.visibility === 'hidden' || Number(s.opacity) < 0.05 || s.display === 'none') continue;
       const r = el.getBoundingClientRect();

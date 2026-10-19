@@ -117,6 +117,15 @@ export function guardBannerSigns(hud: Hud, meshes: LevelMeshes, level: LevelData
   }
 }
 
+/** Round of fixes MU (docs/07-mobile-ui.md, rule 19): a portal sign of the base within 8 px of a block of the phone HUD
+ * is not drawn (back when clear). */
+export function guardBaseSigns(hud: Hud, base: BaseView, camera: PerspectiveCamera, field: { width: number; height: number }): void {
+  base.signBoxes.forEach((b, i) => {
+    const r = screenRect(camera, b.center, b.size, field);
+    base.setSignHidden(i, r !== null && !hud.clearOfHud(r));
+  });
+}
+
 /** Is a box on the line camera → hero (chest or head) or nearer than `near` to the camera. */
 export function flagInTheWay(camera: Vector3, hero: Vector3, box: { center: readonly number[]; size: readonly number[] }, near: number): boolean {
   if (near > 0 && segmentMeetsBox(camera, camera, box.center, box.size, near)) return true;

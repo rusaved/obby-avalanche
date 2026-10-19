@@ -150,7 +150,8 @@ export function createFtueView(d: FtueViewDeps): FtueView {
         jumped,
         touch: d.touch(),
         nearLedge,
-        shoesOffered: shoes.shown && shoes.level === 0,
+        // Round of fixes MU (review: the shoes hint hung in the camp, where the phone layout has no shoes button).
+        shoesOffered: shoes.shown && shoes.level === 0 && !d.hud.root.classList.contains('camp'),
         shoesBought: shoes.level > 0,
         petsOffered: d.petsOffered?.() ?? false,
         waveWarnId: warn ? waveId : 0,

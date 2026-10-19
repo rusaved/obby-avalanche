@@ -40,7 +40,7 @@ import { BOSS_SIGN_HALF, BOSS_SIGN_TOP, createBossView, type BossView } from './
 import { createEventsView, type EventsView } from './app/events-view.ts';
 import { createFunView, type FunView } from './app/fun-view.ts';
 import { createFx, type FxParticles } from './render/fx.ts';
-import { guardBannerSigns, guardBaseArches, guardRecordFlag, guardSeeThrough } from './app/banner-signs.ts';
+import { guardBannerSigns, guardBaseArches, guardBaseSigns, guardRecordFlag, guardSeeThrough } from './app/banner-signs.ts';
 import { createMetaView, type MetaView } from './app/meta-view.ts';
 import { createPetsView, type PetsView } from './app/pets-view.ts';
 import { createRebirthView, type RebirthView } from './app/rebirth-view.ts';
@@ -1016,11 +1016,7 @@ async function boot(): Promise<void> {
       gr.scene.add(levelMeshes.group);
       applyQualityNow();
     }
-    // MU-06 (l5-camp): «level L · open», «any level» on a mountain passed, a lock and its condition on a locked one.
-    const firstLevel = (world: number): number => content.worlds.worlds.find((w) => w.index === world)?.stages?.[0]?.level ?? 1;
-    const light = muLayout
-      ? { sub: (p: BasePortal) => (p.state === 'locked' ? { text: t('base.portalLocked', { n: p.world - 1 }), locked: true } : p.state === 'passed' ? { text: t('base.portalAny'), locked: false } : { text: t('base.portalOpen', { n: firstLevel(p.world) }), locked: false }) }
-      : undefined;
+    const light = muLayout ? { sub: portalPlaque } : undefined;
     baseView?.set(level, basePortals, t, `×${formatNumber(treadMult, numSuffix)}`, recordsView?.boardLines(save, summits, content.worlds.worlds.length), light);
     hud?.setMountainShown(false);
     // RL-11: the gift cards of the base column are those of the pause, shown without it.
@@ -1106,6 +1102,10 @@ async function boot(): Promise<void> {
   let petsSeen = -1;
   /** MU-02 (docs/07-mobile-ui.md): the phone layout of the mockups is the layout of the stages pace. */
   const muLayout = !!balance.levels;
+  // MU-06 (l5-camp): «level L · open», «any level» on a mountain passed, a lock and its condition on a locked one.
+  const firstLevel = (world: number): number => content.worlds.worlds.find((w) => w.index === world)?.stages?.[0]?.level ?? 1;
+  const portalPlaque = (p: BasePortal): { text: string; locked: boolean } =>
+    p.state === 'locked' ? { text: t('base.portalLocked', { n: p.world - 1 }), locked: true } : p.state === 'passed' ? { text: t('base.portalAny'), locked: false } : { text: t('base.portalOpen', { n: firstLevel(p.world) }), locked: false };
   /**
    * The desktop shortcut (FM-13; docs/01-gdd.md 19.10, 03 SDK-08): on the base from summit `fromSummit` with the
    * summit group, when the platform can offer it (asked once a session) and its reward was never given; declined —
@@ -1623,6 +1623,7 @@ async function boot(): Promise<void> {
     // SP-01: the record flag is never drawn in the way of the camera (docs/01-gdd.md 20.2).
     if (cameraRig) guardRecordFlag(recordFlag, cameraRig.camera, renderPos, tuning.camera.hideDistance * (tuning.camera.flagHide ?? 0));
     if (cameraRig && baseView?.drawn) guardBaseArches(baseView, cameraRig.camera, renderPos, tuning.camera.archHide ?? 0);
+    if (muLayout && hud && cameraRig && baseView?.drawn) guardBaseSigns(hud, baseView, cameraRig.camera, field);
     if (cameraRig && levelMeshes) guardSeeThrough(levelMeshes, cameraRig.camera, renderPos);
     // Test hooks see the frame as it is drawn: camera, hero and the signs hidden for it (PR-11).
     g.onFrame?.();
@@ -2116,7 +2117,9 @@ async function boot(): Promise<void> {
   });
   hudView.wire(sim);
   // The stage finishes of the stages pace (docs/01-gdd.md 22.8): the trophy buttons.
-  stageView = createStageView({ getSim: () => sim, hud, camera: cameraRig, theme, field: () => field, fx: () => fx, play: (n) => audio?.play(n), numSuffix, mu: muLayout, onTrophy: (n, trophies) => {
+  stageView = createStageView({ getSim: () => sim, hud, camera: cameraRig, theme, field: () => field, fx: () => fx, play: (n) => audio?.play(n), numSuffix, mu: muLayout,
+    basePortals: () => (onBase ? basePortals.map((p) => ({ x: p.x, z: p.z, height: p.height, text: t(`world.${p.id}`), sub: portalPlaque(p).text, locked: portalPlaque(p).locked })) : null),
+    onTrophy: (n, trophies) => {
       campView?.trophyTaken();
       // SD-03 (docs/01-gdd.md 23.3): the stage trophies to spend (not the all-time count of summits: it opens the summit group).
       if (trophies) {

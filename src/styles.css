@@ -726,5 +726,9 @@ canvas.fallback {
 #ui.mu .mu-row-label, #ui.mu .qs-text, #ui.mu .rb-list, #ui.mu .rb-small, #ui.mu .win-row, #ui.mu .win-row span { font-weight: 500; }
 #ui.mu .card-name, #ui.mu .qs-num, #ui.mu .gf-timer { font-weight: 600; }
 #ui.mu .card-lock, #ui.mu .foot-lock { white-space: nowrap; font-size: 12px; }
+/* Round of fixes MU (l5-camp): the portal plaques of the base, light, «where» over «level · open» or a lock. */
+.hud.mu .hud-portal { white-space: nowrap; align-items: center; }
+.hud.mu .hud-portal .hud-pad-sub { display: block; font-size: 12px; font-weight: 500; color: var(--ink); opacity: 0.75; }
+.hud.mu .hud-portal .mark { width: 12px; height: 12px; vertical-align: -1px; }
 /* Round of fixes MU (staff 19.10): «Take» of the calendar no wider than «Continue» of the pause. */
 #ui.mu .dl-foot .btn-primary { width: auto; min-width: 200px; margin-top: 0; padding: 0 24px; }

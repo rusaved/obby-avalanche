@@ -62,11 +62,15 @@ export interface BaseView {
   /** Arch `i` with its light or ice, sign, flag, cup and lock not drawn (back when false); draw calls stay. */
   setArchHidden(i: number, hide: boolean): void;
   archHidden(i: number): boolean;
+  /** Round of fixes MU (docs/07-mobile-ui.md, rule 19): the sign of each arch as a world box, and that sign alone not
+   * drawn (back when false) — a sign under the phone HUD. */
+  readonly signBoxes: ReadonlyArray<{ center: [number, number, number]; size: [number, number, number] }>;
+  setSignHidden(i: number, hide: boolean): void;
   dispose(): void;
 }
 
 /** Instances and vertices of one arch, to hide it and bring it back. */
-type ArchParts = { matrix: Matrix4; fill: [number, number] | null; sign: [number, number]; marks: Array<[number, Matrix4]>; hidden: boolean };
+type ArchParts = { matrix: Matrix4; fill: [number, number] | null; sign: [number, number]; marks: Array<[number, Matrix4]>; hidden: boolean; signHidden: boolean };
 const ZERO = new Matrix4().makeScale(0, 0, 0);
 
 export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView {
@@ -83,6 +87,7 @@ export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView 
   let gift: { mesh: InstancedMesh; index: number; lit: Color; closed: Color; ready: boolean | null } | null = null;
   let arches: Array<{ x: number; z: number; yaw: number; width: number; top: number }> = [];
   let archParts: ArchParts[] = [];
+  let signBoxes: Array<{ center: [number, number, number]; size: [number, number, number] }> = [];
   let meshes: { arches: InstancedMesh; fill: Mesh | null; fillPos: Float32Array | null; signs: Mesh; signPos: Float32Array; marks: InstancedMesh } | null = null;
   /** Vertices [from, to) of a geometry folded into one point (hidden) or back from the copy. */
   const fold = (m: Mesh, orig: Float32Array, [from, to]: [number, number], hide: boolean): void => {
@@ -102,6 +107,7 @@ export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView 
     board = [];
     arches = [];
     archParts = [];
+    signBoxes = [];
     meshes = null;
   };
 
@@ -123,6 +129,15 @@ export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView 
       return arches;
     },
     archHidden: (i) => archParts[i]?.hidden === true,
+    get signBoxes() {
+      return signBoxes;
+    },
+    setSignHidden(i, hide) {
+      const a = archParts[i];
+      if (!a || !meshes || a.signHidden === hide) return;
+      a.signHidden = hide;
+      if (!a.hidden) fold(meshes.signs, meshes.signPos, a.sign, hide);
+    },
     setArchHidden(i, hide) {
       const a = archParts[i];
       if (!a || !meshes || a.hidden === hide) return;
@@ -132,7 +147,7 @@ export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView 
       for (const [k, m] of a.marks) meshes.marks.setMatrixAt(k, hide ? ZERO : m);
       if (a.marks.length) meshes.marks.instanceMatrix.needsUpdate = true;
       if (a.fill && meshes.fill && meshes.fillPos) fold(meshes.fill, meshes.fillPos, a.fill, hide);
-      fold(meshes.signs, meshes.signPos, a.sign, hide);
+      fold(meshes.signs, meshes.signPos, a.sign, hide || a.signHidden);
     },
     clear,
     set(level, portals, t, tread, boardLines, light) {
@@ -158,7 +173,7 @@ export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView 
         dummy.updateMatrix();
         archMesh.setMatrixAt(i, dummy.matrix);
         archMesh.setColorAt(i, stateColor[p.state]);
-        return { matrix: dummy.matrix.clone(), fill: null, sign: [i * 6, i * 6 + 6], marks: [], hidden: false };
+        return { matrix: dummy.matrix.clone(), fill: null, sign: [i * 6, i * 6 + 6], marks: [], hidden: false, signHidden: false };
       });
       arches = portals.map((p) => ({ x: p.x, z: p.z, yaw: p.yaw, width: p.width, top: p.height + SIGN_OVER + SIGN_H }));
       group.add(archMesh);
@@ -199,7 +214,9 @@ export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView 
       // the step of the base treadmill over its belts (docs/01-gdd.md 19.3), facing the spawn. One atlas, one mesh.
       const rows: Array<{ x: number; z: number; yaw: number; y: number; text: string; sub: string; w?: number; h?: number; light?: boolean; locked?: boolean }> = portals.map((p) => {
         const ls = light?.sub(p);
+        // Round of fixes MU (l5-camp): the phone layout shows the portal plaques in the HUD — no sign quad here.
         return {
+          ...(ls ? { w: 0, h: 0 } : {}),
           x: p.x,
           z: p.z,
           yaw: p.yaw,
@@ -277,6 +294,12 @@ export function createBaseView(theme: ThemeJson, arrowCount = ARROWS): BaseView 
         const cc = corner(w / 2, g.y + hh);
         const d = corner(-w / 2, g.y + hh);
         sPos.push(...a, ...b, ...cc, ...a, ...cc, ...d);
+        if (i < portals.length) {
+          const box = [a, b, cc, d];
+          const lo = [0, 1, 2].map((k) => Math.min(...box.map((v) => v[k]!)));
+          const hi = [0, 1, 2].map((k) => Math.max(...box.map((v) => v[k]!)));
+          signBoxes.push({ center: [(lo[0]! + hi[0]!) / 2, (lo[1]! + hi[1]!) / 2, (lo[2]! + hi[2]!) / 2], size: [hi[0]! - lo[0]!, hi[1]! - lo[1]!, hi[2]! - lo[2]!] });
+        }
         sUv.push(0, v0, 1, v0, 1, v1, 0, v0, 1, v1, 0, v1);
       });
       const signGeo = new BufferGeometry();

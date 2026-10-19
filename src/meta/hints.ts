@@ -132,7 +132,8 @@ const RULES: Rule[] = [
     id: 'hint.shoes',
     max: () => 1,
     show: (f) => f.shoesOffered && !f.shoesBought,
-    hide: (f, e, s) => f.shoesBought || e >= s.t.shoesSec,
+    // Round of fixes MU: gone with the button too (the camp of the phone layout has none).
+    hide: (f, e, s) => f.shoesBought || !f.shoesOffered || e >= s.t.shoesSec,
   },
   {
     // «Pets speed up your steps» (docs/01-gdd.md 20.9, Q-065): an egg is worth its coins now; gone on buying it. Timed
