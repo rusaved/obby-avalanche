@@ -169,6 +169,7 @@ export function createPetsView(d: PetsViewDeps): PetsView {
         equipBest(d.save, d.pets, slots);
         changed();
       },
+      toShop: () => (d.toShop ? d.toShop() : d.windows.close()),
     });
 
   const view: PetsView = {
@@ -345,7 +346,7 @@ export function createPetsView(d: PetsViewDeps): PetsView {
     },
     openWindow() {
       asking = null;
-      d.windows.open('pets', t('pets.title'), render);
+      d.windows.open('pets', t('pets.title'), render, { sub: t('pets.collected', { a: collection().k, b: collection().total }) });
     },
     menuItem() {
       if ((d.save.totalPlaySec ?? 0) < d.balance.ui.unlockMenusSec) return null;

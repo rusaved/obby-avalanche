@@ -41,6 +41,8 @@ export interface PetsPanelActions {
   askRelease(index: number | null): void;
   release(index: number): void;
   equipBest(): void;
+  /** MU round of fixes 2 (art review: an empty window without a way on): the shop on its eggs. */
+  toShop?(): void;
 }
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string): HTMLElementTagNameMap[K] {
@@ -86,6 +88,12 @@ export function renderPetsPanel(body: HTMLElement, head: HTMLElement, m: PetsPan
 
   if (m.cards.length === 0) {
     body.appendChild(el('p', 'win-row', t('pets.empty')));
+    if (a.toShop) {
+      const go = el('button', 'btn-primary pets-shop', t('footsteps.toShop'));
+      go.dataset['hud'] = 'pets-to-shop';
+      go.addEventListener('click', () => a.toShop?.());
+      body.appendChild(go);
+    }
     return;
   }
   const grid = el('div', 'win-grid');

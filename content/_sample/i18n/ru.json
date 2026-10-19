@@ -109,6 +109,7 @@
   "btn.no": "Нет",
   "pets.title": "Питомцы",
   "pets.count": "Питомцы {a}/{b}",
+  "pets.collected": "собрано {a} из {b}",
   "pets.slots": "Надеты {a}/3",
   "pets.bonus": "+{n}% к шагу",
   "pets.total": "Вместе: ×{m}",

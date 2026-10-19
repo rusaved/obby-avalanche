@@ -126,6 +126,8 @@ export function renderWardrobePanel(body: HTMLElement, head: HTMLElement, m: War
       top.appendChild(trophyPrice(c.price ?? ''));
       btn = el('button', c.state === 'short' ? 'card-btn off' : 'card-btn', c.state === 'short' ? (c.need ?? '') : t('btn.buy'));
       if (c.state === 'buy') btn.addEventListener('click', () => a.buy(c.id));
+      // MU round of fixes 2 (art review: «More 2» of what): the cup by the trophies still short.
+      else btn.appendChild(trophyPrice('').querySelector('.mark')!);
     }
     if (btn) {
       btn.dataset['hud'] = 'wardrobe-item';

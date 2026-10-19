@@ -804,3 +804,19 @@ canvas.fallback {
 /* MU round of fixes 2 (usability review): over the pinned buttons of «Rebirth» and «Calendar» the chevron shows the scroll too. */
 #ui.mu .win-body[data-more] .rb-btns { position: sticky; }
 #ui.mu .win-body[data-more] .rb-btns::before { content: ''; position: absolute; right: 6px; top: -16px; width: 16px; height: 16px; pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 16px 16px no-repeat; }
+/* MU round of fixes 2 (mockup check): the calendar of 4 + 3 shows its scroll by the fade of the middle, «Take» stays a cell
+   of the grid. */
+#ui.mu .win-body[data-more] .dl-cards.dl-fit4 > .dl-foot { position: static; }
+#ui.mu .win-body[data-more] .dl-cards.dl-fit4 > .dl-foot::before { display: none; }
+#ui.mu .win-body[data-more]:has(.dl-fit4)::after { display: block; }
+/* MU round of fixes 2 (art review, score 2): «+N per step» under the title size, 8 px between a card's edge (or its ring)
+   and its button; the wardrobe cards 8 px around a smaller figure; the count of pets in the subtitle; «To the shop» of an
+   empty «Pets». */
+#ui.mu .card-big { font-size: 16px; font-weight: 700; }
+#ui.mu .win-grid .card { padding: 11px 8px; }
+#ui.mu .win-grid .card > .card-btn { align-self: stretch; }
+#ui.mu .wardrobe .win-grid .card { padding: 8px 8px 11px; }
+#ui.mu .wr-top { min-height: 24px; }
+#ui.mu .wardrobe .card .fig:not(.big) { --u: 2.5px; width: 15px; height: 24px; }
+#ui.mu .win-head [data-role="pets-count"] { display: none; }
+#ui.mu .pets-shop { display: block; width: auto; min-width: 200px; margin: 8px auto 0; padding: 0 24px; }

@@ -206,6 +206,7 @@
   "btn.no": "No",
   "pets.title": "Pets",
   "pets.count": "Pets {a}/{b}",
+  "pets.collected": "collected {a} of {b}",
   "pets.slots": "Equipped {a}/3",
   "pets.bonus": "+{n}% per step",
   "pets.total": "Total: ×{m}",
