@@ -1,9 +1,12 @@
-// What: Where the thin lines on the ground are: the coloured lips along floor edges over a drop (SD-07) and the ice plugs and crest of a ridge as they melt.
-// Called by: render/level-mesh.ts (draws exactly these boxes), level/validate-stages.ts (surfaceLineErrors: the lines lie on the surface); tests/level/surface-lines.test.ts.
+// What: Where the thin lines on the ground are: the coloured lips along floor edges over a drop (SD-07), the ice plugs and crest of a ridge as they melt, the slab of a gate and the line of a giant's zone.
+// Called by: render/level-mesh.ts and app/boss-view.ts (draw exactly these boxes), level/validate-stages.ts (surfaceLineErrors: the lines lie on the surface, nothing hangs without support); tests/level/surface-lines.test.ts.
 // Keep: Pure TS, no three.js; the renderer and the validator use these same functions, so what is drawn is what is checked.
 
 import { GATE_THICKNESS } from './builder.ts';
 import type { Aabb, LevelBox, LevelData, LevelGate } from './types.ts';
+
+/** The line across the slope at the start of a giant's zone (PS): this thick and this deep, lying on the floor. */
+export const ZONE_LINE_THICK = 0.6;
 
 /** SD-07: the lip is this wide (inside the edge) and stands this high over the top; a drop of more than EDGE_DROP shows it. */
 export const EDGE_LIP = 0.5;
@@ -73,4 +76,29 @@ export function ridgePartBox(p: RidgePart, openness: number): Aabb | null {
   if (openness >= 1) return null;
   const h = p.h * Math.max(0.001, 1 - openness);
   return { min: [p.x - p.w / 2, p.y0, p.z - p.d / 2], max: [p.x + p.w / 2, p.y0 + h, p.z + p.d / 2] };
+}
+
+/**
+ * The slab the renderer draws for a gate: a classic wall from its floor up. MU round 3 (producer, the third time: «a thin
+ * light-blue line across the track over a rise», mountain 1, stage 2): a ridge (drawn by its plugs and crest) and the
+ * giant's line kept a slab of full width and depth flattened to 0.01 % at half the gate's height — a plane of ice hanging
+ * in the air over every rise; now they have none.
+ */
+export function gateSlab(g: Pick<LevelGate, 'kind' | 'box' | 'y' | 'z' | 'height'>): Aabb | null {
+  if (g.kind) return null;
+  const w = g.box.max[0] - g.box.min[0];
+  const d = g.box.max[2] - g.box.min[2];
+  return { min: [-w / 2, g.y, g.z - d / 2], max: [w / 2, g.y + g.height, g.z + d / 2] };
+}
+
+/**
+ * The line of a giant's zone on the floor at its start, across the whole slope (PS). MU round 3: none on the stages pace
+ * — the zone starts at its stage over a rise, and the bar lying past the top of the rise read as a line in the air.
+ */
+export function zoneLine(level: Pick<LevelData, 'bosses' | 'floorAt' | 'width' | 'stages'>, zone: number): Aabb | null {
+  const b = level.bosses[zone];
+  if (!b || level.stages) return null;
+  const z = b.zone[0];
+  const y = level.floorAt(0, z);
+  return { min: [-level.width / 2, y, z - ZONE_LINE_THICK / 2], max: [level.width / 2, y + ZONE_LINE_THICK, z + ZONE_LINE_THICK / 2] };
 }

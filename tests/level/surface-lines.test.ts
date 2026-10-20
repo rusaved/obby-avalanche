@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { buildLevel } from '../../src/level/builder.ts';
-import { levelLips, ridgePartBox, ridgeParts } from '../../src/level/surface-lines.ts';
-import { surfaceLineErrors } from '../../src/level/validate-stages.ts';
+import { gateSlab, levelLips, ridgePartBox, ridgeParts, zoneLine } from '../../src/level/surface-lines.ts';
+import { surfaceLineErrors, unsupportedErrors } from '../../src/level/validate-stages.ts';
 import type { WorldsJson } from '../../src/content/types.ts';
 
 // MU-13 (docs/briefs/mu-mobile-ui.md, producer: «on a ramp with a rise the blue edge line hangs in the air over the
@@ -34,5 +34,24 @@ describe('the edge lines lie on the surface (MU-13)', () => {
       expect(ridgePartBox(p, 0.5)!.max[1] - ridgePartBox(p, 0.5)!.min[1]).toBeCloseTo(p.h / 2);
       expect(ridgePartBox(p, 1)).toBeNull();
     }
+  });
+  it('no geometry without support (MU round 3): a ridge has no slab, the stages pace no zone line; a flattened slab over a rise is named', () => {
+    const level = buildLevel(stages[0]!);
+    const ridge = level.gates.find((g) => g.kind === 'ridge')!;
+    expect(gateSlab(ridge)).toBeNull();
+    expect(zoneLine(level, 0)).toBeNull();
+    // The open slope keeps its line, lying on the floor at the zone's start.
+    const giant = buildLevel(read('pace/open/worlds.json').worlds[0]!);
+    expect(zoneLine(giant, 0)!.min[1]).toBeCloseTo(giant.floorAt(0, giant.bosses[0]!.zone[0]));
+    // The slab drawn before: full width and depth, 0.01 % of the height at half the gate's height.
+    const w = ridge.box.max[0] - ridge.box.min[0];
+    const d = ridge.box.max[2] - ridge.box.min[2];
+    const y = ridge.y + ridge.height / 2;
+    const sheet = { min: [-w / 2, y, ridge.z - d / 2] as [number, number, number], max: [w / 2, y + ridge.height * 1e-4, ridge.z + d / 2] as [number, number, number] };
+    const lifted = { min: [-w / 2, y, ridge.z - d / 2] as [number, number, number], max: [w / 2, y + 1, ridge.z + d / 2] as [number, number, number] };
+    const errs = unsupportedErrors(level, [{ what: 'slab', box: sheet }, { what: 'block', box: lifted }]);
+    expect(errs).toHaveLength(2);
+    expect(errs[0]).toContain('is a sheet');
+    expect(errs[1]).toContain('over the ground');
   });
 });

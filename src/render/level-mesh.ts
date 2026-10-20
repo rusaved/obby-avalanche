@@ -28,7 +28,7 @@ import {
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { LevelBox, LevelData, LevelPrism, LevelRamp } from '../level/types.ts';
 import { CAMERA_THROUGH, PORTAL_WIDTH, prismTriangles } from '../level/builder.ts';
-import { levelLips, ridgePartBox, ridgeParts as ridgePartsOf } from '../level/surface-lines.ts';
+import { gateSlab, levelLips, ridgePartBox, ridgeParts as ridgePartsOf } from '../level/surface-lines.ts';
 import { createWayMarks, PORTAL_HEIGHT, type WayMarks } from './way-marks.ts';
 import type { ThemeJson } from '../content/types.ts';
 import { createDigitLabels, type DigitLabels } from './digits.ts';
@@ -380,11 +380,16 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   const signs = new InstancedMesh(signGeo, signMat, Math.max(1, level.gates.length * 2));
   const dummy = new Object3D();
   level.gates.forEach((g, i) => {
-    const w = g.box.max[0] - g.box.min[0];
-    const d = g.box.max[2] - g.box.min[2];
-    dummy.position.set(0, g.y + g.height / 2, g.z);
-    // A ridge is drawn by its plugs and crest below; the giant's line has no slab at all.
-    dummy.scale.set(w, g.kind ? 1e-4 : g.height, d);
+    // A ridge is drawn by its plugs and crest below; the giant's line has no slab at all (level/surface-lines.ts gateSlab:
+    // MU round 3 — a flattened slab hung as a light-blue line in the air over every rise).
+    const b = gateSlab(g);
+    if (b) {
+      dummy.position.set((b.min[0] + b.max[0]) / 2, (b.min[1] + b.max[1]) / 2, (b.min[2] + b.max[2]) / 2);
+      dummy.scale.set(b.max[0] - b.min[0], b.max[1] - b.min[1], b.max[2] - b.min[2]);
+    } else {
+      dummy.position.set(0, g.y, g.z);
+      dummy.scale.set(0, 0, 0);
+    }
     dummy.updateMatrix();
     gates.setMatrixAt(i, dummy.matrix);
   });

@@ -6,8 +6,8 @@ import type { Curve, Segment, TuningJson, World, WorldStage, WorldsJson } from '
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 import { levelThreshold, type Levels } from '../sim/levels.ts';
 import { STAGE_WIDTH, jumpDistance, mazeDistances, padFlight } from './stage-slope.ts';
-import type { LevelData } from './types.ts';
-import { EDGE_RISE, levelLips, ridgePartBox, ridgeParts } from './surface-lines.ts';
+import type { Aabb, LevelData } from './types.ts';
+import { EDGE_RISE, gateSlab, levelLips, ridgePartBox, ridgeParts, zoneLine } from './surface-lines.ts';
 
 const round3 = (x: number): number => Math.round(x * 1000) / 1000;
 /** No strip of a trial body longer than this without its trial (docs/01-gdd.md 22.4). */
@@ -102,7 +102,49 @@ export function surfaceLineErrors(level: LevelData, lines = levelLips(level)): s
     }
   }
   for (const p of ridgeParts(level)) if (ridgePartBox(p, 1)) errors.push(`ridge at z ${round3(level.gates[p.gate]!.z)}: its ${p.crest ? 'crest' : 'plug'} stays when melted`);
+  errors.push(...unsupportedErrors(level));
   return errors;
+}
+
+/** MU round 3: a drawn box thinner than this is a sheet, not a thing — seen from the side, a line in the air. */
+const SHEET = 0.01;
+
+/**
+ * MU round 3 (producer, the third time: «a thin light-blue line across the track over a rise»): no geometry without
+ * support — the slab of every gate and the line of every giant's zone, as level/surface-lines.ts gives them to the
+ * renderer, stand on the ground under them (their middle and both ends within LINE_TOL) and are not a sheet.
+ */
+export function unsupportedErrors(level: LevelData, boxes = drawnBoxes(level)): string[] {
+  const errors: string[] = [];
+  for (const { what, box } of boxes) {
+    const xm = (box.min[0] + box.max[0]) / 2;
+    const zm = (box.min[2] + box.max[2]) / 2;
+    if (box.max[1] - box.min[1] < SHEET) {
+      errors.push(`${what} at z ${round3(zm)} is a sheet ${round3(box.max[1] - box.min[1])} thick at y ${round3(box.min[1])}`);
+      continue;
+    }
+    for (const [x, z] of [[xm, zm], [box.min[0] + LINE_INSET, zm], [box.max[0] - LINE_INSET, zm]] as const) {
+      const f = level.floorAt(x, z);
+      if (!Number.isFinite(f) || Math.abs(box.min[1] - f) <= LINE_TOL) continue;
+      errors.push(`${what} at x ${round3(x)} z ${round3(z)} stands ${round3(box.min[1] - f)} ${box.min[1] > f ? 'over' : 'under'} the ground (y ${round3(box.min[1])}, ground ${round3(f)})`);
+      break;
+    }
+  }
+  return errors;
+}
+
+/** The boxes the renderer draws for the gates' slabs and the giants' zone lines. */
+function drawnBoxes(level: LevelData): Array<{ what: string; box: Aabb }> {
+  const out: Array<{ what: string; box: Aabb }> = [];
+  level.gates.forEach((g, i) => {
+    const box = gateSlab(g);
+    if (box) out.push({ what: `gate ${i} slab`, box });
+  });
+  level.bosses.forEach((_, i) => {
+    const box = zoneLine(level, i);
+    if (box) out.push({ what: `giant zone ${i} line`, box });
+  });
+  return out;
 }
 
 /** Ridges of a mountain ask for a level (docs/01-gdd.md 22.2–22.3): requires = the threshold of `level`. */

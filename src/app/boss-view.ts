@@ -17,6 +17,7 @@ import type { CharacterInstance, Characters } from '../render/characters.ts';
 import { HERO_HEIGHT } from '../sim/controller.ts';
 import { formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
+import { zoneLine, ZONE_LINE_THICK } from '../level/surface-lines.ts';
 import { segmentMeetsBox } from './banner-signs.ts';
 
 /** At most this many giants on a mountain are drawn (data may have more; docs/01a-content.md 16.4). */
@@ -35,7 +36,6 @@ const SIGN_HEIGHT = 6;
 /** Top of the advice sign over the floor at the zone's line and its half width (birds sit on it, render/decor.ts). */
 export const BOSS_SIGN_TOP = SIGN_HEIGHT + SIGN_SIZE[1] / 2;
 export const BOSS_SIGN_HALF = SIGN_SIZE[0] / 2;
-const LINE_THICK = 0.6;
 
 export interface BossViewDeps {
   theme: ThemeJson;
@@ -106,7 +106,7 @@ export function createBossView(d: BossViewDeps): BossView {
     return m;
   });
   const silhouette = silhouettes[0]!;
-  const lineGeo = new BoxGeometry(1, LINE_THICK, LINE_THICK);
+  const lineGeo = new BoxGeometry(1, ZONE_LINE_THICK, ZONE_LINE_THICK);
   const line = new Mesh(lineGeo, new MeshBasicMaterial({ color: look?.colors.hat ?? '#ffffff' }));
   line.visible = false;
   const canvas = document.createElement('canvas');
@@ -157,11 +157,16 @@ export function createBossView(d: BossViewDeps): BossView {
     },
     wire(sim) {
       const zone = sim.level.bosses[0]?.zone;
-      line.visible = sign.visible = zone !== undefined && !!look;
+      sign.visible = zone !== undefined && !!look;
+      // The line on the floor at the zone's start — none on the stages pace (MU round 3, level/surface-lines.ts zoneLine).
+      const box = zoneLine(sim.level, 0);
+      line.visible = !!box && !!look;
       if (!zone) return;
       const y = sim.level.floorAt(0, zone[0]);
-      line.position.set(0, y + LINE_THICK / 2, zone[0]);
-      line.scale.set(sim.level.width, 1, 1);
+      if (box) {
+        line.position.set(0, (box.min[1] + box.max[1]) / 2, (box.min[2] + box.max[2]) / 2);
+        line.scale.set(box.max[0] - box.min[0], 1, 1);
+      }
       sign.position.set(0, y + SIGN_HEIGHT, zone[0] - 1);
     },
     update(sim) {
