@@ -1357,7 +1357,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       setRich(padText, state.text);
       padLabel.classList.toggle('two', !!state.sub);
       if (padSub.textContent !== (state.sub ?? '')) padSub.textContent = state.sub ?? '';
-      if (!opts.mu || !state.sub) {
+      // The phone places «Stage reward» (with or without its second line) by the rule below; the camp «Teleport» — here.
+      if (!opts.mu || state.tap) {
         padLabel.style.transform = `translate(${Math.round(state.x)}px, ${Math.round(state.y)}px) translate(-50%, -100%)`;
         // Round of fixes MU (rule 19): the «Teleport» plaque of the camp pad is not drawn within 8 px of the HUD either.
         const w = opts.mu ? padLabel.offsetWidth : 0;

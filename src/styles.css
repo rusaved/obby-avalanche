@@ -805,7 +805,7 @@ canvas.fallback {
 .hud-gate-num { font: 800 40px/44px var(--font); color: var(--mu-gold); font-variant-numeric: tabular-nums; }
 /* MU round of fixes 2 (staff: no plaque on l3): «Stage reward» stays on the pad under the «+N» toast (it keeps 8 px off
    the toast by itself). */
-.hud.mu.toasting .hud-pad.two { visibility: visible; }
+.hud.mu.toasting .hud-pad:not(.tap) { visibility: visible; }
 /* MU round of fixes 2 (staff: «Shop → Steps» 4 in a row, one row of skins in the wardrobe, the hero cut at the bottom):
    the sets of steps in the shop in the grid of «Footsteps»; the wardrobe — the hero and the tabs in a side column as tall
    as the middle, cards with the figure and the price on one line: two rows in sight. */

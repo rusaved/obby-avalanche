@@ -8,7 +8,8 @@ test(`stage ${st.n}: the reward button gives +${st.trophies} coins once a run, t
   await page.setViewportSize({ width: 1280, height: 720 });
   await openGame('pace=stages');
   await waitTicks(page, 10);
-  await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.5), [st.finish[0] + 2, st.y] as const);
+  // MU round 3: the pad stands by the edge of the field, off the runs to the passes — seen from its side of the finish.
+  await page.evaluate(([z, x, y]) => window.__TEST__!.teleport(z, x, y + 0.5), [st.finish[0] + 2, st.pad.x * 0.85, st.y] as const);
   await waitTicks(page, 20);
   const label = page.locator('[data-role=pad-label]');
   await expect(label).toBeVisible();

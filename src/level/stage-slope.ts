@@ -10,6 +10,9 @@ import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 
 /** SD-09: the grotto of a start pad stands this far in from the edge of the field. */
 const EDGE_GAP = 4;
+/** MU round 3: the trophy pad (6 × 6) stands this far in from the edge of the field. */
+const PAD_HALF_W = 3;
+const PAD_EDGE = 3;
 
 export interface StageInput {
   spec: OpenSpecJson;
@@ -454,8 +457,10 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     // The safe finish with the trophy button at the side (22.8): the threats stay out of it.
     const end = round3(zb);
     floor(end, cfg.finish, y);
-    // In the frame of the run (LV-12 review: at the fence it stood at the edge of the frame).
-    const padX = round3((s % 2 === 0 ? -1 : 1) * Math.min(half - 8, 26));
+    // MU round 3 (producer 19.10: the pad of x 26 stood on the run to the outer pass — a step on it is the reward and the
+    // flight to the camp): by the edge of the field, past the corridor of the outer pass (ends at 33.3 + 5.5 = 38.8), so a
+    // run to any pass never steps on it; the plaque «Stage reward» points at it (LV-12 kept it in the frame at 26).
+    const padX = round3((s % 2 === 0 ? -1 : 1) * (half - PAD_HALF_W - PAD_EDGE));
     const pad = { x: padX, z: round3(end + cfg.finish / 2), y };
     seg.push({ type: 'trophyPad', z: pad.z, x: pad.x, y, stage: s, trophies: trophiesOf(s) });
     seg.push({ type: 'block', z: round3(pad.z - 3), z1: round3(pad.z + 3), x0: round3(pad.x - 3), x1: round3(pad.x + 3), y0: round3(y - 0.5), y1: round3(y + 0.25), material: 'trophyPad', kind: 'trophyPad' });
