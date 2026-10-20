@@ -180,6 +180,8 @@ export interface Hud {
   setMountain(bar: MountainBar): void;
   /** The mountain bar on or off (docs/01-gdd.md 19.4: hidden on the base). */
   setMountainShown(on: boolean): void;
+  /** MU round 3: the stage strip slides in for a moment (the giant's zone; a new stage and a ridge show it by themselves). */
+  peekStrip(): void;
   /** Per frame: «Mountain 1 · 7/12», hero position, the avalanche mark (null — none), the cave mark that blinks on warn (−1 — none). */
   updateMountain(label: string, hero: number, wave: number | null, blinkCave: number): void;
   /** Goal under the bar: «Wall 2K» with «1.2K/2K» and a fill bar; `progress` null — text only («Wall open!»). */
@@ -216,7 +218,7 @@ export interface Hud {
    * (x, y) — the post top on screen; not drawn off the field or within 8 px of the HUD; null — hidden. */
   setGateSign(state: { text: string; x: number; y: number } | null): void;
   /** «+N» with a trophy over the trophy button of a stage (docs/01-gdd.md 22.8); null — hidden. */
-  setPadLabel(state: { text: string; x: number; y: number; tap?: boolean; sub?: string } | null): void;
+  setPadLabel(state: { text: string; x: number; y: number; tap?: boolean; sub?: string; hero?: { x0: number; y0: number; x1: number; y1: number } } | null): void;
   /** The portrait of a phone (the game is landscape, docs/03): «Turn your phone» over everything; false — hidden. */
   setRotate(on: boolean): void;
   /** MU-02: the gift plaque under pause and sound — a timer, or «Take» in gold when a gift is ready; null hides it. */
@@ -263,6 +265,13 @@ const MU_STICK_X = 76;
 const MU_JUMP_MID = 16 + 64 / 2;
 /** MU round 3: a field this low or lower is a phone under browser panels (815 × 290) — compact cards in the windows. */
 const LOW_H = 340;
+/** MU round 3 (producer: the HUD compact): the stage strip shows this long on a new stage, a ridge or the giant (ms). */
+const STRIP_PEEK_MS = 2500;
+/** MU round 3: the level bar (320, never under 160) and the shoes button on one line between the stick and the jump. */
+const ROW_GAP = 8;
+const BAR_W = 320;
+const BAR_MIN = 160;
+const MU_JUMP = 64;
 
 /** The click a browser sends after a tap comes within this many ms of the finger lifting. */
 const TAP_CLICK_MS = 800;
@@ -572,6 +581,35 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   toastEl.append(toastMain, toastSub);
   root.append(frost, veil, wayArrow, banner, arrow, toastEl);
   let toastTimer: ReturnType<typeof setTimeout> | null = null;
+  let stripTimer: ReturnType<typeof setTimeout> | null = null;
+  // MU round 3: the stage strip hides between its moments.
+  if (opts.mu) root.classList.add('strip-off');
+  const peekStrip = (): void => {
+    if (!opts.mu) return;
+    root.classList.remove('strip-off');
+    if (stripTimer) clearTimeout(stripTimer);
+    stripTimer = setTimeout(() => {
+      stripTimer = null;
+      root.classList.add('strip-off');
+    }, STRIP_PEEK_MS);
+  };
+  /** MU round 3: «N Speed» over the level bar, the bar and the shoes button on one line at the bottom, between the stick
+   * and the jump (and the reserve of a sticky banner on the right, theme ui.mu stickyRight). */
+  const placeRow = (): void => {
+    if (!opts.mu) return;
+    const shoesOn = shoes.classList.contains('shown') && !root.classList.contains('camp');
+    const reserve = Number.parseFloat(getComputedStyle(root).getPropertyValue('--mu-sticky-right')) || 0;
+    // The ring is placed by its margin of −MU_STICK / 2; its border makes it wider than MU_STICK.
+    const lo = MU_STICK_X - MU_STICK / 2 + (stickBase.offsetWidth || MU_STICK) + ROW_GAP;
+    const hi = fieldW - reserve - EDGE_MU - MU_JUMP - ROW_GAP;
+    const sw = shoesOn ? shoes.offsetWidth : 0;
+    const bw = Math.max(BAR_MIN, Math.min(BAR_W, hi - lo - (shoesOn ? sw + ROW_GAP : 0)));
+    const total = bw + (shoesOn ? ROW_GAP + sw : 0);
+    const x0 = Math.max(lo, Math.min(hi - total, Math.round((fieldW - reserve) / 2 - total / 2)));
+    levelBox.style.width = `${bw}px`;
+    levelBox.style.left = `${x0}px`;
+    shoes.style.left = `${x0 + bw + ROW_GAP}px`;
+  };
   type Toast = { text: string; sec: number; gold: boolean; sub: string | undefined; onShow?: (() => void) | undefined };
   const pendingToasts: Toast[] = [];
   let currentToast: Toast | null = null;
@@ -920,7 +958,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       return root.dataset['slot'] ?? '';
     },
     setCamp(on) {
-      if (root.classList.contains('camp') !== on) root.classList.toggle('camp', on);
+      if (root.classList.contains('camp') === on) return;
+      root.classList.toggle('camp', on);
+      placeRow();
     },
     setGift(state) {
       giftBtn.classList.toggle('shown', state !== null);
@@ -987,6 +1027,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
         stickBase.style.width = stickBase.style.height = `${MU_STICK}px`;
         stickBase.style.marginLeft = stickBase.style.marginTop = `${-MU_STICK / 2}px`;
         hud.setMenu(menuAll);
+        placeRow();
         return;
       }
       const short = Math.min(width, height);
@@ -1036,9 +1077,15 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (pos) hand.style.transform = `translate(${Math.round(pos.x)}px, ${Math.round(pos.y)}px) translate(-50%, -100%)`;
     },
     setShoes(state) {
+      const was = shoes.classList.contains('shown');
       shoes.classList.toggle('shown', state !== null);
-      if (!state) return;
+      if (!state) {
+        if (was) placeRow();
+        return;
+      }
+      const before = shoesText.innerHTML;
       setRich(shoesText, state.text);
+      if (!was || shoesText.innerHTML !== before) placeRow();
       shoes.classList.toggle('can', state.can);
       shoesFill.style.transform = `scaleX(${state.can ? 1 : Math.max(0, Math.min(1, state.progress)).toFixed(3)})`;
     },
@@ -1160,13 +1207,17 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       blinking = -1;
       mountainHero.src = bar.faceUrl;
     },
+    peekStrip,
     setMountainShown(on) {
       // MU-06: the phone layout keeps the strip on the base too («Camp · mountain N»).
       mountain.classList.toggle('off', !on && !opts.mu);
       baseGifts.classList.toggle('off', on);
     },
     updateMountain(label, hero, wave, blinkCave) {
-      if (mountainLabel.textContent !== label) mountainLabel.textContent = label;
+      if (mountainLabel.textContent !== label) {
+        mountainLabel.textContent = label;
+        peekStrip();
+      }
       mountainHero.style.left = `${(Math.max(0, Math.min(1, hero)) * 100).toFixed(2)}%`;
       if (opts.mu) mountainFill.style.width = mountainHero.style.left;
       mountainWave.classList.toggle('shown', wave !== null);
@@ -1381,9 +1432,13 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       }
       const { w, h } = padSize;
       let at: { x: number; y: number } | undefined;
+      // MU round 3 (producer's frame: the plaque in the middle over the hero): never on the hero — over his head at most.
+      const hero = state.hero;
+      const offHero = (x: number, y: number): boolean => !hero || x >= hero.x1 + LABEL_GAP || x + w <= hero.x0 - LABEL_GAP || y >= hero.y1 + LABEL_GAP || y + h <= hero.y0 - LABEL_GAP;
+      const ys = [state.y - h, state.y - h / 2, state.y, state.y - 1.5 * h, state.y - 2 * h, ...(hero ? [hero.y0 - LABEL_GAP - h] : [])];
       for (const dx of [LABEL_GAP, LABEL_GAP + w / 3]) {
         const x = Math.max(EDGE_MU, Math.min(fieldW - EDGE_MU - w, state.x + dx));
-        const y = [state.y - h, state.y - h / 2, state.y, state.y - 1.5 * h, state.y - 2 * h].find((v) => v >= 0 && v + h <= fieldH && hud.clearOfHud({ x0: x, y0: v, x1: x + w, y1: v + h }));
+        const y = ys.find((v) => v >= 0 && v + h <= fieldH && offHero(x, v) && hud.clearOfHud({ x0: x, y0: v, x1: x + w, y1: v + h }));
         if (y !== undefined) {
           at = { x, y };
           break;
@@ -1404,6 +1459,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (need.classList.contains('shown') !== (state !== null)) {
         need.classList.toggle('shown', state !== null);
         updateSlot();
+        if (state) peekStrip();
       }
       root.classList.toggle('need-on', state !== null);
       if (!state) return;

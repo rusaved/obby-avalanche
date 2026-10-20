@@ -494,6 +494,7 @@ async function boot(): Promise<void> {
     const firstGiant = (): boolean => s.level.worldIndex === 1 && s.tier === 0;
     s.events.on('bossEnter', () => {
       hud?.toast(t('boss.start'));
+      hud?.peekStrip();
       if (firstGiant()) trackOnce('boss_enter');
       // Into the giant's zone (docs/01-gdd.md 17.9): a second from the side, the hero and the giant, then back behind.
       const shot = tuning.bossShot;

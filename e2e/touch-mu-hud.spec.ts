@@ -73,15 +73,19 @@ test.describe('MU phone HUD', () => {
     near(byId('pause').x + byId('pause').w, W - 16, W, 'pause right');
     near(byId('gift').y, 60, VISIBLE_H, 'gift top');
     for (const id of ['pause', 'sound', 'gift', 'jump']) expect(Math.min(byId(id).w, byId(id).h), id).toBeGreaterThanOrEqual(44);
-    // «N Speed» (bottom 102) → the bar 320×26 (bottom 68) → the shoes button (bottom 16) of the visible 330.
-    near(byId('speed').y + byId('speed').h, VISIBLE_H - 102, VISIBLE_H, 'speed bottom');
-    near(byId('bar').y + byId('bar').h, VISIBLE_H - 68, VISIBLE_H, 'bar bottom');
+    // Round 3 (producer: the HUD compact): the bar 320×26 and the shoes button on one line 16 px over the bottom, «N Speed»
+    // 8 px over the bar.
+    near(byId('bar').y + byId('bar').h, VISIBLE_H - 25, VISIBLE_H, 'bar bottom');
+    near(byId('speed').y + byId('speed').h, byId('bar').y - 8, VISIBLE_H, 'speed over the bar');
     expect(Math.abs(byId('bar').w - 320)).toBeLessThanOrEqual(2);
     expect(Math.abs(byId('bar').h - 26)).toBeLessThanOrEqual(2);
     near(byId('jump').x + byId('jump').w, W - 16, W, 'jump right');
     near(byId('jump').y + byId('jump').h, VISIBLE_H - 16, VISIBLE_H, 'jump bottom');
     expect(Math.abs(byId('jump').w - 64)).toBeLessThanOrEqual(2);
-    if (boxes.some((b) => b.id === 'shoes')) near(byId('shoes').y + byId('shoes').h, VISIBLE_H - 16, VISIBLE_H, 'shoes bottom');
+    if (boxes.some((b) => b.id === 'shoes')) {
+      near(byId('shoes').y + byId('shoes').h, VISIBLE_H - 16, VISIBLE_H, 'shoes bottom');
+      near(byId('shoes').y + byId('shoes').h / 2, byId('bar').y + byId('bar').h / 2, VISIBLE_H, 'shoes on the line of the bar');
+    }
     // Nothing past the bottom of the visible frame (round 3: no bottom band, the field is the visible window).
     for (const b of boxes) expect(b.y + b.h, b.id).toBeLessThanOrEqual(VISIBLE_H + 0.5);
     expect(tooClose(boxes, 8)).toEqual([]);

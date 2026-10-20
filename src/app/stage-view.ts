@@ -123,7 +123,14 @@ export function createStageView(d: StageViewDeps): StageView {
       const tp = d.campTeleport?.();
       const tpAt = !st && tp && h.z < tp.z + LABEL_NEAR / 4 ? project(tp.x, tp.y + LABEL_ABOVE, tp.z) : null;
       // MU round 3 (producer): the reward taken — «you can run past» no more.
-      if (d.mu && st && at) return d.hud.setPadLabel({ text: t('stage.padReward', { n: fmt(st.trophies) }), ...(sim.padTaken[best] ? {} : { sub: t('stage.padPass') }), x: at.x, y: at.y });
+      if (d.mu && st && at) {
+        // MU round 3: the hero's box on screen — the plaque keeps off it.
+        const feet = project(h.x, h.y, h.z);
+        const head = project(h.x, h.y + HERO_HEIGHT + 0.4, h.z);
+        const half = feet && head ? (feet.y - head.y) * 0.4 : 0;
+        const hero = feet && head ? { x0: feet.x - half, y0: head.y, x1: feet.x + half, y1: feet.y } : undefined;
+        return d.hud.setPadLabel({ text: t('stage.padReward', { n: fmt(st.trophies) }), ...(sim.padTaken[best] ? {} : { sub: t('stage.padPass') }), x: at.x, y: at.y, ...(hero ? { hero } : {}) });
+      }
       d.hud.setPadLabel(st && at ? { text: `+${fmt(st.trophies)}`, x: at.x, y: at.y } : tpAt ? { text: t('teleport.title'), x: tpAt.x, y: tpAt.y, tap: true } : null);
     },
   };

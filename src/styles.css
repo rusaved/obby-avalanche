@@ -506,16 +506,16 @@ canvas.fallback {
 .hud.mu.levels .hud-toast { top: calc(50px + env(safe-area-inset-top)); }
 /* Sound and pause: circles 44 at the top right; the gift plaque 44 high under them (top 60). */
 .hud.mu .hud-pause, .hud.mu .hud-sound { width: 44px; height: 44px; top: calc(8px + env(safe-area-inset-top)); background: var(--mu-plaque); color: #fff; }
-.hud.mu .hud-pause { right: calc(16px + env(safe-area-inset-right)); }
-.hud.mu .hud-sound { right: calc(68px + env(safe-area-inset-right)); margin-right: 0; }
+.hud.mu .hud-pause { right: calc(16px + var(--mu-sticky-right, 0px) + env(safe-area-inset-right)); }
+.hud.mu .hud-sound { right: calc(68px + var(--mu-sticky-right, 0px) + env(safe-area-inset-right)); margin-right: 0; }
 .hud.mu .hud-pause svg, .hud.mu .hud-sound svg { width: 22px; height: 22px; }
 .hud-gift { display: none; }
-.hud.mu .hud-gift.shown { display: flex; top: calc(60px + env(safe-area-inset-top)); right: calc(16px + env(safe-area-inset-right)); height: 44px; min-width: 88px; padding: 0 14px; gap: 8px; border-radius: 22px; background: var(--mu-plaque); color: #fff; font-size: 14px; font-weight: 700; }
+.hud.mu .hud-gift.shown { display: flex; top: calc(60px + env(safe-area-inset-top)); right: calc(16px + var(--mu-sticky-right, 0px) + env(safe-area-inset-right)); height: 44px; min-width: 88px; padding: 0 14px; gap: 8px; border-radius: 22px; background: var(--mu-plaque); color: #fff; font-size: 14px; font-weight: 700; }
 .hud.mu .hud-gift-icon { width: 20px; height: 20px; display: flex; }
 .hud.mu .hud-gift-icon svg { width: 100%; height: 100%; }
 .hud.mu .hud-gift.ready { color: var(--mu-gold); }
 /* Bottom centre: «N Speed» 18 px (bottom 102) → the level bar 320×26 (bottom 68) → the shoes button (bottom 16). */
-.hud.mu .hud-level { bottom: calc(68px + env(safe-area-inset-bottom)); width: 320px; gap: 8px; }
+.hud.mu .hud-level { left: 0; bottom: calc(25px + env(safe-area-inset-bottom)); transform: none; width: 320px; gap: 8px; }
 .hud.mu .hud-level .hud-stat { min-width: 0; min-height: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; animation: none; filter: none; }
 .hud.mu .hud-stat-icon, .hud.mu .hud-stat-per, .hud.mu .hud-stat-gain { display: none; }
 .hud.mu .hud-stat-body { flex-direction: row; align-items: baseline; gap: 6px; }
@@ -528,12 +528,12 @@ canvas.fallback {
 .hud.mu .hud-level-text { justify-content: space-between; padding: 0 12px; font-size: 14px; text-shadow: var(--mu-o15); }
 .hud.mu .hud-level-title { font-weight: 700; }
 .hud.mu .hud-level-progress { font-weight: 500; }
-.hud.mu .hud-shoes, .hud.mu.levels .hud-shoes, .hud.mu.touch .hud-shoes { left: 50%; right: auto; bottom: calc(16px + env(safe-area-inset-bottom)); transform: translateX(-50%); height: auto; min-height: 44px; min-width: 0; padding: 0 16px; border: 2px solid transparent; border-radius: 12px; background: var(--mu-plaque); color: #fff; font: 600 14px/1.2 var(--font); text-shadow: none; }
+.hud.mu .hud-shoes, .hud.mu.levels .hud-shoes, .hud.mu.touch .hud-shoes { left: 0; right: auto; bottom: calc(16px + env(safe-area-inset-bottom)); transform: none; white-space: nowrap; height: auto; min-height: 44px; min-width: 0; padding: 0 16px; border: 2px solid transparent; border-radius: 12px; background: var(--mu-plaque); color: #fff; font: 600 14px/1.2 var(--font); text-shadow: none; }
 .hud.mu .hud-shoes.can { background: var(--mu-plaque); border-color: var(--mu-stat); }
 .hud.mu .hud-shoes.can::after, .hud.mu .hud-shoes-fill { display: none; }
 .hud.mu .hud-shoes-text { display: flex; align-items: center; }
 /* Jump 64 px, 16 px from the right and bottom edges, an ink arrow on green; the stick 84 px with a dark rim. */
-.hud.mu .hud-jump { width: 64px; height: 64px; right: calc(16px + env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom)); background: var(--mu-ok); color: var(--ink); }
+.hud.mu .hud-jump { width: 64px; height: 64px; right: calc(16px + var(--mu-sticky-right, 0px) + env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom)); background: var(--mu-ok); color: var(--ink); }
 .hud.mu .hud-jump svg { width: 30px; height: 30px; }
 .hud.mu .hud-stick { border: 2px solid rgba(27, 42, 58, 0.45); background: rgba(255, 255, 255, 0.28); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7); }
 .hud.mu .hud-stick-knob { width: 36px; height: 36px; margin: -18px 0 0 -18px; border: 2px solid rgba(27, 42, 58, 0.45); box-sizing: border-box; background: rgba(255, 255, 255, 0.92); }
@@ -839,3 +839,11 @@ canvas.fallback {
 #ui.mu .wardrobe .card .fig:not(.big) { --u: 2.5px; width: 15px; height: 24px; }
 #ui.mu .win-head [data-role="pets-count"] { display: none; }
 #ui.mu .pets-shop { display: block; width: auto; min-width: 200px; margin: 8px auto 0; padding: 0 24px; }
+/* MU round 3 (producer: the HUD compact): the stage strip slides in for 2.5 s on a new stage, at a ridge and at the giant
+   (src/ui/hud.ts peekStrip) and hides between; the slot of messages and toasts takes its place at the top then — the
+   middle of the screen stays the hero's. The level bar and the shoes button stand on one line (placeRow). The right
+   column keeps the reserve of a sticky banner (theme ui.mu stickyRight, 0 — the platform shrinks the frame itself). */
+.hud.mu .hud-mountain { transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
+.hud.mu.strip-off .hud-mountain { transform: translate(-50%, calc(-100% - 16px)); opacity: 0; }
+.hud.mu .hud-hint, .hud.mu .hud-need, .hud.mu .hud-tutor, .hud.mu .hud-wave, .hud.mu .hud-ads, .hud.mu .hud-toast { transition: top 0.25s ease-out, transform 0.2s; }
+.hud.mu.strip-off .hud-hint, .hud.mu.strip-off .hud-need, .hud.mu.strip-off .hud-tutor, .hud.mu.strip-off .hud-wave, .hud.mu.strip-off .hud-ads, .hud.mu.strip-off .hud-toast { top: calc(8px + env(safe-area-inset-top)); }
