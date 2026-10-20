@@ -1572,7 +1572,7 @@ async function boot(): Promise<void> {
       // Rule 8: the balance of coins and trophies always in the counters (the test hooks and the windows change it too).
       hud?.setCoins(formatNumber(sim.coins, numSuffix));
       hud?.setTrophies(formatNumber(save.trophies ?? 0, numSuffix));
-      const gift = questsView?.timeItem();
+      const gift = questsView?.timeItem(muLayout);
       hud?.setGift(gift ? { text: gift.badge === '!' ? t('btn.claim') : (gift.badge ?? ''), ready: gift.badge === '!' } : null);
     } else hud?.setMenu(menuShown);
     ftueView?.update(gameDt, playSec, renderPos);

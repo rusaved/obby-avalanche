@@ -781,6 +781,19 @@ canvas.fallback {
 #ui.mu.mu-low .win-grid > .card:has(> .card-pic) > :last-child { grid-column: 3; grid-row: 1 / span 2; margin: 0; align-self: center; justify-self: end; max-width: 108px; }
 #ui.mu.mu-low .win-grid > .card:has(> .card-pic) > .card-btn { min-width: 84px; padding: 0 12px; }
 #ui.mu.mu-low .wr-side .fig.big { --u: 3.5px; width: 21px; height: 34px; }
+/* MU round 3 (art review: at 815 × 290 the row of the calendar cut under its cards): its cards lower by the top padding. */
+#ui.mu.mu-low .dl-cards:not(.dl-fit4) .dl-card { padding-top: 8px; padding-bottom: 6px; }
+#ui.mu.mu-low .dl-cards:not(.dl-fit4) .dl-mark { top: 4px; }
+#ui.mu.mu-low .dl-cards:not(.dl-fit4) { padding: 2px 0; }
+/* MU round 3 (reviews: at 815 × 290 the one row of the steps was cut under its buttons): the sets of steps in two columns
+   of one line each — the play button, the name over its lock or «Chosen», the button on the right — as the sneakers. */
+#ui.mu.mu-low .foot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#ui.mu.mu-low .foot-grid > .foot-card { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; grid-template-rows: auto auto; column-gap: 8px; row-gap: 2px; align-items: center; justify-items: start; padding: 6px 8px; text-align: left; }
+#ui.mu.mu-low .foot-grid > .foot-card > :first-child { grid-column: 1; grid-row: 1 / span 2; width: 32px; height: 32px; margin: 0; }
+#ui.mu.mu-low .foot-grid > .foot-card > .card-name { grid-column: 2; grid-row: 1; align-self: end; margin: 0; }
+#ui.mu.mu-low .foot-grid > .foot-card > .foot-end { display: contents; }
+#ui.mu.mu-low .foot-grid > .foot-card .foot-lock, #ui.mu.mu-low .foot-grid > .foot-card .foot-chosen { grid-column: 2; grid-row: 2; align-self: start; margin: 0; }
+#ui.mu.mu-low .foot-grid > .foot-card .foot-end > .card-btn { grid-column: 3; grid-row: 1 / span 2; align-self: center; margin: 0; min-width: 84px; padding: 0 12px; }
 #ui.mu .win-rail { position: absolute; width: 28px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; pointer-events: none; }
 #ui.mu .win-rail[hidden] { display: none; }
 #ui.mu .win-track { position: relative; flex: 1 1 auto; width: 4px; margin-left: 4px; min-height: 16px; border-radius: 2px; background: rgba(255, 255, 255, 0.16); overflow: hidden; }
@@ -851,5 +864,4 @@ canvas.fallback {
    column keeps the reserve of a sticky banner (theme ui.mu stickyRight, 0 — the platform shrinks the frame itself). */
 .hud.mu .hud-mountain { transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
 .hud.mu.strip-off .hud-mountain { transform: translate(-50%, calc(-100% - 16px)); opacity: 0; }
-.hud.mu .hud-hint, .hud.mu .hud-need, .hud.mu .hud-tutor, .hud.mu .hud-wave, .hud.mu .hud-ads, .hud.mu .hud-toast { transition: top 0.25s ease-out, transform 0.2s; }
 .hud.mu.strip-off .hud-hint, .hud.mu.strip-off .hud-need, .hud.mu.strip-off .hud-tutor, .hud.mu.strip-off .hud-wave, .hud.mu.strip-off .hud-ads, .hud.mu.strip-off .hud-toast { top: calc(8px + env(safe-area-inset-top)); }

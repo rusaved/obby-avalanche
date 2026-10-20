@@ -81,10 +81,15 @@ export function renderDailyPanel(body: HTMLElement, m: DailyPanelModel, claim: (
   if (typeof ResizeObserver !== 'undefined') {
     const ro = new ResizeObserver(() => {
       if (!row.isConnected) return;
-      if (Array.from(row.querySelectorAll<HTMLElement>('.card-name')).some((n) => n.offsetWidth > (n.parentElement?.clientWidth ?? 0) + 1)) {
+      // A name wider than the inside of its card (its padding kept, MU round 3: «Skin "Penguin"» ran 1.5 px into it).
+      const inner = (e: HTMLElement | null): number => (e ? e.clientWidth - Number.parseFloat(getComputedStyle(e).paddingLeft) - Number.parseFloat(getComputedStyle(e).paddingRight) : 0);
+      // A word longer than its line shows in scrollWidth, not in offsetWidth.
+      if (Array.from(row.querySelectorAll<HTMLElement>('.card-name')).some((n) => Math.max(n.offsetWidth, n.scrollWidth) > inner(n.parentElement) + 1)) {
         row.classList.add('dl-fit4');
-        // MU round of fixes 2 (staff: at 130 % day 7 was under the fold): «Take» in the free eighth cell of 4 + 3.
-        row.appendChild(foot);
+        // MU round of fixes 2 (staff: at 130 % day 7 was under the fold): «Take» in the free eighth cell of 4 + 3. MU round 3
+        // (reviews: at 815 × 290 that cell went under the edge of the scrolling middle): a «Take» standing under the
+        // middle of the phone window (window.ts, `win-pin`) stays there.
+        if (!foot.parentElement?.classList.contains('win-pin')) row.appendChild(foot);
         ro.disconnect();
       }
     });

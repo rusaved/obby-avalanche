@@ -71,7 +71,8 @@ export interface QuestsView {
   claimTime(i: number): boolean;
   spin(): number | null;
   questsItem(): MenuItem | null;
-  timeItem(): MenuItem | null;
+  /** `noWheel` — the phone layout: no wheel in its «Gifts» (Q-MU-10), so its free spin lights nothing. */
+  timeItem(noWheel?: boolean): MenuItem | null;
   /** MU-07 (w1-gifts): the next `n` rewards for the time not taken yet (all taken — the last `n`), as tiles. */
   timeTiles(n: number): Array<{ index: number; icon: string; name: string; sub: string; timer: string; state: 'run' | 'ready' | 'got' }>;
 }
@@ -263,10 +264,12 @@ export function createQuestsView(d: QuestsViewDeps): QuestsView {
       const open = all.filter((x) => x.state !== 'got');
       return (open.length > 0 ? open : all.slice(-n)).slice(0, n);
     },
-    timeItem() {
+    timeItem(noWheel = false) {
       if ((d.save.totalPlaySec ?? 0) < d.balance.ui.unlockTimeRewardsSec) return null;
       const next = nextTimeRewardSec(d.save, times);
-      const badge = anyTimeRewardReady(d.save, times) || freeSpinReady(d.save) ? '!' : next !== null ? formatTimer(next) : '';
+      // MU round 3 (usability review: «Take» lit on the phone's gift with nothing to take): the spin of a wheel the phone
+      // does not show takes no part there.
+      const badge = anyTimeRewardReady(d.save, times) || (!noWheel && freeSpinReady(d.save)) ? '!' : next !== null ? formatTimer(next) : '';
       return { id: 'timeRewards', label: t('btn.timeRewards'), icon: 'gift', badge };
     },
   };

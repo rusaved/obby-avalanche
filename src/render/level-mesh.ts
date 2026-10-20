@@ -696,7 +696,8 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       st.hidden = hidden;
       applySign(index);
     },
-    signHidden: (index) => signState[index]?.hidden ?? false,
+    // A ridge board of the phone is a plaque of the HUD (setStageBoards(false)): nothing of it is drawn in the world.
+    signHidden: (index) => (signState[index]?.hidden ?? false) || (stageSign && !boards && level.gates[index]?.kind === 'ridge'),
     setStageBoards(on) {
       if (boards === on) return;
       boards = on;

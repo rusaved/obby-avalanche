@@ -272,6 +272,10 @@ const ROW_GAP = 8;
 const BAR_W = 320;
 const BAR_MIN = 160;
 const MU_JUMP = 64;
+/** Rule 2 of docs/07: the shoes button (paid) keeps this far from the jump when the line has room. */
+const SHOES_THUMB_CLEAR = 100;
+/** MU round 3: where the ridge board may stand around the top of its post, in its own widths and heights, nearest first. */
+const GATE_SIGN_SHIFTS: ReadonlyArray<[number, number]> = [[0, 0], [0, 0.5], [0.5, 0], [-0.5, 0], [0.5, 0.5], [-0.5, 0.5], [0, 1], [1, 0], [-1, 0]];
 
 /** The click a browser sends after a tap comes within this many ms of the finger lifting. */
 const TAP_CLICK_MS = 800;
@@ -587,10 +591,13 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const peekStrip = (): void => {
     if (!opts.mu) return;
     root.classList.remove('strip-off');
+    // The slot moves with the strip: the boxes of the HUD the world labels keep off are read anew.
+    rectsAt = 0;
     if (stripTimer) clearTimeout(stripTimer);
     stripTimer = setTimeout(() => {
       stripTimer = null;
       root.classList.add('strip-off');
+      rectsAt = 0;
     }, STRIP_PEEK_MS);
   };
   /** MU round 3: «N Speed» over the level bar, the bar and the shoes button on one line at the bottom, between the stick
@@ -601,8 +608,11 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     const reserve = Number.parseFloat(getComputedStyle(root).getPropertyValue('--mu-sticky-right')) || 0;
     // The ring is placed by its margin of −MU_STICK / 2; its border makes it wider than MU_STICK.
     const lo = MU_STICK_X - MU_STICK / 2 + (stickBase.offsetWidth || MU_STICK) + ROW_GAP;
-    const hi = fieldW - reserve - EDGE_MU - MU_JUMP - ROW_GAP;
+    // Rule 2 of docs/07: the paid button ≥ 100 px from the thumb of the jump while the bar keeps its least width.
+    const jumpX = fieldW - reserve - EDGE_MU - MU_JUMP;
     const sw = shoesOn ? shoes.offsetWidth : 0;
+    const roomFor = (clear: number): number => jumpX - clear - lo - (shoesOn ? sw + ROW_GAP : 0);
+    const hi = jumpX - (shoesOn && roomFor(SHOES_THUMB_CLEAR) >= BAR_MIN ? SHOES_THUMB_CLEAR : ROW_GAP);
     const bw = Math.max(BAR_MIN, Math.min(BAR_W, hi - lo - (shoesOn ? sw + ROW_GAP : 0)));
     const total = bw + (shoesOn ? ROW_GAP + sw : 0);
     const x0 = Math.max(lo, Math.min(hi - total, Math.round((fieldW - reserve) / 2 - total / 2)));
@@ -1394,10 +1404,21 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
         gateNum.textContent = state.text;
         gateSize = { text: state.text, w: gateBoard.offsetWidth, h: gateBoard.offsetHeight };
       }
-      const r = { x0: state.x - gateSize.w / 2, y0: state.y - gateSize.h, x1: state.x + gateSize.w / 2, y1: state.y };
-      const ok = r.x0 >= EDGE_MU && r.x1 <= fieldW - EDGE_MU && r.y0 >= 0 && r.y1 <= fieldH && hud.clearOfHud(r);
-      gateBoard.style.visibility = ok ? '' : 'hidden';
-      if (ok) gateBoard.style.transform = `translate(${Math.round(r.x0)}px, ${Math.round(r.y0)}px)`;
+      // MU round 3 (reviews: at 815 × 290 the board hid under the slot just as the ridge came): by the top of its post, else
+      // the nearest free place around it — lower, aside — 8 px off the HUD; hidden only when there is none.
+      const { w, h } = gateSize;
+      let r: { x0: number; y0: number; x1: number; y1: number } | undefined;
+      for (const [dx, dy] of GATE_SIGN_SHIFTS) {
+        const x0 = state.x - w / 2 + dx * w;
+        const y0 = state.y - h + dy * h;
+        const q = { x0, y0, x1: x0 + w, y1: y0 + h };
+        if (q.x0 >= EDGE_MU && q.x1 <= fieldW - EDGE_MU && q.y0 >= 0 && q.y1 <= fieldH && hud.clearOfHud(q)) {
+          r = q;
+          break;
+        }
+      }
+      gateBoard.style.visibility = r ? '' : 'hidden';
+      if (r) gateBoard.style.transform = `translate(${Math.round(r.x0)}px, ${Math.round(r.y0)}px)`;
     },
     setPadLabel(state) {
       padLabel.classList.toggle('shown', state !== null);

@@ -116,6 +116,12 @@ test('D5, D19, D26: marks on the middle of their words; «Rate» live ≥ 4.5:1;
       });
       expect(boost.name).toMatch(/^Буст ×2 · \d+ мин$/);
       expect(boost.sub, 'the minutes once').not.toMatch(/мин/);
+      // Round 3 (usability review): the gift of the HUD lights «Take» only with a tile to take (no wheel on the phone).
+      const ready = await page.locator('[data-role="gift-tiles"] [data-hud="gift-claim"]').count();
+      await close(page);
+      const plaque = (await page.locator('[data-hud="gift"]').textContent()) ?? '';
+      if (ready === 0) expect(plaque, 'a timer, nothing to take').toMatch(/\d+:\d\d/);
+      continue;
     }
     await close(page);
   }
@@ -161,6 +167,16 @@ test('A58: no stub of the ridge post under its plaque', async ({ page, openGame 
   await expect(page.locator('[data-role="toast"].shown')).toHaveCount(0, { timeout: 10_000 });
   const sign = page.locator('[data-role="gate-sign"].shown');
   await expect(sign).toBeVisible({ timeout: 10_000 });
+  // Round 3 (reviews: at 815 × 290 the board hid under the slot while the strip was out): seen as the ridge comes too.
+  await page.evaluate((z) => window.__TEST__!.teleport(z), st4.z0 - 40);
+  await waitTicks(page, 10);
+  await page.evaluate((z) => window.__TEST__!.botPath([[0, z]]), st4.z0 - 5);
+  await expect(page.locator('[data-role="need"]')).toBeVisible({ timeout: 10_000 });
+  await expect(sign, 'the board while the strip is out').toBeVisible({ timeout: 1_500 });
+  await page.waitForFunction(() => window.__TEST__!.botLeft() === 0, undefined, { timeout: 10_000 });
+  await page.evaluate(() => window.__TEST__!.botPath(null));
+  await expect(page.locator('[data-role="toast"].shown')).toHaveCount(0, { timeout: 10_000 });
+  await expect(sign).toBeVisible();
   const r = (await sign.boundingBox())!;
   // Under the plaque, a strip as wide as it and 12 px down: no pixel of the post colour (#7A5A3A, lit or shaded).
   const brown = await page.evaluate(([x0, x1, y0]) => {

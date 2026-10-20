@@ -77,7 +77,9 @@ test.describe('MU phone HUD', () => {
     // 8 px over the bar.
     near(byId('bar').y + byId('bar').h, VISIBLE_H - 25, VISIBLE_H, 'bar bottom');
     near(byId('speed').y + byId('speed').h, byId('bar').y - 8, VISIBLE_H, 'speed over the bar');
-    expect(Math.abs(byId('bar').w - 320)).toBeLessThanOrEqual(2);
+    // Round 3: the bar gives way (down to 160) so that the shoes keep 100 px off the jump (rule 2).
+    expect(byId('bar').w).toBeGreaterThanOrEqual(160 - 0.5);
+    expect(byId('bar').w).toBeLessThanOrEqual(320 + 0.5);
     expect(Math.abs(byId('bar').h - 26)).toBeLessThanOrEqual(2);
     near(byId('jump').x + byId('jump').w, W - 16, W, 'jump right');
     near(byId('jump').y + byId('jump').h, VISIBLE_H - 16, VISIBLE_H, 'jump bottom');

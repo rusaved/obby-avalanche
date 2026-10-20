@@ -86,7 +86,7 @@ test('calendar: claim day 1, F5 keeps it, 19 h later still locked, 20 h later da
   await page.locator('[data-hud="daily-claim"]').click();
   s = await testState(page);
   expect(s.daily.n).toBe(2);
-  expect(s.toastSub).toBe('Завтра: Буст ×2 за шаг на 10 мин');
+  expect(s.toastSub).toBe('Завтра: Буст ×2 · 10 мин');
   await page.locator('[data-hud="win-close"]').click();
   // Day 2 gave the Penguin Suit: the wardrobe has it.
   expect(await page.evaluate(() => window.__TEST__!.state().daily.n)).toBe(2);

@@ -167,6 +167,61 @@ test('«Quests»: «For all three» without scrolling; «Shop → Sneakers»: th
   expect(rows.second, 'the second row seen at least by its edge').toBeLessThan(rows.bottom - 1);
 });
 
+test('the sets of steps («Shop → Steps», «Footsteps») show their first row whole; «Take» of «Calendar» in sight at 130 %', async ({ page, openGame }) => {
+  await openGame('pace=stages&mock_fullscreen=deny');
+  const { width, height } = page.viewportSize()!;
+  await page.evaluate((st) => {
+    window.__TEST__!.setPlaySec(400);
+    window.__TEST__!.setCoins(5300);
+    window.__TEST__!.setTrophies(3);
+    window.__TEST__!.holdWave(900);
+    window.__TEST__!.setStat(st);
+  }, threshold(30));
+  await page.touchscreen.tap(width / 2, height / 2);
+  const firstRow = (): Promise<{ bottom: number; rowBottom: number; buttons: number }> =>
+    page.evaluate(() => {
+      const body = document.querySelector('[data-role="window"].open .win-body')!.getBoundingClientRect();
+      const cards = Array.from(document.querySelectorAll('[data-role="window"].open .foot-card'));
+      const top = Math.min(...cards.map((c) => Math.round(c.getBoundingClientRect().top)));
+      const row = cards.filter((c) => Math.round(c.getBoundingClientRect().top) === top);
+      return { bottom: body.bottom, rowBottom: Math.max(...row.map((c) => c.getBoundingClientRect().bottom)), buttons: row.filter((c) => c.querySelector('button.card-btn, .foot-chosen')).length };
+    });
+  for (const open of [
+    async () => {
+      await tap(page, 'menu-shop');
+      await page.locator('[data-hud="shop-tab-steps"]').click();
+    },
+    () => more('footsteps')(page),
+  ]) {
+    await open();
+    await page.waitForTimeout(300);
+    const r = await firstRow();
+    expect(r.rowBottom, 'the first row of sets whole').toBeLessThanOrEqual(r.bottom + 0.5);
+    expect(r.buttons).toBeGreaterThan(0);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('[data-role="window"].open')).toHaveCount(0);
+  }
+  for (const k of [1, 1.3]) {
+    await more('daily')(page);
+    if (k > 1) await scaleText(page, k);
+    await page.waitForTimeout(300);
+    const take = await page.evaluate(() => {
+      const b = document.querySelector('[data-hud="daily-claim"]');
+      const body = document.querySelector('[data-role="window"].open .win-body')!;
+      if (!b) return null;
+      const r = b.getBoundingClientRect();
+      const p = document.querySelector('[data-role="window"].open .win-panel')!.getBoundingClientRect();
+      const inBody = body.contains(b);
+      const v = body.getBoundingClientRect();
+      return { whole: r.top >= p.top && r.bottom <= p.bottom + 0.5 && (!inBody || (r.top >= v.top && r.bottom <= v.bottom + 0.5)) };
+    });
+    if (take) expect(take.whole, `«Take» of the calendar in sight at ${k}`).toBe(true);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('[data-role="window"].open')).toHaveCount(0);
+    if (k > 1) await scaleText(page, 1);
+  }
+});
+
 test('the middle snaps by rows: after a scroll the top of the list stands on a row', async ({ page, openGame }) => {
   await openGame('pace=stages&mock_fullscreen=deny');
   const { width, height } = page.viewportSize()!;

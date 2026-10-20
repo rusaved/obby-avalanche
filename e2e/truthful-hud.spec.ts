@@ -59,7 +59,8 @@ test('the bar and the shoes on one line between the stick and the jump, «N Spee
     expect(Math.abs(bar.y + bar.h / 2 - (shoes.y + shoes.h / 2)), `${w}: one line`).toBeLessThanOrEqual(1.5);
     expect(shoes.x - (bar.x + bar.w), `${w}: 8 px between the bar and the shoes`).toBeGreaterThanOrEqual(7.5);
     expect(bar.x - (ring.x + ring.width), `${w}: off the stick`).toBeGreaterThanOrEqual(7.5);
-    expect(jump.x - (shoes.x + shoes.w), `${w}: off the jump`).toBeGreaterThanOrEqual(7.5);
+    // Rule 2: the paid button 100 px off the jump on the whole frame; squeezed by a banner, 8 at least.
+    expect(jump.x - (shoes.x + shoes.w), `${w}: off the jump`).toBeGreaterThanOrEqual(w === width ? 99.5 : 7.5);
     expect(bar.y - (speed.y + speed.h), `${w}: «N Speed» over the bar`).toBeGreaterThanOrEqual(6);
     expect(height - (shoes.y + shoes.h), `${w}: 16 px from the bottom`).toBeGreaterThanOrEqual(15.5);
     const boxes = await hudBoxes(page);
