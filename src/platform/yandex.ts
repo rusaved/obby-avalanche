@@ -337,7 +337,8 @@ export class YandexPlatform implements Platform {
       await fs.request();
       return true;
     } catch (err) {
-      log.warn('screen.fullscreen.request failed', err);
+      // MU round 4: every tap outside the whole screen asks again — a refusal is routine, not a warning.
+      log.debug('screen.fullscreen.request refused', err);
       return false;
     }
   }

@@ -25,6 +25,8 @@ async function tap(page: Page, hud: string): Promise<void> {
 
 /** Every HUD block and the resting stick inside the frame of width × height, no two closer than 8 px. */
 async function hudWhole(page: Page, width: number, height: number, label: string): Promise<void> {
+  // Round 4: the stage strip measured at rest, not halfway through its slide.
+  await page.waitForFunction(() => !(document.querySelector('.hud-mountain')?.getAnimations().some((a) => a.playState === 'running') ?? false));
   const boxes = await hudBoxes(page);
   expect(boxes.length, label).toBeGreaterThan(8);
   for (const b of boxes) {
@@ -51,16 +53,60 @@ async function windowWhole(page: Page, height: number, label: string): Promise<v
   expect(panel.y + panel.h, `${label} panel bottom`).toBeLessThanOrEqual(height + 0.5);
 }
 
-test('the first tap of a finger asks for the whole screen, once', async ({ page, openGame }) => {
+test('the first tap of a finger asks for the whole screen; outside it any tap asks again', async ({ page, openGame }) => {
   await openGame('pace=stages&mock_device=desktop');
   await waitTicks(page, 10);
   expect(await mockCalls(page, 'screen.fullscreen.request'), 'nothing before a tap').toBe(0);
   const { width, height } = page.viewportSize()!;
+  const full = { x: 0, y: 0, w: width, h: height };
+  const inFull = (): Promise<boolean> => page.evaluate(() => !!document.fullscreenElement);
   await page.touchscreen.tap(width / 2, height / 2);
   await expect.poll(() => mockCalls(page, 'screen.fullscreen.request')).toBe(1);
+  await expect.poll(inFull).toBe(true);
+  await page.waitForTimeout(1100);
   await page.touchscreen.tap(width / 2, height / 2);
   await waitTicks(page, 10);
-  expect(await mockCalls(page, 'screen.fullscreen.request'), 'one ask a session').toBe(1);
+  expect(await mockCalls(page, 'screen.fullscreen.request'), 'no ask while in the whole screen').toBe(1);
+  // MU round 4 (producer 20.10): out of the whole screen (the system «Back»), then a tap — the whole screen again.
+  await page.evaluate(() => document.exitFullscreen());
+  await expect.poll(inFull).toBe(false);
+  await page.touchscreen.tap(width / 2, height / 2);
+  await expect.poll(() => mockCalls(page, 'screen.fullscreen.request')).toBe(2);
+  await expect.poll(inFull).toBe(true);
+  await expect.poll(() => rect(page, '#game'), 'canvas = the visible part').toEqual(full);
+  // The app folded (the tab hidden) and back: the browser drops the whole screen; a tap brings it back.
+  await page.evaluate(async () => {
+    await document.exitFullscreen();
+    const set = (hidden: boolean): void => {
+      Object.defineProperty(document, 'hidden', { configurable: true, get: () => hidden });
+      Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => (hidden ? 'hidden' : 'visible') });
+      document.dispatchEvent(new Event('visibilitychange'));
+    };
+    set(true);
+    set(false);
+  });
+  await page.waitForTimeout(1100);
+  await page.touchscreen.tap(width / 2, height / 2);
+  await expect.poll(() => mockCalls(page, 'screen.fullscreen.request')).toBe(3);
+  await expect.poll(inFull).toBe(true);
+  await expect.poll(() => rect(page, '#game'), 'canvas = the visible part').toEqual(full);
+  await expect.poll(() => rect(page, '#ui'), 'interface layer = the visible part').toEqual(full);
+  await hudWhole(page, width, height, `${width}x${height} back in the whole screen`);
+});
+
+test('the window resized while out of the whole screen: canvas and HUD follow the visible part', async ({ page, openGame }) => {
+  // In the whole screen the window is 40 px taller; leaving it brings the browser panel back — the window gets lower.
+  const { width, height } = page.viewportSize()!;
+  await page.setViewportSize({ width, height: height + 40 });
+  await openGame('pace=stages&mock_fullscreen=deny');
+  await page.touchscreen.tap(width / 2, height / 2);
+  await waitTicks(page, 10);
+  await expect.poll(() => rect(page, '#game')).toEqual({ x: 0, y: 0, w: width, h: height + 40 });
+  await page.setViewportSize({ width, height });
+  await expect.poll(() => rect(page, '#game')).toEqual({ x: 0, y: 0, w: width, h: height });
+  await expect.poll(() => rect(page, '#ui')).toEqual({ x: 0, y: 0, w: width, h: height });
+  await page.waitForTimeout(400);
+  await hudWhole(page, width, height, 'lower window');
 });
 
 test('the whole screen refused: the game is whole in the window — the HUD and the windows', async ({ page, openGame }) => {

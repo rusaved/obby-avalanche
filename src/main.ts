@@ -2176,17 +2176,31 @@ async function boot(): Promise<void> {
     gr?.resize(field.width, field.height, quality.dpr);
     hud?.layout(field.width, field.height);
   };
-  window.addEventListener('resize', fit);
-  viewport?.addEventListener('resize', fit);
-  document.addEventListener('fullscreenchange', fit);
-  coarsePointer.addEventListener('change', fit);
+  // MU round 4 (producer 20.10: after folding the app or leaving the whole screen the field kept the old size): the
+  // browser settles the visible part a few frames after the event, so the field is measured again then too.
+  const refit = (): void => {
+    fit();
+    requestAnimationFrame(fit);
+    setTimeout(fit, 250);
+  };
+  window.addEventListener('resize', refit);
+  viewport?.addEventListener('resize', refit);
+  document.addEventListener('fullscreenchange', refit);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) refit();
+  });
+  coarsePointer.addEventListener('change', refit);
   fit();
-  // MU round 3: the first tap of a finger asks for the whole screen (a browser lets it only from a tap); a refusal or a
-  // later exit leaves the game whole in the window — nothing asks again.
+  // MU round 4 (producer 20.10: the game never went back to the whole screen without a reload): any tap of a finger
+  // outside the whole screen asks for it again (a browser lets it only from a tap); a refusal leaves the game whole in
+  // the window and the next tap asks again, at most once a second.
+  let askedAt = -Infinity;
   const askWholeScreen = (ev: PointerEvent): void => {
-    if (ev.pointerType === 'mouse') return;
-    window.removeEventListener('pointerup', askWholeScreen, true);
-    void platform.requestFullscreen();
+    if (ev.pointerType === 'mouse' || document.fullscreenElement) return;
+    const now = performance.now();
+    if (now - askedAt < 1000) return;
+    askedAt = now;
+    void platform.requestFullscreen().then(refit);
   };
   window.addEventListener('pointerup', askWholeScreen, true);
   applyQualityNow();
