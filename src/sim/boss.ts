@@ -38,6 +38,8 @@ export interface GiantState {
   mode: GiantMode;
   /** Seconds left of the turn. */
   t: number;
+  /** MU round 4: the time (s of the boss clock) it last changed its target — the hero, a bot or none (patrol). */
+  aimAt: number;
   speed: number;
 }
 
@@ -93,6 +95,8 @@ export interface BossHero {
   vz?: number;
 }
 
+/** MU round 4: a giant changes its target (the hero, a bot, none) at most once in this time (s). */
+const AIM_SEC = 2;
 /** A helper keeps this far ahead of the hero along its border, and its snowball flies this high over the line. */
 const HELPER_AHEAD = 14;
 const BALL_ARC = 3;
@@ -159,6 +163,7 @@ export function createBoss(
         lastZ: 0,
         mode: sitting(zi) ? 'sit' : 'patrol',
         t: 0,
+        aimAt: -Infinity,
         speed: g.speed * scale(zi),
       })),
       helpers: (b.helpers ?? []).map((h) => ({ x: h.x, z: (a + c) / 2, t: h.throwEverySec, ball: null, wave: sitting(zi) })),
@@ -252,10 +257,14 @@ export function createBoss(
     });
   };
 
+  // MU round 4 (producer 20.10: sometimes the giant paced to and fro instead of running at the hero): the clock of the
+  // giants' targets (s) — a giant changes its target at most once in AIM_SEC.
+  let clock = 0;
   return {
     zones,
     zoneOf,
     step(dt, hero, free, tick, bots = []) {
+      clock += dt;
       zones.forEach((s, zi) => {
         const [a, c] = s.zone;
         const data0 = data[zi]!;
@@ -276,9 +285,10 @@ export function createBoss(
         const slapped = new Set<number>();
         if (runners.length > 0)
           s.giants.forEach((g, gi) => {
-            if (g.mode === 'patrol' || g.mode === 'back') {
+            if ((g.mode === 'patrol' || g.mode === 'back') && clock - g.aimAt >= AIM_SEC) {
               g.mode = 'turn';
               g.t = data0.giants[gi]!.turnSec;
+              g.aimAt = clock;
             }
           });
         if (s.hero !== 'passed') {
@@ -291,6 +301,7 @@ export function createBoss(
             s.giants.forEach((g, gi) => {
               g.mode = 'turn';
               g.t = data0.giants[gi]!.turnSec;
+              g.aimAt = clock;
             });
             // The first snowballs within 3 s of the zone (docs/01a-content.md 17.4), the helpers a little apart.
             s.helpers.forEach((h, hi) => {
@@ -371,6 +382,17 @@ export function createBoss(
         // How far it is from a runner: along the slope for a patrol giant (PS), in the plane for a chasing one.
         const near = (g: GiantState, chase: boolean, x: number, z: number): boolean => (chase ? Math.hypot(x - g.x, z - g.z) : Math.abs(z - g.z)) <= cfg.reach;
         stepHelpers(s, zi, dt, hero, free, tick);
+        // MU round 4: the hero in the zone is the target — a giant that walked off (patrol, back) turns to him again, but
+        // for one left behind by a quicker hero (SD-15) and not sooner than AIM_SEC after its last change of target.
+        const behind = (g: GiantState): boolean => data0.rearm === true && hero.z > g.z + cfg.reach && g.speed <= (hero.top ?? hero.speed);
+        if (s.hero === 'in' && free)
+          s.giants.forEach((g, gi) => {
+            if ((g.mode === 'patrol' || g.mode === 'back') && !behind(g) && clock - g.aimAt >= AIM_SEC) {
+              g.mode = 'turn';
+              g.t = data0.giants[gi]!.turnSec;
+              g.aimAt = clock;
+            }
+          });
         s.giants.forEach((g, gi) => {
           const chase = data0.giants[gi]!.patrol === 'chase';
           switch (g.mode) {
@@ -412,12 +434,14 @@ export function createBoss(
                 const at = chaseAt(g, data0.giants[gi]!.lag ?? 0);
                 if (!at) {
                   g.mode = 'back';
+                  g.aimAt = clock;
                   break;
                 }
                 // SD-15 (review: a dodge that got past was caught from behind by a turn back up): a giant of every run left
                 // behind keeps on only while he is quicker than the hero's Speed (two levels below); else he walks back.
-                if (data0.rearm && s.hero === 'in' && hero.z > g.z + cfg.reach && g.speed <= (hero.top ?? hero.speed)) {
+                if (s.hero === 'in' && behind(g)) {
                   g.mode = 'back';
+                  g.aimAt = clock;
                   g.dir = -1;
                   break;
                 }
@@ -429,6 +453,7 @@ export function createBoss(
               const tz = target(g);
               if (Number.isNaN(tz)) {
                 g.mode = 'back';
+                g.aimAt = clock;
                 break;
               }
               g.dir = tz >= g.z ? 1 : -1;

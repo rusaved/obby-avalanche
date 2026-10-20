@@ -94,8 +94,10 @@ export function createMetaView(d: MetaViewDeps): MetaView {
         d.hud.setShoes({ text: t('hud.shoesMax'), can: false, progress: 1 });
         return;
       }
+      const words = { m: formatNumber(d.balance.gainPerStep * next.mult, d.numSuffix), price: formatNumber(price, d.numSuffix) };
       d.hud.setShoes({
-        text: t(inTrophies ? 'hud.shoesBtnTrophies' : 'hud.shoesBtn', { m: formatNumber(d.balance.gainPerStep * next.mult, d.numSuffix), price: formatNumber(price, d.numSuffix) }),
+        text: t(inTrophies ? 'hud.shoesBtnTrophies' : 'hud.shoesBtn', words),
+        short: t(inTrophies ? 'hud.shoesBtnTrophiesShort' : 'hud.shoesBtnShort', words),
         can: funds() >= price,
         progress: price > 0 ? funds() / price : 1,
       });

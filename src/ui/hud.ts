@@ -105,6 +105,8 @@ export interface MountainBar {
 /** Shoes button state: text, enough coins, share of the price collected (0–1). */
 export interface ShoesButtonState {
   text: string;
+  /** MU round 4: the caption when the frame is squeezed («+2 · 150»); absent — the full one. */
+  short?: string;
   can: boolean;
   progress: number;
 }
@@ -252,6 +254,13 @@ const MENU_BOTTOM = 0.72;
  * are read this often (ms). */
 const LABEL_GAP = 8;
 const RECTS_MS = 150;
+/** MU round 4 (producer 20.10: the world labels shook and stood in the top middle): a label glides to its place at this
+ * rate (1/s); the top middle of the frame — this share of its height, the middle half of its width — is no place for it. */
+const LABEL_GLIDE = 10;
+const TOP_MID_H = 0.3;
+const LABEL_FLIP_SEC = 0.5;
+/** …and its places left of the pad's corner step this far further (px). */
+const PAD_SIDE = 24;
 /** The side margin of the phone frame (docs/07-mobile-ui.md, «Поля кадра»); the top of the message slot; the letters
  * of Rubik are this many em tall (ascent and descent). */
 const EDGE_MU = 16;
@@ -260,9 +269,6 @@ const GLYPH_EM = 1.2;
 /** MU-02 (l1-run-hud-a): the stick ring 84 px, its centre 76 px from the left edge. */
 const MU_STICK = 84;
 const MU_STICK_X = 76;
-/** MU round of fixes 2 (staff: the stick 50 px over the jump on 915 × 412): the resting stick level with the jump — its
- * centre 16 + 64 / 2 px over the bottom edge; on 815 × 290 (round 3) its ring starts 24 px under the column. */
-const MU_JUMP_MID = 16 + 64 / 2;
 /** MU round 3: a field this low or lower is a phone under browser panels (815 × 290) — compact cards in the windows. */
 const LOW_H = 340;
 /** MU round 3 (producer: the HUD compact): the stage strip shows this long on a new stage, a ridge or the giant (ms). */
@@ -272,8 +278,15 @@ const ROW_GAP = 8;
 const BAR_W = 320;
 const BAR_MIN = 160;
 const MU_JUMP = 64;
-/** Rule 2 of docs/07: the shoes button (paid) keeps this far from the jump when the line has room. */
+/** Rule 2 of docs/07: the shoes button (paid) keeps this far from the jump when the line has room; MU round 4 (A66): in a
+ * frame squeezed by a banner never closer than the second one. */
 const SHOES_THUMB_CLEAR = 100;
+const SHOES_THUMB_MIN = 24;
+/** MU round 4 (A66): the resting stick's ring 16 px over the bottom edge and 24 under the column of tiles — on a low
+ * frame (815 × 290) it gets smaller for that, down to the second number (px). */
+const STICK_BOTTOM = 16;
+const COLUMN_GAP = 24;
+const STICK_MIN = 64;
 /** MU round 3: where the ridge board may stand around the top of its post, in its own widths and heights, nearest first. */
 const GATE_SIGN_SHIFTS: ReadonlyArray<[number, number]> = [[0, 0], [0, 0.5], [0.5, 0], [-0.5, 0], [0.5, 0.5], [-0.5, 0.5], [0, 1], [1, 0], [-1, 0]];
 
@@ -601,21 +614,32 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     }, STRIP_PEEK_MS);
   };
   /** MU round 3: «N Speed» over the level bar, the bar and the shoes button on one line at the bottom, between the stick
-   * and the jump (and the reserve of a sticky banner on the right, theme ui.mu stickyRight). */
+   * and the jump. */
   const placeRow = (): void => {
     if (!opts.mu) return;
     const shoesOn = shoes.classList.contains('shown') && !root.classList.contains('camp');
-    const reserve = Number.parseFloat(getComputedStyle(root).getPropertyValue('--mu-sticky-right')) || 0;
-    // The ring is placed by its margin of −MU_STICK / 2; its border makes it wider than MU_STICK.
-    const lo = MU_STICK_X - MU_STICK / 2 + (stickBase.offsetWidth || MU_STICK) + ROW_GAP;
-    // Rule 2 of docs/07: the paid button ≥ 100 px from the thumb of the jump while the bar keeps its least width.
-    const jumpX = fieldW - reserve - EDGE_MU - MU_JUMP;
-    const sw = shoesOn ? shoes.offsetWidth : 0;
-    const roomFor = (clear: number): number => jumpX - clear - lo - (shoesOn ? sw + ROW_GAP : 0);
-    const hi = jumpX - (shoesOn && roomFor(SHOES_THUMB_CLEAR) >= BAR_MIN ? SHOES_THUMB_CLEAR : ROW_GAP);
+    // The ring is placed by its margin of −size / 2; its border makes it wider than its size.
+    const lo = MU_STICK_X - stickD / 2 + (stickBase.offsetWidth || stickD) + ROW_GAP;
+    // MU round 4 (Q-MU-16: the platform squeezes the frame by its banner; A66): the level bar comes first and keeps its
+    // width; the shoes button gives way first — its short caption — then its distance to the jump (100 → 24 px); only
+    // then the bar narrows (never under 160).
+    const jumpX = fieldW - EDGE_MU - MU_JUMP;
+    const setShort = (on: boolean): number => {
+      if (shoes.classList.contains('short') !== on) {
+        shoes.classList.toggle('short', on);
+        setRich(shoesText, on && shoesShort ? shoesShort : shoesFull);
+      }
+      return shoesOn ? shoes.offsetWidth : 0;
+    };
+    const roomFor = (clear: number, sw: number): number => jumpX - clear - lo - (shoesOn ? sw + ROW_GAP : 0);
+    let sw = setShort(false);
+    let clear = SHOES_THUMB_CLEAR;
+    if (shoesOn && roomFor(clear, sw) < BAR_W) sw = setShort(true);
+    if (shoesOn && roomFor(clear, sw) < BAR_W) clear = SHOES_THUMB_MIN;
+    const hi = jumpX - (shoesOn ? clear : ROW_GAP);
     const bw = Math.max(BAR_MIN, Math.min(BAR_W, hi - lo - (shoesOn ? sw + ROW_GAP : 0)));
     const total = bw + (shoesOn ? ROW_GAP + sw : 0);
-    const x0 = Math.max(lo, Math.min(hi - total, Math.round((fieldW - reserve) / 2 - total / 2)));
+    const x0 = Math.max(lo, Math.min(hi - total, Math.round(fieldW / 2 - total / 2)));
     levelBox.style.width = `${bw}px`;
     levelBox.style.left = `${x0}px`;
     shoes.style.left = `${x0 + bw + ROW_GAP}px`;
@@ -696,6 +720,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   shoes.style.setProperty('--ok', opts.okColor);
   const shoesFill = el('span', 'hud-shoes-fill');
   const shoesText = el('span', 'hud-shoes-text');
+  /** MU round 4: the shoes caption in full and short (for a squeezed frame). */
+  let shoesFull = '';
+  let shoesShort = '';
   shoes.append(shoesFill, shoesText);
   onPress(shoes, () => {
     if (shoes.classList.contains('can')) opts.onShoes();
@@ -928,9 +955,45 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     const v = hud.clearOfHud({ x0: x - w / 2, y0: y - h, x1: x + w / 2, y1: y }) ? '' : 'hidden';
     if (e.style.visibility !== v) e.style.visibility = v;
   };
-  const portalLabels: Array<{ el: HTMLElement; name: HTMLElement; sub: HTMLElement; key: string; w: number; h: number }> = [];
+  /** MU round 4: where a label stands now and when it moved (glides there, snaps when it shows again); the place it took
+   * last (tried first: the label keeps its side instead of flipping between two). */
+  type Glide = { x: number; y: number; t: number; shown: boolean; pick: number; vis: boolean; flipAt: number };
+  /** A label seen or not keeps that at least LABEL_FLIP_SEC (no blinking when its place comes and goes for a moment). */
+  const steady = (g: Glide, want: boolean): boolean => {
+    const now = performance.now() / 1000;
+    if (want !== g.vis && now - g.flipAt >= LABEL_FLIP_SEC) {
+      g.vis = want;
+      g.flipAt = now;
+    }
+    return g.vis;
+  };
+  const drop = (g: Glide): void => {
+    if (g.vis) g.flipAt = performance.now() / 1000;
+    g.vis = false;
+    g.shown = false;
+  };
+  const glideTo = (g: Glide, x: number, y: number, fits?: (x: number, y: number) => boolean): { x: number; y: number } => {
+    const now = performance.now() / 1000;
+    const k = 1 - Math.exp(-Math.min(0.1, Math.max(0, now - g.t)) * LABEL_GLIDE);
+    const gx = g.x + (x - g.x) * k;
+    const gy = g.y + (y - g.y) * k;
+    // On its way it never crosses the hero or the HUD: there it jumps to its place.
+    if (!g.shown || Math.hypot(x - g.x, y - g.y) > fieldW / 3 || (fits && !fits(gx, gy))) {
+      g.x = x;
+      g.y = y;
+    } else {
+      g.x = gx;
+      g.y = gy;
+    }
+    g.t = now;
+    g.shown = true;
+    return { x: Math.round(g.x), y: Math.round(g.y) };
+  };
+  const topMid = (q: { x0: number; y0: number; x1: number }): boolean => q.y0 < fieldH * TOP_MID_H && q.x1 > fieldW / 4 && q.x0 < (fieldW * 3) / 4;
+  const portalLabels: Array<{ el: HTMLElement; name: HTMLElement; sub: HTMLElement; key: string; w: number; h: number; g: Glide }> = [];
   let padKey = '';
   let padSize = { w: 0, h: 0 };
+  const padGlide: Glide = { x: 0, y: 0, t: 0, shown: false, pick: 0, vis: false, flipAt: -Infinity };
   // Round of fixes MU: the blocks of the phone HUD shown now (field px), read at most every RECTS_MS (they move rarely).
   let rectsAt = -Infinity;
   let rects: Array<{ x0: number; y0: number; x1: number; y1: number }> = [];
@@ -959,6 +1022,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
 
   let touchMode = false;
   let fieldW = 1;
+  /** MU round 4: the resting stick's size and the y of its centre (layout). */
+  let stickD = MU_STICK;
+  let stickY = 0;
   let fieldH = 1;
   const hud: Hud = {
     root,
@@ -1010,7 +1076,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (opts.mu && touchMode && !stick.active) {
         // MU-02 (l1-run-hud-a): the stick rests at the bottom left, its ring from y 216, visible on the snow.
         stickBase.style.opacity = '1';
-        stickBase.style.transform = `translate(${MU_STICK_X}px, ${fieldH - MU_JUMP_MID}px)`;
+        stickBase.style.transform = `translate(${MU_STICK_X}px, ${stickY}px)`;
         stickKnob.style.transform = 'translate(0px, 0px)';
         return;
       }
@@ -1034,8 +1100,15 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
         for (const b of [pauseBtn, soundBtn]) b.style.width = b.style.height = '';
         soundBtn.style.marginRight = '';
         menu.style.top = '';
+        // MU round 4 (A66): the ring 16 px over the bottom, 24 under the column; smaller on a low frame for that.
         stickBase.style.width = stickBase.style.height = `${MU_STICK}px`;
-        stickBase.style.marginLeft = stickBase.style.marginTop = `${-MU_STICK / 2}px`;
+        const border = stickBase.offsetWidth - MU_STICK;
+        const col = menu.getBoundingClientRect().bottom - root.getBoundingClientRect().top;
+        stickD = Math.round(Math.max(STICK_MIN, Math.min(MU_STICK, height - STICK_BOTTOM - col - COLUMN_GAP - border)));
+        // The ring is offset by −size / 2 only: its border hangs over the right and the bottom.
+        stickY = height - STICK_BOTTOM - stickD / 2 - border;
+        stickBase.style.width = stickBase.style.height = `${stickD}px`;
+        stickBase.style.marginLeft = stickBase.style.marginTop = `${-stickD / 2}px`;
         hud.setMenu(menuAll);
         placeRow();
         return;
@@ -1093,9 +1166,11 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
         if (was) placeRow();
         return;
       }
-      const before = shoesText.innerHTML;
-      setRich(shoesText, state.text);
-      if (!was || shoesText.innerHTML !== before) placeRow();
+      const before = `${shoesFull}|${shoesShort}`;
+      shoesFull = state.text;
+      shoesShort = state.short ?? '';
+      setRich(shoesText, shoes.classList.contains('short') && shoesShort ? shoesShort : shoesFull);
+      if (!was || `${shoesFull}|${shoesShort}` !== before) placeRow();
       shoes.classList.toggle('can', state.can);
       shoesFill.style.transform = `scaleX(${state.can ? 1 : Math.max(0, Math.min(1, state.progress)).toFixed(3)})`;
     },
@@ -1341,13 +1416,16 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
         const sub = el('span', 'hud-pad-sub');
         e.append(name, sub);
         root.appendChild(e);
-        portalLabels.push({ el: e, name, sub, key: '', w: 0, h: 0 });
+        portalLabels.push({ el: e, name, sub, key: '', w: 0, h: 0, g: { x: 0, y: 0, t: 0, shown: false, pick: 0, vis: false, flipAt: -Infinity } });
       }
       const placed: Array<{ x0: number; y0: number; x1: number; y1: number }> = hero ? [hero] : [];
       portalLabels.forEach((p, i) => {
         const s = list[i];
         p.el.classList.toggle('shown', !!s);
-        if (!s) return;
+        if (!s) {
+          drop(p.g);
+          return;
+        }
         const key = `${s.text}|${s.sub}|${s.locked}`;
         if (p.key !== key) {
           p.key = key;
@@ -1364,14 +1442,22 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
           p.h = p.el.offsetHeight;
         }
         // Over its arch; else slid aside of the hero, not farther than its own width from the arch.
+        // MU round 4: also under the arch's point, never in the top middle; the place taken last is tried first.
         const xs = [s.x, ...(hero ? [hero.x0 - LABEL_GAP - p.w / 2, hero.x1 + LABEL_GAP + p.w / 2] : [])].filter((x) => Math.abs(x - s.x) <= p.w);
-        const r = xs
-          .map((x) => ({ x0: x - p.w / 2, y0: s.y - p.h, x1: x + p.w / 2, y1: s.y }))
-          .find((q) => q.x0 >= EDGE_MU && q.x1 <= fieldW - EDGE_MU && q.y0 >= 0 && q.y1 <= fieldH && hud.clearOfHud(q) && !placed.some((b) => q.x0 < b.x1 + LABEL_GAP && b.x0 < q.x1 + LABEL_GAP && q.y0 < b.y1 + LABEL_GAP && b.y0 < q.y1 + LABEL_GAP));
-        p.el.style.visibility = r ? '' : 'hidden';
-        if (!r) return;
+        const cands = [s.y - p.h, s.y + LABEL_GAP, s.y - 2 * p.h].flatMap((y0) => xs.map((x) => ({ x0: x - p.w / 2, y0, x1: x + p.w / 2, y1: y0 + p.h })));
+        const ok = (q: (typeof cands)[number]): boolean =>
+          q.x0 >= EDGE_MU && q.x1 <= fieldW - EDGE_MU && q.y0 >= 0 && q.y1 <= fieldH && !topMid(q) && hud.clearOfHud(q) && !placed.some((b) => q.x0 < b.x1 + LABEL_GAP && b.x0 < q.x1 + LABEL_GAP && q.y0 < b.y1 + LABEL_GAP && b.y0 < q.y1 + LABEL_GAP);
+        const last = cands[p.g.pick];
+        const pick = last && ok(last) ? p.g.pick : cands.findIndex(ok);
+        const r = cands[pick];
+        const vis = steady(p.g, !!r);
+        p.el.style.visibility = vis ? '' : 'hidden';
+        if (!vis) p.g.shown = false;
+        if (!vis || !r) return;
+        p.g.pick = pick;
         placed.push(r);
-        p.el.style.transform = `translate(${Math.round(r.x0)}px, ${Math.round(r.y0)}px)`;
+        const at = glideTo(p.g, r.x0, r.y0, (x, y) => ok({ x0: x, y0: y, x1: x + p.w, y1: y + p.h }));
+        p.el.style.transform = `translate(${at.x}px, ${at.y}px)`;
       });
     },
     setStandLabel(state) {
@@ -1425,6 +1511,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       padLabel.classList.toggle('tap', !!state?.tap);
       if (state?.tap) padLabel.dataset['hud'] = 'pad';
       else delete padLabel.dataset['hud'];
+      if (!state || state.tap) drop(padGlide);
       if (!state) return;
       setRich(padText, state.text);
       padLabel.classList.toggle('two', !!state.sub);
@@ -1449,24 +1536,34 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       // no plaque; over the hero on the pad the HUD around him leaves room higher up or further right.
       if (state.x < 0 || state.x > fieldW || state.y < 0 || state.y > fieldH) {
         padLabel.style.visibility = 'hidden';
+        drop(padGlide);
         return;
       }
       const { w, h } = padSize;
-      let at: { x: number; y: number } | undefined;
       // MU round 3 (producer's frame: the plaque in the middle over the hero): never on the hero — over his head at most.
+      // MU round 4: never in the top middle either; the place taken last is tried first, and the plaque glides there.
       const hero = state.hero;
       const offHero = (x: number, y: number): boolean => !hero || x >= hero.x1 + LABEL_GAP || x + w <= hero.x0 - LABEL_GAP || y >= hero.y1 + LABEL_GAP || y + h <= hero.y0 - LABEL_GAP;
-      const ys = [state.y - h, state.y - h / 2, state.y, state.y - 1.5 * h, state.y - 2 * h, ...(hero ? [hero.y0 - LABEL_GAP - h] : [])];
-      for (const dx of [LABEL_GAP, LABEL_GAP + w / 3]) {
+      const ys = [state.y - h, state.y - h / 2, state.y, state.y - 1.5 * h, state.y - 2 * h, state.y + h, ...(hero ? [hero.y0 - LABEL_GAP - h] : [])];
+      // MU round 4: also left of the corner (over the pad itself) — the pad ahead of the hero puts the right side high up.
+      const cands = [LABEL_GAP, LABEL_GAP + w / 3, -w - LABEL_GAP, -w - 2 * PAD_SIDE].flatMap((dx) => {
         const x = Math.max(EDGE_MU, Math.min(fieldW - EDGE_MU - w, state.x + dx));
-        const y = ys.find((v) => v >= 0 && v + h <= fieldH && offHero(x, v) && hud.clearOfHud({ x0: x, y0: v, x1: x + w, y1: v + h }));
-        if (y !== undefined) {
-          at = { x, y };
-          break;
-        }
-      }
-      padLabel.style.visibility = at ? '' : 'hidden';
-      if (at) padLabel.style.transform = `translate(${Math.round(at.x)}px, ${Math.round(at.y)}px)`;
+        return ys.map((y) => ({ x, y }));
+      });
+      const ok = (c: { x: number; y: number }): boolean => {
+        const q = { x0: c.x, y0: c.y, x1: c.x + w, y1: c.y + h };
+        return c.y >= 0 && c.y + h <= fieldH && offHero(c.x, c.y) && !topMid(q) && hud.clearOfHud(q);
+      };
+      const last = cands[padGlide.pick];
+      const pick = last && ok(last) ? padGlide.pick : cands.findIndex(ok);
+      const at = cands[pick];
+      const vis = steady(padGlide, !!at);
+      padLabel.style.visibility = vis ? '' : 'hidden';
+      if (!vis) padGlide.shown = false;
+      if (!vis || !at) return;
+      padGlide.pick = pick;
+      const g = glideTo(padGlide, at.x, at.y, (x, y) => ok({ x, y }));
+      padLabel.style.transform = `translate(${g.x}px, ${g.y}px)`;
     },
     setTutor(text, urgent = false) {
       if (tutor.classList.contains('shown') !== (text !== null) || tutor.classList.contains('urgent') !== urgent) {

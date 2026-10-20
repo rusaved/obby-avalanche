@@ -101,7 +101,7 @@ test.describe('MU phone screens', () => {
   test('MU-04 finish: the light plaque before the pad, one «+N» with the coin on it, the counter gets the coins', async ({ page, openGame }) => {
     await openGame('pace=stages');
     const st = STAGES[0]!.stages[2]!;
-    await prepare(page, `window.__TEST__.setStat(${threshold(st.level + 2)}); window.__TEST__.teleport(${st.finish[0] - 6}, ${st.pad.x}, ${st.y + 1});`);
+    await prepare(page, `window.__TEST__.setStat(${threshold(st.level + 2)}); window.__TEST__.teleport(${st.finish[0] + 2}, ${st.pad.x}, ${st.y + 1});`);
     await expect(page.locator('[data-role="pad-label"].shown')).toBeVisible();
     await expect(page.locator('[data-role="pad-label"]')).toContainText(/Награда этапа/);
     await expect(page.locator('[data-role="pad-label"] .hud-pad-sub')).toHaveText(/можно бежать мимо/);
@@ -439,7 +439,8 @@ test.describe('MU phone screens', () => {
       ['rebirth', async () => { await tap(page, 'menu-more'); await page.locator('[data-hud="more-rebirth"]').click(); }, 640],
       ['records', async () => { await tap(page, 'menu-more'); await page.locator('[data-hud="more-records"]').click(); }, 560],
       ['quests', async () => { await tap(page, 'menu-more'); await page.locator('[data-hud="more-quests"]').click(); }, 560],
-      ['daily', async () => { await tap(page, 'menu-more'); await page.locator('[data-hud="more-daily"]').click(); }, 640],
+      // MU round 4 (producer 20.10: 7 days in a row at any size): the calendar up to 760 wide.
+      ['daily', async () => { await tap(page, 'menu-more'); await page.locator('[data-hud="more-daily"]').click(); }, 760],
       ['promo', async () => { await tap(page, 'pause'); await page.locator('[data-hud="promo"]').click(); }, 480],
     ];
     for (const [id, how, width] of open) {

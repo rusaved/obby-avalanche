@@ -66,7 +66,9 @@ test.describe('MU phone HUD', () => {
     const ring = await page.locator('[data-role="stick"]').boundingBox();
     expect(ring).not.toBeNull();
     const jump = (await page.locator('[data-hud="jump"]').boundingBox())!;
-    expect(Math.abs(ring!.y + ring!.height / 2 - (jump.y + jump.height / 2)), 'stick level with the jump').toBeLessThanOrEqual(2);
+    // MU round 4 (A66): the ring 16 px over the bottom edge — its centre 12 px over the jump's.
+    expect(Math.abs(ring!.y + ring!.height / 2 - (jump.y + jump.height / 2)), 'stick near the level of the jump').toBeLessThanOrEqual(14);
+    expect(MU_VIEW.height - (ring!.y + ring!.height), 'the ring 16 px over the bottom').toBeGreaterThanOrEqual(15.5);
     expect(ring!.y - columnBottom).toBeGreaterThanOrEqual(24);
     // The strip at the top centre; sound, pause and the gift at the right.
     near(byId('strip').x + byId('strip').w / 2, W / 2, W, 'strip centre');

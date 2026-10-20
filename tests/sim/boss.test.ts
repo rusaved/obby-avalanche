@@ -406,4 +406,28 @@ describe('the giant runs at the hero, rocks to hide behind (SP-06)', () => {
     expect(count(runs(b, 1, 'straight'), 'passed')).toBe(10);
     expect(count(runs(b, 0.85, 'hide'), 'caught')).toBe(10);
   });
+
+  it('MU round 4: the hero in the zone is the target — a giant sent off (patrol, back) turns to him again within 2 s', () => {
+    const b: WorldBoss = { ...w1.bosses![0]!, rearm: true };
+    const hero: BossHero = { x: 10, y: 0, z: zone[0] + 20, speed: 0, vx: 0, vz: 0 };
+    const boss = createBoss([b], cfg, () => 1, () => false, () => {});
+    const g = boss.zones[0]!.giants[0]!;
+    for (let i = 0; i < 40; i++) boss.step(DT, hero, true, i);
+    expect(g.mode).toBe('chase');
+    // Sent off while the hero stands in the zone: no turn back to him within 2 s of the last change, then at him again.
+    g.mode = 'back';
+    let t = 0;
+    let at = -1;
+    for (let i = 0; i < 4 * 60 && at < 0; i++, t += DT) {
+      boss.step(DT, hero, true, 100 + i);
+      if (g.mode !== 'back' && g.mode !== 'patrol') at = t;
+    }
+    expect(at, 'turned to him again').toBeGreaterThanOrEqual(0);
+    expect(at, 'within 2 s').toBeLessThanOrEqual(2 + 1e-6);
+    for (let i = 0; i < 60 && (g.mode as string) === 'turn'; i++) boss.step(DT, hero, true, 500 + i);
+    expect(g.mode).toBe('chase');
+    const [x0, z0] = [g.x, g.z];
+    boss.step(DT, hero, true, 999);
+    expect((g.x - x0) * (hero.x - x0) + (g.z - z0) * (hero.z - z0), 'a step towards him').toBeGreaterThan(0);
+  });
 });

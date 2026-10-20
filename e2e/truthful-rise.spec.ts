@@ -16,7 +16,7 @@ const SPOTS: Array<[number, number[]]> = [
 test('the rises of mountains 1–2: nothing hangs over them', async ({ page, openGame }) => {
   test.setTimeout(180_000);
   const { width, height } = page.viewportSize()!;
-  const dir = `docs/evidence/MU/r3/${width}x${height}/rise`;
+  const dir = `docs/evidence/MU/r4/${width}x${height}/rise`;
   mkdirSync(dir, { recursive: true });
   for (const [mountain, zs] of SPOTS) {
     await openGame('pace=stages&mock_fullscreen=deny');

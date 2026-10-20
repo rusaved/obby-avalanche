@@ -62,7 +62,7 @@ test('D50: a set of steps looks the same in «Footsteps» and in «Shop → Step
   }
   expect(Object.values(shop).some((c) => c.parts === 'chosen✓')).toBe(true);
   const { width, height } = page.viewportSize()!;
-  await page.screenshot({ path: `docs/evidence/MU/r3/${width}x${height}/w-shop-steps.png` });
+  await page.screenshot({ path: `docs/evidence/MU/r4/${width}x${height}/w-shop-steps.png` });
 });
 
 test('D5, D19, D26: marks on the middle of their words; «Rate» live ≥ 4.5:1; «Boost ×2 · 3 min» once', async ({ page, openGame }) => {
@@ -152,7 +152,7 @@ test('D38: the tiles of «More» keep 8 px around their words at 130 %', async (
     expect(tight, `at ${k}`).toEqual([]);
   }
   const { width, height } = page.viewportSize()!;
-  await page.screenshot({ path: `docs/evidence/MU/r3/${width}x${height}/w-more-130.png` });
+  await page.screenshot({ path: `docs/evidence/MU/r4/${width}x${height}/w-more-130.png` });
   await scaleText(page, 1);
 });
 
@@ -190,5 +190,5 @@ test('A58: no stub of the ridge post under its plaque', async ({ page, openGame 
   }, [r.x, r.x + r.width, r.y + r.height + 1] as const);
   expect(brown, 'brown pixels of a post under the plaque').toBe(0);
   const { width, height } = page.viewportSize()!;
-  await page.screenshot({ path: `docs/evidence/MU/r3/${width}x${height}/l2-gate.png` });
+  await page.screenshot({ path: `docs/evidence/MU/r4/${width}x${height}/l2-gate.png` });
 });

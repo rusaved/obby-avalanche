@@ -506,11 +506,11 @@ canvas.fallback {
 .hud.mu.levels .hud-toast { top: calc(50px + env(safe-area-inset-top)); }
 /* Sound and pause: circles 44 at the top right; the gift plaque 44 high under them (top 60). */
 .hud.mu .hud-pause, .hud.mu .hud-sound { width: 44px; height: 44px; top: calc(8px + env(safe-area-inset-top)); background: var(--mu-plaque); color: #fff; }
-.hud.mu .hud-pause { right: calc(16px + var(--mu-sticky-right, 0px) + env(safe-area-inset-right)); }
-.hud.mu .hud-sound { right: calc(68px + var(--mu-sticky-right, 0px) + env(safe-area-inset-right)); margin-right: 0; }
+.hud.mu .hud-pause { right: calc(16px + env(safe-area-inset-right)); }
+.hud.mu .hud-sound { right: calc(68px + env(safe-area-inset-right)); margin-right: 0; }
 .hud.mu .hud-pause svg, .hud.mu .hud-sound svg { width: 22px; height: 22px; }
 .hud-gift { display: none; }
-.hud.mu .hud-gift.shown { display: flex; top: calc(60px + env(safe-area-inset-top)); right: calc(16px + var(--mu-sticky-right, 0px) + env(safe-area-inset-right)); height: 44px; min-width: 88px; padding: 0 14px; gap: 8px; border-radius: 22px; background: var(--mu-plaque); color: #fff; font-size: 14px; font-weight: 700; }
+.hud.mu .hud-gift.shown { display: flex; top: calc(60px + env(safe-area-inset-top)); right: calc(16px + env(safe-area-inset-right)); height: 44px; min-width: 88px; padding: 0 14px; gap: 8px; border-radius: 22px; background: var(--mu-plaque); color: #fff; font-size: 14px; font-weight: 700; }
 .hud.mu .hud-gift-icon { width: 20px; height: 20px; display: flex; }
 .hud.mu .hud-gift-icon svg { width: 100%; height: 100%; }
 .hud.mu .hud-gift.ready { color: var(--mu-gold); }
@@ -533,7 +533,7 @@ canvas.fallback {
 .hud.mu .hud-shoes.can::after, .hud.mu .hud-shoes-fill { display: none; }
 .hud.mu .hud-shoes-text { display: flex; align-items: center; }
 /* Jump 64 px, 16 px from the right and bottom edges, an ink arrow on green; the stick 84 px with a dark rim. */
-.hud.mu .hud-jump { width: 64px; height: 64px; right: calc(16px + var(--mu-sticky-right, 0px) + env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom)); background: var(--mu-ok); color: var(--ink); }
+.hud.mu .hud-jump { width: 64px; height: 64px; right: calc(16px + env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom)); background: var(--mu-ok); color: var(--ink); }
 .hud.mu .hud-jump svg { width: 30px; height: 30px; }
 .hud.mu .hud-stick { border: 2px solid rgba(27, 42, 58, 0.45); background: rgba(255, 255, 255, 0.28); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7); }
 .hud.mu .hud-stick-knob { width: 36px; height: 36px; margin: -18px 0 0 -18px; border: 2px solid rgba(27, 42, 58, 0.45); box-sizing: border-box; background: rgba(255, 255, 255, 0.92); }
@@ -772,14 +772,14 @@ canvas.fallback {
 .card-line { display: contents; }
 /* MU round 3 (a low screen, 815 × 290): sneakers in two columns of one line each — the picture, the name over «+N per step ·
    price», the button on the right: two rows of cards whole under the tabs. The hero of the wardrobe smaller. */
-#ui.mu.mu-low .win-grid:has(> .card > .card-pic) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-#ui.mu.mu-low .win-grid > .card:has(> .card-pic) { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; grid-template-rows: auto auto; column-gap: 8px; row-gap: 2px; align-items: center; justify-items: start; padding: 6px 8px; text-align: left; }
-#ui.mu.mu-low .win-grid > .card > .card-pic { grid-column: 1; grid-row: 1 / span 2; width: 28px; height: 28px; }
-#ui.mu.mu-low .win-grid > .card:has(> .card-pic) > .card-name { grid-column: 2; grid-row: 1; align-self: end; }
+#ui.mu.mu-low .win-grid:has(> .card > :is(.card-pic, .card-swatch)) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#ui.mu.mu-low .win-grid > .card:has(> :is(.card-pic, .card-swatch)) { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; grid-template-rows: auto auto; column-gap: 8px; row-gap: 2px; align-items: center; justify-items: start; padding: 6px 8px; text-align: left; }
+#ui.mu.mu-low .win-grid > .card > :is(.card-pic, .card-swatch) { grid-column: 1; grid-row: 1 / span 2; width: 28px; height: 28px; }
+#ui.mu.mu-low .win-grid > .card:has(> :is(.card-pic, .card-swatch)) > .card-name { grid-column: 2; grid-row: 1; align-self: end; }
 #ui.mu.mu-low .win-grid > .card > .card-line { grid-column: 2; grid-row: 2; display: flex; align-items: center; gap: 8px; align-self: start; }
 #ui.mu.mu-low .win-grid > .card > .card-line > .card-big { font-size: 14px; }
-#ui.mu.mu-low .win-grid > .card:has(> .card-pic) > :last-child { grid-column: 3; grid-row: 1 / span 2; margin: 0; align-self: center; justify-self: end; max-width: 108px; }
-#ui.mu.mu-low .win-grid > .card:has(> .card-pic) > .card-btn { min-width: 84px; padding: 0 12px; }
+#ui.mu.mu-low .win-grid > .card:has(> :is(.card-pic, .card-swatch)) > :last-child { grid-column: 3; grid-row: 1 / span 2; margin: 0; align-self: center; justify-self: end; max-width: 108px; }
+#ui.mu.mu-low .win-grid > .card:has(> :is(.card-pic, .card-swatch)) > .card-btn { min-width: 84px; padding: 0 12px; }
 #ui.mu.mu-low .wr-side .fig.big { --u: 3.5px; width: 21px; height: 34px; }
 /* MU round 3 (art review: at 815 × 290 the row of the calendar cut under its cards): its cards lower by the top padding. */
 #ui.mu.mu-low .dl-cards:not(.dl-fit4) .dl-card { padding-top: 8px; padding-bottom: 6px; }
@@ -860,8 +860,40 @@ canvas.fallback {
 #ui.mu .pets-shop { display: block; width: auto; min-width: 200px; margin: 8px auto 0; padding: 0 24px; }
 /* MU round 3 (producer: the HUD compact): the stage strip slides in for 2.5 s on a new stage, at a ridge and at the giant
    (src/ui/hud.ts peekStrip) and hides between; the slot of messages and toasts takes its place at the top then — the
-   middle of the screen stays the hero's. The level bar and the shoes button stand on one line (placeRow). The right
-   column keeps the reserve of a sticky banner (theme ui.mu stickyRight, 0 — the platform shrinks the frame itself). */
+   middle of the screen stays the hero's. The level bar and the shoes button stand on one line (placeRow). No reserve for
+   a sticky banner inside the game: the platform squeezes the frame itself (Q-MU-16), the shoes button gives way first. */
 .hud.mu .hud-mountain { transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
 .hud.mu.strip-off .hud-mountain { transform: translate(-50%, calc(-100% - 16px)); opacity: 0; }
 .hud.mu.strip-off .hud-hint, .hud.mu.strip-off .hud-need, .hud.mu.strip-off .hud-tutor, .hud.mu.strip-off .hud-wave, .hud.mu.strip-off .hud-ads, .hud.mu.strip-off .hud-toast { top: calc(8px + env(safe-area-inset-top)); }
+/* MU round 4 (producer 20.10: «Buy» of an egg out of sight at 880 × 405): an egg card — the swatch, the name with the
+   price and «Buy» on top, the pets of the egg as faces with their % under them in two rows. */
+#ui.mu .win-grid:has(> .egg-card) { grid-template-columns: repeat(auto-fill, minmax(min(100%, 264px), 1fr)); }
+#ui.mu .win-grid .card.egg-card { align-items: stretch; gap: 8px; padding: 8px; }
+#ui.mu .egg-top { display: flex; align-items: center; gap: 8px; }
+#ui.mu .egg-top > .card-swatch { flex: none; width: 32px; height: 32px; }
+#ui.mu .egg-what { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; }
+#ui.mu .egg-top > .card-btn { flex: none; min-width: 88px; padding: 0 12px; }
+#ui.mu .egg-top > .card-lock { flex: none; max-width: 50%; }
+#ui.mu .egg-odds { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px 8px; margin: 0; }
+#ui.mu .egg-odd { display: flex; align-items: center; gap: 4px; color: var(--mu-muted); font: 500 12px/1.2 var(--font); font-variant-numeric: tabular-nums; white-space: nowrap; }
+#ui.mu .egg-face { position: relative; flex: none; width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid rgba(27, 42, 58, 0.35); }
+#ui.mu .egg-face::before, #ui.mu .egg-face::after { content: ''; position: absolute; top: 5px; width: 3px; height: 4px; border-radius: 1px; background: #1b2a3a; }
+#ui.mu .egg-face::before { left: 4px; }
+#ui.mu .egg-face::after { right: 4px; }
+#ui.mu .egg-nose { position: absolute; left: 50%; bottom: 3px; width: 5px; height: 3px; margin-left: -2.5px; border-radius: 1px; }
+/* MU round 4 (producer 20.10: no «Release» at 880 × 405): a pet card — «Equip / Unequip» and «Release» in one row. */
+#ui.mu [data-role="pets-grid"] .card-btns { flex-wrap: nowrap; align-self: stretch; gap: 4px; }
+#ui.mu [data-role="pets-grid"] .card-btns > .card-btn { flex: 1 1 0; min-width: 0; padding: 0 4px; }
+#ui.mu [data-role="pets-grid"] .card-btns > .card-sub { flex: 1 1 100%; }
+#ui.mu [data-role="pets-grid"] .card-btns:has(> .card-sub) { flex-wrap: wrap; }
+/* MU round 4 (producer 20.10: «Calendar» 7 days in a row at any size, at 130 % it went 4 + 3): the calendar window is
+   up to 760 wide on the phone, a name too long for its card breaks as a last resort. */
+#ui.mu .win[data-window='daily'] .win-panel { width: min(calc(100% - 32px), 760px); }
+#ui.mu .dl-cards, #ui.mu .dl-cards.dl-fit4 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+#ui.mu .dl-cards .card-name { font-size: 12px; overflow-wrap: anywhere; }
+/* MU round 4 (producer 20.10: the world labels big and read from afar): smaller — 12 over 11, no wider than a quarter of
+   the frame (the words wrap); they show only within 12 m (src/app/stage-view.ts). */
+.hud.mu .hud-pad:not(.tap), .hud.mu .hud-portal { max-width: 25%; padding: 4px 10px; font-size: 12px; line-height: 1.25; white-space: normal; text-align: center; }
+.hud.mu .hud-pad.two:not(.tap) .hud-pad-sub, .hud.mu .hud-portal .hud-pad-sub { font-size: 11px; }
+/* MU round 4 (A66): the short caption of the shoes button in a squeezed frame keeps its look. */
+.hud.mu .hud-shoes.short { padding-left: 12px; padding-right: 12px; }

@@ -18,9 +18,14 @@ const LABEL_ABOVE = 3;
 /** Half the width of a trophy button (level data: a 6-unit block); the phone label's bottom this high over it (l3). */
 const PAD_HALF = 3;
 const MU_LABEL_ABOVE = 0.5;
-/** Round of fixes MU (l5-camp): a portal plaque reads up to this far (units) and hangs at this share of the arch. */
-const PORTAL_READ = 90;
+/** Round of fixes MU (l5-camp): a portal plaque hangs at this share of the arch. */
 const PORTAL_AT = 0.15;
+/** MU round 4 (producer 20.10: the world labels read from afar, stood in the middle and shook): on the phone a label
+ * comes in at this distance (units = metres), goes out past the second one at once — no blinking at the border — and
+ * comes in again no sooner than this time (s) after it flipped. */
+const MU_SHOW = 12;
+const MU_HIDE = 14;
+const MU_FLIP_SEC = 0.5;
 
 export interface StageViewDeps {
   getSim(): Sim;
@@ -54,6 +59,15 @@ export function createStageView(d: StageViewDeps): StageView {
   const p = new Vector3();
   const fmt = (n: number): string => formatNumber(n, d.numSuffix);
   let taken = 0;
+  /** MU round 4: the labels in range now, by key, and when each flipped (s). */
+  const near = new Map<string, { on: boolean; at: number }>();
+  const inRange = (key: string, dist: number): boolean => {
+    const now = performance.now() / 1000;
+    const was = near.get(key) ?? { on: false, at: -Infinity };
+    const want = was.on ? dist <= MU_HIDE : dist <= MU_SHOW;
+    if (want !== was.on && (!want || now - was.at >= MU_FLIP_SEC)) near.set(key, { on: want, at: now });
+    return near.get(key)?.on ?? false;
+  };
   const project = (x: number, y: number, z: number): { x: number; y: number } | null => {
     p.set(x, y, z).project(d.camera.camera);
     if (p.z >= 1) return null;
@@ -87,7 +101,7 @@ export function createStageView(d: StageViewDeps): StageView {
         const h = d.getSim().hero.pos;
         const list = portals
           .map((q) => ({ q, dist: Math.hypot(q.x - h.x, q.z - h.z) }))
-          .filter((x) => x.dist <= PORTAL_READ)
+          .filter((x) => inRange(`portal:${x.q.text}`, x.dist))
           .sort((a, b) => a.dist - b.dist)
           .flatMap(({ q }) => {
             const at = project(q.x, q.height * PORTAL_AT, q.z);
@@ -112,7 +126,9 @@ export function createStageView(d: StageViewDeps): StageView {
         // Round of fixes MU (mockup check, l3: the plaque went out the moment the reward came): a taken pad keeps it while
         // the hero stands on it.
         const onPad = d.mu && Math.abs(st.pad.x - h.x) <= PAD_HALF + 1 && Math.abs(st.pad.z - h.z) <= PAD_HALF + 1;
-        if (st.trophies <= 0 || (sim.padTaken[k] && !onPad) || Math.abs(st.pad.z - h.z) > LABEL_NEAR) continue;
+        // MU round 4: on the phone the pad's plaque only within range of the pad (12 in, out past 14).
+        const close = d.mu ? inRange(`pad:${k}`, Math.hypot(st.pad.x - h.x, st.pad.z - h.z)) : Math.abs(st.pad.z - h.z) <= LABEL_NEAR;
+        if (st.trophies <= 0 || (sim.padTaken[k] && !onPad) || !close) continue;
         if (best < 0 || Math.abs(st.pad.z - h.z) < Math.abs(stages[best]!.pad.z - h.z)) best = k;
       }
       const st = best >= 0 ? stages[best]! : null;

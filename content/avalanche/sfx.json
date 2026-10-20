@@ -17,10 +17,10 @@
     "ice": ["steps/ice/1.mp3", "steps/ice/2.mp3", "steps/ice/3.mp3", "steps/ice/4.mp3"],
     "sets": [
       { "id": "light_snow", "unlock": "free", "color": "#F4F9FF", "files": ["steps/light-snow/1.mp3", "steps/light-snow/2.mp3", "steps/light-snow/3.mp3", "steps/light-snow/4.mp3"], "weights": [3, 1, 1, 1] },
-      { "id": "whisper_snow", "unlock": "daily", "day": 2, "color": "#DFF1FF", "files": ["steps/whisper-snow/1.mp3", "steps/whisper-snow/2.mp3"] },
-      { "id": "velvet_snow", "unlock": "shop", "currency": "coins", "price": 150, "color": "#D9D2F5", "files": ["steps/velvet-snow/1.mp3", "steps/velvet-snow/2.mp3", "steps/velvet-snow/3.mp3", "steps/velvet-snow/4.mp3"] },
-      { "id": "magic_snow", "unlock": "shop", "price": 3, "color": "#FFD98A", "files": ["steps/magic-snow/1.mp3", "steps/magic-snow/2.mp3", "steps/magic-snow/3.mp3", "steps/magic-snow/4.mp3"] },
-      { "id": "quiet_crust", "unlock": "shop", "price": 6, "color": "#B8C7D9", "files": ["steps/quiet-crust/1.mp3", "steps/quiet-crust/2.mp3", "steps/quiet-crust/3.mp3", "steps/quiet-crust/4.mp3"] }
+      { "id": "whisper_snow", "semitones": -4, "unlock": "daily", "day": 2, "color": "#DFF1FF", "files": ["steps/whisper-snow/1.mp3", "steps/whisper-snow/2.mp3"] },
+      { "id": "velvet_snow", "semitones": -7, "unlock": "shop", "currency": "coins", "price": 150, "color": "#D9D2F5", "files": ["steps/velvet-snow/1.mp3", "steps/velvet-snow/2.mp3", "steps/velvet-snow/3.mp3", "steps/velvet-snow/4.mp3"] },
+      { "id": "magic_snow", "semitones": 5, "unlock": "shop", "price": 3, "color": "#FFD98A", "files": ["steps/magic-snow/1.mp3", "steps/magic-snow/2.mp3", "steps/magic-snow/3.mp3", "steps/magic-snow/4.mp3"] },
+      { "id": "quiet_crust", "semitones": -2, "unlock": "shop", "price": 6, "color": "#B8C7D9", "files": ["steps/quiet-crust/1.mp3", "steps/quiet-crust/2.mp3", "steps/quiet-crust/3.mp3", "steps/quiet-crust/4.mp3"] }
     ]
   },
   "files": {

@@ -278,6 +278,7 @@ export function createPetsView(d: PetsViewDeps): PetsView {
           coin: true,
           lock: t('shop.lockedWorld', { n: world }),
           lines: egg.pool.map((x) => `${t(`pet.${x.pet}`)} ${formatMult(Math.round(x.chance * 1000) / 10, d.numSuffix)}%`),
+          chances: egg.pool.map((x) => ({ name: t(`pet.${x.pet}`), color: petDef(x.pet)?.color ?? '#ffffff', accent: petDef(x.pet)?.accent ?? '#ffffff', pct: `${formatMult(Math.round(x.chance * 1000) / 10, d.numSuffix)}%` })),
           ...(noRoom ? { action: t('toast.noSpace') } : {}),
         };
       });

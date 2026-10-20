@@ -60,6 +60,8 @@ export interface FootstepsView {
   readonly surface: Surface | null;
   /** The set whose ad is running, null — none. */
   readonly busy: string | null;
+  /** MU round 4: the file of the last step heard, null — none yet. */
+  readonly last: string | null;
   state(): FootstepsState;
   /** One hero step on `surface` (a sim `gain`): heard at most perSec a second. */
   step(surface: Surface): void;
@@ -73,6 +75,8 @@ export function createFootstepsView(d: FootstepsViewDeps): FootstepsView {
   let count = 0;
   let surface: Surface | null = null;
   let busy: string | null = null;
+  /** MU round 4: the file of the last step heard (tests: the set that plays). */
+  let last: string | null = null;
   // Math.random: a sound only, never the simulation (its rng stays seeded).
   const cadence = createStepCadence(m.perSec, m.pitch, Math.random);
   const filesOf = (id: string): string[] => m.sets.find((s) => s.id === id)?.files ?? [];
@@ -82,12 +86,16 @@ export function createFootstepsView(d: FootstepsViewDeps): FootstepsView {
   const play = (id: string, on: Surface, now: number): boolean => {
     const set = m.sets.find((s) => s.id === id);
     const list = on === 'ice' ? m.ice : (set?.files ?? []);
+    // MU round 4 (producer 20.10: a set bought in the shop was never heard): its files are asked for when it plays —
+    // bought or chosen without a preview they were never loaded (the audio asks for each file once).
+    d.audio()?.load(list);
     const pick = now === -Infinity ? { index: 0, semitones: 0 } : cadence.next(now, on === 'ice' ? 'ice' : id, list.length, on === 'ice' ? undefined : set?.weights);
     const file = pick ? list[pick.index] : undefined;
-    const ok = !!file && (d.audio()?.playStep(file, pick!.semitones, footstepsOf(d.save, m).volume) ?? false);
+    const ok = !!file && (d.audio()?.playStep(file, pick!.semitones + (on === 'ice' ? 0 : (set?.semitones ?? 0)), footstepsOf(d.save, m).volume) ?? false);
     if (ok) {
       count++;
       surface = on;
+      last = file;
     }
     return ok;
   };
@@ -99,6 +107,7 @@ export function createFootstepsView(d: FootstepsViewDeps): FootstepsView {
   const owned = (st: FootstepsState, s: FootstepsJson['sets'][number]): boolean =>
     s.unlock === 'free' || st.ads.includes(s.id) || st.bought.includes(s.id) || (s.unlock === 'daily' && (d.save.daily?.n ?? 0) >= (s.day ?? Infinity));
   const buy = (id: string): boolean => {
+    d.audio()?.load(filesOf(id));
     const wallet = { coins: d.coins?.() ?? 0 };
     if (!buyShop(d.save, m, id, wallet)) return false;
     d.setCoins?.(wallet.coins);
@@ -213,6 +222,9 @@ export function createFootstepsView(d: FootstepsViewDeps): FootstepsView {
     },
     get busy() {
       return busy;
+    },
+    get last() {
+      return last;
     },
     state: () => footstepsOf(d.save, m),
     step(on) {

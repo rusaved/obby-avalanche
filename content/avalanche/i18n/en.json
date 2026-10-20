@@ -12,6 +12,8 @@
   "hud.goal.rebirth": "Time to rebirth!",
   "hud.shoesBtn": "Sneakers +{m} a step · {coin} {price}",
   "hud.shoesBtnTrophies": "Sneakers +{m} a step · {trophy} {price}",
+  "hud.shoesBtnShort": "+{m} · {coin} {price}",
+  "hud.shoesBtnTrophiesShort": "+{m} · {trophy} {price}",
   "hud.shoesMax": "Best sneakers",
   "hud.boost": "×2 {time}",
   "hud.tier": "Tier {n}",

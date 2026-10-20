@@ -78,7 +78,8 @@ export function renderDailyPanel(body: HTMLElement, m: DailyPanelModel, claim: (
   }
   body.appendChild(foot);
   // A name wider than its card (one long word at a large text size of the phone): 4 + 3 cards, not a word cut in two.
-  if (typeof ResizeObserver !== 'undefined') {
+  // MU round 4 (producer 20.10: 7 days in a row at any size): the phone window is wider instead (styles.css), no 4 + 3.
+  if (typeof ResizeObserver !== 'undefined' && !body.closest('#ui.mu')) {
     const ro = new ResizeObserver(() => {
       if (!row.isConnected) return;
       // A name wider than the inside of its card (its padding kept, MU round 3: «Skin "Penguin"» ran 1.5 px into it).

@@ -270,7 +270,8 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
           spacing: Number.parseFloat(getComputedStyle(coin).wordSpacing),
         };
       });
-      expect(Math.abs(h.stick), 'the stick level with the jump').toBeLessThanOrEqual(2);
+      // MU round 4 (A66): the ring 16 px over the bottom edge — its centre 12 px over the jump's.
+      expect(Math.abs(h.stick), 'the stick near the level of the jump').toBeLessThanOrEqual(14);
       expect(h.alpha.filter((a) => !a.endsWith(' 1')), 'opaque').toEqual([]);
       expect(h.contrast, 'gold «Take»').toBeGreaterThanOrEqual(4.5);
       expect(h.fill).toBe('rgb(92, 200, 255)');

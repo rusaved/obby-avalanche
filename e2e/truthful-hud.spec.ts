@@ -59,14 +59,21 @@ test('the bar and the shoes on one line between the stick and the jump, «N Spee
     expect(Math.abs(bar.y + bar.h / 2 - (shoes.y + shoes.h / 2)), `${w}: one line`).toBeLessThanOrEqual(1.5);
     expect(shoes.x - (bar.x + bar.w), `${w}: 8 px between the bar and the shoes`).toBeGreaterThanOrEqual(7.5);
     expect(bar.x - (ring.x + ring.width), `${w}: off the stick`).toBeGreaterThanOrEqual(7.5);
-    // Rule 2: the paid button 100 px off the jump on the whole frame; squeezed by a banner, 8 at least.
-    expect(jump.x - (shoes.x + shoes.w), `${w}: off the jump`).toBeGreaterThanOrEqual(w === width ? 99.5 : 7.5);
+    // Rule 2: the paid button 100 px off the jump on the whole frame; MU round 4 (A66): squeezed by a banner, 24 at least.
+    expect(jump.x - (shoes.x + shoes.w), `${w}: off the jump`).toBeGreaterThanOrEqual(w === width ? 99.5 : 23.5);
+    // MU round 4 (A66, Q-MU-16): the shoes button gives way first — its short caption — the bar keeps its width.
+    const squeezed = await page.locator('[data-hud="shoes"]').evaluate((e) => e.classList.contains('short'));
+    console.log(`${w}: bar ${Math.round(bar.w)}, shoes ${Math.round(shoes.w)}${squeezed ? ' (short)' : ''}, to the jump ${Math.round(jump.x - shoes.x - shoes.w)}`);
+    if (w !== width) expect(bar.w, `${w}: the bar keeps its width`).toBeGreaterThanOrEqual(squeezed ? 280 : 319);
+    expect(height - (ring.y + ring.height), `${w}: the stick ring 16 px over the bottom`).toBeGreaterThanOrEqual(15.5);
     expect(bar.y - (speed.y + speed.h), `${w}: «N Speed» over the bar`).toBeGreaterThanOrEqual(6);
     expect(height - (shoes.y + shoes.h), `${w}: 16 px from the bottom`).toBeGreaterThanOrEqual(15.5);
+    // Round 4: the stage strip measured at rest, not halfway through its slide.
+    await page.waitForFunction(() => !(document.querySelector('.hud-mountain')?.getAnimations().some((a) => a.playState === 'running') ?? false));
     const boxes = await hudBoxes(page);
     for (const b of boxes) expect(b.x + b.w, `${w}: ${b.id} inside`).toBeLessThanOrEqual(w - 16 + 0.5);
     expect(tooClose(boxes, 8), `${w}`).toEqual([]);
-    await page.screenshot({ path: `docs/evidence/MU/r3/${width}x${height}/hud-${w}.png` });
+    await page.screenshot({ path: `docs/evidence/MU/r4/${width}x${height}/hud-${w}.png` });
   }
 });
 
@@ -77,10 +84,10 @@ test('the stage strip slides in on a new stage, at a ridge and at the giant for 
   await page.evaluate((z) => window.__TEST__!.teleport(z), W.stages[2]!.start + 20);
   await waitTicks(page, 5);
   await expect.poll(() => stripShown(page), { message: 'a new stage shows the strip', timeout: 2_000, intervals: [100] }).toBe(true);
-  await page.screenshot({ path: `docs/evidence/MU/r3/${page.viewportSize()!.width}x${page.viewportSize()!.height}/strip-in.png` });
+  await page.screenshot({ path: `docs/evidence/MU/r4/${page.viewportSize()!.width}x${page.viewportSize()!.height}/strip-in.png` });
   await expect.poll(() => stripHidden(page), { timeout: 4_000, intervals: [250] }).toBe(true);
   await page.waitForTimeout(400);
-  await page.screenshot({ path: `docs/evidence/MU/r3/${page.viewportSize()!.width}x${page.viewportSize()!.height}/strip-out.png` });
+  await page.screenshot({ path: `docs/evidence/MU/r4/${page.viewportSize()!.width}x${page.viewportSize()!.height}/strip-out.png` });
   const slot = await page.evaluate(() => {
     const e = Array.from(document.querySelectorAll('.hud-hint, .hud-need, .hud-tutor')).find((x) => getComputedStyle(x).visibility === 'visible' && (x as HTMLElement).offsetWidth > 0);
     return e ? e.getBoundingClientRect().top : null;

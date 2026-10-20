@@ -75,7 +75,8 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
       await page.evaluate(([s, z, x, y]) => {
         window.__TEST__!.setStat(s);
         window.__TEST__!.teleport(z, x, y);
-      }, [threshold(st3.level + 2), st3.finish[0] - 6, st3.pad.x, st3.y + 1] as const);
+      }, [threshold(st3.level + 2), st3.finish[0] + 2, st3.pad.x, st3.y + 1] as const);
+      // MU round 4: the plaque within 12 m of its pad only.
       await expect(page.locator('[data-role="pad-label"].shown')).toBeVisible();
       await page.waitForTimeout(300);
       await page.screenshot({ path: `${dir}/l3-stage-finish-before.png` });

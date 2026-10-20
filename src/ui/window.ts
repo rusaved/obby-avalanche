@@ -64,6 +64,8 @@ const SIZE_OF: Record<string, 'cards' | 'list' | 'summary'> = {
 const EDGE_GAP = 1;
 /** …and never comes higher than this (one row of 44 px): a middle that cannot keep it scrolls as it is. */
 const EDGE_MIN = 44;
+/** MU round 4: the lists of the middle — their items are its cards and rows (the same as the snap rows, styles.css). */
+const LISTS = '.win-grid, .foot-grid, .qs-list, .gf-cards, .gf-tiles, .dl-cards, .tr-grid, .rb-cols, .pause-grid, .more-grid, .tp-list';
 /** The shortest bar of the rail (px). */
 const RAIL_THUMB_MIN = 16;
 /** The rail is as wide as its circle and stands on the right border of the panel (px). */
@@ -161,11 +163,20 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
     thumb.style.height = `${size}px`;
     thumb.style.transform = `translateY(${Math.round(((h - size) * body.scrollTop) / Math.max(1, room))}px)`;
   };
-  /** Line boxes of the text and the boxes of the controls in the middle, in its scroll coordinates. */
-  const atoms = (): { lines: Array<[number, number]>; controls: Array<[number, number]> } => {
+  /** Line boxes of the text, the boxes of the controls and of the cards with a control in the middle, in its scroll
+   * coordinates. */
+  const atoms = (): { lines: Array<[number, number]>; controls: Array<[number, number]>; cards: Array<[number, number]> } => {
     const base = body.getBoundingClientRect().top - body.scrollTop;
     const lines: Array<[number, number]> = [];
     const controls: Array<[number, number]> = [];
+    // MU round 4 (producer 20.10: «Buy» of an egg and «Release» of a pet under the edge): a card — an item of a list of
+    // the middle, or a row of its own — is seen whole with its button or not at all.
+    const cards: Array<[number, number]> = [];
+    for (const u of Array.from(body.querySelectorAll<HTMLElement>(`:scope > *, :scope :is(${LISTS}) > *`))) {
+      if (u.matches(`:is(${LISTS})`) || u.querySelector(`:is(${LISTS})`) || !u.querySelector('button, input, select')) continue;
+      const r = u.getBoundingClientRect();
+      if (r.height > 0 && r.width > 0) cards.push([r.top - base, r.bottom - base]);
+    }
     const range = document.createRange();
     const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT);
     for (let n = walker.nextNode(); n; n = walker.nextNode()) {
@@ -177,7 +188,7 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
       const r = c.getBoundingClientRect();
       if (r.height > 0 && r.width > 0) controls.push([r.top - base, r.bottom - base]);
     }
-    return { lines, controls };
+    return { lines, controls, cards };
   };
   /** MU round 3: the panel is as tall as its content up to the visible height minus 16 px a side (CSS); when the middle
    * scrolls, its lower edge goes up from the room it has to a place that cuts no control and no line of text — a gap
@@ -185,12 +196,13 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
   const fitMiddle = (): void => {
     if (!opts.mu || current === null) return;
     body.style.maxHeight = '';
-    body.style.scrollPaddingTop = '';
     body.classList.remove('win-scrolls');
     if (body.scrollHeight - body.clientHeight <= 1) return;
     body.classList.add('win-scrolls');
-    const room = body.clientHeight;
-    const { lines, controls } = atoms();
+    // MU round 4: the edge in the coordinates of the list as it stands (a snap may have moved it a few px).
+    const top = body.scrollTop;
+    const room = top + body.clientHeight;
+    const { lines, controls, cards } = atoms();
     /** The lowest edge up from the room that crosses none of `boxes`. */
     const clear = (boxes: Array<[number, number]>): number => {
       let edge = Math.floor(room);
@@ -202,18 +214,40 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
       }
       return edge;
     };
-    // No control and no line cut; a middle too dense for that cuts no control at least.
-    let edge = clear([...controls, ...lines]);
-    if (edge < EDGE_MIN) edge = clear(controls);
-    if (edge < EDGE_MIN) edge = room;
-    body.style.maxHeight = `${edge}px`;
+    // No card with a control, no control and no line cut; a middle too dense for that cuts no control at least.
+    let edge = clear([...cards, ...controls, ...lines]);
+    if (edge - top < EDGE_MIN) edge = clear([...controls, ...lines]);
+    if (edge - top < EDGE_MIN) edge = clear(controls);
+    if (edge - top < EDGE_MIN) edge = room;
+    body.style.maxHeight = `${edge - top}px`;
     // Rows snap under the tabs pinned at the top of the middle.
     const tabs = body.querySelector<HTMLElement>(':scope > .win-tabs');
-    if (tabs) body.style.scrollPaddingTop = `${tabs.offsetHeight}px`;
+    // MU round 4: without tabs the first row snaps where it stands at the top (its margin) — else the snap scrolls the
+    // list by that margin and the next row peeks under the edge chosen above.
+    const first = body.firstElementChild;
+    const lead = first ? first.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop : 0;
+    body.style.scrollPaddingTop = `${tabs ? tabs.offsetHeight : Math.max(0, Math.round(lead))}px`;
   };
+  /** MU round 4 (a 130 % text under load: a line cut once in a few runs): a frame later the edge is checked where the list
+   * stands now — a line or a control across it fits the middle again (once). */
+  const cutNow = (): boolean => {
+    if (!opts.mu || current === null || !body.classList.contains('win-scrolls')) return false;
+    const { lines, controls } = atoms();
+    const lo = body.scrollTop;
+    const hi = lo + body.clientHeight;
+    return [...controls, ...lines].some(([a, b]) => b > lo + 0.5 && a < hi - 0.5 && b > hi + 0.5);
+  };
+  let recheck = 0;
   const fit = (): void => {
     fitMiddle();
     markMore();
+    cancelAnimationFrame(recheck);
+    recheck = requestAnimationFrame(() => {
+      if (cutNow()) {
+        fitMiddle();
+        markMore();
+      }
+    });
   };
   body.addEventListener('scroll', markMore, { passive: true });
   const watch = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(fit) : null;

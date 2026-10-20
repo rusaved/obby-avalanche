@@ -120,7 +120,7 @@ for (const k of [1, 1.3]) {
       if (k === 1 && ['gifts', 'quests', 'shop', 'daily', 'rebirth'].includes(id)) await page.evaluate(() => document.querySelector<HTMLElement>('[data-role="window"].open .win-body')!.scrollTo(0, 0));
       if (k === 1 && ['gifts', 'quests', 'shop', 'daily', 'rebirth'].includes(id)) {
         await page.waitForTimeout(250);
-        await page.screenshot({ path: `docs/evidence/MU/r3/${width}x${height}/w-${id}.png` });
+        await page.screenshot({ path: `docs/evidence/MU/r4/${width}x${height}/w-${id}.png` });
       }
       await page.keyboard.press('Escape');
       await expect(page.locator('[data-role="window"].open')).toHaveCount(0);

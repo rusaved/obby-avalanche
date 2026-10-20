@@ -717,7 +717,7 @@ const footstepsSchema = v.pipe(
     sets: v.pipe(
       v.array(
         v.pipe(
-          v.object({ id: id, unlock: v.picklist(FOOTSTEP_UNLOCKS), price: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))), currency: v.optional(v.picklist(['coins', 'trophies'])), day: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(7))), color: v.optional(hex), files: v.pipe(v.array(audioFile), v.minLength(1)), weights: v.optional(v.array(v.pipe(v.number(), v.minValue(0)))) }),
+          v.object({ id: id, unlock: v.picklist(FOOTSTEP_UNLOCKS), price: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1))), currency: v.optional(v.picklist(['coins', 'trophies'])), day: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(7))), color: v.optional(hex), files: v.pipe(v.array(audioFile), v.minLength(1)), weights: v.optional(v.array(v.pipe(v.number(), v.minValue(0)))), semitones: v.optional(v.pipe(v.number(), v.minValue(-12), v.maxValue(12))) }),
           v.check((x) => !x.weights || x.weights.length === x.files.length, 'weights — one a file'),
           v.check((x) => x.unlock !== 'shop' || x.price !== undefined, 'a shop set needs its price'),
           v.check((x) => x.unlock !== 'daily' || x.day !== undefined, 'a set of the calendar needs its day'),

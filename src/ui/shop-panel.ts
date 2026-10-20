@@ -32,6 +32,9 @@ export interface ShopCard {
   lock?: string;
   /** Small lines under the name (egg chances). */
   lines?: string[];
+  /** MU round 4 (producer 20.10: «Buy» of an egg under its long list of chances): the pets of an egg as small faces
+   * with their %, drawn instead of `lines`; the name, the price and «Buy» go to the top of the card. */
+  chances?: Array<{ name: string; color: string; accent: string; pct: string }>;
   /** Caption of the buy button instead of «Buy» («No room»), still pressable. */
   action?: string;
   /** MU-12: a set of steps — a round «listen» button in its colour instead of the swatch. */
@@ -133,10 +136,11 @@ export function renderShopPanel(body: HTMLElement, head: HTMLElement, m: ShopPan
     card.appendChild(el('span', 'card-name', c.name));
     // MU round 3: «+N per step» and the price of a pair of sneakers in one line box — a line of its own on a low screen
     // (815 × 290), invisible otherwise (`display: contents`).
-    const line = c.pic ? el('span', 'card-line') : card;
+    // MU round 4 (the automatic check of 07: trails and auras cut at 815 × 290): the swatch cards take the same line.
+    const line = c.pic || !c.chances?.length ? el('span', 'card-line') : card;
     if (line !== card) card.appendChild(line);
     if (c.mult) line.appendChild(el('span', 'card-big', c.mult));
-    if (c.lines?.length) {
+    if (c.lines?.length && !c.chances?.length) {
       const list = el('span', 'card-lines');
       list.append(el('b', '', t('shop.chances')), ...c.lines.map((x) => el('span', '', x)));
       card.appendChild(list);
@@ -156,6 +160,10 @@ export function renderShopPanel(body: HTMLElement, head: HTMLElement, m: ShopPan
       const price = c.state === 'buy' || c.state === 'short' ? (c.coin ? coinPrice(c.price) : trophyPrice(c.price)) : undefined;
       card.appendChild(stepEnd({ chosen: c.state === 'on', ...(c.state === 'locked' ? { lock: c.lock ?? '' } : price ? { lock: price } : {}), button }));
       grid.appendChild(card);
+      continue;
+    }
+    if (c.chances?.length) {
+      grid.appendChild(eggCard(card, c, a));
       continue;
     }
     let btn: HTMLElement;
@@ -181,4 +189,43 @@ export function renderShopPanel(body: HTMLElement, head: HTMLElement, m: ShopPan
     grid.appendChild(card);
   }
   body.appendChild(grid);
+}
+
+/** MU round 4: an egg card — the swatch, the name, the price and «Buy» on top; under them the pets as faces with their
+ * % in a grid of two rows (the name of a pet in its title). */
+function eggCard(card: HTMLElement, c: ShopCard, a: ShopPanelActions): HTMLElement {
+  card.classList.add('egg-card');
+  const sw = card.querySelector('.card-swatch');
+  const name = card.querySelector('.card-name');
+  const top = el('div', 'egg-top');
+  const what = el('div', 'egg-what');
+  if (name) what.appendChild(name);
+  let btn: HTMLElement;
+  if (c.state === 'locked') {
+    btn = el('span', 'card-lock');
+    btn.innerHTML = markIcon('lock');
+    btn.appendChild(el('span', '', c.lock ?? ''));
+  } else {
+    what.appendChild(c.coin ? coinPrice(c.price) : trophyPrice(c.price));
+    btn = el('button', c.state === 'short' ? 'card-btn off' : 'card-btn', c.state === 'short' ? c.need : (c.action ?? t('btn.buy')));
+    if (c.state === 'buy') btn.addEventListener('click', () => a.buy(c.id));
+  }
+  btn.dataset['hud'] = 'shop-item';
+  if (sw) top.appendChild(sw);
+  top.append(what, btn);
+  const odds = el('div', 'egg-odds');
+  odds.dataset['role'] = 'egg-odds';
+  for (const x of c.chances ?? []) {
+    const chip = el('span', 'egg-odd');
+    chip.title = x.name;
+    const face = el('span', 'egg-face');
+    face.style.background = x.color;
+    const nose = el('span', 'egg-nose');
+    nose.style.background = x.accent;
+    face.appendChild(nose);
+    chip.append(face, el('span', '', x.pct));
+    odds.appendChild(chip);
+  }
+  card.replaceChildren(top, odds);
+  return card;
 }

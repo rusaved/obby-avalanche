@@ -67,5 +67,5 @@ test('on the pad: «Stage reward» without «you can run past» once taken', asy
   await expect(page.locator('[data-role="pad-label"].shown')).toBeVisible();
   await expect(page.locator('[data-role="pad-label"]')).toContainText('Награда этапа');
   await expect(page.locator('[data-role="pad-label"] .hud-pad-sub')).toHaveText('');
-  await page.screenshot({ path: `docs/evidence/MU/r3/${width}x${height}/l3-on-pad.png` });
+  await page.screenshot({ path: `docs/evidence/MU/r4/${width}x${height}/l3-on-pad.png` });
 });

@@ -973,6 +973,8 @@ export interface FootstepSet {
   /** SD-14: its snow steps — audio files under assets/audio/ (the variants), `weights` — how often each comes (1 each). */
   files: string[];
   weights?: number[];
+  /** MU round 4 (producer 20.10: the sets sounded alike): the set's own pitch (semitones, ± 12) — each one heard apart. */
+  semitones?: number;
 }
 
 /** sfx.json `footsteps` (LV-09, SD-14): the volume by default (a share of the effects, 0–1), the random pitch of a step

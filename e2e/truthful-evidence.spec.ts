@@ -23,7 +23,7 @@ for (const k of [1, 1.3]) {
     test.setTimeout(180_000);
     await openGame('pace=stages&mock_fullscreen=deny');
     const { width, height } = page.viewportSize()!;
-    const dir = `docs/evidence/MU/r3/${width}x${height}`;
+    const dir = `docs/evidence/MU/r4/${width}x${height}`;
     mkdirSync(dir, { recursive: true });
     const st3 = W.stages[2]!;
     await page.evaluate((s) => {
@@ -81,7 +81,7 @@ for (const k of [1, 1.3]) {
     test.setTimeout(180_000);
     await openGame('pace=stages&mock_fullscreen=deny');
     const { width, height } = page.viewportSize()!;
-    const dir = `docs/evidence/MU/r3/${width}x${height}`;
+    const dir = `docs/evidence/MU/r4/${width}x${height}`;
     mkdirSync(dir, { recursive: true });
     await page.evaluate((s) => {
       const t = window.__TEST__!;

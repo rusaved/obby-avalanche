@@ -31,6 +31,8 @@ export async function forbiddenSymbols(page: Page): Promise<string[]> {
 
 /** Visible boxes of the HUD (buttons, plaques, the slot, the strip, the bar) in page px. */
 export async function hudBoxes(page: Page): Promise<Box[]> {
+  // MU round 4: the stage strip measured at rest, not halfway through its slide in or out.
+  await page.waitForFunction(() => !(document.querySelector('.hud-mountain')?.getAnimations().some((a) => a.playState === 'running') ?? false));
   return page.evaluate(() => {
     const sel: Array<[string, string]> = [
       ['counters', '.hud-left'],

@@ -105,6 +105,8 @@ test('the window resized while out of the whole screen: canvas and HUD follow th
   await page.setViewportSize({ width, height });
   await expect.poll(() => rect(page, '#game')).toEqual({ x: 0, y: 0, w: width, h: height });
   await expect.poll(() => rect(page, '#ui')).toEqual({ x: 0, y: 0, w: width, h: height });
+  // The stage strip of the start hidden again (it slides in on a new stage for 2.5 s).
+  await page.waitForFunction(() => document.querySelector('.hud')?.classList.contains('strip-off') ?? false, undefined, { timeout: 10_000 });
   await page.waitForTimeout(400);
   await hudWhole(page, width, height, 'lower window');
 });
@@ -126,7 +128,7 @@ test('the whole screen refused: the game is whole in the window — the HUD and 
   expect(await rect(page, '#game'), 'canvas').toEqual(full);
   expect(await rect(page, '#ui'), 'interface layer').toEqual(full);
   await hudWhole(page, width, height, `${width}x${height}`);
-  await page.screenshot({ path: `docs/evidence/MU/r3/${width}x${height}/size-refused.png` });
+  await page.screenshot({ path: `docs/evidence/MU/r4/${width}x${height}/size-refused.png` });
   for (const id of ['pause', 'gift', 'menu-shop']) {
     await tap(page, id);
     await expect(page.locator('[data-role="window"].open'), id).toHaveCount(1);
