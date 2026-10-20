@@ -267,7 +267,11 @@ export function createBoss(
           s.cover = false;
         }
         // Bots in this zone (docs/01-gdd.md 18.5): until the hero has passed it; one slapped this tick runs no more.
-        const runners = s.hero === 'passed' ? [] : bots.filter((r) => r.z >= a && r.z <= c);
+        // MU round 3 (staff 19.10: holding forward got past 3 of 19 — the giant ran after a bot 20 units aside and the
+        // head-on guess left it behind the hero): a giant of every run keeps its corridor for the hero coming up — while
+        // he is closer to the zone than its length, or in it, bots are not its business and it walks back to its start.
+        const heroNear = data0.rearm === true && hero.z > a - (c - a) && hero.z <= c;
+        const runners = s.hero === 'passed' || heroNear ? [] : bots.filter((r) => r.z >= a && r.z <= c);
         const covers = data0.covers ?? [];
         const slapped = new Set<number>();
         if (runners.length > 0)
