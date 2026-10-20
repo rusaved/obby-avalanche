@@ -114,7 +114,7 @@ test('D5, D19, D26: marks on the middle of their words; «Rate» live ≥ 4.5:1;
         const tile = Array.from(document.querySelectorAll('[data-role="gift-tiles"] .gf-tile')).find((x) => /Буст/.test(x.textContent ?? ''))!;
         return { name: tile.querySelector('.card-name')!.textContent ?? '', sub: tile.querySelector('.card-sub')!.textContent ?? '' };
       });
-      expect(boost.name).toMatch(/^Буст ×2 · \d+ мин$/);
+      expect(boost.name).toMatch(/^Буст ×2 · \d+\sмин$/);
       expect(boost.sub, 'the minutes once').not.toMatch(/мин/);
       // Round 3 (usability review): the gift of the HUD lights «Take» only with a tile to take (no wheel on the phone).
       const ready = await page.locator('[data-role="gift-tiles"] [data-hud="gift-claim"]').count();

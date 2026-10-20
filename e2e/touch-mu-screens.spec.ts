@@ -431,7 +431,7 @@ test.describe('MU phone screens', () => {
       ['gifts', () => tap(page, 'gift'), 640],
       ['camp-teleport', () => tap(page, 'menu-teleport'), 560],
       ['pause', () => tap(page, 'pause'), 640],
-      ['more', () => tap(page, 'menu-more'), 480],
+      ['more', () => tap(page, 'menu-more'), 560], // MU round 4: three in a row at 130 %
       ['shop', () => tap(page, 'menu-shop'), 640],
       ['pets', () => tap(page, 'menu-pets'), 640],
       ['footsteps', async () => { await tap(page, 'menu-more'); await page.locator('[data-hud="more-footsteps"]').click(); }, 640],

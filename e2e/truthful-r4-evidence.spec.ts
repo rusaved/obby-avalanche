@@ -50,6 +50,8 @@ for (const k of [1, 1.3]) {
     await tap(page, 'menu-more');
     const more = await page.evaluate(() => Array.from(document.querySelectorAll<HTMLElement>('[data-role="window"].open [data-hud^="more-"]')).map((e) => e.dataset['hud']!));
     await page.keyboard.press('Escape');
+    await expect(page.locator('[data-role="window"].open')).toHaveCount(0);
+    await page.waitForTimeout(300);
     const ways: Array<[string, () => Promise<void>]> = [
       ...hud.map((id): [string, () => Promise<void>] => [id, () => tap(page, id)]),
       ...more.map((id): [string, () => Promise<void>] => [id, async () => { await tap(page, 'menu-more'); await page.locator(`[data-hud="${id}"]`).click(); }]),

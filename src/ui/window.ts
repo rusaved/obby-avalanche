@@ -173,7 +173,9 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
     // the middle, or a row of its own — is seen whole with its button or not at all.
     const cards: Array<[number, number]> = [];
     for (const u of Array.from(body.querySelectorAll<HTMLElement>(`:scope > *, :scope :is(${LISTS}) > *`))) {
-      if (u.matches(`:is(${LISTS})`) || u.querySelector(`:is(${LISTS})`) || !u.querySelector('button, input, select')) continue;
+      // MU round 4 (reviews: a row of locked sneakers cut in the middle): every item of a list is a card; a row of its own
+      // counts when it holds a control.
+      if (u.matches(`:is(${LISTS})`) || u.querySelector(`:is(${LISTS})`) || (u.parentElement === body && !u.querySelector('button, input, select'))) continue;
       const r = u.getBoundingClientRect();
       if (r.height > 0 && r.width > 0) cards.push([r.top - base, r.bottom - base]);
     }
@@ -216,7 +218,8 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
     };
     // No card with a control, no control and no line cut; a middle too dense for that cuts no control at least.
     let edge = clear([...cards, ...controls, ...lines]);
-    if (edge - top < EDGE_MIN) edge = clear([...controls, ...lines]);
+    // A card taller than the room: none would be seen — the edge falls back to cutting no control and no line.
+    if (edge - top < EDGE_MIN || (cards.length > 0 && !cards.some(([a, b]) => a >= top - 0.5 && b <= edge + 0.5))) edge = clear([...controls, ...lines]);
     if (edge - top < EDGE_MIN) edge = clear(controls);
     if (edge - top < EDGE_MIN) edge = room;
     body.style.maxHeight = `${edge - top}px`;

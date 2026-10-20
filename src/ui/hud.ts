@@ -259,6 +259,8 @@ const RECTS_MS = 150;
 const LABEL_GLIDE = 10;
 const TOP_MID_H = 0.3;
 const LABEL_FLIP_SEC = 0.5;
+/** …and «Stage reward» keeps this far off the hero (px). */
+const HERO_GAP = 12;
 /** …and its places left of the pad's corner step this far further (px). */
 const PAD_SIDE = 24;
 /** The side margin of the phone frame (docs/07-mobile-ui.md, «Поля кадра»); the top of the message slot; the letters
@@ -1543,13 +1545,16 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       // MU round 3 (producer's frame: the plaque in the middle over the hero): never on the hero — over his head at most.
       // MU round 4: never in the top middle either; the place taken last is tried first, and the plaque glides there.
       const hero = state.hero;
-      const offHero = (x: number, y: number): boolean => !hero || x >= hero.x1 + LABEL_GAP || x + w <= hero.x0 - LABEL_GAP || y >= hero.y1 + LABEL_GAP || y + h <= hero.y0 - LABEL_GAP;
+      const offHero = (x: number, y: number): boolean => !hero || x >= hero.x1 + HERO_GAP || x + w <= hero.x0 - HERO_GAP || y >= hero.y1 + HERO_GAP || y + h <= hero.y0 - HERO_GAP;
       const ys = [state.y - h, state.y - h / 2, state.y, state.y - 1.5 * h, state.y - 2 * h, state.y + h, ...(hero ? [hero.y0 - LABEL_GAP - h] : [])];
       // MU round 4: also left of the corner (over the pad itself) — the pad ahead of the hero puts the right side high up.
-      const cands = [LABEL_GAP, LABEL_GAP + w / 3, -w - LABEL_GAP, -w - 2 * PAD_SIDE].flatMap((dx) => {
-        const x = Math.max(EDGE_MU, Math.min(fieldW - EDGE_MU - w, state.x + dx));
-        return ys.map((y) => ({ x, y }));
-      });
+      // MU round 4 (reviews: the plaque read as the hero's name): the places nearest the pad's corner first.
+      const cands = [LABEL_GAP, LABEL_GAP + w / 3, -w - LABEL_GAP, -w - 2 * PAD_SIDE]
+        .flatMap((dx) => {
+          const x = Math.max(EDGE_MU, Math.min(fieldW - EDGE_MU - w, state.x + dx));
+          return ys.map((y) => ({ x, y }));
+        })
+        .sort((a, b) => Math.hypot(a.x + w / 2 - state.x, a.y + h / 2 - state.y) - Math.hypot(b.x + w / 2 - state.x, b.y + h / 2 - state.y));
       const ok = (c: { x: number; y: number }): boolean => {
         const q = { x0: c.x, y0: c.y, x1: c.x + w, y1: c.y + h };
         return c.y >= 0 && c.y + h <= fieldH && offHero(c.x, c.y) && !topMid(q) && hud.clearOfHud(q);

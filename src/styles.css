@@ -887,13 +887,42 @@ canvas.fallback {
 #ui.mu [data-role="pets-grid"] .card-btns > .card-sub { flex: 1 1 100%; }
 #ui.mu [data-role="pets-grid"] .card-btns:has(> .card-sub) { flex-wrap: wrap; }
 /* MU round 4 (producer 20.10: «Calendar» 7 days in a row at any size, at 130 % it went 4 + 3): the calendar window is
-   up to 760 wide on the phone, a name too long for its card breaks as a last resort. */
+   up to 760 wide on the phone, a name too long for its card gets a smaller font (src/ui/daily-panel.ts). */
 #ui.mu .win[data-window='daily'] .win-panel { width: min(calc(100% - 32px), 760px); }
 #ui.mu .dl-cards, #ui.mu .dl-cards.dl-fit4 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
-#ui.mu .dl-cards .card-name { font-size: 12px; overflow-wrap: anywhere; }
+#ui.mu .dl-cards .card-name { font-size: 12px; overflow-wrap: normal; min-width: 0; max-width: 100%; }
 /* MU round 4 (producer 20.10: the world labels big and read from afar): smaller — 12 over 11, no wider than a quarter of
    the frame (the words wrap); they show only within 12 m (src/app/stage-view.ts). */
 .hud.mu .hud-pad:not(.tap), .hud.mu .hud-portal { max-width: 25%; padding: 4px 10px; font-size: 12px; line-height: 1.25; white-space: normal; text-align: center; }
 .hud.mu .hud-pad.two:not(.tap) .hud-pad-sub, .hud.mu .hud-portal .hud-pad-sub { font-size: 11px; }
 /* MU round 4 (A66): the short caption of the shoes button in a squeezed frame keeps its look. */
 .hud.mu .hud-shoes.short { padding-left: 12px; padding-right: 12px; }
+#ui.mu [data-role="pets-grid"] .card-btns > .card-btn { padding: 0 8px; }
+/* MU round 4, reviews (score 2): the pets — a card a row (at 130 % and on a low frame a grid card was taller than the room): the face, the name over the bonus,
+   «Unequip · Release» on the right; the slots of the pets on smaller. The hero of the wardrobe off on a low frame (it was
+   squeezed to a strip). The pets of an egg on a light plate (a dark one vanished on the card). Two buttons of a pet 8 px
+   apart, under each other when one does not fit with its 8 px inside. «More» — three in a row at any text size. */
+#ui.mu [data-role="pets-grid"] { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+#ui.mu [data-role="pets-grid"] > .card { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; grid-template-rows: auto auto; column-gap: 8px; row-gap: 0; align-items: center; justify-items: start; padding: 6px 8px; text-align: left; }
+#ui.mu [data-role="pets-grid"] > .card > .card-pet { grid-column: 1; grid-row: 1 / span 2; width: 32px; height: 32px; }
+#ui.mu [data-role="pets-grid"] > .card > .card-pet::before, #ui.mu [data-role="pets-grid"] > .card > .card-pet::after { top: 9px; width: 4px; height: 6px; }
+#ui.mu [data-role="pets-grid"] > .card > .card-pet::before { left: 7px; }
+#ui.mu [data-role="pets-grid"] > .card > .card-pet::after { right: 7px; }
+#ui.mu [data-role="pets-grid"] > .card > .card-pet > .card-pet-nose { bottom: 6px; width: 8px; height: 5px; margin-left: -4px; }
+#ui.mu [data-role="pets-grid"] > .card > .card-name { grid-column: 2; grid-row: 1; align-self: end; }
+#ui.mu [data-role="pets-grid"] > .card > .card-sub { grid-column: 2; grid-row: 2; align-self: start; }
+#ui.mu [data-role="pets-grid"] > .card > .card-btns { grid-column: 3; grid-row: 1 / span 2; margin: 0; align-self: center; }
+#ui.mu.mu-low .slot { width: 44px; height: 44px; }
+#ui.mu.mu-low .slot .card-pet { width: 36px; height: 36px; }
+#ui.mu.mu-low .wr-side .wardrobe-stage { display: none; }
+#ui.mu .egg-odd .egg-face { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.55); }
+#ui.mu [data-role="pets-grid"] .card-btns { gap: 8px; flex-wrap: wrap; }
+#ui.mu [data-role="pets-grid"] .card-btns > .card-btn { flex: 1 1 auto; min-width: max-content; padding: 0 8px; white-space: nowrap; }
+#ui.mu .more-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+#ui.mu.mu-low .slot .card-pet::before, #ui.mu.mu-low .slot .card-pet::after { top: 11px; width: 5px; height: 7px; }
+#ui.mu.mu-low .slot .card-pet::before { left: 9px; }
+#ui.mu.mu-low .slot .card-pet::after { right: 9px; }
+#ui.mu.mu-low .slot .card-pet > .card-pet-nose { bottom: 8px; width: 9px; height: 5px; margin-left: -4.5px; }
+/* MU round 4 (reviews: at 130 % two entries of «More» went under the scroll): «More» is 560 wide — three in a row with
+   8 px around their words at any text size. */
+#ui.mu .win[data-window='more'] .win-panel { width: min(calc(100% - 32px), 560px); }

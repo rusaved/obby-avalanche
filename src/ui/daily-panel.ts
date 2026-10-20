@@ -8,6 +8,9 @@
  */
 import { icon } from './icons.ts';
 
+/** MU round 4: the smallest font a day's name gets to fit its card (px). */
+const DAY_NAME_MIN = 9;
+
 export interface DailyCard {
   day: string;
   name: string;
@@ -77,8 +80,22 @@ export function renderDailyPanel(body: HTMLElement, m: DailyPanelModel, claim: (
     foot.appendChild(n);
   }
   body.appendChild(foot);
+  // MU round 4 (producer 20.10: 7 days in a row at any size; reviews: «»» alone on a line at 130 %): on the phone a name
+  // wider than its card gets a smaller font, half a pixel at a time, never a word broken in two.
+  if (typeof ResizeObserver !== 'undefined' && body.closest('#ui.mu')) {
+    const fit = (): void => {
+      for (const n of Array.from(row.querySelectorAll<HTMLElement>('.card-name'))) {
+        let px = Number.parseFloat(getComputedStyle(n).fontSize);
+        for (let i = 0; i < 12 && n.scrollWidth > n.clientWidth + 0.5 && px > DAY_NAME_MIN; i++) {
+          px -= 0.5;
+          n.style.fontSize = `${px}px`;
+        }
+      }
+    };
+    const ro = new ResizeObserver(() => row.isConnected && fit());
+    for (const n of Array.from(row.querySelectorAll<HTMLElement>('.card-name'))) ro.observe(n);
+  }
   // A name wider than its card (one long word at a large text size of the phone): 4 + 3 cards, not a word cut in two.
-  // MU round 4 (producer 20.10: 7 days in a row at any size): the phone window is wider instead (styles.css), no 4 + 3.
   if (typeof ResizeObserver !== 'undefined' && !body.closest('#ui.mu')) {
     const ro = new ResizeObserver(() => {
       if (!row.isConnected) return;

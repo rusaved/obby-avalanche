@@ -7,7 +7,7 @@ import { threshold } from './lv-stage-data.ts';
 // 815 × 290), at 100 % and 130 % text: a panel is as tall as its content up to the visible height minus 16 px a side;
 // the scrolling middle ends where it cuts no button and no line of text, snaps by rows, and shows its scroll by a bar
 // and a chevron 16 in a circle 28 in a column of its own (never over the content); «For all three» of «Quests» is seen
-// without scrolling; «Shop → Sneakers» shows its first row whole and the second one at least by its edge.
+// without scrolling; «Shop → Sneakers» shows its first row whole and no card cut by the edge (round 4).
 
 async function tap(page: Page, hud: string): Promise<void> {
   const b = page.locator(`[data-hud="${hud}"]`).first();
@@ -164,7 +164,12 @@ test('«Quests»: «For all three» without scrolling; «Shop → Sneakers»: th
     return { bottom: body.bottom, firstBottom: Math.max(...first), second: tops[1] ?? Infinity };
   });
   expect(rows.firstBottom, 'the first row whole').toBeLessThanOrEqual(rows.bottom + 0.5);
-  expect(rows.second, 'the second row seen at least by its edge').toBeLessThan(rows.bottom - 1);
+  // MU round 4 (producer 20.10): a card whole or not seen — the second row is not cut by the edge (whole or under it).
+  const second = await page.evaluate(() => {
+    const body = document.querySelector('[data-role="window"].open .win-body')!.getBoundingClientRect();
+    return Array.from(document.querySelectorAll('[data-role="window"].open [data-role="shop-grid"] .card')).map((c) => c.getBoundingClientRect()).filter((r) => r.top < body.bottom - 0.5 && r.bottom > body.bottom + 0.5).length;
+  });
+  expect(second, 'no card cut by the edge').toBe(0);
 });
 
 test('the sets of steps («Shop → Steps», «Footsteps») show their first row whole; «Take» of «Calendar» in sight at 130 %', async ({ page, openGame }) => {
