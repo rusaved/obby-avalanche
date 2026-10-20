@@ -50,6 +50,34 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, te
 const percent = (v: number): string => `${Math.round(v * 100)}\u202f%`;
 
 /** A round «listen» button in the colour of the set (w4-footsteps). */
+/**
+ * MU round 3 (D50: the sets of steps drawn one way in «Footsteps» and another in «Shop → Steps»): the bottom of a card of
+ * a set — «✓ Chosen», or the padlock with its price or condition, then a button — one look in both windows.
+ */
+export function stepEnd(o: { chosen?: boolean; lock?: string | HTMLElement; button?: HTMLElement | undefined }): HTMLElement {
+  const foot = el('div', 'foot-end');
+  if (o.chosen) {
+    const on = el('span', 'foot-chosen');
+    on.dataset['hud'] = 'footsteps-chosen';
+    const tick = el('span', 'mark');
+    tick.innerHTML = icon('tick');
+    on.append(tick, t('footsteps.chosen'));
+    foot.appendChild(on);
+  }
+  if (o.lock !== undefined) {
+    const line = el('span', 'foot-lock');
+    const lock = el('span', 'mark');
+    lock.innerHTML = icon('padlock');
+    const text = el('span', '');
+    if (typeof o.lock === 'string') setRich(text, o.lock);
+    else text.appendChild(o.lock);
+    line.append(lock, text);
+    foot.appendChild(line);
+  }
+  if (o.button) foot.appendChild(o.button);
+  return foot;
+}
+
 export function playButton(color: string | undefined, onPlay: () => void): HTMLButtonElement {
   const b = el('button', 'foot-play');
   b.dataset['hud'] = 'footsteps-play';
@@ -92,28 +120,16 @@ export function renderFootstepsPanel(body: HTMLElement, m: FootstepsPanelModel, 
     card.dataset['footsteps'] = c.id;
     card.dataset['state'] = c.state;
     card.append(playButton(c.color, () => a.preview(c.id)), el('span', 'card-name', t(`footsteps.set.${c.id}`)));
-    const foot = el('div', 'foot-end');
-    if (c.state === 'on') {
-      const on = el('span', 'foot-chosen');
-      on.dataset['hud'] = 'footsteps-chosen';
-      const tick = el('span', 'mark');
-      tick.innerHTML = icon('tick');
-      on.append(tick, t('footsteps.chosen'));
-      foot.appendChild(on);
-    } else if (c.state === 'locked') {
-      const line = el('span', 'foot-lock');
-      const lock = el('span', 'mark');
-      lock.innerHTML = icon('padlock');
-      const text = el('span', '');
-      setRich(text, c.price ?? c.lock ?? '');
-      line.append(lock, text);
-      foot.appendChild(line);
+    let foot: HTMLElement;
+    if (c.state === 'on') foot = stepEnd({ chosen: true });
+    else if (c.state === 'locked') {
+      let btn: HTMLElement | undefined;
       if (c.price) {
-        const btn = el('button', 'card-btn quiet', t('footsteps.toShop'));
+        btn = el('button', 'card-btn quiet', t('footsteps.toShop'));
         btn.dataset['hud'] = 'footsteps-shop';
         btn.addEventListener('click', () => a.toShop(c.id));
-        foot.appendChild(btn);
       }
+      foot = stepEnd({ lock: c.price ?? c.lock ?? '', button: btn });
     } else {
       const ad = c.state === 'ad' || c.state === 'busy';
       const btn = el('button', ad ? 'card-btn' : 'card-btn quiet');
@@ -121,7 +137,7 @@ export function renderFootstepsPanel(body: HTMLElement, m: FootstepsPanelModel, 
       btn.dataset['hud'] = ad ? 'footsteps-ad' : 'footsteps-choose';
       btn.disabled = c.state === 'busy';
       btn.addEventListener('click', () => (ad ? a.ad(c.id) : a.choose(c.id)));
-      foot.appendChild(btn);
+      foot = stepEnd({ button: btn });
     }
     card.appendChild(foot);
     grid.appendChild(card);

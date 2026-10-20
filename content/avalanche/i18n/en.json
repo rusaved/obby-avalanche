@@ -324,7 +324,7 @@
   "wheel.next": "Next spin in {time}",
   "reward.coins": "Coins",
   "reward.trophies": "Trophies",
-  "reward.boost": "×2 boost for {n} min",
+  "reward.boost": "×2 boost · {n} min",
   "reward.bestEgg": "Best egg",
   "btn.next": "Next",
   "btn.more": "More",

@@ -497,7 +497,8 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
         words!.hide(i);
         digits.clear(i);
       }
-      placePost(i, true);
+      // MU round 3 (A58: a stub of the post peeked under the flat plaque of the phone): no board in the world — no post.
+      placePost(i, boards);
       dummy.position.set(p.x, p.y, p.z);
       dummy.rotation.set(0, 0, 0);
       if (boards) dummy.scale.set(p.w, p.h, 0.4);

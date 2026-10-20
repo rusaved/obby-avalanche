@@ -255,7 +255,8 @@ export function createQuestsView(d: QuestsViewDeps): QuestsView {
         index: i,
         icon: x.reward.kind === 'boost' ? 'bolt' : x.reward.kind === 'trophies' ? 'cup' : x.reward.kind === 'egg' ? 'giftLine' : REWARD_ICON[x.reward.kind],
         name: rewardName(x.reward),
-        sub: x.reward.kind === 'boost' ? t('time.for', { n: x.reward.min }) : t('time.now'),
+        // MU round 3 (D26: «Boost ×2 for 3 min / for 3 min»): the minutes are in the name; every tile says when — at once.
+        sub: t('time.now'),
         timer: formatTimer(x.min * 60 - sec),
         state: (got.includes(i) ? 'got' : timeRewardReady(d.save, times, i) ? 'ready' : 'run') as 'run' | 'ready' | 'got',
       }));

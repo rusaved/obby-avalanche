@@ -585,6 +585,11 @@ canvas.fallback {
 #ui.mu .card-btn.ok { background: var(--mu-ok); color: var(--mu-ok-text); }
 #ui.mu .card-btn.off, #ui.mu .card-btn:disabled { background: var(--mu-quiet); color: var(--mu-muted); }
 #ui.mu .card-btn svg { width: 20px; height: 20px; }
+/* MU round 3 (D5: the marks of the buttons 2–3 px under the middle of their words): the box of a mark as big as its
+   20 px picture — the button centres it on the line of the words. */
+#ui.mu .win-panel button > .mark { width: 20px; height: 20px; vertical-align: middle; }
+/* MU round 3 (D50): the price of a set of steps in the shop on the line of its padlock, as in «Footsteps». */
+#ui.mu .foot-lock .card-price { font: inherit; gap: 2px; }
 #ui.mu .card-lock, #ui.mu .card-lock svg { color: var(--mu-muted); }
 #ui.mu .win-tabs { gap: 8px; margin: 0 0 8px; }
 /* Round of fixes MU (staff 19.10: the tabs went up with the list): pinned over the scrolling middle. */
@@ -680,7 +685,8 @@ canvas.fallback {
 #ui.mu .sm-label { color: var(--mu-muted); font-weight: 500; }
 #ui.mu .sm-value { display: flex; align-items: center; gap: 4px; font-weight: 700; }
 #ui.mu .sm-row .card-btn { min-width: 0; padding: 0 14px; }
-#ui.mu .more-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+/* MU round 3 (D38: «Rebirth» 2 px from the edges of its tile at 130 %): the columns by the text — three at 100 %, two at 130 %. */
+#ui.mu .more-grid { font-size: 14px; grid-template-columns: repeat(auto-fill, minmax(9.5em, 1fr)); gap: 8px; }
 #ui.mu .more-btn { min-height: 72px; flex-direction: column; justify-content: center; gap: 4px; background: var(--mu-card); color: #fff; }
 #ui.mu .more-btn .hud-menu-icon { width: 24px; height: 24px; color: #fff; }
 /* MU-09 (p1-rotate): over everything, the game under it on pause. */

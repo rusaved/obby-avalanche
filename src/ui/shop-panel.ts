@@ -11,7 +11,7 @@
 import { t } from './i18n.ts';
 import { icon } from './icons.ts';
 import { markIcon } from './daily-panel.ts';
-import { playButton } from './footsteps-panel.ts';
+import { playButton, stepEnd } from './footsteps-panel.ts';
 
 export type ShopTab = 'shoes' | 'eggs' | 'steps' | 'trails' | 'auras' | 'special';
 
@@ -141,13 +141,25 @@ export function renderShopPanel(body: HTMLElement, head: HTMLElement, m: ShopPan
       list.append(el('b', '', t('shop.chances')), ...c.lines.map((x) => el('span', '', x)));
       card.appendChild(list);
     }
+    // MU round 3 (D50): a set of steps — the bottom of the card of «Footsteps»: «✓ Chosen», the padlock with the price or
+    // the condition, a button.
+    if (c.sound) {
+      let button: HTMLElement | undefined;
+      if (c.state === 'owned') {
+        button = el('button', 'card-btn quiet', t('footsteps.choose'));
+        button.addEventListener('click', () => a.equip(c.id));
+      } else if (c.state === 'buy' || c.state === 'short') {
+        button = el('button', c.state === 'short' ? 'card-btn off' : 'card-btn', c.state === 'short' ? c.need : (c.action ?? t('btn.buy')));
+        if (c.state === 'buy') button.addEventListener('click', () => a.buy(c.id));
+      }
+      if (button) button.dataset['hud'] = 'shop-item';
+      const price = c.state === 'buy' || c.state === 'short' ? (c.coin ? coinPrice(c.price) : trophyPrice(c.price)) : undefined;
+      card.appendChild(stepEnd({ chosen: c.state === 'on', ...(c.state === 'locked' ? { lock: c.lock ?? '' } : price ? { lock: price } : {}), button }));
+      grid.appendChild(card);
+      continue;
+    }
     let btn: HTMLElement;
-    if (c.state === 'on' && c.sound) {
-      btn = el('span', 'foot-chosen', t('footsteps.chosen'));
-    } else if (c.state === 'owned' && c.sound) {
-      btn = el('button', 'card-btn quiet', t('footsteps.choose'));
-      btn.addEventListener('click', () => a.equip(c.id));
-    } else if (c.state === 'on') {
+    if (c.state === 'on') {
       btn = el('button', 'card-btn off', t('shop.equipped'));
     } else if (c.state === 'owned') {
       card.appendChild(el('span', 'card-sub', t('shop.owned')));

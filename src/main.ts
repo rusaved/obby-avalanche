@@ -1173,6 +1173,8 @@ async function boot(): Promise<void> {
     void platform.reviewCan().then((ok) => {
       reviewCan = ok;
       syncGiftCards();
+      // MU round 3 (D19: «Rate» grey — the window opened before the answer came): the open «Gifts» takes it at once.
+      if (windows?.current === 'gifts') windows.refresh();
     });
   };
   const subscribeGift = (id: string): void => {
@@ -1208,7 +1210,8 @@ async function boot(): Promise<void> {
           {
             tiles: questsView?.timeTiles(GIFT_TILES) ?? [],
             groups: community.length > 0 ? { ids: community.map(([id]) => id), sub: visitGift ? t(visitGift.kind === 'egg' ? 'gifts.visit' : 'gifts.visitCoins') : '' } : null,
-            review: communityGifts.review && !giftFlag('giftReview') ? { sub: t('gifts.reviewSub'), can: reviewCan === true } : null,
+            // MU round 3 (D19): the card only while the platform can ask for a review — «Rate» always a live button.
+            review: communityGifts.review && !giftFlag('giftReview') && reviewCan === true ? { sub: t('gifts.reviewSub'), can: true } : null,
             ad: adsView ? { title: t('gifts.speed', { n: formatNumber(adsView.giftStat(), numSuffix) }), busy: adsView.busy === 'stat_now' } : null,
           },
           {
