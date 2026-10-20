@@ -9,9 +9,10 @@ const sampleMode = dist.includes('sample');
 const STATIC_SPECS = /(smoke-release|pages)\.spec\.ts$/;
 const MOBILE_SPECS = /(touch|layout|ftue)[^/]*\.spec\.ts$/;
 // MU round 3 (producer 19.10): the truthful profile — a phone in full screen (915 × 412) and the same phone in Yandex
-// Browser under its panels (815 × 290); every check of the round runs on both.
+// Browser under its panels (815 × 290); every check of the round runs on each. Round 4 (20.10): the producer's phone
+// is 2.17 : 1 — full screen ≈ 880 × 405 CSS, added first.
 const TRUTHFUL_SPECS = /truthful[^/]*\.spec\.ts$/;
-const TRUTHFUL_VIEWS = [{ width: 915, height: 412 }, { width: 815, height: 290 }];
+const TRUTHFUL_VIEWS = [{ width: 880, height: 405 }, { width: 915, height: 412 }, { width: 815, height: 290 }];
 const port = Number(process.env.E2E_PORT || 4173);
 const markerFile = resolve(import.meta.dirname, '.cache/chromium-path');
 const executablePath =
