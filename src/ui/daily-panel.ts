@@ -94,5 +94,7 @@ export function renderDailyPanel(body: HTMLElement, m: DailyPanelModel, claim: (
       }
     });
     ro.observe(row);
+    // MU round 3 (full verify: under load a name grown by a larger text went unseen — the row kept its size): the names too.
+    for (const n of Array.from(row.querySelectorAll<HTMLElement>('.card-name'))) ro.observe(n);
   }
 }
