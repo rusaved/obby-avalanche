@@ -560,7 +560,7 @@ canvas.fallback {
 #ui.mu.win-open .hud > *:not(.hud-rotate) { visibility: hidden; }
 #ui.mu .dim.win { background: var(--mu-veil); }
 #ui.mu .win-panel, .hud.touch ~ .win .win-panel, .hud.short ~ .win .win-panel { box-sizing: border-box; }
-#ui.mu .win .win-panel { width: min(calc(100% - 32px), 560px); height: auto; max-height: min(300px, calc(100% - 16px)); padding: 14px 16px 12px; border-radius: 16px; background: var(--mu-panel); color: #fff; box-shadow: none; }
+#ui.mu .win .win-panel { position: relative; width: min(calc(100% - 32px), 560px); height: auto; max-height: calc(100% - 32px); padding: 14px 16px 12px; border-radius: 16px; background: var(--mu-panel); color: #fff; box-shadow: none; }
 #ui.mu .win[data-size='cards'] .win-panel { width: min(calc(100% - 32px), 640px); }
 #ui.mu .win[data-size='summary'] .win-panel { width: min(calc(100% - 32px), 480px); }
 #ui.mu .win-top { align-items: flex-start; gap: 12px; min-height: 44px; margin-bottom: 6px; }
@@ -742,17 +742,46 @@ canvas.fallback {
 #ui.mu .sm-row { grid-template-columns: 40% 1fr auto; }
 /* Round of fixes MU (staff 19.10): «Take» of the calendar no wider than «Continue» of the pause. */
 #ui.mu .dl-foot .btn-primary { width: auto; min-width: 200px; margin-top: 0; padding: 0 24px; }
-/* MU round of fixes 2 (staff 19.10, windows at 130 %): the panel is 300 px at the text of 100 % and grows with the text
-   (18.75 em of the inherited 16 px) up to the visible height minus the margins; the middle scrolls and shows it — a thin
-   light scrollbar and a fade with a chevron over the last line while there is more below. Text in buttons, cards and tiles
-   keeps 8 px from their edges. */
-#ui.mu .win .win-panel { max-height: min(18.75em, calc(100% - 16px)); }
-#ui.mu .win-body { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.45) transparent; }
-#ui.mu .win-body::-webkit-scrollbar { width: 4px; }
-#ui.mu .win-body::-webkit-scrollbar-thumb { border-radius: 2px; background: rgba(255, 255, 255, 0.45); }
-#ui.mu .win-body[data-more]::after { content: ''; position: sticky; bottom: 0; z-index: 3; display: block; height: 16px; margin-top: -16px; pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") right 6px bottom 0 / 16px 16px no-repeat, linear-gradient(transparent, var(--mu-panel)); }
-#ui.mu .win-body[data-more]:has(> * .rb-btns, > .rb-btns)::after { display: none; }
-#ui.mu .win-body[data-more] .rb-btns { box-shadow: 0 -14px 12px -6px var(--mu-panel); }
+/* MU round 3 (producer 19.10, windows at 815 × 290 and 130 %): the panel is as tall as its content up to the visible
+   height minus 16 px a side, not by the font; a scrolling middle (`win-scrolls`, src/ui/window.ts) ends where it cuts no
+   button and no line, snaps by rows and shows its scroll on the right edge of the panel — a bar in its padding and a
+   chevron 16 px in a circle of 28 on a plaque on its border, never over the content and never taking its width (the
+   system scrollbar is hidden: Android does not draw it). Rows
+   marked to stay (`.win-pin`: the quests bonus, the buttons of rebirth and the calendar) stand under the middle. Text in
+   buttons, cards and tiles keeps 8 px from their edges. */
+#ui.mu .win-body { scrollbar-width: none; }
+#ui.mu .win-body::-webkit-scrollbar { display: none; }
+#ui.mu .win-body.win-scrolls { scroll-snap-type: y proximity; }
+#ui.mu .win-scrolls > *, #ui.mu .win-scrolls :is(.win-grid, .foot-grid, .qs-list, .gf-cards, .gf-tiles, .dl-cards, .tr-grid, .rb-cols, .pause-grid, .more-grid, .tp-list) > * { scroll-snap-align: start; }
+#ui.mu .win-pin { flex: none; padding-top: 8px; }
+#ui.mu .win-pin[hidden] { display: none; }
+#ui.mu .win-pin > .rb-btns { position: static; margin-top: 0; padding-top: 0; box-shadow: none; }
+#ui.mu .win-pin > .qs-row { margin: 0; }
+/* MU round 3: a quest on one line — its words on the left, its bar on the right; three of them and «For all three» on
+   815 × 290 without scrolling. */
+#ui.mu .qs-row { min-height: 44px; padding: 4px 12px; }
+#ui.mu .qs-main { flex-direction: row; align-items: center; gap: 12px; }
+#ui.mu .qs-main > .qs-text { flex: 1 1 auto; min-width: 0; }
+#ui.mu .qs-main > .qs-bar { flex: 0 0 38%; }
+.card-line { display: contents; }
+/* MU round 3 (a low screen, 815 × 290): sneakers in two columns of one line each — the picture, the name over «+N per step ·
+   price», the button on the right: two rows of cards whole under the tabs. The hero of the wardrobe smaller. */
+#ui.mu.mu-low .win-grid:has(> .card > .card-pic) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#ui.mu.mu-low .win-grid > .card:has(> .card-pic) { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; grid-template-rows: auto auto; column-gap: 8px; row-gap: 2px; align-items: center; justify-items: start; padding: 6px 8px; text-align: left; }
+#ui.mu.mu-low .win-grid > .card > .card-pic { grid-column: 1; grid-row: 1 / span 2; width: 28px; height: 28px; }
+#ui.mu.mu-low .win-grid > .card:has(> .card-pic) > .card-name { grid-column: 2; grid-row: 1; align-self: end; }
+#ui.mu.mu-low .win-grid > .card > .card-line { grid-column: 2; grid-row: 2; display: flex; align-items: center; gap: 8px; align-self: start; }
+#ui.mu.mu-low .win-grid > .card > .card-line > .card-big { font-size: 14px; }
+#ui.mu.mu-low .win-grid > .card:has(> .card-pic) > :last-child { grid-column: 3; grid-row: 1 / span 2; margin: 0; align-self: center; justify-self: end; max-width: 108px; }
+#ui.mu.mu-low .win-grid > .card:has(> .card-pic) > .card-btn { min-width: 84px; padding: 0 12px; }
+#ui.mu.mu-low .wr-side .fig.big { --u: 3.5px; width: 21px; height: 34px; }
+#ui.mu .win-rail { position: absolute; width: 28px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; pointer-events: none; }
+#ui.mu .win-rail[hidden] { display: none; }
+#ui.mu .win-track { position: relative; flex: 1 1 auto; width: 4px; margin-left: 4px; min-height: 16px; border-radius: 2px; background: rgba(255, 255, 255, 0.16); overflow: hidden; }
+#ui.mu .win-thumb { width: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.7); }
+#ui.mu .win-cue { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--mu-plaque); box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.35); color: #fff; display: flex; align-items: center; justify-content: center; transition: transform 0.15s; }
+#ui.mu .win-cue svg { width: 16px; height: 16px; }
+#ui.mu .win-rail:not(.more) .win-cue { transform: rotate(180deg); }
 #ui.mu .card, #ui.mu .win-grid .card, #ui.mu .foot-card, #ui.mu .gf-card, #ui.mu .gf-tile, #ui.mu .tr-tile, #ui.mu .more-btn { padding-left: 8px; padding-right: 8px; }
 #ui.mu .dl-card { padding: 20px 8px 8px; }
 /* MU round of fixes 2 (staff: days 5–7 a strip at 130 %): cards of 4 + 3 put the day on the line of their lock. */
@@ -799,14 +828,6 @@ canvas.fallback {
 .hud.mu .hud-level-fill { background: var(--mu-stat); }
 .hud.mu .hud-toast-sub { display: block; margin-top: 4px; line-height: 14px; }
 .hud.mu .hud-coin-value, .hud.mu .hud-trophy-value, .hud.mu .hud-stat-value, .hud.mu .hud-level-progress, .hud.mu .hud-shoes-text, .hud.mu .hud-toast-main { word-spacing: 0.15em; }
-/* MU round of fixes 2 (usability review): over the pinned buttons of «Rebirth» and «Calendar» the chevron shows the scroll too. */
-#ui.mu .win-body[data-more] .rb-btns { position: sticky; }
-#ui.mu .win-body[data-more] .rb-btns::before { content: ''; position: absolute; right: 6px; top: -16px; width: 16px; height: 16px; pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 16px 16px no-repeat; }
-/* MU round of fixes 2 (mockup check): the calendar of 4 + 3 shows its scroll by the fade of the middle, «Take» stays a cell
-   of the grid. */
-#ui.mu .win-body[data-more] .dl-cards.dl-fit4 > .dl-foot { position: static; }
-#ui.mu .win-body[data-more] .dl-cards.dl-fit4 > .dl-foot::before { display: none; }
-#ui.mu .win-body[data-more]:has(.dl-fit4)::after { display: block; }
 /* MU round of fixes 2 (art review, score 2): «+N per step» under the title size, 8 px between a card's edge (or its ring)
    and its button; the wardrobe cards 8 px around a smaller figure; the count of pets in the subtitle; «To the shop» of an
    empty «Pets». */

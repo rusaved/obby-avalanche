@@ -422,7 +422,7 @@ test.describe('MU phone screens', () => {
     await page.screenshot({ path: 'docs/evidence/MU/l5-camp.png' });
   });
 
-  test('MU-07, MU-08, MU-13: windows of one style — width, ≤ 300 px, the HUD hidden, one at a time, cross 44, Esc and the veil close, swipes scroll', async ({ page, openGame }) => {
+  test('MU-07, MU-08, MU-13: windows of one style — width, height by the content, the HUD hidden, one at a time, cross 44, Esc and the veil close, swipes scroll', async ({ page, openGame }) => {
     await openGame('pace=stages');
     await prepare(page, `window.__TEST__.setStat(${threshold(30)});`);
     const open: Array<[string, () => Promise<void>, number]> = [
@@ -445,7 +445,8 @@ test.describe('MU phone screens', () => {
       await expect(page.locator('[data-role="window"].open')).toHaveCount(1);
       const f = await windowFacts(page);
       expect(Math.abs(f.w - Math.min(width, MU_VIEW.width - 32)), `${id} width`).toBeLessThanOrEqual(2);
-      expect(f.h, `${id} height`).toBeLessThanOrEqual(300.5);
+      // Round 3 (producer: windows by their content, not 300): up to the visible height minus 16 px a side.
+      expect(f.h, `${id} height`).toBeLessThanOrEqual(VISIBLE_H - 32 + 0.5);
       expect(f.bottom, `${id} bottom`).toBeLessThanOrEqual(VISIBLE_H + 0.5);
       expect(f.cross, `${id} cross`).toBeGreaterThanOrEqual(44);
       expect(f.hudShown, `${id}: the HUD under it`).toBe(false);
@@ -490,7 +491,7 @@ test.describe('MU phone screens', () => {
     await expect(win.locator('.sm-label')).toContainText(['Сундук', 'Кубок вершины', 'Следующая гора']);
     const panel = (await win.locator('.win-panel').boundingBox())!;
     expect(Math.abs(panel.width - 480)).toBeLessThanOrEqual(2);
-    expect(panel.height).toBeLessThanOrEqual(300.5);
+    expect(panel.height).toBeLessThanOrEqual(VISIBLE_H - 32 + 0.5);
     const ad = win.locator('[data-hud="summit-ad"]');
     await expect(ad).toContainText('Реклама: ×2');
     const a = (await ad.boundingBox())!;

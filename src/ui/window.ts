@@ -60,6 +60,15 @@ const SIZE_OF: Record<string, 'cards' | 'list' | 'summary'> = {
   communityGift: 'summary',
 };
 
+/** MU round 3: the lower edge of a scrolling middle stands this far over a control or a line it would cut (px). */
+const EDGE_GAP = 1;
+/** …and never comes higher than this (one row of 44 px): a middle that cannot keep it scrolls as it is. */
+const EDGE_MIN = 44;
+/** The shortest bar of the rail (px). */
+const RAIL_THUMB_MIN = 16;
+/** The rail is as wide as its circle and stands on the right border of the panel (px). */
+const RAIL_W = 28;
+
 export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): WindowFrame {
   const dim = document.createElement('div');
   dim.className = 'dim win';
@@ -95,8 +104,29 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
   next.dataset['hud'] = 'win-next';
   next.dataset['next'] = '1';
   foot.appendChild(next);
-  panel.append(top, body, foot);
-  dim.appendChild(panel);
+  // MU round 3 (producer 19.10: buttons cut at 815 × 290 and at 130 %, the chevron on a button, no scrollbar on Android):
+  // rows marked `data-pin` and the button rows `.rb-btns` stand under the middle, never scrolled away; the middle shows
+  // its scroll on the right edge of the panel — a bar in its padding and a chevron in a circle on its border — never over
+  // the content and never taking its width.
+  const pin = document.createElement('div');
+  pin.className = 'win-pin';
+  const rail = document.createElement('div');
+  rail.className = 'win-rail';
+  rail.dataset['role'] = 'win-rail';
+  const track = document.createElement('div');
+  track.className = 'win-track';
+  const thumb = document.createElement('div');
+  thumb.className = 'win-thumb';
+  track.appendChild(thumb);
+  const cue = document.createElement('div');
+  cue.className = 'win-cue';
+  cue.dataset['role'] = 'win-cue';
+  cue.innerHTML = icon('chevron');
+  rail.append(track, cue);
+  rail.hidden = true;
+  pin.hidden = true;
+  panel.append(top, body, pin, foot);
+  dim.append(panel, rail);
   host.appendChild(dim);
 
   // MU round of fixes 2 (staff: a blue «Buy» on every card): one blue button in a window — its main button if it has
@@ -110,13 +140,83 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
       kept = true;
     }
   };
-  // MU round of fixes 2: `data-more` while the middle has more below (a fade with a chevron shows it scrolls).
+  // MU round of fixes 2: `data-more` while the middle has more below. Round 3: the bar of the rail follows the scroll.
   const markMore = (): void => {
     body.style.setProperty('--win-body-h', `${body.clientHeight}px`);
-    body.toggleAttribute('data-more', body.scrollHeight - body.scrollTop - body.clientHeight > 2);
+    const room = body.scrollHeight - body.clientHeight;
+    body.toggleAttribute('data-more', room - body.scrollTop > 2);
+    if (!opts.mu) return;
+    const scrolls = body.classList.contains('win-scrolls');
+    rail.hidden = !scrolls;
+    if (!scrolls) return;
+    const d = dim.getBoundingClientRect();
+    const p = panel.getBoundingClientRect();
+    const b = body.getBoundingClientRect();
+    rail.style.left = `${p.right - d.left - RAIL_W / 2}px`;
+    rail.style.top = `${b.top - d.top}px`;
+    rail.style.height = `${b.height}px`;
+    rail.classList.toggle('more', room - body.scrollTop > 2);
+    const h = track.clientHeight;
+    const size = Math.max(RAIL_THUMB_MIN, Math.round((h * body.clientHeight) / Math.max(1, body.scrollHeight)));
+    thumb.style.height = `${size}px`;
+    thumb.style.transform = `translateY(${Math.round(((h - size) * body.scrollTop) / Math.max(1, room))}px)`;
+  };
+  /** Line boxes of the text and the boxes of the controls in the middle, in its scroll coordinates. */
+  const atoms = (): { lines: Array<[number, number]>; controls: Array<[number, number]> } => {
+    const base = body.getBoundingClientRect().top - body.scrollTop;
+    const lines: Array<[number, number]> = [];
+    const controls: Array<[number, number]> = [];
+    const range = document.createRange();
+    const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT);
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      if (!(n.textContent ?? '').trim()) continue;
+      range.selectNodeContents(n);
+      for (const r of Array.from(range.getClientRects())) if (r.height > 0) lines.push([r.top - base, r.bottom - base]);
+    }
+    for (const c of Array.from(body.querySelectorAll<HTMLElement>('button, input, select'))) {
+      const r = c.getBoundingClientRect();
+      if (r.height > 0 && r.width > 0) controls.push([r.top - base, r.bottom - base]);
+    }
+    return { lines, controls };
+  };
+  /** MU round 3: the panel is as tall as its content up to the visible height minus 16 px a side (CSS); when the middle
+   * scrolls, its lower edge goes up from the room it has to a place that cuts no control and no line of text — a gap
+   * between rows or the edge of the next row (the room is never less than a row of 44 px). */
+  const fitMiddle = (): void => {
+    if (!opts.mu || current === null) return;
+    body.style.maxHeight = '';
+    body.style.scrollPaddingTop = '';
+    body.classList.remove('win-scrolls');
+    if (body.scrollHeight - body.clientHeight <= 1) return;
+    body.classList.add('win-scrolls');
+    const room = body.clientHeight;
+    const { lines, controls } = atoms();
+    /** The lowest edge up from the room that crosses none of `boxes`. */
+    const clear = (boxes: Array<[number, number]>): number => {
+      let edge = Math.floor(room);
+      for (let i = 0; i < 64; i++) {
+        let up = edge;
+        for (const [a, b] of boxes) if (a < edge - 0.5 && b > edge + 0.1) up = Math.min(up, Math.floor(a - EDGE_GAP));
+        if (up >= edge) break;
+        edge = up;
+      }
+      return edge;
+    };
+    // No control and no line cut; a middle too dense for that cuts no control at least.
+    let edge = clear([...controls, ...lines]);
+    if (edge < EDGE_MIN) edge = clear(controls);
+    if (edge < EDGE_MIN) edge = room;
+    body.style.maxHeight = `${edge}px`;
+    // Rows snap under the tabs pinned at the top of the middle.
+    const tabs = body.querySelector<HTMLElement>(':scope > .win-tabs');
+    if (tabs) body.style.scrollPaddingTop = `${tabs.offsetHeight}px`;
+  };
+  const fit = (): void => {
+    fitMiddle();
+    markMore();
   };
   body.addEventListener('scroll', markMore, { passive: true });
-  const watch = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(markMore) : null;
+  const watch = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(fit) : null;
 
   let current: string | null = null;
   let render: ((body: HTMLElement, head: HTMLElement) => void) | null = null;
@@ -153,7 +253,7 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
       frame.refresh();
       dim.classList.add('open');
       body.scrollTop = 0;
-      markMore();
+      fit();
       fitTitle();
       if (was !== id) opts.onChange(id);
     },
@@ -162,15 +262,22 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
       const scroll = body.scrollTop;
       body.replaceChildren();
       head.replaceChildren();
+      pin.replaceChildren();
       render(body, head);
-      if (opts.mu) oneAccent();
+      if (opts.mu) {
+        oneAccent();
+        for (const p of Array.from(body.querySelectorAll<HTMLElement>('[data-pin], :scope > .rb-btns'))) pin.appendChild(p);
+      }
+      pin.hidden = pin.childElementCount === 0;
       body.scrollTop = scroll;
       if (watch) {
         watch.disconnect();
+        watch.observe(dim);
         watch.observe(body);
+        watch.observe(pin);
         for (const c of Array.from(body.children)) watch.observe(c);
       }
-      markMore();
+      fit();
     },
     close() {
       if (current === null) return;

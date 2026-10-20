@@ -131,7 +131,11 @@ export function renderShopPanel(body: HTMLElement, head: HTMLElement, m: ShopPan
       card.appendChild(sw);
     }
     card.appendChild(el('span', 'card-name', c.name));
-    if (c.mult) card.appendChild(el('span', 'card-big', c.mult));
+    // MU round 3: «+N per step» and the price of a pair of sneakers in one line box — a line of its own on a low screen
+    // (815 × 290), invisible otherwise (`display: contents`).
+    const line = c.pic ? el('span', 'card-line') : card;
+    if (line !== card) card.appendChild(line);
+    if (c.mult) line.appendChild(el('span', 'card-big', c.mult));
     if (c.lines?.length) {
       const list = el('span', 'card-lines');
       list.append(el('b', '', t('shop.chances')), ...c.lines.map((x) => el('span', '', x)));
@@ -156,7 +160,7 @@ export function renderShopPanel(body: HTMLElement, head: HTMLElement, m: ShopPan
       btn.innerHTML = markIcon('lock');
       btn.appendChild(el('span', '', c.lock ?? ''));
     } else {
-      card.appendChild(c.coin ? coinPrice(c.price) : trophyPrice(c.price));
+      line.appendChild(c.coin ? coinPrice(c.price) : trophyPrice(c.price));
       btn = el('button', c.state === 'short' ? 'card-btn off' : 'card-btn', c.state === 'short' ? c.need : (c.action ?? t('btn.buy')));
       if (c.state === 'buy') btn.addEventListener('click', () => a.buy(c.id));
     }

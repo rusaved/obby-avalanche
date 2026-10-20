@@ -80,6 +80,8 @@ export function renderQuestsPanel(body: HTMLElement, m: QuestsPanelModel, a: { c
   const bonus = el('div', `qs-row qs-bonus ${m.bonus.state}`);
   bonus.dataset['role'] = 'quest-bonus';
   bonus.dataset['state'] = m.bonus.state;
+  // MU round 3 (producer: «For all three» seen without scrolling): the bonus row stands under the middle on a phone.
+  bonus.dataset['pin'] = '1';
   bonus.append(el('div', 'qs-text', m.bonus.text), stateEnd(m.bonus.state, m.claim, 'quest-bonus', a.bonus));
   list.appendChild(bonus);
   body.appendChild(list);

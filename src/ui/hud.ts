@@ -261,6 +261,8 @@ const MU_STICK_X = 76;
 /** MU round of fixes 2 (staff: the stick 50 px over the jump on 915 × 412): the resting stick level with the jump — its
  * centre 16 + 64 / 2 px over the bottom edge; on 815 × 290 (round 3) its ring starts 24 px under the column. */
 const MU_JUMP_MID = 16 + 64 / 2;
+/** MU round 3: a field this low or lower is a phone under browser panels (815 × 290) — compact cards in the windows. */
+const LOW_H = 340;
 
 /** The click a browser sends after a tap comes within this many ms of the finger lifting. */
 const TAP_CLICK_MS = 800;
@@ -976,6 +978,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (opts.mu) {
         // MU-02: fixed sizes of docs/07-mobile-ui.md (jump 64, round buttons 44, stick 84). MU round 3: no bottom band —
         // the field is already the visible part of the window (main.ts, visualViewport).
+        // A low screen (Yandex Browser under its panels, 815 × 290): the windows take their compact cards.
+        host.classList.toggle('mu-low', height <= LOW_H);
         jumpButton.style.width = jumpButton.style.height = '';
         for (const b of [pauseBtn, soundBtn]) b.style.width = b.style.height = '';
         soundBtn.style.marginRight = '';
