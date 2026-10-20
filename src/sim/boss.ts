@@ -285,7 +285,7 @@ export function createBoss(
         const slapped = new Set<number>();
         if (runners.length > 0)
           s.giants.forEach((g, gi) => {
-            if ((g.mode === 'patrol' || g.mode === 'back') && clock - g.aimAt >= AIM_SEC) {
+            if ((g.mode === 'patrol' || g.mode === 'back') && (data0.rearm !== true || clock - g.aimAt >= AIM_SEC)) {
               g.mode = 'turn';
               g.t = data0.giants[gi]!.turnSec;
               g.aimAt = clock;
@@ -382,10 +382,11 @@ export function createBoss(
         // How far it is from a runner: along the slope for a patrol giant (PS), in the plane for a chasing one.
         const near = (g: GiantState, chase: boolean, x: number, z: number): boolean => (chase ? Math.hypot(x - g.x, z - g.z) : Math.abs(z - g.z)) <= cfg.reach;
         stepHelpers(s, zi, dt, hero, free, tick);
-        // MU round 4: the hero in the zone is the target — a giant that walked off (patrol, back) turns to him again, but
-        // for one left behind by a quicker hero (SD-15) and not sooner than AIM_SEC after its last change of target.
+        // MU round 4: the hero in the zone of a giant of every run is the target — a giant that walked off (patrol, back)
+        // turns to him again, but for one left behind by a quicker hero (SD-15) and not sooner than AIM_SEC after its last
+        // change of target (the giants of the older paces as they were).
         const behind = (g: GiantState): boolean => data0.rearm === true && hero.z > g.z + cfg.reach && g.speed <= (hero.top ?? hero.speed);
-        if (s.hero === 'in' && free)
+        if (s.hero === 'in' && free && data0.rearm === true)
           s.giants.forEach((g, gi) => {
             if ((g.mode === 'patrol' || g.mode === 'back') && !behind(g) && clock - g.aimAt >= AIM_SEC) {
               g.mode = 'turn';

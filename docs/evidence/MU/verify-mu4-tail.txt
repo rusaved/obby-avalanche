@@ -1,0 +1,264 @@
+== verify: e2e:sample
+vite v8.3.2 building client environment for e2e...
+transforming...
+<script src="/sdk.js"> in "/index.html" can't be bundled without type="module" attribute
+✓ 173 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-e2e-sample/index.html                                         1.70 kB │ gzip:   0.92 kB
+dist-e2e-sample/assets/rubik-cyrillic-800-normal-wonQiwhm.woff2    7.85 kB
+dist-e2e-sample/assets/rubik-cyrillic-600-normal-AdySaCq0.woff2    7.90 kB
+dist-e2e-sample/assets/rubik-cyrillic-700-normal-DFnztZBh.woff2    7.90 kB
+dist-e2e-sample/assets/rubik-cyrillic-500-normal-Didq2w9O.woff2    7.92 kB
+dist-e2e-sample/assets/en-CHhPo31r.json                            8.25 kB │ gzip:   2.79 kB
+dist-e2e-sample/assets/rubik-cyrillic-800-normal-DocVmW4N.woff     9.85 kB
+dist-e2e-sample/assets/rubik-cyrillic-700-normal-C_jxLOfU.woff     9.87 kB
+dist-e2e-sample/assets/rubik-cyrillic-600-normal-CtS_KWzi.woff     9.89 kB
+dist-e2e-sample/assets/rubik-cyrillic-500-normal-BH_pkKR0.woff     9.92 kB
+dist-e2e-sample/assets/ru-CR9b33Ib.json                           10.86 kB │ gzip:   3.63 kB
+dist-e2e-sample/assets/1-BN7IT56u.mp3                             17.17 kB
+dist-e2e-sample/assets/1-BVny-jN9.mp3                             17.17 kB
+dist-e2e-sample/assets/1-CP3C_qXY.mp3                             17.17 kB
+dist-e2e-sample/assets/1-DQLOuCnM.mp3                             17.17 kB
+dist-e2e-sample/assets/1-DUTY0SV5.mp3                             17.17 kB
+dist-e2e-sample/assets/1-gSaViLAo.mp3                             17.17 kB
+dist-e2e-sample/assets/2-83wtGG6r.mp3                             17.17 kB
+dist-e2e-sample/assets/2-BzuV1erg.mp3                             17.17 kB
+dist-e2e-sample/assets/2-CK6gaR7E.mp3                             17.17 kB
+dist-e2e-sample/assets/2-CzofyL7K.mp3                             17.17 kB
+dist-e2e-sample/assets/2-D-PP5Pz4.mp3                             17.17 kB
+dist-e2e-sample/assets/2-vl6dV_Xq.mp3                             17.17 kB
+dist-e2e-sample/assets/3-C8SPF8Q5.mp3                             17.17 kB
+dist-e2e-sample/assets/3-CaWfxQbg.mp3                             17.17 kB
+dist-e2e-sample/assets/3-Cvtbo-7Q.mp3                             17.17 kB
+dist-e2e-sample/assets/3-D8pGxtPh.mp3                             17.17 kB
+dist-e2e-sample/assets/3-EDy5jjBy.mp3                             17.17 kB
+dist-e2e-sample/assets/4-BvGHYDEo.mp3                             17.17 kB
+dist-e2e-sample/assets/4-C-jIC94z.mp3                             17.17 kB
+dist-e2e-sample/assets/4-CHs3j__0.mp3                             17.17 kB
+dist-e2e-sample/assets/4-CJ7_h6Iw.mp3                             17.17 kB
+dist-e2e-sample/assets/4-CjOsbRXB.mp3                             17.17 kB
+dist-e2e-sample/assets/rubik-latin-500-normal-1os41rQk.woff2      19.03 kB
+dist-e2e-sample/assets/rubik-latin-600-normal-7iWW07_k.woff2      19.06 kB
+dist-e2e-sample/assets/rubik-latin-800-normal-BtaGuVpR.woff2      19.06 kB
+dist-e2e-sample/assets/rubik-latin-700-normal-D-tMm-eS.woff2      19.11 kB
+dist-e2e-sample/assets/rubik-latin-800-normal-Dq1miTTj.woff       24.17 kB
+dist-e2e-sample/assets/rubik-latin-500-normal-LZYVHeqz.woff       24.21 kB
+dist-e2e-sample/assets/rubik-latin-600-normal-Bd1rsTk4.woff       24.21 kB
+dist-e2e-sample/assets/rubik-latin-700-normal-KHOtubUA.woff       24.28 kB
+dist-e2e-sample/assets/level-up-CA_B7FUa.mp3                      33.06 kB
+dist-e2e-sample/assets/reward-coins-Cb3RXhlr.mp3                  33.06 kB
+dist-e2e-sample/assets/reward-trophy-CEJUg0DD.mp3                 33.06 kB
+dist-e2e-sample/assets/index-0lJZSUGO.css                         67.24 kB │ gzip:  13.09 kB
+dist-e2e-sample/assets/ZzFX-C1HKDoVW.js                            2.00 kB │ gzip:   1.17 kB
+dist-e2e-sample/assets/test-api-DHFYM98k.js                       19.91 kB │ gzip:   7.88 kB
+dist-e2e-sample/assets/debug-B1fgIBk9.js                          47.26 kB │ gzip:  15.09 kB
+dist-e2e-sample/assets/index-Io6nnutv.js                         940.60 kB │ gzip: 272.14 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 900 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.24s
+
+Running 1 test using 1 worker
+
+  ✓  1 [desktop] › e2e/sample.spec.ts:4:1 › sample pack boots, renders and calls ready() once (3.4s)
+
+  1 passed (5.4s)
+-- verify: e2e:sample exit 0, 9 s
+== verify: build
+vite v8.3.2 building client environment for production...
+transforming...
+<script src="/sdk.js"> in "/index.html" can't be bundled without type="module" attribute
+✓ 180 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                           1.70 kB │ gzip:   0.93 kB
+dist/assets/rubik-cyrillic-800-normal-wonQiwhm.woff2      7.85 kB
+dist/assets/rubik-cyrillic-600-normal-AdySaCq0.woff2      7.90 kB
+dist/assets/rubik-cyrillic-700-normal-DFnztZBh.woff2      7.90 kB
+dist/assets/rubik-cyrillic-500-normal-Didq2w9O.woff2      7.92 kB
+dist/assets/rubik-cyrillic-800-normal-DocVmW4N.woff       9.85 kB
+dist/assets/rubik-cyrillic-700-normal-C_jxLOfU.woff       9.87 kB
+dist/assets/rubik-cyrillic-600-normal-CtS_KWzi.woff       9.89 kB
+dist/assets/rubik-cyrillic-500-normal-BH_pkKR0.woff       9.92 kB
+dist/assets/en-CzqwqnHZ.json                             17.11 kB │ gzip:   5.50 kB
+dist/assets/1-BN7IT56u.mp3                               17.17 kB
+dist/assets/1-BVny-jN9.mp3                               17.17 kB
+dist/assets/1-CP3C_qXY.mp3                               17.17 kB
+dist/assets/1-DQLOuCnM.mp3                               17.17 kB
+dist/assets/1-DUTY0SV5.mp3                               17.17 kB
+dist/assets/1-gSaViLAo.mp3                               17.17 kB
+dist/assets/2-83wtGG6r.mp3                               17.17 kB
+dist/assets/2-BzuV1erg.mp3                               17.17 kB
+dist/assets/2-CK6gaR7E.mp3                               17.17 kB
+dist/assets/2-CzofyL7K.mp3                               17.17 kB
+dist/assets/2-D-PP5Pz4.mp3                               17.17 kB
+dist/assets/2-vl6dV_Xq.mp3                               17.17 kB
+dist/assets/3-C8SPF8Q5.mp3                               17.17 kB
+dist/assets/3-CaWfxQbg.mp3                               17.17 kB
+dist/assets/3-Cvtbo-7Q.mp3                               17.17 kB
+dist/assets/3-D8pGxtPh.mp3                               17.17 kB
+dist/assets/3-EDy5jjBy.mp3                               17.17 kB
+dist/assets/4-BvGHYDEo.mp3                               17.17 kB
+dist/assets/4-C-jIC94z.mp3                               17.17 kB
+dist/assets/4-CHs3j__0.mp3                               17.17 kB
+dist/assets/4-CJ7_h6Iw.mp3                               17.17 kB
+dist/assets/4-CjOsbRXB.mp3                               17.17 kB
+dist/assets/rubik-latin-500-normal-1os41rQk.woff2        19.03 kB
+dist/assets/rubik-latin-600-normal-7iWW07_k.woff2        19.06 kB
+dist/assets/rubik-latin-800-normal-BtaGuVpR.woff2        19.06 kB
+dist/assets/rubik-latin-700-normal-D-tMm-eS.woff2        19.11 kB
+dist/assets/ru-BD6M8409.json                             22.32 kB │ gzip:   7.00 kB
+dist/assets/rubik-latin-800-normal-Dq1miTTj.woff         24.17 kB
+dist/assets/rubik-latin-500-normal-LZYVHeqz.woff         24.21 kB
+dist/assets/rubik-latin-600-normal-Bd1rsTk4.woff         24.21 kB
+dist/assets/rubik-latin-700-normal-KHOtubUA.woff         24.28 kB
+dist/assets/level-up-CA_B7FUa.mp3                        33.06 kB
+dist/assets/reward-coins-Cb3RXhlr.mp3                    33.06 kB
+dist/assets/reward-trophy-CEJUg0DD.mp3                   33.06 kB
+dist/assets/index-0lJZSUGO.css                           67.24 kB │ gzip:  13.09 kB
+dist/assets/ZzFX-C1HKDoVW.js                              2.00 kB │ gzip:   1.17 kB
+dist/assets/index-7ouhNP_P.js                         1,738.89 kB │ gzip: 378.16 kB
+
+✓ built in 1.40s
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 900 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+-- verify: build exit 0, 2 s
+== verify: size
+size: dist
+  assets/1-BN7IT56u.mp3                               16.8 KB 
+  assets/1-BVny-jN9.mp3                               16.8 KB 
+  assets/1-CP3C_qXY.mp3                               16.8 KB 
+  assets/1-DQLOuCnM.mp3                               16.8 KB 
+  assets/1-DUTY0SV5.mp3                               16.8 KB 
+  assets/1-gSaViLAo.mp3                               16.8 KB 
+  assets/2-83wtGG6r.mp3                               16.8 KB 
+  assets/2-BzuV1erg.mp3                               16.8 KB 
+  assets/2-CK6gaR7E.mp3                               16.8 KB 
+  assets/2-CzofyL7K.mp3                               16.8 KB 
+  assets/2-D-PP5Pz4.mp3                               16.8 KB 
+  assets/2-vl6dV_Xq.mp3                               16.8 KB 
+  assets/3-C8SPF8Q5.mp3                               16.8 KB 
+  assets/3-CaWfxQbg.mp3                               16.8 KB 
+  assets/3-Cvtbo-7Q.mp3                               16.8 KB 
+  assets/3-D8pGxtPh.mp3                               16.8 KB 
+  assets/3-EDy5jjBy.mp3                               16.8 KB 
+  assets/4-BvGHYDEo.mp3                               16.8 KB 
+  assets/4-C-jIC94z.mp3                               16.8 KB 
+  assets/4-CHs3j__0.mp3                               16.8 KB 
+  assets/4-CJ7_h6Iw.mp3                               16.8 KB 
+  assets/4-CjOsbRXB.mp3                               16.8 KB 
+  assets/en-CzqwqnHZ.json                             16.7 KB 
+  assets/index-0lJZSUGO.css                           65.7 KB 
+  assets/index-7ouhNP_P.js                          1698.1 KB gzip 362.7 KB
+  assets/level-up-CA_B7FUa.mp3                        32.3 KB 
+  assets/reward-coins-Cb3RXhlr.mp3                    32.3 KB 
+  assets/reward-trophy-CEJUg0DD.mp3                   32.3 KB 
+  assets/ru-BD6M8409.json                             21.8 KB 
+  assets/rubik-cyrillic-500-normal-BH_pkKR0.woff       9.7 KB 
+  assets/rubik-cyrillic-500-normal-Didq2w9O.woff2      7.7 KB 
+  assets/rubik-cyrillic-600-normal-AdySaCq0.woff2      7.7 KB 
+  assets/rubik-cyrillic-600-normal-CtS_KWzi.woff       9.7 KB 
+  assets/rubik-cyrillic-700-normal-C_jxLOfU.woff       9.6 KB 
+  assets/rubik-cyrillic-700-normal-DFnztZBh.woff2      7.7 KB 
+  assets/rubik-cyrillic-800-normal-DocVmW4N.woff       9.6 KB 
+  assets/rubik-cyrillic-800-normal-wonQiwhm.woff2      7.7 KB 
+  assets/rubik-latin-500-normal-1os41rQk.woff2        18.6 KB 
+  assets/rubik-latin-500-normal-LZYVHeqz.woff         23.6 KB 
+  assets/rubik-latin-600-normal-7iWW07_k.woff2        18.6 KB 
+  assets/rubik-latin-600-normal-Bd1rsTk4.woff         23.6 KB 
+  assets/rubik-latin-700-normal-D-tMm-eS.woff2        18.7 KB 
+  assets/rubik-latin-700-normal-KHOtubUA.woff         23.7 KB 
+  assets/rubik-latin-800-normal-BtaGuVpR.woff2        18.6 KB 
+  assets/rubik-latin-800-normal-Dq1miTTj.woff         23.6 KB 
+  assets/ZzFX-C1HKDoVW.js                              2.0 KB gzip 1.1 KB
+  index.html                                           1.7 KB 
+  total 2510.4 KB (target 4096.0 KB, limit 10240.0 KB)
+  js 1700.1 KB → gzip 363.8 KB (target 500.0 KB, limit 800.0 KB)
+-- verify: size exit 0, 0 s
+== verify: pack
+pack: 47 files, 2510.4 KB → release/avalanche-0.1.0.zip 1100.4 KB
+-- verify: pack exit 0, 0 s
+== verify: check-release
+check-release: release/avalanche-0.1.0.zip
+date: 2026-10-20T23:44:46.316Z
+files: 47
+  assets/1-BN7IT56u.mp3  16.8 KB
+  assets/1-BVny-jN9.mp3  16.8 KB
+  assets/1-CP3C_qXY.mp3  16.8 KB
+  assets/1-DQLOuCnM.mp3  16.8 KB
+  assets/1-DUTY0SV5.mp3  16.8 KB
+  assets/1-gSaViLAo.mp3  16.8 KB
+  assets/2-83wtGG6r.mp3  16.8 KB
+  assets/2-BzuV1erg.mp3  16.8 KB
+  assets/2-CK6gaR7E.mp3  16.8 KB
+  assets/2-CzofyL7K.mp3  16.8 KB
+  assets/2-D-PP5Pz4.mp3  16.8 KB
+  assets/2-vl6dV_Xq.mp3  16.8 KB
+  assets/3-C8SPF8Q5.mp3  16.8 KB
+  assets/3-CaWfxQbg.mp3  16.8 KB
+  assets/3-Cvtbo-7Q.mp3  16.8 KB
+  assets/3-D8pGxtPh.mp3  16.8 KB
+  assets/3-EDy5jjBy.mp3  16.8 KB
+  assets/4-BvGHYDEo.mp3  16.8 KB
+  assets/4-C-jIC94z.mp3  16.8 KB
+  assets/4-CHs3j__0.mp3  16.8 KB
+  assets/4-CJ7_h6Iw.mp3  16.8 KB
+  assets/4-CjOsbRXB.mp3  16.8 KB
+  assets/ZzFX-C1HKDoVW.js  2.0 KB
+  assets/en-CzqwqnHZ.json  16.7 KB
+  assets/index-0lJZSUGO.css  65.7 KB
+  assets/index-7ouhNP_P.js  1698.1 KB
+  assets/level-up-CA_B7FUa.mp3  32.3 KB
+  assets/reward-coins-Cb3RXhlr.mp3  32.3 KB
+  assets/reward-trophy-CEJUg0DD.mp3  32.3 KB
+  assets/ru-BD6M8409.json  21.8 KB
+  assets/rubik-cyrillic-500-normal-BH_pkKR0.woff  9.7 KB
+  assets/rubik-cyrillic-500-normal-Didq2w9O.woff2  7.7 KB
+  assets/rubik-cyrillic-600-normal-AdySaCq0.woff2  7.7 KB
+  assets/rubik-cyrillic-600-normal-CtS_KWzi.woff  9.7 KB
+  assets/rubik-cyrillic-700-normal-C_jxLOfU.woff  9.6 KB
+  assets/rubik-cyrillic-700-normal-DFnztZBh.woff2  7.7 KB
+  assets/rubik-cyrillic-800-normal-DocVmW4N.woff  9.6 KB
+  assets/rubik-cyrillic-800-normal-wonQiwhm.woff2  7.7 KB
+  assets/rubik-latin-500-normal-1os41rQk.woff2  18.6 KB
+  assets/rubik-latin-500-normal-LZYVHeqz.woff  23.6 KB
+  assets/rubik-latin-600-normal-7iWW07_k.woff2  18.6 KB
+  assets/rubik-latin-600-normal-Bd1rsTk4.woff  23.6 KB
+  assets/rubik-latin-700-normal-D-tMm-eS.woff2  18.7 KB
+  assets/rubik-latin-700-normal-KHOtubUA.woff  23.7 KB
+  assets/rubik-latin-800-normal-BtaGuVpR.woff2  18.6 KB
+  assets/rubik-latin-800-normal-Dq1miTTj.woff  23.6 KB
+  index.html  1.7 KB
+
+PASS  1. index.html at the root, paths only [A-Za-z0-9._/-]
+PASS  2. unpacked ≤ 10 MB and JS gzip ≤ 800 KB
+        zip 1100.4 KB, unpacked 2510.4 KB, js gzip 363.8 KB
+PASS  3. no external addresses except /sdk.js and mc.yandex.ru (namespaces allowed)
+PASS  4. <script src="/sdk.js"> exactly once
+        found 1
+PASS  5. no <audio>, <video>, new Audio(
+PASS  6. no lil-gui, __TEST__, __STUDIO__, __YA_MOCK__, yasdk-mock, localhost, debugger, sourceMappingURL, ?pace=
+PASS  7. no development or stop-list words in shipped texts
+
+WARN  other absolute addresses in strings (not loaded): https://t.me/sunhearth_games, https://vk.ru/sunhearth_yandex
+RESULT: PASS
+
+-- verify: check-release exit 0, 1 s
+== verify: e2e:release
+e2e:release: unpacked /home/user/obby-avalanche/release/avalanche-0.1.0.zip (47 entries) to /home/user/obby-avalanche/.cache/release-unpacked
+
+Running 2 tests using 1 worker
+
+  ✓  1 e2e/smoke-release.spec.ts:6:1 › release build: ready() exactly once, first frame drawn, zero console errors (4.6s)
+  ✓  2 e2e/smoke-release.spec.ts:25:1 › release build ignores ?pace=classic: the save lands in the slot of the game.json pace (3.6s)
+
+  2 passed (9.9s)
+-- verify: e2e:release exit 0, 11 s
+EXIT=0
