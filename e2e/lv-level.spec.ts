@@ -14,9 +14,11 @@ for (const [w, h] of [
     await expect(bar).toBeVisible();
     await expect(bar).toContainText(/(Уровень|Level) 1/);
     const box = (await bar.boundingBox())!;
-    // MU-02 (l1-run-hud-a): the bar ends 68 px over the bottom (the shoes button is under it).
-    expect(Math.abs(box.y + box.height - (h - 68)), 'bar at the bottom').toBeLessThanOrEqual(2);
-    expect(Math.abs(box.x + box.width / 2 - w / 2), 'bar centred').toBeLessThan(4);
+    // MU round 3 (producer: the HUD compact): the bar and the shoes button on one line 16 px over the bottom (the bar 26
+    // high in the middle of the 44 of the button: its bottom 25 px over it); the line between the stick and the jump.
+    expect(Math.abs(box.y + box.height - (h - 25)), 'bar at the bottom').toBeLessThanOrEqual(2);
+    expect(box.x, 'bar right of the stick').toBeGreaterThanOrEqual(120);
+    expect(box.x + box.width, 'bar left of the jump').toBeLessThanOrEqual(w - 16 - 64 - 8 + 0.5);
     const stat = (await page.locator('[data-role=stat]').boundingBox())!;
     expect(stat.y + stat.height, 'Speed over the bar').toBeLessThanOrEqual(box.y + box.height - (await page.locator('.hud-level-bar').boundingBox())!.height + 1);
     await page.evaluate(() => window.__TEST__!.setStat(60));
