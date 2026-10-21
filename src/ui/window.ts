@@ -61,6 +61,28 @@ const SIZE_OF: Record<string, 'cards' | 'list' | 'summary'> = {
   communityGift: 'summary',
 };
 
+/** MU round 5 (producer 21.10): the simple mark by the title of each window, in the style of the HUD marks. */
+const ICON_OF: Record<string, string> = {
+  shop: 'bag',
+  pets: 'paw',
+  newPet: 'paw',
+  more: 'dots',
+  footsteps: 'footsteps',
+  wardrobe: 'shirt',
+  rebirth: 'rebirthArrow',
+  allDone: 'rebirthArrow',
+  records: 'records',
+  quests: 'task',
+  daily: 'calendarLine',
+  gifts: 'giftLine',
+  timeRewards: 'giftLine',
+  communityGift: 'giftLine',
+  pause: 'pause',
+  campTeleport: 'teleport',
+  summit: 'flag',
+  promo: 'key',
+};
+
 /** MU round 3: the lower edge of a scrolling middle stands this far over a control or a line it would cut (px). */
 const EDGE_GAP = 1;
 /** …and never comes higher than this (one row of 44 px): a middle that cannot keep it scrolls as it is. */
@@ -288,6 +310,13 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
       dim.dataset['window'] = id;
       dim.dataset['size'] = o.size ?? SIZE_OF[id] ?? 'list';
       title.textContent = text;
+      const mark = opts.mu ? ICON_OF[id] : undefined;
+      if (mark) {
+        const ic = document.createElement('span');
+        ic.className = 'win-icon';
+        ic.innerHTML = icon(mark);
+        title.prepend(ic);
+      }
       title.classList.toggle('fit', !!o.fitTitle);
       sub.textContent = o.sub ?? '';
       close.hidden = o.closable === false;

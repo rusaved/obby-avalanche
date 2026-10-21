@@ -985,3 +985,6 @@ canvas.fallback {
 .hud-slot-arrow { display: none; flex: none; width: 20px; height: 20px; color: var(--mu-gold); }
 .hud-slot-arrow.shown { display: block; }
 .hud-slot-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* MU round 5 (producer 21.10): a simple mark by the title of each window, as the marks of the HUD tiles. */
+#ui.mu .win-icon { display: inline-flex; width: 22px; height: 22px; margin-right: 8px; vertical-align: -4px; color: #fff; }
+#ui.mu .win-icon svg { width: 100%; height: 100%; }

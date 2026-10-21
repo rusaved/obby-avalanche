@@ -7,7 +7,8 @@ import sfxJson from '../content/avalanche/sfx.json' with { type: 'json' };
 // each has its own files and its own pitch (sfx.json `semitones`). On the truthful profile.
 
 const sets = sfxJson.footsteps.sets as Array<{ id: string; files: string[]; semitones?: number; unlock: string; currency?: string }>;
-const velvet = sets.find((s) => s.id === 'velvet_snow')!;
+// Q-MU-6 changed by the producer 21.10: «Whisper of snow» is the set for coins now.
+const velvet = sets.find((s) => s.id === 'whisper_snow')!;
 const dir = (f: string): string => f.slice(0, f.lastIndexOf('/') + 1);
 
 async function tap(page: Page, hud: string): Promise<void> {

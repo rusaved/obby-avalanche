@@ -82,7 +82,8 @@ export function playButton(color: string | undefined, onPlay: () => void): HTMLB
   const b = el('button', 'foot-play');
   b.dataset['hud'] = 'footsteps-play';
   if (color) b.style.background = color;
-  b.innerHTML = icon('play');
+  // MU round 5: a note — what it does is listen.
+  b.innerHTML = icon('note');
   b.setAttribute('aria-label', t('footsteps.listen'));
   b.addEventListener('click', onPlay);
   return b;

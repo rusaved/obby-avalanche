@@ -19,14 +19,14 @@ const pack = loadPack('avalanche');
 const steps = (pack['sfx.json'] as SfxJson).footsteps as FootstepsJson;
 
 describe('footsteps manifest (sfx.json)', () => {
-  it('SD-14, MU-12 (Q-MU-6): 5 sets of files — «Light snow» free, «Whisper» of the calendar day 2, «Velvet» for coins, 2 for trophies; the common ice; ~3 a second, ± 1 semitone; every file on disk; no synth', () => {
+  it('SD-14, MU-12 (Q-MU-6): 5 sets of files — «Light snow» free, «Velvet» of the calendar day 2, «Whisper» for coins (Q-MU-6 changed 21.10), 2 for trophies; the common ice; ~3 a second, ± 1 semitone; every file on disk; no synth', () => {
     expect(steps.sets.map((s) => s.id)).toEqual(['light_snow', 'whisper_snow', 'velvet_snow', 'magic_snow', 'quiet_crust']);
     const by = (u: string): string[] => steps.sets.filter((s) => s.unlock === u).map((s) => s.id);
     expect(by('free')).toEqual(['light_snow']);
-    expect(by('daily')).toEqual(['whisper_snow']);
-    expect(steps.sets.find((s) => s.id === 'whisper_snow')!.day).toBe(2);
-    expect(by('shop')).toEqual(['velvet_snow', 'magic_snow', 'quiet_crust']);
-    expect(steps.sets.filter((s) => s.currency === 'coins').map((s) => s.id)).toEqual(['velvet_snow']);
+    expect(by('daily')).toEqual(['velvet_snow']);
+    expect(steps.sets.find((s) => s.id === 'velvet_snow')!.day).toBe(2);
+    expect(by('shop')).toEqual(['whisper_snow', 'magic_snow', 'quiet_crust']);
+    expect(steps.sets.filter((s) => s.currency === 'coins').map((s) => s.id)).toEqual(['whisper_snow']);
     expect(steps.sets.filter((s) => s.unlock === 'shop' && s.currency !== 'coins').map((s) => s.price)).toEqual([3, 6]);
     expect(by('ad')).toEqual([]);
     for (const s of steps.sets.filter((x) => x.unlock === 'shop')) expect(s.price).toBeGreaterThan(0);

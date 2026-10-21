@@ -95,6 +95,10 @@ for (const k of [1, 1.3]) {
     for (const { name, open } of await openers(page)) {
       await open();
       await expect(page.locator('[data-role="window"].open'), name).toHaveCount(1);
+      // MU round 5, item 7 (producer 21.10): a simple mark by the title of every window; «Gift calendar»; a note to listen.
+      await expect(page.locator('[data-role="window"].open .win-title .win-icon svg'), `${name}: the mark by the title`).toHaveCount(1);
+      if (name === 'more-daily') await expect(page.locator('[data-role="window"].open .win-title')).toHaveText(/Календарь подарков|Gift calendar/);
+      if (name === 'more-footsteps') expect(await page.locator('[data-role="window"].open .foot-play svg ellipse').count(), 'a note on «listen»').toBeGreaterThan(0);
       const tabs = await page.evaluate(() => Array.from(document.querySelectorAll<HTMLElement>('[data-role="window"].open .win-tabs [data-hud]')).map((e) => e.dataset['hud']!));
       for (const tab of tabs.length ? tabs : [null]) {
         if (tab) await page.locator(`[data-role="window"].open [data-hud="${tab}"]`).click();

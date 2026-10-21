@@ -26,7 +26,7 @@ test('calendar: claim day 1, F5 keeps it, 19 h later still locked, 20 h later da
   expect((await testState(page)).window).toBeNull();
   await btn.dispatchEvent('pointerdown');
   const win = page.locator('[data-role="window"][data-window="daily"]');
-  await expect(win.locator('.win-title')).toHaveText('Календарь');
+  await expect(win.locator('.win-title')).toHaveText('Календарь подарков');
   const cards = page.locator('[data-role="daily-card"]');
   await expect(cards).toHaveCount(7);
   await expect(cards.nth(0)).toHaveAttribute('data-state', 'today');
