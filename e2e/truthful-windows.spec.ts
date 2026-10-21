@@ -42,7 +42,8 @@ async function windowProblems(page: Page, height: number): Promise<string[]> {
     const out: string[] = [];
     const dim = document.querySelector('[data-role="window"].open')!;
     const panel = dim.querySelector('.win-panel')!.getBoundingClientRect();
-    if (panel.top < 16 - 0.5 || panel.bottom > H - 16 + 0.5) out.push(`panel ${Math.round(panel.top)}–${Math.round(panel.bottom)} out of 16 px margins`);
+    // MU round 5 (producer 21.10): the panel keeps 8 px margins and a window longer than the screen fills it to them.
+    if (panel.top < 8 - 0.5 || panel.bottom > H - 8 + 0.5) out.push(`panel ${Math.round(panel.top)}–${Math.round(panel.bottom)} out of 8 px margins`);
     const body = dim.querySelector<HTMLElement>('.win-body')!;
     const b = body.getBoundingClientRect();
     const visible = (r: DOMRect): boolean => r.width > 0 && r.height > 0;
@@ -66,6 +67,7 @@ async function windowProblems(page: Page, height: number): Promise<string[]> {
       }
     }
     const scrolls = body.scrollHeight - body.clientHeight > 1;
+    if (scrolls && panel.height < H - 32 - 0.5) out.push(`scrolls in a panel of ${Math.round(panel.height)} — lower than the screen − 32`);
     const rail = dim.querySelector<HTMLElement>('[data-role="win-rail"]')!;
     if (scrolls) {
       const rr = rail.getBoundingClientRect();
@@ -120,7 +122,7 @@ for (const k of [1, 1.3]) {
       if (k === 1 && ['gifts', 'quests', 'shop', 'daily', 'rebirth'].includes(id)) await page.evaluate(() => document.querySelector<HTMLElement>('[data-role="window"].open .win-body')!.scrollTo(0, 0));
       if (k === 1 && ['gifts', 'quests', 'shop', 'daily', 'rebirth'].includes(id)) {
         await page.waitForTimeout(250);
-        await page.screenshot({ path: `docs/evidence/MU/r4/${width}x${height}/w-${id}.png` });
+        await page.screenshot({ path: `docs/evidence/MU/r5/${width}x${height}/w-${id}.png` });
       }
       await page.keyboard.press('Escape');
       await expect(page.locator('[data-role="window"].open')).toHaveCount(0);

@@ -7,7 +7,7 @@ import { threshold } from './lv-stage-data.ts';
 // «Gifts», «Sneakers», «Rebirth», «Quests», «Steps» cut, at 130 % «Calendar»). The rule of every window and tab: a card
 // is seen whole with its button or not at all — the button of every card seen in the middle is inside its visible part.
 // The windows and tabs are not listed by hand: every HUD button that opens a window, every entry of «More» and every tab
-// of an open window are walked. On the truthful profile (880 × 405, 915 × 412, 815 × 290), at 100 % and 130 % text.
+// of an open window are walked; a window longer than the screen stands at least as tall as the screen − 32 (round 5). On the truthful profile (880 × 405, 915 × 412, 815 × 290), at 100 % and 130 % text.
 
 const LISTS = '.win-grid, .foot-grid, .qs-list, .gf-cards, .gf-tiles, .dl-cards, .tr-grid, .rb-cols, .pause-grid, .more-grid, .tp-list';
 
@@ -37,6 +37,10 @@ async function cardProblems(page: Page): Promise<string[]> {
         if (k.top < top - 0.5 || k.bottom > b.bottom + 0.5) out.push(`button of a seen card out of sight: ${(u.textContent ?? '').trim().slice(0, 28)} / ${(c.textContent || c.dataset['hud'] || '').trim().slice(0, 16)}`);
       }
     }
+    // MU round 5 (producer 21.10: a window in the middle with 40–90 px empty around it): a window longer than the screen
+    // is at least the visible height minus 32 px.
+    const seen = dim.getBoundingClientRect();
+    if (body.scrollHeight - body.clientHeight > 1 && panel.height < seen.height - 32 - 0.5) out.push(`a scrolling window lower than the screen − 32: ${Math.round(panel.height)} of ${Math.round(seen.height)}`);
     for (const c of controls(dim)) {
       if (body.contains(c)) continue;
       const k = c.getBoundingClientRect();

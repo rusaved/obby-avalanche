@@ -199,8 +199,13 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
     if (!opts.mu || current === null) return;
     body.style.maxHeight = '';
     body.classList.remove('win-scrolls');
+    panel.classList.remove('win-tall');
     if (body.scrollHeight - body.clientHeight <= 1) return;
     body.classList.add('win-scrolls');
+    // MU round 5 (producer 21.10: at 815 × 290 and 130 % the window stood in the middle with 40–90 px empty around it and
+    // hid the second row): a window longer than the screen is as tall as the visible height minus 8 px a side; the edge
+    // chosen below shortens the middle inside the panel, never the panel.
+    panel.classList.add('win-tall');
     // MU round 4: the edge in the coordinates of the list as it stands (a snap may have moved it a few px).
     const top = body.scrollTop;
     const room = top + body.clientHeight;

@@ -96,7 +96,7 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
           const w = await windowCheck(page);
           const tag = `${id} ×${k}`;
           // Round 3 (producer: windows by their content): up to the visible height minus 16 px a side at any text size.
-          expect(w.h, tag).toBeLessThanOrEqual(visible - 32 + 0.5);
+          expect(w.h, tag).toBeLessThanOrEqual(visible - 16 + 0.5);
           if (w.scroll) expect(w.more, `${tag}: the scroll shows`).toBe(true);
           expect(w.cut, tag).toEqual([]);
           // Scrolled to the end, every button of the middle is whole in it.

@@ -926,3 +926,41 @@ canvas.fallback {
 /* MU round 4 (reviews: at 130 % two entries of «More» went under the scroll): «More» is 560 wide — three in a row with
    8 px around their words at any text size. */
 #ui.mu .win[data-window='more'] .win-panel { width: min(calc(100% - 32px), 560px); }
+/* MU round 5 (producer 21.10: at 815 × 290 and 130 % a window stood in the middle with 40–90 px empty around it and hid
+   its second row): a window grows to the visible height minus 8 px a side; one longer than the screen is that tall
+   (`win-tall`, src/ui/window.ts) — the edge of its middle shortens the middle, the rows under it keep the bottom. */
+#ui.mu .win .win-panel { max-height: calc(100% - 16px); }
+#ui.mu .win .win-panel.win-tall { height: calc(100% - 16px); }
+#ui.mu .win-panel.win-tall > .win-body { margin-bottom: auto; }
+/* …the sneakers in rows, as the leader of the genre: the picture, the name over «+N per step · price», the button on the
+   right; 3–4 rows whole at 880 × 405. */
+#ui.mu .win-grid.shoe-list { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+#ui.mu .shoe-list > .card { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; grid-template-rows: auto auto; column-gap: 12px; row-gap: 2px; align-items: center; justify-items: start; box-sizing: border-box; min-height: 0; padding: 4px 8px 4px 12px; text-align: left; }
+#ui.mu .shoe-list > .card > .card-pic { grid-column: 1; grid-row: 1 / span 2; width: 36px; height: 36px; }
+#ui.mu .shoe-list > .card > .card-name { grid-column: 2; grid-row: 1; align-self: end; }
+#ui.mu .shoe-list > .card > .card-line { grid-column: 2; grid-row: 2; display: flex; align-items: center; gap: 12px; align-self: start; }
+#ui.mu .shoe-list > .card > .card-line > .card-big { font-size: 14px; }
+#ui.mu .shoe-list > .card > .card-sub { display: none; }
+#ui.mu .shoe-list > .card > :last-child { grid-column: 3; grid-row: 1 / span 2; margin: 0; align-self: center; justify-self: end; }
+#ui.mu .shoe-list > .card > .card-lock { white-space: nowrap; }
+#ui.mu .shoe-list > .card > .card-btn { min-width: 112px; padding: 0 16px; }
+/* …«Gifts» on a low frame: two rows of tiles — the icon on the line of the name, the timer lower. */
+#ui.mu.mu-low .gf-tile { min-height: 0; display: grid; grid-template-columns: 18px minmax(0, 1fr); column-gap: 4px; row-gap: 0; align-content: start; align-items: center; padding: 6px 8px; }
+#ui.mu.mu-low .gf-tile > .gf-icon { grid-column: 1; grid-row: 1; width: 18px; height: 18px; }
+#ui.mu.mu-low .gf-tile > .gf-icon svg { width: 18px; height: 18px; }
+#ui.mu.mu-low .gf-tile > .card-name { grid-column: 2; grid-row: 1; font-size: 13px; text-align: left; }
+#ui.mu.mu-low .gf-tile > .card-sub { display: none; }
+#ui.mu.mu-low .gf-tile > .gf-timer, #ui.mu.mu-low .gf-tile > .card-btn { grid-column: 1 / span 2; grid-row: 3; justify-self: stretch; justify-content: center; }
+#ui.mu.mu-low .gf-tile > .gf-timer { min-height: 28px; }
+#ui.mu.mu-low .rb-list { font-size: 12px; line-height: 1.25; }
+#ui.mu.mu-low .rb-list li { margin: 0; }
+#ui.mu.mu-low .rb-col { padding: 4px 8px 6px; }
+/* …a low frame (815 × 290) gives the middle 10 px more: a smaller padding of the panel and under the title. */
+#ui.mu.mu-low .win .win-panel { padding-top: 8px; padding-bottom: 8px; }
+#ui.mu.mu-low .win-top { margin-bottom: 2px; }
+#ui.mu.mu-low .qs-row { min-height: 44px; padding-top: 0; padding-bottom: 0; }
+#ui.mu.mu-low .qs-list { gap: 6px; }
+#ui.mu.mu-low .wardrobe .win-grid .card { padding: 4px 8px 6px; gap: 2px; }
+#ui.mu.mu-low .wardrobe .wr-top { min-height: 20px; }
+#ui.mu.mu-low .win:is([data-window='timeRewards'], [data-window='gifts']) .win-sub { display: none; }
+#ui.mu.mu-low .shoe-list > .card > .card-lock { white-space: normal; max-width: 45%; }

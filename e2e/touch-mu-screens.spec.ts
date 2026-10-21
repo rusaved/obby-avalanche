@@ -449,7 +449,7 @@ test.describe('MU phone screens', () => {
       const f = await windowFacts(page);
       expect(Math.abs(f.w - Math.min(width, MU_VIEW.width - 32)), `${id} width`).toBeLessThanOrEqual(2);
       // Round 3 (producer: windows by their content, not 300): up to the visible height minus 16 px a side.
-      expect(f.h, `${id} height`).toBeLessThanOrEqual(VISIBLE_H - 32 + 0.5);
+      expect(f.h, `${id} height`).toBeLessThanOrEqual(VISIBLE_H - 16 + 0.5);
       expect(f.bottom, `${id} bottom`).toBeLessThanOrEqual(VISIBLE_H + 0.5);
       expect(f.cross, `${id} cross`).toBeGreaterThanOrEqual(44);
       expect(f.hudShown, `${id}: the HUD under it`).toBe(false);
@@ -494,7 +494,7 @@ test.describe('MU phone screens', () => {
     await expect(win.locator('.sm-label')).toContainText(['Сундук', 'Кубок вершины', 'Следующая гора']);
     const panel = (await win.locator('.win-panel').boundingBox())!;
     expect(Math.abs(panel.width - 480)).toBeLessThanOrEqual(2);
-    expect(panel.height).toBeLessThanOrEqual(VISIBLE_H - 32 + 0.5);
+    expect(panel.height).toBeLessThanOrEqual(VISIBLE_H - 16 + 0.5);
     const ad = win.locator('[data-hud="summit-ad"]');
     await expect(ad).toContainText('Реклама: ×2');
     const a = (await ad.boundingBox())!;

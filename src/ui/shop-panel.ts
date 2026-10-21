@@ -117,7 +117,9 @@ export function renderShopPanel(body: HTMLElement, head: HTMLElement, m: ShopPan
   body.appendChild(tabs);
   // MU round of fixes 2 (staff: 4 in a row): the sets of steps — the grid and cards of the «Footsteps» window.
   const steps = m.cards.some((c) => c.sound);
-  const grid = el('div', steps ? 'win-grid foot-grid' : 'win-grid');
+  // MU round 5 (producer 21.10): the sneakers in rows, as the leader of the genre — 3–4 whole at 880 × 405.
+  const shoes = !steps && m.cards.some((c) => c.pic);
+  const grid = el('div', steps ? 'win-grid foot-grid' : shoes ? 'win-grid shoe-list' : 'win-grid');
   grid.dataset['role'] = 'shop-grid';
   for (const c of m.cards) {
     const card = el('div', `${c.state === 'on' ? 'card on' : c.state === 'locked' ? 'card locked' : 'card'}${steps ? ' foot-card' : ''}`);
