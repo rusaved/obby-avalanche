@@ -19,7 +19,7 @@ import { levelNeeded, levelOf, levelThreshold } from './levels.ts';
 import { scaled } from './economy.ts';
 import { giftsFromLevel, touchesGift, type Gift } from './gifts.ts';
 import { createCollisionWorld, type CollisionWorld } from './collision.ts';
-import { beltAt, belts, shelterIndex } from './shelter.ts';
+import { beltAt, belts, shelterIndex, shelterNow } from './shelter.ts';
 import { createThreat, type Threat, type ThreatEvents, type ThreatOptions } from './threat.ts';
 import { caughtPosition, caughtTotalSec, createCaught, type CaughtState } from './caught.ts';
 import { createGiftEgg, stepGiftEgg, type GiftEggState } from './gift-egg.ts';
@@ -282,6 +282,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   const beltList = belts(level);
   const heroView = { x: 0, y: 0, z: 0, vx: 0, vz: 0 };
   const graceDist = opts.balance.niche?.graceDist ?? 0;
+  const grace = { graceDist, graceMoving: opts.balance.niche?.graceMoving ?? 0 };
   const recordOn = opts.record !== undefined;
   /** The hero is (or was since the last record) more than RECORD_RETURN below the record flag. */
   let recordBelow = !!opts.record;
@@ -579,7 +580,9 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         padTaken.fill(false);
         events.emit('campReturn', { tick: sim.tick, stage: campFrom });
       }
-      if (hero.pos.y < level.killY || inPit()) {
+      // MU round 5 (producer 21.10: «Oops! Back to the stage start» almost in a cave, the hero stayed): a hero in a cave by
+      // the check the avalanche asks is never rolled back from it.
+      if (hero.pos.y < level.killY || (inPit() && sim.shelterIndex() < 0)) {
         if (toFlag && opts.balance.caught) {
           sim.caught = createCaught(level, { x: hero.pos.x, y: hero.pos.y, z: hero.pos.z }, opts.balance.caught, tuning.avalanche, flagPoint());
           waveReset = true;
@@ -616,7 +619,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       return belt && typeof belt['mult'] === 'number' ? (belt['mult'] as number) : 1;
     },
     shelterIndex() {
-      return shelterIndex(level, graceDist, hero.pos.x, hero.pos.y, hero.pos.z);
+      // MU round 5: the one check of «in a cave» — the avalanche (sim/threat.ts) and the roll-back of a fall ask it too.
+      return shelterNow(level, grace, { x: hero.pos.x, y: hero.pos.y, z: hero.pos.z, vx: hero.vel.x, vz: hero.vel.z });
     },
     inShelter() {
       return sim.shelterIndex() >= 0;

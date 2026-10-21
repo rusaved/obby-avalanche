@@ -579,6 +579,8 @@ async function boot(): Promise<void> {
       if (spot) Object.assign(egg, spot);
       egg.shown = true;
     };
+    // MU round 5: the phone layout (that of the stages pace).
+    const phone = !!balance.levels;
     s.events.on('waveSurvived', ({ coins, total, gold, scripted }) => {
       // The scripted wave passed the hero in a cave (docs/01-gdd.md 4.6): step 9 of docs/06 with «Phew, made it!», so
       // before its egg — on the fast pace the front still runs on for seconds down to the camp (waveEnd below).
@@ -586,11 +588,15 @@ async function boot(): Promise<void> {
       // With the golden gift: one toast, bigger and golden, both rewards in it (docs/01-gdd.md 4.9). Q-067: once the snow
       // has passed him (avalanche.shotUntilClear), so neither it nor the egg comes while the snow still goes by.
       const show = (): void => {
-        // SD-02: never «+0» (pace stages: no gifts on the track, the zone value may still be 0).
-        hud?.toast(coins > 0 ? t('wave.survived', { n: formatNumber(coins, numSuffix) }) : t('wave.survivedPlain'), gold > 0 ? 3 : 2, gold > 0, undefined, scripted ? showEgg : undefined);
+        // SD-02: never «+0» (pace stages: no gifts on the track, the zone value may still be 0). MU round 5 (producer
+        // 21.10: «+100» with no word, «Phew, made it! +», «Golden gift! +150» — a mess): on the phone «Phew, made it!»
+        // carries no number of its own (the coins go to the counter), and with the golden gift handed in now its one
+        // toast «Gift saved! +N» says it all (bonusSaved below).
+        if (gold <= 0 || !phone) hud?.toast(coins > 0 && !phone ? t('wave.survived', { n: formatNumber(coins, numSuffix) }) : t('wave.survivedPlain'), gold > 0 ? 3 : 2, gold > 0, undefined, scripted ? showEgg : undefined);
+        else if (scripted) showEgg();
         if (coins > 0) hud?.setCoins(formatNumber(total, numSuffix));
         // SD-14: a reward of coins — its sound from ui/.
-        if (coins > 0) audio?.play('rewardCoins');
+        if (coins > 0 && gold <= 0) audio?.play('rewardCoins');
       };
       if (tuning.avalanche.shotUntilClear) survivedShow = show;
       else show();
@@ -601,8 +607,9 @@ async function boot(): Promise<void> {
     s.events.on('bonusSaved', ({ coins, total, where }) => {
       track('gold_saved');
       // SD-02: saved in the shelter at once — its own golden toast (no longer folded into «Phew» after the wave).
+      // MU round 5: one toast at the moment the gift is handed in, with the mark of what it gave.
       if (coins > 0) {
-        hud?.toast(t('wave.goldSaved', { n: formatNumber(coins, numSuffix) }), 3, true);
+        hud?.toast(t(phone ? 'wave.giftSaved' : 'wave.goldSaved', { n: formatNumber(coins, numSuffix) }), 3, true, undefined, undefined, phone);
         audio?.play('rewardCoins');
       }
       hud?.setCoins(formatNumber(total, numSuffix));
@@ -620,7 +627,9 @@ async function boot(): Promise<void> {
     // RL-02 (docs/01-gdd.md 21.2): a fall rolls him back to the flag of the ridge (caught.to «flag») — a short toast.
     s.events.on('fall', () => {
       // SD-09: on the stages pace the roll-back goes to a stage start, not to a flag.
-      if (s.caught) hud?.toast(t(s.level.stages ? 'toast.fallBackStage' : 'toast.fallBack'), 2);
+      // MU round 5: said only when he really goes back — a roll to where he stands is no «back».
+      const c = s.caught;
+      if (c && Math.hypot(c.to.x - c.from.x, c.to.z - c.from.z) > 1) hud?.toast(t(s.level.stages ? 'toast.fallBackStage' : 'toast.fallBack'), 2);
     });
     s.events.on('waveEnd', ({ scripted, outcome }) => {
       if (scripted) {

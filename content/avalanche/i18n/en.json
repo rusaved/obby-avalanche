@@ -39,6 +39,7 @@
   "toast.fallBack": "Whoops! Back to the flag",
   "toast.fallBackStage": "Whoops! Back to the stage start",
   "wave.goldSaved": "Golden gift! +{n}",
+  "wave.giftSaved": "Gift saved! +{n} {coin}",
   "wave.firstMiss": "Hide in a cave when it comes!",
   "zone.common": "Common gifts",
   "zone.uncommon": "Gifts are worth more here!",

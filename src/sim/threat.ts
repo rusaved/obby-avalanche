@@ -11,7 +11,7 @@
  */
 import type { BalanceJson, TuningJson, WorldThreat } from '../content/types.ts';
 import type { LevelData } from '../level/types.ts';
-import { distToEntrance, firstShelter, inSafeZone, shelterIndex } from './shelter.ts';
+import { distToEntrance, firstShelter, inSafeZone, shelterIndex, shelterNow } from './shelter.ts';
 
 export type WavePhase = 'idle' | 'warn' | 'run' | 'gone';
 /** How the current wave ended for the hero: in a cave, caught, in the camp or on the summit, or dusted (scripted miss). */
@@ -194,23 +194,13 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
       state.outcome = 'safe';
       return;
     }
-    const inside = shelterIndex(level, balance.niche.graceDist, hero.x, hero.y, hero.z);
+    // MU round 5: the one check of «in a cave» (shelterNow) — the same the roll-back of a fall asks (sim/world.ts).
+    // Running into a cave and closer than graceMoving to its entrance: made it (docs/02-tech.md 8.2).
+    const inside = shelterNow(level, balance.niche, hero);
     if (inside >= 0) {
       state.outcome = 'survived';
-      emit('waveSurvived', { tick, scripted: state.scripted, niche: inside, grace: false });
+      emit('waveSurvived', { tick, scripted: state.scripted, niche: inside, grace: shelterIndex(level, balance.niche.graceDist, hero.x, hero.y, hero.z) < 0 });
       return;
-    }
-    // Running into a cave and closer than graceMoving to its entrance: made it (docs/02-tech.md 8.2).
-    for (let i = 0; i < level.niches.length; i++) {
-      const n = level.niches[i]!;
-      if (n.kind === 'ledge') continue;
-      const e = distToEntrance(level, n, hero.x, hero.z);
-      const towards = hero.vx * (e.tx - hero.x) + hero.vz * (e.tz - hero.z) > 0;
-      if (e.dist < balance.niche.graceMoving && towards && Math.hypot(hero.vx, hero.vz) > 1) {
-        state.outcome = 'survived';
-        emit('waveSurvived', { tick, scripted: state.scripted, niche: i, grace: true });
-        return;
-      }
     }
     if (state.scripted) {
       state.outcome = 'dusted';

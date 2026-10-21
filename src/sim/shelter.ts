@@ -56,6 +56,22 @@ export function shelterIndex(level: LevelData, graceDist: number, x: number, y: 
   return level.niches.findIndex((n) => inNiche(level, n, graceDist, x, y, z));
 }
 
+/**
+ * MU round 5 (producer 21.10: «almost in the cave» the avalanche let him off while «Oops! Back to the stage start» came
+ * up): the one check of «in a cave» for the avalanche and for a roll-back — inside a cave or within `graceDist` past its
+ * mouth, or running into one closer than `graceMoving` to its entrance (docs/02-tech.md 8.2). The cave's index, or −1.
+ */
+export function shelterNow(level: LevelData, grace: { graceDist: number; graceMoving: number }, h: { x: number; y: number; z: number; vx: number; vz: number }): number {
+  const inside = shelterIndex(level, grace.graceDist, h.x, h.y, h.z);
+  if (inside >= 0) return inside;
+  if (Math.hypot(h.vx, h.vz) <= 1) return -1;
+  return level.niches.findIndex((n) => {
+    if (n.kind === 'ledge') return false;
+    const e = distToEntrance(level, n, h.x, h.z);
+    return e.dist < grace.graceMoving && h.vx * (e.tx - h.x) + h.vz * (e.tz - h.z) > 0;
+  });
+}
+
 /** Distance on the ground plane from the point to the entrance opening of cave `n` (0 inside the opening line); across
  * the cliff of a fork (open slope, docs/01-gdd.md 17.7) the way goes round its nearer end. */
 export function distToEntrance(level: LevelData, n: LevelNiche, x: number, z: number): { dist: number; tx: number; tz: number } {

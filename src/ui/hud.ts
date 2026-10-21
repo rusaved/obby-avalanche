@@ -171,7 +171,8 @@ export interface Hud {
   /** Short toast in the middle («Phew, made it! +15», «Snowed in!»); `gold` — the bigger golden one (docs/01-gdd.md 4.9);
    * `sub` — a smaller second line (the collection counter of a hatch, M3-13); `onShow` — called when it is on screen
    * (it may wait for the avalanche banner: the egg of the first wave comes after «Phew, made it!», docs/01-gdd.md 16.6). */
-  toast(text: string, sec?: number, gold?: boolean, sub?: string, onShow?: () => void): void;
+  /** MU round 5: `now` — shown at once over the avalanche plaque (the golden gift handed in), not queued after it. */
+  toast(text: string, sec?: number, gold?: boolean, sub?: string, onShow?: () => void, now?: boolean): void;
   /** Soft white veil when the camera is inside the snow body (docs/02-tech.md 7). */
   setVeil(on: boolean): void;
   /** Speed plaque: the number and «+N per step» under it (docs/01-gdd.md 10.1). */
@@ -704,7 +705,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     toastTimer = setTimeout(() => {
       toastTimer = null;
       currentToast = null;
-      toastEl.classList.remove('shown');
+      toastEl.classList.remove('shown', 'now');
       root.classList.remove('toasting');
       const next = banner.classList.contains('shown') ? undefined : pendingToasts.shift();
       if (next) showToast(next.text, next.sec, next.gold, next.sub, next.onShow);
@@ -970,6 +971,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
    * wait hidden.
    */
   const slotOwner = (): string => {
+    if (toastEl.classList.contains('shown') && toastEl.classList.contains('now')) return 'toast';
     if (banner.classList.contains('shown')) return 'wave';
     if (toastEl.classList.contains('shown')) return 'toast';
     if (ads.classList.contains('shown')) return 'ads';
@@ -1257,13 +1259,14 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       arrow.classList.toggle('shown', a !== null);
       if (a) arrow.style.transform = `translate(${Math.round(a.x)}px, ${Math.round(a.y)}px) translate(-50%, -50%) rotate(${a.angle.toFixed(3)}rad)`;
     },
-    toast(text, sec = 2, gold = false, sub, onShow) {
+    toast(text, sec = 2, gold = false, sub, onShow, now = false) {
       // Never over the avalanche banner (playtest M2): it waits until the banner goes, the latest few in order.
-      if (banner.classList.contains('shown')) {
+      if (banner.classList.contains('shown') && !now) {
         pendingToasts.push({ text, sec, gold, sub, onShow });
         if (pendingToasts.length > TOAST_QUEUE_MAX) pendingToasts.shift();
         return;
       }
+      toastEl.classList.toggle('now', now);
       showToast(text, sec, gold, sub, onShow);
     },
     setVeil(on) {
