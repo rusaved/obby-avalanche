@@ -76,7 +76,7 @@ for (const k of [1, 1.3]) {
   });
 }
 
-test('l3: the pad of stage 3 from 20 m (no plaque) and from 8 m (the plaque)', async ({ page, openGame }) => {
+test('l3: the pad of stage 3 from 25 m (no plaque; round 5: they come in at 18 m) and from 8 m (the plaque)', async ({ page, openGame }) => {
   await openGame('pace=stages&mock_fullscreen=deny');
   const { width, height } = page.viewportSize()!;
   const st = W.stages[2]!;
@@ -87,12 +87,12 @@ test('l3: the pad of stage 3 from 20 m (no plaque) and from 8 m (the plaque)', a
   }, [threshold(st.level + 2)] as const);
   await page.touchscreen.tap(width / 2, height / 2);
   const dir = dirOf(page);
-  for (const d of [20, 8]) {
+  for (const d of [25, 8]) {
     await page.evaluate(([z, x, y]) => window.__TEST__!.teleport(z, x, y), [st.pad.z - d, st.pad.x * 0.85, st.y + 1] as const);
     await waitTicks(page, 30);
     await page.waitForTimeout(700);
     const shown = await page.locator('[data-role="pad-label"]').evaluate((e) => e.classList.contains('shown') && (e as HTMLElement).style.visibility !== 'hidden');
-    expect(shown, `the plaque at ${d} m`).toBe(d < 12);
+    expect(shown, `the plaque at ${d} m`).toBe(d < 18);
     await page.screenshot({ path: `${dir}/l3-pad-${d}m.png` });
   }
 });

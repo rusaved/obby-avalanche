@@ -205,7 +205,7 @@ test('«Mountain N cleared!» after every portal 1–4: the next mountain on «N
     expect((await testState(page)).coins).toBeGreaterThan(coins);
     if (k === 1) {
       // First calendar circle, today's reward not taken: tomorrow is day 2.
-      await expect(page.locator('[data-role="summit-tomorrow"]')).toHaveText('Завтра в календаре: Скин «Пингвин»');
+      await expect(page.locator('[data-role="summit-tomorrow"]')).toHaveText('Завтра в календаре подарков: Скин «Пингвин»');
       await expect(win).toContainText('Дальше: Ледяной перевал');
       await page.screenshot({ path: 'docs/evidence/M3/summit_window_1920x1080_ru.png' });
     }

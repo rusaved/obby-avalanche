@@ -1602,13 +1602,26 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
           return ys.map((y) => ({ x, y }));
         })
         .sort((a, b) => Math.hypot(a.x + w / 2 - state.x, a.y + h / 2 - state.y) - Math.hypot(b.x + w / 2 - state.x, b.y + h / 2 - state.y));
+      // MU round 5: round the pad's box itself too (left, right, over, under it) — on 815 × 290 the places by the corner
+      // were all on the pad, the HUD column or the hero.
+      const p = state.pad;
+      if (p) {
+        const my = (p.y0 + p.y1) / 2 - h / 2;
+        const mx = (p.x0 + p.x1) / 2 - w / 2;
+        for (const c of [{ x: p.x0 - PAD_GAP - w, y: my }, { x: p.x1 + PAD_GAP, y: my }, { x: mx, y: p.y0 - PAD_GAP - h }, { x: mx, y: p.y1 + PAD_GAP }, { x: p.x0 - PAD_GAP - w, y: p.y1 + PAD_GAP }, { x: p.x1 + PAD_GAP, y: p.y1 + PAD_GAP }]) {
+          cands.push({ x: Math.max(EDGE_MU, Math.min(fieldW - EDGE_MU - w, c.x)), y: c.y });
+        }
+      }
       // MU round 5 (producer 21.10: «Stage reward» covered the pad): never over the pad's box on screen either.
       const pad = state.pad;
       const offPad = (x: number, y: number): boolean => !pad || x >= pad.x1 + PAD_GAP || x + w <= pad.x0 - PAD_GAP || y >= pad.y1 + PAD_GAP || y + h <= pad.y0 - PAD_GAP;
-      const ok = (c: { x: number; y: number }): boolean => {
+      const loose = (c: { x: number; y: number }): boolean => {
         const q = { x0: c.x, y0: c.y, x1: c.x + w, y1: c.y + h };
-        return c.y >= 0 && c.y + h <= fieldH && offHero(c.x, c.y) && offPad(c.x, c.y) && !topMid(q) && hud.clearOfHud(q);
+        return c.y >= 0 && c.y + h <= fieldH && offHero(c.x, c.y) && !topMid(q) && hud.clearOfHud(q);
       };
+      // No place off the pad on a low frame — a place by the old rules rather than no plaque at all.
+      const strict = cands.some((c) => loose(c) && offPad(c.x, c.y));
+      const ok = (c: { x: number; y: number }): boolean => loose(c) && (!strict || offPad(c.x, c.y));
       const last = cands[padGlide.pick];
       const pick = last && ok(last) ? padGlide.pick : cands.findIndex(ok);
       const at = cands[pick];
