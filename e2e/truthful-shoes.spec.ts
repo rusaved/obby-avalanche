@@ -2,6 +2,7 @@ import { test, expect, waitTicks } from './fixtures.ts';
 import type { Page } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { STAGES, threshold } from './lv-stage-data.ts';
+import { scaleText } from './mu-checks.ts';
 
 // MU round 5, item 2 (producer 21.10): the shoes button — blue as «Buy» of the shop while the pair can be bought, the small
 // «Sneakers» over it; quiet while short, a tap shakes it and toasts «Short of {coin} N»; squeezed by a banner — the sneaker
@@ -66,6 +67,10 @@ test('the shoes button: blue with «Sneakers» over it when it buys, quiet and s
   expect(can.capL).toBeGreaterThanOrEqual(can.left - 40);
   expect(can.capR).toBeLessThanOrEqual(width - 16);
   await page.screenshot({ path: `${dir}/shoes-can.png` });
+  await scaleText(page, 1.3);
+  await page.waitForTimeout(200);
+  await page.screenshot({ path: `${dir}/shoes-can-130.png` });
+  await scaleText(page, 1);
 
   await page.evaluate(() => window.__TEST__!.setCoins(10));
   await waitTicks(page, 10);
