@@ -74,7 +74,8 @@ test('D5, D19, D26: marks on the middle of their words; «Rate» live ≥ 4.5:1;
     const off = await page.evaluate(() => {
       const out: string[] = [];
       for (const b of Array.from(document.querySelectorAll('[data-role="window"].open button'))) {
-        const svg = b.querySelector('svg');
+        // MU round 5: a mark hidden on the low frame (the group buttons of «Gifts» keep only their words) is no mark.
+        const svg = Array.from(b.querySelectorAll('svg')).find((x) => x.getBoundingClientRect().width > 0);
         const w = document.createTreeWalker(b, NodeFilter.SHOW_TEXT);
         let txt: Node | null = null;
         for (let n = w.nextNode(); n; n = w.nextNode()) if ((n.textContent ?? '').trim()) {
