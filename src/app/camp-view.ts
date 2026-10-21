@@ -13,6 +13,7 @@ import { formatNumber } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
 import { icon, setRich } from '../ui/icons.ts';
 import { track } from '../analytics/index.ts';
+import { setOff } from '../ui/nudge.ts';
 
 /** SD-11: «Buy sneakers» shows at a closed ridge this close ahead (units). */
 const SHOES_HINT_AHEAD = 40;
@@ -174,7 +175,7 @@ export function createCampView(d: CampViewDeps): CampView {
           const b = document.createElement('button');
           b.className = passed ? 'card-btn tp-item' : 'tp-item tp-locked';
           b.dataset['stage'] = String(st.n);
-          b.disabled = !can;
+          setOff(b, !can);
           if (passed) {
             const price = document.createElement('span');
             price.className = 'card-price tp-price';

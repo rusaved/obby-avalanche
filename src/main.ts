@@ -1786,6 +1786,7 @@ async function boot(): Promise<void> {
     threatColor: theme.threat.front[1],
     bonusColor: theme.bonus?.color,
     onShoes: () => void meta?.buyShoes(),
+    onShoesShort: () => meta?.shoesShort(),
     onAd: (id) => adsView?.press(id),
     onEgg: () => void petsView?.buyEgg(),
     onStand: () => standsView?.press(),

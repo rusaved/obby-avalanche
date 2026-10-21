@@ -11,6 +11,7 @@
  */
 import { t } from './i18n.ts';
 import { icon, setRich } from './icons.ts';
+import { nudge } from './nudge.ts';
 import type { StickState } from '../input/types.ts';
 
 export interface HudOptions {
@@ -37,6 +38,8 @@ export interface HudOptions {
   bonusColor?: string | undefined;
   /** «Shoes ×N · price» pressed (docs/01-gdd.md 6.2, 10.1): one tap buys. */
   onShoes: () => void;
+  /** MU round 5: the shoes button pressed while short — it shakes, the caller says what is missing. */
+  onShoesShort?: () => void;
   /** A «▶ Ad: …» button released (docs/01-gdd.md 9.1, 10.1): the id of its place (stat_now, continue_here, …). */
   onAd?: (id: string) => void;
   /** «Can» and «not yet» colours of the shoes button (theme.json ui.ok, ui.no). */
@@ -107,6 +110,8 @@ export interface ShoesButtonState {
   text: string;
   /** MU round 4: the caption when the frame is squeezed («+2 · 150»); absent — the full one. */
   short?: string;
+  /** MU round 5: the small word over the button («Sneakers»), not shown with the short caption. */
+  cap?: string;
   can: boolean;
   progress: number;
 }
@@ -630,6 +635,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (shoes.classList.contains('short') !== on) {
         shoes.classList.toggle('short', on);
         setRich(shoesText, on && shoesShort ? shoesShort : shoesFull);
+        shoesCap.textContent = on && shoesShort ? '' : shoesCapText;
       }
       return shoesOn ? shoes.offsetWidth : 0;
     };
@@ -725,9 +731,17 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   /** MU round 4: the shoes caption in full and short (for a squeezed frame). */
   let shoesFull = '';
   let shoesShort = '';
-  shoes.append(shoesFill, shoesText);
+  // MU round 5 (producer 21.10): the small «Sneakers» over the button (a space keeps the words apart in the text).
+  const shoesCap = el('span', 'hud-shoes-cap');
+  let shoesCapText = '';
+  shoes.append(shoesFill, shoesCap, document.createTextNode(' '), shoesText);
   onPress(shoes, () => {
     if (shoes.classList.contains('can')) opts.onShoes();
+    else {
+      // MU round 5 (producer 21.10: everything answers a tap): a short shake and a toast of what is missing.
+      nudge(shoes);
+      opts.onShoesShort?.();
+    }
   });
   root.appendChild(shoes);
 
@@ -1171,7 +1185,11 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       const before = `${shoesFull}|${shoesShort}`;
       shoesFull = state.text;
       shoesShort = state.short ?? '';
-      setRich(shoesText, shoes.classList.contains('short') && shoesShort ? shoesShort : shoesFull);
+      shoesCapText = state.cap ?? '';
+      const short = shoes.classList.contains('short') && !!shoesShort;
+      setRich(shoesText, short ? shoesShort : shoesFull);
+      shoesCap.textContent = short ? '' : shoesCapText;
+      shoes.classList.toggle('capped', !!shoesCapText);
       if (!was || `${shoesFull}|${shoesShort}` !== before) placeRow();
       shoes.classList.toggle('can', state.can);
       shoesFill.style.transform = `scaleX(${state.can ? 1 : Math.max(0, Math.min(1, state.progress)).toFixed(3)})`;

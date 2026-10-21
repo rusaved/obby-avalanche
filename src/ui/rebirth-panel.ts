@@ -11,6 +11,7 @@
 import { t } from './i18n.ts';
 import { icon } from './icons.ts';
 import { markIcon } from './daily-panel.ts';
+import { setOff } from './nudge.ts';
 
 export interface RebirthPanelModel {
   /** «Tier 1» — the tier after the rebirth. */
@@ -94,7 +95,7 @@ export function renderRebirthPanel(body: HTMLElement, head: HTMLElement, m: Rebi
   const row = el('div', 'rb-btns');
   const go = el('button', m.ready ? 'card-btn rb-go' : 'card-btn rb-go off', t('btn.doRebirth'));
   go.dataset['hud'] = 'rebirth-do';
-  go.disabled = !m.ready;
+  setOff(go, !m.ready);
   if (m.ready) go.addEventListener('click', () => a.rebirth());
   const later = el('button', 'card-btn alt', t('btn.later'));
   later.dataset['hud'] = 'rebirth-later';

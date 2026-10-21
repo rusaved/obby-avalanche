@@ -964,3 +964,19 @@ canvas.fallback {
 #ui.mu.mu-low .wardrobe .wr-top { min-height: 20px; }
 #ui.mu.mu-low .win:is([data-window='timeRewards'], [data-window='gifts']) .win-sub { display: none; }
 #ui.mu.mu-low .shoe-list > .card > .card-lock { white-space: normal; max-width: 45%; }
+/* MU round 5 (producer 21.10): the shoes button — blue as «Buy» of the shop while the pair can be bought, a quiet plaque
+   while short, the small word «Sneakers» over it (text on the scene, with the ink stroke); the short caption carries the
+   sneaker instead. Every control that cannot act now answers a tap with a short shake (src/ui/nudge.ts). */
+.hud.mu .hud-shoes { overflow: visible; }
+.hud.mu .hud-shoes.can { background: var(--mu-blue); border-color: transparent; color: #fff; }
+.hud.mu .hud-shoes:not(.can) { background: var(--mu-plaque); border-color: transparent; color: #fff; }
+.hud-shoes-cap { display: none; }
+.hud.mu .hud-shoes-cap { display: block; position: absolute; left: 50%; bottom: 100%; margin-bottom: 2px; transform: translateX(-50%); font: 600 12px/14px var(--font); color: #fff; white-space: nowrap; text-shadow: var(--mu-o15); pointer-events: none; }
+.hud.mu .hud-shoes-cap:empty { display: none; }
+.hud.mu .hud-shoes .mark-sneaker svg { color: #fff; }
+.hud:not(.mu) .hud-shoes-cap { display: inline; }
+@keyframes nudge { 0%, 100% { translate: 0 0; } 20% { translate: -6px 0; } 40% { translate: 5px 0; } 60% { translate: -3px 0; } 80% { translate: 2px 0; } }
+.nudge { animation: nudge 0.32s ease-out; }
+#ui.mu .card-btn[aria-disabled='true'] { background: var(--mu-quiet); color: var(--mu-muted); cursor: default; }
+.tp-item[aria-disabled='true'] { background: #c9d1da; color: #3a4a5c; cursor: default; }
+#ui.mu .tp-item[aria-disabled='true'] { background: var(--mu-quiet); color: var(--mu-muted); }

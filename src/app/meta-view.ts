@@ -46,6 +46,8 @@ export interface MetaView {
   /** Called every frame: shows and refreshes the shoes button. */
   update(): void;
   buyShoes(): boolean;
+  /** MU round 5: the shoes button tapped while short — a toast of what is missing (or that the best pair is on). */
+  shoesShort(): void;
   /** Rebirth (M3-06): the starting pair again; the button stays on the HUD. */
   resetShoes(): void;
   /** Cards of the shop tab «Sneakers»: lower pairs owned, the pair on, the next one to buy, the rest locked in order. */
@@ -98,9 +100,20 @@ export function createMetaView(d: MetaViewDeps): MetaView {
       d.hud.setShoes({
         text: t(inTrophies ? 'hud.shoesBtnTrophies' : 'hud.shoesBtn', words),
         short: t(inTrophies ? 'hud.shoesBtnTrophiesShort' : 'hud.shoesBtnShort', words),
+        cap: t('hud.shoesCap'),
         can: funds() >= price,
         progress: price > 0 ? funds() / price : 1,
       });
+    },
+    shoesShort() {
+      // MU round 5 (producer 21.10): a tap on the quiet shoes button says what is missing.
+      const next = nextShoes(tiers, view.shoeLevel);
+      if (!next) {
+        d.hud.toast(t('toast.shoesAll'));
+        return;
+      }
+      const price = shoesPrice(next, d.getSim().tier, d.balance.rebirth, d.balance.upgrade);
+      d.hud.toast(t(inTrophies ? 'toast.shoesShortTrophies' : 'toast.shoesShort', { n: formatNumber(Math.max(0, price - funds()), d.numSuffix) }));
     },
     buyShoes() {
       const sim = d.getSim();

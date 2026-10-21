@@ -90,8 +90,9 @@ export function icon(id: string): string {
 }
 
 /** Marks a text of the dictionary may carry (docs/07-mobile-ui.md «Знаки»): the coin, the cup, the ad mark. */
-const MARKS: Record<string, string> = { '{coin}': 'coin', '{trophy}': 'cup', '{ad}': 'ad' };
-const MARK_RE = /(\{coin\}|\{trophy\}|\{ad\})/;
+// MU round 5: {shoe} — the sneaker on the short caption of the shoes button.
+const MARKS: Record<string, string> = { '{coin}': 'coin', '{trophy}': 'cup', '{ad}': 'ad', '{shoe}': 'sneaker' };
+const MARK_RE = /(\{coin\}|\{trophy\}|\{ad\}|\{shoe\})/;
 
 /** Does a text carry a mark (then setRich is needed instead of textContent). */
 export function hasMark(text: string): boolean {

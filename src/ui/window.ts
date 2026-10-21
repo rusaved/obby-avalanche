@@ -3,6 +3,7 @@
 // Keep: Opened only by a player's button; never a dead end (docs/03 GD-05): close cross or next button always present; onChange pauses game and avalanche; data-hud on both.
 
 import { icon } from './icons.ts';
+import { nudge } from './nudge.ts';
 
 /**
  * Window frame (docs/01-gdd.md 10.2): one window at a time over a 50% veil, opened only by a player's button;
@@ -333,6 +334,19 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
     },
   };
   close.addEventListener('click', () => frame.close());
+  // MU round 5 (producer 21.10: everything answers a tap): a button that cannot act now («N more», «Equipped», a locked
+  // stage) shakes instead — its own click never runs.
+  dim.addEventListener(
+    'click',
+    (ev) => {
+      const b = (ev.target as Element | null)?.closest?.('button');
+      if (!b || !dim.contains(b) || !b.matches('.off, [aria-disabled="true"]')) return;
+      ev.stopPropagation();
+      ev.preventDefault();
+      nudge(b);
+    },
+    true,
+  );
   next.addEventListener('click', () => (options.onNext ? options.onNext() : frame.close()));
   dim.addEventListener('pointerdown', (ev) => {
     if (ev.target === dim && options.closable !== false) frame.close();
