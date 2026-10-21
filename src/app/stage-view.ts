@@ -22,9 +22,9 @@ const MU_LABEL_ABOVE = 0.5;
 const PORTAL_AT = 0.15;
 /** MU round 4 (producer 20.10: the world labels read from afar, stood in the middle and shook): on the phone a label
  * comes in at this distance (units = metres), goes out past the second one at once — no blinking at the border — and
- * comes in again no sooner than this time (s) after it flipped. */
-const MU_SHOW = 12;
-const MU_HIDE = 14;
+ * comes in again no sooner than this time (s) after it flipped. MU round 5 (producer 21.10): ×1.5 — 18 in, out past 21. */
+const MU_SHOW = 18;
+const MU_HIDE = 21;
 const MU_FLIP_SEC = 0.5;
 
 export interface StageViewDeps {
@@ -145,7 +145,12 @@ export function createStageView(d: StageViewDeps): StageView {
         const head = project(h.x, h.y + HERO_HEIGHT + 0.4, h.z);
         const half = feet && head ? (feet.y - head.y) * 0.4 : 0;
         const hero = feet && head ? { x0: feet.x - half, y0: head.y, x1: feet.x + half, y1: feet.y } : undefined;
-        return d.hud.setPadLabel({ text: t('stage.padReward', { n: fmt(st.trophies) }), ...(sim.padTaken[best] ? {} : { sub: t('stage.padPass') }), x: at.x, y: at.y, ...(hero ? { hero } : {}) });
+        // MU round 5 (producer 21.10: the plaque covered the pad): the pad's top on screen, the plaque keeps off it.
+        const corners = [-1, 1].flatMap((sx) => [-1, 1].map((sz) => project(st.pad.x + sx * PAD_HALF, st.pad.y, st.pad.z + sz * PAD_HALF)));
+        const seen = corners.filter((c): c is { x: number; y: number } => c !== null);
+        const pad = seen.length === 4 ? { x0: Math.min(...seen.map((c) => c.x)), y0: Math.min(...seen.map((c) => c.y)), x1: Math.max(...seen.map((c) => c.x)), y1: Math.max(...seen.map((c) => c.y)) } : undefined;
+        return d.hud.setPadLabel({
+          ...(pad ? { pad } : {}), text: t('stage.padReward', { n: fmt(st.trophies) }), ...(sim.padTaken[best] ? {} : { sub: t('stage.padPass') }), x: at.x, y: at.y, ...(hero ? { hero } : {}) });
       }
       d.hud.setPadLabel(st && at ? { text: `+${fmt(st.trophies)}`, x: at.x, y: at.y } : tpAt ? { text: t('teleport.title'), x: tpAt.x, y: tpAt.y, tap: true } : null);
     },

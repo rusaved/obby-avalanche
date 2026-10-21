@@ -980,3 +980,8 @@ canvas.fallback {
 #ui.mu .card-btn[aria-disabled='true'] { background: var(--mu-quiet); color: var(--mu-muted); cursor: default; }
 .tp-item[aria-disabled='true'] { background: #c9d1da; color: #3a4a5c; cursor: default; }
 #ui.mu .tp-item[aria-disabled='true'] { background: var(--mu-quiet); color: var(--mu-muted); }
+/* MU round 5 (producer 21.10): a slot plaque that names a place points to it — a gold arrow 20 px at its start, turned
+   to the place on screen. */
+.hud-slot-arrow { display: none; flex: none; width: 20px; height: 20px; color: var(--mu-gold); }
+.hud-slot-arrow.shown { display: block; }
+.hud-slot-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; }

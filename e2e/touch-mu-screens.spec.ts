@@ -80,7 +80,8 @@ test.describe('MU phone screens', () => {
     const st = STAGES[0]!.stages[3]!;
     const need = st.level;
     // Round of fixes 3: by the ridge, as l2 — the sign on its post right of the hero (further off it hides under the HUD).
-    await prepare(page, `window.__TEST__.setStat(${threshold(Math.max(1, need - 3))}); window.__TEST__.teleport(${st.z0 - 5});`);
+    // MU round 5: not the first run of mountain 1 (there the plaque points to a treadmill — truthful-pad-hints).
+    await prepare(page, `window.__TEST__.setSummits(1); window.__TEST__.setStat(${threshold(Math.max(1, need - 3))}); window.__TEST__.teleport(${st.z0 - 5});`);
     await page.waitForTimeout(500);
     await expect(page.locator('[data-role="need"]')).toHaveText(/Ещё 3 уровня до рубежа/);
     await expect.poll(() => slotShown(page)).toEqual(['need']);

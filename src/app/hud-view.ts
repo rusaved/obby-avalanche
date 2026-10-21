@@ -36,6 +36,10 @@ export interface HudViewDeps {
   onLevelUp?: (level: number) => void;
   /** MU-02/MU-03 (docs/07-mobile-ui.md): the phone layout — stage ticks on the strip, the gate as one plaque in the slot. */
   mu?: boolean;
+  /** MU round 5: the screen angle (rad) from the hero to a place — the arrow of the slot plaque. */
+  aim?(x: number, y: number, z: number): number;
+  /** MU round 5: mountain 1 is run for the first time (no summit yet) — a short level at a ridge points to a treadmill. */
+  firstPass?(): boolean;
   /** MU-06: the strip label on the base («Camp · mountain N», the mountain of the own portal). */
   baseLabel?: () => string;
 }
@@ -175,7 +179,14 @@ export function createHudView(d: HudViewDeps): HudView {
           // MU-03 (l2-gate): one plaque in the slot «N more levels to the gate», only while levels are short.
           if (d.mu) {
             const short = need - have;
-            d.hud.setNeed(q && q.z - sim.hero.pos.z <= NEED_NEAR && short > 0 && !sim.gatesOpen[ai] ? { text: t('stage.needMore', { n: short, word: levelWord(short) }), ok: false } : null);
+            const shown = !!q && q.z - sim.hero.pos.z <= NEED_NEAR && short > 0 && !sim.gatesOpen[ai];
+            // MU round 5 (producer 21.10): mountain 1, the first run — «Level up on a treadmill» and the arrow to the
+            // nearest one this side of the ridge.
+            const h = sim.hero.pos;
+            const belt = shown && level.worldIndex === 1 && d.firstPass?.()
+              ? level.points.filter((x) => x.type === 'treadmill' && x.z <= q.z).sort((a, b) => Math.hypot(a.x - h.x, a.z - h.z) - Math.hypot(b.x - h.x, b.z - h.z))[0]
+              : undefined;
+            d.hud.setNeed(!shown ? null : belt ? { text: t('stage.needBelt'), ok: false, arrow: d.aim?.(belt.x, belt.y + 0.5, belt.z) ?? null } : { text: t('stage.needMore', { n: short, word: levelWord(short) }), ok: false });
             return;
           }
           d.hud.setNeed(q && q.z - sim.hero.pos.z <= NEED_NEAR ? { text: t('stage.need', { have, need }), ok: have >= need } : null);

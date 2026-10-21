@@ -30,6 +30,10 @@ const JUMP_HINT_SEC = 1;
 /** The hook for tomorrow waits this long after a trophy toast (one toast at a time, LV-12 review). */
 const HOOK_QUIET_TICKS = 150;
 const HOOK_SEC = 6;
+/** MU round 5 (producer 21.10: «Stand on the pad» hung at the top before the pad was in sight): the step shows only this
+ * close to a pad not taken (m — the distance the world labels come in at) or while its pad is on screen from its safe
+ * finish, with an arrow to it. */
+const TAKE_NEAR = 18;
 
 export interface CampViewDeps {
   getSim(): Sim;
@@ -45,6 +49,10 @@ export interface CampViewDeps {
   /** SD-11: the next pair of sneakers can be bought now (the plaque at a closed ridge). */
   shoesAffordable?(): boolean;
   onTrophies?(left: number): void;
+  /** MU round 5: the screen angle (rad) from the hero to a place — the arrow of the slot plaque. */
+  aim?(x: number, y: number, z: number): number;
+  /** MU round 5: a place is inside the frame now. */
+  seen?(x: number, y: number, z: number): boolean;
 }
 
 export interface CampView {
@@ -102,7 +110,18 @@ export function createCampView(d: CampViewDeps): CampView {
         d.persist();
       }
       const now = d.save.tutor ?? 0;
-      let show = now === 0 ? (st && (st.type !== 'intro' || w.index > 1) ? t('tutor.run') : null) : now === 1 ? t('tutor.take') : now === 2 ? t('tutor.levels', { n: TUTOR_LEVELS }) : null;
+      // MU round 5: «Stand on the gold pad» near a pad not taken only, the arrow pointing to it.
+      let take: { x: number; y: number; z: number } | null = null;
+      for (let k = 0, near = TAKE_NEAR; now === 1 && k < stages.length; k++) {
+        const q = stages[k]!;
+        const dist = Math.hypot(q.pad.x - h.x, q.pad.z - h.z);
+        const inFinish = h.z >= q.finish[0] && h.z <= q.finish[1] && (d.seen?.(q.pad.x, q.pad.y, q.pad.z) ?? false);
+        if (q.trophies > 0 && !sim.padTaken[k] && (dist <= near || (inFinish && take === null))) {
+          near = dist;
+          take = q.pad;
+        }
+      }
+      let show = now === 0 ? (st && (st.type !== 'intro' || w.index > 1) ? t('tutor.run') : null) : now === 1 ? (take ? t('tutor.take') : null) : now === 2 ? t('tutor.levels', { n: TUTOR_LEVELS }) : null;
       // «Jump!» before a pit on the line of the run until three are jumped (LV-12 review: no hint at the first jump).
       const jumps = d.save.flags?.['jumpsTaught'] === true;
       if (!jumps && st && (st.type === 'cracks' || st.type === 'plates') && sim.hero.onGround) {
@@ -123,7 +142,7 @@ export function createCampView(d: CampViewDeps): CampView {
       // No grotto within reach of the warning (SD-10 review: «hide» pointed back past the finish) — run on to the finish.
       if (st && st.type !== 'intro' && wave) show = sim.inShelter() ? null : ws!.shelter >= 0 ? t('hint.cover') : t('hint.toFinish');
       // MU-02 (one message slot): a jump and the wave go before the gate plaque, the other steps after it.
-      d.hud.setTutor(show, show !== null && (show === t('tutor.jump') || wave));
+      d.hud.setTutor(show, show !== null && (show === t('tutor.jump') || wave), take && show === t('tutor.take') ? (d.aim?.(take.x, take.y + 0.5, take.z) ?? null) : null);
       // The teleport pad of the camp: stepping on it opens the window once a step-on.
       // SD-13 (producer 16.10: «it worked once, then broke»): on the next mountain the pad stood dead until its own
       // stage 2 — now it answers once the player knows it (a stage 2 passed anywhere), the stages not passed locked.

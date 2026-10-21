@@ -214,9 +214,10 @@ export interface Hud {
    * over it; null — no bar (the other paces), the plaque stays in the left column. */
   setLevel(state: { title: string; progress: string; frac: number } | null): void;
   /** «yours 7 / need 8» under the goal by a ridge of the stages pace (docs/01-gdd.md 22.3); null — hidden. */
-  setNeed(state: { text: string; ok: boolean } | null): void;
-  /** The step of the stage tutorial under the goal (docs/01-gdd.md 22.12); null — none. */
-  setTutor(text: string | null, urgent?: boolean): void;
+  setNeed(state: { text: string; ok: boolean; arrow?: number | null } | null): void;
+  /** The step of the stage tutorial under the goal (docs/01-gdd.md 22.12); null — none. MU round 5: `arrow` — a small
+   * arrow at the start of the plaque turned to this screen angle (rad, 0 — right), the way to what it names. */
+  setTutor(text: string | null, urgent?: boolean, arrow?: number | null): void;
   /** Round of fixes MU (l5-camp): the light plaques of the portals of the base — «where» over «level · open» or a lock
    * and its condition — hung by their bottom middle at (x, y), nearest first; one within 8 px of the HUD or of a plaque
    * placed before it is not drawn; nor one over the hero's box `hero` (rule 3). An empty list hides them all. */
@@ -225,7 +226,7 @@ export interface Hud {
    * (x, y) — the post top on screen; not drawn off the field or within 8 px of the HUD; null — hidden. */
   setGateSign(state: { text: string; x: number; y: number } | null): void;
   /** «+N» with a trophy over the trophy button of a stage (docs/01-gdd.md 22.8); null — hidden. */
-  setPadLabel(state: { text: string; x: number; y: number; tap?: boolean; sub?: string; hero?: { x0: number; y0: number; x1: number; y1: number } } | null): void;
+  setPadLabel(state: { text: string; x: number; y: number; tap?: boolean; sub?: string; hero?: { x0: number; y0: number; x1: number; y1: number }; pad?: { x0: number; y0: number; x1: number; y1: number } } | null): void;
   /** The portrait of a phone (the game is landscape, docs/03): «Turn your phone» over everything; false — hidden. */
   setRotate(on: boolean): void;
   /** MU-02: the gift plaque under pause and sound — a timer, or «Take» in gold when a gift is ready; null hides it. */
@@ -268,6 +269,8 @@ const LABEL_FLIP_SEC = 0.5;
 const HERO_GAP = 12;
 /** …and its places left of the pad's corner step this far further (px). */
 const PAD_SIDE = 24;
+/** MU round 5: …and keeps this far off the pad itself on screen (px). */
+const PAD_GAP = 4;
 /** The side margin of the phone frame (docs/07-mobile-ui.md, «Поля кадра»); the top of the message slot; the letters
  * of Rubik are this many em tall (ascent and descent). */
 const EDGE_MU = 16;
@@ -352,6 +355,12 @@ function onPress(b: HTMLElement, fn: () => void): void {
   });
 }
 
+/** MU round 5: shows the arrow of a slot plaque turned to `angle` (rad), or hides it. */
+function turnArrow(a: HTMLElement, angle: number | null): void {
+  a.classList.toggle('shown', angle !== null);
+  if (angle !== null) a.style.transform = `rotate(${angle.toFixed(2)}rad)`;
+}
+
 export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const root = el('div', opts.mu ? 'hud mu' : 'hud');
   root.dataset['role'] = 'hud';
@@ -434,6 +443,16 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   // toasts and hints).
   const tutor = el('div', 'hud-tutor');
   tutor.dataset['role'] = 'tutor';
+  // MU round 5 (producer 21.10): the slot plaques point the way — to the gold pad, to the treadmill.
+  const slotArrow = (): HTMLElement => {
+    const a = el('span', 'hud-slot-arrow');
+    a.dataset['role'] = 'slot-arrow';
+    a.innerHTML = ARROW_SVG;
+    return a;
+  };
+  const tutorArrow = slotArrow();
+  const tutorText = el('span', 'hud-slot-text');
+  tutor.append(tutorArrow, tutorText);
   levelBox.append(tutor, levelBar);
   root.appendChild(levelBox);
   // MU-02: the tutorial step is a message of the slot on the phone layout.
@@ -472,6 +491,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   // Stages pace (docs/01-gdd.md 22.3): «yours 7 / need 8» by a closed ridge — red short, green enough; a pill, not a board.
   const need = el('div', 'hud-need');
   need.dataset['role'] = 'need';
+  const needArrow = slotArrow();
+  const needText = el('span', 'hud-slot-text');
+  need.append(needArrow, needText);
   goal.append(goalText, goalBar, need);
   root.appendChild(goal);
   // MU-03: the gate plaque is a message of the slot on the phone layout (the goal line is gone there).
@@ -1564,7 +1586,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       // MU round 4: never in the top middle either; the place taken last is tried first, and the plaque glides there.
       const hero = state.hero;
       const offHero = (x: number, y: number): boolean => !hero || x >= hero.x1 + HERO_GAP || x + w <= hero.x0 - HERO_GAP || y >= hero.y1 + HERO_GAP || y + h <= hero.y0 - HERO_GAP;
-      const ys = [state.y - h, state.y - h / 2, state.y, state.y - 1.5 * h, state.y - 2 * h, state.y + h, ...(hero ? [hero.y0 - LABEL_GAP - h] : [])];
+      const ys = [state.y - h, state.y - h / 2, state.y, state.y - 1.5 * h, state.y - 2 * h, state.y + h, ...(hero ? [hero.y0 - LABEL_GAP - h] : []), ...(state.pad ? [state.pad.y0 - PAD_GAP - h] : [])];
       // MU round 4: also left of the corner (over the pad itself) — the pad ahead of the hero puts the right side high up.
       // MU round 4 (reviews: the plaque read as the hero's name): the places nearest the pad's corner first.
       const cands = [LABEL_GAP, LABEL_GAP + w / 3, -w - LABEL_GAP, -w - 2 * PAD_SIDE]
@@ -1573,9 +1595,12 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
           return ys.map((y) => ({ x, y }));
         })
         .sort((a, b) => Math.hypot(a.x + w / 2 - state.x, a.y + h / 2 - state.y) - Math.hypot(b.x + w / 2 - state.x, b.y + h / 2 - state.y));
+      // MU round 5 (producer 21.10: «Stage reward» covered the pad): never over the pad's box on screen either.
+      const pad = state.pad;
+      const offPad = (x: number, y: number): boolean => !pad || x >= pad.x1 + PAD_GAP || x + w <= pad.x0 - PAD_GAP || y >= pad.y1 + PAD_GAP || y + h <= pad.y0 - PAD_GAP;
       const ok = (c: { x: number; y: number }): boolean => {
         const q = { x0: c.x, y0: c.y, x1: c.x + w, y1: c.y + h };
-        return c.y >= 0 && c.y + h <= fieldH && offHero(c.x, c.y) && !topMid(q) && hud.clearOfHud(q);
+        return c.y >= 0 && c.y + h <= fieldH && offHero(c.x, c.y) && offPad(c.x, c.y) && !topMid(q) && hud.clearOfHud(q);
       };
       const last = cands[padGlide.pick];
       const pick = last && ok(last) ? padGlide.pick : cands.findIndex(ok);
@@ -1588,13 +1613,14 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       const g = glideTo(padGlide, at.x, at.y, (x, y) => ok({ x, y }));
       padLabel.style.transform = `translate(${g.x}px, ${g.y}px)`;
     },
-    setTutor(text, urgent = false) {
+    setTutor(text, urgent = false, arrow = null) {
       if (tutor.classList.contains('shown') !== (text !== null) || tutor.classList.contains('urgent') !== urgent) {
         tutor.classList.toggle('shown', text !== null);
         tutor.classList.toggle('urgent', urgent);
         updateSlot();
       }
-      if (text !== null && tutor.textContent !== text) tutor.textContent = text;
+      if (text !== null && tutorText.textContent !== text) tutorText.textContent = text;
+      turnArrow(tutorArrow, text !== null ? arrow : null);
     },
     setNeed(state) {
       if (need.classList.contains('shown') !== (state !== null)) {
@@ -1603,9 +1629,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
         if (state) peekStrip();
       }
       root.classList.toggle('need-on', state !== null);
-      if (!state) return;
-      if (need.textContent !== state.text) need.textContent = state.text;
+      if (!state) return turnArrow(needArrow, null);
+      if (needText.textContent !== state.text) needText.textContent = state.text;
       need.classList.toggle('ok', state.ok);
+      turnArrow(needArrow, state.arrow ?? null);
     },
     setLevel(state) {
       const on = state !== null;

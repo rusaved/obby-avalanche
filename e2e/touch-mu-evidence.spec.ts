@@ -63,7 +63,9 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
       await page.screenshot({ path: `${dir}/l1-run-hud.png` });
       await page.evaluate(() => window.__TEST__!.stick(0, 0));
       const st4 = W.stages[3]!;
+      // MU round 5: not the first run of mountain 1 (there the plaque points to a treadmill — truthful-pad-hints).
       await page.evaluate(([s, z]) => {
+        window.__TEST__!.setSummits(1);
         window.__TEST__!.setStat(s);
         window.__TEST__!.teleport(z);
       }, [threshold(st4.level - 3), st4.z0 - 5] as const);

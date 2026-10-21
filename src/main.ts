@@ -33,7 +33,7 @@ import { createAvalancheVisual, type AvalancheVisual } from './render/threat/ava
 import { createWaveView, type WaveView } from './app/wave-view.ts';
 import { createFtueVisual } from './render/ftue.ts';
 import { createFtueView, type FtueView } from './app/ftue-view.ts';
-import { createWayView, type WayView } from './app/way-view.ts';
+import { createWayView, screenAngle, type WayView } from './app/way-view.ts';
 import { createAdsView, type AdsView } from './app/ads-view.ts';
 import { createFootstepsView, FOOTSTEPS_WINDOW, type FootstepsView } from './app/footsteps-view.ts';
 import { BOSS_SIGN_HALF, BOSS_SIGN_TOP, createBossView, type BossView } from './app/boss-view.ts';
@@ -2100,7 +2100,14 @@ async function boot(): Promise<void> {
   // Stages pace (docs/01-gdd.md 22.8): the coin wallet is trophies in the windows too.
   setWalletTrophies(balance.currency === 'trophies');
   setLineMarks(muLayout);
+  // MU round 5: the screen angle from the hero's chest to a place — the arrows of the slot plaques.
+  const aimFrom = new Vector3();
+  const aimTo = new Vector3();
+  const aim = (x: number, y: number, z: number): number =>
+    screenAngle(cameraRig.camera, aimFrom.set(sim.hero.pos.x, sim.hero.pos.y + HERO_HEIGHT / 2, sim.hero.pos.z), aimTo.set(x, y, z), field);
   hudView = createHudView({
+    aim,
+    firstPass: () => (save.summits ?? 0) === 0 && (save.tier ?? 0) === 0,
     balance,
     theme,
     hud,
@@ -2150,7 +2157,12 @@ async function boot(): Promise<void> {
     }, campTeleport: () => (campView?.known() ? g.world.campTeleport : undefined) });
   stageView.wire(sim);
   // The stage tutorial and the camp teleport (docs/01-gdd.md 22.12).
-  campView = createCampView({ getSim: () => sim, getWorld: () => g.world, hud, windows, save, levels: balance.levels, persist, numSuffix, trophyWallet: balance.upgrade.currency === 'trophies', shoesAffordable: () => shopAfford().shoes, onTrophies: (n) => hud.setTrophies(formatNumber(n, numSuffix)) });
+  const seenAt = new Vector3();
+  const seen = (x: number, y: number, z: number): boolean => {
+    seenAt.set(x, y, z).project(cameraRig.camera);
+    return seenAt.z < 1 && Math.abs(seenAt.x) <= 1 && Math.abs(seenAt.y) <= 1;
+  };
+  campView = createCampView({ aim, seen, getSim: () => sim, getWorld: () => g.world, hud, windows, save, levels: balance.levels, persist, numSuffix, trophyWallet: balance.upgrade.currency === 'trophies', shoesAffordable: () => shopAfford().shoes, onTrophies: (n) => hud.setTrophies(formatNumber(n, numSuffix)) });
   hud.setAutoRun(save.settings.autoRun);
   hud.setQuality(save.settings.quality);
   hud.setTouchMode(mobile);
