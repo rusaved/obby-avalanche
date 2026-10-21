@@ -1027,3 +1027,8 @@ canvas.fallback {
 #ui.mu.mu-low .gf-groups .gf-btns .card-btn { font-size: 12px; min-width: 0; padding: 0 6px; }
 #ui.mu.mu-low .gf-groups .gf-btns .card-btn > .mark { display: none; }
 #ui.mu.mu-low .wardrobe .card-name { font-size: 12px; }
+/* MU round 5, re-check (strong 3: at 130 % on 815 × 290 one row of trails, auras and wings and ~90–100 px empty): on a low
+   frame their rows lower — 12 px words and 4 px padding, the wing names on one line in 11 px — two rows in sight. */
+#ui.mu.mu-low .win-grid.swatch-list > .card:has(> :is(.card-pic, .card-swatch)) { padding-top: 4px; padding-bottom: 4px; }
+#ui.mu.mu-low .win-grid.swatch-list > .card > .card-name, #ui.mu.mu-low .win-grid.swatch-list > .card > .card-line, #ui.mu.mu-low .win-grid.swatch-list > .card > .card-line > .card-big { font-size: 12px; line-height: 1.2; }
+#ui.mu.mu-low .wardrobe .card-name { font-size: 11px; white-space: nowrap; }
