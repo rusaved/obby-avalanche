@@ -119,7 +119,9 @@ export function renderShopPanel(body: HTMLElement, head: HTMLElement, m: ShopPan
   const steps = m.cards.some((c) => c.sound);
   // MU round 5 (producer 21.10): the sneakers in rows, as the leader of the genre — 3–4 whole at 880 × 405.
   const shoes = !steps && m.cards.some((c) => c.pic);
-  const grid = el('div', steps ? 'win-grid foot-grid' : shoes ? 'win-grid shoe-list' : 'win-grid');
+  // …and trails and auras in rows too (reviews of round 5: one row of cards and a quarter of the window empty).
+  const swatches = !steps && !shoes && m.cards.some((c) => !c.chances?.length && !c.pic);
+  const grid = el('div', steps ? 'win-grid foot-grid' : shoes ? 'win-grid shoe-list' : swatches ? 'win-grid swatch-list' : 'win-grid');
   grid.dataset['role'] = 'shop-grid';
   for (const c of m.cards) {
     const card = el('div', `${c.state === 'on' ? 'card on' : c.state === 'locked' ? 'card locked' : 'card'}${steps ? ' foot-card' : ''}`);

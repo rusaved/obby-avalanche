@@ -100,7 +100,7 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       .then((r) => {
         if (r.rewarded) {
           lastAt.set(place, now);
-          d.hud.toast(give(), 3, true);
+          d.hud.toast(give(), 3, true, undefined, undefined, true);
         } else d.hud.toast(t(r.error ? 'toast.adUnavailable' : 'toast.noReward'));
       })
       .finally(() => {
@@ -225,7 +225,7 @@ export function createAdsView(d: AdsViewDeps): AdsView {
               d.getSim().teleport(r.x, r.y, r.z);
               continueUntil = -Infinity;
             }
-            d.hud.toast(got, 3, true);
+            d.hud.toast(got, 3, true, undefined, undefined, true);
           } else d.hud.toast(t(r.error ? 'toast.adUnavailable' : 'toast.noReward'));
         })
         .finally(() => {

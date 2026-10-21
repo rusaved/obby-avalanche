@@ -388,6 +388,7 @@
   "event.snowballHit": "Hit by a snowball!",
   "event.blizzard": "Blizzard! steps ×2",
   "event.blizzardJump": "Blizzard! Jump, it's faster",
+  "event.blizzardSub": "steps ×2",
   "event.blizzardOver": "Blizzard is over",
   "helper.hit": "Snowball!",
   "boss.nameNorthPair": "Northern Giants",

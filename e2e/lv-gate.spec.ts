@@ -13,7 +13,9 @@ for (const [w, h] of [
     await page.setViewportSize({ width: w, height: h });
     await openGame('pace=stages');
     await waitTicks(page, 10);
+    // MU round 5: not the first run of mountain 1 (there the plaque points to a treadmill — truthful-pad-hints).
     await page.evaluate(([s, z, y]) => {
+      window.__TEST__!.setSummits(1);
       window.__TEST__!.setStat(s);
       window.__TEST__!.teleport(z, 0, y + 0.5);
     }, [threshold(st.level - 1), st.z0 - 12, STAGES[0]!.stages[1]!.y] as const);

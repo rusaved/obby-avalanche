@@ -388,6 +388,7 @@
   "event.snowballHit": "Сбил шар!",
   "event.blizzard": "Буран! шаг ×2",
   "event.blizzardJump": "Буран! Прыгай, так быстрее",
+  "event.blizzardSub": "шаг ×2",
   "event.blizzardOver": "Буран прошёл",
   "helper.hit": "Снежок!",
   "boss.nameNorthPair": "Северные великаны",

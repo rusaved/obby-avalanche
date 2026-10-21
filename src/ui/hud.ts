@@ -171,7 +171,8 @@ export interface Hud {
   /** Short toast in the middle («Phew, made it! +15», «Snowed in!»); `gold` — the bigger golden one (docs/01-gdd.md 4.9);
    * `sub` — a smaller second line (the collection counter of a hatch, M3-13); `onShow` — called when it is on screen
    * (it may wait for the avalanche banner: the egg of the first wave comes after «Phew, made it!», docs/01-gdd.md 16.6). */
-  /** MU round 5: `now` — shown at once over the avalanche plaque (the golden gift handed in), not queued after it. */
+  /** MU round 5: `now` — shown at once over the avalanche plaque (the golden gift handed in, an ad's reward), not queued
+   * after it; the toasts that come while it shows wait for it. */
   toast(text: string, sec?: number, gold?: boolean, sub?: string, onShow?: () => void, now?: boolean): void;
   /** Soft white veil when the camera is inside the snow body (docs/02-tech.md 7). */
   setVeil(on: boolean): void;
@@ -1222,8 +1223,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       const was = banner.classList.contains('shown');
       banner.classList.toggle('shown', text !== null);
       if (text !== null && banner.textContent !== text) banner.textContent = text;
-      if (text !== null && toastTimer) {
-        // A toast already up when the banner comes: it steps back into the queue, the banner speaks alone.
+      if (text !== null && toastTimer && !toastEl.classList.contains('now')) {
+        // A toast already up when the banner comes: it steps back into the queue, the banner speaks alone (MU round 5:
+        // not a reward said `now` — the gift handed in in the cave is seen at once, over the avalanche plaque).
         clearTimeout(toastTimer);
         toastTimer = null;
         if (currentToast) pendingToasts.unshift(currentToast);
@@ -1260,8 +1262,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (a) arrow.style.transform = `translate(${Math.round(a.x)}px, ${Math.round(a.y)}px) translate(-50%, -50%) rotate(${a.angle.toFixed(3)}rad)`;
     },
     toast(text, sec = 2, gold = false, sub, onShow, now = false) {
-      // Never over the avalanche banner (playtest M2): it waits until the banner goes, the latest few in order.
-      if (banner.classList.contains('shown') && !now) {
+      // Never over the avalanche banner (playtest M2): it waits until the banner goes, the latest few in order. MU round 5:
+      // nor over a reward said `now` (the gift handed in, an ad's reward) — «LEVEL UP!» of that Speed comes after it.
+      const held = toastEl.classList.contains('shown') && toastEl.classList.contains('now');
+      if ((banner.classList.contains('shown') || held) && !now) {
         pendingToasts.push({ text, sec, gold, sub, onShow });
         if (pendingToasts.length > TOAST_QUEUE_MAX) pendingToasts.shift();
         return;

@@ -49,6 +49,8 @@ test('the golden gift handed in: one toast «Gift saved! +N» with the coin, the
   await expect.poll(async () => (await toasts(page)).join(' | '), { timeout: 5_000 }).toMatch(/Сохранил подарок! \+\d+|Gift saved! \+\d+/);
   expect(await page.locator('[data-role="toast"] .mark-coin').count(), 'the coin mark on the toast').toBe(1);
   await expect(page.locator('[data-role="toast"]'), 'seen at once, over the avalanche plaque').toBeVisible();
+  // Seen at once: the slot is the toast's, over the avalanche plaque.
+  await expect.poll(() => page.evaluate(() => document.querySelector<HTMLElement>('.hud')!.dataset['slot'])).toBe('toast');
   await page.screenshot({ path: `${dirOf(page)}/cave-gift.png` });
   await expect.poll(() => phase(page), { timeout: 40_000 }).toMatch(/gone|idle/);
   await page.waitForTimeout(3_500);

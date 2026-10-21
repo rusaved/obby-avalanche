@@ -113,7 +113,8 @@ test('every off button of every window answers a tap with a shake and does nothi
   await page.waitForTimeout(300);
   const hud = await page.evaluate(() =>
     Array.from(document.querySelectorAll<HTMLElement>('.hud [data-hud]'))
-      .filter((e) => e.offsetParent !== null && /^(gift|pause|menu-.+)$/.test(e.dataset['hud']!))
+      // «Gifts» has no «not yet» button (its ad is busy only while it plays) and its plaque comes and goes with the timer.
+      .filter((e) => e.offsetParent !== null && /^(pause|menu-.+)$/.test(e.dataset['hud']!))
       .map((e) => e.dataset['hud']!),
   );
   await tap(page, 'menu-more');
@@ -126,6 +127,11 @@ test('every off button of every window answers a tap with a shake and does nothi
   let answered = 0;
   for (const [name, open] of ways) {
     await open();
+    // A tap right after the last window closed may land in its fade: once more.
+    if ((await page.locator('[data-role="window"].open').count()) === 0) {
+      await page.waitForTimeout(400);
+      await open();
+    }
     await expect(page.locator('[data-role="window"].open'), name).toHaveCount(1);
     const tabs = await page.evaluate(() => Array.from(document.querySelectorAll<HTMLElement>('[data-role="window"].open .win-tabs [data-hud]')).map((e) => e.dataset['hud']!));
     for (const tab of tabs.length ? tabs : [null]) {
@@ -145,11 +151,11 @@ test('every off button of every window answers a tap with a shake and does nothi
         answered++;
       }
     }
-    await page.keyboard.press('Escape');
-    await page.waitForTimeout(200);
-    if ((await page.locator('[data-role="window"].open').count()) > 0) await page.locator('[data-role="window"].open .win-close:visible').first().click();
+    // Closed by its cross from the DOM (Esc toggles the pause; the cross may be mid-fade for a pointer).
+    await page.evaluate(() => document.querySelector<HTMLElement>('[data-role="window"].open [data-hud="win-close"]')?.click());
+    if ((await page.locator('[data-role="window"].open').count()) > 0) await page.keyboard.press('Escape');
     await expect(page.locator('[data-role="window"].open'), `${name} closed`).toHaveCount(0);
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(400);
   }
   console.log(`off buttons answered: ${answered}`);
   expect(answered).toBeGreaterThan(4);

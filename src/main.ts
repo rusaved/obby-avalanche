@@ -531,7 +531,7 @@ async function boot(): Promise<void> {
         // MU round 5 (producer 21.10): the first blizzard teaches the way through it — a jump is not slowed.
         // (the camp view keeps the hint in the slot while he is in it, until his first jump there).
         const first = !!balance.levels && !save.flags?.['blizzardTaught'];
-        hud?.toast(t(first ? 'event.blizzardJump' : 'event.blizzard'), first ? 4 : 2, false, first ? t('event.blizzard') : undefined);
+        hud?.toast(t(first ? 'event.blizzardJump' : 'event.blizzard'), first ? 4 : 2, false, first ? t('event.blizzardSub') : undefined);
         audio?.play('event_blizzard');
         track('event_blizzard', { world: s.level.worldIndex });
       }

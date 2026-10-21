@@ -988,3 +988,24 @@ canvas.fallback {
 /* MU round 5 (producer 21.10): a simple mark by the title of each window, as the marks of the HUD tiles. */
 #ui.mu .win-icon { display: inline-flex; width: 22px; height: 22px; margin-right: 8px; vertical-align: -4px; color: #fff; }
 #ui.mu .win-icon svg { width: 100%; height: 100%; }
+/* MU round 5, reviews (score 2: one row of cards and 90–108 px empty under it in a window as tall as the screen): trails
+   and auras in two columns of rows at every size, as on the low frame; the wardrobe cards lower. */
+#ui.mu .win-grid.swatch-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#ui.mu .win-grid.swatch-list > .card:has(> :is(.card-pic, .card-swatch)) { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; grid-template-rows: auto auto; column-gap: 8px; row-gap: 2px; align-items: center; justify-items: start; padding: 6px 8px; text-align: left; }
+#ui.mu .win-grid.swatch-list > .card > :is(.card-pic, .card-swatch) { grid-column: 1; grid-row: 1 / span 2; width: 28px; height: 28px; }
+#ui.mu .win-grid.swatch-list > .card:has(> :is(.card-pic, .card-swatch)) > .card-name { grid-column: 2; grid-row: 1; align-self: end; }
+#ui.mu .win-grid.swatch-list > .card > .card-line { grid-column: 2; grid-row: 2; display: flex; align-items: center; gap: 8px; align-self: start; }
+#ui.mu .win-grid.swatch-list > .card > .card-line > .card-big { font-size: 14px; }
+#ui.mu .win-grid.swatch-list > .card:has(> :is(.card-pic, .card-swatch)) > :last-child { grid-column: 3; grid-row: 1 / span 2; margin: 0; align-self: center; justify-self: end; max-width: 108px; }
+#ui.mu .win-grid.swatch-list > .card:has(> :is(.card-pic, .card-swatch)) > .card-btn { min-width: 84px; padding: 0 12px; }
+#ui.mu .wardrobe .win-grid .card { padding: 4px 8px 6px; gap: 2px; }
+/* …the low frame: «Gifts» at 130 % — the group buttons as marks in one row, the lines under the names off; «Pause» without
+   its subtitle (its group buttons come up with their caption). */
+#ui.mu.mu-low .gf-card > .card-sub { display: none; }
+#ui.mu.mu-low .gf-btns { flex-wrap: nowrap; }
+#ui.mu.mu-low .gf-groups .gf-btns .card-btn { font-size: 0; padding: 0 8px; min-width: 44px; }
+#ui.mu.mu-low .gf-groups .gf-btns .card-btn > .mark { width: 22px; height: 22px; margin: 0; }
+#ui.mu.mu-low .win[data-window='pause'] .win-sub { display: none; }
+/* …reviews (strong 3): «Sneakers» 6 px over its button; the arrow of a slot plaque 18 px. */
+.hud.mu .hud-shoes-cap { margin-bottom: 6px; }
+.hud-slot-arrow { width: 18px; height: 18px; }
