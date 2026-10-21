@@ -42,4 +42,6 @@ test(`a fall on stage ${st.n} (${st.type}) → the flag of stage ${prev.n}; cont
   await expect(paid).toContainText(/Реклама|Ad/);
   await paid.click();
   await page.waitForFunction((z) => Math.abs(window.__TEST__!.state().hero!.z - z) <= 4, flagOf(1, st).z, { timeout: 20_000 });
+  // MU round 5: the toast names what the ad gave.
+  await expect(page.locator('[data-role="toast"]')).toContainText(new RegExp(`Снова с этапа ${st.n}|Back on stage ${st.n}`));
 });

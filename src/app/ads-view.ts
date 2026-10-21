@@ -89,7 +89,8 @@ export function createAdsView(d: AdsViewDeps): AdsView {
   const cooled = (id: string, sec: number): boolean => now - (lastAt.get(id) ?? -Infinity) >= sec;
   /** A rewarded ad of a window (MU-07): the game and the avalanche stand while it runs, `give` only on `rewarded`, the
    * game goes on after any outcome. */
-  const rewardAd = (place: string, give: () => void, done: () => void): void => {
+  // MU round 5 (producer 21.10): after the ad a toast of what it gave («+N Speed», «+N coins»), not «Reward received».
+  const rewardAd = (place: string, give: () => string, done: () => void): void => {
     if (busy) return;
     busy = place;
     d.pause.add('ad');
@@ -99,8 +100,7 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       .then((r) => {
         if (r.rewarded) {
           lastAt.set(place, now);
-          give();
-          d.hud.toast(t('toast.reward'));
+          d.hud.toast(give(), 3, true);
         } else d.hud.toast(t(r.error ? 'toast.adUnavailable' : 'toast.noReward'));
       })
       .finally(() => {
@@ -124,12 +124,14 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       rewardAd('stat_now', () => {
         d.getSim().progress.stat += amount;
         d.onStat();
+        return t('toast.adStat', { n: fmt(amount) });
       }, done);
     },
     chestAd(coins, done) {
       rewardAd('x2_chest', () => {
         d.getSim().coins += coins;
         d.onStat();
+        return t('toast.adCoins', { n: fmt(coins) });
       }, done);
     },
     get shown() {
@@ -206,6 +208,8 @@ export function createAdsView(d: AdsViewDeps): AdsView {
         .then((r) => {
           if (r.rewarded) {
             lastAt.set(id, now);
+            let got = t('toast.reward');
+            if (id === 'stat_now') got = t('toast.adStat', { n: fmt(amount) });
             if (id === 'stat_now') {
               d.getSim().progress.stat += amount;
               d.onStat();
@@ -213,6 +217,7 @@ export function createAdsView(d: AdsViewDeps): AdsView {
             // Back on the record flag, where the hero was caught (docs/01-gdd.md 17.11).
             const r = d.getSim().record;
             if (id === 'continue_here' && stageOffer) {
+              got = t('toast.adStage', { n: stageOffer.stage });
               const at = d.getSim().stageStart(stageOffer.stage);
               d.getSim().teleport(at.x, at.y, at.z);
               stageOffer = null;
@@ -220,7 +225,7 @@ export function createAdsView(d: AdsViewDeps): AdsView {
               d.getSim().teleport(r.x, r.y, r.z);
               continueUntil = -Infinity;
             }
-            d.hud.toast(t('toast.reward'));
+            d.hud.toast(got, 3, true);
           } else d.hud.toast(t(r.error ? 'toast.adUnavailable' : 'toast.noReward'));
         })
         .finally(() => {

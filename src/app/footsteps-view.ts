@@ -160,7 +160,8 @@ export function createFootstepsView(d: FootstepsViewDeps): FootstepsView {
               unlockAd(d.save, m, id);
               chooseSet(d.save, m, id);
               d.persist(true);
-              d.hud.toast(t('toast.reward'));
+              // MU round 5: the toast names what the ad gave.
+              d.hud.toast(t('toast.adSteps', { name: t(`footsteps.set.${id}`) }), 3, true);
             } else d.hud.toast(t(r.error ? 'toast.adUnavailable' : 'toast.noReward'));
           })
           .finally(() => {
