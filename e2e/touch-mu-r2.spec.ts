@@ -214,7 +214,8 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
       await tap(page, 'menu-shop');
       await page.locator('[data-hud="shop-tab-steps"]').click();
       expect(await firstRow('[data-role="window"].open [data-role="shop-grid"] .card'), 'steps in a row').toBe(foot);
-      expect(foot).toBe(5);
+      // MU round 5, re-check: the sets of steps in two columns of rows at every size.
+      expect(foot).toBe(2);
       expect(await blue(), 'shop steps').toBe(1);
       await page.locator('[data-hud="shop-tab-shoes"]').click();
       expect(await blue(), 'shop shoes').toBeLessThanOrEqual(1);

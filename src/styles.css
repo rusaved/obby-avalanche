@@ -1003,9 +1003,27 @@ canvas.fallback {
    its subtitle (its group buttons come up with their caption). */
 #ui.mu.mu-low .gf-card > .card-sub { display: none; }
 #ui.mu.mu-low .gf-btns { flex-wrap: nowrap; }
-#ui.mu.mu-low .gf-groups .gf-btns .card-btn { font-size: 0; padding: 0 8px; min-width: 44px; }
-#ui.mu.mu-low .gf-groups .gf-btns .card-btn > .mark { width: 22px; height: 22px; margin: 0; }
 #ui.mu.mu-low .win[data-window='pause'] .win-sub { display: none; }
 /* …reviews (strong 3): «Sneakers» 6 px over its button; the arrow of a slot plaque 18 px. */
 .hud.mu .hud-shoes-cap { margin-bottom: 6px; }
 .hud-slot-arrow { width: 18px; height: 18px; }
+/* MU round 5, reviews (strong 3): the marks of eggs, trails and auras instead of flat squares; «Pause» on a low frame —
+   the rows lower and the gaps 4 px, its group buttons come up with their caption. */
+#ui.mu .card-swatch.drawn { background: none !important; border: 0; box-shadow: none; line-height: 0; }
+#ui.mu .card-swatch.drawn svg { width: 100%; height: 100%; }
+#ui.mu.mu-low .pause-mu { gap: 4px; }
+#ui.mu.mu-low .pause-grid { gap: 4px 8px; }
+#ui.mu.mu-low .mu-row { min-height: 44px; padding-top: 0; padding-bottom: 0; }
+/* MU round 5, re-check (art 2: at 130 % on 880 one row of steps and 95–109 px empty): the sets of steps in two columns of
+   rows at every size (the play button 44), as on the low frame. The low frame: «Gifts» group buttons with their words in
+   12 px and no mark (a mark alone read as an empty button), wardrobe names 12 px, «×N per step» never broken. */
+#ui.mu .foot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+#ui.mu .foot-grid > .foot-card { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; grid-template-rows: auto auto; column-gap: 8px; row-gap: 2px; align-items: center; justify-items: start; padding: 6px 8px; text-align: left; }
+#ui.mu .foot-grid > .foot-card > :first-child { grid-column: 1; grid-row: 1 / span 2; width: 44px; height: 44px; margin: 0; }
+#ui.mu .foot-grid > .foot-card > .card-name { grid-column: 2; grid-row: 1; align-self: end; margin: 0; }
+#ui.mu .foot-grid > .foot-card > .foot-end { display: contents; }
+#ui.mu .foot-grid > .foot-card .foot-lock, #ui.mu .foot-grid > .foot-card .foot-chosen { grid-column: 2; grid-row: 2; align-self: start; margin: 0; }
+#ui.mu .foot-grid > .foot-card .foot-end > .card-btn { grid-column: 3; grid-row: 1 / span 2; align-self: center; margin: 0; min-width: 84px; padding: 0 12px; }
+#ui.mu.mu-low .gf-groups .gf-btns .card-btn { font-size: 12px; min-width: 0; padding: 0 6px; }
+#ui.mu.mu-low .gf-groups .gf-btns .card-btn > .mark { display: none; }
+#ui.mu.mu-low .wardrobe .card-name { font-size: 12px; }

@@ -449,7 +449,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const slotArrow = (): HTMLElement => {
     const a = el('span', 'hud-slot-arrow');
     a.dataset['role'] = 'slot-arrow';
-    a.innerHTML = ARROW_SVG;
+    // MU round 5, re-check: the box cropped to the arrow — it fills its 18 px.
+    a.innerHTML = ARROW_SVG.replace('viewBox="0 0 24 24"', 'viewBox="3 4 19 16"');
     return a;
   };
   const tutorArrow = slotArrow();

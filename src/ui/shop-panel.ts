@@ -134,7 +134,13 @@ export function renderShopPanel(body: HTMLElement, head: HTMLElement, m: ShopPan
       card.appendChild(pic);
     } else {
       const sw = el('span', 'card-swatch');
-      sw.style.background = c.color;
+      // MU round 5, reviews (strong 3: flat squares, a white egg like an empty cell): the item's own mark in its colour.
+      const mark = m.tab === 'eggs' ? 'egg' : m.tab === 'trails' ? 'trailMark' : m.tab === 'auras' ? 'auraMark' : null;
+      if (mark) {
+        sw.classList.add('drawn');
+        sw.innerHTML = icon(mark);
+        sw.style.color = c.color;
+      } else sw.style.background = c.color;
       card.appendChild(sw);
     }
     card.appendChild(el('span', 'card-name', c.name));

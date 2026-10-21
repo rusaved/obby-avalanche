@@ -244,7 +244,7 @@
   "shop.tab.auras": "Ауры",
   "shop.equipped": "Надето",
   "shop.owned": "Куплено",
-  "shop.perStep": "×{m} к шагу",
+  "shop.perStep": "×{m} к\u00a0шагу",
   "shop.need": "Ещё {n}",
   "wardrobe.title": "Гардероб",
   "wardrobe.tab.skins": "Скины",

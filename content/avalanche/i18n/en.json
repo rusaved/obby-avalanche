@@ -244,7 +244,7 @@
   "shop.tab.auras": "Auras",
   "shop.equipped": "Equipped",
   "shop.owned": "Owned",
-  "shop.perStep": "×{m} per step",
+  "shop.perStep": "×{m} per\u00a0step",
   "shop.need": "{n} more",
   "wardrobe.title": "Wardrobe",
   "wardrobe.tab.skins": "Skins",

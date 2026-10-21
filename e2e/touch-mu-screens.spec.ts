@@ -286,8 +286,10 @@ test.describe('MU phone screens', () => {
         const row = w.cards.filter((c) => Math.abs(c.top - first) < 2);
         for (const c of row) expect(c.bottom, `${id}: the first row whole`).toBeLessThanOrEqual(w.bottom + 0.5);
         const next = w.cards.filter((c) => c.top > first + 2);
-        // Round of fixes 2: the five sets of steps fit one row (as «Footsteps»); a longer list peeks and scrolls.
-        if (next.length > 0) {
+        // Round of fixes 2: the five sets of steps fit one row (as «Footsteps»); a longer list peeks and scrolls. MU round 5:
+        // the sets of steps are two columns of rows — a list whose rows are all in sight neither peeks nor scrolls.
+        const hidden = next.filter((c) => c.bottom > w.bottom + 0.5);
+        if (hidden.length > 0) {
           expect(Math.min(...next.map((c) => c.top)), `${id}: the next row peeks`).toBeLessThan(w.bottom - 8);
           expect(w.scroll, `${id}: the list scrolls`).toBeGreaterThan(w.client);
         }

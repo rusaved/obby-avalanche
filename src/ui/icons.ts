@@ -52,6 +52,11 @@ export const ICONS: Record<string, string> = {
   /** The cross of a window. */
   close: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
   chevron: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  /** MU round 5, reviews (strong 3: a white egg read as an empty cell): an egg, a trail and an aura of the shop in the
+   * colour of the item (currentColor) with an ink outline. */
+  egg: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8c3.6 0 7 5.6 7 10.5a7 7 0 0 1-14 0C5 8.4 8.4 2.8 12 2.8z" fill="currentColor" stroke="#1b2a3a" stroke-width="1.5"/><path d="M8.6 9.5c.8-1.6 1.9-2.8 3-3.3" fill="none" stroke="#fff" stroke-width="1.4" stroke-linecap="round" opacity=".8"/></svg>',
+  trailMark: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17c4-1 6-6 10-7.5s6 .5 8-1.5" fill="none" stroke="#1b2a3a" stroke-width="5.5" stroke-linecap="round"/><path d="M3 17c4-1 6-6 10-7.5s6 .5 8-1.5" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><circle cx="6" cy="20" r="1.6" fill="currentColor" stroke="#1b2a3a"/></svg>',
+  auraMark: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="#1b2a3a" stroke-width="5"/><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="3"/><path d="M12 8.5v7M8.5 12h7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   /** MU round 5 (producer 21.10): «listen» of a set of steps — a note, not «play». */
   note: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 17.5V6.2l9-2v11" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><ellipse cx="7" cy="17.6" rx="2.9" ry="2.3" fill="currentColor"/><ellipse cx="16" cy="15.4" rx="2.9" ry="2.3" fill="currentColor"/></svg>',
   play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 6v12l9.5-6z" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>',
