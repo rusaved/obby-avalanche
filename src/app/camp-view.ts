@@ -130,6 +130,15 @@ export function createCampView(d: CampViewDeps): CampView {
         if (pit) show = t('tutor.jump');
       }
       if (!jumps && st && h.z > st.end && (st.type === 'cracks' || st.type === 'plates')) (d.save.flags ??= {})['jumpsTaught'] = true;
+      // MU round 5 (producer 21.10): in the first blizzard — «Blizzard! Jump, it's faster» while in it, until a jump there.
+      const bz = sim.rare?.state.blizzard;
+      if (bz && h.z >= bz.z0 && h.z < bz.z1 && !d.save.flags?.['blizzardTaught']) {
+        show = t('event.blizzardJump');
+        if (!sim.hero.onGround) {
+          (d.save.flags ??= {})['blizzardTaught'] = true;
+          d.persist();
+        }
+      }
       // SD-11 (Q-088, producer: «show the purchase of sneakers»): at a closed ridge ahead with enough for the next pair.
       const gi = sim.level.gates.findIndex((g) => g.kind === 'ridge' && g.z > h.z && g.z - h.z < SHOES_HINT_AHEAD);
       if (gi >= 0 && !sim.gatesOpen[gi] && d.shoesAffordable?.()) show = t('hint.buyShoes');

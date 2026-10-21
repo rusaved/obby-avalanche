@@ -660,7 +660,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     if (!st || st.type === 'intro') return 1;
     return Math.min(lj.max, Math.max(lj.min, lj.g ** (levelOf(progress.stat, levels) - st.level)));
   };
-  const runSpeed = (): number => moveSpeed(progress.stat, speedCurve) * (sim.slow?.mult ?? 1) * (rare?.speedMultAt(hero.pos.z) ?? 1);
+  // MU round 5 (producer 21.10): the blizzard holds back the feet only — in a jump it does not slow him.
+  const runSpeed = (): number => moveSpeed(progress.stat, speedCurve) * (sim.slow?.mult ?? 1) * (hero.onGround ? (rare?.speedMultAt(hero.pos.z) ?? 1) : 1);
   // The avalanche emits through the sim bus; «Phew, made it!» pays coins first (docs/01-gdd.md 4.4).
   const zoneGift = new Map<number, number>();
   for (const gift of sim.gifts) if (!zoneGift.has(gift.zone)) zoneGift.set(gift.zone, gift.coins);
