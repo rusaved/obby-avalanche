@@ -28,13 +28,13 @@ test('gameReady carries the pace; the flag pace of getFlags picks fast without ?
   test.setTimeout(150_000);
   await open(page, '');
   expect((await testState(page)).pace).toBe('stages');
-  expect(await ready(page)).toEqual({ pace: 'stages' });
+  expect(await ready(page)).toEqual({ pace: 'stages', flags: {} });
 
   await open(page, `mock_flags=${encodeURIComponent(JSON.stringify({ pace: 'fast' }))}`);
   let s = await testState(page);
   expect(s.pace).toBe('fast');
   expect(s.gatesOpen).toHaveLength(fastGates);
-  expect(await ready(page)).toEqual({ pace: 'fast' });
+  expect(await ready(page)).toEqual({ pace: 'fast', flags: {} });
 
   await open(page, `mock_flags=${encodeURIComponent(JSON.stringify({ pace: 'nope' }))}`);
   s = await testState(page);
