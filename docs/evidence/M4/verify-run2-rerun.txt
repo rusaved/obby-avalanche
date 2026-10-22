@@ -1,0 +1,13 @@
+rerun 09:51 80b4e42
+  ✓  1 [desktop] › e2e/lv-camera.spec.ts:30:1 › PC: the mouse without a button turns the view, keys follow it, the view comes back behind the hero; a drag stays (22.2s)
+  ✘  2 [desktop] › e2e/open-perf.spec.ts:70:1 › a simulation step on mountain 10 at CPU ×4 stays within 2 ms; memory does not grow over 5 transitions (35.4s)
+  ✘  3 [mobile] › e2e/touch-mu-r2.spec.ts:242:5 › MU round of fixes 2, 812 × 375 › (5) HUD: the stick level with the jump, «Level N» 8 px under «LEVEL UP!» by 96, opaque plaques, the gold «Take» ≥ 4.5:1, the bar in Speed blue, «5 474» (9.4s)
+  ✘  4 [mobile] › e2e/touch-mu-r2.spec.ts:242:5 › MU round of fixes 2, 915 × 412 › (5) HUD: the stick level with the jump, «Level N» 8 px under «LEVEL UP!» by 96, opaque plaques, the gold «Take» ≥ 4.5:1, the bar in Speed blue, «5 474» (8.8s)
+    Error: mountain 10, CPU x4, 300 ticks: sim.step mean 2.089 ms, median 1.700 ms, p90 4.100 ms, max 24.700 ms; whole tick mean 2.732 ms, median 2.300 ms, p90 5.100 ms, max 25.900 ms
+    Error: «Level N» under «LEVEL UP!»
+    test-results/touch-mu-r2-MU-round-of-fi-f267a-e-bar-in-Speed-blue-«5-474»-mobile/test-failed-1.png
+    Error: «Level N» under «LEVEL UP!»
+    test-results/touch-mu-r2-MU-round-of-fi-baea2-e-bar-in-Speed-blue-«5-474»-mobile/test-failed-1.png
+  3 failed
+  1 passed (1.8m)
+EXIT=0
