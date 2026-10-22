@@ -60,16 +60,18 @@ test('ST-01: a new player gets to stage 2 of mountain 2 by the plaques alone', a
   await expect.poll(() => tutorStep(page), { timeout: 30_000 }).toBe(3);
   await page.evaluate(() => window.__TEST__!.botPath(null));
 
-  // 4. «Stand on the gold pad» — the reward of stage 4 (carried past the giant of stage 3 to the finish of the next).
-  const s4 = W1.stages[3]!;
+  // 4. «Stand on the gold pad» — the reward of stage 5 (carried along to its finish).
+  const s4 = W1.stages[4]!; // ST-02: the dips (the avalanche stage 4 runs its wave on entering)
   await page.evaluate(([s, z, y]) => {
     window.__TEST__!.setStat(s);
     window.__TEST__!.teleport(z, 0, y + 0.5);
   }, [threshold(s4.level) * 1.05, s4.finish[0] + 2, s4.y] as const);
-  await page.evaluate(([x, z, y]) => window.__TEST__!.teleport(z, x, y + 0.5), [s4.pad.x + 10, s4.pad.z - 4, s4.y] as const);
+  await page.evaluate(([x, z, y]) => window.__TEST__!.teleport(z, x, y + 0.5), [s4.pad.x - Math.sign(s4.pad.x) * 10, s4.pad.z - 4, s4.y] as const);
   await tutorText(page, /золотую площадку|gold pad/);
   await page.evaluate(([x, z]) => window.__TEST__!.botPath([[x, z]]), [s4.pad.x, s4.pad.z] as const);
   await expect.poll(() => tutorStep(page), { timeout: 30_000 }).toBe(4);
+  // The pad flies the hero to the camp: on once he is there.
+  await page.waitForFunction(() => window.__TEST__!.state().hero!.z < 60, undefined, { timeout: 20_000 });
   await page.evaluate(() => window.__TEST__!.botPath(null));
 
   // 5. «Buy sneakers in the shop» — the shop of the HUD, the first pair; the plaque never over the window.
@@ -83,8 +85,8 @@ test('ST-01: a new player gets to stage 2 of mountain 2 by the plaques alone', a
   await expect.poll(() => tutorStep(page), { timeout: 20_000 }).toBe(5);
 
   // 6. «Run on to the summit!» — on up, the stages carried to the summit and its portal.
-  const back = await testState(page);
-  const at = W1.stages.find((s) => s.n === Math.max(2, back.stage))!;
+  // Back on the stage of the pad (stage 2 is the giant's: he would meet a hero carried into his finish).
+  const at = s4;
   await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.5), [at.finish[0] + 2, at.y] as const);
   await tutorText(page, /Беги дальше|Run on/);
   const last = W1.stages[W1.stages.length - 1]!;

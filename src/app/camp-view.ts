@@ -200,8 +200,9 @@ export function createCampView(d: CampViewDeps): CampView {
         return d.giftReady?.() ? { text: t('tutor.gift'), arrow: null } : none;
       }
       case 'onward': {
-        // Past the next ridge after these steps — the way to the summit is clear.
-        if (n > (onwardFrom < 0 ? (onwardFrom = n) : onwardFrom)) {
+        // Past the farthest stage reached so far (the camp after the pad is far below it) — the way to the summit is clear.
+        if (onwardFrom < 0) onwardFrom = best(w);
+        if (n > onwardFrom) {
           done('onward');
           return none;
         }

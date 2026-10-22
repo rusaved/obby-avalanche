@@ -43,15 +43,17 @@ for (const [w, h] of [[880, 405], [815, 290]] as const)
       await page.evaluate((z) => window.__TEST__!.botPath([[0, z + 14]]), s3.z0);
       await expect.poll(async () => (await testState(page)).tutor, { timeout: 30_000 }).toBe(3);
       await page.evaluate(() => window.__TEST__!.botPath(null));
-      const s4 = W1.stages[3]!;
+      const s4 = W1.stages[4]!; // ST-02: the dips (the avalanche stage 4 runs its wave on entering)
       await page.evaluate(([s, z, x, y]) => {
         window.__TEST__!.setStat(s);
         window.__TEST__!.teleport(z, x, y + 0.5);
-      }, [threshold(s4.level) * 1.05, s4.pad.z - 4, s4.pad.x + 10, s4.y] as const);
+      }, [threshold(s4.level) * 1.05, s4.pad.z - 4, s4.pad.x - Math.sign(s4.pad.x) * 10, s4.y] as const);
       await waitTicks(page, 30);
       await shot(page, 'tut-4-pad');
       await page.evaluate(([x, z]) => window.__TEST__!.botPath([[x, z]]), [s4.pad.x, s4.pad.z] as const);
       await expect.poll(async () => (await testState(page)).tutor, { timeout: 30_000 }).toBe(4);
+    // The pad flies the hero to the camp: on once he is there.
+    await page.waitForFunction(() => window.__TEST__!.state().hero!.z < 60, undefined, { timeout: 20_000 });
       await page.evaluate(() => window.__TEST__!.botPath(null));
       await waitTicks(page, 60);
       await page.waitForTimeout(3500);

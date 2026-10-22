@@ -16,7 +16,8 @@ for (const [w, h] of [
     const box = (await bar.boundingBox())!;
     // MU round 3 (producer: the HUD compact): the bar and the shoes button on one line 16 px over the bottom (the bar 26
     // high in the middle of the 44 of the button: its bottom 25 px over it); the line between the stick and the jump.
-    expect(Math.abs(box.y + box.height - (h - 25)), 'bar at the bottom').toBeLessThanOrEqual(2);
+    // ST-07 (producer 22.10: the bar the main plaque): 32 high, its middle on the line of the button — bottom 22 px over it.
+    expect(Math.abs(box.y + box.height - (h - 22)), 'bar at the bottom').toBeLessThanOrEqual(2);
     expect(box.x, 'bar right of the stick').toBeGreaterThanOrEqual(120);
     expect(box.x + box.width, 'bar left of the jump').toBeLessThanOrEqual(w - 16 - 64 - 8 + 0.5);
     const stat = (await page.locator('[data-role=stat]').boundingBox())!;

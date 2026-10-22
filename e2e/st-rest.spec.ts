@@ -56,7 +56,7 @@ test.describe('the phone 815 × 290', () => {
     await btn.click();
     await expect.poll(() => rewarded(page), { timeout: 10_000 }).toBe(1);
     await page.waitForFunction(() => window.__TEST__!.state().adBusy === null, undefined, { timeout: 15_000 });
-    await expect(card).toContainText(/идёт|on/);
+    await expect(card).toContainText(/идёт|on/i);
     await expect(btn).toBeDisabled();
     await page.screenshot({ path: 'docs/evidence/ST/815x290/gifts-boost.png' });
     await page.locator('[data-hud="win-close"]').click();

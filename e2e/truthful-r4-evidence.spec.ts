@@ -79,7 +79,7 @@ for (const k of [1, 1.3]) {
 test('l3: the pad of stage 5 from 34 m (no plaque; M4-R1: they come in at 27 m) and from 8 m (the plaque)', async ({ page, openGame }) => {
   await openGame('pace=stages&mock_fullscreen=deny');
   const { width, height } = page.viewportSize()!;
-  // ST-02: the flat avalanche stage 5 (stage 3 is the giant's).
+  // ST-02: the dips of stage 5 (stage 2 is the giant's, stage 3 the plates, stage 4 the avalanche — its wave hides the labels).
   const st = W.stages[4]!;
   await page.evaluate(([s]) => {
     window.__TEST__!.setPlaySec(400);

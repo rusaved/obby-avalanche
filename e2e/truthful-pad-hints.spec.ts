@@ -10,7 +10,7 @@ import { STAGES, threshold } from './lv-stage-data.ts';
 
 const W = STAGES[0]!;
 const s2 = W.stages[1]!;
-// ST-02: the flat avalanche stage 5 (stage 3 is the giant's, stage 4 the cracks).
+// ST-02: the dips of stage 5 (stage 2 is the giant's, stage 3 the plates, stage 4 the avalanche — its wave hides the labels).
 const s3 = W.stages[4]!;
 const PAD_HALF = 3;
 const dirOf = (page: Page): string => {
@@ -104,7 +104,7 @@ test('mountain 1, the first run, a level short at a ridge: «Level up on a tread
     t.setStat(s);
   }, threshold(3));
   await page.touchscreen.tap(width / 2, height / 2);
-  // Stage 5 (ST-02: the flat avalanche stage), 20 m short of the ridge of stage 6.
+  // Stage 5 (ST-02: the dips), 20 m short of the ridge of stage 6.
   await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.5), [s3.finish[0] - 20, s3.y] as const);
   await waitTicks(page, 30);
   await page.waitForTimeout(2500);
