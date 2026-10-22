@@ -39,6 +39,6 @@ describe('events of the open slope (PS-13)', () => {
 
   it('gameReady carries the pace of the run (docs/06 4)', () => {
     expect(doc).toMatch(/параметр `pace` — темп этой загрузки/);
-    expect(main).toMatch(/track\('game_ready', \{ pace \}\)/);
+    expect(main).toMatch(/track\('game_ready', \{ pace(, flags: \w+)? \}\)/);
   });
 });

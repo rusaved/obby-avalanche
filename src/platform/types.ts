@@ -2,6 +2,7 @@
 // Called by: platform/{index,null,yandex}.ts, app/handles.ts; tests/platform/yandex.test.ts.
 // Keep: Contract shared by Yandex and Null platforms (docs/02-tech.md 11.1): change both implementations together; types plus mapLang only, no SDK calls.
 
+import type { EventName } from '../analytics/catalog.ts';
 import type { SaveData } from '../meta/save.ts';
 
 export type Lang = 'ru' | 'en';
@@ -57,7 +58,7 @@ export interface PlatformOptions {
   saveSlot?: string | undefined;
   /** Leaderboard name in the Yandex console; empty → leaderboard calls are no-ops. */
   leaderboardName: string;
-  track: (name: string, params?: Record<string, unknown>) => void;
+  track: (name: EventName, params?: Record<string, unknown>) => void;
 }
 
 /** ysdk.environment.i18n.lang → interface language (docs/02-tech.md 11.2, step 4). */

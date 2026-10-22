@@ -5,6 +5,8 @@
 import './styles.css';
 import { Vector3 } from 'three';
 import { content, i18nUrls, pace, usePace } from './content/index.ts';
+import type { EventName } from './analytics/catalog.ts';
+import { applyFlags, flagDefaults, type FlagDef, type FlagRoot } from './content/flags.ts';
 import { CLASSIC_PACE } from './content/pace.ts';
 import { configureAnalytics, track } from './analytics/index.ts';
 import { createPlatform } from './platform/index.ts';
@@ -155,7 +157,14 @@ async function boot(): Promise<void> {
   const platform = await createPlatform(platformOpts);
   // The remote flag `pace` (docs/06 8.1–8.2) picks the pace before the save is read; each pace keeps its own progress
   // (docs/01-gdd.md 16.1): classic in the old place, other paces in their slot.
-  const runPace = usePace((await platform.getFlags({ pace: game.pace ?? CLASSIC_PACE }))['pace']);
+  // M4-11 (docs/02-tech.md 11.11): every flag of game.json in the one getFlags call, its defaults from the pack.
+  const flagDefs = (game.flags ?? {}) as Record<string, FlagDef>;
+  const flagRoot = (): FlagRoot => ({ game: content.game, balance: content.balance, worlds: Object.fromEntries(content.worlds.worlds.map((w) => [String(w.index), w])) });
+  const flagDefaultsSent = { ...flagDefaults(flagDefs, flagRoot()), pace: game.pace ?? CLASSIC_PACE };
+  const flagValues = await platform.getFlags(flagDefaultsSent);
+  const runPace = usePace(flagValues['pace']);
+  // The flags set remotely go into the pack of the pace (clamped into their ranges, a warning, never an error).
+  const flagsApplied = applyFlags(flagDefs, flagValues, flagDefaultsSent, flagRoot(), (m) => log.warn(m), ['pace']);
   platformOpts.saveSlot = runPace === CLASSIC_PACE ? undefined : runPace;
   const { theme, tuning, balance, skins, accessories, pets, eggs, trails, auras, sfx, bots } = content;
   // RL-04 (docs/01-gdd.md 21.4): a mountain's own sky, fog and snow (theme.json tints by its id); the base — the theme's.
@@ -200,7 +209,7 @@ async function boot(): Promise<void> {
     platform.markDirty(save, { flush });
   };
   /** Funnel event of kind `player` (docs/06 section 2): sent once in the life of the player, the flag lives in the save. */
-  const trackOnce = (name: string, params?: Record<string, unknown>): void => {
+  const trackOnce = (name: EventName, params?: Record<string, unknown>): void => {
     const flags = (save.flags ??= {});
     if (flags[name]) return;
     flags[name] = true;
@@ -1420,10 +1429,16 @@ async function boot(): Promise<void> {
   };
 
   // Simulation tick (1/60 s): input → control frame → hero.
+  let firstInputSent = false;
   const simStep = (dt: number): void => {
     const t0 = performance.now();
     const snap = input.consume();
     lastSnap = snap;
+    // M4-09 (docs/06 step 3): the first move, jump or turn of the camera of the player's life.
+    if (!firstInputSent && (snap.moveX !== 0 || snap.moveY !== 0 || snap.jumpPressed || snap.manualCamera)) {
+      firstInputSent = true;
+      trackOnce('first_input');
+    }
     if (snap.manualCamera) {
       turnedByHand = true;
       lookedByMouse = snap.mouseLook;
@@ -1878,6 +1893,7 @@ async function boot(): Promise<void> {
     numSuffix,
     onStat: () => persist(),
     rewardedPlaces: game.ads?.rewarded ?? [],
+    onBoost: () => meta?.apply(),
     interstitialPoints: game.ads?.interstitial ?? [],
     sessionSec: () => playSec,
     noAds: () => !!save.flags?.['noAds'],
@@ -2221,6 +2237,13 @@ async function boot(): Promise<void> {
   hud.setTouchMode(mobile);
   input.touchActive = mobile;
   input.attach(canvas, ui);
+  // M4-10 (docs/03 7.1.5): the WebGL context lost — the game stands (no step of a world it cannot draw); restored —
+  // the renderer rebuilds its state by itself and the game goes on.
+  canvas.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault();
+    pause.add('transition');
+  });
+  canvas.addEventListener('webglcontextrestored', () => pause.remove('transition'));
 
   // Field (docs/02-tech.md 6.4): the canvas and the HUD share one rectangle; margins show sky.bottom. A phone-sized touch
   // screen — the whole window whatever the SDK says (the producer's link runs the mock, a desktop by default).
@@ -2334,7 +2357,7 @@ async function boot(): Promise<void> {
   bootState.readyAt = gr.info().frame;
   events.push('ready');
   // The pace of the run goes with gameReady: the reports split the open/fast comparison by it (docs/06 4, 8.2).
-  track('game_ready', { pace });
+  track('game_ready', { pace, flags: flagsApplied });
   persist();
   if (!pause.paused) platform.gameplayStart();
 

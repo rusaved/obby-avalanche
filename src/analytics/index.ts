@@ -2,6 +2,8 @@
 // Called by: main.ts (configureAnalytics, track); debug/index.ts and test-api/index.ts (read buffer, onTrack); tests/analytics/gold-params.test.ts.
 // Keep: sim/level/meta/core must not import this (architecture test); gold_* go as visit params, not goals; no ym call at counterId 0; index.html seeds __T0 and the buffer.
 
+import type { EventName } from './catalog.ts';
+
 /**
  * Analytics (docs/02-tech.md 13.1, docs/06): `track()` buffers events, sends them to Yandex Metrika
  * when a counter is configured, otherwise prints them in dev/playtest builds. Catalog grows at M4.
@@ -48,7 +50,7 @@ function sinceStart(): number {
   return Math.round(performance.now() - t0);
 }
 
-export function track(name: string, params?: Record<string, unknown>): void {
+export function track(name: EventName, params?: Record<string, unknown>): void {
   const ev: AnalyticsEvent = params ? { name, t: sinceStart(), params } : { name, t: sinceStart() };
   buffer.push(ev);
   listener?.(ev);

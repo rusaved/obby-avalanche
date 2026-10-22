@@ -43,6 +43,8 @@ export interface AdsViewDeps {
   numSuffix(k: string): string;
   /** The stat changed by a reward: persist and update what depends on it. */
   onStat(): void;
+  /** M4-03 (x2_stat): the ×2 step boost changed — the step gain anew. */
+  onBoost?(): void;
   /** M4-03: the places of `game.json.ads.rewarded` (docs/01-gdd.md 9.1). */
   rewardedPlaces?: readonly string[];
   /** M4-04: the points of `game.json.ads.interstitial` (docs/01-gdd.md 9.2). */
@@ -94,6 +96,13 @@ export function createAdsView(d: AdsViewDeps): AdsView {
   let interAt = -Infinity;
   let rewardedAt = -Infinity;
   const session = (): number => d.sessionSec?.() ?? now;
+  /** M4-09 (docs/06 step 14): the first «▶ Ad» button seen in this load, with its place. */
+  let adSeen = false;
+  const seen = (placement: string): void => {
+    if (adSeen) return;
+    adSeen = true;
+    track('rewarded_shown', { placement });
+  };
   /** Play seconds of the last reward of each place (its cooldown counts from there). */
   const lastAt = new Map<string, number>();
   let now = 0;
@@ -124,7 +133,6 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       if (granted) return;
       granted = true;
       lastAt.set(place, now);
-      track('rewarded_shown', { placement: place });
       d.hud.toast(give(), 3, true, undefined, undefined, true);
     };
     void d.platform
@@ -152,7 +160,10 @@ export function createAdsView(d: AdsViewDeps): AdsView {
   };
 
   const view: AdsView = {
-    giftStat: () => giftStat(d.getSim()),
+    giftStat: () => {
+      seen('stat_now');
+      return giftStat(d.getSim());
+    },
     giftAd(done) {
       const amount = giftStat(d.getSim());
       rewardAd('stat_now', () => {
@@ -213,7 +224,9 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       if (!(d.rewardedPlaces ?? []).includes('egg')) return null;
       if (busy === 'egg') return { busy: true };
       const common = now >= ads.rewardedMinPlaySec && (d.save.flags?.['firstWaveDone'] ?? false);
-      return common && !busy && cooled('egg', ads.eggPauseSec) ? { busy: false } : null;
+      if (!(common && !busy && cooled('egg', ads.eggPauseSec))) return null;
+      seen('egg');
+      return { busy: false };
     },
     eggAd(give, done) {
       rewardAd('egg', give, done);
@@ -250,6 +263,9 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       const calm = phase === 'idle' || phase === 'gone';
       const ok = common && standSec >= ads.standStillSec && calm;
       const list: Array<{ id: string; text: string; busy: boolean }> = [];
+      // M4-03 (docs/01-gdd.md 9.1, x2_stat): «▶ Ad: ×2 per step for 3 min» while no boost runs (then its badge).
+      if ((ok || busy === 'x2_stat') && !d.mu && (d.rewardedPlaces ?? []).includes('x2_stat') && ((d.save.boostSec ?? 0) <= 0 || busy === 'x2_stat'))
+        list.push({ id: 'x2_stat', text: t('ad.x2stat', { n: Math.round(d.balance.boost.x2Sec / 60) }), busy: busy === 'x2_stat' });
       if ((ok || busy) && !d.mu) {
         const n = statNow(sim);
         if ((n > 0 && cooled('stat_now', ads.statNowCooldownSec)) || busy === 'stat_now') list.push({ id: 'stat_now', text: t('ad.statNow', { n: fmt(n) }), busy: busy === 'stat_now' });
@@ -270,6 +286,8 @@ export function createAdsView(d: AdsViewDeps): AdsView {
         }
       }
       shown = list.map((b) => b.id);
+      const ad = list.find((b) => b.id !== 'continue_free');
+      if (ad) seen(ad.id);
       d.hud.setAdButtons(list);
     },
     press(id) {
@@ -293,9 +311,14 @@ export function createAdsView(d: AdsViewDeps): AdsView {
         if (granted) return;
         granted = true;
         lastAt.set(id, now);
-        track('rewarded_shown', { placement: id });
         let got = t('toast.reward');
         if (id === 'stat_now') got = t('toast.adStat', { n: fmt(amount) });
+        if (id === 'x2_stat') {
+          d.save.boostSec = (d.save.boostSec ?? 0) + d.balance.boost.x2Sec;
+          d.onBoost?.();
+          d.onStat();
+          got = t('toast.boostOn');
+        }
         if (id === 'stat_now') {
           d.getSim().progress.stat += amount;
           d.onStat();

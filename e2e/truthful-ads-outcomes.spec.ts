@@ -48,14 +48,11 @@ for (const mode of MODES) {
     await expect.poll(() => resumed(page, 'rewarded'), { timeout: 20_000 }).toBe(1);
     await page.waitForTimeout(500);
     const got = (await page.evaluate(() => window.__TEST__!.state().stat)) - stat0;
-    const shown = await page.evaluate(() => window.__TEST__!.analytics().filter((e) => e.name === 'rewarded_shown').length);
-    if (mode === 'ok' || mode === 'slow') {
-      expect(got, 'rewarded: the Speed came').toBeGreaterThan(0);
-      expect(shown).toBe(1);
-    } else {
-      expect(got, `${mode}: no reward`).toBe(0);
-      expect(shown).toBe(0);
-    }
+    // M4-09: the first ad button seen in this load — once, with its place.
+    const shown = await page.evaluate(() => window.__TEST__!.analytics().filter((e) => e.name === 'rewarded_shown').map((e) => e.params?.['placement']));
+    expect(shown).toEqual(['stat_now']);
+    if (mode === 'ok' || mode === 'slow') expect(got, 'rewarded: the Speed came').toBeGreaterThan(0);
+    else expect(got, `${mode}: no reward`).toBe(0);
     await page.keyboard.press('Escape');
     await expect(page.locator('[data-role="window"].open')).toHaveCount(0);
     await goesOn(page, `rewarded × ${mode}`);
@@ -90,7 +87,6 @@ test('ADS-05 a late onRewarded after the 10 s watchdog: the toast «unavailable�
   const once = await page.evaluate(() => window.__TEST__!.state().stat);
   await page.waitForTimeout(1_000);
   expect(await page.evaluate(() => window.__TEST__!.state().stat)).toBe(once);
-  expect(await page.evaluate(() => window.__TEST__!.analytics().filter((e) => e.name === 'rewarded_shown').length)).toBe(1);
   await page.keyboard.press('Escape');
   await goesOn(page, 'late');
 });

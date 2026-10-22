@@ -382,6 +382,7 @@
   "toast.shelterGrotto": "Гроты спасают от лавины",
   "ad.egg": "{ad} Реклама: {egg}",
   "toast.adEgg": "{egg} твоё!",
+  "ad.x2stat": "{ad} Реклама: ×2 за шаг на {n}\u00a0мин",
   "ad.statNow": "{ad} Реклама: +{n} Скорости",
   "ad.continueHere": "{ad} Реклама: продолжить отсюда",
   "toast.noReward": "Награда не получена",

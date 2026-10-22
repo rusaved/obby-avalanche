@@ -1,0 +1,53 @@
+// What: The catalog of analytics event names (docs/06-analytics.md): every name track() may send, as a type.
+// Called by: analytics/index.ts (track's name type), platform/types.ts, app views with a track dependency; tests/analytics/catalog.test.ts.
+// Keep: A new event is added here first — an unknown name fails typecheck (M4-09); the names are those of docs/06.
+
+export const EVENTS = [
+  'load_start',
+  'sdk_ready',
+  'sdk_init_slow',
+  'game_ready',
+  'startup_ad_start',
+  'startup_ad_end',
+  'first_input',
+  'gameTutorialStart',
+  'gameTutorialComplete',
+  'shoes_1',
+  'first_wave_survived',
+  'treadmill_first',
+  'egg_1',
+  'rewarded_shown',
+  'wave_real_1',
+  'daily_claim',
+  'rebirth_1',
+  'gold_take',
+  'gold_saved',
+  'gold_lost',
+  'ad_interstitial_request',
+  'ad_rewarded_request',
+  'ad_late_callback',
+  'ad_resume_ok',
+  'inter_shown',
+  'base_first',
+  'base_portal',
+  'boss_enter',
+  'boss_passed',
+  'boss_caught',
+  'boss_bot_caught',
+  'helper_hit',
+  'event_snowball',
+  'event_blizzard',
+  'record_up',
+  'camp_teleport',
+  'community_gift',
+  'community_open',
+  'review_gift',
+  'review_request',
+  'menu_open',
+  'setting_autorun',
+  'shortcut_ok',
+  'webgl_unavailable',
+] as const;
+
+/** A name of the catalog, or a numbered step: gate_N, ridge_N, session_Ns (docs/06 section 2). */
+export type EventName = (typeof EVENTS)[number] | `gate_${number}` | `ridge_${number}` | `session_${number}s`;
