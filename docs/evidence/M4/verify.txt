@@ -760,3 +760,213 @@ peeks: menu-shop · shop-tab-shoes at 815×290; menu-shop · shop-tab-eggs at 81
   ✓  537 [truthful-815x290] › e2e/truthful-size.spec.ts:97:1 › the window resized while out of the whole screen: canvas and HUD follow the visible part (10.7s)
 off buttons answered: 22
   ✓  535 [truthful-815x290] › e2e/truthful-shoes.spec.ts:101:1 › every off button of every window answers a tap with a shake and does nothing else (29.2s)
+  ✓  538 [truthful-815x290] › e2e/truthful-size.spec.ts:114:1 › the whole screen refused: the game is whole in the window — the HUD and the windows (10.0s)
+  ✓  540 [truthful-815x290] › e2e/truthful-steps.spec.ts:30:1 › the sets differ: own files and own pitch for each (404ms)
+  ✓  539 [truthful-815x290] › e2e/truthful-size.spec.ts:141:1 › a browser panel over the page: the field is the visible part of the window (visualViewport) (8.9s)
+  ✓  541 [truthful-815x290] › e2e/truthful-steps.spec.ts:38:1 › «Velvet snow» bought in the shop without a preview: chosen at once, the steps are its own — after a reload too (19.3s)
+  ✓  542 [truthful-815x290] › e2e/truthful-windows.spec.ts:102:3 › every window at 100 %: by its content, no control or line cut, the rail shows the scroll (22.4s)
+  ✓  544 [truthful-815x290] › e2e/truthful-windows.spec.ts:141:1 › «Quests»: «For all three» without scrolling; «Shop → Sneakers»: the first row whole, the second by its edge (9.8s)
+  ✓  543 [truthful-815x290] › e2e/truthful-windows.spec.ts:102:3 › every window at 130 %: by its content, no control or line cut, the rail shows the scroll (22.9s)
+  ✓  545 [truthful-815x290] › e2e/truthful-windows.spec.ts:190:1 › the sets of steps («Shop → Steps», «Footsteps») show their first row whole; «Take» of «Calendar» in sight at 130 % (11.2s)
+  ✓  546 [truthful-815x290] › e2e/truthful-windows.spec.ts:245:1 › the middle snaps by rows: after a scroll the top of the list stands on a row (9.2s)
+
+
+  1) [desktop] › e2e/open-events.spec.ts:27:1 › gameReady carries the pace; the flag pace of getFlags picks fast without ?pace=; an unknown value — game.json; ?pace= wins 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 1
+
+      Object {
+    +   "flags": Object {},
+        "pace": "stages",
+      }
+
+      29 |   await open(page, '');
+      30 |   expect((await testState(page)).pace).toBe('stages');
+    > 31 |   expect(await ready(page)).toEqual({ pace: 'stages' });
+         |                             ^
+      32 |
+      33 |   await open(page, `mock_flags=${encodeURIComponent(JSON.stringify({ pace: 'fast' }))}`);
+      34 |   let s = await testState(page);
+        at /home/user/obby-avalanche/e2e/open-events.spec.ts:31:29
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/open-events-gameReady-carr-af427-value-—-game-json-pace-wins-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/open-events-gameReady-carr-af427-value-—-game-json-pace-wins-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/open-events-gameReady-carr-af427-value-—-game-json-pace-wins-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/open-events-gameReady-carr-af427-value-—-game-json-pace-wins-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › e2e/open-perf.spec.ts:70:1 › a simulation step on mountain 10 at CPU ×4 stays within 2 ms; memory does not grow over 5 transitions 
+
+    Error: mountain 10, CPU x4, 300 ticks: sim.step mean 2.272 ms, median 1.300 ms, p90 4.500 ms, max 27.700 ms; whole tick mean 3.084 ms, median 1.800 ms, p90 6.900 ms, max 43.600 ms
+
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 2
+    Received:    2.2716666666604577
+
+      104 |   writeFileSync(`${EVIDENCE}/perf-sim.txt`, line);
+      105 |   // The mean: CPU throttling stops the page in quanta, a single tick that meets one is ~15 ms (docs/допущения.md).
+    > 106 |   expect(stepMean, line).toBeLessThanOrEqual(2);
+          |                          ^
+      107 |
+      108 |   // Memory: the same mountain after 5 other ones has as many geometries and textures as before.
+      109 |   await page.evaluate(() => window.__TEST__!.gotoWorld(1));
+        at /home/user/obby-avalanche/e2e/open-perf.spec.ts:106:26
+
+    Error Context: test-results/open-perf-a-simulation-ste-80b07-not-grow-over-5-transitions-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/open-perf-a-simulation-ste-80b07-not-grow-over-5-transitions-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/open-perf-a-simulation-ste-80b07-not-grow-over-5-transitions-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop] › e2e/sp-wave-camera.spec.ts:57:1 › the first rock: back to its mouth on the siren the camera is in his face in ≤ FACE of the frames (with shelterKeep); screenshot 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 0.25
+    Received:    0.3333333333333333
+
+      66 |   console.log(`first rock, back to the mouth: in his face ${(off.face * 100).toFixed(0)}% of ${off.frames} frames without shelterKeep, ${(on.face * 100).toFixed(0)}% of ${on.frames} with it`);
+      67 |   expect(on.frames).toBeGreaterThan(5);
+    > 68 |   expect(on.face).toBeLessThanOrEqual(FACE);
+         |                   ^
+      69 |   expect(off.face).toBeGreaterThan(on.face);
+      70 | });
+      71 |
+        at /home/user/obby-avalanche/e2e/sp-wave-camera.spec.ts:68:19
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/sp-wave-camera-the-first-r-81fa2-with-shelterKeep-screenshot-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/sp-wave-camera-the-first-r-81fa2-with-shelterKeep-screenshot-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sp-wave-camera-the-first-r-81fa2-with-shelterKeep-screenshot-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sp-wave-camera-the-first-r-81fa2-with-shelterKeep-screenshot-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [truthful-880x405] › e2e/truthful-details.spec.ts:68:1 › D5, D19, D26: marks on the middle of their words; «Rate» live ≥ 4.5:1; «Boost ×2 · 3 min» once 
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /^Буст ×2 · \d+\sмин$/
+    Received string:  "Буст ×2 · 3 мин"
+
+      116 |         return { name: tile.querySelector('.card-name')!.textContent ?? '', sub: tile.querySelector('.card-sub')!.textContent ?? '' };
+      117 |       });
+    > 118 |       expect(boost.name).toMatch(/^Буст ×2 · \d+\sмин$/);
+          |                          ^
+      119 |       expect(boost.sub, 'the minutes once').not.toMatch(/мин/);
+      120 |       // Round 3 (usability review): the gift of the HUD lights «Take» only with a tile to take (no wheel on the phone).
+      121 |       const ready = await page.locator('[data-role="gift-tiles"] [data-hud="gift-claim"]').count();
+        at /home/user/obby-avalanche/e2e/truthful-details.spec.ts:118:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/truthful-details-D5-D19-D2-55dad-5-1-«Boost-×2-·-3-min»-once-truthful-880x405/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/truthful-details-D5-D19-D2-55dad-5-1-«Boost-×2-·-3-min»-once-truthful-880x405/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/truthful-details-D5-D19-D2-55dad-5-1-«Boost-×2-·-3-min»-once-truthful-880x405/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/truthful-details-D5-D19-D2-55dad-5-1-«Boost-×2-·-3-min»-once-truthful-880x405/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [truthful-915x412] › e2e/truthful-details.spec.ts:68:1 › D5, D19, D26: marks on the middle of their words; «Rate» live ≥ 4.5:1; «Boost ×2 · 3 min» once 
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /^Буст ×2 · \d+\sмин$/
+    Received string:  "Буст ×2 · 3 мин"
+
+      116 |         return { name: tile.querySelector('.card-name')!.textContent ?? '', sub: tile.querySelector('.card-sub')!.textContent ?? '' };
+      117 |       });
+    > 118 |       expect(boost.name).toMatch(/^Буст ×2\s·\s\d+\sмин$/);
+          |                          ^
+      119 |       expect(boost.sub, 'the minutes once').not.toMatch(/мин/);
+      120 |       // Round 3 (usability review): the gift of the HUD lights «Take» only with a tile to take (no wheel on the phone).
+      121 |       const ready = await page.locator('[data-role="gift-tiles"] [data-hud="gift-claim"]').count();
+        at /home/user/obby-avalanche/e2e/truthful-details.spec.ts:118:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/truthful-details-D5-D19-D2-55dad-5-1-«Boost-×2-·-3-min»-once-truthful-915x412/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/truthful-details-D5-D19-D2-55dad-5-1-«Boost-×2-·-3-min»-once-truthful-915x412/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/truthful-details-D5-D19-D2-55dad-5-1-«Boost-×2-·-3-min»-once-truthful-915x412/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/truthful-details-D5-D19-D2-55dad-5-1-«Boost-×2-·-3-min»-once-truthful-915x412/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [truthful-815x290] › e2e/truthful-details.spec.ts:68:1 › D5, D19, D26: marks on the middle of their words; «Rate» live ≥ 4.5:1; «Boost ×2 · 3 min» once 
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /^Буст ×2 · \d+\sмин$/
+    Received string:  "Буст ×2 · 3 мин"
+
+      116 |         return { name: tile.querySelector('.card-name')!.textContent ?? '', sub: tile.querySelector('.card-sub')!.textContent ?? '' };
+      117 |       });
+    > 118 |       expect(boost.name).toMatch(/^Буст ×2\s·\s\d+\sмин$/);
+          |                          ^
+      119 |       expect(boost.sub, 'the minutes once').not.toMatch(/мин/);
+      120 |       // Round 3 (usability review): the gift of the HUD lights «Take» only with a tile to take (no wheel on the phone).
+      121 |       const ready = await page.locator('[data-role="gift-tiles"] [data-hud="gift-claim"]').count();
+        at /home/user/obby-avalanche/e2e/truthful-details.spec.ts:118:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/truthful-details-D5-D19-D2-55dad-5-1-«Boost-×2-·-3-min»-once-truthful-815x290/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/truthful-details-D5-D19-D2-55dad-5-1-«Boost-×2-·-3-min»-once-truthful-815x290/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/truthful-details-D5-D19-D2-55dad-5-1-«Boost-×2-·-3-min»-once-truthful-815x290/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/truthful-details-D5-D19-D2-55dad-5-1-«Boost-×2-·-3-min»-once-truthful-815x290/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: [desktop] › e2e/sp-belt-camera.spec.ts (10.9m)
+  Slow test file: [desktop] › e2e/sp-camera.spec.ts (6.6m)
+  Slow test file: [desktop] › e2e/fm-camera.spec.ts (6.6m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  6 failed
+    [desktop] › e2e/open-events.spec.ts:27:1 › gameReady carries the pace; the flag pace of getFlags picks fast without ?pace=; an unknown value — game.json; ?pace= wins 
+    [desktop] › e2e/open-perf.spec.ts:70:1 › a simulation step on mountain 10 at CPU ×4 stays within 2 ms; memory does not grow over 5 transitions 
+    [desktop] › e2e/sp-wave-camera.spec.ts:57:1 › the first rock: back to its mouth on the siren the camera is in his face in ≤ FACE of the frames (with shelterKeep); screenshot 
+    [truthful-880x405] › e2e/truthful-details.spec.ts:68:1 › D5, D19, D26: marks on the middle of their words; «Rate» live ≥ 4.5:1; «Boost ×2 · 3 min» once 
+    [truthful-915x412] › e2e/truthful-details.spec.ts:68:1 › D5, D19, D26: marks on the middle of their words; «Rate» live ≥ 4.5:1; «Boost ×2 · 3 min» once 
+    [truthful-815x290] › e2e/truthful-details.spec.ts:68:1 › D5, D19, D26: marks on the middle of their words; «Rate» live ≥ 4.5:1; «Boost ×2 · 3 min» once 
+  7 skipped
+  533 passed (2.3h)
+-- verify: e2e FAILED after 8425.4 s (exit 1)
+EXIT=1
