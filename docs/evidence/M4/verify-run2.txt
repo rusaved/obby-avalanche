@@ -346,3 +346,106 @@ to the shop: 8 frames, max 2% (arch 1) at camera 41.1,11.5,32.2 hero 55.3,46.3; 
 to arch 9: 27 frames, max 10% (arch 9) at camera -58.2,11.5,54.8 hero -40.4,61.5; ends at -50.6,66.8, left 0
 turn by arch 5: max 16% (arch 5) at camera -2.1,9.8,95.4 hero 9.7,96.8
   ✓  228 [desktop] › e2e/sp-base-camera.spec.ts:91:1 › the first base walked round and a turn by hand by an arch: no drawn arch over SHARE of the frame; screenshot (2.6m)
+  ✓  231 [desktop] › e2e/sp-camera.spec.ts:95:1 › 10 side grottos of mountains 1–3: out of each the view is behind the hero within shotReturnSec; screenshot (2.5m)
+  ✓  232 [desktop] › e2e/sp-camera.spec.ts:127:3 › mountain 1 summit: straight up -14 off the middle — into the portal ≤ 3 s from the funnel, the camera never in the arch or the light (18.5s)
+  ✓  233 [desktop] › e2e/sp-camera.spec.ts:127:3 › mountain 1 summit: straight up 0 off the middle — into the portal ≤ 3 s from the funnel, the camera never in the arch or the light (30.5s)
+  ✓  234 [desktop] › e2e/sp-camera.spec.ts:127:3 › mountain 1 summit: straight up 14 off the middle — into the portal ≤ 3 s from the funnel, the camera never in the arch or the light (20.1s)
+  ✓  235 [desktop] › e2e/sp-camera.spec.ts:158:1 › mountain 2: on the belt of the grotto of ridge 1 the record flag is never between the camera and the hero (300 frames) (2.0m)
+mountain 1 z 620 belt: 27 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 620 avalanche: 4 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 1020 belt: 27 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 1020 avalanche: 3 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 1050 belt: 25 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 1050 avalanche: 3 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 2 z 1660 belt: 26 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 2 z 1660 avalanche: 3 frames, hidden 0, blocked 0, at him 0, inside 0
+ridge z 320 pass x 0: 8 frames, hidden 0, at him 0, inside 0
+ridge z 630 pass x 0: 7 frames, hidden 0, at him 0, inside 0
+ridge z 1030 pass x 0: 7 frames, hidden 0, at him 0, inside 0
+  ✓  236 [desktop] › e2e/sp-camera.spec.ts:215:1 › rock grottos with a belt, mountains 1–2: on the belt and in an avalanche frame the hero is seen, the camera never at him; ridge passages (1.8m)
+belt camera (head, units; NEAR 6), 17 belts:
+m1 ridgeGrotto z 310: in 8.6, off 11.3, turn 10.7, off after the turn 9.0; 3 drags left 45°, right 45°
+m1 island z 620: in 8.3, off 8.6, turn 9.0, off after the turn 11.0; 3 drags left 45°, right 45°
+m1 chestGrotto z 411: in 9.3, off 10.3, turn 9.3, off after the turn 8.8; 3 drags left 45°, right 45°
+m1 island z 1020: in 8.2, off 8.8, turn 8.9, off after the turn 11.0; 3 drags left 45°, right 45°
+m1 island z 1050: in 9.5, off 8.6, turn 8.9, off after the turn 9.0; 3 drags left 45°, right 45°
+m2 ridgeGrotto z 360: in 8.6, off 11.2, turn 10.3, off after the turn 9.0; 3 drags left 45°, right 45°
+m2 ridgeGrotto z 740: in 8.6, off 10.9, turn 12.8, off after the turn 8.3; 3 drags left 45°, right 45°
+m2 ridgeGrotto z 1160: in 8.6, off 11.3, turn 10.3, off after the turn 8.9; 3 drags left 45°, right 45°
+m2 chestGrotto z 973: in 8.6, off 10.7, turn 8.9, off after the turn 8.7; 3 drags left 45°, right 45°
+m2 ridgeGrotto z 1630: in 7.4, off 11.5, turn 12.8, off after the turn 8.3; 3 drags left 45°, right 45°
+m2 island z 1660: in 11.5, off 7.4, turn 8.9, off after the turn 11.3; 3 drags left 45°, right 45°
+m3 ridgeGrotto z 420: in 7.4, off 11.2, turn 10.7, off after the turn 9.7; 3 drags left 45°, right 45°
+m3 ridgeGrotto z 850: in 7.4, off 11.0, turn 12.8, off after the turn 8.7; 3 drags left 45°, right 45°
+m3 chestGrotto z 643: in 9.1, off 10.2, turn 9.2, off after the turn 8.8; 3 drags left 45°, right 45°
+m3 ridgeGrotto z 1330: in 7.5, off 11.2, turn 10.3, off after the turn 9.7; 3 drags left 45°, right 45°
+m3 ridgeGrotto z 1860: in 7.5, off 11.2, turn 12.8, off after the turn 8.7; 3 drags left 45°, right 45°
+m3 island z 1890: in 8.6, off 7.6, turn 8.9, off after the turn 11.4; 3 drags left 45°, right 45°
+  ✓  230 [desktop] › e2e/sp-belt-camera.spec.ts:54:1 › belts of mountains 1–3: in, off without a turn, turned round by hand and out — the camera ≥ NEAR off the head; screenshot (12.1m)
+  ✓  238 [desktop] › e2e/sp-field.spec.ts:65:1 › in the middle of the field of mountain 1 at the hero’s level the borders are out of the frame; screenshot (27.8s)
+  ✓  237 [desktop] › e2e/sp-field.spec.ts:25:1 › a runner at an edge of the field of mountain 1 (±(width/2 − 5)) reaches a shelter on the siren 10 of 10 (3.9m)
+  ✓  240 [desktop] › e2e/sp-fork.spec.ts:68:1 › dropped on the bottom of the crevasse: out up its slope within 4 s, no fall (22.1s)
+  ✓  239 [desktop] › e2e/sp-fork.spec.ts:23:1 › each lane of the fork up to ridge 2, no fall; the other lane in the frame; screenshot (1.2m)
+  ✓  241 [desktop] › e2e/sp-fork.spec.ts:100:1 › «Two ways: pick one»: not while running through the fork; after a 2 s stop at it (26.1s)
+side grotto controls:
+mountain 1 left z 94: out by «back» at -46.3; «forward» 0° off up the slope (v 0.0, 23.9; view 0°)
+mountain 1 right z 148: out by «back» at 46.8; «forward» 0° off up the slope (v 0.0, 26.6; view 0°)
+mountain 2 left z 104: out by «back» at -49.7; «forward» 0° off up the slope (v 0.0, 30.1; view 0°)
+mountain 2 right z 168: out by «back» at 48.5; «forward» 0° off up the slope (v 0.0, 31.9; view 0°)
+  ✓  243 [desktop] › e2e/sp-grotto-controls.spec.ts:24:1 › side grottos of mountains 1–2: in sideways, out by «back», then «forward» leads up the slope (57.6s)
+  ✓  244 [desktop] › e2e/sp-pets-hint.spec.ts:6:1 › the pets hint: up with the shop on screen and the coins for the egg, never before the shop, gone without the coins (24.7s)
+advice: passed
+0.85: passed passed
+0.7: caught caught
+  ✓  242 [desktop] › e2e/sp-giant.spec.ts:216:1 › mountain 1, a run of each: the advice straight passes, 0.85 behind a rock passes, 0.7 is caught; the giant in view; the hint once; cover in the events (2.1m)
+  ✓  246 [desktop] › e2e/sp-giant.spec.ts:242:1 › draw calls in the giant’s zones of mountains 1, 5, 10 ≤ 45; screenshot of the zone of mountain 1 (1.4m)
+  ✓  247 [desktop] › e2e/sp-relief.spec.ts:83:1 › the relief of mountain 8: the terrace up to its ridge and the hump of section 2; screenshot (49.1s)
+«Phew» early: front 93.5 hero 94.0
+run 1: up to z 1241, falls 0
+run 2: up to z 425, falls 0
+run 3: up to z 1335, falls 0
+run 4: up to z 1253, falls 0
+run 5: up to z 889, falls 0
+run 6: up to z 151, falls 0
+run 7: up to z 151, falls 0
+run 8: up to z 414, falls 0
+run 9: up to z 97, falls 0
+run 10: up to z 97, falls 0
+  ✓  245 [desktop] › e2e/sp-relief.spec.ts:33:1 › mountain 1: a «child» bot, 10 runs of 40 s from the camp up the terraces — not one fall (4.7m)
+  ✓  249 [desktop] › e2e/sp-shelter-white.spec.ts:129:1 › the scripted first wave: the free egg shows only once its snow has passed the hero in the grotto (32.8s)
+«Phew» early: front 91.3 hero 94.3
+  ✓  250 [desktop] › e2e/sp-speed.spec.ts:28:1 › mountain 1: the run at ridge 2 ≥ 2.2 ×, at the giant ≥ 2.6 × the start; the camera farther and wider; screenshots (41.7s)
+  ✓  251 [desktop] › e2e/sp-speed.spec.ts:74:1 › on a belt the hero does not speed up: the belt runs, not he (15.4s)
+«Phew» early: front 90.5 hero 94.2
+«Phew» early: front 308.8 hero 310.0
+first rock, back to the mouth: in his face 100% of 36 frames without shelterKeep, 13% of 38 with it
+  ✓  252 [desktop] › e2e/sp-wave-camera.spec.ts:57:1 › the first rock: back to its mouth on the siren the camera is in his face in ≤ FACE of the frames (with shelterKeep); screenshot (1.5m)
+  ✓  253 [desktop] › e2e/steps.spec.ts:4:1 › «+N» pops above the hero on the first step; gameTutorialStart exactly once (10.3s)
+to-mountain classic 5: model {"stat":601205759.2210187,"coins":1353819265,"shoe":12,"pets":[0.8,0.5,0.4]}; game stat 601205759.2210187, coins 1353819265, shoes 12, pets ["fawn","husky","arctic_fox"]
+to-mountain classic 5: gate 1 (170) open at 23.3 s of game time on the mountain
+  ✓  254 [desktop] › e2e/to-mountain.spec.ts:24:3 › classic: «to mountain 5» — its camp with the state of the model bot, gate 1 within 30 s, the summit opens the rebirth (20.0s)
+to-mountain fast 10: model {"stat":3200585666.9492044,"coins":2746408114,"shoe":13,"pets":[0.2,0.2]}; game stat 3200585666.9492044, coins 2746408114, shoes 13, pets ["bunny","bunny"]
+to-mountain fast 10: gate 1 (102) open at 7.8 s of game time on the mountain
+  ✓  255 [desktop] › e2e/to-mountain.spec.ts:24:3 › fast: «to mountain 10» — its camp with the state of the model bot, gate 1 within 30 s, the summit opens the rebirth (16.3s)
+  ✓  256 [desktop] › e2e/treadmill.spec.ts:4:1 › belt of cave 1: steps without input × treadmill, the hero is in shelter, treadmill_first once (14.7s)
+«Phew» early: front 309.5 hero 310.0
+  ✓  257 [desktop] › e2e/wardrobe.spec.ts:4:1 › wardrobe opens with the default skin on the hero; trail and aura bought for trophies go into the step and stay after F5 (38.1s)
+  ✓  258 [desktop] › e2e/wardrobe.spec.ts:78:1 › wardrobe: a skin and wings for trophies go onto the hero, locked cards show the source; F5 keeps them (38.5s)
+«Phew» early: front 309.5 hero 310.0
+  ✓  259 [desktop] › e2e/windows.spec.ts:37:1 › no window before 180 s of play; HUD buttons come by the schedule of 6.4 in game time, never earlier (31.5s)
+«Phew» early: front 407.5 hero 411.0
+  ✓  260 [desktop] › e2e/windows.spec.ts:111:1 › every window of 10.2 opens by its button, closes by the cross, Esc, the veil and «next»; the avalanche stands; screenshots (1.3m)
+  ✓  261 [desktop] › e2e/windows.spec.ts:181:1 › «Mountain N cleared!» after every portal 1–4: the next mountain on «Next», the cross, Esc and the veil; «Tomorrow in the calendar» (40.8s)
+  ✓  262 [desktop] › e2e/windows.spec.ts:218:1 › 640×360: the column is 3 icons + «More» above 72% H, «More» lists them all and opens each window (8.3s)
+  ✓  263 [desktop] › e2e/wrong-way.spec.ts:59:3 › camera without auto-turn (classic): turned down the slope, «forward» 5 s without the mouse — viewYaw stays within 2° (17.3s)
+  ✓  264 [desktop] › e2e/wrong-way.spec.ts:78:3 › wrong-way arrow (classic): shows running down, points to the next closed gate, goes on stop and on the way up (23.6s)
+«Phew» early: front 408.3 hero 411.0
+  ✓  265 [desktop] › e2e/wrong-way.spec.ts:151:3 › no wrong-way arrow (classic) on warn and run, in a cave, in the camp, in a snowball (1.2m)
+  ✓  266 [desktop] › e2e/wrong-way.spec.ts:59:3 › camera without auto-turn (fast): turned down the slope, «forward» 5 s without the mouse — viewYaw stays within 2° (17.0s)
+«Phew» early: front 410.5 hero 411.0
+  ✓  267 [desktop] › e2e/wrong-way.spec.ts:78:3 › wrong-way arrow (fast): shows running down, points to the next closed gate, goes on stop and on the way up (28.4s)
+  ✓  268 [desktop] › e2e/wrong-way.spec.ts:151:3 › no wrong-way arrow (fast) on warn and run, in a cave, in the camp, in a snowball (1.2m)
+«Phew» early: front 617.5 hero 619.5
+  ✓  269 [mobile] › e2e/ftue.spec.ts:7:1 › first minute: bot walks walls 1–3 straight, scripted wave in cave 4, belt ×7, free egg, wall 4 — GDD-01 limits (1.1m)
+  ✓  270 [mobile] › e2e/ftue.spec.ts:81:1 › scripted wave never catches outside a cave: dusted, «Hide in a cave» toast, no snowball (11.9s)
+«Phew» early: front 619.5 hero 620.3
