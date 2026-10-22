@@ -1105,5 +1105,8 @@ export interface StageSpec {
   tierAdd?: Partial<Record<StageTier, number>>;
   /** ST-02: the rise of a step of the stairs stage (RL-05 stairs) — under controller.stepUp it is walked up from the edge. */
   stairsRise?: number;
+  /** ST-04 (producer 22.10: each mountain its own look): by mountain — the decor at the edges of every start pad (`start`)
+   * and finish (`finish`), and the landmark by the last finish (`landmark` × `size`); absent — no decor on that mountain. */
+  decor?: Array<{ start: string; finish: string; landmark: string; size: number }>;
 }
 

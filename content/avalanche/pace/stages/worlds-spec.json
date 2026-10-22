@@ -1558,6 +1558,10 @@
       "hard": 1,
       "veryHard": 2
     },
-    "stairsRise": 0.8
+    "stairsRise": 0.8,
+    "decor": [
+      { "start": "cairn", "finish": "lantern", "landmark": "cairn", "size": 3 },
+      { "start": "pine", "finish": "pine", "landmark": "pine", "size": 3.5 }
+    ]
   }
 }

@@ -142,11 +142,12 @@ test('a dodge at the last moment gets past, and the hero stays on stage 3 (a cra
 
 // Staff check 19.10: on the PC «Continue from stage N» came after a roll-back, on the phone not — the phone slot offers it
 // too (the first of a mountain free).
-test('phone: a fall on stage 4 rolls to stage 3 and the slot offers «Continue from stage 4»', async ({ page, openGame }) => {
+test('phone: a fall on the first bridge stage rolls to the stage before and the slot offers «Continue from stage N»', async ({ page, openGame }) => {
   test.setTimeout(180_000);
   await openGame('pace=stages&mock_ad=ok');
   await waitTicks(page, 10);
-  const st = STAGES[0]!.stages[3]!;
+  // ST-02: the first bridge stage of mountain 1 (off it at x 30 — the pit).
+  const st = STAGES[0]!.stages.find((x) => x.n > 2 && x.width === 'bridge')!;
   await page.evaluate(([s, z, y]) => {
     window.__TEST__!.setPlaySec(400);
     window.__TEST__!.setStat(s);

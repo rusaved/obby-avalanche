@@ -259,6 +259,22 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       const trunk: LevelBox = { min: [p.x - 0.4, p.y, p.z - 0.4], max: [p.x + 0.4, p.y + 2, p.z + 0.4], material: 'trunk', kind: 'decor', solid: false };
       const crown: LevelBox = { min: [p.x - 1.8, p.y + 1.5, p.z - 1.8], max: [p.x + 1.8, p.y + 6, p.z + 1.8], material: 'tree', kind: 'decor', solid: false };
       bucketOf(p.z).push(boxGeometry(trunk, theme), boxGeometry(crown, theme));
+    } else if (p.type === 'decor' && p['kind'] === 'pine') {
+      // ST-04 (mountain 2): a pine — a trunk and three tiers narrowing up; `size` — the landmark by the summit.
+      const k = typeof p['size'] === 'number' ? (p['size'] as number) : 1;
+      const parts: LevelBox[] = [{ min: [p.x - 0.35 * k, p.y, p.z - 0.35 * k], max: [p.x + 0.35 * k, p.y + 2.2 * k, p.z + 0.35 * k], material: 'trunk', kind: 'decor', solid: false }];
+      for (const [w, y0, y1] of [[1.5, 1.4, 3.4], [1.1, 3.1, 5.1], [0.65, 4.8, 6.8]] as const)
+        parts.push({ min: [p.x - w * k, p.y + y0 * k, p.z - w * k], max: [p.x + w * k, p.y + y1 * k, p.z + w * k], material: 'tree', kind: 'decor', solid: false });
+      bucketOf(p.z).push(...parts.map((b) => boxGeometry(b, theme)));
+    } else if (p.type === 'decor' && p['kind'] === 'cairn') {
+      // ST-04 (mountain 1): a cairn of stones with a small flag on top; `size` — the landmark by the summit.
+      const k = typeof p['size'] === 'number' ? (p['size'] as number) : 1;
+      const parts: LevelBox[] = [];
+      for (const [w, y0, y1] of [[1.1, 0, 0.8], [0.8, 0.8, 1.5], [0.5, 1.5, 2.1]] as const)
+        parts.push({ min: [p.x - w * k, p.y + y0 * k, p.z - w * k], max: [p.x + w * k, p.y + y1 * k, p.z + w * k], material: 'rock', kind: 'decor', solid: false });
+      parts.push({ min: [p.x - 0.08 * k, p.y + 2.1 * k, p.z - 0.08 * k], max: [p.x + 0.08 * k, p.y + 3.4 * k, p.z + 0.08 * k], material: 'pole', kind: 'decor', solid: false });
+      parts.push({ min: [p.x + 0.08 * k, p.y + 2.8 * k, p.z - 0.04 * k], max: [p.x + 0.9 * k, p.y + 3.35 * k, p.z + 0.04 * k], material: 'tent', kind: 'decor', solid: false });
+      bucketOf(p.z).push(...parts.map((b) => boxGeometry(b, theme)));
     } else if (p.type === 'decor' && p['kind'] === 'tent') {
       const tent: LevelBox = { min: [p.x - 2.5, p.y, p.z - 2.5], max: [p.x + 2.5, p.y + 3, p.z + 2.5], material: 'tent', kind: 'decor', solid: false };
       bucketOf(p.z).push(boxGeometry(tent, theme));

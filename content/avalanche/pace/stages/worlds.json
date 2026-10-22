@@ -769,6 +769,27 @@
           "mult": 1
         },
         {
+          "type": "decor",
+          "z": 334,
+          "x": 46,
+          "y": 12,
+          "kind": "cairn"
+        },
+        {
+          "type": "decor",
+          "z": 431,
+          "x": -46,
+          "y": 12,
+          "kind": "lantern"
+        },
+        {
+          "type": "decor",
+          "z": 449,
+          "x": 46,
+          "y": 12,
+          "kind": "lantern"
+        },
+        {
           "type": "floor",
           "z": 452,
           "length": 8,
@@ -934,6 +955,27 @@
           "length": 12,
           "width": 6,
           "mult": 1
+        },
+        {
+          "type": "decor",
+          "z": 466,
+          "x": -46,
+          "y": 16,
+          "kind": "cairn"
+        },
+        {
+          "type": "decor",
+          "z": 648.875,
+          "x": -46,
+          "y": 16,
+          "kind": "lantern"
+        },
+        {
+          "type": "decor",
+          "z": 666.875,
+          "x": 46,
+          "y": 16,
+          "kind": "lantern"
         },
         {
           "type": "floor",
@@ -1247,6 +1289,27 @@
           "mult": 1.2
         },
         {
+          "type": "decor",
+          "z": 683.875,
+          "x": 46,
+          "y": 20,
+          "kind": "cairn"
+        },
+        {
+          "type": "decor",
+          "z": 904.489,
+          "x": -46,
+          "y": 20,
+          "kind": "lantern"
+        },
+        {
+          "type": "decor",
+          "z": 922.489,
+          "x": 46,
+          "y": 20,
+          "kind": "lantern"
+        },
+        {
           "type": "floor",
           "z": 925.489,
           "length": 8,
@@ -1426,6 +1489,27 @@
           "mult": 1.2
         },
         {
+          "type": "decor",
+          "z": 939.489,
+          "x": -46,
+          "y": 24,
+          "kind": "cairn"
+        },
+        {
+          "type": "decor",
+          "z": 1236.028,
+          "x": -46,
+          "y": 24,
+          "kind": "lantern"
+        },
+        {
+          "type": "decor",
+          "z": 1254.028,
+          "x": 46,
+          "y": 24,
+          "kind": "lantern"
+        },
+        {
           "type": "floor",
           "z": 1257.028,
           "length": 8,
@@ -1588,6 +1672,27 @@
           "length": 12,
           "width": 6,
           "mult": 1.5
+        },
+        {
+          "type": "decor",
+          "z": 1271.028,
+          "x": 46,
+          "y": 28,
+          "kind": "cairn"
+        },
+        {
+          "type": "decor",
+          "z": 1506.3,
+          "x": -46,
+          "y": 28,
+          "kind": "lantern"
+        },
+        {
+          "type": "decor",
+          "z": 1524.3,
+          "x": 46,
+          "y": 28,
+          "kind": "lantern"
         },
         {
           "type": "floor",
@@ -1791,6 +1896,27 @@
           "length": 12,
           "width": 6,
           "mult": 1.5
+        },
+        {
+          "type": "decor",
+          "z": 1541.3,
+          "x": -46,
+          "y": 32,
+          "kind": "cairn"
+        },
+        {
+          "type": "decor",
+          "z": 1681.115,
+          "x": -46,
+          "y": 32,
+          "kind": "lantern"
+        },
+        {
+          "type": "decor",
+          "z": 1699.115,
+          "x": 46,
+          "y": 32,
+          "kind": "lantern"
         },
         {
           "type": "floor",
@@ -2160,6 +2286,27 @@
           "mult": 1.5
         },
         {
+          "type": "decor",
+          "z": 1716.115,
+          "x": 46,
+          "y": 36,
+          "kind": "cairn"
+        },
+        {
+          "type": "decor",
+          "z": 1793.115,
+          "x": -46,
+          "y": 36,
+          "kind": "lantern"
+        },
+        {
+          "type": "decor",
+          "z": 1811.115,
+          "x": 46,
+          "y": 36,
+          "kind": "lantern"
+        },
+        {
           "type": "floor",
           "z": 1814.115,
           "length": 8,
@@ -2348,6 +2495,27 @@
           "mult": 2
         },
         {
+          "type": "decor",
+          "z": 1828.115,
+          "x": -46,
+          "y": 40,
+          "kind": "cairn"
+        },
+        {
+          "type": "decor",
+          "z": 2055.523,
+          "x": -46,
+          "y": 40,
+          "kind": "lantern"
+        },
+        {
+          "type": "decor",
+          "z": 2073.523,
+          "x": 46,
+          "y": 40,
+          "kind": "lantern"
+        },
+        {
           "type": "floor",
           "z": 2076.523,
           "length": 8,
@@ -2497,6 +2665,36 @@
           "length": 12,
           "width": 6,
           "mult": 2
+        },
+        {
+          "type": "decor",
+          "z": 2090.523,
+          "x": 46,
+          "y": 44,
+          "kind": "cairn"
+        },
+        {
+          "type": "decor",
+          "z": 2236.029,
+          "x": -46,
+          "y": 44,
+          "kind": "lantern"
+        },
+        {
+          "type": "decor",
+          "z": 2254.029,
+          "x": 46,
+          "y": 44,
+          "kind": "lantern"
+        },
+        {
+          "type": "decor",
+          "z": 2255.029,
+          "x": 42,
+          "y": 44,
+          "kind": "cairn",
+          "size": 3,
+          "landmark": true
         },
         {
           "type": "floor",
@@ -3463,6 +3661,27 @@
           "mult": 2.5
         },
         {
+          "type": "decor",
+          "z": 46,
+          "x": -46,
+          "y": 0,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 170.382,
+          "x": -46,
+          "y": 1.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 188.382,
+          "x": 46,
+          "y": 1.6,
+          "kind": "pine"
+        },
+        {
           "type": "floor",
           "z": 191.382,
           "length": 8,
@@ -3625,6 +3844,27 @@
           "length": 12,
           "width": 6,
           "mult": 2.5
+        },
+        {
+          "type": "decor",
+          "z": 205.382,
+          "x": 46,
+          "y": 5.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 484.582,
+          "x": -46,
+          "y": 5.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 502.582,
+          "x": 46,
+          "y": 5.6,
+          "kind": "pine"
         },
         {
           "type": "floor",
@@ -3904,6 +4144,27 @@
           "length": 12,
           "width": 6,
           "mult": 3
+        },
+        {
+          "type": "decor",
+          "z": 519.582,
+          "x": -46,
+          "y": 9.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 756.516,
+          "x": -46,
+          "y": 9.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 774.516,
+          "x": 46,
+          "y": 9.6,
+          "kind": "pine"
         },
         {
           "type": "floor",
@@ -4217,6 +4478,27 @@
           "mult": 3
         },
         {
+          "type": "decor",
+          "z": 791.516,
+          "x": 46,
+          "y": 13.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 1087.117,
+          "x": -46,
+          "y": 13.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 1105.117,
+          "x": 46,
+          "y": 13.6,
+          "kind": "pine"
+        },
+        {
           "type": "floor",
           "z": 1108.117,
           "length": 8,
@@ -4382,6 +4664,27 @@
           "length": 12,
           "width": 6,
           "mult": 4
+        },
+        {
+          "type": "decor",
+          "z": 1122.117,
+          "x": -46,
+          "y": 17.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 1399.732,
+          "x": -46,
+          "y": 17.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 1417.732,
+          "x": 46,
+          "y": 17.6,
+          "kind": "pine"
         },
         {
           "type": "floor",
@@ -4561,6 +4864,27 @@
           "length": 12,
           "width": 6,
           "mult": 4
+        },
+        {
+          "type": "decor",
+          "z": 1434.732,
+          "x": 46,
+          "y": 21.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 1828.648,
+          "x": -46,
+          "y": 21.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 1846.648,
+          "x": 46,
+          "y": 21.6,
+          "kind": "pine"
         },
         {
           "type": "floor",
@@ -4800,6 +5124,27 @@
           "mult": 5
         },
         {
+          "type": "decor",
+          "z": 1863.648,
+          "x": -46,
+          "y": 25.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 1960.648,
+          "x": -46,
+          "y": 25.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 1978.648,
+          "x": 46,
+          "y": 25.6,
+          "kind": "pine"
+        },
+        {
           "type": "floor",
           "z": 1981.648,
           "length": 8,
@@ -4970,6 +5315,27 @@
           "length": 12,
           "width": 6,
           "mult": 5
+        },
+        {
+          "type": "decor",
+          "z": 1995.648,
+          "x": 46,
+          "y": 29.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 2274.666,
+          "x": -46,
+          "y": 29.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 2292.666,
+          "x": 46,
+          "y": 29.6,
+          "kind": "pine"
         },
         {
           "type": "floor",
@@ -5339,6 +5705,27 @@
           "mult": 6
         },
         {
+          "type": "decor",
+          "z": 2309.666,
+          "x": -46,
+          "y": 33.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 2386.666,
+          "x": -46,
+          "y": 33.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 2404.666,
+          "x": 46,
+          "y": 33.6,
+          "kind": "pine"
+        },
+        {
           "type": "floor",
           "z": 2407.666,
           "length": 8,
@@ -5488,6 +5875,36 @@
           "length": 12,
           "width": 6,
           "mult": 6
+        },
+        {
+          "type": "decor",
+          "z": 2421.666,
+          "x": 46,
+          "y": 37.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 2605.119,
+          "x": -46,
+          "y": 37.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 2623.119,
+          "x": 46,
+          "y": 37.6,
+          "kind": "pine"
+        },
+        {
+          "type": "decor",
+          "z": 2624.119,
+          "x": 42,
+          "y": 37.6,
+          "kind": "pine",
+          "size": 3.5,
+          "landmark": true
         },
         {
           "type": "floor",

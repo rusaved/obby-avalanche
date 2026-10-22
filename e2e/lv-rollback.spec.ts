@@ -3,8 +3,9 @@ import { STAGES, flagOf, ready, threshold } from './lv-stage-data.ts';
 
 // LV-08 (docs/01-gdd.md 22.9): a fall rolls the hero to the flag of the stage before within 2 s, nothing lost; «Continue
 // from stage N» for 60 s — the first of a mountain free, the next one by the rewarded ad.
-const st = STAGES[0]!.stages[3]!;
-const prev = STAGES[0]!.stages[2]!;
+// ST-02: the first bridge stage of mountain 1 (off it at x 30 — the pit), the stage before it.
+const st = STAGES[0]!.stages.find((s) => s.n > 2 && s.width === 'bridge')!;
+const prev = STAGES[0]!.stages[st.n - 2]!;
 test(`a fall on stage ${st.n} (${st.type}) → the flag of stage ${prev.n}; continue free once, then by the ad`, async ({ page, openGame }) => {
   test.setTimeout(180_000);
   await page.setViewportSize({ width: 1280, height: 720 });

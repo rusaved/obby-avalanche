@@ -327,6 +327,8 @@ export interface TestApi {
   /** The ×2 boost for `sec` seconds of play and the ad views toward the egg, as an ad would give them (M3-08; ads — M4). */
   setBoost(sec: number): void;
   setAdEgg(k: number): void;
+  /** ST-07: eggs for an ad already taken today (ads.eggPerDay). */
+  setAdEggToday(n: number): void;
   /** Quest progress as the game counts it, and play seconds today (M3-08b). */
   questProgress(id: string, amount: number): void;
   addPlayToday(sec: number): void;
@@ -1019,6 +1021,10 @@ export function installTestApi(g: GameHandles): TestApi {
     },
     setAdEgg(k) {
       g.save.adEgg = k;
+      g.persist(true);
+    },
+    setAdEggToday(n) {
+      g.save.adEggDay = { day: Math.floor(Date.now() / 86_400_000), n };
       g.persist(true);
     },
     questProgress(id, amount) {

@@ -518,6 +518,15 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     seg.push({ type: 'block', z: round3(pad.z - 3), z1: round3(pad.z + 3), x0: round3(pad.x - 3), x1: round3(pad.x + 3), y0: round3(y - 0.5), y1: round3(y + 0.25), material: 'trophyPad', kind: 'trophyPad' });
     // The treadmill of the finish (22.8; the belt of the ridge grotto of 17.4): Speed by the closed ridge, × the step of the stage.
     seg.push({ type: 'treadmill', z: pad.z, x: -padX, y, length: 12, width: 6, mult: zone.stepMult ?? 1 });
+    // ST-04: the decor of the mountain at the edges of the start pad (across from its grotto) and of the finish, off the pads.
+    const dec = cfg.decor?.[index - 1];
+    if (dec) {
+      const edge = round3(half - 4);
+      seg.push({ type: 'decor', z: round3(start - cfg.start / 2), x: (s % 2 === 0 ? 1 : -1) * edge, y: yStart, kind: dec.start });
+      seg.push({ type: 'decor', z: round3(end + 3), x: -edge, y, kind: dec.finish });
+      seg.push({ type: 'decor', z: round3(end + cfg.finish - 3), x: edge, y, kind: dec.finish });
+      if (s === K) seg.push({ type: 'decor', z: round3(end + cfg.finish - 2), x: round3(-Math.sign(padX) * (half - 8)), y, kind: dec.landmark, size: dec.size, landmark: true });
+    }
     safe.push([end, round3(end + cfg.finish)]);
     stages.push({ n: s, type, z0: round3(z0), start, end, finish: [end, round3(end + cfg.finish)], y: yStart, level, speed: v, width, trophies: trophiesOf(s), pad, ...(cut ? { cut } : {}), ...(maze ? { maze } : {}), ...(tier ? { tier } : {}) });
     z = round3(end + cfg.finish);
