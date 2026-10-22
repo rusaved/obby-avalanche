@@ -209,7 +209,7 @@ export interface SimOptions {
   events?: { cfg: GameEvents; seed: number; force?: EventId | undefined } | undefined;
   /** The giant (game.json threat.boss): with the zones of the level the mountain has giants. */
   boss?: { margin: number; reach: number; run?: number | undefined } | undefined;
-  /** ST-06: whether the pad of stage n still pays this time (meta/trophies.ts padPays); absent — always. A spent pad flies nowhere. */
+  /** ST-06: whether the pad of stage n still pays this time (meta/trophies.ts padPays); absent — always. The flight to the camp stays. */
   padPay?: ((stage: number) => boolean) | undefined;
 }
 
@@ -572,8 +572,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
           // ST-06 (producer 22.10: the first stage farmed for ever): a pad taken its number of times pays nothing, the flight stays.
           const spent = opts.padPay ? !opts.padPay(st.n) : false;
           const amount = spent ? 0 : scaled(st.trophies, tier, opts.balance.rebirth);
-          // A spent pad is just ground: no flight to the camp (review: it took the hero back for nothing).
-          if (!spent) campIn = CAMP_RETURN_TICKS;
+          // The flight to the camp stays for a spent pad too (ST-06 criterion; Q-ST-2 — the review asked for none).
+          campIn = CAMP_RETURN_TICKS;
           campFrom = st.n;
           if (!padsPayTrophies) sim.coins += amount;
           events.emit('trophyTake', { tick: sim.tick, stage: st.n, amount, x: st.pad.x, y: st.pad.y, z: st.pad.z, total: sim.coins, trophies: padsPayTrophies, ...(spent ? { spent } : {}) });

@@ -30,3 +30,32 @@ describe('ST-06 stage pads behind the farthest stage pay a few times a life', ()
     expect(padPays(save, 2, 1, 3)).toBe(true);
   });
 });
+
+import { createSim } from '../../src/sim/world.ts';
+import { NO_INPUT } from '../../src/sim/controller.ts';
+import { buildLevel } from '../../src/level/builder.ts';
+import { mergePatch } from '../../src/content/pace.ts';
+import { levelThreshold } from '../../src/sim/levels.ts';
+import type { BalanceJson, TuningJson, WorldsJson } from '../../src/content/types.ts';
+
+describe('ST-06 the sim: a spent pad pays nothing, says so, the flight to the camp stays', () => {
+  const read = (f: string): unknown => JSON.parse(readFileSync(resolve(__dirname, '../../content/avalanche', f), 'utf8'));
+  const tuning = mergePatch(read('tuning.json'), read('pace/stages/tuning.json')) as unknown as TuningJson;
+  const balance = mergePatch(read('balance.json'), read('pace/stages/balance.json')) as unknown as BalanceJson;
+  const w = (read('pace/stages/worlds.json') as WorldsJson).worlds[0]!;
+  it('padPay false: amount 0 and spent; the camp after it', () => {
+    const st = w.stages!.find((s) => s.n === 3)!;
+    const sim = createSim(buildLevel(w), tuning, { balance, speedCurve: balance.speedCurve, stat: levelThreshold(st.level, balance.levels!), padPay: () => false });
+    const got: Array<{ amount: number; spent?: boolean }> = [];
+    let camp = 0;
+    sim.events.on('trophyTake', (p) => void got.push({ amount: p.amount, ...(p.spent ? { spent: true } : {}) }));
+    sim.events.on('campReturn', () => void camp++);
+    const coins0 = sim.coins;
+    sim.teleport(st.pad.x, st.pad.y + 0.05, st.pad.z);
+    for (let i = 0; i < 5; i++) sim.step(NO_INPUT, 1 / 60);
+    expect(got).toEqual([{ amount: 0, spent: true }]);
+    expect(sim.coins).toBe(coins0);
+    for (let i = 0; i < 120 && camp === 0; i++) sim.step(NO_INPUT, 1 / 60);
+    expect(camp).toBe(1);
+  });
+});
