@@ -718,3 +718,45 @@ in the blizzard: feet 40.71, air 65.72
   ✓  500 [truthful-815x290] › e2e/truthful-cave.spec.ts:63:1 › standing at a cave mouth within the grace: the wave lets him off, no «back to the stage start», he stays (25.2s)
   ✘  502 [truthful-815x290] › e2e/truthful-details.spec.ts:68:1 › D5, D19, D26: marks on the middle of their words; «Rate» live ≥ 4.5:1; «Boost ×2 · 3 min» once (8.4s)
   ✓  503 [truthful-815x290] › e2e/truthful-details.spec.ts:131:1 › D38: the tiles of «More» keep 8 px around their words at 130 % (8.0s)
+  ✓  505 [truthful-815x290] › e2e/truthful-evidence.spec.ts:22:3 › the run, the ridge, the pad, the level toast, the strip (16.9s)
+  ✓  506 [truthful-815x290] › e2e/truthful-evidence.spec.ts:80:3 › the windows «Gifts», «Quests», «Shop → Sneakers», «Rebirth», «Calendar» (16.3s)
+  ✓  504 [truthful-815x290] › e2e/truthful-details.spec.ts:160:1 › A58: no stub of the ridge post under its plaque (40.4s)
+  ✓  507 [truthful-815x290] › e2e/truthful-evidence.spec.ts:22:3 › the run, the ridge, the pad, the level toast, the strip at 130 % (17.1s)
+  ✓  508 [truthful-815x290] › e2e/truthful-evidence.spec.ts:80:3 › the windows «Gifts», «Quests», «Shop → Sneakers», «Rebirth», «Calendar» at 130 % (16.3s)
+series 1: caught 10, passed 0, bots by the zone at 6 meetings; towards the hero 67 of 67 samples {"turn":7,"chase":60}
+  ✓  509 [truthful-815x290] › e2e/truthful-giant.spec.ts:14:3 › series 1 from a clean save: holding forward is caught at 10 meetings in a row, bots about (31.7s)
+series 2: caught 10, passed 0, bots by the zone at 5 meetings; towards the hero 64 of 66 samples {"turn":6,"chase":60}
+  ✓  510 [truthful-815x290] › e2e/truthful-giant.spec.ts:14:3 › series 2 from a clean save: holding forward is caught at 10 meetings in a row, bots about (31.1s)
+815: bar 320, shoes 158, to the jump 101
+655: bar 302, shoes 118 (short), to the jump 24
+  ✓  512 [truthful-815x290] › e2e/truthful-hud.spec.ts:46:1 › the bar and the shoes on one line between the stick and the jump, «N Speed» 8 px over the bar; at −160 px too (9.8s)
+series 3: caught 10, passed 0, bots by the zone at 6 meetings; towards the hero 63 of 64 samples {"turn":7,"chase":57}
+  ✓  511 [truthful-815x290] › e2e/truthful-giant.spec.ts:14:3 › series 3 from a clean save: holding forward is caught at 10 meetings in a row, bots about (31.0s)
+  ✓  513 [truthful-815x290] › e2e/truthful-hud.spec.ts:80:1 › the stage strip slides in on a new stage, at a ridge and at the giant for 2–3 s, then hides; the slot moves up (17.0s)
+  ✓  515 [truthful-815x290] › e2e/truthful-labels.spec.ts:60:1 › a run to the pad of stage 3: «Stage reward» only within 31 m, no blinking, a quarter wide at most (11.4s)
+  ✓  514 [truthful-815x290] › e2e/truthful-hud.spec.ts:120:1 › toasts keep out of the middle; «Stage reward» never on the hero (13.4s)
+  ✓  517 [truthful-815x290] › e2e/truthful-pad-hints.spec.ts:49:1 › «Stand on the gold pad» only near the pad, with an arrow; the label from 27 m and never over the pad (16.6s)
+  ✓  516 [truthful-815x290] › e2e/truthful-labels.spec.ts:87:1 › a run to the arches of the base: the portal plaques only within 31 m, no blinking (17.9s)
+  ✓  518 [truthful-815x290] › e2e/truthful-pad-hints.spec.ts:94:1 › mountain 1, the first run, a level short at a ridge: «Level up on a treadmill» with an arrow (11.5s)
+  ✓  520 [truthful-815x290] › e2e/truthful-pads.spec.ts:50:1 › on the pad: «Stage reward» without «you can run past» once taken (9.8s)
+no peek: more-wardrobe · wardrobe-tab-skins at 815×290
+peeks: menu-shop · shop-tab-shoes at 815×290; menu-shop · shop-tab-eggs at 815×290; more-wardrobe · wardrobe-tab-wings at 815×290
+  ✓  521 [truthful-815x290] › e2e/truthful-peek.spec.ts:38:1 › Q-MU-18 Б: the next plain row peeks ≤ 16 px, a card with a button is never cut (18.3s)
+  ✓  522 [truthful-815x290] › e2e/truthful-r4-evidence.spec.ts:29:3 › every window and tab at 100 % (25.9s)
+  ✓  519 [truthful-815x290] › e2e/truthful-pads.spec.ts:15:1 › straight runs up through the finishes of stages 2–5, anywhere across the passes (x −38…38), never step on the pad (1.3m)
+  ✓  524 [truthful-815x290] › e2e/truthful-r4-evidence.spec.ts:79:1 › l3: the pad of stage 3 from 34 m (no plaque; M4-R1: they come in at 27 m) and from 8 m (the plaque) (11.8s)
+  ✓  523 [truthful-815x290] › e2e/truthful-r4-evidence.spec.ts:29:3 › every window and tab at 130 % (27.9s)
+  ✓  526 [truthful-815x290] › e2e/truthful-r4-evidence.spec.ts:131:1 › the row of the HUD in a frame squeezed by a sticky banner on the right (a stub of 160 px) (9.3s)
+  ✓  525 [truthful-815x290] › e2e/truthful-r4-evidence.spec.ts:100:1 › the base: from the arrival and at the arch of its portal (15.7s)
+  ✓  527 [truthful-815x290] › e2e/truthful-r4-rest.spec.ts:42:1 › the gift calendar: «Coins +N» on day 1, the skin and «Velvet snow» on day 2, the dot of the boost on its line (8.9s)
+  ✓  528 [truthful-815x290] › e2e/truthful-r4-rest.spec.ts:69:1 › «Rebirth»: «Spend the coins…» seen without a scroll (9.8s)
+  ✓  529 [truthful-815x290] › e2e/truthful-r4-rest.spec.ts:87:1 › «Gifts»: Telegram and VK with their words, not cut (9.6s)
+  ✓  530 [truthful-815x290] › e2e/truthful-r4-rest.spec.ts:103:1 › squeezed by the banner (−160 px): «Mountain N · stage» stays on top between the moments of the strip (12.8s)
+  ✓  531 [truthful-815x290] › e2e/truthful-r5-evidence.spec.ts:27:3 › every window and tab at 100 % (24.6s)
+  ✓  532 [truthful-815x290] › e2e/truthful-r5-evidence.spec.ts:27:3 › every window and tab at 130 % (27.0s)
+  ✓  533 [truthful-815x290] › e2e/truthful-rise.spec.ts:16:1 › the rises of mountains 1–2: nothing hangs over them (21.0s)
+  ✓  534 [truthful-815x290] › e2e/truthful-shoes.spec.ts:57:1 › the shoes button: blue with «Sneakers» over it when it buys, quiet and shaking with «Short of N» when not (11.9s)
+  ✓  536 [truthful-815x290] › e2e/truthful-size.spec.ts:56:1 › the first tap of a finger asks for the whole screen; outside it any tap asks again (11.1s)
+  ✓  537 [truthful-815x290] › e2e/truthful-size.spec.ts:97:1 › the window resized while out of the whole screen: canvas and HUD follow the visible part (10.7s)
+off buttons answered: 22
+  ✓  535 [truthful-815x290] › e2e/truthful-shoes.spec.ts:101:1 › every off button of every window answers a tap with a shake and does nothing else (29.2s)
