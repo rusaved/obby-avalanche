@@ -47,7 +47,7 @@
   var BANNER_ON = cfg.mock_banner !== undefined ? cfg.mock_banner === '1' : PAGES;
   var BANNER_W = 160;
   var AD_SLOW_OPEN_MS = 5000;
-  var STARTUP_AD_MS = 2000;
+  var STARTUP_AD_MS = Number(cfg.mock_startup_ad_ms) || 2000;
 
   function now() { return Date.now() + timeOffset + advanced; }
   function later(fn, ms) { return root.setTimeout(fn, ms); }
@@ -210,6 +210,11 @@
   function showFullscreenAdv(opts) {
     record('adv.showFullscreenAdv');
     var cb = callbacksOf(opts);
+    if (adMode === 'silent') return;
+    if (adMode === 'late') {
+      later(function () { safe(cb.onOpen); safe(cb.onClose, true); }, 12000);
+      return;
+    }
     if (adBusy) { later(function () { safe(cb.onError, new Error('yasdk-mock: another ad is open')); safe(cb.onClose, false); }, 0); return; }
     if (adMode === 'error') { later(function () { safe(cb.onError, new Error('yasdk-mock: ad error')); safe(cb.onClose, false); }, 0); return; }
     if (adMode === 'noshow') { later(function () { safe(cb.onClose, false); }, 0); return; }
@@ -231,6 +236,12 @@
   function showRewardedVideo(opts) {
     record('adv.showRewardedVideo');
     var cb = callbacksOf(opts);
+    // M4-03: ?mock_ad=silent — no callback ever (the game's 10 s watchdog); late — the whole show 12 s later.
+    if (adMode === 'silent') return;
+    if (adMode === 'late') {
+      later(function () { safe(cb.onOpen); safe(cb.onRewarded); safe(cb.onClose); }, 12000);
+      return;
+    }
     if (adBusy) { later(function () { safe(cb.onError, new Error('yasdk-mock: another ad is open')); safe(cb.onClose); }, 0); return; }
     if (adMode === 'error') { later(function () { safe(cb.onError, new Error('yasdk-mock: ad error')); safe(cb.onClose); }, 0); return; }
     if (adMode === 'noshow') { later(function () { safe(cb.onClose); }, 0); return; }

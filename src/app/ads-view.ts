@@ -43,6 +43,8 @@ export interface AdsViewDeps {
   numSuffix(k: string): string;
   /** The stat changed by a reward: persist and update what depends on it. */
   onStat(): void;
+  /** M4-03: the places of `game.json.ads.rewarded` (docs/01-gdd.md 9.1). */
+  rewardedPlaces?: readonly string[];
   /** M4-04: the points of `game.json.ads.interstitial` (docs/01-gdd.md 9.2). */
   interstitialPoints?: readonly string[];
   /** M4-04: play seconds of this load (from gameReady; pauses not counted). */
@@ -70,6 +72,11 @@ export interface AdsView {
   /** M4-04: the player pressed at `point` — a fullscreen ad if its rules allow (called at once, within the press), then
    * `then` (at once when no ad). The game stands («ad») while it plays and goes on after any outcome. */
   interstitial(point: InterstitialPoint, then: () => void): void;
+  /** M4-03 (docs/01-gdd.md 9.1, place egg): «▶ Ad: {egg}» may be offered now (60 s of play and the first avalanche over,
+   * ads.eggPauseSec since the last one); null — not now. */
+  eggOffer(): { busy: boolean } | null;
+  /** M4-03: that ad; `give` on `rewarded` (the egg hatches) returns the toast, `done` after any outcome. */
+  eggAd(give: () => string, done: () => void): void;
 }
 
 export function createAdsView(d: AdsViewDeps): AdsView {
@@ -111,14 +118,24 @@ export function createAdsView(d: AdsViewDeps): AdsView {
     busy = place;
     d.pause.add('ad');
     done();
+    // M4-05 (docs/02-tech.md 11.5): the reward once per call — on rewarded, or on a late rewarded after the watchdog.
+    let granted = false;
+    const grant = (): void => {
+      if (granted) return;
+      granted = true;
+      lastAt.set(place, now);
+      track('rewarded_shown', { placement: place });
+      d.hud.toast(give(), 3, true, undefined, undefined, true);
+    };
     void d.platform
-      .showRewarded(place)
+      .showRewarded(place, () => {
+        grant();
+        done();
+      })
       .then((r) => {
         if (!r.error) rewardedAt = session();
-        if (r.rewarded) {
-          lastAt.set(place, now);
-          d.hud.toast(give(), 3, true, undefined, undefined, true);
-        } else d.hud.toast(t(r.error ? 'toast.adUnavailable' : 'toast.noReward'));
+        if (r.rewarded) grant();
+        else d.hud.toast(t(r.error ? 'toast.adUnavailable' : 'toast.noReward'));
       })
       .finally(() => {
         busy = null;
@@ -192,6 +209,15 @@ export function createAdsView(d: AdsViewDeps): AdsView {
           then();
         });
     },
+    eggOffer() {
+      if (!(d.rewardedPlaces ?? []).includes('egg')) return null;
+      if (busy === 'egg') return { busy: true };
+      const common = now >= ads.rewardedMinPlaySec && (d.save.flags?.['firstWaveDone'] ?? false);
+      return common && !busy && cooled('egg', ads.eggPauseSec) ? { busy: false } : null;
+    },
+    eggAd(give, done) {
+      rewardAd('egg', give, done);
+    },
     get shown() {
       return shown;
     },
@@ -261,31 +287,38 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       const where = id === 'stat_now' ? { mountain: sim.level.worldIndex } : {};
       busy = id;
       d.pause.add('ad');
+      // M4-05 (docs/02-tech.md 11.5): the reward once per call — on rewarded, or on a late rewarded after the watchdog.
+      let granted = false;
+      const grant = (): void => {
+        if (granted) return;
+        granted = true;
+        lastAt.set(id, now);
+        track('rewarded_shown', { placement: id });
+        let got = t('toast.reward');
+        if (id === 'stat_now') got = t('toast.adStat', { n: fmt(amount) });
+        if (id === 'stat_now') {
+          d.getSim().progress.stat += amount;
+          d.onStat();
+        }
+        // Back on the record flag, where the hero was caught (docs/01-gdd.md 17.11).
+        const r = d.getSim().record;
+        if (id === 'continue_here' && stageOffer) {
+          got = t('toast.adStage', { n: stageOffer.stage });
+          const at = d.getSim().stageStart(stageOffer.stage);
+          d.getSim().teleport(at.x, at.y, at.z);
+          stageOffer = null;
+        } else if (id === 'continue_here' && r) {
+          d.getSim().teleport(r.x, r.y, r.z);
+          continueUntil = -Infinity;
+        }
+        d.hud.toast(got, 3, true, undefined, undefined, true);
+      };
       void d.platform
-        .showRewarded(id)
+        .showRewarded(id, grant)
         .then((r) => {
           if (!r.error) rewardedAt = session();
-          if (r.rewarded) {
-            lastAt.set(id, now);
-            let got = t('toast.reward');
-            if (id === 'stat_now') got = t('toast.adStat', { n: fmt(amount) });
-            if (id === 'stat_now') {
-              d.getSim().progress.stat += amount;
-              d.onStat();
-            }
-            // Back on the record flag, where the hero was caught (docs/01-gdd.md 17.11).
-            const r = d.getSim().record;
-            if (id === 'continue_here' && stageOffer) {
-              got = t('toast.adStage', { n: stageOffer.stage });
-              const at = d.getSim().stageStart(stageOffer.stage);
-              d.getSim().teleport(at.x, at.y, at.z);
-              stageOffer = null;
-            } else if (id === 'continue_here' && r) {
-              d.getSim().teleport(r.x, r.y, r.z);
-              continueUntil = -Infinity;
-            }
-            d.hud.toast(got, 3, true, undefined, undefined, true);
-          } else d.hud.toast(t(r.error ? 'toast.adUnavailable' : 'toast.noReward'));
+          if (r.rewarded) grant();
+          else d.hud.toast(t(r.error ? 'toast.adUnavailable' : 'toast.noReward'));
         })
         .finally(() => {
           busy = null;

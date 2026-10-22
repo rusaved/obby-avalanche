@@ -293,6 +293,8 @@ canvas.fallback {
 .card.on { box-shadow: 0 0 0 3px #4cd964 inset; }
 .card-name { font-size: 13px; font-weight: 800; line-height: 1.1; }
 /* M4-R4: what else a calendar day brings (day 2 — a set of steps), a quieter line under the name. */
+/* M4-03: «▶ Ad: {egg}» — a quiet button across the egg card, under its chances. */
+.egg-ad { width: 100%; margin-top: 6px; }
 .card-extra { display: block; max-width: 100%; font-size: 12px; font-weight: 600; line-height: 1.15; opacity: 0.85; }
 .card-big { font-size: 20px; font-weight: 800; }
 .card-sub { font-size: 12px; opacity: 0.8; }

@@ -1543,7 +1543,7 @@
     "milestone": "M4",
     "description": "Протокол паузы docs/03-yandex-compliance.md, 2.3: причины ad, sdk, hidden, blur, menu, shop, pointerlock, orientation, transition (единый список docs/02-tech.md, 4.3); звук и симуляция стоят; GameplayAPI start/stop на переходах",
     "acceptance": "e2e (имена с SND-02, SND-03, SND-04): AudioContext в suspended не позже 2 с после blur, hidden, game_api_pause и открытия рекламы; после снятия всех причин игра и звук идут; GameplayAPI.start и stop в журнале мока только на переходах, без повторов подряд",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
@@ -1552,7 +1552,7 @@
     "milestone": "M4",
     "description": "Стартовая реклама платформы: game_api_pause и game_api_resume до первого старта геймплея, события startup_ad_start и startup_ad_end",
     "acceptance": "e2e с ?mock_startup_ad=1: пока идёт ролик, лавина и звук стоят, ввод не двигает героя; после resume игра стартует; события startup_ad_start и startup_ad_end ушли по одному разу",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

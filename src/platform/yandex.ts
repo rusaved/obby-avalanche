@@ -38,6 +38,11 @@ export class YandexPlatform implements Platform {
   private readonly store: KeyValueStore;
   private readyDone = false;
   private gameplay: boolean | null = null;
+  /** M4-02: the SDK holds the game paused (game_api_pause without its resume yet); the startup ad seen. */
+  private sdkPaused = false;
+  private startupAd: 'none' | 'open' | 'done' = 'none';
+  /** M4-03 (GDD-05; docs/02-tech.md 11.5): every ad call has its own requestId — a late callback counts for its own only. */
+  private adSeq = 0;
   private pauseCbs: Array<() => void> = [];
   private resumeCbs: Array<() => void> = [];
   /** Cloud writes (11.6): debounce, token bucket and retries on the platform clock. */
@@ -77,10 +82,21 @@ export class YandexPlatform implements Platform {
     this.lang = mapLang(sdk.environment?.i18n?.lang);
     this.device = (sdk.deviceInfo?.type as DeviceType | undefined) ?? 'desktop';
     // Subscribed right away: the platform may show its own startup ad without callbacks (11.2, step 3).
+    // M4-02 (docs/06 step 2): a pause before the first start of gameplay is the platform's startup ad.
     sdk.on('game_api_pause', () => {
+      this.sdkPaused = true;
+      if (this.gameplay === null && this.startupAd === 'none') {
+        this.startupAd = 'open';
+        this.opts.track('startup_ad_start');
+      }
       for (const cb of this.pauseCbs) cb();
     });
     sdk.on('game_api_resume', () => {
+      this.sdkPaused = false;
+      if (this.startupAd === 'open') {
+        this.startupAd = 'done';
+        this.opts.track('startup_ad_end');
+      }
       for (const cb of this.resumeCbs) cb();
     });
     // getPlayer once per launch, cached (limit 20 calls per 5 minutes). Unauthorized is fine.
@@ -137,6 +153,8 @@ export class YandexPlatform implements Platform {
 
   onPause(cb: () => void): void {
     this.pauseCbs.push(cb);
+    // M4-02: the startup ad may come before the game listens — it learns of the pause at once.
+    if (this.sdkPaused) cb();
   }
 
   onResume(cb: () => void): void {
@@ -146,7 +164,8 @@ export class YandexPlatform implements Platform {
   showInterstitial(placement: string): Promise<{ shown: boolean }> {
     const sdk = this.sdk;
     if (!sdk) return Promise.resolve({ shown: false });
-    this.opts.track('ad_interstitial_request', { placement });
+    const requestId = `${placement}-${++this.adSeq}`;
+    this.opts.track('ad_interstitial_request', { placement, requestId });
     return new Promise((resolve) => {
       let done = false;
       let opened = false;
@@ -176,10 +195,11 @@ export class YandexPlatform implements Platform {
     });
   }
 
-  showRewarded(placement: string): Promise<{ rewarded: boolean; error?: string }> {
+  showRewarded(placement: string, onLate?: () => void): Promise<{ rewarded: boolean; error?: string }> {
     const sdk = this.sdk;
     if (!sdk) return Promise.resolve({ rewarded: false, error: 'unavailable' });
-    this.opts.track('ad_rewarded_request', { placement });
+    const requestId = `${placement}-${++this.adSeq}`;
+    this.opts.track('ad_rewarded_request', { placement, requestId });
     return new Promise((resolve) => {
       let done = false;
       let opened = false;
@@ -204,7 +224,15 @@ export class YandexPlatform implements Platform {
               opened = true;
             },
             onRewarded: () => {
-              // Idempotent: a second onRewarded never grants twice (11.5).
+              // Idempotent: a second onRewarded never grants twice (11.5), before or after the watchdog.
+              if (done) {
+                // After the watchdog: still the reward, once for this requestId (11.5).
+                if (rewarded) return;
+                rewarded = true;
+                this.opts.track('ad_late_callback', { placement, requestId });
+                onLate?.();
+                return;
+              }
               rewarded = true;
             },
             onClose: () => finish(),

@@ -362,7 +362,7 @@ export interface TestApi {
 declare global {
   interface Window {
     __TEST__?: TestApi;
-    __YA_MOCK__?: { advance(ms: number): void; calls: Array<{ name: string; args: unknown[]; t: number }>; violations: string[] };
+    __YA_MOCK__?: { advance(ms: number): void; calls: Array<{ name: string; args: unknown[]; t: number }>; violations: string[]; sdk: { dispatchEvent(name: string): Promise<void> } };
   }
 }
 

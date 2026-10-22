@@ -9,7 +9,7 @@
  * its condition («First: Runners», «Unlocks on mountain 2»).
  */
 import { t } from './i18n.ts';
-import { icon } from './icons.ts';
+import { icon, setRich } from './icons.ts';
 import { markIcon } from './daily-panel.ts';
 import { playButton, stepEnd } from './footsteps-panel.ts';
 
@@ -41,6 +41,8 @@ export interface ShopCard {
   sound?: boolean;
   /** Round of fixes MU: a picture (an icon id, drawn in `color`) instead of the swatch — the sneakers. */
   pic?: string;
+  /** M4-03 (docs/01-gdd.md 9.1, place egg): «▶ Ad: {egg}» under the card; `busy` — locked until the ad answers. */
+  ad?: { text: string; busy: boolean };
 }
 
 export interface ShopPanelModel {
@@ -61,6 +63,8 @@ export interface ShopPanelActions {
   equip(id: string): void;
   /** MU-12: listen to a set of steps. */
   preview?(id: string): void;
+  /** M4-03: the rewarded ad of a card (the egg of the mountain). */
+  ad?(id: string): void;
 }
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string): HTMLElementTagNameMap[K] {
@@ -237,5 +241,14 @@ function eggCard(card: HTMLElement, c: ShopCard, a: ShopPanelActions): HTMLEleme
     odds.appendChild(chip);
   }
   card.replaceChildren(top, odds);
+  // M4-03 (docs/01-gdd.md 9.1; 07 rule 13: the ad with its mark and the word «Ad», not by the main button): the egg of
+  // the mountain for an ad, a quiet button under the chances.
+  if (c.ad && c.state !== 'locked') {
+    const ad = el('button', c.ad.busy ? 'card-btn quiet egg-ad off' : 'card-btn quiet egg-ad');
+    ad.dataset['hud'] = 'shop-egg-ad';
+    setRich(ad, c.ad.text);
+    if (!c.ad.busy) ad.addEventListener('click', () => a.ad?.(c.id));
+    card.appendChild(ad);
+  }
   return card;
 }

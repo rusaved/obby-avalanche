@@ -29,6 +29,8 @@ export interface ShopTabSource {
   /** MU-12 (the «Steps» tab): put an owned item on; listen to an item. */
   equip?(id: string): void;
   preview?(id: string): void;
+  /** M4-03: the rewarded ad of a card (the egg of the mountain). */
+  ad?(id: string): void;
 }
 import { renderWardrobePanel, skinFigure, type LookCard, type WardrobeTab, type WingsLook } from '../ui/wardrobe-panel.ts';
 import { formatMult, formatNumber, shownTier } from '../ui/format.ts';
@@ -104,7 +106,7 @@ export function createCosmeticsView(d: CosmeticsViewDeps): CosmeticsView {
     };
     const source = tab === 'shoes' || tab === 'eggs' || tab === 'steps' ? d.shopTabs?.[tab] : undefined;
     if (source) {
-      renderShopPanel(body, head, { tab, tabs: tabs(), balance: source.balance(), coin: !(source.trophies?.() ?? false), cards: source.cards(), ...(d.wallet ? { wallet: d.wallet() } : {}) }, { tab: toTab, buy: (id) => source.buy(id), equip: (id) => source.equip?.(id), ...(source.preview ? { preview: source.preview } : {}) });
+      renderShopPanel(body, head, { tab, tabs: tabs(), balance: source.balance(), coin: !(source.trophies?.() ?? false), cards: source.cards(), ...(d.wallet ? { wallet: d.wallet() } : {}) }, { tab: toTab, buy: (id) => source.buy(id), equip: (id) => source.equip?.(id), ...(source.preview ? { preview: source.preview } : {}), ...(source.ad ? { ad: source.ad } : {}) });
       return;
     }
     const kind = kindOf(tab);

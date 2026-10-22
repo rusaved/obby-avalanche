@@ -57,6 +57,8 @@ export interface PetsViewDeps {
   onHatch?(): void;
   /** Mountain of each egg (worlds.json `egg`) and the highest mountain open on this tier: the shop tab «Eggs». */
   eggWorlds?: Record<string, number>;
+  /** M4-03: «▶ Ad: {egg}» on the card of the egg of the mountain the hero is on — offered now, or null. */
+  eggAd?(): { busy: boolean } | null;
   openWorld?(): number;
   /** «OK» of the «New pet!» window: back to the shop tab «Eggs». */
   toShop?(): void;
@@ -74,7 +76,8 @@ export interface PetsView {
    * with no room in the inventory. */
   petsHint(): boolean;
   /** «Buy» on an egg card: the egg hatches at once into the «New pet!» window; no room — the «Pets» window. */
-  buyFromShop(egg: string): boolean;
+  /** `free` — M4-03: the egg for an ad, no coins taken. */
+  buyFromShop(egg: string, free?: boolean): boolean;
   /** The egg button pressed: buys the egg of the stand (or opens the window when there is no room). */
   buyEgg(): boolean;
   openWindow(): void;
@@ -260,6 +263,10 @@ export function createPetsView(d: PetsViewDeps): PetsView {
       return hintEgg(d.save, d.pets, slots, open, (e) => eggPrice(e, sim.tier, d.balance.rebirth), sim.coins, rule) !== null;
     },
     shopCards() {
+      // M4-03 (docs/01-gdd.md 9.1, ads.eggViews 1): one ad — the egg of the mountain the hero is on, at once.
+      const offer = d.eggAd?.() ?? null;
+      const adOf = (egg: Egg, world: number): { ad: { text: string; busy: boolean } } | null =>
+        offer && world === (d.save.world ?? 1) ? { ad: { text: t('ad.egg', { egg: t(`egg.${egg.id}`) }), busy: offer.busy } } : null;
       const sim = d.getSim();
       const open = d.openWorld?.() ?? 1;
       return d.eggs.eggs.map((egg): ShopCard => {
@@ -280,10 +287,11 @@ export function createPetsView(d: PetsViewDeps): PetsView {
           lines: egg.pool.map((x) => `${t(`pet.${x.pet}`)} ${formatMult(Math.round(x.chance * 1000) / 10, d.numSuffix)}%`),
           chances: egg.pool.map((x) => ({ name: t(`pet.${x.pet}`), color: petDef(x.pet)?.color ?? '#ffffff', accent: petDef(x.pet)?.accent ?? '#ffffff', pct: `${formatMult(Math.round(x.chance * 1000) / 10, d.numSuffix)}%` })),
           ...(noRoom ? { action: t('toast.noSpace') } : {}),
+          ...(adOf(egg, world) ?? {}),
         };
       });
     },
-    buyFromShop(id) {
+    buyFromShop(id, free = false) {
       const egg = d.eggs.eggs.find((x) => x.id === id);
       if (!egg || (d.eggWorlds?.[id] ?? 1) > (d.openWorld?.() ?? 1)) return false;
       if (full()) {
@@ -291,7 +299,7 @@ export function createPetsView(d: PetsViewDeps): PetsView {
         return false;
       }
       const sim = d.getSim();
-      const price = eggPrice(egg, sim.tier, d.balance.rebirth);
+      const price = free ? 0 : eggPrice(egg, sim.tier, d.balance.rebirth);
       if (!(sim.coins >= price)) return false;
       sim.coins -= price;
       d.hud.setCoins(formatNumber(sim.coins, d.numSuffix));

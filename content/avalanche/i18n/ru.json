@@ -380,6 +380,8 @@
   "boss.caught": "Великан поймал!",
   "toast.recordUp": "Новая высота!",
   "toast.shelterGrotto": "Гроты спасают от лавины",
+  "ad.egg": "{ad} Реклама: {egg}",
+  "toast.adEgg": "{egg} твоё!",
   "ad.statNow": "{ad} Реклама: +{n} Скорости",
   "ad.continueHere": "{ad} Реклама: продолжить отсюда",
   "toast.noReward": "Награда не получена",

@@ -1877,6 +1877,7 @@ async function boot(): Promise<void> {
     moving: () => input.autoRun || (lastSnap ? lastSnap.moveX !== 0 || lastSnap.moveY !== 0 : false) || !!g.botPath,
     numSuffix,
     onStat: () => persist(),
+    rewardedPlaces: game.ads?.rewarded ?? [],
     interstitialPoints: game.ads?.interstitial ?? [],
     sessionSec: () => playSec,
     noAds: () => !!save.flags?.['noAds'],
@@ -1924,6 +1925,7 @@ async function boot(): Promise<void> {
   const petsVisual = createPetsVisual(theme);
   gr.scene.add(petsVisual.group);
   petsView = createPetsView({
+    eggAd: () => adsView?.eggOffer() ?? null,
     balance,
     pets,
     eggs,
@@ -1989,6 +1991,15 @@ async function boot(): Promise<void> {
         buy: (id) => {
           if (!petsView?.buyFromShop(id)) windows?.refresh();
         },
+        // M4-03 (place egg): the egg of the mountain for an ad — it hatches on `rewarded` («New pet!»).
+        ad: (id) =>
+          adsView?.eggAd(
+            () => {
+              petsView?.buyFromShop(id, true);
+              return t('toast.adEgg', { egg: t(`egg.${id}`) });
+            },
+            () => windows?.refresh(),
+          ),
       },
     },
     trophiesDue: () => hudDueNow().has('trophies'),

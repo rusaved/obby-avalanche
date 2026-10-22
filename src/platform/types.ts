@@ -27,7 +27,8 @@ export interface Platform {
   onPause(cb: () => void): void;
   onResume(cb: () => void): void;
   showInterstitial(placement: string): Promise<{ shown: boolean }>;
-  showRewarded(placement: string): Promise<{ rewarded: boolean; error?: string }>;
+  /** `onLate` — M4-05 (docs/02-tech.md 11.5): `onRewarded` came after the watchdog answered — the reward still once. */
+  showRewarded(placement: string, onLate?: () => void): Promise<{ rewarded: boolean; error?: string }>;
   loadSave(): Promise<SaveData | null>;
   markDirty(data: SaveData, opts?: { flush?: boolean }): void;
   flushNow(): Promise<void>;
