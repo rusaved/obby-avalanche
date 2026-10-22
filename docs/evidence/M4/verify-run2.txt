@@ -93,3 +93,58 @@ dist-e2e/assets/index-C6fc148e.js                         1,752.88 kB │ gzip: 
 -- verify: build:e2e ok, 3.0 s
 
 == verify: e2e
+
+Running 546 tests using 2 workers
+
+  ✓    1 [desktop] › e2e/ads-flags.spec.ts:30:1 › M4-12 interstitialCooldownSec 120 from the flag: the second fullscreen ad after 120 s, not before; getFlags once; the flags in game_ready (15.1s)
+  ✓    2 [desktop] › e2e/ads-flags.spec.ts:48:1 › M4-11 a flag below its range is clamped (cooldown 60 → 120), getFlags failing keeps the defaults with no error (17.2s)
+  ✓    3 [desktop] › e2e/ads-flags.spec.ts:59:1 › M4-04 ads.skipFirstPortal false (flag): the first «Next» of a new player brings the ad too (12.9s)
+  ✓    4 [desktop] › e2e/ads-inter.spec.ts:34:1 › ADS-03 menu: no fullscreen ad in the first 180 s, then within the press, then not before the cooldown (13.9s)
+  ✓    6 [desktop] › e2e/ads-inter.spec.ts:89:1 › ADS-03 «No ads»: no fullscreen ad at any point (10.0s)
+  ✓    5 [desktop] › e2e/ads-inter.spec.ts:61:1 › ADS-03 portal: the first «Next» of a new player passes with no ad and sets firstPortalDone; the next one shows it (20.9s)
+  ✓    7 [desktop] › e2e/ads-pause.spec.ts:35:1 › SND-02 SND-03 SND-04: blur, a hidden tab, game_api_pause and an open ad suspend the sound and the game; GameplayAPI only on transitions (12.9s)
+  ✓    8 [desktop] › e2e/ads-pause.spec.ts:72:1 › M4-02 the startup ad: the game stands while it plays and starts after it; startup_ad_start and startup_ad_end once (11.1s)
+  ✓   10 [desktop] › e2e/ads-rewarded.spec.ts:47:1 › ADS-04 no callback for 10 s: the button locked, then the game goes on with a toast, no reward (19.9s)
+  ✓    9 [desktop] › e2e/ads-rewarded.spec.ts:23:1 › ADS-04 HUD: after 1 s of standing; hidden within a frame on a move and on the warning; none while it runs (28.1s)
+  ✓   11 [desktop] › e2e/ads-rewarded.spec.ts:63:1 › ADS-04 egg: «▶ Ad: {egg}» on the egg of the mountain in «Shop → Eggs» — one view, the egg at once (15.2s)
+  ✓   12 [desktop] › e2e/ads-rewarded.spec.ts:95:1 › ADS-04 x2_stat: «▶ Ad: ×2 per step for 3 min» while no boost runs; the boost of 180 s after the ad (13.8s)
+  ✓   13 [desktop] › e2e/analytics.spec.ts:6:1 › M4-09 the funnel: game_ready → first_input once; session_60s, 180s, 300s, 600s once each in game time; no Metrika (16.6s)
+bot-world1: {"sec":382.96666666666664,"shoes":3,"walls":12,"caught":1,"waves":5,"portal":true} — game minutes 6.38
+  ✓   15 [desktop] › e2e/bot-world1.spec.ts:116:1 › bot on game time plays mountain 1 to the portal with shoe purchases, no console errors (48.2s)
+  ✓   16 [desktop] › e2e/bots.spec.ts:8:1 › 6 bots with character names, unique on the mountain; no names in shots, promo or with showNames: false (19.7s)
+  ✓   14 [desktop] › e2e/avalanche.spec.ts:21:1 › avalanche: scripted wave in cave 1, then a normal wave — warn and shelter screenshots, camera in the cave, gifts back after gone (1.5m)
+  ✓   17 [desktop] › e2e/bots.spec.ts:47:1 › photo studio: bots without names (9.1s)
+  ✓   18 [desktop] › e2e/bots.spec.ts:55:1 › quality low: 3 bots (6.5s)
+  ✓   20 [desktop] › e2e/camera.spec.ts:6:3 › camera › at three points near walls the camera is never inside the geometry (15.5s)
+  ✓   21 [desktop] › e2e/camera.spec.ts:32:3 › camera › with camera.autoTurn = true the auto-turn pulls the view towards +Z and changes only viewYaw (14.0s)
+  ✓   22 [desktop] › e2e/camera.spec.ts:52:3 › camera › FOV at full speed exceeds the resting FOV by fovSpeedAdd from tuning.json (13.2s)
+  ✓   19 [desktop] › e2e/bots.spec.ts:61:1 › 5 minutes of play: on warn ≥ 90% of the bots run to caves; no bot ever above a wall closed for the hero (1.2m)
+camera walk: walls 12, waves 2, shot true, {"frames":763,"inside":0,"heroHidden":0,"heroNear":0,"heroBlocked":3,"signBlocked":0,"tight":293,"bad":["hero blocked t=37.65 hero=(10.6,12.0,184.6) cam=(17.0,15.4,178.2)","hero blocked t=98.56666666666666 hero=(10.8,24.0,364.5) cam=(17.3,28.5,359.4)","hero blocked t=138.25 hero=(-11.1,30.0,456.3) cam=(-17.3,34.3,450.4)"],"headFrames":345,"headBlocked":0,"headBy":{},"bossFrames":0,"bossSeen":0,"portal":0,"flagBlocked":0,"flagFrames":0,"headMin":2.624999999999987,"headMinAt":"hero (-0.0,54.0,848.3) camera (-0.9,60.8,848.9) tight false fixed 0.00 raise 1.44 dist 3.1 pitch -0.17 view 0.00 shot false belt false shelter -1","shelterRun":97,"shelterWhite":0}
+  ✓   23 [desktop] › e2e/camera.spec.ts:70:1 › walk of mountain 1 by botPath: the camera is never inside a collider and never loses the hero (2.2m)
+  ✓   24 [desktop] › e2e/camera.spec.ts:160:1 › open, mountain 10 at 120 units/s: in 600 frames the camera never within hideDistance of the hero (1.8m)
+  ✓   26 [desktop] › e2e/characters.spec.ts:4:1 › faces.png: eight emotions in a row; nine characters still fit in 8 draw calls (11.3s)
+  ✓   27 [desktop] › e2e/characters.spec.ts:17:1 › hero close-up: three-quarter view screenshot (15.1s)
+  ✓   25 [desktop] › e2e/caught.spec.ts:4:1 › snowed in on the slope: toast, the ball rolls into the cave below within 2 s, nothing lost; screenshot caught_1920x1080_ru.png (1.2m)
+  ✓   29 [desktop] › e2e/daily.spec.ts:99:1 › calendar on a phone 844×390: cards 4 + 3, «Claim» inside the screen (6.7s)
+  ✓   28 [desktop] › e2e/daily.spec.ts:16:1 › calendar: claim day 1, F5 keeps it, 19 h later still locked, 20 h later day 2; boost and ad egg survive F5 and the day change (49.2s)
+  ✓   31 [desktop] › e2e/debug.spec.ts:30:3 › debug panel › Export gives JSON that passes the tuning.json schema (5.8s)
+  ✓   30 [desktop] › e2e/debug.spec.ts:8:3 › debug panel › a slider change applies at once: doubled baseSpeed doubles the run speed (12.6s)
+  ✓   32 [desktop] › e2e/debug.spec.ts:40:3 › debug panel › on a phone the panel starts collapsed and the overlay shows level, DPR and frame time (5.6s)
+fast-mountain: {"sec":105.53333333333333,"walls":15,"passSec":[3.9,6.5,8,9.4,11.5,12.7,30.5,36.5,41.2,47.4,53,59.8,67.2,73,104.2],"maxDown":2.340237049441498,"standOffBelt":0,"gateStandMax":0,"shoes":2,"waves":2,"caught":0,"portal":true,"standAt":[],"firstBelt":{"passed":6,"shelter":6,"playSec":13.96666666666694},"axisMax6":16.59942593364924,"axisAt":"(16.6,6.0,117.7) cave:1 t=5.5 wave idle fun {\"padFlight\":false,\"launches\":1,\"top\":12.81250000000001,\"onSlide\":-1,\"slideLeft\":0,\"runSpeed\":22.346652614722814}","arrive":[null,null,"52",null,"92",null,null,null,null,null,null,null,"5974.800000000026"]} — game seconds 105.5
+  ✓   33 [desktop] › e2e/fast-mountain.spec.ts:220:1 › fast pace: the bot plays mountain 1 to the portal within 120 s of game time, never down the slope, at a closed gate only on its belt (1.2m)
+fast-gates: gates [3.3,5.5,6.9,8.4,10.8,12,34.9,61.7]; shoes_1 4.6 s, treadmill_first 13.6 s; first belt {"passed":6,"shelter":6,"playSec":13.583333333333588}; off the axis before gate 6 8.7 at (-8.7,15.0,257.2) cave:4 t=10.3 wave idle fun {"padFlight":false,"launches":2,"top":12.812500000000014,"onSlide":-1,"slideLeft":0,"runSpeed":25.055155480827914}; stat at the gates [null,"22","44","64","72 closed","102","1090.0000000000005 closed","1231.6000000000054 closed"]
+  ✓   35 [desktop] › e2e/fast-mountain.spec.ts:291:1 › fast pace, gates 1–6 on the way: the straight bot passes them without a belt; the first belt and treadmill_first are in the cave of gate 7 (49.3s)
+ftue-fast: gate_1 2.7 s, shoes_1 5.4 s, gate_3 7.3 s, first_wave_survived 20.5 s, egg_1 22.1 s, treadmill_first 14.3 s; gate 8 35.8 s; summit 78.0 s; gates [4,6.8,8.1,9.5,11.3,12.7,29.8,35.8,40.6,46.6,52.2,57.8,64.2,70.6,76.6]
+  ✓   34 [desktop] › e2e/fast-mountain.spec.ts:238:1 › fast pace, first 2 minutes: gate_1 ≤ 8 s, gate_3 ≤ 20 s, the scripted wave in a cave ≤ 50 s, egg after it, gate 8 ≤ 75 s, summit ≤ 120 s; no window or interstitial before 180 s (2.3m)
+  ✓   37 [desktop] › e2e/fast-mountain.spec.ts:354:1 › fast pace: «Гора a/10» on the rebirth button and in its window; the rebirth opens only after the summit of mountain 10 (7.4s)
+base draw calls: 27
+base → portal 2: 1.9 s of game time
+  ✓   38 [desktop] › e2e/fm-base.spec.ts:13:1 › mountain 1 → «Mountain 1 cleared!» → «Next» → the base (base_first) → portal 2 within 10 s → the camp of mountain 2; screenshots; draw calls (36.6s)
+  ✓   39 [desktop] › e2e/fm-base.spec.ts:49:1 › F5 on mountain 3 after ridge 2 → the base → portal 3 («ridge 2/3») → the flag of ridge 2 (48.3s)
+  ✓   36 [desktop] › e2e/fast-mountain.spec.ts:306:1 › fast pace: every one of the 10 mountains loads by teleport (camp, middle, summit), draw calls within 60; screenshots (2.0m)
+  ✓   41 [desktop] › e2e/fm-base.spec.ts:94:1 › base.json off: the summit of mountain 1 → «Next» → the camp of mountain 2, as before FM (15.3s)
+  ✓   40 [desktop] › e2e/fm-base.spec.ts:75:1 › mountain 1 run again from the base: its summit with no window, chest or trophies — «Top again!» and back to the base (35.9s)
+  ✓   43 [desktop] › e2e/fm-bounds.spec.ts:78:3 › mountain 1: up along the left funnel wall of the summit, jumping — no fall, never past the portal beside it (16.6s)
+  ✓   44 [desktop] › e2e/fm-bounds.spec.ts:78:3 › mountain 1: up along the right funnel wall of the summit, jumping — no fall, never past the portal beside it (15.7s)
+  ✓   45 [desktop] › e2e/fm-camera.spec.ts:60:1 › mountain 1 foot → summit: the head is behind something opaque in ≤ 2% of the frames, the giant in the frame ≥ 90%; screenshot (1.1m)
+  ✓   46 [desktop] › e2e/fm-camera.spec.ts:77:1 › mountain 1, the giant’s zone: a turn by hand is the player’s; screenshot of the giant in the frame (23.1s)
