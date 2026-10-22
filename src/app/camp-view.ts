@@ -1,4 +1,4 @@
-// What: The stage tutorial and the camp of the stages pace (docs/01-gdd.md 22.12): «Run to the reward» → «Take the trophies» → «+3 levels» one at a time; the teleport pad of the camp opens the stages passed, each for its trophies.
+// What: The stage tutorial and the camp of the stages pace (docs/01-gdd.md 22.12; ST-01: treadmill → level → the way → the reward pad → sneakers → the gift → on → the portal of mountain 2 → its stage 2, one at a time); the teleport pad of the camp opens the stages passed, each for its trophies.
 // Called by: main.ts (createCampView, update every frame; trophyTake from the sim events); test-api/index.ts via app/handles.ts.
 // Keep: Reads the sim and the save, changes only the wallet (a teleport's price), the hero's place and save.tutor/stageBest; texts via t(); no stages on the mountain — nothing.
 
@@ -21,8 +21,20 @@ const SHOES_HINT_AHEAD = 40;
 export const TELEPORT_WINDOW = 'campTeleport';
 /** The hero stands on the teleport pad within this half side (the pad is 6 × 6). */
 const PAD_REACH = 3.2;
-/** Levels the last tutorial step asks for (docs/01-gdd.md 22.12: «+3 levels»). */
-const TUTOR_LEVELS = 3;
+/**
+ * ST-01 (producer 22.10: the tutorial 2–3 times fuller, up to stage 2 of mountain 2): the steps in order; save.tutor —
+ * how many are done (TUTOR_DONE — all). A step shows only while its moment is there (a belt near, a closed ridge, a pad
+ * near, sneakers affordable, a gift ready, the base, mountain 2) and never over a window; a later step whose moment comes
+ * first waits for the earlier ones — the next step is always the first one not done.
+ */
+export const TUTOR_STEPS = ['belt', 'level', 'pass', 'pad', 'shoes', 'gift', 'onward', 'portal', 'next'] as const;
+export type TutorStep = (typeof TUTOR_STEPS)[number];
+export const TUTOR_DONE = TUTOR_STEPS.length;
+/** «Stand on the treadmill» shows with a belt this close (m), done after this long on it (s). */
+const BELT_NEAR = 60;
+const BELT_SEC = 1;
+/** «The way is open, run!» within this distance of the ridge just opened (m). */
+const PASS_NEAR = 40;
 /** «Jump!» shows this close before a pit on the line of the run, and no later than JUMP_HINT_SEC of the run before it
  * (LV-12 re-check: at 14 units it came 0.4 s before the edge on a phone). */
 const JUMP_HINT_AHEAD = 14;
@@ -53,6 +65,10 @@ export interface CampViewDeps {
   aim?(x: number, y: number, z: number): number;
   /** MU round 5: a place is inside the frame now. */
   seen?(x: number, y: number, z: number): boolean;
+  /** ST-01: a gift of the time rewards is ready to take (the gift plaque of the HUD in gold). */
+  giftReady?(): boolean;
+  /** ST-01: the hero is on the base and the portal of mountain `world` there (null — not on the base). */
+  basePortal?(world: number): { x: number; y: number; z: number } | null;
 }
 
 export interface CampView {
@@ -71,16 +87,150 @@ export interface CampView {
 
 export function createCampView(d: CampViewDeps): CampView {
   let onPad = false;
-  let levelAtStep3 = -1;
   let takenTick = -1;
   const fmt = (n: number): string => formatNumber(n, d.numSuffix);
   const best = (w: World): number => d.save.stageBest?.[String(w.index)] ?? 0;
+
+  // ST-01: a save of the tutorial before it (LV: 3 steps, 3 — done) keeps «done»; the steps of it started anew.
+  const flags = (d.save.flags ??= {});
+  if (!flags['tutorST']) {
+    flags['tutorST'] = true;
+    d.save.tutor = (d.save.tutor ?? 0) >= 3 ? TUTOR_DONE : 0;
+  }
+  const done = (step: TutorStep): void => {
+    if (TUTOR_STEPS[d.save.tutor ?? 0] !== step) return;
+    d.save.tutor = (d.save.tutor ?? 0) + 1;
+    d.persist();
+  };
+  let beltSec = 0;
+  let beltTick = -1;
+  let shoesAt = -1;
+  let giftsAt = -1;
+  /** The ridge ahead of the hero on this mountain (its gate index), −1 — none. */
+  const ridgeAhead = (sim: Sim): number => sim.level.gates.findIndex((g) => g.kind === 'ridge' && g.z > sim.hero.pos.z - 1);
+  /** The nearest treadmill within BELT_NEAR (the belts of the stage finishes and of the caves). */
+  const beltNear = (sim: Sim, w: World): { x: number; y: number; z: number } | null => {
+    const h = sim.hero.pos;
+    let best: { x: number; y: number; z: number } | null = null;
+    let far = BELT_NEAR;
+    for (const s of w.segments) {
+      if (s.type !== 'treadmill') continue;
+      const x = typeof s['x'] === 'number' ? (s['x'] as number) : 0;
+      const dist = Math.hypot(x - h.x, s.z - h.z);
+      if (dist < far) {
+        far = dist;
+        best = { x, y: typeof s['y'] === 'number' ? (s['y'] as number) : h.y, z: s.z };
+      }
+    }
+    return best;
+  };
+  /** ST-01: the text and the arrow of the step of the tutorial now (null — not its moment, or all done). */
+  const tutorial = (sim: Sim, w: World, n: number): { text: string | null; arrow: number | null } => {
+    const none = { text: null, arrow: null };
+    const step = TUTOR_STEPS[d.save.tutor ?? 0];
+    if (!step || !d.levels) return none;
+    const h = sim.hero.pos;
+    const st = sim.level.stages?.find((x) => x.n === n);
+    // The first minute of mountain 1 has its own hints (meta/hints.ts): the steps start past it.
+    const firstMinute = w.index === 1 && st?.type === 'intro' && !d.save.flags?.['firstWaveDone'];
+    if (firstMinute || sim.caught) return none;
+    const aim = (p: { x: number; y: number; z: number }): number | null => d.aim?.(p.x, p.y + 0.5, p.z) ?? null;
+    const gi = ridgeAhead(sim);
+    const gate = gi >= 0 ? sim.level.gates[gi] : undefined;
+    switch (step) {
+      case 'belt': {
+        if (sim.onBelt) {
+          if (sim.tick !== beltTick) beltSec += 1 / 60;
+          beltTick = sim.tick;
+          if (beltSec >= BELT_SEC) done('belt');
+          return { text: t('tutor.belt'), arrow: null };
+        }
+        const b = beltNear(sim, w);
+        return b ? { text: t('tutor.belt'), arrow: aim(b) } : none;
+      }
+      case 'level': {
+        // The ridge ahead closed: its level; open (or none ahead) — the step is done, the way through it next.
+        if (!gate || sim.gatesOpen[gi]) {
+          passGate = gi;
+          done('level');
+          return none;
+        }
+        return { text: t('tutor.level', { n: levelOf(gate.requires, d.levels) }), arrow: null };
+      }
+      case 'pass': {
+        const g = passGate >= 0 ? sim.level.gates[passGate] : undefined;
+        if (!g || h.z > g.z + 2) {
+          done('pass');
+          return none;
+        }
+        return g.z - h.z <= PASS_NEAR ? { text: t('tutor.pass'), arrow: aim({ x: 0, y: h.y, z: g.z }) } : none;
+      }
+      case 'pad': {
+        let take: { x: number; y: number; z: number } | null = null;
+        let near = TAKE_NEAR;
+        for (const [k, q] of (sim.level.stages ?? []).entries()) {
+          const dist = Math.hypot(q.pad.x - h.x, q.pad.z - h.z);
+          const inFinish = h.z >= q.finish[0] && h.z <= q.finish[1] && (d.seen?.(q.pad.x, q.pad.y, q.pad.z) ?? false);
+          if (q.trophies > 0 && !sim.padTaken[k] && (dist <= near || (inFinish && take === null))) {
+            near = dist;
+            take = q.pad;
+          }
+        }
+        return take ? { text: t('tutor.take'), arrow: aim(take) } : none;
+      }
+      case 'shoes': {
+        const pairs = d.save.shoes ?? 0;
+        if (shoesAt < 0) shoesAt = pairs;
+        if (pairs > shoesAt) {
+          done('shoes');
+          return none;
+        }
+        return d.shoesAffordable?.() ? { text: t('tutor.shoes'), arrow: null } : none;
+      }
+      case 'gift': {
+        const got = d.save.timeRw?.got.length ?? 0;
+        if (giftsAt < 0) giftsAt = got;
+        if (got > giftsAt) {
+          done('gift');
+          return none;
+        }
+        return d.giftReady?.() ? { text: t('tutor.gift'), arrow: null } : none;
+      }
+      case 'onward': {
+        // Past the next ridge after these steps — the way to the summit is clear.
+        if (n > (onwardFrom < 0 ? (onwardFrom = n) : onwardFrom)) {
+          done('onward');
+          return none;
+        }
+        return { text: t('tutor.onward'), arrow: null };
+      }
+      case 'portal':
+        // On a mountain (back from the base on mountain 1, or straight on): the portal step waits for the base.
+        if (w.index >= 2) done('portal');
+        return none;
+      case 'next':
+        if (w.index >= 2 && n >= 2) {
+          done('next');
+          return none;
+        }
+        return w.index >= 2 ? { text: t('tutor.next'), arrow: null } : none;
+    }
+    return none;
+  };
+  let onwardFrom = -1;
+  let passGate = -1;
 
   const view: CampView = {
     update() {
       const sim = d.getSim();
       const w = d.getWorld();
       const stages = sim.level.stages;
+      // ST-01: the portal of mountain 2 on the base (no stages there).
+      if (!stages && d.levels) {
+        const step = TUTOR_STEPS[d.save.tutor ?? 0];
+        const p = step === 'portal' && !d.windows.current ? d.basePortal?.(2) : null;
+        return d.hud.setTutor(p ? t('tutor.portal') : null, false, p ? (d.aim?.(p.x, p.y + 2, p.z) ?? null) : null);
+      }
       if (!stages || !d.levels) return d.hud.setTutor(null);
       const h = sim.hero.pos;
       const n = stageAt(sim.level, h.z);
@@ -88,40 +238,17 @@ export function createCampView(d: CampViewDeps): CampView {
         (d.save.stageBest ??= {})[String(w.index)] = n;
         d.persist();
       }
-      // The tutorial (22.12), from the first stage after the first minute.
-      const step = d.save.tutor ?? 0;
       const st = stages.find((x) => x.n === n);
-      if (step === 0 && st && (st.type !== 'intro' || w.index > 1)) {
-        if (h.z >= st.finish[0] && st.trophies > 0) d.save.tutor = 1;
-      } else if (step === 2) {
-        const lv = levelOf(sim.progress.stat, d.levels);
-        if (levelAtStep3 < 0) levelAtStep3 = lv;
-        if (lv >= levelAtStep3 + TUTOR_LEVELS) {
-          d.save.tutor = 3;
-          d.persist();
-        }
-      }
       // The hook for tomorrow (LV-12 review: nothing in the first session said «come back»): once the tutorial is done, on
       // the next safe finish, not mid-run and not over a trophy toast (LV-12 re-check: a 4 s toast in the run was missed).
       const quiet = sim.tick < takenTick || sim.tick - takenTick >= HOOK_QUIET_TICKS;
-      if ((d.save.tutor ?? 0) >= 3 && !d.save.flags?.['tomorrowHook'] && st && h.z >= st.finish[0] && h.z <= st.finish[1] && quiet) {
+      if ((d.save.tutor ?? 0) >= TUTOR_DONE && !d.save.flags?.['tomorrowHook'] && st && h.z >= st.finish[0] && h.z <= st.finish[1] && quiet) {
         (d.save.flags ??= {})['tomorrowHook'] = true;
         d.hud.toast(t('tutor.done'), HOOK_SEC, true, t('tutor.tomorrow'));
         d.persist();
       }
-      const now = d.save.tutor ?? 0;
-      // MU round 5: «Stand on the gold pad» near a pad not taken only, the arrow pointing to it.
-      let take: { x: number; y: number; z: number } | null = null;
-      for (let k = 0, near = TAKE_NEAR; now === 1 && k < stages.length; k++) {
-        const q = stages[k]!;
-        const dist = Math.hypot(q.pad.x - h.x, q.pad.z - h.z);
-        const inFinish = h.z >= q.finish[0] && h.z <= q.finish[1] && (d.seen?.(q.pad.x, q.pad.y, q.pad.z) ?? false);
-        if (q.trophies > 0 && !sim.padTaken[k] && (dist <= near || (inFinish && take === null))) {
-          near = dist;
-          take = q.pad;
-        }
-      }
-      let show = now === 0 ? (st && (st.type !== 'intro' || w.index > 1) ? t('tutor.run') : null) : now === 1 ? (take ? t('tutor.take') : null) : now === 2 ? t('tutor.levels', { n: TUTOR_LEVELS }) : null;
+      const show0 = tutorial(sim, w, n);
+      let show = show0.text;
       // «Jump!» before a pit on the line of the run until three are jumped (LV-12 review: no hint at the first jump).
       const jumps = d.save.flags?.['jumpsTaught'] === true;
       if (!jumps && st && (st.type === 'cracks' || st.type === 'plates') && sim.hero.onGround) {
@@ -151,7 +278,9 @@ export function createCampView(d: CampViewDeps): CampView {
       // No grotto within reach of the warning (SD-10 review: «hide» pointed back past the finish) — run on to the finish.
       if (st && st.type !== 'intro' && wave) show = sim.inShelter() ? null : ws!.shelter >= 0 ? t('hint.cover') : t('hint.toFinish');
       // MU-02 (one message slot): a jump and the wave go before the gate plaque, the other steps after it.
-      d.hud.setTutor(show, show !== null && (show === t('tutor.jump') || wave), take && show === t('tutor.take') ? (d.aim?.(take.x, take.y + 0.5, take.z) ?? null) : null);
+      // ST-01: never over a window.
+      if (d.windows.current) show = null;
+      d.hud.setTutor(show, show !== null && (show === t('tutor.jump') || wave), show !== null && show === show0.text ? show0.arrow : null);
       // The teleport pad of the camp: stepping on it opens the window once a step-on.
       // SD-13 (producer 16.10: «it worked once, then broke»): on the next mountain the pad stood dead until its own
       // stage 2 — now it answers once the player knows it (a stage 2 passed anywhere), the stages not passed locked.
@@ -164,11 +293,7 @@ export function createCampView(d: CampViewDeps): CampView {
     known: () => Object.values(d.save.stageBest ?? {}).some((n) => n >= 2),
     trophyTaken() {
       takenTick = d.getSim().tick;
-      if ((d.save.tutor ?? 0) <= 1) {
-        d.save.tutor = 2;
-        levelAtStep3 = -1;
-        d.persist();
-      }
+      if (TUTOR_STEPS[d.save.tutor ?? 0] === 'pad') done('pad');
     },
     open() {
       const w = d.getWorld();

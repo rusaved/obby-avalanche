@@ -130,6 +130,9 @@ canvas.fallback {
 /* «Slowed» (docs/01-gdd.md 18.5): a frosty badge under the Speed while a snowball or the blizzard holds the hero back. */
 .hud-stat-slow { display: none; margin-top: 3px; margin-left: 4px; align-self: flex-start; padding: 1px 6px; border-radius: 6px; background: #e8f4ff; color: #1b4a7a; font-size: 12px; font-weight: 800; white-space: nowrap; }
 .hud-stat-slow.shown { display: inline-block; }
+/* ST-07 (Q-M4-1 B): the badge of the ×2 step boost by the Speed. */
+.hud-stat-boost { display: none; margin-left: 6px; align-self: center; padding: 1px 6px; border-radius: 6px; background: var(--mu-plaque, rgba(16, 28, 48, 0.72)); color: var(--gold, #ffd34d); font-size: 12px; font-weight: 800; white-space: nowrap; }
+.hud-stat-boost.shown { display: inline-block; }
 .hud-stat-gain { position: absolute; left: calc(100% + 6px); top: 20%; white-space: nowrap; opacity: 0; font-size: calc(18px * var(--gain-scale, 1)); font-weight: 800; color: #fff; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35); pointer-events: none; }
 .hud-stat-gain.show { animation: stat-gain 0.6s ease-out forwards; }
 @keyframes stat-gain { 0% { opacity: 0; transform: translateY(0); } 25% { opacity: 1; } 100% { opacity: 0; transform: translateY(-22px); } }
@@ -1048,3 +1051,10 @@ canvas.fallback {
 .no-ads-mark { align-self: center; margin: 0 0 6px; padding: 4px 10px; border-radius: 10px; background: var(--mu-card); color: var(--mu-gold); font-size: 13px; font-weight: 700; }
 .iap-price { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; }
 .iap-cur { width: 16px; height: 16px; }
+/* ST-07 (producer 22.10): the sneakers button smaller, the level bar the main plaque; «Sneakers» over the button bolder. */
+.hud.mu .hud-shoes, .hud.mu.levels .hud-shoes, .hud.mu.touch .hud-shoes { padding: 0 10px; font-size: 13px; }
+.hud.mu .hud-shoes.short { padding-left: 8px; padding-right: 8px; }
+.hud.mu .hud-shoes-cap { font-size: 13px; font-weight: 700; }
+.hud.mu .hud-level-bar { height: 32px; border-radius: 16px; border: 2px solid rgba(255, 255, 255, 0.7); }
+.hud.mu .hud-level-text { font-size: 16px; }
+.hud.mu .hud-level-title { font-weight: 800; }

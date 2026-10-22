@@ -70,7 +70,7 @@ export interface TestState {
   stage: number;
   rollFrom: number;
   padsTaken: number;
-  /** The stage tutorial step done (0–3) and the farthest stage of this mountain (docs/01-gdd.md 22.12). */
+  /** The steps of the stage tutorial done (ST-01: 0–9, app/camp-view.ts TUTOR_STEPS) and the farthest stage of this mountain (docs/01-gdd.md 22.12). */
   tutor: number;
   stageBest: number;
   /** Open state per gate of the current mountain (M2-02). */

@@ -5,7 +5,7 @@
 import type { Curve, Segment, TuningJson, World, WorldStage, WorldsJson } from '../content/types.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 import { levelThreshold, type Levels } from '../sim/levels.ts';
-import { STAGE_WIDTH, jumpDistance, mazeDistances, padFlight } from './stage-slope.ts';
+import { STAGE_WIDTH, WAVE, jumpDistance, mazeDistances, padFlight } from './stage-slope.ts';
 import type { Aabb, LevelData } from './types.ts';
 import { EDGE_RISE, gateSlab, levelLips, ridgePartBox, ridgeParts, zoneLine } from './surface-lines.ts';
 
@@ -175,14 +175,66 @@ export function orderErrors(stages: readonly WorldStage[]): string[] {
   const K = stages.length;
   const errors: string[] = [];
   const first = stages[0]?.type;
-  if (first !== 'intro' && first !== 'dips' && first !== 'cracks') errors.push(`stage 1 — ${String(first)}, a light one first (dips, cracks)`);
-  if (stages[1]?.type !== 'giant') errors.push(`stage 2 — ${String(stages[1]?.type)}, the giant second`);
+  // ST-02: a mountain with a wave starts on its easy tier and meets the giant in its first half (the rest of 22.5 stays).
+  const waved = stages.some((s) => s.tier !== undefined);
+  if (waved) {
+    errors.push(...waveErrors(stages));
+    const g = stages.find((s) => s.type === 'giant');
+    if (!g || g.n > K / 2) errors.push(`stage ${String(g?.n)} — the giant outside the first half of ${K}`);
+  } else {
+    if (first !== 'intro' && first !== 'dips' && first !== 'cracks') errors.push(`stage 1 — ${String(first)}, a light one first (dips, cracks)`);
+    if (stages[1]?.type !== 'giant') errors.push(`stage 2 — ${String(stages[1]?.type)}, the giant second`);
+  }
   for (const st of stages) {
     if (st.type === 'avalanche' && !(st.n > K / 3 && st.n <= Math.ceil((2 * K) / 3))) errors.push(`stage ${st.n} — the avalanche outside the middle third of ${K}`);
     if (st.type === 'maze' && !(st.n > (2 * K) / 3)) errors.push(`stage ${st.n} — the maze outside the last third of ${K}`);
   }
   if (!stages.some((s) => s.type === 'avalanche')) errors.push('no avalanche stage');
   if (!stages.some((s) => s.type === 'maze')) errors.push('no maze stage');
+  return errors;
+}
+
+/**
+ * ST-02 (producer 22.10): the wave of difficulty — every stage has a tier, and the tiers with the repeats folded read
+ * easy — mid — hard — mid — easy — very hard — very easy (WAVE).
+ */
+export function waveErrors(stages: readonly WorldStage[]): string[] {
+  const missing = stages.filter((s) => s.tier === undefined).map((s) => s.n);
+  if (missing.length > 0) return [`stages ${missing.join(', ')} — no tier of the wave`];
+  const fold = stages.map((s) => s.tier!).filter((t, k, a) => k === 0 || a[k - 1] !== t);
+  return fold.join(' ') === WAVE.join(' ') ? [] : [`the wave reads ${fold.join(' — ')}, ${WAVE.join(' — ')} expected`];
+}
+
+/** ST-05: a step of the ground bigger than this from one sample to the next is a seam (a ramp climbs less per sample). */
+export const SEAM_STEP = 0.3;
+/** ST-05: ground missing for no longer than this between two grounds is a slit (a crack of a trial is 4 at least). */
+export const SLIT_MAX = 2;
+/** ST-05: drops past this are the walls of ridges and pits — the trials, their own rules. */
+const SEAM_WALL = 3;
+
+/**
+ * ST-05 (producer 22.10: «the joins of stages without steps and slits»): along the whole mountain, on lines across the
+ * field, the walked ground climbs and falls only by ramps — no step of SEAM_STEP…SEAM_WALL from one sample (0.25) to the
+ * next and no slit of ground missing for up to SLIT_MAX between two grounds.
+ */
+export function seamErrors(level: LevelData, field: number, length: number): string[] {
+  const errors: string[] = [];
+  const dz = 0.25;
+  for (const k of [-0.4, -0.2, 0, 0.2, 0.4]) {
+    const x = round3(k * field);
+    let prev = level.floorAt(x, 0);
+    let lost = -1;
+    for (let z = dz; z <= length; z += dz) {
+      const f = level.floorAt(x, z);
+      if (Number.isFinite(f) && Number.isFinite(prev)) {
+        const d = f - prev;
+        if (Math.abs(d) > SEAM_STEP && Math.abs(d) < SEAM_WALL) errors.push(`a step ${round3(d)} at x ${x} z ${round3(z)}`);
+      }
+      if (!Number.isFinite(f) && Number.isFinite(prev)) lost = z;
+      if (Number.isFinite(f) && !Number.isFinite(prev) && lost >= 0 && z - lost <= SLIT_MAX) errors.push(`a slit ${round3(z - lost)} at x ${x} z ${round3(lost)}`);
+      prev = f;
+    }
+  }
   return errors;
 }
 
@@ -218,6 +270,7 @@ export function freeRuns(w: World, st: WorldStage, tuning: Physics): Array<[numb
     else if (s.type === 'dip') cover.push([z0 - 4, z1 + 4]);
     // A catapult: the run onto it and its whole flight (the landing too).
     else if (s.type === 'jumpPad') cover.push([z0 - 10, z0 + padFlight(tuning, st.speed, typeof s['forward'] === 'number' ? num(s, 'forward') : tuning.fun.padForward)]);
+    else if (s.type === 'stairs' && s['stage'] === true) cover.push([z0, z1]);
     else if (s.type === 'slide') cover.push([z0 - num(s, 'length') / 2, z0 + num(s, 'length') / 2]);
     else if (s.type === 'floor' && s['maze'] !== undefined) cover.push([z0, z1]);
     else if (s.type === 'floor' && num(s, 'x1') - num(s, 'x0') <= BRIDGE_WIDTH[1] + 1e-6) cover.push([z0, z1]);

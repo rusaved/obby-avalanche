@@ -28,6 +28,9 @@ export interface GiftsPanelModel {
   /** «+N Speed» for an ad: null — no card. */
   /** `wait` — M4 review (game designer): the pause between these ads, «in 3:20» under the title, the button off. */
   ad: { title: string; busy: boolean; wait?: string } | null;
+  /** ST-07 (Q-M4-1 B): «×2 per step · 3 min» for an ad beside «+N Speed»; `wait` — the boost runs (its time left) or the
+   * pause of the ads, the button off; null — no card. */
+  boost?: { title: string; busy: boolean; wait?: string } | null;
 }
 
 export interface GiftsPanelActions {
@@ -35,6 +38,7 @@ export interface GiftsPanelActions {
   visit(id: string): void;
   review(): void;
   ad(): void;
+  boostAd?(): void;
 }
 
 function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string): HTMLElementTagNameMap[K] {
@@ -101,6 +105,18 @@ export function renderGiftsPanel(body: HTMLElement, m: GiftsPanelModel, a: Gifts
     setRich(b, t('gifts.ad'));
     b.disabled = m.ad.busy || m.ad.wait !== undefined;
     b.addEventListener('click', () => a.ad());
+    c.appendChild(b);
+    cards.appendChild(c);
+  }
+  if (m.boost) {
+    const c = el('div', 'card gf-card');
+    c.dataset['role'] = 'gift-boost';
+    c.append(el('span', 'card-name', m.boost.title), el('span', 'card-sub', m.boost.wait ?? t('gifts.forAd')));
+    const b = el('button', 'card-btn quiet');
+    b.dataset['hud'] = 'gift-boost-ad';
+    setRich(b, t('gifts.ad'));
+    b.disabled = m.boost.busy || m.boost.wait !== undefined;
+    b.addEventListener('click', () => a.boostAd?.());
     c.appendChild(b);
     cards.appendChild(c);
   }

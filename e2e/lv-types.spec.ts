@@ -69,8 +69,9 @@ async function pass(page: Page, world: number, st: WorldStage): Promise<void> {
 }
 
 for (const [world, types] of [
-  [1, ['giant', 'cracks', 'plates', 'chute', 'avalanche', 'catapult', 'throat', 'maze']],
-  [2, ['dips', 'blizzard']],
+  // ST-02/ST-03: mountain 1 — the wave of its own trials, mountain 2 — the stairs, the catapult and the blizzard.
+  [1, ['dips', 'giant', 'cracks', 'avalanche', 'plates', 'ice', 'maze', 'throat', 'chute']],
+  [2, ['stairs', 'catapult', 'blizzard']],
 ] as const) {
   test(`mountain ${world}: the bot passes ${types.join(', ')} at the level of the ridge`, async ({ page, openGame }) => {
     test.setTimeout(420_000);

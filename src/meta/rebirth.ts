@@ -81,6 +81,8 @@ export function applyRebirth(save: SaveData, balance: RebirthBalance, skins: Ski
   save.tier = tier;
   save.shoes = SHOES_AFTER_REBIRTH;
   save.summits = 0;
+  // ST-06: a new life — the stage pads pay again.
+  delete save.padTakes;
   const rewards = tierRewards(skins, tier);
   for (const r of rewards) {
     const items = r.kind === 'skin' ? skins.skins : (skins.wings ?? []);

@@ -51,6 +51,21 @@ export function migrateStageTrophies(save: Pick<SaveData, 'trophies' | 'stageBes
   return add;
 }
 
+/**
+ * ST-06 (producer 22.10: the first stage farmed for ever, «the leader has 1 trophy»): the pad of a stage pays `takes`
+ * times in a life on its mountain, then nothing — a pass farther pays again. Counts the pay when it does; `takes`
+ * absent — always pays (no count).
+ */
+export function padPays(save: Pick<SaveData, 'padTakes'>, world: number, stage: number, takes: number | undefined): boolean {
+  if (takes === undefined) return true;
+  const map = (save.padTakes ??= {});
+  const key = `${world}:${stage}`;
+  const n = map[key] ?? 0;
+  if (n >= takes) return false;
+  map[key] = n + 1;
+  return true;
+}
+
 /** SD-11 (Q-088): the coins of a stage-button trophy when they go back to coins (the SD-03 rate). */
 export const STAGE_TROPHY_COINS = 7;
 

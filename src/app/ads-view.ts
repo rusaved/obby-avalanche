@@ -72,8 +72,16 @@ export interface AdsView {
   giftOffer(): { wait: number } | null;
   /** MU-07: that ad (place stat_now); `done` — after any outcome (the window re-renders). */
   giftAd(done: () => void): void;
-  /** MU-07 (w5-summit): «Ad: ×2» by the chest (place x2_chest) — `coins` once more on `rewarded`. */
-  chestAd(coins: number, done: () => void): void;
+  /** ST-07 (Q-M4-1 B): «×2 per step» of «Gifts» (place x2_stat) by the common rules; `run` — seconds of the boost left (the
+   * card grey with its timer); null — not offered. */
+  boostOffer(): { wait: number; run: number } | null;
+  boostAd(done: () => void): void;
+  /** MU-07 (w5-summit): «Ad: ×2» by the chest (place x2_chest) — `coins` once more on `rewarded`; ST-07: `done(true)`
+   * once the reward is given (a failed load keeps the button). */
+  chestAd(coins: number, done: (granted: boolean) => void): void;
+  /** ST-07 (the steps by an ad through the common logic): a rewarded ad of a window — pause, one reward on `rewarded`, the
+   * toast `give` returns, the game on after any outcome; false — another ad runs. */
+  rewarded(place: string, give: () => string, done: (granted: boolean) => void): boolean;
   /** M4-04: the player pressed at `point` — a fullscreen ad if its rules allow (called at once, within the press), then
    * `then` (at once when no ad). The game stands («ad») while it plays and goes on after any outcome. */
   interstitial(point: InterstitialPoint, then: () => void): void;
@@ -125,11 +133,11 @@ export function createAdsView(d: AdsViewDeps): AdsView {
   /** A rewarded ad of a window (MU-07): the game and the avalanche stand while it runs, `give` only on `rewarded`, the
    * game goes on after any outcome. */
   // MU round 5 (producer 21.10): after the ad a toast of what it gave («+N Speed», «+N coins»), not «Reward received».
-  const rewardAd = (place: string, give: () => string, done: () => void): void => {
-    if (busy) return;
+  const rewardAd = (place: string, give: () => string, done: (granted: boolean) => void): boolean => {
+    if (busy) return false;
     busy = place;
     d.pause.add('ad');
-    done();
+    done(false);
     // M4-05 (docs/02-tech.md 11.5): the reward once per call — on rewarded, or on a late rewarded after the watchdog.
     let granted = false;
     const grant = (): void => {
@@ -141,7 +149,7 @@ export function createAdsView(d: AdsViewDeps): AdsView {
     void d.platform
       .showRewarded(place, () => {
         grant();
-        done();
+        done(true);
       })
       .then((r) => {
         if (!r.error) rewardedAt = session();
@@ -152,9 +160,15 @@ export function createAdsView(d: AdsViewDeps): AdsView {
         busy = null;
         d.pause.remove('ad');
         track('ad_resume_ok', { placement: place, type: 'rewarded' });
-        done();
+        done(granted);
       });
+    return true;
   };
+  /** ST-07: the snowball popped (a roll-back) at this session second — no fullscreen ad for ads.afterRollSec after it. */
+  let rollAt = -Infinity;
+  /** ST-07: eggs for an ad today (ads.eggPerDay), by the UTC day. */
+  const today = (): number => Math.floor(Date.now() / 86_400_000);
+  const eggsToday = (): number => (d.save.adEggDay?.day === today() ? d.save.adEggDay.n : 0);
   /** The Speed for an ad in the «Gifts» window: as statNow on the best belt of this mountain (1 — none). */
   const giftStat = (sim: Sim): number => {
     const belt = Math.max(1, ...sim.level.niches.map((n) => n.treadmill));
@@ -171,6 +185,23 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       const common = now >= ads.rewardedMinPlaySec && (d.save.flags?.['firstWaveDone'] ?? false);
       if (!common) return null;
       return { wait: Math.max(0, ads.statNowCooldownSec - (now - (lastAt.get('stat_now') ?? -Infinity))) };
+    },
+    rewarded: (place, give, done) => rewardAd(place, give, done),
+    boostOffer() {
+      if (!(d.rewardedPlaces ?? []).includes('x2_stat')) return null;
+      const offer = view.giftOffer();
+      if (!offer) return null;
+      return { wait: offer.wait, run: Math.max(0, d.save.boostSec ?? 0) };
+    },
+    boostAd(done) {
+      const offer = view.boostOffer();
+      if (!offer || offer.wait > 0 || offer.run > 0) return;
+      rewardAd('x2_stat', () => {
+        d.save.boostSec = (d.save.boostSec ?? 0) + d.balance.boost.x2Sec;
+        d.onBoost?.();
+        d.onStat();
+        return t('toast.boostOn');
+      }, done);
     },
     giftAd(done) {
       const offer = view.giftOffer();
@@ -209,7 +240,9 @@ export function createAdsView(d: AdsViewDeps): AdsView {
         phase !== 'run' &&
         t0 >= ads.interstitialMinSec &&
         t0 - interAt >= ads.interstitialCooldownSec &&
-        t0 - rewardedAt >= ads.interstitialAfterRewardedSec;
+        t0 - rewardedAt >= ads.interstitialAfterRewardedSec &&
+        // ST-07 (producer: the pause right after a roll-back opened a fullscreen ad): not in the first seconds after it.
+        t0 - rollAt >= (ads.afterRollSec ?? 0);
       if (!allowed) {
         then();
         return;
@@ -237,11 +270,16 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       if (busy === 'egg') return { busy: true };
       const common = now >= ads.rewardedMinPlaySec && (d.save.flags?.['firstWaveDone'] ?? false);
       if (!(common && !busy && cooled('egg', ads.eggPauseSec))) return null;
+      // ST-07: no more than ads.eggPerDay eggs for an ad a day.
+      if (eggsToday() >= (ads.eggPerDay ?? Infinity)) return null;
       seen('egg');
       return { busy: false };
     },
     eggAd(give, done) {
-      rewardAd('egg', give, done);
+      rewardAd('egg', () => {
+        d.save.adEggDay = { day: today(), n: eggsToday() + 1 };
+        return give();
+      }, done);
     },
     get shown() {
       return shown;
@@ -262,6 +300,7 @@ export function createAdsView(d: AdsViewDeps): AdsView {
         stageOffer = { stage: sim.rollFrom, until: playSec + (ads.stageContinueSec ?? 60), world: sim.level.worldIndex };
         continueUntil = -Infinity;
       }
+      if (caughtBefore && !sim.caught) rollAt = session();
       caughtBefore = !!sim.caught;
       if (moving) continueUntil = -Infinity;
       // The offer ends by its time, on another mountain, or once the hero is back on that stage by himself.
@@ -291,7 +330,8 @@ export function createAdsView(d: AdsViewDeps): AdsView {
         const free = !freeSpent.has(stageOffer.world) || !common;
         // The first of a mountain is free (no ad, no word «Ad»); then the rewarded ad by the common rules (9.1).
         if (free) list.push({ id: 'continue_free', text: t('stage.continueFree', { n: stageOffer.stage }), busy: false });
-        else if (common || busy === 'continue_here') {
+        // ST-07 (producer): not on «Avalanche in N» and not while it runs — the button would cover the wave's plaque.
+        else if ((common && calm) || busy === 'continue_here') {
           // MU-06: «Ad: from stage N · 0:54» — how long the offer stands.
           const text = t('stage.continueAd', { n: stageOffer.stage });
           list.push({ id: 'continue_here', text: d.mu ? `${text} · ${formatTimer(Math.max(0, stageOffer.until - playSec))}` : text, busy: busy === 'continue_here' });

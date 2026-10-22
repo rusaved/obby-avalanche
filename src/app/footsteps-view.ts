@@ -52,6 +52,10 @@ export interface FootstepsViewDeps {
   setCoins?(n: number): void;
   /** MU-12: «To the shop» of a set not bought — the «Steps» tab of the shop. */
   toShop?(): void;
+  /** ST-07: the rewarded ad of app/ads-view.ts (pause, one reward, the toast, the game on) and the place it plays; absent —
+   * the platform directly (tests of the window alone). */
+  rewarded?(place: string, give: () => string, done: (granted: boolean) => void): boolean;
+  adBusy?(): string | null;
 }
 
 export interface FootstepsView {
@@ -118,6 +122,52 @@ export function createFootstepsView(d: FootstepsViewDeps): FootstepsView {
     return true;
   };
 
+  /** A set for an ad (the window and the shop card): ST-07 — through the common logic of app/ads-view.ts when given. */
+  const playAd = (id: string): void => {
+    if (busy) return;
+    if (d.rewarded) {
+      busy = id;
+      const started = d.rewarded(PLACE, () => {
+        unlockAd(d.save, m, id);
+        chooseSet(d.save, m, id);
+        d.persist(true);
+        return t('toast.adSteps', { name: t(`footsteps.set.${id}`) });
+      }, () => {
+        // The ad still runs while its place is busy: the sound stays off, the button locked.
+        busy = d.adBusy?.() === PLACE ? id : null;
+        d.audio()?.sync();
+        // The window or the shop card the ad came from.
+        if (d.windows.current) d.windows.refresh();
+      });
+      if (!started) busy = null;
+      return;
+    }
+    busy = id;
+    d.pause.add('ad');
+    // The footsteps window keeps the sound on for its previews: the ad stops it now.
+    d.audio()?.sync();
+    d.windows.refresh();
+    void d.platform
+      .showRewarded(PLACE)
+      .then((r) => {
+        if (r.rewarded) {
+          unlockAd(d.save, m, id);
+          chooseSet(d.save, m, id);
+          d.persist(true);
+          // MU round 5: the toast names what the ad gave.
+          d.hud.toast(t('toast.adSteps', { name: t(`footsteps.set.${id}`) }), 3, true, undefined, undefined, true);
+        } else d.hud.toast(t(r.error ? 'toast.adUnavailable' : 'toast.noReward'));
+      })
+      .finally(() => {
+        busy = null;
+        d.pause.remove('ad');
+        d.audio()?.sync();
+        if (d.windows.current === FOOTSTEPS_WINDOW) d.windows.refresh();
+        // The hero is in the player's hands again after any outcome (docs/06 section 3).
+        track('ad_resume_ok', { placement: PLACE, type: 'rewarded' });
+      });
+  };
+
   const render = (body: HTMLElement, head: HTMLElement): void => {
     const st = footstepsOf(d.save, m);
     // MU-07 (w4-footsteps): the balances the sets are priced in, in the head.
@@ -146,33 +196,7 @@ export function createFootstepsView(d: FootstepsViewDeps): FootstepsView {
         d.persist(true);
         preview(footstepsOf(d.save, m).set);
       },
-      ad(id) {
-        if (busy) return;
-        busy = id;
-        d.pause.add('ad');
-        // The footsteps window keeps the sound on for its previews: the ad stops it now.
-        d.audio()?.sync();
-        d.windows.refresh();
-        void d.platform
-          .showRewarded(PLACE)
-          .then((r) => {
-            if (r.rewarded) {
-              unlockAd(d.save, m, id);
-              chooseSet(d.save, m, id);
-              d.persist(true);
-              // MU round 5: the toast names what the ad gave.
-              d.hud.toast(t('toast.adSteps', { name: t(`footsteps.set.${id}`) }), 3, true, undefined, undefined, true);
-            } else d.hud.toast(t(r.error ? 'toast.adUnavailable' : 'toast.noReward'));
-          })
-          .finally(() => {
-            busy = null;
-            d.pause.remove('ad');
-            d.audio()?.sync();
-            if (d.windows.current === FOOTSTEPS_WINDOW) d.windows.refresh();
-            // The hero is in the player's hands again after any outcome (docs/06 section 3).
-            track('ad_resume_ok', { placement: PLACE, type: 'rewarded' });
-          });
-      },
+      ad: playAd,
     });
   };
 
@@ -194,6 +218,8 @@ export function createFootstepsView(d: FootstepsViewDeps): FootstepsView {
           sound: true,
           state: s.id === st.set ? 'on' : mine ? 'owned' : s.unlock === 'shop' ? (have >= price ? 'buy' : 'short') : 'locked',
           need: t('shop.need', { n: fmt(Math.max(0, price - have)) }),
+          // ST-07: a set for an ad — «▶ Ad: open» on its card.
+          ...(s.unlock === 'ad' && !mine ? { ad: { text: t('footsteps.ad'), busy: busy === s.id } } : {}),
           ...(s.unlock === 'daily' ? { lock: t('footsteps.daily', { n: s.day ?? 0 }) } : {}),
         };
       });
@@ -211,6 +237,7 @@ export function createFootstepsView(d: FootstepsViewDeps): FootstepsView {
       preview(id);
     },
     trophies: () => true,
+    ad: playAd,
   };
 
   return {

@@ -2,7 +2,7 @@
 // Called by: level/generate.ts (generateWorlds dispatches on spec.layout); level/validate-stages.ts and tests read its numbers (jumpDistance, padFlight, mazeOf).
 // Keep: Pure and deterministic (the same spec, balance and tuning give the same JSON byte for byte, the maze from a seeded walk); every size from the spec or the physics of tuning; worlds keep layout openSlope for the slope machinery.
 
-import type { OpenSpecJson, Segment, StageMaze, StageSpec, StageType, TuningJson, World, WorldBoss, WorldStage, WorldZone } from '../content/types.ts';
+import type { OpenSpecJson, Segment, StageMaze, StageSpec, StageTier, StageType, TuningJson, World, WorldBoss, WorldStage, WorldZone } from '../content/types.ts';
 import { generateOpenWorlds, passesOf, pushPassages, type OpenInput } from './open-slope.ts';
 import { pushDipFloor } from './open-shapes.ts';
 import { levelThreshold, nearestLevel, type Levels } from '../sim/levels.ts';
@@ -50,7 +50,12 @@ export const STAGE_WIDTH: Record<StageType, WorldStage['width']> = {
   throat: 'bridge',
   blizzard: 'bridge',
   maze: 'cave',
+  ice: 'field',
+  stairs: 'field',
 };
+
+/** ST-02: the wave of a mountain (producer 22.10) — its tiers with the repeats folded must read exactly so. */
+export const WAVE: readonly StageTier[] = ['easy', 'mid', 'hard', 'mid', 'easy', 'veryHard', 'veryEasy'];
 
 /** A ridge number of the open slope as the threshold of its nearest level (docs/01-gdd.md 22.2: ±9%, not recounted). */
 export function ridgeAsLevel(requires: number, levels: Levels): { level: number; requires: number } {
@@ -61,6 +66,12 @@ export function ridgeAsLevel(requires: number, levels: Levels): { level: number;
 /** Flight distance of a plain jump at run speed v (v × 2 v0 / g, as validate.ts jumpDistance). */
 export function jumpDistance(tuning: Pick<TuningJson, 'controller'>, v: number): number {
   return (v * 2 * tuning.controller.jumpSpeed) / tuning.controller.gravity;
+}
+
+/** ST-02: the reach of a plain jump at v landing `rise` higher (the stairs): v × time back down to that height. */
+export function riseJump(tuning: Pick<TuningJson, 'controller'>, v: number, rise: number): number {
+  const { jumpSpeed: v0, gravity: g } = tuning.controller;
+  return (v * (v0 + Math.sqrt(Math.max(0, v0 * v0 - 2 * g * rise)))) / g;
 }
 
 /** Flight distance off a trampoline with its own forward push (fun.padSpeed up, run speed + forward along +Z). */
@@ -242,7 +253,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     wall = 1;
     y = round3((r1['y'] as number) + ((r1['rise'] as number | undefined) ?? 4));
     z = round3(r1.z + PASS_LENGTH);
-    stages.push({ n: 1, type: 'intro', z0: spec.campLength, start: spec.campLength, end: r1.z, finish: [r1.z - 12, r1.z], y: 0, level: 1, speed: speedOf(1), width: 'field', trophies: 0, pad: { x: 0, z: r1.z, y: 0 } });
+    stages.push({ n: 1, type: 'intro', z0: spec.campLength, start: spec.campLength, end: r1.z, finish: [r1.z - 12, r1.z], y: 0, level: 1, speed: speedOf(1), width: 'field', trophies: 0, pad: { x: 0, z: r1.z, y: 0 }, ...(cfg.waves?.[0]?.[0] ? { tier: cfg.waves[0][0] } : {}) });
   } else {
     for (const s of ow.segments) if (s.z < spec.campLength && s.type !== 'gift' && s.type !== 'niche') seg.push(s);
     z = spec.campLength;
@@ -257,6 +268,9 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     const v = speedOf(level);
     const D = jumpDistance(tuning, v);
     const zone = openZone(s);
+    // ST-02: the tier of the stage in the wave of its mountain, and the pieces it adds to the trial.
+    const tier = cfg.waves?.[index - 1]?.[s - 1];
+    const add = tier ? cfg.tierAdd?.[tier] ?? 0 : 0;
     const z0 = stages.length === 1 && s === first ? round3(z - PASS_LENGTH) : z;
     // The ridge of the stage (22.3): the carniz with passages (one on the axis before a bridge), «Level N» on it. Stage 2 of
     // mountain 1 has the ridge of the first minute (pushed with the intro).
@@ -272,6 +286,8 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     else if (s > 1) seg.push({ type: 'checkpoint', z: round3(z + FLAG_PAST), y, x: 0, zone: s, rarity: zone.rarity, wall });
     floor(z, cfg.start, y);
     const start = round3(z + cfg.start);
+    // The height of the start pad (the stairs climb: the finish of that stage stands higher).
+    const yStart = y;
     let zb = start;
     let cut: WorldStage['cut'];
     let maze: StageMaze | undefined;
@@ -281,7 +297,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
         const dipCfg = spec.shapes!.dip!;
         const depth = dipCfg.depthByWorld?.[String(index)] ?? dipCfg.depth;
         const len = dipCfg.down + dipCfg.bottom + dipCfg.up;
-        for (let k = 0; k < 3; k++) {
+        for (let k = 0; k < Math.max(1, 3 + add); k++) {
           floor(zb, 12, y);
           zb += 12;
           pushDipFloor(seg, { z0: round3(zb), z1: round3(zb + len), depth }, y, spec.shapes!);
@@ -293,7 +309,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
         break;
       }
       case 'cracks': {
-        const n = 3 + (index >= 4 ? 1 : 0) + (index >= 8 ? 1 : 0);
+        const n = Math.max(1, 3 + (index >= 4 ? 1 : 0) + (index >= 8 ? 1 : 0) + add);
         // SD-04 (docs/01-gdd.md 23.4): with `gapK` the crack is that share of the jump of v(N) — out of reach two levels
         // below (controller.levelJump); absent — 0.45 as LV built it.
         const w = round3(cfg.gapK ? clamp(cfg.gapK * D, 5, 80) : clamp(0.45 * D, 5, 30));
@@ -323,7 +339,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
         break;
       }
       case 'plates': {
-        const n = 4 + (index >= 5 ? 1 : 0);
+        const n = Math.max(2, 4 + (index >= 5 ? 1 : 0) + add);
         const gap = round3(cfg.gapK ? clamp(cfg.gapK * D, 3, 80) : clamp(0.42 * D, 3, 32));
         const plate = round3(clamp(1.1 * D, 10, 90));
         const L = n * plate + (n + 1) * gap;
@@ -348,14 +364,15 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
         const c = round3(cfg.catapultK ? clamp(cfg.catapultK * F, 12, 120) : clamp(0.7 * F, 12, 90));
         const land = round3(0.6 * F + 10);
         floor(zb, 10, y);
-        for (let k = 0; k < 2; k++) {
+        const pads = add > 1 ? 3 : 2;
+        for (let k = 0; k < pads; k++) {
           const padZ = k === 0 ? zb + 6 : zb - 4;
           seg.push({ type: 'jumpPad', z: round3(padZ), x: 0, y, width: round3(cfg.field - 4), length: 4, stretch: s, forward, shape: 'catapult' });
           zb = k === 0 ? zb + 10 : zb;
           pit(zb, c, y, s);
           zb += c;
           // The last landing runs into the finish just past the touchdown (no free strip, 22.4).
-          const after = k === 0 ? land : round3(Math.max(20, F - c + 16));
+          const after = k < pads - 1 ? land : round3(Math.max(20, F - c + 16));
           floor(zb, after, y);
           zb += after;
         }
@@ -363,7 +380,8 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
       }
       case 'chute': {
         const L = round3(clamp(3 * v, 90, 300));
-        const cw = index === 1 ? 5 : bw;
+        // ST-02: a very easy chute is a bridge as wide as the others.
+        const cw = index === 1 && tier !== 'veryEasy' ? 5 : bw;
         pit(zb, L, y, s);
         floor(zb, L, y, -cw, cw, { material: 'ice' });
         seg.push({ type: 'slide', z: round3(zb + L / 2), x: 0, y, width: round3(2 * cw), length: L, stretch: s, mult: spec.relief?.chute?.mult ?? 1.6 });
@@ -373,7 +391,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
       case 'throat':
       case 'blizzard': {
         // A ledge 1–3 steps wide over the pit, turning side to side (22.5): three legs (the blizzard — two, wider, in fog).
-        const legs = type === 'throat' ? 3 : 2;
+        const legs = (type === 'throat' ? 3 : 2) + (add > 0 ? 1 : 0);
         const lw = type === 'throat' ? 5 : 6;
         const leg = round3(clamp((type === 'throat' ? 1.2 : 1.6) * v, 36, 150));
         const off = type === 'throat' ? 12 : 8;
@@ -403,8 +421,8 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
       }
       case 'maze': {
         const mc = cfg.maze;
-        const cols = mc.cols[Math.min(mc.cols.length - 1, index - 1)]!;
-        const rows = mc.rows[Math.min(mc.rows.length - 1, index - 1)]!;
+        const cols = mc.cols[Math.min(mc.cols.length - 1, index - 1)]! + (add > 1 ? 1 : 0);
+        const rows = mc.rows[Math.min(mc.rows.length - 1, index - 1)]! + (add > 1 ? 1 : 0);
         const falseN = mc.falseExits[0] + (index % 2 === 0 ? 1 : 0);
         // The first seed whose maze has a dead end besides its exits (22.7: «2–3 dead ends or false exits»).
         let shape = mazeOf(cols, rows, Math.min(mc.falseExits[1], falseN), index * 7919 + s * 104729);
@@ -422,6 +440,40 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
         const bz = zb + rows * mc.cell + strip + 3;
         seg.push({ type: 'block', z: round3(bz - 1), z1: round3(bz + 1), x0: round3(cx - 1), x1: round3(cx + 1), y0: y, y1: round3(y + mc.height + 8), material: 'trophyPad', kind: 'beacon', solid: false });
         zb += L;
+        break;
+      }
+      case 'ice': {
+        // ST-02 (the ice of RL): an icy field that speeds the run up, ice rocks to steer round off the axis.
+        const L = round3(clamp(3 * v, 90, 260));
+        floor(zb, L, y, -half, half, { material: 'ice' });
+        seg.push({ type: 'slide', z: round3(zb + L / 2), x: 0, y, width: round3(cfg.field - 4), length: L, stretch: s, mult: spec.relief?.chute?.mult ?? 1.6 });
+        const rocks = Math.max(2, 4 + add);
+        for (let k = 0; k < rocks; k++) {
+          const rz = zb + ((k + 1) * L) / (rocks + 1);
+          const rx = (k % 2 === 0 ? 1 : -1) * (8 + (k % 3) * 6);
+          seg.push({ type: 'block', z: round3(rz - 2.5), z1: round3(rz + 2.5), x0: round3(rx - 2.5), x1: round3(rx + 2.5), y0: y, y1: round3(y + 4), material: 'ice', kind: 'iceRock' });
+        }
+        zb += L;
+        break;
+      }
+      case 'stairs': {
+        // ST-02 (the stairs of RL-05): cracks that climb — each landing a step higher, the gap a share of the jump that lands there.
+        const n = Math.max(2, 3 + add);
+        const rise = cfg.stairsRise ?? 0.8;
+        const R = riseJump(tuning, v, rise);
+        const w = round3(cfg.gapK ? clamp(cfg.gapK * R, 4, 80) : clamp(0.45 * R, 4, 30));
+        const run = round3(Math.max(16, 0.6 * v));
+        floor(zb, run, y);
+        zb += run;
+        for (let k = 0; k < n; k++) {
+          pit(zb, w, y, s);
+          zb += w;
+          y = round3(y + rise);
+          const after = k === n - 1 ? Math.min(run, 16) : run;
+          floor(zb, after, y);
+          zb += after;
+        }
+        seg.push({ type: 'stairs', z: round3(start), length: round3(zb - start), y: yStart, x: 0, count: n, gap: w, rise, section: s, stage: true });
         break;
       }
       case 'intro':
@@ -451,7 +503,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     // Not in the maze either (SD-09 review: under its walls no grotto is in reach — it is a trial of its own).
     if (extra !== undefined && type !== 'giant' && type !== 'avalanche' && type !== 'maze') {
       // By the edge of the field (SD-09 review: by the axis, seen from the ridge below, it read as a plate in the air).
-      seg.push({ type: 'island', z: round3(start - cfg.start / 2), x: (s % 2 === 0 ? -1 : 1) * round3(half - cfg.start / 2 - EDGE_GAP), y: round3(y), size: cfg.start, zone: s, stretch: s, ...(cfg.avalanche.through ? { through: true } : {}) });
+      seg.push({ type: 'island', z: round3(start - cfg.start / 2), x: (s % 2 === 0 ? -1 : 1) * round3(half - cfg.start / 2 - EDGE_GAP), y: round3(yStart), size: cfg.start, zone: s, stretch: s, ...(cfg.avalanche.through ? { through: true } : {}) });
       waveZones.push([round3(z0), round3(zb), round3((zb - start) / v + extra)]);
     }
     // The safe finish with the trophy button at the side (22.8): the threats stay out of it.
@@ -467,7 +519,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     // The treadmill of the finish (22.8; the belt of the ridge grotto of 17.4): Speed by the closed ridge, × the step of the stage.
     seg.push({ type: 'treadmill', z: pad.z, x: -padX, y, length: 12, width: 6, mult: zone.stepMult ?? 1 });
     safe.push([end, round3(end + cfg.finish)]);
-    stages.push({ n: s, type, z0: round3(z0), start, end, finish: [end, round3(end + cfg.finish)], y, level, speed: v, width, trophies: trophiesOf(s), pad, ...(cut ? { cut } : {}), ...(maze ? { maze } : {}) });
+    stages.push({ n: s, type, z0: round3(z0), start, end, finish: [end, round3(end + cfg.finish)], y: yStart, level, speed: v, width, trophies: trophiesOf(s), pad, ...(cut ? { cut } : {}), ...(maze ? { maze } : {}), ...(tier ? { tier } : {}) });
     z = round3(end + cfg.finish);
   }
 

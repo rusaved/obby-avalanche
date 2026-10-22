@@ -181,6 +181,8 @@ export interface Hud {
   setStat(value: string, perStep: string, section?: string | null): void;
   /** «Slowed» on the Speed plaque (docs/01-gdd.md 18.5): «×0,85» while it lasts; null — hidden. */
   setSlow(text: string | null): void;
+  /** ST-07 (Q-M4-1 B): «×2 2:41» by the Speed while the ×2 step boost runs; null — none. */
+  setBoost(text: string | null): void;
   /** «+N» flying up over the Speed plaque on a gain. */
   popStatGain(text: string): void;
   /** A round number of Speed (docs/01-gdd.md 10.3, M2-13): the plaque flashes, the number bounces. */
@@ -430,7 +432,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   statSection.dataset['role'] = 'section-mult';
   const statSlow = el('span', 'hud-stat-slow', '');
   statSlow.dataset['role'] = 'slow';
-  statBody.append(statValue, statPer, statSection, statSlow);
+  const statBoost = el('span', 'hud-stat-boost', '');
+  statBoost.dataset['role'] = 'boost';
+  statBody.append(statValue, statPer, statSection, statSlow, statBoost);
   const statGain = el('span', 'hud-stat-gain');
   // MU-02: «N Speed» — the word after the number (the phone layout only).
   statValue.after(el('span', 'hud-stat-word', t('hud.speed')));
@@ -1308,6 +1312,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       const text = section ?? '';
       if (statSection.textContent !== text) statSection.textContent = text;
       statSection.classList.toggle('shown', section !== null);
+    },
+    setBoost(text) {
+      if (statBoost.textContent !== (text ?? '')) statBoost.textContent = text ?? '';
+      statBoost.classList.toggle('shown', text !== null);
     },
     setSlow(text) {
       if (statSlow.textContent !== (text ?? '')) statSlow.textContent = text ?? '';

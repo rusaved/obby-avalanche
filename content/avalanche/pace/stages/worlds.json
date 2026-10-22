@@ -5,11 +5,11 @@
     {
       "id": "slope",
       "index": 1,
-      "length": 2377.913,
+      "length": 2317.029,
       "width": 100,
       "spawnZ": 20,
       "egg": "snow",
-      "stretch": 340.387,
+      "stretch": 331.539,
       "wallCount": 9,
       "safeZones": [
         [
@@ -17,44 +17,44 @@
           40
         ],
         [
-          495.135,
-          519.135
+          428,
+          452
         ],
         [
-          696.07,
-          720.07
+          645.875,
+          669.875
         ],
         [
-          853.833,
-          877.833
+          901.489,
+          925.489
         ],
         [
-          1117.35,
-          1141.35
+          1233.028,
+          1257.028
         ],
         [
-          1457.737,
-          1481.737
+          1503.3,
+          1527.3
         ],
         [
-          1701.222,
-          1725.222
+          1678.115,
+          1702.115
         ],
         [
-          1906.751,
-          1930.751
+          1790.115,
+          1814.115
         ],
         [
-          2006.751,
-          2030.751
+          2052.523,
+          2076.523
         ],
         [
-          2293.913,
-          2317.913
+          2233.029,
+          2257.029
         ],
         [
-          2317.913,
-          2377.913
+          2257.029,
+          2317.029
         ]
       ],
       "threat": {
@@ -69,41 +69,41 @@
           0,
           40
         ],
-        "spawnMaxZ": 2293.913,
+        "spawnMaxZ": 2233.029,
         "zones": [
           [
-            519.135,
-            696.07,
-            7.513
+            320,
+            428,
+            5.836
           ],
           [
-            720.07,
-            853.833,
+            669.875,
+            901.489,
+            8.58
+          ],
+          [
+            925.489,
+            1233.028
+          ],
+          [
+            1257.028,
+            1503.3,
+            8.344
+          ],
+          [
+            1527.3,
+            1678.115,
             6
           ],
           [
-            877.833,
-            1117.35,
-            8.344
+            1814.115,
+            2052.523,
+            7.8
           ],
           [
-            1141.35,
-            1457.737
-          ],
-          [
-            1481.737,
-            1701.222,
-            7.575
-          ],
-          [
-            1725.222,
-            1906.751,
-            6.6
-          ],
-          [
-            2030.751,
-            2293.913,
-            8.344
+            2076.523,
+            2233.029,
+            6
           ]
         ],
         "zoneFirstSec": 1,
@@ -124,71 +124,71 @@
           "gift": 12,
           "stepMult": 1,
           "zStart": 320,
-          "zEnd": 519.135
+          "zEnd": 452
         },
         {
           "k": 3,
           "rarity": "uncommon",
           "gift": 12,
           "stepMult": 1,
-          "zStart": 519.135,
-          "zEnd": 720.07
+          "zStart": 452,
+          "zEnd": 669.875
         },
         {
           "k": 4,
           "rarity": "rare",
           "gift": 14,
           "stepMult": 1.2,
-          "zStart": 720.07,
-          "zEnd": 877.833
+          "zStart": 669.875,
+          "zEnd": 925.489
         },
         {
           "k": 5,
           "rarity": "rare",
           "gift": 14,
           "stepMult": 1.2,
-          "zStart": 877.833,
-          "zEnd": 1141.35
+          "zStart": 925.489,
+          "zEnd": 1257.028
         },
         {
           "k": 6,
           "rarity": "legendary",
           "gift": 18,
           "stepMult": 1.5,
-          "zStart": 1141.35,
-          "zEnd": 1481.737
+          "zStart": 1257.028,
+          "zEnd": 1527.3
         },
         {
           "k": 7,
           "rarity": "legendary",
           "gift": 18,
           "stepMult": 1.5,
-          "zStart": 1481.737,
-          "zEnd": 1725.222
+          "zStart": 1527.3,
+          "zEnd": 1702.115
         },
         {
           "k": 8,
           "rarity": "legendary",
           "gift": 18,
           "stepMult": 1.5,
-          "zStart": 1725.222,
-          "zEnd": 1930.751
+          "zStart": 1702.115,
+          "zEnd": 1814.115
         },
         {
           "k": 9,
           "rarity": "mythic",
           "gift": 20,
           "stepMult": 2,
-          "zStart": 1930.751,
-          "zEnd": 2030.751
+          "zStart": 1814.115,
+          "zEnd": 2076.523
         },
         {
           "k": 10,
           "rarity": "mythic",
           "gift": 20,
           "stepMult": 2,
-          "zStart": 2030.751,
-          "zEnd": 2317.913
+          "zStart": 2076.523,
+          "zEnd": 2257.029
         }
       ],
       "segments": [
@@ -639,32 +639,102 @@
         {
           "type": "floor",
           "z": 340,
-          "length": 155.135,
+          "length": 12,
           "y": 12,
           "x0": -50,
           "x1": 50
         },
         {
-          "type": "cover",
-          "z": 402.054,
-          "x": 25,
+          "type": "ramp",
+          "z": 352,
+          "length": 8,
           "y": 12,
-          "r": 4,
-          "h": 6,
-          "zone": 2
-        },
-        {
-          "type": "cover",
-          "z": 448.595,
-          "x": -25,
-          "y": 12,
-          "r": 4,
-          "h": 6,
-          "zone": 2
+          "rise": -4,
+          "shape": "dip"
         },
         {
           "type": "floor",
-          "z": 495.135,
+          "z": 360,
+          "length": 6,
+          "y": 8,
+          "shape": "dip"
+        },
+        {
+          "type": "ramp",
+          "z": 366,
+          "length": 12,
+          "y": 8,
+          "rise": 4,
+          "shape": "dip"
+        },
+        {
+          "type": "dip",
+          "z": 352,
+          "length": 26,
+          "y": 12,
+          "depth": 4,
+          "section": 2
+        },
+        {
+          "type": "floor",
+          "z": 378,
+          "length": 12,
+          "y": 12,
+          "x0": -50,
+          "x1": 50
+        },
+        {
+          "type": "ramp",
+          "z": 390,
+          "length": 8,
+          "y": 12,
+          "rise": -4,
+          "shape": "dip"
+        },
+        {
+          "type": "floor",
+          "z": 398,
+          "length": 6,
+          "y": 8,
+          "shape": "dip"
+        },
+        {
+          "type": "ramp",
+          "z": 404,
+          "length": 12,
+          "y": 8,
+          "rise": 4,
+          "shape": "dip"
+        },
+        {
+          "type": "dip",
+          "z": 390,
+          "length": 26,
+          "y": 12,
+          "depth": 4,
+          "section": 2
+        },
+        {
+          "type": "floor",
+          "z": 416,
+          "length": 12,
+          "y": 12,
+          "x0": -50,
+          "x1": 50
+        },
+        {
+          "type": "island",
+          "z": 334,
+          "x": -40,
+          "y": 12,
+          "size": 12,
+          "zone": 2,
+          "stretch": 2,
+          "through": true
+        },
+        {
+          "type": "floor",
+          "z": 428,
           "length": 24,
           "y": 12,
           "x0": -50,
@@ -672,7 +742,7 @@
         },
         {
           "type": "trophyPad",
-          "z": 507.135,
+          "z": 440,
           "x": -44,
           "y": 12,
           "stage": 2,
@@ -680,8 +750,8 @@
         },
         {
           "type": "block",
-          "z": 504.135,
-          "z1": 510.135,
+          "z": 437,
+          "z1": 443,
           "x0": -47,
           "x1": -41,
           "y0": 11.5,
@@ -691,7 +761,7 @@
         },
         {
           "type": "treadmill",
-          "z": 507.135,
+          "z": 440,
           "x": 44,
           "y": 12,
           "length": 12,
@@ -700,7 +770,7 @@
         },
         {
           "type": "floor",
-          "z": 519.135,
+          "z": 452,
           "length": 8,
           "y": 16,
           "x0": -50,
@@ -709,7 +779,7 @@
         },
         {
           "type": "ramp",
-          "z": 519.135,
+          "z": 452,
           "length": 8,
           "y": 12,
           "rise": 4,
@@ -718,7 +788,7 @@
         },
         {
           "type": "floor",
-          "z": 519.135,
+          "z": 452,
           "length": 8,
           "y": 16,
           "x0": -27.833,
@@ -727,7 +797,7 @@
         },
         {
           "type": "ramp",
-          "z": 519.135,
+          "z": 452,
           "length": 8,
           "y": 12,
           "rise": 4,
@@ -736,7 +806,7 @@
         },
         {
           "type": "floor",
-          "z": 519.135,
+          "z": 452,
           "length": 8,
           "y": 16,
           "x0": 5.5,
@@ -745,7 +815,7 @@
         },
         {
           "type": "ramp",
-          "z": 519.135,
+          "z": 452,
           "length": 8,
           "y": 12,
           "rise": 4,
@@ -754,7 +824,7 @@
         },
         {
           "type": "floor",
-          "z": 519.135,
+          "z": 452,
           "length": 8,
           "y": 16,
           "x0": 38.833,
@@ -763,7 +833,7 @@
         },
         {
           "type": "gate",
-          "z": 519.135,
+          "z": 452,
           "y": 12,
           "kind": "ridge",
           "requires": 134.978,
@@ -788,7 +858,7 @@
         },
         {
           "type": "checkpoint",
-          "z": 531.135,
+          "z": 464,
           "y": 16,
           "x": 0,
           "zone": 3,
@@ -797,7 +867,7 @@
         },
         {
           "type": "floor",
-          "z": 527.135,
+          "z": 460,
           "length": 12,
           "y": 16,
           "x0": -50,
@@ -805,150 +875,33 @@
         },
         {
           "type": "floor",
-          "z": 539.135,
-          "length": 20.865,
+          "z": 472,
+          "length": 173.875,
           "y": 16,
           "x0": -50,
           "x1": 50
         },
         {
-          "type": "floor",
-          "z": 560,
-          "length": 17.582,
-          "y": 1,
-          "x0": -50,
-          "x1": 50,
-          "material": "pit",
-          "solid": false
-        },
-        {
-          "type": "pit",
-          "z": 560,
-          "length": 17.582,
-          "y": 12,
-          "x0": -50,
-          "x1": 50,
-          "section": 3
-        },
-        {
-          "type": "floor",
-          "z": 577.582,
-          "length": 20.865,
+          "type": "cover",
+          "z": 541.55,
+          "x": 25,
           "y": 16,
-          "x0": -50,
-          "x1": 50
+          "r": 4,
+          "h": 6,
+          "zone": 3
         },
         {
-          "type": "floor",
-          "z": 598.447,
-          "length": 17.582,
-          "y": 1,
-          "x0": -50,
-          "x1": 50,
-          "material": "pit",
-          "solid": false
-        },
-        {
-          "type": "pit",
-          "z": 598.447,
-          "length": 17.582,
-          "y": 12,
-          "x0": -50,
-          "x1": 50,
-          "section": 3
-        },
-        {
-          "type": "floor",
-          "z": 616.029,
-          "length": 20.865,
+          "type": "cover",
+          "z": 593.713,
+          "x": -25,
           "y": 16,
-          "x0": -50,
-          "x1": 50
+          "r": 4,
+          "h": 6,
+          "zone": 3
         },
         {
           "type": "floor",
-          "z": 636.894,
-          "length": 17.582,
-          "y": 1,
-          "x0": -50,
-          "x1": 50,
-          "material": "pit",
-          "solid": false
-        },
-        {
-          "type": "pit",
-          "z": 636.894,
-          "length": 17.582,
-          "y": 12,
-          "x0": -50,
-          "x1": 50,
-          "section": 3
-        },
-        {
-          "type": "floor",
-          "z": 654.476,
-          "length": 16,
-          "y": 16,
-          "x0": -50,
-          "x1": 50
-        },
-        {
-          "type": "floor",
-          "z": 670.476,
-          "length": 25.594,
-          "y": 16,
-          "x0": -38,
-          "x1": 50
-        },
-        {
-          "type": "floor",
-          "z": 670.476,
-          "length": 25.594,
-          "y": 1,
-          "x0": -50,
-          "x1": -38,
-          "material": "pit",
-          "solid": false
-        },
-        {
-          "type": "pit",
-          "z": 670.476,
-          "length": 25.594,
-          "y": 12,
-          "x0": -50,
-          "x1": -38,
-          "section": 3
-        },
-        {
-          "type": "gift",
-          "z": 683.273,
-          "x": -44,
-          "y": 22.144,
-          "height": 0,
-          "zone": 3,
-          "rarity": "mythic",
-          "coins": 300,
-          "n": 0,
-          "air": true,
-          "col": [
-            19.072,
-            25.216
-          ],
-          "snowflake": true
-        },
-        {
-          "type": "island",
-          "z": 533.135,
-          "x": 40,
-          "y": 16,
-          "size": 12,
-          "zone": 3,
-          "stretch": 3,
-          "through": true
-        },
-        {
-          "type": "floor",
-          "z": 696.07,
+          "z": 645.875,
           "length": 24,
           "y": 16,
           "x0": -50,
@@ -956,7 +909,7 @@
         },
         {
           "type": "trophyPad",
-          "z": 708.07,
+          "z": 657.875,
           "x": 44,
           "y": 16,
           "stage": 3,
@@ -964,8 +917,8 @@
         },
         {
           "type": "block",
-          "z": 705.07,
-          "z1": 711.07,
+          "z": 654.875,
+          "z1": 660.875,
           "x0": 41,
           "x1": 47,
           "y0": 15.5,
@@ -975,7 +928,7 @@
         },
         {
           "type": "treadmill",
-          "z": 708.07,
+          "z": 657.875,
           "x": -44,
           "y": 16,
           "length": 12,
@@ -984,389 +937,74 @@
         },
         {
           "type": "floor",
-          "z": 720.07,
+          "z": 669.875,
           "length": 8,
           "y": 20,
-          "x0": -50,
-          "x1": -5.5,
-          "thickness": 6
-        },
-        {
-          "type": "ramp",
-          "z": 720.07,
-          "length": 8,
-          "y": 16,
-          "rise": 4,
-          "x0": -5.5,
-          "x1": 5.5
-        },
-        {
-          "type": "floor",
-          "z": 720.07,
-          "length": 8,
-          "y": 20,
-          "x0": 5.5,
-          "x1": 50,
-          "thickness": 6
-        },
-        {
-          "type": "gate",
-          "z": 720.07,
-          "y": 16,
-          "kind": "ridge",
-          "requires": 308.796,
-          "level": 13,
-          "reward": {
-            "coins": 0
-          },
-          "height": 10,
-          "signHeight": 5.5,
-          "rise": 4,
-          "passes": [
-            0
-          ],
-          "digits": 6,
-          "passWidth": 11,
-          "passLength": 8,
-          "wall": 3,
-          "zone": 4,
-          "rarity": "rare"
-        },
-        {
-          "type": "checkpoint",
-          "z": 732.07,
-          "y": 20,
-          "x": 0,
-          "zone": 4,
-          "rarity": "rare",
-          "wall": 3
-        },
-        {
-          "type": "floor",
-          "z": 728.07,
-          "length": 12,
-          "y": 20,
-          "x0": -50,
-          "x1": 50
-        },
-        {
-          "type": "floor",
-          "z": 740.07,
-          "length": 113.763,
-          "y": 5,
-          "x0": -50,
-          "x1": 50,
-          "material": "pit",
-          "solid": false
-        },
-        {
-          "type": "pit",
-          "z": 740.07,
-          "length": 113.763,
-          "y": 16,
-          "x0": -50,
-          "x1": 50,
-          "section": 4
-        },
-        {
-          "type": "floor",
-          "z": 740.07,
-          "length": 113.763,
-          "y": 20,
-          "x0": -5,
-          "x1": 5,
-          "material": "ice"
-        },
-        {
-          "type": "slide",
-          "z": 796.952,
-          "x": 0,
-          "y": 20,
-          "width": 10,
-          "length": 113.763,
-          "stretch": 4,
-          "mult": 1.6
-        },
-        {
-          "type": "island",
-          "z": 734.07,
-          "x": -40,
-          "y": 20,
-          "size": 12,
-          "zone": 4,
-          "stretch": 4,
-          "through": true
-        },
-        {
-          "type": "floor",
-          "z": 853.833,
-          "length": 24,
-          "y": 20,
-          "x0": -50,
-          "x1": 50
-        },
-        {
-          "type": "trophyPad",
-          "z": 865.833,
-          "x": -44,
-          "y": 20,
-          "stage": 4,
-          "trophies": 160
-        },
-        {
-          "type": "block",
-          "z": 862.833,
-          "z1": 868.833,
-          "x0": -47,
-          "x1": -41,
-          "y0": 19.5,
-          "y1": 20.25,
-          "material": "trophyPad",
-          "kind": "trophyPad"
-        },
-        {
-          "type": "treadmill",
-          "z": 865.833,
-          "x": 44,
-          "y": 20,
-          "length": 12,
-          "width": 6,
-          "mult": 1.2
-        },
-        {
-          "type": "floor",
-          "z": 877.833,
-          "length": 8,
-          "y": 24,
-          "x0": -50,
-          "x1": -5.5,
-          "thickness": 6
-        },
-        {
-          "type": "ramp",
-          "z": 877.833,
-          "length": 8,
-          "y": 20,
-          "rise": 4,
-          "x0": -5.5,
-          "x1": 5.5
-        },
-        {
-          "type": "floor",
-          "z": 877.833,
-          "length": 8,
-          "y": 24,
-          "x0": 5.5,
-          "x1": 50,
-          "thickness": 6
-        },
-        {
-          "type": "gate",
-          "z": 877.833,
-          "y": 20,
-          "kind": "ridge",
-          "requires": 706.451,
-          "level": 18,
-          "reward": {
-            "coins": 0
-          },
-          "height": 10,
-          "signHeight": 5.5,
-          "rise": 4,
-          "passes": [
-            0
-          ],
-          "digits": 6,
-          "passWidth": 11,
-          "passLength": 8,
-          "wall": 4,
-          "zone": 5,
-          "rarity": "rare"
-        },
-        {
-          "type": "checkpoint",
-          "z": 889.833,
-          "y": 24,
-          "x": 0,
-          "zone": 5,
-          "rarity": "rare",
-          "wall": 4
-        },
-        {
-          "type": "floor",
-          "z": 885.833,
-          "length": 12,
-          "y": 24,
-          "x0": -50,
-          "x1": 50
-        },
-        {
-          "type": "floor",
-          "z": 897.833,
-          "length": 219.517,
-          "y": 9,
-          "x0": -50,
-          "x1": 50,
-          "material": "pit",
-          "solid": false
-        },
-        {
-          "type": "pit",
-          "z": 897.833,
-          "length": 219.517,
-          "y": 20,
-          "x0": -50,
-          "x1": 50,
-          "section": 5
-        },
-        {
-          "type": "floor",
-          "z": 918.602,
-          "length": 28.918,
-          "y": 24,
-          "x0": -5,
-          "x1": 5
-        },
-        {
-          "type": "floor",
-          "z": 968.289,
-          "length": 28.918,
-          "y": 24,
-          "x0": -5,
-          "x1": 5
-        },
-        {
-          "type": "floor",
-          "z": 1017.976,
-          "length": 28.918,
-          "y": 24,
-          "x0": -5,
-          "x1": 5
-        },
-        {
-          "type": "floor",
-          "z": 1067.663,
-          "length": 28.918,
-          "y": 24,
-          "x0": -5,
-          "x1": 5
-        },
-        {
-          "type": "island",
-          "z": 891.833,
-          "x": 40,
-          "y": 24,
-          "size": 12,
-          "zone": 5,
-          "stretch": 5,
-          "through": true
-        },
-        {
-          "type": "floor",
-          "z": 1117.35,
-          "length": 24,
-          "y": 24,
-          "x0": -50,
-          "x1": 50
-        },
-        {
-          "type": "trophyPad",
-          "z": 1129.35,
-          "x": 44,
-          "y": 24,
-          "stage": 5,
-          "trophies": 180
-        },
-        {
-          "type": "block",
-          "z": 1126.35,
-          "z1": 1132.35,
-          "x0": 41,
-          "x1": 47,
-          "y0": 23.5,
-          "y1": 24.25,
-          "material": "trophyPad",
-          "kind": "trophyPad"
-        },
-        {
-          "type": "treadmill",
-          "z": 1129.35,
-          "x": -44,
-          "y": 24,
-          "length": 12,
-          "width": 6,
-          "mult": 1.2
-        },
-        {
-          "type": "floor",
-          "z": 1141.35,
-          "length": 8,
-          "y": 28,
           "x0": -50,
           "x1": -38.833,
           "thickness": 6
         },
         {
           "type": "ramp",
-          "z": 1141.35,
+          "z": 669.875,
           "length": 8,
-          "y": 24,
+          "y": 16,
           "rise": 4,
           "x0": -38.833,
           "x1": -27.833
         },
         {
           "type": "floor",
-          "z": 1141.35,
+          "z": 669.875,
           "length": 8,
-          "y": 28,
+          "y": 20,
           "x0": -27.833,
           "x1": -5.5,
           "thickness": 6
         },
         {
           "type": "ramp",
-          "z": 1141.35,
+          "z": 669.875,
           "length": 8,
-          "y": 24,
+          "y": 16,
           "rise": 4,
           "x0": -5.5,
           "x1": 5.5
         },
         {
           "type": "floor",
-          "z": 1141.35,
+          "z": 669.875,
           "length": 8,
-          "y": 28,
+          "y": 20,
           "x0": 5.5,
           "x1": 27.833,
           "thickness": 6
         },
         {
           "type": "ramp",
-          "z": 1141.35,
+          "z": 669.875,
           "length": 8,
-          "y": 24,
+          "y": 16,
           "rise": 4,
           "x0": 27.833,
           "x1": 38.833
         },
         {
           "type": "floor",
-          "z": 1141.35,
+          "z": 669.875,
           "length": 8,
-          "y": 28,
+          "y": 20,
           "x0": 38.833,
           "x1": 50,
           "thickness": 6
         },
         {
           "type": "gate",
-          "z": 1141.35,
-          "y": 24,
+          "z": 669.875,
+          "y": 16,
           "kind": "ridge",
-          "requires": 983.663,
-          "level": 20,
+          "requires": 308.796,
+          "level": 13,
           "reward": {
             "coins": 0
           },
@@ -1381,13 +1019,465 @@
           "digits": 6,
           "passWidth": 11,
           "passLength": 8,
+          "wall": 3,
+          "zone": 4,
+          "rarity": "rare"
+        },
+        {
+          "type": "checkpoint",
+          "z": 681.875,
+          "y": 20,
+          "x": 0,
+          "zone": 4,
+          "rarity": "rare",
+          "wall": 3
+        },
+        {
+          "type": "floor",
+          "z": 677.875,
+          "length": 12,
+          "y": 20,
+          "x0": -50,
+          "x1": 50
+        },
+        {
+          "type": "floor",
+          "z": 689.875,
+          "length": 22.753,
+          "y": 20,
+          "x0": -50,
+          "x1": 50
+        },
+        {
+          "type": "floor",
+          "z": 712.628,
+          "length": 19.173,
+          "y": 5,
+          "x0": -50,
+          "x1": 50,
+          "material": "pit",
+          "solid": false
+        },
+        {
+          "type": "pit",
+          "z": 712.628,
+          "length": 19.173,
+          "y": 16,
+          "x0": -50,
+          "x1": 50,
+          "section": 4
+        },
+        {
+          "type": "floor",
+          "z": 731.801,
+          "length": 22.753,
+          "y": 20,
+          "x0": -50,
+          "x1": 50
+        },
+        {
+          "type": "floor",
+          "z": 754.554,
+          "length": 19.173,
+          "y": 5,
+          "x0": -50,
+          "x1": 50,
+          "material": "pit",
+          "solid": false
+        },
+        {
+          "type": "pit",
+          "z": 754.554,
+          "length": 19.173,
+          "y": 16,
+          "x0": -50,
+          "x1": 50,
+          "section": 4
+        },
+        {
+          "type": "floor",
+          "z": 773.727,
+          "length": 22.753,
+          "y": 20,
+          "x0": -50,
+          "x1": 50
+        },
+        {
+          "type": "floor",
+          "z": 796.48,
+          "length": 19.173,
+          "y": 5,
+          "x0": -50,
+          "x1": 50,
+          "material": "pit",
+          "solid": false
+        },
+        {
+          "type": "pit",
+          "z": 796.48,
+          "length": 19.173,
+          "y": 16,
+          "x0": -50,
+          "x1": 50,
+          "section": 4
+        },
+        {
+          "type": "floor",
+          "z": 815.653,
+          "length": 22.753,
+          "y": 20,
+          "x0": -50,
+          "x1": 50
+        },
+        {
+          "type": "floor",
+          "z": 838.406,
+          "length": 19.173,
+          "y": 5,
+          "x0": -50,
+          "x1": 50,
+          "material": "pit",
+          "solid": false
+        },
+        {
+          "type": "pit",
+          "z": 838.406,
+          "length": 19.173,
+          "y": 16,
+          "x0": -50,
+          "x1": 50,
+          "section": 4
+        },
+        {
+          "type": "floor",
+          "z": 857.579,
+          "length": 16,
+          "y": 20,
+          "x0": -50,
+          "x1": 50
+        },
+        {
+          "type": "floor",
+          "z": 873.579,
+          "length": 27.91,
+          "y": 20,
+          "x0": -50,
+          "x1": 38
+        },
+        {
+          "type": "floor",
+          "z": 873.579,
+          "length": 27.91,
+          "y": 5,
+          "x0": 38,
+          "x1": 50,
+          "material": "pit",
+          "solid": false
+        },
+        {
+          "type": "pit",
+          "z": 873.579,
+          "length": 27.91,
+          "y": 16,
+          "x0": 38,
+          "x1": 50,
+          "section": 4
+        },
+        {
+          "type": "gift",
+          "z": 887.534,
+          "x": 44,
+          "y": 26.144,
+          "height": 0,
+          "zone": 4,
+          "rarity": "mythic",
+          "coins": 320,
+          "n": 0,
+          "air": true,
+          "col": [
+            23.072,
+            29.216
+          ],
+          "snowflake": true
+        },
+        {
+          "type": "island",
+          "z": 683.875,
+          "x": -40,
+          "y": 20,
+          "size": 12,
+          "zone": 4,
+          "stretch": 4,
+          "through": true
+        },
+        {
+          "type": "floor",
+          "z": 901.489,
+          "length": 24,
+          "y": 20,
+          "x0": -50,
+          "x1": 50
+        },
+        {
+          "type": "trophyPad",
+          "z": 913.489,
+          "x": -44,
+          "y": 20,
+          "stage": 4,
+          "trophies": 160
+        },
+        {
+          "type": "block",
+          "z": 910.489,
+          "z1": 916.489,
+          "x0": -47,
+          "x1": -41,
+          "y0": 19.5,
+          "y1": 20.25,
+          "material": "trophyPad",
+          "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 913.489,
+          "x": 44,
+          "y": 20,
+          "length": 12,
+          "width": 6,
+          "mult": 1.2
+        },
+        {
+          "type": "floor",
+          "z": 925.489,
+          "length": 8,
+          "y": 24,
+          "x0": -50,
+          "x1": -38.833,
+          "thickness": 6
+        },
+        {
+          "type": "ramp",
+          "z": 925.489,
+          "length": 8,
+          "y": 20,
+          "rise": 4,
+          "x0": -38.833,
+          "x1": -27.833
+        },
+        {
+          "type": "floor",
+          "z": 925.489,
+          "length": 8,
+          "y": 24,
+          "x0": -27.833,
+          "x1": -5.5,
+          "thickness": 6
+        },
+        {
+          "type": "ramp",
+          "z": 925.489,
+          "length": 8,
+          "y": 20,
+          "rise": 4,
+          "x0": -5.5,
+          "x1": 5.5
+        },
+        {
+          "type": "floor",
+          "z": 925.489,
+          "length": 8,
+          "y": 24,
+          "x0": 5.5,
+          "x1": 27.833,
+          "thickness": 6
+        },
+        {
+          "type": "ramp",
+          "z": 925.489,
+          "length": 8,
+          "y": 20,
+          "rise": 4,
+          "x0": 27.833,
+          "x1": 38.833
+        },
+        {
+          "type": "floor",
+          "z": 925.489,
+          "length": 8,
+          "y": 24,
+          "x0": 38.833,
+          "x1": 50,
+          "thickness": 6
+        },
+        {
+          "type": "gate",
+          "z": 925.489,
+          "y": 20,
+          "kind": "ridge",
+          "requires": 706.451,
+          "level": 18,
+          "reward": {
+            "coins": 0
+          },
+          "height": 10,
+          "signHeight": 5.5,
+          "rise": 4,
+          "passes": [
+            -33.333,
+            0,
+            33.333
+          ],
+          "digits": 6,
+          "passWidth": 11,
+          "passLength": 8,
+          "wall": 4,
+          "zone": 5,
+          "rarity": "rare"
+        },
+        {
+          "type": "checkpoint",
+          "z": 937.489,
+          "y": 24,
+          "x": 0,
+          "zone": 5,
+          "rarity": "rare",
+          "wall": 4
+        },
+        {
+          "type": "floor",
+          "z": 933.489,
+          "length": 12,
+          "y": 24,
+          "x0": -50,
+          "x1": 50
+        },
+        {
+          "type": "floor",
+          "z": 945.489,
+          "length": 287.539,
+          "y": 24,
+          "x0": -50,
+          "x1": 50
+        },
+        {
+          "type": "island",
+          "z": 986.566,
+          "x": -18,
+          "y": 24,
+          "size": 12,
+          "zone": 5,
+          "stretch": 5,
+          "through": true
+        },
+        {
+          "type": "island",
+          "z": 1068.72,
+          "x": 18,
+          "y": 24,
+          "size": 12,
+          "zone": 5,
+          "stretch": 5,
+          "through": true
+        },
+        {
+          "type": "island",
+          "z": 1150.874,
+          "x": -18,
+          "y": 24,
+          "size": 12,
+          "zone": 5,
+          "stretch": 5,
+          "through": true
+        },
+        {
+          "type": "floor",
+          "z": 1233.028,
+          "length": 24,
+          "y": 24,
+          "x0": -50,
+          "x1": 50
+        },
+        {
+          "type": "trophyPad",
+          "z": 1245.028,
+          "x": 44,
+          "y": 24,
+          "stage": 5,
+          "trophies": 180
+        },
+        {
+          "type": "block",
+          "z": 1242.028,
+          "z1": 1248.028,
+          "x0": 41,
+          "x1": 47,
+          "y0": 23.5,
+          "y1": 24.25,
+          "material": "trophyPad",
+          "kind": "trophyPad"
+        },
+        {
+          "type": "treadmill",
+          "z": 1245.028,
+          "x": -44,
+          "y": 24,
+          "length": 12,
+          "width": 6,
+          "mult": 1.2
+        },
+        {
+          "type": "floor",
+          "z": 1257.028,
+          "length": 8,
+          "y": 28,
+          "x0": -50,
+          "x1": -5.5,
+          "thickness": 6
+        },
+        {
+          "type": "ramp",
+          "z": 1257.028,
+          "length": 8,
+          "y": 24,
+          "rise": 4,
+          "x0": -5.5,
+          "x1": 5.5
+        },
+        {
+          "type": "floor",
+          "z": 1257.028,
+          "length": 8,
+          "y": 28,
+          "x0": 5.5,
+          "x1": 50,
+          "thickness": 6
+        },
+        {
+          "type": "gate",
+          "z": 1257.028,
+          "y": 24,
+          "kind": "ridge",
+          "requires": 983.663,
+          "level": 20,
+          "reward": {
+            "coins": 0
+          },
+          "height": 10,
+          "signHeight": 5.5,
+          "rise": 4,
+          "passes": [
+            0
+          ],
+          "digits": 6,
+          "passWidth": 11,
+          "passLength": 8,
           "wall": 5,
           "zone": 6,
           "rarity": "legendary"
         },
         {
           "type": "checkpoint",
-          "z": 1153.35,
+          "z": 1269.028,
           "y": 28,
           "x": 0,
           "zone": 6,
@@ -1396,7 +1486,7 @@
         },
         {
           "type": "floor",
-          "z": 1149.35,
+          "z": 1265.028,
           "length": 12,
           "y": 28,
           "x0": -50,
@@ -1404,36 +1494,59 @@
         },
         {
           "type": "floor",
-          "z": 1161.35,
-          "length": 296.387,
-          "y": 28,
+          "z": 1277.028,
+          "length": 226.272,
+          "y": 13,
           "x0": -50,
-          "x1": 50
+          "x1": 50,
+          "material": "pit",
+          "solid": false
         },
         {
-          "type": "island",
-          "z": 1203.691,
-          "x": -18,
+          "type": "pit",
+          "z": 1277.028,
+          "length": 226.272,
+          "y": 24,
+          "x0": -50,
+          "x1": 50,
+          "section": 6
+        },
+        {
+          "type": "floor",
+          "z": 1298.436,
+          "length": 29.808,
           "y": 28,
-          "size": 12,
-          "zone": 6,
-          "stretch": 6,
-          "through": true
+          "x0": -5,
+          "x1": 5
         },
         {
-          "type": "island",
-          "z": 1288.373,
-          "x": 18,
+          "type": "floor",
+          "z": 1349.652,
+          "length": 29.808,
           "y": 28,
-          "size": 12,
-          "zone": 6,
-          "stretch": 6,
-          "through": true
+          "x0": -5,
+          "x1": 5
+        },
+        {
+          "type": "floor",
+          "z": 1400.868,
+          "length": 29.808,
+          "y": 28,
+          "x0": -5,
+          "x1": 5
+        },
+        {
+          "type": "floor",
+          "z": 1452.084,
+          "length": 29.808,
+          "y": 28,
+          "x0": -5,
+          "x1": 5
         },
         {
           "type": "island",
-          "z": 1373.055,
-          "x": -18,
+          "z": 1271.028,
+          "x": -40,
           "y": 28,
           "size": 12,
           "zone": 6,
@@ -1442,7 +1555,7 @@
         },
         {
           "type": "floor",
-          "z": 1457.737,
+          "z": 1503.3,
           "length": 24,
           "y": 28,
           "x0": -50,
@@ -1450,7 +1563,7 @@
         },
         {
           "type": "trophyPad",
-          "z": 1469.737,
+          "z": 1515.3,
           "x": -44,
           "y": 28,
           "stage": 6,
@@ -1458,8 +1571,8 @@
         },
         {
           "type": "block",
-          "z": 1466.737,
-          "z1": 1472.737,
+          "z": 1512.3,
+          "z1": 1518.3,
           "x0": -47,
           "x1": -41,
           "y0": 27.5,
@@ -1469,7 +1582,7 @@
         },
         {
           "type": "treadmill",
-          "z": 1469.737,
+          "z": 1515.3,
           "x": 44,
           "y": 28,
           "length": 12,
@@ -1478,7 +1591,7 @@
         },
         {
           "type": "floor",
-          "z": 1481.737,
+          "z": 1527.3,
           "length": 8,
           "y": 32,
           "x0": -50,
@@ -1487,7 +1600,7 @@
         },
         {
           "type": "ramp",
-          "z": 1481.737,
+          "z": 1527.3,
           "length": 8,
           "y": 28,
           "rise": 4,
@@ -1496,7 +1609,7 @@
         },
         {
           "type": "floor",
-          "z": 1481.737,
+          "z": 1527.3,
           "length": 8,
           "y": 32,
           "x0": -27.833,
@@ -1505,7 +1618,7 @@
         },
         {
           "type": "ramp",
-          "z": 1481.737,
+          "z": 1527.3,
           "length": 8,
           "y": 28,
           "rise": 4,
@@ -1514,7 +1627,7 @@
         },
         {
           "type": "floor",
-          "z": 1481.737,
+          "z": 1527.3,
           "length": 8,
           "y": 32,
           "x0": 5.5,
@@ -1523,7 +1636,7 @@
         },
         {
           "type": "ramp",
-          "z": 1481.737,
+          "z": 1527.3,
           "length": 8,
           "y": 28,
           "rise": 4,
@@ -1532,7 +1645,7 @@
         },
         {
           "type": "floor",
-          "z": 1481.737,
+          "z": 1527.3,
           "length": 8,
           "y": 32,
           "x0": 38.833,
@@ -1541,7 +1654,7 @@
         },
         {
           "type": "gate",
-          "z": 1481.737,
+          "z": 1527.3,
           "y": 28,
           "kind": "ridge",
           "requires": 1369.652,
@@ -1566,7 +1679,7 @@
         },
         {
           "type": "checkpoint",
-          "z": 1493.737,
+          "z": 1539.3,
           "y": 32,
           "x": 0,
           "zone": 7,
@@ -1575,7 +1688,7 @@
         },
         {
           "type": "floor",
-          "z": 1489.737,
+          "z": 1535.3,
           "length": 12,
           "y": 32,
           "x0": -50,
@@ -1583,135 +1696,59 @@
         },
         {
           "type": "floor",
-          "z": 1501.737,
-          "length": 10,
+          "z": 1547.3,
+          "length": 130.815,
           "y": 32,
           "x0": -50,
-          "x1": 50
+          "x1": 50,
+          "material": "ice"
         },
         {
-          "type": "jumpPad",
-          "z": 1507.737,
+          "type": "slide",
+          "z": 1612.708,
           "x": 0,
           "y": 32,
           "width": 96,
-          "length": 4,
+          "length": 130.815,
           "stretch": 7,
-          "forward": 21.803,
-          "shape": "catapult"
+          "mult": 1.6
         },
         {
-          "type": "floor",
-          "z": 1511.737,
-          "length": 44.879,
-          "y": 17,
-          "x0": -50,
-          "x1": 50,
-          "material": "pit",
-          "solid": false
+          "type": "block",
+          "z": 1577.504,
+          "z1": 1582.504,
+          "x0": 5.5,
+          "x1": 10.5,
+          "y0": 32,
+          "y1": 36,
+          "material": "ice",
+          "kind": "iceRock"
         },
         {
-          "type": "pit",
-          "z": 1511.737,
-          "length": 44.879,
-          "y": 28,
-          "x0": -50,
-          "x1": 50,
-          "section": 7
+          "type": "block",
+          "z": 1610.208,
+          "z1": 1615.208,
+          "x0": -16.5,
+          "x1": -11.5,
+          "y0": 32,
+          "y1": 36,
+          "material": "ice",
+          "kind": "iceRock"
         },
         {
-          "type": "floor",
-          "z": 1556.616,
-          "length": 42.442,
-          "y": 32,
-          "x0": -50,
-          "x1": 50
-        },
-        {
-          "type": "jumpPad",
-          "z": 1595.058,
-          "x": 0,
-          "y": 32,
-          "width": 96,
-          "length": 4,
-          "stretch": 7,
-          "forward": 21.803,
-          "shape": "catapult"
-        },
-        {
-          "type": "floor",
-          "z": 1599.058,
-          "length": 44.879,
-          "y": 17,
-          "x0": -50,
-          "x1": 50,
-          "material": "pit",
-          "solid": false
-        },
-        {
-          "type": "pit",
-          "z": 1599.058,
-          "length": 44.879,
-          "y": 28,
-          "x0": -50,
-          "x1": 50,
-          "section": 7
-        },
-        {
-          "type": "floor",
-          "z": 1643.937,
-          "length": 25.192,
-          "y": 32,
-          "x0": -50,
-          "x1": 50
-        },
-        {
-          "type": "floor",
-          "z": 1669.129,
-          "length": 32.093,
-          "y": 32,
-          "x0": -38,
-          "x1": 50
-        },
-        {
-          "type": "floor",
-          "z": 1669.129,
-          "length": 32.093,
-          "y": 17,
-          "x0": -50,
-          "x1": -38,
-          "material": "pit",
-          "solid": false
-        },
-        {
-          "type": "pit",
-          "z": 1669.129,
-          "length": 32.093,
-          "y": 28,
-          "x0": -50,
-          "x1": -38,
-          "section": 7
-        },
-        {
-          "type": "gift",
-          "z": 1685.175,
-          "x": -44,
-          "y": 38.144,
-          "height": 0,
-          "zone": 7,
-          "rarity": "mythic",
-          "coins": 440,
-          "n": 0,
-          "air": true,
-          "col": [
-            35.072,
-            41.216
-          ],
-          "snowflake": true
+          "type": "block",
+          "z": 1642.911,
+          "z1": 1647.911,
+          "x0": 17.5,
+          "x1": 22.5,
+          "y0": 32,
+          "y1": 36,
+          "material": "ice",
+          "kind": "iceRock"
         },
         {
           "type": "island",
-          "z": 1495.737,
+          "z": 1541.3,
           "x": 40,
           "y": 32,
           "size": 12,
@@ -1721,7 +1758,7 @@
         },
         {
           "type": "floor",
-          "z": 1701.222,
+          "z": 1678.115,
           "length": 24,
           "y": 32,
           "x0": -50,
@@ -1729,7 +1766,7 @@
         },
         {
           "type": "trophyPad",
-          "z": 1713.222,
+          "z": 1690.115,
           "x": 44,
           "y": 32,
           "stage": 7,
@@ -1737,8 +1774,8 @@
         },
         {
           "type": "block",
-          "z": 1710.222,
-          "z1": 1716.222,
+          "z": 1687.115,
+          "z1": 1693.115,
           "x0": 41,
           "x1": 47,
           "y0": 31.5,
@@ -1748,7 +1785,7 @@
         },
         {
           "type": "treadmill",
-          "z": 1713.222,
+          "z": 1690.115,
           "x": -44,
           "y": 32,
           "length": 12,
@@ -1757,7 +1794,7 @@
         },
         {
           "type": "floor",
-          "z": 1725.222,
+          "z": 1702.115,
           "length": 8,
           "y": 36,
           "x0": -50,
@@ -1766,7 +1803,7 @@
         },
         {
           "type": "ramp",
-          "z": 1725.222,
+          "z": 1702.115,
           "length": 8,
           "y": 32,
           "rise": 4,
@@ -1775,7 +1812,7 @@
         },
         {
           "type": "floor",
-          "z": 1725.222,
+          "z": 1702.115,
           "length": 8,
           "y": 36,
           "x0": 5.5,
@@ -1784,7 +1821,7 @@
         },
         {
           "type": "gate",
-          "z": 1725.222,
+          "z": 1702.115,
           "y": 32,
           "kind": "ridge",
           "requires": 1907.103,
@@ -1807,7 +1844,7 @@
         },
         {
           "type": "checkpoint",
-          "z": 1737.222,
+          "z": 1714.115,
           "y": 36,
           "x": 0,
           "zone": 8,
@@ -1816,7 +1853,7 @@
         },
         {
           "type": "floor",
-          "z": 1733.222,
+          "z": 1710.115,
           "length": 12,
           "y": 36,
           "x0": -50,
@@ -1824,8 +1861,8 @@
         },
         {
           "type": "floor",
-          "z": 1745.222,
-          "length": 161.529,
+          "z": 1722.115,
+          "length": 68,
           "y": 21,
           "x0": -50,
           "x1": 50,
@@ -1834,8 +1871,8 @@
         },
         {
           "type": "pit",
-          "z": 1745.222,
-          "length": 161.529,
+          "z": 1722.115,
+          "length": 68,
           "y": 32,
           "x0": -50,
           "x1": 50,
@@ -1843,57 +1880,252 @@
         },
         {
           "type": "floor",
-          "z": 1745.222,
-          "length": 53.843,
+          "z": 1722.115,
+          "length": 60,
           "y": 36,
-          "x0": -5,
-          "x1": 5
+          "x0": -36,
+          "x1": 36,
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1721.365,
+          "z1": 1722.865,
+          "x0": -36.75,
+          "x1": 0.75,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1721.365,
+          "z1": 1722.865,
+          "x0": 11.25,
+          "x1": 36.75,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1733.365,
+          "z1": 1734.865,
+          "x0": -24.75,
+          "x1": -11.25,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1733.365,
+          "z1": 1734.865,
+          "x0": -0.75,
+          "x1": 24.75,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1745.365,
+          "z1": 1746.865,
+          "x0": 23.25,
+          "x1": 36.75,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1757.365,
+          "z1": 1758.865,
+          "x0": -12.75,
+          "x1": 12.75,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1769.365,
+          "z1": 1770.865,
+          "x0": 11.25,
+          "x1": 24.75,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1781.365,
+          "z1": 1782.865,
+          "x0": -24.75,
+          "x1": 36.75,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1721.365,
+          "z1": 1746.865,
+          "x0": -36.75,
+          "x1": -35.25,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1757.365,
+          "z1": 1782.865,
+          "x0": -36.75,
+          "x1": -35.25,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1733.365,
+          "z1": 1782.865,
+          "x0": -24.75,
+          "x1": -23.25,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1745.365,
+          "z1": 1770.865,
+          "x0": -12.75,
+          "x1": -11.25,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1721.365,
+          "z1": 1746.865,
+          "x0": -0.75,
+          "x1": 0.75,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1769.365,
+          "z1": 1782.865,
+          "x0": -0.75,
+          "x1": 0.75,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1733.365,
+          "z1": 1770.865,
+          "x0": 11.25,
+          "x1": 12.75,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1745.365,
+          "z1": 1758.865,
+          "x0": 23.25,
+          "x1": 24.75,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1721.365,
+          "z1": 1746.865,
+          "x0": 35.25,
+          "x1": 36.75,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
+        },
+        {
+          "type": "block",
+          "z": 1757.365,
+          "z1": 1782.865,
+          "x0": 35.25,
+          "x1": 36.75,
+          "y0": 35,
+          "y1": 48,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 8
         },
         {
           "type": "floor",
-          "z": 1789.065,
-          "length": 10,
+          "z": 1782.115,
+          "length": 8,
           "y": 36,
-          "x0": -17,
-          "x1": 17
+          "x0": -34.5,
+          "x1": -25.5
+        },
+        {
+          "type": "block",
+          "z": 1792.115,
+          "z1": 1794.115,
+          "x0": -31,
+          "x1": -29,
+          "y0": 36,
+          "y1": 56,
+          "material": "trophyPad",
+          "kind": "beacon",
+          "solid": false
         },
         {
           "type": "floor",
-          "z": 1799.065,
-          "length": 53.843,
-          "y": 36,
-          "x0": 7,
-          "x1": 17
-        },
-        {
-          "type": "floor",
-          "z": 1842.908,
-          "length": 10,
-          "y": 36,
-          "x0": -17,
-          "x1": 17
-        },
-        {
-          "type": "floor",
-          "z": 1852.908,
-          "length": 53.843,
-          "y": 36,
-          "x0": -17,
-          "x1": -7
-        },
-        {
-          "type": "island",
-          "z": 1739.222,
-          "x": -40,
-          "y": 36,
-          "size": 12,
-          "zone": 8,
-          "stretch": 8,
-          "through": true
-        },
-        {
-          "type": "floor",
-          "z": 1906.751,
+          "z": 1790.115,
           "length": 24,
           "y": 36,
           "x0": -50,
@@ -1901,7 +2133,7 @@
         },
         {
           "type": "trophyPad",
-          "z": 1918.751,
+          "z": 1802.115,
           "x": -44,
           "y": 36,
           "stage": 8,
@@ -1909,8 +2141,8 @@
         },
         {
           "type": "block",
-          "z": 1915.751,
-          "z1": 1921.751,
+          "z": 1799.115,
+          "z1": 1805.115,
           "x0": -47,
           "x1": -41,
           "y0": 35.5,
@@ -1920,7 +2152,7 @@
         },
         {
           "type": "treadmill",
-          "z": 1918.751,
+          "z": 1802.115,
           "x": 44,
           "y": 36,
           "length": 12,
@@ -1929,7 +2161,7 @@
         },
         {
           "type": "floor",
-          "z": 1930.751,
+          "z": 1814.115,
           "length": 8,
           "y": 40,
           "x0": -50,
@@ -1938,7 +2170,7 @@
         },
         {
           "type": "ramp",
-          "z": 1930.751,
+          "z": 1814.115,
           "length": 8,
           "y": 36,
           "rise": 4,
@@ -1947,7 +2179,7 @@
         },
         {
           "type": "floor",
-          "z": 1930.751,
+          "z": 1814.115,
           "length": 8,
           "y": 40,
           "x0": 5.5,
@@ -1956,7 +2188,7 @@
         },
         {
           "type": "gate",
-          "z": 1930.751,
+          "z": 1814.115,
           "y": 36,
           "kind": "ridge",
           "requires": 2250.382,
@@ -1979,7 +2211,7 @@
         },
         {
           "type": "checkpoint",
-          "z": 1942.751,
+          "z": 1826.115,
           "y": 40,
           "x": 0,
           "zone": 9,
@@ -1988,7 +2220,7 @@
         },
         {
           "type": "floor",
-          "z": 1938.751,
+          "z": 1822.115,
           "length": 12,
           "y": 40,
           "x0": -50,
@@ -1996,8 +2228,8 @@
         },
         {
           "type": "floor",
-          "z": 1950.751,
-          "length": 56,
+          "z": 1834.115,
+          "length": 218.408,
           "y": 25,
           "x0": -50,
           "x1": 50,
@@ -2006,8 +2238,8 @@
         },
         {
           "type": "pit",
-          "z": 1950.751,
-          "length": 56,
+          "z": 1834.115,
+          "length": 218.408,
           "y": 36,
           "x0": -50,
           "x1": 50,
@@ -2015,216 +2247,73 @@
         },
         {
           "type": "floor",
-          "z": 1950.751,
-          "length": 48,
+          "z": 1834.115,
+          "length": 54.602,
           "y": 40,
-          "x0": -30,
-          "x1": 30,
-          "maze": 9
-        },
-        {
-          "type": "block",
-          "z": 1950.001,
-          "z1": 1951.501,
-          "x0": -30.75,
-          "x1": -5.25,
-          "y0": 39,
-          "y1": 52,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 9
-        },
-        {
-          "type": "block",
-          "z": 1950.001,
-          "z1": 1951.501,
-          "x0": 5.25,
-          "x1": 30.75,
-          "y0": 39,
-          "y1": 52,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 9
-        },
-        {
-          "type": "block",
-          "z": 1962.001,
-          "z1": 1963.501,
-          "x0": 17.25,
-          "x1": 30.75,
-          "y0": 39,
-          "y1": 52,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 9
-        },
-        {
-          "type": "block",
-          "z": 1974.001,
-          "z1": 1975.501,
-          "x0": -18.75,
-          "x1": -5.25,
-          "y0": 39,
-          "y1": 52,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 9
-        },
-        {
-          "type": "block",
-          "z": 1974.001,
-          "z1": 1975.501,
-          "x0": 5.25,
-          "x1": 18.75,
-          "y0": 39,
-          "y1": 52,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 9
-        },
-        {
-          "type": "block",
-          "z": 1986.001,
-          "z1": 1987.501,
-          "x0": -6.75,
-          "x1": 18.75,
-          "y0": 39,
-          "y1": 52,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 9
-        },
-        {
-          "type": "block",
-          "z": 1998.001,
-          "z1": 1999.501,
-          "x0": -18.75,
-          "x1": 6.75,
-          "y0": 39,
-          "y1": 52,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 9
-        },
-        {
-          "type": "block",
-          "z": 1998.001,
-          "z1": 1999.501,
-          "x0": 17.25,
-          "x1": 30.75,
-          "y0": 39,
-          "y1": 52,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 9
-        },
-        {
-          "type": "block",
-          "z": 1950.001,
-          "z1": 1963.501,
-          "x0": -30.75,
-          "x1": -29.25,
-          "y0": 39,
-          "y1": 52,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 9
-        },
-        {
-          "type": "block",
-          "z": 1974.001,
-          "z1": 1999.501,
-          "x0": -30.75,
-          "x1": -29.25,
-          "y0": 39,
-          "y1": 52,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 9
-        },
-        {
-          "type": "block",
-          "z": 1962.001,
-          "z1": 1975.501,
-          "x0": -18.75,
-          "x1": -17.25,
-          "y0": 39,
-          "y1": 52,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 9
-        },
-        {
-          "type": "block",
-          "z": 1986.001,
-          "z1": 1999.501,
-          "x0": -18.75,
-          "x1": -17.25,
-          "y0": 39,
-          "y1": 52,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 9
-        },
-        {
-          "type": "block",
-          "z": 1950.001,
-          "z1": 1987.501,
-          "x0": -6.75,
-          "x1": -5.25,
-          "y0": 39,
-          "y1": 52,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 9
-        },
-        {
-          "type": "block",
-          "z": 1950.001,
-          "z1": 1975.501,
-          "x0": 5.25,
-          "x1": 6.75,
-          "y0": 39,
-          "y1": 52,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 9
-        },
-        {
-          "type": "block",
-          "z": 1950.001,
-          "z1": 1999.501,
-          "x0": 29.25,
-          "x1": 30.75,
-          "y0": 39,
-          "y1": 52,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 9
+          "x0": -5,
+          "x1": 5
         },
         {
           "type": "floor",
-          "z": 1998.751,
-          "length": 8,
+          "z": 1878.717,
+          "length": 10,
           "y": 40,
-          "x0": -28.5,
-          "x1": -19.5
-        },
-        {
-          "type": "block",
-          "z": 2008.751,
-          "z1": 2010.751,
-          "x0": -25,
-          "x1": -23,
-          "y0": 40,
-          "y1": 60,
-          "material": "trophyPad",
-          "kind": "beacon",
-          "solid": false
+          "x0": -17,
+          "x1": 17
         },
         {
           "type": "floor",
-          "z": 2006.751,
+          "z": 1888.717,
+          "length": 54.602,
+          "y": 40,
+          "x0": 7,
+          "x1": 17
+        },
+        {
+          "type": "floor",
+          "z": 1933.319,
+          "length": 10,
+          "y": 40,
+          "x0": -17,
+          "x1": 17
+        },
+        {
+          "type": "floor",
+          "z": 1943.319,
+          "length": 54.602,
+          "y": 40,
+          "x0": -17,
+          "x1": -7
+        },
+        {
+          "type": "floor",
+          "z": 1987.921,
+          "length": 10,
+          "y": 40,
+          "x0": -17,
+          "x1": 17
+        },
+        {
+          "type": "floor",
+          "z": 1997.921,
+          "length": 54.602,
+          "y": 40,
+          "x0": 7,
+          "x1": 17
+        },
+        {
+          "type": "island",
+          "z": 1828.115,
+          "x": 40,
+          "y": 40,
+          "size": 12,
+          "zone": 9,
+          "stretch": 9,
+          "through": true
+        },
+        {
+          "type": "floor",
+          "z": 2052.523,
           "length": 24,
           "y": 40,
           "x0": -50,
@@ -2232,7 +2321,7 @@
         },
         {
           "type": "trophyPad",
-          "z": 2018.751,
+          "z": 2064.523,
           "x": 44,
           "y": 40,
           "stage": 9,
@@ -2240,8 +2329,8 @@
         },
         {
           "type": "block",
-          "z": 2015.751,
-          "z1": 2021.751,
+          "z": 2061.523,
+          "z1": 2067.523,
           "x0": 41,
           "x1": 47,
           "y0": 39.5,
@@ -2251,7 +2340,7 @@
         },
         {
           "type": "treadmill",
-          "z": 2018.751,
+          "z": 2064.523,
           "x": -44,
           "y": 40,
           "length": 12,
@@ -2260,7 +2349,7 @@
         },
         {
           "type": "floor",
-          "z": 2030.751,
+          "z": 2076.523,
           "length": 8,
           "y": 44,
           "x0": -50,
@@ -2269,7 +2358,7 @@
         },
         {
           "type": "ramp",
-          "z": 2030.751,
+          "z": 2076.523,
           "length": 8,
           "y": 40,
           "rise": 4,
@@ -2278,7 +2367,7 @@
         },
         {
           "type": "floor",
-          "z": 2030.751,
+          "z": 2076.523,
           "length": 8,
           "y": 44,
           "x0": 5.5,
@@ -2287,7 +2376,7 @@
         },
         {
           "type": "gate",
-          "z": 2030.751,
+          "z": 2076.523,
           "y": 40,
           "kind": "ridge",
           "requires": 2250.382,
@@ -2310,7 +2399,7 @@
         },
         {
           "type": "checkpoint",
-          "z": 2042.751,
+          "z": 2088.523,
           "y": 44,
           "x": 0,
           "zone": 10,
@@ -2319,7 +2408,7 @@
         },
         {
           "type": "floor",
-          "z": 2038.751,
+          "z": 2084.523,
           "length": 12,
           "y": 44,
           "x0": -50,
@@ -2327,8 +2416,8 @@
         },
         {
           "type": "floor",
-          "z": 2050.751,
-          "length": 243.162,
+          "z": 2096.523,
+          "length": 136.506,
           "y": 29,
           "x0": -50,
           "x1": 50,
@@ -2337,8 +2426,8 @@
         },
         {
           "type": "pit",
-          "z": 2050.751,
-          "length": 243.162,
+          "z": 2096.523,
+          "length": 136.506,
           "y": 40,
           "x0": -50,
           "x1": 50,
@@ -2346,39 +2435,26 @@
         },
         {
           "type": "floor",
-          "z": 2073.757,
-          "length": 32.033,
+          "z": 2096.523,
+          "length": 136.506,
           "y": 44,
           "x0": -5,
-          "x1": 5
+          "x1": 5,
+          "material": "ice"
         },
         {
-          "type": "floor",
-          "z": 2128.796,
-          "length": 32.033,
+          "type": "slide",
+          "z": 2164.776,
+          "x": 0,
           "y": 44,
-          "x0": -3.75,
-          "x1": 6.25
-        },
-        {
-          "type": "floor",
-          "z": 2183.835,
-          "length": 32.033,
-          "y": 44,
-          "x0": -6.25,
-          "x1": 3.75
-        },
-        {
-          "type": "floor",
-          "z": 2238.874,
-          "length": 32.033,
-          "y": 44,
-          "x0": -3.75,
-          "x1": 6.25
+          "width": 10,
+          "length": 136.506,
+          "stretch": 10,
+          "mult": 1.6
         },
         {
           "type": "island",
-          "z": 2044.751,
+          "z": 2090.523,
           "x": -40,
           "y": 44,
           "size": 12,
@@ -2388,7 +2464,7 @@
         },
         {
           "type": "floor",
-          "z": 2293.913,
+          "z": 2233.029,
           "length": 24,
           "y": 44,
           "x0": -50,
@@ -2396,7 +2472,7 @@
         },
         {
           "type": "trophyPad",
-          "z": 2305.913,
+          "z": 2245.029,
           "x": -44,
           "y": 44,
           "stage": 10,
@@ -2404,8 +2480,8 @@
         },
         {
           "type": "block",
-          "z": 2302.913,
-          "z1": 2308.913,
+          "z": 2242.029,
+          "z1": 2248.029,
           "x0": -47,
           "x1": -41,
           "y0": 43.5,
@@ -2415,7 +2491,7 @@
         },
         {
           "type": "treadmill",
-          "z": 2305.913,
+          "z": 2245.029,
           "x": 44,
           "y": 44,
           "length": 12,
@@ -2424,7 +2500,7 @@
         },
         {
           "type": "floor",
-          "z": 2317.913,
+          "z": 2257.029,
           "length": 60,
           "y": 44,
           "x0": -80,
@@ -2432,13 +2508,13 @@
         },
         {
           "type": "summit",
-          "z": 2317.913,
+          "z": 2257.029,
           "y": 44,
           "wall": 4
         },
         {
           "type": "checkpoint",
-          "z": 2320.913,
+          "z": 2260.029,
           "y": 44,
           "x": 0,
           "zone": 4,
@@ -2447,7 +2523,7 @@
         },
         {
           "type": "treadmill",
-          "z": 2329.913,
+          "z": 2269.029,
           "x": -8,
           "y": 44,
           "length": 10,
@@ -2456,14 +2532,14 @@
         },
         {
           "type": "chest",
-          "z": 2347.913,
+          "z": 2287.029,
           "x": 0,
           "y": 44,
           "coins": 500
         },
         {
           "type": "portal",
-          "z": 2367.913,
+          "z": 2307.029,
           "x": 0,
           "y": 44,
           "next": 2,
@@ -2471,12 +2547,12 @@
         },
         {
           "type": "funnel",
-          "z": 2327.913,
+          "z": 2267.029,
           "length": 40,
           "y": 44,
           "from": 80,
           "to": 16,
-          "end": 2377.913
+          "end": 2317.029
         }
       ],
       "treadmillMult": 1,
@@ -2484,14 +2560,14 @@
       "bosses": [
         {
           "zone": [
-            340,
-            495.135
+            472,
+            645.875
           ],
-          "requires": 50,
+          "requires": 134.978,
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 29.549,
+              "speed": 33.119,
               "patrol": "chase",
               "seeDist": 0,
               "turnSec": 0.5,
@@ -2504,21 +2580,21 @@
           "covers": [
             {
               "x": 25,
-              "z": 402.054,
+              "z": 541.55,
               "r": 4,
               "h": 6
             },
             {
               "x": -25,
-              "z": 448.595,
+              "z": 593.713,
               "r": 4,
               "h": 6
             }
           ],
           "rearm": true,
           "level": {
-            "n": 2,
-            "g": 1.13,
+            "n": 8,
+            "g": 1.16,
             "min": 0.4,
             "max": 1.3
           }
@@ -2551,17 +2627,18 @@
             "x": 0,
             "z": 320,
             "y": 0
-          }
+          },
+          "tier": "easy"
         },
         {
           "n": 2,
-          "type": "giant",
+          "type": "dips",
           "z0": 320,
           "start": 340,
-          "end": 495.135,
+          "end": 428,
           "finish": [
-            495.135,
-            519.135
+            428,
+            452
           ],
           "y": 12,
           "level": 2,
@@ -2570,19 +2647,20 @@
           "trophies": 130,
           "pad": {
             "x": -44,
-            "z": 507.135,
+            "z": 440,
             "y": 12
-          }
+          },
+          "tier": "easy"
         },
         {
           "n": 3,
-          "type": "cracks",
-          "z0": 519.135,
-          "start": 539.135,
-          "end": 696.07,
+          "type": "giant",
+          "z0": 452,
+          "start": 472,
+          "end": 645.875,
           "finish": [
-            696.07,
-            720.07
+            645.875,
+            669.875
           ],
           "y": 16,
           "level": 8,
@@ -2591,87 +2669,91 @@
           "trophies": 150,
           "pad": {
             "x": 44,
-            "z": 708.07,
+            "z": 657.875,
             "y": 16
           },
-          "cut": {
-            "gap": 25.594,
-            "x": -44,
-            "z": 670.476
-          }
+          "tier": "mid"
         },
         {
           "n": 4,
-          "type": "chute",
-          "z0": 720.07,
-          "start": 740.07,
-          "end": 853.833,
+          "type": "cracks",
+          "z0": 669.875,
+          "start": 689.875,
+          "end": 901.489,
           "finish": [
-            853.833,
-            877.833
+            901.489,
+            925.489
           ],
           "y": 20,
           "level": 13,
           "speed": 37.921,
-          "width": "bridge",
+          "width": "field",
           "trophies": 160,
           "pad": {
             "x": -44,
-            "z": 865.833,
+            "z": 913.489,
             "y": 20
-          }
+          },
+          "cut": {
+            "gap": 27.91,
+            "x": 44,
+            "z": 873.579
+          },
+          "tier": "hard"
         },
         {
           "n": 5,
-          "type": "plates",
-          "z0": 877.833,
-          "start": 897.833,
-          "end": 1117.35,
+          "type": "avalanche",
+          "z0": 925.489,
+          "start": 945.489,
+          "end": 1233.028,
           "finish": [
-            1117.35,
-            1141.35
+            1233.028,
+            1257.028
           ],
           "y": 24,
           "level": 18,
           "speed": 41.077,
-          "width": "bridge",
+          "width": "field",
           "trophies": 180,
           "pad": {
             "x": 44,
-            "z": 1129.35,
+            "z": 1245.028,
             "y": 24
-          }
+          },
+          "tier": "mid"
         },
         {
           "n": 6,
-          "type": "avalanche",
-          "z0": 1141.35,
-          "start": 1161.35,
-          "end": 1457.737,
+          "type": "plates",
+          "z0": 1257.028,
+          "start": 1277.028,
+          "end": 1503.3,
           "finish": [
-            1457.737,
-            1481.737
+            1503.3,
+            1527.3
           ],
           "y": 28,
           "level": 20,
           "speed": 42.341,
-          "width": "field",
+          "width": "bridge",
           "trophies": 200,
           "pad": {
             "x": -44,
-            "z": 1469.737,
+            "z": 1515.3,
             "y": 28
-          }
+          },
+          "tier": "mid"
         },
         {
           "n": 7,
-          "type": "catapult",
-          "z0": 1481.737,
-          "start": 1501.737,
-          "end": 1701.222,
+          "type": "ice",
+          "z0": 1527.3,
+          "start": 1547.3,
+          "end": 1678.115,
           "finish": [
-            1701.222,
-            1725.222
+            1678.115,
+            1702.115
           ],
           "y": 32,
           "level": 22,
@@ -2680,66 +2762,143 @@
           "trophies": 220,
           "pad": {
             "x": 44,
-            "z": 1713.222,
+            "z": 1690.115,
             "y": 32
           },
-          "cut": {
-            "gap": 32.093,
-            "x": -44,
-            "z": 1669.129
-          }
+          "tier": "easy"
         },
         {
           "n": 8,
-          "type": "throat",
-          "z0": 1725.222,
-          "start": 1745.222,
-          "end": 1906.751,
+          "type": "maze",
+          "z0": 1702.115,
+          "start": 1722.115,
+          "end": 1790.115,
           "finish": [
-            1906.751,
-            1930.751
+            1790.115,
+            1814.115
           ],
           "y": 36,
           "level": 24,
           "speed": 44.869,
-          "width": "bridge",
+          "width": "cave",
           "trophies": 250,
           "pad": {
             "x": -44,
-            "z": 1918.751,
+            "z": 1802.115,
             "y": 36
-          }
-        },
-        {
-          "n": 9,
-          "type": "maze",
-          "z0": 1930.751,
-          "start": 1950.751,
-          "end": 2006.751,
-          "finish": [
-            2006.751,
-            2030.751
-          ],
-          "y": 40,
-          "level": 25,
-          "speed": 45.502,
-          "width": "cave",
-          "trophies": 270,
-          "pad": {
-            "x": 44,
-            "z": 2018.751,
-            "y": 40
           },
           "maze": {
-            "x0": -30,
-            "z0": 1950.751,
+            "x0": -36,
+            "z0": 1722.115,
             "cell": 12,
-            "cols": 5,
-            "rows": 4,
+            "cols": 6,
+            "rows": 5,
             "open": [
               [
-                2,
+                3,
                 0,
+                4,
+                0
+              ],
+              [
+                4,
+                0,
+                5,
+                0
+              ],
+              [
+                5,
+                0,
+                5,
+                1
+              ],
+              [
+                5,
+                1,
+                4,
+                1
+              ],
+              [
+                4,
+                1,
+                4,
+                2
+              ],
+              [
+                4,
+                2,
+                4,
+                3
+              ],
+              [
+                4,
+                3,
+                5,
+                3
+              ],
+              [
+                5,
+                3,
+                5,
+                4
+              ],
+              [
+                5,
+                4,
+                4,
+                4
+              ],
+              [
+                4,
+                4,
+                3,
+                4
+              ],
+              [
+                3,
+                4,
+                3,
+                3
+              ],
+              [
+                3,
+                3,
+                2,
+                3
+              ],
+              [
+                2,
+                3,
+                2,
+                4
+              ],
+              [
+                2,
+                4,
+                1,
+                4
+              ],
+              [
+                1,
+                4,
+                1,
+                3
+              ],
+              [
+                1,
+                3,
+                1,
+                2
+              ],
+              [
+                1,
+                2,
+                1,
+                1
+              ],
+              [
+                1,
+                1,
                 2,
                 1
               ],
@@ -2747,79 +2906,31 @@
                 2,
                 1,
                 2,
-                2
+                0
               ],
               [
-                2,
-                2,
-                3,
-                2
-              ],
-              [
-                3,
-                2,
-                4,
-                2
-              ],
-              [
-                4,
-                2,
-                4,
-                3
-              ],
-              [
-                4,
-                3,
-                3,
-                3
-              ],
-              [
-                3,
-                3,
-                2,
-                3
-              ],
-              [
-                2,
-                3,
-                1,
-                3
-              ],
-              [
-                1,
-                3,
-                1,
-                2
-              ],
-              [
-                1,
                 2,
                 0,
-                2
-              ],
-              [
-                0,
-                2,
-                0,
-                1
-              ],
-              [
-                0,
                 1,
+                0
+              ],
+              [
+                1,
+                0,
                 0,
                 0
               ],
               [
                 0,
                 0,
-                1,
-                0
+                0,
+                1
               ],
               [
-                1,
                 0,
                 1,
-                1
+                0,
+                2
               ],
               [
                 0,
@@ -2828,62 +2939,91 @@
                 3
               ],
               [
-                4,
-                2,
-                4,
-                1
-              ],
-              [
-                4,
-                1,
-                3,
-                1
-              ],
-              [
-                3,
-                1,
-                3,
-                0
-              ],
-              [
+                0,
                 3,
                 0,
-                4,
-                0
+                4
+              ],
+              [
+                2,
+                1,
+                2,
+                2
+              ],
+              [
+                2,
+                2,
+                3,
+                2
+              ],
+              [
+                3,
+                2,
+                3,
+                1
+              ],
+              [
+                5,
+                3,
+                5,
+                2
               ]
             ],
-            "entrance": 2,
+            "entrance": 3,
             "exits": [
               {
                 "col": 0,
-                "row": 3,
+                "row": 4,
                 "side": "top",
                 "real": true
               },
               {
-                "col": 0,
-                "row": 1,
-                "side": "left",
+                "col": 5,
+                "row": 2,
+                "side": "right",
                 "real": false
               },
               {
-                "col": 3,
-                "row": 3,
-                "side": "top",
+                "col": 0,
+                "row": 2,
+                "side": "left",
                 "real": false
               }
             ]
-          }
+          },
+          "tier": "veryHard"
+        },
+        {
+          "n": 9,
+          "type": "throat",
+          "z0": 1814.115,
+          "start": 1834.115,
+          "end": 2052.523,
+          "finish": [
+            2052.523,
+            2076.523
+          ],
+          "y": 40,
+          "level": 25,
+          "speed": 45.502,
+          "width": "bridge",
+          "trophies": 270,
+          "pad": {
+            "x": 44,
+            "z": 2064.523,
+            "y": 40
+          },
+          "tier": "veryHard"
         },
         {
           "n": 10,
-          "type": "plates",
-          "z0": 2030.751,
-          "start": 2050.751,
-          "end": 2293.913,
+          "type": "chute",
+          "z0": 2076.523,
+          "start": 2096.523,
+          "end": 2233.029,
           "finish": [
-            2293.913,
-            2317.913
+            2233.029,
+            2257.029
           ],
           "y": 44,
           "level": 25,
@@ -2892,9 +3032,10 @@
           "trophies": 300,
           "pad": {
             "x": -44,
-            "z": 2305.913,
+            "z": 2245.029,
             "y": 44
-          }
+          },
+          "tier": "veryEasy"
         }
       ],
       "campTeleport": {
@@ -2906,7 +3047,7 @@
     {
       "id": "pines",
       "index": 2,
-      "length": 2711.752,
+      "length": 2686.119,
       "width": 100,
       "spawnZ": 20,
       "egg": "snow",
@@ -2918,48 +3059,48 @@
           40
         ],
         [
-          178,
-          202
+          167.382,
+          191.382
         ],
         [
-          474.805,
-          498.805
+          481.582,
+          505.582
         ],
         [
-          742.28,
-          766.28
+          753.516,
+          777.516
         ],
         [
-          1066.615,
-          1090.615
+          1084.117,
+          1108.117
         ],
         [
-          1271.784,
-          1295.784
+          1396.732,
+          1420.732
         ],
         [
-          1700.7,
-          1724.7
+          1825.648,
+          1849.648
         ],
         [
-          1944.935,
-          1968.935
+          1957.648,
+          1981.648
         ],
         [
-          2044.935,
-          2068.935
+          2271.666,
+          2295.666
         ],
         [
-          2272.995,
-          2296.995
+          2383.666,
+          2407.666
         ],
         [
-          2627.752,
-          2651.752
+          2602.119,
+          2626.119
         ],
         [
-          2651.752,
-          2711.752
+          2626.119,
+          2686.119
         ]
       ],
       "threat": {
@@ -2974,46 +3115,46 @@
           0,
           40
         ],
-        "spawnMaxZ": 2627.752,
+        "spawnMaxZ": 2602.119,
         "zones": [
           [
             40,
-            178,
-            5.769
+            167.382,
+            5.536
           ],
           [
-            498.805,
-            742.28,
-            7.365
-          ],
-          [
-            766.28,
-            1066.615,
+            191.382,
+            481.582,
             8.344
           ],
           [
-            1090.615,
-            1271.784,
+            505.582,
+            753.516,
+            7.452
+          ],
+          [
+            777.516,
+            1084.117,
+            8.463
+          ],
+          [
+            1420.732,
+            1825.648
+          ],
+          [
+            1849.648,
+            1957.648,
+            4.582
+          ],
+          [
+            1981.648,
+            2271.666,
+            7.8
+          ],
+          [
+            2407.666,
+            2602.119,
             6
-          ],
-          [
-            1295.784,
-            1700.7
-          ],
-          [
-            1724.7,
-            1944.935,
-            6.6
-          ],
-          [
-            2068.935,
-            2272.995,
-            6.2
-          ],
-          [
-            2296.995,
-            2627.752,
-            8.344
           ]
         ],
         "zoneFirstSec": 1,
@@ -3026,79 +3167,79 @@
           "gift": 40,
           "stepMult": 2.5,
           "zStart": 40,
-          "zEnd": 202
+          "zEnd": 191.382
         },
         {
           "k": 2,
           "rarity": "uncommon",
           "gift": 40,
           "stepMult": 2.5,
-          "zStart": 202,
-          "zEnd": 498.805
+          "zStart": 191.382,
+          "zEnd": 505.582
         },
         {
           "k": 3,
           "rarity": "rare",
           "gift": 40,
           "stepMult": 3,
-          "zStart": 498.805,
-          "zEnd": 766.28
+          "zStart": 505.582,
+          "zEnd": 777.516
         },
         {
           "k": 4,
           "rarity": "rare",
           "gift": 40,
           "stepMult": 3,
-          "zStart": 766.28,
-          "zEnd": 1090.615
+          "zStart": 777.516,
+          "zEnd": 1108.117
         },
         {
           "k": 5,
           "rarity": "epic",
           "gift": 50,
           "stepMult": 4,
-          "zStart": 1090.615,
-          "zEnd": 1295.784
+          "zStart": 1108.117,
+          "zEnd": 1420.732
         },
         {
           "k": 6,
           "rarity": "epic",
           "gift": 50,
           "stepMult": 4,
-          "zStart": 1295.784,
-          "zEnd": 1724.7
+          "zStart": 1420.732,
+          "zEnd": 1849.648
         },
         {
           "k": 7,
           "rarity": "legendary",
           "gift": 60,
           "stepMult": 5,
-          "zStart": 1724.7,
-          "zEnd": 1968.935
+          "zStart": 1849.648,
+          "zEnd": 1981.648
         },
         {
           "k": 8,
           "rarity": "legendary",
           "gift": 60,
           "stepMult": 5,
-          "zStart": 1968.935,
-          "zEnd": 2068.935
+          "zStart": 1981.648,
+          "zEnd": 2295.666
         },
         {
           "k": 9,
           "rarity": "mythic",
           "gift": 80,
           "stepMult": 6,
-          "zStart": 2068.935,
-          "zEnd": 2296.995
+          "zStart": 2295.666,
+          "zEnd": 2407.666
         },
         {
           "k": 10,
           "rarity": "mythic",
           "gift": 80,
           "stepMult": 6,
-          "zStart": 2296.995,
-          "zEnd": 2651.752
+          "zStart": 2407.666,
+          "zEnd": 2626.119
         }
       ],
       "segments": [
@@ -3204,127 +3345,76 @@
         {
           "type": "floor",
           "z": 52,
-          "length": 12,
+          "length": 27.301,
           "y": 0,
           "x0": -50,
           "x1": 50
         },
         {
-          "type": "ramp",
-          "z": 64,
-          "length": 8,
-          "y": 0,
-          "rise": -4,
-          "shape": "dip"
-        },
-        {
           "type": "floor",
-          "z": 72,
-          "length": 6,
-          "y": -4,
-          "shape": "dip"
+          "z": 79.301,
+          "length": 22.39,
+          "y": -15,
+          "x0": -50,
+          "x1": 50,
+          "material": "pit",
+          "solid": false
         },
         {
-          "type": "ramp",
-          "z": 78,
-          "length": 12,
+          "type": "pit",
+          "z": 79.301,
+          "length": 22.39,
           "y": -4,
-          "rise": 5,
-          "shape": "dip"
-        },
-        {
-          "type": "dip",
-          "z": 64,
-          "length": 26,
-          "y": 0,
-          "depth": 4,
+          "x0": -50,
+          "x1": 50,
           "section": 1
         },
         {
           "type": "floor",
-          "z": 90,
-          "length": 12,
-          "y": 0,
+          "z": 101.691,
+          "length": 27.301,
+          "y": 0.8,
           "x0": -50,
           "x1": 50
         },
         {
-          "type": "ramp",
-          "z": 102,
-          "length": 8,
-          "y": 0,
-          "rise": -4,
-          "shape": "dip"
-        },
-        {
           "type": "floor",
-          "z": 110,
-          "length": 6,
-          "y": -4,
-          "shape": "dip"
+          "z": 128.992,
+          "length": 22.39,
+          "y": -14.2,
+          "x0": -50,
+          "x1": 50,
+          "material": "pit",
+          "solid": false
         },
         {
-          "type": "ramp",
-          "z": 116,
-          "length": 12,
-          "y": -4,
-          "rise": 5,
-          "shape": "dip"
-        },
-        {
-          "type": "dip",
-          "z": 102,
-          "length": 26,
-          "y": 0,
-          "depth": 4,
+          "type": "pit",
+          "z": 128.992,
+          "length": 22.39,
+          "y": -3.2,
+          "x0": -50,
+          "x1": 50,
           "section": 1
         },
         {
           "type": "floor",
-          "z": 128,
-          "length": 12,
-          "y": 0,
+          "z": 151.382,
+          "length": 16,
+          "y": 1.6,
           "x0": -50,
           "x1": 50
         },
         {
-          "type": "ramp",
-          "z": 140,
-          "length": 8,
+          "type": "stairs",
+          "z": 52,
+          "length": 115.382,
           "y": 0,
-          "rise": -4,
-          "shape": "dip"
-        },
-        {
-          "type": "floor",
-          "z": 148,
-          "length": 6,
-          "y": -4,
-          "shape": "dip"
-        },
-        {
-          "type": "ramp",
-          "z": 154,
-          "length": 12,
-          "y": -4,
-          "rise": 5,
-          "shape": "dip"
-        },
-        {
-          "type": "dip",
-          "z": 140,
-          "length": 26,
-          "y": 0,
-          "depth": 4,
-          "section": 1
-        },
-        {
-          "type": "floor",
-          "z": 166,
-          "length": 12,
-          "y": 0,
-          "x0": -50,
-          "x1": 50
+          "x": 0,
+          "count": 2,
+          "gap": 22.39,
+          "rise": 0.8,
+          "section": 1,
+          "stage": true
         },
         {
           "type": "island",
@@ -3338,107 +3428,71 @@
         },
         {
           "type": "floor",
-          "z": 178,
+          "z": 167.382,
           "length": 24,
-          "y": 0,
+          "y": 1.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "trophyPad",
-          "z": 190,
+          "z": 179.382,
           "x": 44,
-          "y": 0,
+          "y": 1.6,
           "stage": 1,
           "trophies": 580
         },
         {
           "type": "block",
-          "z": 187,
-          "z1": 193,
+          "z": 176.382,
+          "z1": 182.382,
           "x0": 41,
           "x1": 47,
-          "y0": -0.5,
-          "y1": 0.25,
+          "y0": 1.1,
+          "y1": 1.85,
           "material": "trophyPad",
           "kind": "trophyPad"
         },
         {
           "type": "treadmill",
-          "z": 190,
+          "z": 179.382,
           "x": -44,
-          "y": 0,
+          "y": 1.6,
           "length": 12,
           "width": 6,
           "mult": 2.5
         },
         {
           "type": "floor",
-          "z": 202,
+          "z": 191.382,
           "length": 8,
-          "y": 4,
+          "y": 5.6,
           "x0": -50,
-          "x1": -38.833,
-          "thickness": 6
-        },
-        {
-          "type": "ramp",
-          "z": 202,
-          "length": 8,
-          "y": 0,
-          "rise": 4,
-          "x0": -38.833,
-          "x1": -27.833
-        },
-        {
-          "type": "floor",
-          "z": 202,
-          "length": 8,
-          "y": 4,
-          "x0": -27.833,
           "x1": -5.5,
           "thickness": 6
         },
         {
           "type": "ramp",
-          "z": 202,
+          "z": 191.382,
           "length": 8,
-          "y": 0,
+          "y": 1.6,
           "rise": 4,
           "x0": -5.5,
           "x1": 5.5
         },
         {
           "type": "floor",
-          "z": 202,
+          "z": 191.382,
           "length": 8,
-          "y": 4,
+          "y": 5.6,
           "x0": 5.5,
-          "x1": 27.833,
-          "thickness": 6
-        },
-        {
-          "type": "ramp",
-          "z": 202,
-          "length": 8,
-          "y": 0,
-          "rise": 4,
-          "x0": 27.833,
-          "x1": 38.833
-        },
-        {
-          "type": "floor",
-          "z": 202,
-          "length": 8,
-          "y": 4,
-          "x0": 38.833,
           "x1": 50,
           "thickness": 6
         },
         {
           "type": "gate",
-          "z": 202,
-          "y": 0,
+          "z": 191.382,
+          "y": 1.6,
           "kind": "ridge",
           "requires": 8458.868,
           "level": 33,
@@ -3449,9 +3503,7 @@
           "signHeight": 5.5,
           "rise": 4,
           "passes": [
-            -33.333,
-            0,
-            33.333
+            0
           ],
           "digits": 6,
           "passWidth": 11,
@@ -3462,8 +3514,8 @@
         },
         {
           "type": "checkpoint",
-          "z": 214,
-          "y": 4,
+          "z": 203.382,
+          "y": 5.6,
           "x": 0,
           "zone": 2,
           "rarity": "uncommon",
@@ -3471,141 +3523,176 @@
         },
         {
           "type": "floor",
-          "z": 210,
+          "z": 199.382,
           "length": 12,
-          "y": 4,
+          "y": 5.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "floor",
-          "z": 222,
-          "length": 252.805,
-          "y": 4,
+          "z": 211.382,
+          "length": 270.2,
+          "y": -9.4,
           "x0": -50,
-          "x1": 50
+          "x1": 50,
+          "material": "pit",
+          "solid": false
         },
         {
-          "type": "cover",
-          "z": 323.122,
-          "x": 25,
-          "y": 4,
-          "r": 4,
-          "h": 6,
-          "zone": 2
-        },
-        {
-          "type": "cover",
-          "z": 398.963,
-          "x": -25,
-          "y": 4,
-          "r": 4,
-          "h": 6,
-          "zone": 2
+          "type": "pit",
+          "z": 211.382,
+          "length": 270.2,
+          "y": 1.6,
+          "x0": -50,
+          "x1": 50,
+          "section": 2
         },
         {
           "type": "floor",
-          "z": 474.805,
+          "z": 236.946,
+          "length": 35.595,
+          "y": 5.6,
+          "x0": -5,
+          "x1": 5
+        },
+        {
+          "type": "floor",
+          "z": 298.105,
+          "length": 35.595,
+          "y": 5.6,
+          "x0": -5,
+          "x1": 5
+        },
+        {
+          "type": "floor",
+          "z": 359.264,
+          "length": 35.595,
+          "y": 5.6,
+          "x0": -5,
+          "x1": 5
+        },
+        {
+          "type": "floor",
+          "z": 420.423,
+          "length": 35.595,
+          "y": 5.6,
+          "x0": -5,
+          "x1": 5
+        },
+        {
+          "type": "island",
+          "z": 205.382,
+          "x": -40,
+          "y": 5.6,
+          "size": 12,
+          "zone": 2,
+          "stretch": 2,
+          "through": true
+        },
+        {
+          "type": "floor",
+          "z": 481.582,
           "length": 24,
-          "y": 4,
+          "y": 5.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "trophyPad",
-          "z": 486.805,
+          "z": 493.582,
           "x": -44,
-          "y": 4,
+          "y": 5.6,
           "stage": 2,
           "trophies": 650
         },
         {
           "type": "block",
-          "z": 483.805,
-          "z1": 489.805,
+          "z": 490.582,
+          "z1": 496.582,
           "x0": -47,
           "x1": -41,
-          "y0": 3.5,
-          "y1": 4.25,
+          "y0": 5.1,
+          "y1": 5.85,
           "material": "trophyPad",
           "kind": "trophyPad"
         },
         {
           "type": "treadmill",
-          "z": 486.805,
+          "z": 493.582,
           "x": 44,
-          "y": 4,
+          "y": 5.6,
           "length": 12,
           "width": 6,
           "mult": 2.5
         },
         {
           "type": "floor",
-          "z": 498.805,
+          "z": 505.582,
           "length": 8,
-          "y": 8,
+          "y": 9.6,
           "x0": -50,
           "x1": -38.833,
           "thickness": 6
         },
         {
           "type": "ramp",
-          "z": 498.805,
+          "z": 505.582,
           "length": 8,
-          "y": 4,
+          "y": 5.6,
           "rise": 4,
           "x0": -38.833,
           "x1": -27.833
         },
         {
           "type": "floor",
-          "z": 498.805,
+          "z": 505.582,
           "length": 8,
-          "y": 8,
+          "y": 9.6,
           "x0": -27.833,
           "x1": -5.5,
           "thickness": 6
         },
         {
           "type": "ramp",
-          "z": 498.805,
+          "z": 505.582,
           "length": 8,
-          "y": 4,
+          "y": 5.6,
           "rise": 4,
           "x0": -5.5,
           "x1": 5.5
         },
         {
           "type": "floor",
-          "z": 498.805,
+          "z": 505.582,
           "length": 8,
-          "y": 8,
+          "y": 9.6,
           "x0": 5.5,
           "x1": 27.833,
           "thickness": 6
         },
         {
           "type": "ramp",
-          "z": 498.805,
+          "z": 505.582,
           "length": 8,
-          "y": 4,
+          "y": 5.6,
           "rise": 4,
           "x0": 27.833,
           "x1": 38.833
         },
         {
           "type": "floor",
-          "z": 498.805,
+          "z": 505.582,
           "length": 8,
-          "y": 8,
+          "y": 9.6,
           "x0": 38.833,
           "x1": 50,
           "thickness": 6
         },
         {
           "type": "gate",
-          "z": 498.805,
-          "y": 4,
+          "z": 505.582,
+          "y": 5.6,
           "kind": "ridge",
           "requires": 9981.464,
           "level": 34,
@@ -3629,8 +3716,8 @@
         },
         {
           "type": "checkpoint",
-          "z": 510.805,
-          "y": 8,
+          "z": 517.582,
+          "y": 9.6,
           "x": 0,
           "zone": 3,
           "rarity": "rare",
@@ -3638,25 +3725,36 @@
         },
         {
           "type": "floor",
-          "z": 506.805,
+          "z": 513.582,
           "length": 12,
-          "y": 8,
+          "y": 9.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "floor",
-          "z": 518.805,
-          "length": 30.716,
-          "y": 8,
+          "z": 525.582,
+          "length": 10,
+          "y": 9.6,
           "x0": -50,
           "x1": 50
         },
         {
+          "type": "jumpPad",
+          "z": 531.582,
+          "x": 0,
+          "y": 9.6,
+          "width": 96,
+          "length": 4,
+          "stretch": 3,
+          "forward": 25.597,
+          "shape": "catapult"
+        },
+        {
           "type": "floor",
-          "z": 549.521,
-          "length": 25.883,
-          "y": -7,
+          "z": 535.582,
+          "length": 52.688,
+          "y": -5.4,
           "x0": -50,
           "x1": 50,
           "material": "pit",
@@ -3664,26 +3762,37 @@
         },
         {
           "type": "pit",
-          "z": 549.521,
-          "length": 25.883,
-          "y": 4,
+          "z": 535.582,
+          "length": 52.688,
+          "y": 5.6,
           "x0": -50,
           "x1": 50,
           "section": 3
         },
         {
           "type": "floor",
-          "z": 575.404,
-          "length": 30.716,
-          "y": 8,
+          "z": 588.27,
+          "length": 48.088,
+          "y": 9.6,
           "x0": -50,
           "x1": 50
         },
         {
+          "type": "jumpPad",
+          "z": 632.358,
+          "x": 0,
+          "y": 9.6,
+          "width": 96,
+          "length": 4,
+          "stretch": 3,
+          "forward": 25.597,
+          "shape": "catapult"
+        },
+        {
           "type": "floor",
-          "z": 606.12,
-          "length": 25.883,
-          "y": -7,
+          "z": 636.358,
+          "length": 52.688,
+          "y": -5.4,
           "x0": -50,
           "x1": 50,
           "material": "pit",
@@ -3691,61 +3800,34 @@
         },
         {
           "type": "pit",
-          "z": 606.12,
-          "length": 25.883,
-          "y": 4,
+          "z": 636.358,
+          "length": 52.688,
+          "y": 5.6,
           "x0": -50,
           "x1": 50,
           "section": 3
         },
         {
           "type": "floor",
-          "z": 632.003,
-          "length": 30.716,
-          "y": 8,
+          "z": 689.046,
+          "length": 26.792,
+          "y": 9.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "floor",
-          "z": 662.719,
-          "length": 25.883,
-          "y": -7,
-          "x0": -50,
-          "x1": 50,
-          "material": "pit",
-          "solid": false
-        },
-        {
-          "type": "pit",
-          "z": 662.719,
-          "length": 25.883,
-          "y": 4,
-          "x0": -50,
-          "x1": 50,
-          "section": 3
-        },
-        {
-          "type": "floor",
-          "z": 688.602,
-          "length": 16,
-          "y": 8,
-          "x0": -50,
-          "x1": 50
-        },
-        {
-          "type": "floor",
-          "z": 704.602,
+          "z": 715.838,
           "length": 37.678,
-          "y": 8,
+          "y": 9.6,
           "x0": -38,
           "x1": 50
         },
         {
           "type": "floor",
-          "z": 704.602,
+          "z": 715.838,
           "length": 37.678,
-          "y": -7,
+          "y": -5.4,
           "x0": -50,
           "x1": -38,
           "material": "pit",
@@ -3753,18 +3835,18 @@
         },
         {
           "type": "pit",
-          "z": 704.602,
+          "z": 715.838,
           "length": 37.678,
-          "y": 4,
+          "y": 5.6,
           "x0": -50,
           "x1": -38,
           "section": 3
         },
         {
           "type": "gift",
-          "z": 723.441,
+          "z": 734.677,
           "x": -44,
-          "y": 14.144,
+          "y": 15.744,
           "height": 0,
           "zone": 3,
           "rarity": "mythic",
@@ -3772,16 +3854,16 @@
           "n": 0,
           "air": true,
           "col": [
-            11.072,
-            17.216
+            12.672,
+            18.816
           ],
           "snowflake": true
         },
         {
           "type": "island",
-          "z": 512.805,
+          "z": 519.582,
           "x": 40,
-          "y": 8,
+          "y": 9.6,
           "size": 12,
           "zone": 3,
           "stretch": 3,
@@ -3789,71 +3871,107 @@
         },
         {
           "type": "floor",
-          "z": 742.28,
+          "z": 753.516,
           "length": 24,
-          "y": 8,
+          "y": 9.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "trophyPad",
-          "z": 754.28,
+          "z": 765.516,
           "x": 44,
-          "y": 8,
+          "y": 9.6,
           "stage": 3,
           "trophies": 710
         },
         {
           "type": "block",
-          "z": 751.28,
-          "z1": 757.28,
+          "z": 762.516,
+          "z1": 768.516,
           "x0": 41,
           "x1": 47,
-          "y0": 7.5,
-          "y1": 8.25,
+          "y0": 9.1,
+          "y1": 9.85,
           "material": "trophyPad",
           "kind": "trophyPad"
         },
         {
           "type": "treadmill",
-          "z": 754.28,
+          "z": 765.516,
           "x": -44,
-          "y": 8,
+          "y": 9.6,
           "length": 12,
           "width": 6,
           "mult": 3
         },
         {
           "type": "floor",
-          "z": 766.28,
+          "z": 777.516,
           "length": 8,
-          "y": 12,
+          "y": 13.6,
           "x0": -50,
+          "x1": -38.833,
+          "thickness": 6
+        },
+        {
+          "type": "ramp",
+          "z": 777.516,
+          "length": 8,
+          "y": 9.6,
+          "rise": 4,
+          "x0": -38.833,
+          "x1": -27.833
+        },
+        {
+          "type": "floor",
+          "z": 777.516,
+          "length": 8,
+          "y": 13.6,
+          "x0": -27.833,
           "x1": -5.5,
           "thickness": 6
         },
         {
           "type": "ramp",
-          "z": 766.28,
+          "z": 777.516,
           "length": 8,
-          "y": 8,
+          "y": 9.6,
           "rise": 4,
           "x0": -5.5,
           "x1": 5.5
         },
         {
           "type": "floor",
-          "z": 766.28,
+          "z": 777.516,
           "length": 8,
-          "y": 12,
+          "y": 13.6,
           "x0": 5.5,
+          "x1": 27.833,
+          "thickness": 6
+        },
+        {
+          "type": "ramp",
+          "z": 777.516,
+          "length": 8,
+          "y": 9.6,
+          "rise": 4,
+          "x0": 27.833,
+          "x1": 38.833
+        },
+        {
+          "type": "floor",
+          "z": 777.516,
+          "length": 8,
+          "y": 13.6,
+          "x0": 38.833,
           "x1": 50,
           "thickness": 6
         },
         {
           "type": "gate",
-          "z": 766.28,
-          "y": 8,
+          "z": 777.516,
+          "y": 9.6,
           "kind": "ridge",
           "requires": 13898.19,
           "level": 36,
@@ -3864,7 +3982,9 @@
           "signHeight": 5.5,
           "rise": 4,
           "passes": [
-            0
+            -33.333,
+            0,
+            33.333
           ],
           "digits": 6,
           "passWidth": 11,
@@ -3875,8 +3995,8 @@
         },
         {
           "type": "checkpoint",
-          "z": 778.28,
-          "y": 12,
+          "z": 789.516,
+          "y": 13.6,
           "x": 0,
           "zone": 4,
           "rarity": "rare",
@@ -3884,17 +4004,25 @@
         },
         {
           "type": "floor",
-          "z": 774.28,
+          "z": 785.516,
           "length": 12,
-          "y": 12,
+          "y": 13.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "floor",
-          "z": 786.28,
-          "length": 280.335,
-          "y": -3,
+          "z": 797.516,
+          "length": 31.475,
+          "y": 13.6,
+          "x0": -50,
+          "x1": 50
+        },
+        {
+          "type": "floor",
+          "z": 828.991,
+          "length": 26.523,
+          "y": -1.4,
           "x0": -50,
           "x1": 50,
           "material": "pit",
@@ -3902,50 +4030,151 @@
         },
         {
           "type": "pit",
-          "z": 786.28,
-          "length": 280.335,
-          "y": 8,
+          "z": 828.991,
+          "length": 26.523,
+          "y": 9.6,
           "x0": -50,
           "x1": 50,
           "section": 4
         },
         {
           "type": "floor",
-          "z": 812.803,
-          "length": 36.93,
-          "y": 12,
-          "x0": -5,
-          "x1": 5
+          "z": 855.514,
+          "length": 31.475,
+          "y": 13.6,
+          "x0": -50,
+          "x1": 50
         },
         {
           "type": "floor",
-          "z": 876.256,
-          "length": 36.93,
-          "y": 12,
-          "x0": -5,
-          "x1": 5
+          "z": 886.989,
+          "length": 26.523,
+          "y": -1.4,
+          "x0": -50,
+          "x1": 50,
+          "material": "pit",
+          "solid": false
+        },
+        {
+          "type": "pit",
+          "z": 886.989,
+          "length": 26.523,
+          "y": 9.6,
+          "x0": -50,
+          "x1": 50,
+          "section": 4
         },
         {
           "type": "floor",
-          "z": 939.709,
-          "length": 36.93,
-          "y": 12,
-          "x0": -5,
-          "x1": 5
+          "z": 913.512,
+          "length": 31.475,
+          "y": 13.6,
+          "x0": -50,
+          "x1": 50
         },
         {
           "type": "floor",
-          "z": 1003.162,
-          "length": 36.93,
-          "y": 12,
-          "x0": -5,
-          "x1": 5
+          "z": 944.987,
+          "length": 26.523,
+          "y": -1.4,
+          "x0": -50,
+          "x1": 50,
+          "material": "pit",
+          "solid": false
+        },
+        {
+          "type": "pit",
+          "z": 944.987,
+          "length": 26.523,
+          "y": 9.6,
+          "x0": -50,
+          "x1": 50,
+          "section": 4
+        },
+        {
+          "type": "floor",
+          "z": 971.51,
+          "length": 31.475,
+          "y": 13.6,
+          "x0": -50,
+          "x1": 50
+        },
+        {
+          "type": "floor",
+          "z": 1002.985,
+          "length": 26.523,
+          "y": -1.4,
+          "x0": -50,
+          "x1": 50,
+          "material": "pit",
+          "solid": false
+        },
+        {
+          "type": "pit",
+          "z": 1002.985,
+          "length": 26.523,
+          "y": 9.6,
+          "x0": -50,
+          "x1": 50,
+          "section": 4
+        },
+        {
+          "type": "floor",
+          "z": 1029.508,
+          "length": 16,
+          "y": 13.6,
+          "x0": -50,
+          "x1": 50
+        },
+        {
+          "type": "floor",
+          "z": 1045.508,
+          "length": 38.609,
+          "y": 13.6,
+          "x0": -50,
+          "x1": 38
+        },
+        {
+          "type": "floor",
+          "z": 1045.508,
+          "length": 38.609,
+          "y": -1.4,
+          "x0": 38,
+          "x1": 50,
+          "material": "pit",
+          "solid": false
+        },
+        {
+          "type": "pit",
+          "z": 1045.508,
+          "length": 38.609,
+          "y": 9.6,
+          "x0": 38,
+          "x1": 50,
+          "section": 4
+        },
+        {
+          "type": "gift",
+          "z": 1064.813,
+          "x": 44,
+          "y": 19.744,
+          "height": 0,
+          "zone": 4,
+          "rarity": "mythic",
+          "coins": 1580,
+          "n": 0,
+          "air": true,
+          "col": [
+            16.672,
+            22.816
+          ],
+          "snowflake": true
         },
         {
           "type": "island",
-          "z": 780.28,
+          "z": 791.516,
           "x": -40,
-          "y": 12,
+          "y": 13.6,
           "size": 12,
           "zone": 4,
           "stretch": 4,
@@ -3953,71 +4182,107 @@
         },
         {
           "type": "floor",
-          "z": 1066.615,
+          "z": 1084.117,
           "length": 24,
-          "y": 12,
+          "y": 13.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "trophyPad",
-          "z": 1078.615,
+          "z": 1096.117,
           "x": -44,
-          "y": 12,
+          "y": 13.6,
           "stage": 4,
           "trophies": 790
         },
         {
           "type": "block",
-          "z": 1075.615,
-          "z1": 1081.615,
+          "z": 1093.117,
+          "z1": 1099.117,
           "x0": -47,
           "x1": -41,
-          "y0": 11.5,
-          "y1": 12.25,
+          "y0": 13.1,
+          "y1": 13.85,
           "material": "trophyPad",
           "kind": "trophyPad"
         },
         {
           "type": "treadmill",
-          "z": 1078.615,
+          "z": 1096.117,
           "x": 44,
-          "y": 12,
+          "y": 13.6,
           "length": 12,
           "width": 6,
           "mult": 3
         },
         {
           "type": "floor",
-          "z": 1090.615,
+          "z": 1108.117,
           "length": 8,
-          "y": 16,
+          "y": 17.6,
           "x0": -50,
+          "x1": -38.833,
+          "thickness": 6
+        },
+        {
+          "type": "ramp",
+          "z": 1108.117,
+          "length": 8,
+          "y": 13.6,
+          "rise": 4,
+          "x0": -38.833,
+          "x1": -27.833
+        },
+        {
+          "type": "floor",
+          "z": 1108.117,
+          "length": 8,
+          "y": 17.6,
+          "x0": -27.833,
           "x1": -5.5,
           "thickness": 6
         },
         {
           "type": "ramp",
-          "z": 1090.615,
+          "z": 1108.117,
           "length": 8,
-          "y": 12,
+          "y": 13.6,
           "rise": 4,
           "x0": -5.5,
           "x1": 5.5
         },
         {
           "type": "floor",
-          "z": 1090.615,
+          "z": 1108.117,
           "length": 8,
-          "y": 16,
+          "y": 17.6,
           "x0": 5.5,
+          "x1": 27.833,
+          "thickness": 6
+        },
+        {
+          "type": "ramp",
+          "z": 1108.117,
+          "length": 8,
+          "y": 13.6,
+          "rise": 4,
+          "x0": 27.833,
+          "x1": 38.833
+        },
+        {
+          "type": "floor",
+          "z": 1108.117,
+          "length": 8,
+          "y": 17.6,
+          "x0": 38.833,
           "x1": 50,
           "thickness": 6
         },
         {
           "type": "gate",
-          "z": 1090.615,
-          "y": 12,
+          "z": 1108.117,
+          "y": 13.6,
           "kind": "ridge",
           "requires": 19351.84,
           "level": 38,
@@ -4028,7 +4293,9 @@
           "signHeight": 5.5,
           "rise": 4,
           "passes": [
-            0
+            -33.333,
+            0,
+            33.333
           ],
           "digits": 6,
           "passWidth": 11,
@@ -4039,8 +4306,8 @@
         },
         {
           "type": "checkpoint",
-          "z": 1102.615,
-          "y": 16,
+          "z": 1120.117,
+          "y": 17.6,
           "x": 0,
           "zone": 5,
           "rarity": "epic",
@@ -4048,163 +4315,141 @@
         },
         {
           "type": "floor",
-          "z": 1098.615,
+          "z": 1116.117,
           "length": 12,
-          "y": 16,
+          "y": 17.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "floor",
-          "z": 1110.615,
-          "length": 161.169,
-          "y": 1,
+          "z": 1128.117,
+          "length": 268.615,
+          "y": 17.6,
           "x0": -50,
-          "x1": 50,
-          "material": "pit",
-          "solid": false
+          "x1": 50
         },
         {
-          "type": "pit",
-          "z": 1110.615,
-          "length": 161.169,
-          "y": 12,
-          "x0": -50,
-          "x1": 50,
-          "section": 5
+          "type": "cover",
+          "z": 1235.563,
+          "x": 25,
+          "y": 17.6,
+          "r": 4,
+          "h": 6,
+          "zone": 5
+        },
+        {
+          "type": "cover",
+          "z": 1316.148,
+          "x": -25,
+          "y": 17.6,
+          "r": 4,
+          "h": 6,
+          "zone": 5
         },
         {
           "type": "floor",
-          "z": 1110.615,
-          "length": 161.169,
-          "y": 16,
-          "x0": -5,
-          "x1": 5,
-          "material": "ice"
-        },
-        {
-          "type": "slide",
-          "z": 1191.2,
-          "x": 0,
-          "y": 16,
-          "width": 10,
-          "length": 161.169,
-          "stretch": 5,
-          "mult": 1.6
-        },
-        {
-          "type": "island",
-          "z": 1104.615,
-          "x": 40,
-          "y": 16,
-          "size": 12,
-          "zone": 5,
-          "stretch": 5,
-          "through": true
-        },
-        {
-          "type": "floor",
-          "z": 1271.784,
+          "z": 1396.732,
           "length": 24,
-          "y": 16,
+          "y": 17.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "trophyPad",
-          "z": 1283.784,
+          "z": 1408.732,
           "x": 44,
-          "y": 16,
+          "y": 17.6,
           "stage": 5,
           "trophies": 880
         },
         {
           "type": "block",
-          "z": 1280.784,
-          "z1": 1286.784,
+          "z": 1405.732,
+          "z1": 1411.732,
           "x0": 41,
           "x1": 47,
-          "y0": 15.5,
-          "y1": 16.25,
+          "y0": 17.1,
+          "y1": 17.85,
           "material": "trophyPad",
           "kind": "trophyPad"
         },
         {
           "type": "treadmill",
-          "z": 1283.784,
+          "z": 1408.732,
           "x": -44,
-          "y": 16,
+          "y": 17.6,
           "length": 12,
           "width": 6,
           "mult": 4
         },
         {
           "type": "floor",
-          "z": 1295.784,
+          "z": 1420.732,
           "length": 8,
-          "y": 20,
+          "y": 21.6,
           "x0": -50,
           "x1": -38.833,
           "thickness": 6
         },
         {
           "type": "ramp",
-          "z": 1295.784,
+          "z": 1420.732,
           "length": 8,
-          "y": 16,
+          "y": 17.6,
           "rise": 4,
           "x0": -38.833,
           "x1": -27.833
         },
         {
           "type": "floor",
-          "z": 1295.784,
+          "z": 1420.732,
           "length": 8,
-          "y": 20,
+          "y": 21.6,
           "x0": -27.833,
           "x1": -5.5,
           "thickness": 6
         },
         {
           "type": "ramp",
-          "z": 1295.784,
+          "z": 1420.732,
           "length": 8,
-          "y": 16,
+          "y": 17.6,
           "rise": 4,
           "x0": -5.5,
           "x1": 5.5
         },
         {
           "type": "floor",
-          "z": 1295.784,
+          "z": 1420.732,
           "length": 8,
-          "y": 20,
+          "y": 21.6,
           "x0": 5.5,
           "x1": 27.833,
           "thickness": 6
         },
         {
           "type": "ramp",
-          "z": 1295.784,
+          "z": 1420.732,
           "length": 8,
-          "y": 16,
+          "y": 17.6,
           "rise": 4,
           "x0": 27.833,
           "x1": 38.833
         },
         {
           "type": "floor",
-          "z": 1295.784,
+          "z": 1420.732,
           "length": 8,
-          "y": 20,
+          "y": 21.6,
           "x0": 38.833,
           "x1": 50,
           "thickness": 6
         },
         {
           "type": "gate",
-          "z": 1295.784,
-          "y": 16,
+          "z": 1420.732,
+          "y": 17.6,
           "kind": "ridge",
           "requires": 26945.502,
           "level": 40,
@@ -4228,8 +4473,8 @@
         },
         {
           "type": "checkpoint",
-          "z": 1307.784,
-          "y": 20,
+          "z": 1432.732,
+          "y": 21.6,
           "x": 0,
           "zone": 6,
           "rarity": "epic",
@@ -4237,25 +4482,25 @@
         },
         {
           "type": "floor",
-          "z": 1303.784,
+          "z": 1428.732,
           "length": 12,
-          "y": 20,
+          "y": 21.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "floor",
-          "z": 1315.784,
+          "z": 1440.732,
           "length": 384.916,
-          "y": 20,
+          "y": 21.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "island",
-          "z": 1370.772,
+          "z": 1495.72,
           "x": -18,
-          "y": 20,
+          "y": 21.6,
           "size": 12,
           "zone": 6,
           "stretch": 6,
@@ -4263,9 +4508,9 @@
         },
         {
           "type": "island",
-          "z": 1480.748,
+          "z": 1605.696,
           "x": 18,
-          "y": 20,
+          "y": 21.6,
           "size": 12,
           "zone": 6,
           "stretch": 6,
@@ -4273,9 +4518,9 @@
         },
         {
           "type": "island",
-          "z": 1590.724,
+          "z": 1715.672,
           "x": -18,
-          "y": 20,
+          "y": 21.6,
           "size": 12,
           "zone": 6,
           "stretch": 6,
@@ -4283,71 +4528,107 @@
         },
         {
           "type": "floor",
-          "z": 1700.7,
+          "z": 1825.648,
           "length": 24,
-          "y": 20,
+          "y": 21.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "trophyPad",
-          "z": 1712.7,
+          "z": 1837.648,
           "x": -44,
-          "y": 20,
+          "y": 21.6,
           "stage": 6,
           "trophies": 970
         },
         {
           "type": "block",
-          "z": 1709.7,
-          "z1": 1715.7,
+          "z": 1834.648,
+          "z1": 1840.648,
           "x0": -47,
           "x1": -41,
-          "y0": 19.5,
-          "y1": 20.25,
+          "y0": 21.1,
+          "y1": 21.85,
           "material": "trophyPad",
           "kind": "trophyPad"
         },
         {
           "type": "treadmill",
-          "z": 1712.7,
+          "z": 1837.648,
           "x": 44,
-          "y": 20,
+          "y": 21.6,
           "length": 12,
           "width": 6,
           "mult": 4
         },
         {
           "type": "floor",
-          "z": 1724.7,
+          "z": 1849.648,
           "length": 8,
-          "y": 24,
+          "y": 25.6,
           "x0": -50,
+          "x1": -38.833,
+          "thickness": 6
+        },
+        {
+          "type": "ramp",
+          "z": 1849.648,
+          "length": 8,
+          "y": 21.6,
+          "rise": 4,
+          "x0": -38.833,
+          "x1": -27.833
+        },
+        {
+          "type": "floor",
+          "z": 1849.648,
+          "length": 8,
+          "y": 25.6,
+          "x0": -27.833,
           "x1": -5.5,
           "thickness": 6
         },
         {
           "type": "ramp",
-          "z": 1724.7,
+          "z": 1849.648,
           "length": 8,
-          "y": 20,
+          "y": 21.6,
           "rise": 4,
           "x0": -5.5,
           "x1": 5.5
         },
         {
           "type": "floor",
-          "z": 1724.7,
+          "z": 1849.648,
           "length": 8,
-          "y": 24,
+          "y": 25.6,
           "x0": 5.5,
+          "x1": 27.833,
+          "thickness": 6
+        },
+        {
+          "type": "ramp",
+          "z": 1849.648,
+          "length": 8,
+          "y": 21.6,
+          "rise": 4,
+          "x0": 27.833,
+          "x1": 38.833
+        },
+        {
+          "type": "floor",
+          "z": 1849.648,
+          "length": 8,
+          "y": 25.6,
+          "x0": 38.833,
           "x1": 50,
           "thickness": 6
         },
         {
           "type": "gate",
-          "z": 1724.7,
-          "y": 20,
+          "z": 1849.648,
+          "y": 21.6,
           "kind": "ridge",
           "requires": 31795.693,
           "level": 41,
@@ -4358,7 +4639,9 @@
           "signHeight": 5.5,
           "rise": 4,
           "passes": [
-            0
+            -33.333,
+            0,
+            33.333
           ],
           "digits": 6,
           "passWidth": 11,
@@ -4369,8 +4652,8 @@
         },
         {
           "type": "checkpoint",
-          "z": 1736.7,
-          "y": 24,
+          "z": 1861.648,
+          "y": 25.6,
           "x": 0,
           "zone": 7,
           "rarity": "legendary",
@@ -4378,76 +4661,103 @@
         },
         {
           "type": "floor",
-          "z": 1732.7,
+          "z": 1857.648,
           "length": 12,
-          "y": 24,
+          "y": 25.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "floor",
-          "z": 1744.7,
-          "length": 200.235,
-          "y": 9,
+          "z": 1869.648,
+          "length": 12,
+          "y": 25.6,
           "x0": -50,
-          "x1": 50,
-          "material": "pit",
-          "solid": false
+          "x1": 50
         },
         {
-          "type": "pit",
-          "z": 1744.7,
-          "length": 200.235,
-          "y": 20,
-          "x0": -50,
-          "x1": 50,
+          "type": "ramp",
+          "z": 1881.648,
+          "length": 8,
+          "y": 25.6,
+          "rise": -4,
+          "shape": "dip"
+        },
+        {
+          "type": "floor",
+          "z": 1889.648,
+          "length": 6,
+          "y": 21.6,
+          "shape": "dip"
+        },
+        {
+          "type": "ramp",
+          "z": 1895.648,
+          "length": 12,
+          "y": 21.6,
+          "rise": 4,
+          "shape": "dip"
+        },
+        {
+          "type": "dip",
+          "z": 1881.648,
+          "length": 26,
+          "y": 25.6,
+          "depth": 4,
           "section": 7
         },
         {
           "type": "floor",
-          "z": 1744.7,
-          "length": 66.745,
-          "y": 24,
-          "x0": -5,
-          "x1": 5
+          "z": 1907.648,
+          "length": 12,
+          "y": 25.6,
+          "x0": -50,
+          "x1": 50
+        },
+        {
+          "type": "ramp",
+          "z": 1919.648,
+          "length": 8,
+          "y": 25.6,
+          "rise": -4,
+          "shape": "dip"
         },
         {
           "type": "floor",
-          "z": 1801.445,
-          "length": 10,
-          "y": 24,
-          "x0": -17,
-          "x1": 17
+          "z": 1927.648,
+          "length": 6,
+          "y": 21.6,
+          "shape": "dip"
+        },
+        {
+          "type": "ramp",
+          "z": 1933.648,
+          "length": 12,
+          "y": 21.6,
+          "rise": 4,
+          "shape": "dip"
+        },
+        {
+          "type": "dip",
+          "z": 1919.648,
+          "length": 26,
+          "y": 25.6,
+          "depth": 4,
+          "section": 7
         },
         {
           "type": "floor",
-          "z": 1811.445,
-          "length": 66.745,
-          "y": 24,
-          "x0": 7,
-          "x1": 17
-        },
-        {
-          "type": "floor",
-          "z": 1868.19,
-          "length": 10,
-          "y": 24,
-          "x0": -17,
-          "x1": 17
-        },
-        {
-          "type": "floor",
-          "z": 1878.19,
-          "length": 66.745,
-          "y": 24,
-          "x0": -17,
-          "x1": -7
+          "z": 1945.648,
+          "length": 12,
+          "y": 25.6,
+          "x0": -50,
+          "x1": 50
         },
         {
           "type": "island",
-          "z": 1738.7,
+          "z": 1863.648,
           "x": 40,
-          "y": 24,
+          "y": 25.6,
           "size": 12,
           "zone": 7,
           "stretch": 7,
@@ -4455,71 +4765,71 @@
         },
         {
           "type": "floor",
-          "z": 1944.935,
+          "z": 1957.648,
           "length": 24,
-          "y": 24,
+          "y": 25.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "trophyPad",
-          "z": 1956.935,
+          "z": 1969.648,
           "x": 44,
-          "y": 24,
+          "y": 25.6,
           "stage": 7,
           "trophies": 1100
         },
         {
           "type": "block",
-          "z": 1953.935,
-          "z1": 1959.935,
+          "z": 1966.648,
+          "z1": 1972.648,
           "x0": 41,
           "x1": 47,
-          "y0": 23.5,
-          "y1": 24.25,
+          "y0": 25.1,
+          "y1": 25.85,
           "material": "trophyPad",
           "kind": "trophyPad"
         },
         {
           "type": "treadmill",
-          "z": 1956.935,
+          "z": 1969.648,
           "x": -44,
-          "y": 24,
+          "y": 25.6,
           "length": 12,
           "width": 6,
           "mult": 5
         },
         {
           "type": "floor",
-          "z": 1968.935,
+          "z": 1981.648,
           "length": 8,
-          "y": 28,
+          "y": 29.6,
           "x0": -50,
           "x1": -5.5,
           "thickness": 6
         },
         {
           "type": "ramp",
-          "z": 1968.935,
+          "z": 1981.648,
           "length": 8,
-          "y": 24,
+          "y": 25.6,
           "rise": 4,
           "x0": -5.5,
           "x1": 5.5
         },
         {
           "type": "floor",
-          "z": 1968.935,
+          "z": 1981.648,
           "length": 8,
-          "y": 28,
+          "y": 29.6,
           "x0": 5.5,
           "x1": 50,
           "thickness": 6
         },
         {
           "type": "gate",
-          "z": 1968.935,
-          "y": 24,
+          "z": 1981.648,
+          "y": 25.6,
           "kind": "ridge",
           "requires": 37518.917,
           "level": 42,
@@ -4541,8 +4851,8 @@
         },
         {
           "type": "checkpoint",
-          "z": 1980.935,
-          "y": 28,
+          "z": 1993.648,
+          "y": 29.6,
           "x": 0,
           "zone": 8,
           "rarity": "legendary",
@@ -4550,17 +4860,17 @@
         },
         {
           "type": "floor",
-          "z": 1976.935,
+          "z": 1989.648,
           "length": 12,
-          "y": 28,
+          "y": 29.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "floor",
-          "z": 1988.935,
-          "length": 56,
-          "y": 13,
+          "z": 2001.648,
+          "length": 270.018,
+          "y": 14.6,
           "x0": -50,
           "x1": 50,
           "material": "pit",
@@ -4568,289 +4878,130 @@
         },
         {
           "type": "pit",
-          "z": 1988.935,
-          "length": 56,
-          "y": 24,
+          "z": 2001.648,
+          "length": 270.018,
+          "y": 25.6,
           "x0": -50,
           "x1": 50,
           "section": 8
         },
         {
           "type": "floor",
-          "z": 1988.935,
-          "length": 48,
-          "y": 28,
-          "x0": -30,
-          "x1": 30,
-          "maze": 8
-        },
-        {
-          "type": "block",
-          "z": 1988.185,
-          "z1": 1989.685,
-          "x0": -30.75,
-          "x1": -5.25,
-          "y0": 27,
-          "y1": 40,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 8
-        },
-        {
-          "type": "block",
-          "z": 1988.185,
-          "z1": 1989.685,
-          "x0": 5.25,
-          "x1": 30.75,
-          "y0": 27,
-          "y1": 40,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 8
-        },
-        {
-          "type": "block",
-          "z": 2000.185,
-          "z1": 2001.685,
-          "x0": -30.75,
-          "x1": -17.25,
-          "y0": 27,
-          "y1": 40,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 8
-        },
-        {
-          "type": "block",
-          "z": 2000.185,
-          "z1": 2001.685,
-          "x0": -6.75,
-          "x1": 6.75,
-          "y0": 27,
-          "y1": 40,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 8
-        },
-        {
-          "type": "block",
-          "z": 2012.185,
-          "z1": 2013.685,
-          "x0": -18.75,
-          "x1": -5.25,
-          "y0": 27,
-          "y1": 40,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 8
-        },
-        {
-          "type": "block",
-          "z": 2024.185,
-          "z1": 2025.685,
-          "x0": -18.75,
-          "x1": 6.75,
-          "y0": 27,
-          "y1": 40,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 8
-        },
-        {
-          "type": "block",
-          "z": 2036.185,
-          "z1": 2037.685,
-          "x0": -18.75,
-          "x1": 6.75,
-          "y0": 27,
-          "y1": 40,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 8
-        },
-        {
-          "type": "block",
-          "z": 2036.185,
-          "z1": 2037.685,
-          "x0": 17.25,
-          "x1": 30.75,
-          "y0": 27,
-          "y1": 40,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 8
-        },
-        {
-          "type": "block",
-          "z": 1988.185,
-          "z1": 2037.685,
-          "x0": -30.75,
-          "x1": -29.25,
-          "y0": 27,
-          "y1": 40,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 8
-        },
-        {
-          "type": "block",
-          "z": 2012.185,
-          "z1": 2025.685,
-          "x0": -18.75,
-          "x1": -17.25,
-          "y0": 27,
-          "y1": 40,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 8
-        },
-        {
-          "type": "block",
-          "z": 1988.185,
-          "z1": 2001.685,
-          "x0": -6.75,
-          "x1": -5.25,
-          "y0": 27,
-          "y1": 40,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 8
-        },
-        {
-          "type": "block",
-          "z": 2000.185,
-          "z1": 2025.685,
-          "x0": 5.25,
-          "x1": 6.75,
-          "y0": 27,
-          "y1": 40,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 8
-        },
-        {
-          "type": "block",
-          "z": 1988.185,
-          "z1": 2025.685,
-          "x0": 17.25,
-          "x1": 18.75,
-          "y0": 27,
-          "y1": 40,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 8
-        },
-        {
-          "type": "block",
-          "z": 1988.185,
-          "z1": 2001.685,
-          "x0": 29.25,
-          "x1": 30.75,
-          "y0": 27,
-          "y1": 40,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 8
-        },
-        {
-          "type": "block",
-          "z": 2012.185,
-          "z1": 2025.685,
-          "x0": 29.25,
-          "x1": 30.75,
-          "y0": 27,
-          "y1": 40,
-          "material": "throatWall",
-          "kind": "throatWall",
-          "maze": 8
+          "z": 2001.648,
+          "length": 90.006,
+          "y": 29.6,
+          "x0": -6,
+          "x1": 6
         },
         {
           "type": "floor",
-          "z": 2036.935,
-          "length": 8,
-          "y": 28,
-          "x0": -28.5,
-          "x1": -19.5
-        },
-        {
-          "type": "block",
-          "z": 2046.935,
-          "z1": 2048.935,
-          "x0": -25,
-          "x1": -23,
-          "y0": 28,
-          "y1": 48,
-          "material": "trophyPad",
-          "kind": "beacon",
-          "solid": false
+          "z": 2079.654,
+          "length": 12,
+          "y": 29.6,
+          "x0": -14,
+          "x1": 14
         },
         {
           "type": "floor",
-          "z": 2044.935,
+          "z": 2091.654,
+          "length": 90.006,
+          "y": 29.6,
+          "x0": 2,
+          "x1": 14
+        },
+        {
+          "type": "floor",
+          "z": 2169.66,
+          "length": 12,
+          "y": 29.6,
+          "x0": -14,
+          "x1": 14
+        },
+        {
+          "type": "floor",
+          "z": 2181.66,
+          "length": 90.006,
+          "y": 29.6,
+          "x0": -14,
+          "x1": -2
+        },
+        {
+          "type": "island",
+          "z": 1995.648,
+          "x": -40,
+          "y": 29.6,
+          "size": 12,
+          "zone": 8,
+          "stretch": 8,
+          "through": true
+        },
+        {
+          "type": "floor",
+          "z": 2271.666,
           "length": 24,
-          "y": 28,
+          "y": 29.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "trophyPad",
-          "z": 2056.935,
+          "z": 2283.666,
           "x": -44,
-          "y": 28,
+          "y": 29.6,
           "stage": 8,
           "trophies": 1200
         },
         {
           "type": "block",
-          "z": 2053.935,
-          "z1": 2059.935,
+          "z": 2280.666,
+          "z1": 2286.666,
           "x0": -47,
           "x1": -41,
-          "y0": 27.5,
-          "y1": 28.25,
+          "y0": 29.1,
+          "y1": 29.85,
           "material": "trophyPad",
           "kind": "trophyPad"
         },
         {
           "type": "treadmill",
-          "z": 2056.935,
+          "z": 2283.666,
           "x": 44,
-          "y": 28,
+          "y": 29.6,
           "length": 12,
           "width": 6,
           "mult": 5
         },
         {
           "type": "floor",
-          "z": 2068.935,
+          "z": 2295.666,
           "length": 8,
-          "y": 32,
+          "y": 33.6,
           "x0": -50,
           "x1": -5.5,
           "thickness": 6
         },
         {
           "type": "ramp",
-          "z": 2068.935,
+          "z": 2295.666,
           "length": 8,
-          "y": 28,
+          "y": 29.6,
           "rise": 4,
           "x0": -5.5,
           "x1": 5.5
         },
         {
           "type": "floor",
-          "z": 2068.935,
+          "z": 2295.666,
           "length": 8,
-          "y": 32,
+          "y": 33.6,
           "x0": 5.5,
           "x1": 50,
           "thickness": 6
         },
         {
           "type": "gate",
-          "z": 2068.935,
-          "y": 28,
+          "z": 2295.666,
+          "y": 29.6,
           "kind": "ridge",
           "requires": 52241.34,
           "level": 44,
@@ -4872,8 +5023,8 @@
         },
         {
           "type": "checkpoint",
-          "z": 2080.935,
-          "y": 32,
+          "z": 2307.666,
+          "y": 33.6,
           "x": 0,
           "zone": 9,
           "rarity": "mythic",
@@ -4881,17 +5032,17 @@
         },
         {
           "type": "floor",
-          "z": 2076.935,
+          "z": 2303.666,
           "length": 12,
-          "y": 32,
+          "y": 33.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "floor",
-          "z": 2088.935,
-          "length": 184.06,
-          "y": 17,
+          "z": 2315.666,
+          "length": 68,
+          "y": 18.6,
           "x0": -50,
           "x1": 50,
           "material": "pit",
@@ -4899,114 +5050,325 @@
         },
         {
           "type": "pit",
-          "z": 2088.935,
-          "length": 184.06,
-          "y": 28,
+          "z": 2315.666,
+          "length": 68,
+          "y": 29.6,
           "x0": -50,
           "x1": 50,
           "section": 9
         },
         {
           "type": "floor",
-          "z": 2088.935,
-          "length": 92.03,
-          "y": 32,
-          "x0": -6,
-          "x1": 6
+          "z": 2315.666,
+          "length": 60,
+          "y": 33.6,
+          "x0": -36,
+          "x1": 36,
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2314.916,
+          "z1": 2316.416,
+          "x0": -36.75,
+          "x1": 0.75,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2314.916,
+          "z1": 2316.416,
+          "x0": 11.25,
+          "x1": 36.75,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2326.916,
+          "z1": 2328.416,
+          "x0": -0.75,
+          "x1": 24.75,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2338.916,
+          "z1": 2340.416,
+          "x0": -12.75,
+          "x1": 12.75,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2350.916,
+          "z1": 2352.416,
+          "x0": -24.75,
+          "x1": -11.25,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2350.916,
+          "z1": 2352.416,
+          "x0": 11.25,
+          "x1": 24.75,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2362.916,
+          "z1": 2364.416,
+          "x0": -0.75,
+          "x1": 12.75,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2374.916,
+          "z1": 2376.416,
+          "x0": -36.75,
+          "x1": -23.25,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2374.916,
+          "z1": 2376.416,
+          "x0": -12.75,
+          "x1": 12.75,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2374.916,
+          "z1": 2376.416,
+          "x0": 23.25,
+          "x1": 36.75,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2314.916,
+          "z1": 2364.416,
+          "x0": -36.75,
+          "x1": -35.25,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2326.916,
+          "z1": 2364.416,
+          "x0": -24.75,
+          "x1": -23.25,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2314.916,
+          "z1": 2340.416,
+          "x0": -12.75,
+          "x1": -11.25,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2350.916,
+          "z1": 2376.416,
+          "x0": -12.75,
+          "x1": -11.25,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2338.916,
+          "z1": 2364.416,
+          "x0": -0.75,
+          "x1": 0.75,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2314.916,
+          "z1": 2328.416,
+          "x0": 11.25,
+          "x1": 12.75,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2326.916,
+          "z1": 2364.416,
+          "x0": 23.25,
+          "x1": 24.75,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
+        },
+        {
+          "type": "block",
+          "z": 2314.916,
+          "z1": 2364.416,
+          "x0": 35.25,
+          "x1": 36.75,
+          "y0": 32.6,
+          "y1": 45.6,
+          "material": "throatWall",
+          "kind": "throatWall",
+          "maze": 9
         },
         {
           "type": "floor",
-          "z": 2168.965,
-          "length": 12,
-          "y": 32,
-          "x0": -14,
-          "x1": 14
+          "z": 2375.666,
+          "length": 8,
+          "y": 33.6,
+          "x0": -22.5,
+          "x1": -13.5
+        },
+        {
+          "type": "block",
+          "z": 2385.666,
+          "z1": 2387.666,
+          "x0": -19,
+          "x1": -17,
+          "y0": 33.6,
+          "y1": 53.6,
+          "material": "trophyPad",
+          "kind": "beacon",
+          "solid": false
         },
         {
           "type": "floor",
-          "z": 2180.965,
-          "length": 92.03,
-          "y": 32,
-          "x0": 2,
-          "x1": 14
-        },
-        {
-          "type": "island",
-          "z": 2082.935,
-          "x": 40,
-          "y": 32,
-          "size": 12,
-          "zone": 9,
-          "stretch": 9,
-          "through": true
-        },
-        {
-          "type": "floor",
-          "z": 2272.995,
+          "z": 2383.666,
           "length": 24,
-          "y": 32,
+          "y": 33.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "trophyPad",
-          "z": 2284.995,
+          "z": 2395.666,
           "x": 44,
-          "y": 32,
+          "y": 33.6,
           "stage": 9,
           "trophies": 1300
         },
         {
           "type": "block",
-          "z": 2281.995,
-          "z1": 2287.995,
+          "z": 2392.666,
+          "z1": 2398.666,
           "x0": 41,
           "x1": 47,
-          "y0": 31.5,
-          "y1": 32.25,
+          "y0": 33.1,
+          "y1": 33.85,
           "material": "trophyPad",
           "kind": "trophyPad"
         },
         {
           "type": "treadmill",
-          "z": 2284.995,
+          "z": 2395.666,
           "x": -44,
-          "y": 32,
+          "y": 33.6,
           "length": 12,
           "width": 6,
           "mult": 6
         },
         {
           "type": "floor",
-          "z": 2296.995,
+          "z": 2407.666,
           "length": 8,
-          "y": 36,
+          "y": 37.6,
           "x0": -50,
           "x1": -5.5,
           "thickness": 6
         },
         {
           "type": "ramp",
-          "z": 2296.995,
+          "z": 2407.666,
           "length": 8,
-          "y": 32,
+          "y": 33.6,
           "rise": 4,
           "x0": -5.5,
           "x1": 5.5
         },
         {
           "type": "floor",
-          "z": 2296.995,
+          "z": 2407.666,
           "length": 8,
-          "y": 36,
+          "y": 37.6,
           "x0": 5.5,
           "x1": 50,
           "thickness": 6
         },
         {
           "type": "gate",
-          "z": 2296.995,
-          "y": 32,
+          "z": 2407.666,
+          "y": 33.6,
           "kind": "ridge",
           "requires": 61644.782,
           "level": 45,
@@ -5028,8 +5390,8 @@
         },
         {
           "type": "checkpoint",
-          "z": 2308.995,
-          "y": 36,
+          "z": 2419.666,
+          "y": 37.6,
           "x": 0,
           "zone": 10,
           "rarity": "mythic",
@@ -5037,17 +5399,17 @@
         },
         {
           "type": "floor",
-          "z": 2304.995,
+          "z": 2415.666,
           "length": 12,
-          "y": 36,
+          "y": 37.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "floor",
-          "z": 2316.995,
-          "length": 310.757,
-          "y": 21,
+          "z": 2427.666,
+          "length": 174.453,
+          "y": 22.6,
           "x0": -50,
           "x1": 50,
           "material": "pit",
@@ -5055,50 +5417,37 @@
         },
         {
           "type": "pit",
-          "z": 2316.995,
-          "length": 310.757,
-          "y": 32,
+          "z": 2427.666,
+          "length": 174.453,
+          "y": 33.6,
           "x0": -50,
           "x1": 50,
           "section": 10
         },
         {
           "type": "floor",
-          "z": 2346.396,
-          "length": 40.938,
-          "y": 36,
+          "z": 2427.666,
+          "length": 174.453,
+          "y": 37.6,
           "x0": -5,
-          "x1": 5
+          "x1": 5,
+          "material": "ice"
         },
         {
-          "type": "floor",
-          "z": 2416.735,
-          "length": 40.938,
-          "y": 36,
-          "x0": -3.75,
-          "x1": 6.25
-        },
-        {
-          "type": "floor",
-          "z": 2487.074,
-          "length": 40.938,
-          "y": 36,
-          "x0": -6.25,
-          "x1": 3.75
-        },
-        {
-          "type": "floor",
-          "z": 2557.413,
-          "length": 40.938,
-          "y": 36,
-          "x0": -3.75,
-          "x1": 6.25
+          "type": "slide",
+          "z": 2514.893,
+          "x": 0,
+          "y": 37.6,
+          "width": 10,
+          "length": 174.453,
+          "stretch": 10,
+          "mult": 1.6
         },
         {
           "type": "island",
-          "z": 2310.995,
+          "z": 2421.666,
           "x": -40,
-          "y": 36,
+          "y": 37.6,
           "size": 12,
           "zone": 10,
           "stretch": 10,
@@ -5106,58 +5455,58 @@
         },
         {
           "type": "floor",
-          "z": 2627.752,
+          "z": 2602.119,
           "length": 24,
-          "y": 36,
+          "y": 37.6,
           "x0": -50,
           "x1": 50
         },
         {
           "type": "trophyPad",
-          "z": 2639.752,
+          "z": 2614.119,
           "x": -44,
-          "y": 36,
+          "y": 37.6,
           "stage": 10,
           "trophies": 1500
         },
         {
           "type": "block",
-          "z": 2636.752,
-          "z1": 2642.752,
+          "z": 2611.119,
+          "z1": 2617.119,
           "x0": -47,
           "x1": -41,
-          "y0": 35.5,
-          "y1": 36.25,
+          "y0": 37.1,
+          "y1": 37.85,
           "material": "trophyPad",
           "kind": "trophyPad"
         },
         {
           "type": "treadmill",
-          "z": 2639.752,
+          "z": 2614.119,
           "x": 44,
-          "y": 36,
+          "y": 37.6,
           "length": 12,
           "width": 6,
           "mult": 6
         },
         {
           "type": "floor",
-          "z": 2651.752,
+          "z": 2626.119,
           "length": 60,
-          "y": 36,
+          "y": 37.6,
           "x0": -85,
           "x1": 85
         },
         {
           "type": "summit",
-          "z": 2651.752,
-          "y": 36,
+          "z": 2626.119,
+          "y": 37.6,
           "wall": 5
         },
         {
           "type": "checkpoint",
-          "z": 2654.752,
-          "y": 36,
+          "z": 2629.119,
+          "y": 37.6,
           "x": 0,
           "zone": 5,
           "rarity": "mythic",
@@ -5165,36 +5514,36 @@
         },
         {
           "type": "treadmill",
-          "z": 2663.752,
+          "z": 2638.119,
           "x": -8,
-          "y": 36,
+          "y": 37.6,
           "length": 10,
           "width": 6,
           "mult": 10
         },
         {
           "type": "chest",
-          "z": 2681.752,
+          "z": 2656.119,
           "x": 0,
-          "y": 36,
+          "y": 37.6,
           "coins": 2000
         },
         {
           "type": "portal",
-          "z": 2701.752,
+          "z": 2676.119,
           "x": 0,
-          "y": 36,
+          "y": 37.6,
           "next": 3,
           "width": 32
         },
         {
           "type": "funnel",
-          "z": 2661.752,
+          "z": 2636.119,
           "length": 40,
-          "y": 36,
+          "y": 37.6,
           "from": 85,
           "to": 16,
-          "end": 2711.752
+          "end": 2686.119
         }
       ],
       "treadmillMult": 1,
@@ -5202,40 +5551,40 @@
       "bosses": [
         {
           "zone": [
-            222,
-            474.805
+            1128.117,
+            1396.732
           ],
-          "requires": 8458.868,
+          "requires": 19351.84,
           "returnMult": 1.5,
           "giants": [
             {
-              "speed": 49.088,
+              "speed": 52.158,
               "patrol": "chase",
               "seeDist": 0,
               "turnSec": 0.5,
               "slipPast": false,
               "side": 0.9,
-              "lag": 0.3
+              "lag": 0.27
             }
           ],
           "width": 100,
           "covers": [
             {
               "x": 25,
-              "z": 323.122,
+              "z": 1235.563,
               "r": 4,
               "h": 6
             },
             {
               "x": -25,
-              "z": 398.963,
+              "z": 1316.148,
               "r": 4,
               "h": 6
             }
           ],
           "rearm": true,
           "level": {
-            "n": 33,
+            "n": 38,
             "g": 1.13,
             "min": 0.4,
             "max": 1.3
@@ -5252,13 +5601,13 @@
       "stages": [
         {
           "n": 1,
-          "type": "dips",
+          "type": "stairs",
           "z0": 40,
           "start": 52,
-          "end": 178,
+          "end": 167.382,
           "finish": [
-            178,
-            202
+            167.382,
+            191.382
           ],
           "y": 0,
           "level": 25,
@@ -5267,183 +5616,235 @@
           "trophies": 580,
           "pad": {
             "x": 44,
-            "z": 190,
-            "y": 0
-          }
+            "z": 179.382,
+            "y": 1.6
+          },
+          "tier": "easy"
         },
         {
           "n": 2,
-          "type": "giant",
-          "z0": 202,
-          "start": 222,
-          "end": 474.805,
+          "type": "plates",
+          "z0": 191.382,
+          "start": 211.382,
+          "end": 481.582,
           "finish": [
-            474.805,
-            498.805
+            481.582,
+            505.582
           ],
-          "y": 4,
+          "y": 5.6,
           "level": 33,
           "speed": 50.561,
-          "width": "field",
+          "width": "bridge",
           "trophies": 650,
           "pad": {
             "x": -44,
-            "z": 486.805,
-            "y": 4
-          }
+            "z": 493.582,
+            "y": 5.6
+          },
+          "tier": "mid"
         },
         {
           "n": 3,
-          "type": "cracks",
-          "z0": 498.805,
-          "start": 518.805,
-          "end": 742.28,
+          "type": "catapult",
+          "z0": 505.582,
+          "start": 525.582,
+          "end": 753.516,
           "finish": [
-            742.28,
-            766.28
+            753.516,
+            777.516
           ],
-          "y": 8,
+          "y": 9.6,
           "level": 34,
           "speed": 51.193,
           "width": "field",
           "trophies": 710,
           "pad": {
             "x": 44,
-            "z": 754.28,
-            "y": 8
+            "z": 765.516,
+            "y": 9.6
           },
           "cut": {
             "gap": 37.678,
             "x": -44,
-            "z": 704.602
-          }
+            "z": 715.838
+          },
+          "tier": "hard"
         },
         {
           "n": 4,
-          "type": "plates",
-          "z0": 766.28,
-          "start": 786.28,
-          "end": 1066.615,
+          "type": "cracks",
+          "z0": 777.516,
+          "start": 797.516,
+          "end": 1084.117,
           "finish": [
-            1066.615,
-            1090.615
+            1084.117,
+            1108.117
           ],
-          "y": 12,
+          "y": 13.6,
           "level": 36,
           "speed": 52.458,
-          "width": "bridge",
+          "width": "field",
           "trophies": 790,
           "pad": {
             "x": -44,
-            "z": 1078.615,
-            "y": 12
-          }
+            "z": 1096.117,
+            "y": 13.6
+          },
+          "cut": {
+            "gap": 38.609,
+            "x": 44,
+            "z": 1045.508
+          },
+          "tier": "hard"
         },
         {
           "n": 5,
-          "type": "chute",
-          "z0": 1090.615,
-          "start": 1110.615,
-          "end": 1271.784,
+          "type": "giant",
+          "z0": 1108.117,
+          "start": 1128.117,
+          "end": 1396.732,
           "finish": [
-            1271.784,
-            1295.784
+            1396.732,
+            1420.732
           ],
-          "y": 16,
+          "y": 17.6,
           "level": 38,
           "speed": 53.723,
-          "width": "bridge",
+          "width": "field",
           "trophies": 880,
           "pad": {
             "x": 44,
-            "z": 1283.784,
-            "y": 16
-          }
+            "z": 1408.732,
+            "y": 17.6
+          },
+          "tier": "mid"
         },
         {
           "n": 6,
           "type": "avalanche",
-          "z0": 1295.784,
-          "start": 1315.784,
-          "end": 1700.7,
+          "z0": 1420.732,
+          "start": 1440.732,
+          "end": 1825.648,
           "finish": [
-            1700.7,
-            1724.7
+            1825.648,
+            1849.648
           ],
-          "y": 20,
+          "y": 21.6,
           "level": 40,
           "speed": 54.988,
           "width": "field",
           "trophies": 970,
           "pad": {
             "x": -44,
-            "z": 1712.7,
-            "y": 20
-          }
+            "z": 1837.648,
+            "y": 21.6
+          },
+          "tier": "easy"
         },
         {
           "n": 7,
-          "type": "throat",
-          "z0": 1724.7,
-          "start": 1744.7,
-          "end": 1944.935,
+          "type": "dips",
+          "z0": 1849.648,
+          "start": 1869.648,
+          "end": 1957.648,
           "finish": [
-            1944.935,
-            1968.935
+            1957.648,
+            1981.648
           ],
-          "y": 24,
+          "y": 25.6,
           "level": 41,
           "speed": 55.621,
-          "width": "bridge",
+          "width": "field",
           "trophies": 1100,
           "pad": {
             "x": 44,
-            "z": 1956.935,
-            "y": 24
-          }
+            "z": 1969.648,
+            "y": 25.6
+          },
+          "tier": "easy"
         },
         {
           "n": 8,
-          "type": "maze",
-          "z0": 1968.935,
-          "start": 1988.935,
-          "end": 2044.935,
+          "type": "blizzard",
+          "z0": 1981.648,
+          "start": 2001.648,
+          "end": 2271.666,
           "finish": [
-            2044.935,
-            2068.935
+            2271.666,
+            2295.666
           ],
-          "y": 28,
+          "y": 29.6,
           "level": 42,
           "speed": 56.254,
-          "width": "cave",
+          "width": "bridge",
           "trophies": 1200,
           "pad": {
             "x": -44,
-            "z": 2056.935,
-            "y": 28
+            "z": 2283.666,
+            "y": 29.6
+          },
+          "tier": "veryHard"
+        },
+        {
+          "n": 9,
+          "type": "maze",
+          "z0": 2295.666,
+          "start": 2315.666,
+          "end": 2383.666,
+          "finish": [
+            2383.666,
+            2407.666
+          ],
+          "y": 33.6,
+          "level": 44,
+          "speed": 57.519,
+          "width": "cave",
+          "trophies": 1300,
+          "pad": {
+            "x": 44,
+            "z": 2395.666,
+            "y": 33.6
           },
           "maze": {
-            "x0": -30,
-            "z0": 1988.935,
+            "x0": -36,
+            "z0": 2315.666,
             "cell": 12,
-            "cols": 5,
-            "rows": 4,
+            "cols": 6,
+            "rows": 5,
             "open": [
               [
-                2,
-                0,
                 3,
+                0,
+                2,
                 0
               ],
               [
-                3,
+                2,
                 0,
+                2,
+                1
+              ],
+              [
+                2,
+                1,
                 3,
                 1
               ],
               [
                 3,
                 1,
+                4,
+                1
+              ],
+              [
+                4,
+                1,
+                4,
+                2
+              ],
+              [
+                4,
+                2,
                 3,
                 2
               ],
@@ -5463,65 +5864,29 @@
                 4,
                 3,
                 4,
-                2
+                4
               ],
               [
+                4,
+                4,
+                3,
+                4
+              ],
+              [
+                3,
                 4,
                 2,
-                4,
-                1
+                4
               ],
               [
+                2,
                 4,
-                1,
-                4,
-                0
-              ],
-              [
-                3,
-                3,
                 2,
                 3
               ],
               [
                 2,
                 3,
-                1,
-                3
-              ],
-              [
-                1,
-                3,
-                0,
-                3
-              ],
-              [
-                0,
-                3,
-                0,
-                2
-              ],
-              [
-                0,
-                2,
-                0,
-                1
-              ],
-              [
-                0,
-                1,
-                1,
-                1
-              ],
-              [
-                1,
-                1,
-                2,
-                1
-              ],
-              [
-                2,
-                1,
                 2,
                 2
               ],
@@ -5530,6 +5895,12 @@
                 2,
                 1,
                 2
+              ],
+              [
+                1,
+                2,
+                1,
+                1
               ],
               [
                 1,
@@ -5541,79 +5912,132 @@
                 1,
                 0,
                 0,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                1
+              ],
+              [
+                0,
+                1,
+                0,
+                2
+              ],
+              [
+                0,
+                2,
+                0,
+                3
+              ],
+              [
+                0,
+                3,
+                0,
+                4
+              ],
+              [
+                0,
+                4,
+                1,
+                4
+              ],
+              [
+                1,
+                4,
+                1,
+                3
+              ],
+              [
+                4,
+                4,
+                5,
+                4
+              ],
+              [
+                5,
+                4,
+                5,
+                3
+              ],
+              [
+                5,
+                3,
+                5,
+                2
+              ],
+              [
+                5,
+                2,
+                5,
+                1
+              ],
+              [
+                5,
+                1,
+                5,
+                0
+              ],
+              [
+                5,
+                0,
+                4,
                 0
               ]
             ],
-            "entrance": 2,
+            "entrance": 3,
             "exits": [
               {
-                "col": 0,
-                "row": 3,
+                "col": 1,
+                "row": 4,
                 "side": "top",
                 "real": true
               },
               {
-                "col": 4,
-                "row": 3,
-                "side": "right",
+                "col": 0,
+                "row": 4,
+                "side": "left",
                 "real": false
               },
               {
-                "col": 3,
-                "row": 3,
+                "col": 4,
+                "row": 4,
                 "side": "top",
                 "real": false
               },
               {
-                "col": 4,
-                "row": 1,
+                "col": 5,
+                "row": 4,
                 "side": "right",
                 "real": false
               }
             ]
-          }
-        },
-        {
-          "n": 9,
-          "type": "blizzard",
-          "z0": 2068.935,
-          "start": 2088.935,
-          "end": 2272.995,
-          "finish": [
-            2272.995,
-            2296.995
-          ],
-          "y": 32,
-          "level": 44,
-          "speed": 57.519,
-          "width": "bridge",
-          "trophies": 1300,
-          "pad": {
-            "x": 44,
-            "z": 2284.995,
-            "y": 32
-          }
+          },
+          "tier": "veryHard"
         },
         {
           "n": 10,
-          "type": "plates",
-          "z0": 2296.995,
-          "start": 2316.995,
-          "end": 2627.752,
+          "type": "chute",
+          "z0": 2407.666,
+          "start": 2427.666,
+          "end": 2602.119,
           "finish": [
-            2627.752,
-            2651.752
+            2602.119,
+            2626.119
           ],
-          "y": 36,
+          "y": 37.6,
           "level": 45,
           "speed": 58.151,
           "width": "bridge",
           "trophies": 1500,
           "pad": {
             "x": -44,
-            "z": 2639.752,
-            "y": 36
-          }
+            "z": 2614.119,
+            "y": 37.6
+          },
+          "tier": "veryEasy"
         }
       ],
       "campTeleport": {
@@ -5965,7 +6389,7 @@
           "z": 78,
           "length": 12,
           "y": -5,
-          "rise": 6,
+          "rise": 5,
           "shape": "dip"
         },
         {
@@ -6004,7 +6428,7 @@
           "z": 116,
           "length": 12,
           "y": -5,
-          "rise": 6,
+          "rise": 5,
           "shape": "dip"
         },
         {
@@ -6043,7 +6467,7 @@
           "z": 154,
           "length": 12,
           "y": -5,
-          "rise": 6,
+          "rise": 5,
           "shape": "dip"
         },
         {
@@ -9066,7 +9490,7 @@
           "z": 78,
           "length": 12,
           "y": -5,
-          "rise": 6,
+          "rise": 5,
           "shape": "dip"
         },
         {
@@ -9105,7 +9529,7 @@
           "z": 116,
           "length": 12,
           "y": -5,
-          "rise": 6,
+          "rise": 5,
           "shape": "dip"
         },
         {
@@ -9144,7 +9568,7 @@
           "z": 154,
           "length": 12,
           "y": -5,
-          "rise": 6,
+          "rise": 5,
           "shape": "dip"
         },
         {
@@ -12259,7 +12683,7 @@
           "z": 78,
           "length": 12,
           "y": -5,
-          "rise": 6,
+          "rise": 5,
           "shape": "dip"
         },
         {
@@ -12298,7 +12722,7 @@
           "z": 116,
           "length": 12,
           "y": -5,
-          "rise": 6,
+          "rise": 5,
           "shape": "dip"
         },
         {
@@ -12337,7 +12761,7 @@
           "z": 154,
           "length": 12,
           "y": -5,
-          "rise": 6,
+          "rise": 5,
           "shape": "dip"
         },
         {
@@ -15762,7 +16186,7 @@
           "z": 78,
           "length": 12,
           "y": -5,
-          "rise": 6,
+          "rise": 5,
           "shape": "dip"
         },
         {
@@ -15801,7 +16225,7 @@
           "z": 116,
           "length": 12,
           "y": -5,
-          "rise": 6,
+          "rise": 5,
           "shape": "dip"
         },
         {
@@ -15840,7 +16264,7 @@
           "z": 154,
           "length": 12,
           "y": -5,
-          "rise": 6,
+          "rise": 5,
           "shape": "dip"
         },
         {
@@ -19288,7 +19712,7 @@
           "z": 78,
           "length": 12,
           "y": -6,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -19327,7 +19751,7 @@
           "z": 116,
           "length": 12,
           "y": -6,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -19366,7 +19790,7 @@
           "z": 154,
           "length": 12,
           "y": -6,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -21090,7 +21514,7 @@
           "z": 3726.834,
           "length": 12,
           "y": 26,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -21129,7 +21553,7 @@
           "z": 3764.834,
           "length": 12,
           "y": 26,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -21168,7 +21592,7 @@
           "z": 3802.834,
           "length": 12,
           "y": 26,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -23225,7 +23649,7 @@
           "z": 78,
           "length": 12,
           "y": -6,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -23264,7 +23688,7 @@
           "z": 116,
           "length": 12,
           "y": -6,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -23303,7 +23727,7 @@
           "z": 154,
           "length": 12,
           "y": -6,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -25081,7 +25505,7 @@
           "z": 4185.02,
           "length": 12,
           "y": 26,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -25120,7 +25544,7 @@
           "z": 4223.02,
           "length": 12,
           "y": 26,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -25159,7 +25583,7 @@
           "z": 4261.02,
           "length": 12,
           "y": 26,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -27227,7 +27651,7 @@
           "z": 78,
           "length": 12,
           "y": -6,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -27266,7 +27690,7 @@
           "z": 116,
           "length": 12,
           "y": -6,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -27305,7 +27729,7 @@
           "z": 154,
           "length": 12,
           "y": -6,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -29093,7 +29517,7 @@
           "z": 4411.399,
           "length": 12,
           "y": 26,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -29132,7 +29556,7 @@
           "z": 4449.399,
           "length": 12,
           "y": 26,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -29171,7 +29595,7 @@
           "z": 4487.399,
           "length": 12,
           "y": 26,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -31506,7 +31930,7 @@
           "z": 78,
           "length": 12,
           "y": -6,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -31545,7 +31969,7 @@
           "z": 116,
           "length": 12,
           "y": -6,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -31584,7 +32008,7 @@
           "z": 154,
           "length": 12,
           "y": -6,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -33372,7 +33796,7 @@
           "z": 4699.528,
           "length": 12,
           "y": 26,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -33411,7 +33835,7 @@
           "z": 4737.528,
           "length": 12,
           "y": 26,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {
@@ -33450,7 +33874,7 @@
           "z": 4775.528,
           "length": 12,
           "y": 26,
-          "rise": 7,
+          "rise": 6,
           "shape": "dip"
         },
         {

@@ -11,7 +11,7 @@ import * as v from 'valibot';
 import type { AurasJson, BalanceJson, BotsJson, Curve, EggsJson, TrailsJson, GameJson, OpenSpecJson, Reward, Segment, SfxJson, SkinsJson, TuningJson, World, WorldsJson, WorldsSpecJson } from '../content/types.ts';
 import { summitTrophies } from '../sim/economy.ts';
 import { LEADERBOARD_SCORES } from '../meta/trophies.ts';
-import { floatingErrors, surfaceLineErrors, validateStageWorlds } from './validate-stages.ts';
+import { floatingErrors, seamErrors, surfaceLineErrors, validateStageWorlds } from './validate-stages.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
 import { buildLevel, GATE_THICKNESS } from './builder.ts';
 import { PAD_SIZE, TICK, apexOf, padArc, padGiftBand } from './pad-arc.ts';
@@ -1030,7 +1030,9 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
     // SD-02: nothing hangs in the air on the built mountains; MU-13: the edge lines lie on the ground.
     for (const w of worlds.worlds) {
       const level = buildLevel(w);
-      for (const e of [...floatingErrors(level), ...surfaceLineErrors(level)]) errors.push(`worlds.json: ${w.id}: ${e}`);
+      // ST-05: the joins without steps and slits.
+      const top = Math.max(...w.segments.map((s) => s.z + (typeof s['length'] === 'number' ? (s['length'] as number) : 0)));
+      for (const e of [...floatingErrors(level), ...surfaceLineErrors(level), ...seamErrors(level, (files['worlds-spec.json'] as OpenSpecJson).stages?.field ?? 100, top)]) errors.push(`worlds.json: ${w.id}: ${e}`);
     }
   }
   else if (open) {

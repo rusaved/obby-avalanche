@@ -80,8 +80,10 @@ export function createStageView(d: StageViewDeps): StageView {
       return taken;
     },
     wire(sim) {
-      sim.events.on('trophyTake', ({ amount, x, y, z, trophies, total }) => {
+      sim.events.on('trophyTake', ({ amount, x, y, z, trophies, total, spent }) => {
         taken++;
+        // ST-06: a pad taken its times — a quiet word, no coins and no confetti; the flight to the camp as ever.
+        if (spent) return d.hud.toast(t('stage.padSpent'));
         d.hud.toast(t('toast.trophyPad', { n: fmt(amount) }));
         if (!trophies) {
           // SD-11 (review: the coin plaque stayed hidden after a button): the wallet shows at once.

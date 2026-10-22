@@ -66,6 +66,8 @@ export interface SaveData {
   boostSec?: number;
   /** Ad views counted toward the egg of the current mountain (docs/01-gdd.md 9.1: ads.eggViews). */
   adEgg?: number;
+  /** ST-07: eggs for an ad on the UTC day `day` (ads.eggPerDay). */
+  adEggDay?: { day: number; n: number };
   /** Quests of the day (7.7, M3-08b): the game day they belong to, the list with progress, claimed, the bonus claimed. */
   quests?: { day: number; list: Array<{ id: string; n: number; k: number; got: boolean }>; bonus: boolean };
   /** Time rewards of the day (7.8): the game day, seconds played on it, minutes claimed. */
@@ -85,6 +87,8 @@ export interface SaveData {
    * the stage tutorial done (0–3). */
   stageBest?: Record<string, number>;
   tutor?: number;
+  /** ST-06: the times each stage pad paid in this life (key `world:stage`; meta/trophies.ts padPays), cleared by a rebirth. */
+  padTakes?: Record<string, number>;
 }
 
 export const SAVE_VERSION = 2;
@@ -122,7 +126,7 @@ export function migrate(raw: Record<string, unknown>): Record<string, unknown> |
 
 const NUMBER_KEYS = ['sessions', 'wavesNormal', 'totalPlaySec', 'shoes', 'trophies', 'trophiesTotal', 'tier', 'summits', 'stat', 'bestStat', 'coins', 'world', 'frontierWall', 'boostSec', 'adEgg', 'baseTread', 'tutor'] as const;
 const ARRAY_KEYS = ['pets', 'petsOn', 'trails', 'auras', 'skins', 'wings'] as const;
-const OBJECT_KEYS = ['flags', 'hints', 'daily', 'quests', 'timeRw', 'wheel', 'record', 'gifts', 'footsteps', 'stageBest'] as const;
+const OBJECT_KEYS = ['flags', 'hints', 'daily', 'quests', 'timeRw', 'wheel', 'record', 'gifts', 'footsteps', 'stageBest', 'padTakes', 'adEggDay'] as const;
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);
 
 /**

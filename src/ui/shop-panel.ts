@@ -172,6 +172,16 @@ export function renderShopPanel(body: HTMLElement, head: HTMLElement, m: ShopPan
         button = el('button', c.state === 'short' ? 'card-btn off' : 'card-btn', c.state === 'short' ? c.need : (c.action ?? t('btn.buy')));
         if (c.state === 'buy') button.addEventListener('click', () => a.buy(c.id));
       }
+      // ST-07: a set for an ad — the quiet «▶ Ad: open» instead of the padlock.
+      if (c.state === 'locked' && c.ad) {
+        const ad = el('button', c.ad.busy ? 'card-btn quiet off' : 'card-btn quiet');
+        ad.dataset['hud'] = 'shop-steps-ad';
+        setRich(ad, c.ad.text);
+        if (!c.ad.busy) ad.addEventListener('click', () => a.ad?.(c.id));
+        card.appendChild(stepEnd({ chosen: false, button: ad }));
+        grid.appendChild(card);
+        continue;
+      }
       if (button) button.dataset['hud'] = 'shop-item';
       const price = c.state === 'buy' || c.state === 'short' ? (c.coin ? coinPrice(c.price) : trophyPrice(c.price)) : undefined;
       card.appendChild(stepEnd({ chosen: c.state === 'on', ...(c.state === 'locked' ? { lock: c.lock ?? '' } : price ? { lock: price } : {}), button }));

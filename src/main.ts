@@ -83,7 +83,7 @@ import { createRewards } from './app/rewards.ts';
 import { createDailyView, type DailyView } from './app/daily-view.ts';
 import { createQuestsView, type QuestsView } from './app/quests-view.ts';
 import { createSave, type SaveData } from './meta/save.ts';
-import { addTrophies, migrateStageTrophies, migrateStageTrophiesBack } from './meta/trophies.ts';
+import { addTrophies, migrateStageTrophies, migrateStageTrophiesBack, padPays } from './meta/trophies.ts';
 import { scaled, summitTrophies } from './sim/economy.ts';
 import type { GameHandles, BootState } from './app/handles.ts';
 import type { TestApi } from './test-api/index.ts';
@@ -271,6 +271,12 @@ async function boot(): Promise<void> {
   // Feel values (base and ceiling) come from tuning.json sliders; the curve shape from balance.json.
   const speedCurve = () => ({ ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed });
   // The avalanche (docs/02-tech.md 8.1): live world threat (debug sliders change it), save counters.
+  // ST-06: the stage pads of a mountain pay balance.stagePads.takes times a life (the count in the save).
+  const padPayOf = (w: World) => (n: number): boolean => {
+    const pays = padPays(save, w.index, n, balance.stagePads?.takes);
+    persist();
+    return pays;
+  };
   const threatOptions = (w: World, firstSec?: number): ThreatOptions => ({
     firstSec,
     threat: w.threat,
@@ -315,6 +321,7 @@ async function boot(): Promise<void> {
     coins: save.coins ?? 0,
     tier: save.tier ?? 0,
     threat: threatOptions(world, loaded ? balance.threat.resumeSec : undefined),
+    padPay: padPayOf(world),
     giftEgg: giftEggOptions(world),
     bots: botOptions(world),
     bonus: bonusOptions(world),
@@ -982,7 +989,7 @@ async function boot(): Promise<void> {
     if (!replay) freshGifts(save, index);
     // From the base portal of the own mountain begun (docs/01-gdd.md 19.4): at the flag of its farthest ridge, as 6.6.
     const resume = how.resume ? { frontierWall: save.frontierWall ?? 0 } : undefined;
-    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world), walls: wallsOf(world), record: replay ? undefined : world.layout === 'openSlope' ? recordOf(world) : undefined, boss: game.threat.boss, events: eventsOptions(world), resume });
+    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world), walls: wallsOf(world), record: replay ? undefined : world.layout === 'openSlope' ? recordOf(world) : undefined, boss: game.threat.boss, events: eventsOptions(world), resume, padPay: padPayOf(world) });
     avalanche?.setLevel(level);
     wireSim(sim);
     g.sim = sim;
@@ -1119,8 +1126,9 @@ async function boot(): Promise<void> {
             mu: {
               nextName: model.next,
               ad: adsView && info.chest > 0 && !doubled
-                ? { text: t('summit.ad'), busy: adsView.busy === 'x2_chest', press: () => adsView?.chestAd(info.chest, () => {
-                    if (adsView?.busy === null && windows?.current === 'summit') doubled = true;
+                ? { text: t('summit.ad'), busy: adsView.busy === 'x2_chest', press: () => adsView?.chestAd(info.chest, (granted) => {
+                    // ST-07 (producer: «×2» went away after a failed load): gone only once the coins are given.
+                    if (granted && windows?.current === 'summit') doubled = true;
                     windows?.refresh();
                   }) }
                 : null,
@@ -1256,6 +1264,13 @@ async function boot(): Promise<void> {
               const wait = offer.wait > 0 ? { wait: t('daily.soon', { time: formatTimer(offer.wait) }) } : {};
               return { title: t('gifts.speed', { n: formatNumber(adsView.giftStat(), numSuffix) }), busy: adsView.busy === 'stat_now', ...wait };
             })(),
+            // ST-07 (Q-M4-1 B): «×2 per step · 3 min» beside it; grey with the boost's time while it runs.
+            boost: (() => {
+              const offer = adsView?.boostOffer();
+              if (!adsView || !offer) return null;
+              const wait = offer.run > 0 ? { wait: t('gifts.boostRun', { time: formatTimer(offer.run) }) } : offer.wait > 0 ? { wait: t('daily.soon', { time: formatTimer(offer.wait) }) } : {};
+              return { title: t('gifts.boost', { n: Math.round(balance.boost.x2Sec / 60) }), busy: adsView.busy === 'x2_stat', ...wait };
+            })(),
           },
           {
             claim: (i) => {
@@ -1268,6 +1283,7 @@ async function boot(): Promise<void> {
             },
             review: () => reviewGift(),
             ad: () => adsView?.giftAd(() => windows?.refresh()),
+            boostAd: () => adsView?.boostAd(() => windows?.refresh()),
           },
         ),
       { sub: t('gifts.sub'), size: 'cards' },
@@ -1532,6 +1548,8 @@ async function boot(): Promise<void> {
     while (sessionMarks.length > 0 && playSec >= sessionMarks[0]!) track(`session_${sessionMarks.shift()!}s`);
     questsView?.tick(dt);
     // The ×2 step boost runs on play seconds (stands on pause, survives F5; docs/01-gdd.md 9.1).
+    // ST-07 (Q-M4-1 B): the badge of the boost by the Speed while it runs.
+    hud?.setBoost((save.boostSec ?? 0) > 0 ? t('hud.boost', { time: formatTimer(save.boostSec!) }) : null);
     if ((save.boostSec ?? 0) > 0) {
       save.boostSec = Math.max(0, save.boostSec! - dt);
       if (save.boostSec === 0) {
@@ -1951,6 +1969,8 @@ async function boot(): Promise<void> {
         hud?.setCoins(formatNumber(n, numSuffix));
       },
       toShop: () => cosmeticsView?.openShop('steps'),
+      // ST-07: the sets for an ad through the common logic of the ads (app/ads-view.ts).
+      ...(adsView ? { rewarded: adsView.rewarded, adBusy: () => adsView?.busy ?? null } : {}),
     });
   const petsVisual = createPetsVisual(theme);
   gr.scene.add(petsVisual.group);
@@ -2278,7 +2298,13 @@ async function boot(): Promise<void> {
     seenAt.set(x, y, z).project(cameraRig.camera);
     return seenAt.z < 1 && Math.abs(seenAt.x) <= 1 && Math.abs(seenAt.y) <= 1;
   };
-  campView = createCampView({ aim, seen, getSim: () => sim, getWorld: () => g.world, hud, windows, save, levels: balance.levels, persist, numSuffix, trophyWallet: balance.upgrade.currency === 'trophies', shoesAffordable: () => shopAfford().shoes, onTrophies: (n) => hud.setTrophies(formatNumber(n, numSuffix)) });
+  campView = createCampView({ aim, seen, getSim: () => sim, getWorld: () => g.world, hud, windows, save, levels: balance.levels, persist, numSuffix, trophyWallet: balance.upgrade.currency === 'trophies', shoesAffordable: () => shopAfford().shoes, onTrophies: (n) => hud.setTrophies(formatNumber(n, numSuffix)),
+    // ST-01: the gift step and the portal step of the tutorial.
+    giftReady: () => questsView?.timeItem(muLayout)?.badge === '!',
+    basePortal: (world) => {
+      const p = onBase ? basePortals.find((q) => q.world === world) : undefined;
+      return p ? { x: p.x, y: 0, z: p.z } : null;
+    } });
   hud.setAutoRun(save.settings.autoRun);
   hud.setQuality(save.settings.quality);
   hud.setTouchMode(mobile);

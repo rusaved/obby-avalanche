@@ -197,7 +197,7 @@
       "down": 8,
       "bottom": 6,
       "up": 12,
-      "kick": 1,
+      "kick": 0,
       "depthByWorld": {
         "1": 4,
         "2": 4,
@@ -1369,12 +1369,12 @@
     "giantEveryRun": true,
     "giantLag": [
       0.4,
-      0.3,
+      0.27,
       0.25
     ],
     "giantLevel": {
       "g": [
-        1.13,
+        1.16,
         1.13,
         1.25
       ],
@@ -1385,27 +1385,27 @@
     "plan": [
       [
         "intro",
-        "giant",
-        "cracks",
-        "chute",
-        "plates",
-        "avalanche",
-        "catapult",
-        "throat",
-        "maze",
-        "plates"
-      ],
-      [
         "dips",
         "giant",
         "cracks",
-        "plates",
-        "chute",
         "avalanche",
-        "throat",
+        "plates",
+        "ice",
         "maze",
+        "throat",
+        "chute"
+      ],
+      [
+        "stairs",
+        "plates",
+        "catapult",
+        "cracks",
+        "giant",
+        "avalanche",
+        "dips",
         "blizzard",
-        "plates"
+        "maze",
+        "chute"
       ],
       [
         "dips",
@@ -1524,6 +1524,40 @@
         "blizzard",
         "plates"
       ]
-    ]
+    ],
+    "waves": [
+      [
+        "easy",
+        "easy",
+        "mid",
+        "hard",
+        "mid",
+        "mid",
+        "easy",
+        "veryHard",
+        "veryHard",
+        "veryEasy"
+      ],
+      [
+        "easy",
+        "mid",
+        "hard",
+        "hard",
+        "mid",
+        "easy",
+        "easy",
+        "veryHard",
+        "veryHard",
+        "veryEasy"
+      ]
+    ],
+    "tierAdd": {
+      "veryEasy": -2,
+      "easy": -1,
+      "mid": 0,
+      "hard": 1,
+      "veryHard": 2
+    },
+    "stairsRise": 0.8
   }
 }

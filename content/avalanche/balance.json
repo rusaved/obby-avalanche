@@ -55,6 +55,8 @@
     "skipGate": { "cooldownSec": 480, "standSec": 2, "distance": 20, "excludeLastWall": true },
     "eggViews": 1,
     "eggPauseSec": 30,
+    "eggPerDay": 5,
+    "afterRollSec": 10,
     "skipFirstPortal": true,
     "wheelCooldownSec": 600
   },

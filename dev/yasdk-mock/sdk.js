@@ -44,7 +44,9 @@
   // an ad for 3 s and the sticky banner on the right; e2e keep 1.5 s and no banner unless asked (?mock_ad_ms, ?mock_banner).
   var PAGES = !!root.__YA_MOCK_PAGES__;
   var AD_SHOW_MS = Number(cfg.mock_ad_ms) || (PAGES ? 3000 : 1500);
-  var BANNER_ON = cfg.mock_banner !== undefined ? cfg.mock_banner === '1' : PAGES;
+  // ST-07 (producer 22.10, Q-M4-3 B): on a phone (a coarse pointer) the link shows no banner stub — only on a desktop.
+  var PHONE = !!(root.matchMedia && root.matchMedia('(pointer: coarse)').matches);
+  var BANNER_ON = cfg.mock_banner !== undefined ? cfg.mock_banner === '1' : PAGES && !PHONE;
   var BANNER_W = 160;
   var AD_SLOW_OPEN_MS = 5000;
   var STARTUP_AD_MS = Number(cfg.mock_startup_ad_ms) || 2000;

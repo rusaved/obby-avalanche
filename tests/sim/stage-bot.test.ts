@@ -142,7 +142,8 @@ function runStage(w: World, st: WorldStage, seed: number, below = 0): Outcome {
 }
 
 describe('the stage bot at the level of the ridge (LV-02, LV-03)', () => {
-  for (const mi of [0, 4]) {
+  // ST-03: mountain 2 too (its own trials: the stairs, the catapult, the blizzard).
+  for (const mi of [0, 1, 4]) {
     const w = worlds.worlds[mi]!;
     // The giant's stage — its own bots below (SD-12).
     for (const st of w.stages!.filter((s) => s.type !== 'intro' && s.type !== 'giant')) {

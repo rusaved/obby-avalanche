@@ -168,6 +168,8 @@ export type Reward =
 export type DailyReward = Reward & { alt?: Reward };
 
 export interface BalanceJson {
+  /** ST-06: the times a stage pad pays in a life (meta/trophies.ts padPays); absent — always. */
+  stagePads?: { takes: number };
   stepLength: number;
   gainPerStep: number;
   gainTrigger: 'step';
@@ -219,6 +221,10 @@ export interface BalanceJson {
     continueShowSec?: number;
     /** Stages pace (docs/01-gdd.md 22.9): «Continue from stage N» shows this long after a roll-back; absent — 60. */
     stageContinueSec?: number;
+    /** ST-07: no fullscreen ad this long after a roll-back (the snowball popped); absent — 0. */
+    afterRollSec?: number;
+    /** ST-07: eggs for an ad a day at most; absent — no cap. */
+    eggPerDay?: number;
     eggViews: number;
     eggPauseSec: number;
     skipFirstPortal: boolean;
@@ -666,7 +672,10 @@ export interface World {
 }
 
 /** Types of a stage (docs/01-gdd.md 22.5); `intro` — the first minute of mountain 1 as built (22.1). */
-export type StageType = 'intro' | 'dips' | 'cracks' | 'giant' | 'plates' | 'catapult' | 'chute' | 'throat' | 'avalanche' | 'blizzard' | 'maze';
+export type StageType = 'intro' | 'dips' | 'cracks' | 'giant' | 'plates' | 'catapult' | 'chute' | 'throat' | 'avalanche' | 'blizzard' | 'maze' | 'ice' | 'stairs';
+
+/** ST-02 (wave of difficulty, producer 22.10): the tier of a stage — the number of its pieces goes by it (StageSpec.tierAdd). */
+export type StageTier = 'veryEasy' | 'easy' | 'mid' | 'hard' | 'veryHard';
 
 /** The maze of a cave stage (docs/01-gdd.md 22.7): a grid of cells, open edges between them, the way in and the exits. */
 export interface StageMaze {
@@ -701,6 +710,8 @@ export interface WorldStage {
   /** The shortcut of 1.3× speed (docs/01-gdd.md 22.4): a long jump to the golden snowflake; absent — none on this stage. */
   cut?: { gap: number; x: number; z: number };
   maze?: StageMaze;
+  /** ST-02: the tier of the stage in the wave of its mountain (StageSpec.waves); absent — no wave on this mountain. */
+  tier?: StageTier;
 }
 
 export type WorldLayout = 'classic' | 'gateSide' | 'openSlope';
@@ -1088,5 +1099,11 @@ export interface StageSpec {
   gateK?: number;
   /** The stages of each mountain in order (the types of 22.5). */
   plan: StageType[][];
+  /** ST-02 (producer 22.10): the tier of every stage, by mountain (a mountain without one keeps the order rules of 22.5). */
+  waves?: StageTier[][];
+  /** ST-02: pieces of a trial (cracks, plates, dips, steps, legs) added by its tier; absent tier — 0. */
+  tierAdd?: Partial<Record<StageTier, number>>;
+  /** ST-02: the rise of a step of the stairs stage (RL-05 stairs) — under controller.stepUp it is walked up from the edge. */
+  stairsRise?: number;
 }
 

@@ -1,4 +1,5 @@
 {
+  "stagePads": { "takes": 3 },
   "speedCurve": {
     "k": 0.55,
     "max": 120

@@ -67,7 +67,7 @@ export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, BossEvent
   /** The stat crossed a round number of balance.ui.statMilestones for the first time in this load (M2-13, no analytics). */
   statMilestone: { tick: number; value: number };
   /** A trophy button taken (docs/01-gdd.md 22.8): the stage, the trophies (coins of the stages pace) and the total. */
-  trophyTake: { tick: number; stage: number; amount: number; x: number; y: number; z: number; total: number; trophies: boolean };
+  trophyTake: { tick: number; stage: number; amount: number; x: number; y: number; z: number; total: number; trophies: boolean; spent?: boolean };
   /** SD-03 (docs/01-gdd.md 23.3): after the trophies of a stage the hero is back in the camp — a new run. */
   campReturn: { tick: number; stage: number };
   /** A gift touched: `coins` added (zone gift × wallScale[tier]), `total` is the coin balance after it; `path` — a gift on the path. */
@@ -209,6 +209,8 @@ export interface SimOptions {
   events?: { cfg: GameEvents; seed: number; force?: EventId | undefined } | undefined;
   /** The giant (game.json threat.boss): with the zones of the level the mountain has giants. */
   boss?: { margin: number; reach: number; run?: number | undefined } | undefined;
+  /** ST-06: whether the pad of stage n still pays this time (meta/trophies.ts padPays); absent — always. The flight to the camp stays. */
+  padPay?: ((stage: number) => boolean) | undefined;
 }
 
 /** Half side of the trophy button square the hero stands in to take it (docs/01-gdd.md 22.8; the pad is 6 × 6). */
@@ -567,11 +569,13 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         if (hero.pos.z < st.z0) padTaken[k] = false;
         else if (!padTaken[k] && st.trophies > 0 && hero.onGround && Math.abs(hero.pos.x - st.pad.x) <= PAD_REACH && Math.abs(hero.pos.z - st.pad.z) <= PAD_REACH && Math.abs(hero.pos.y - st.pad.y) < 2) {
           padTaken[k] = true;
-          const amount = scaled(st.trophies, tier, opts.balance.rebirth);
+          // ST-06 (producer 22.10: the first stage farmed for ever): a pad taken its number of times pays nothing, the flight stays.
+          const spent = opts.padPay ? !opts.padPay(st.n) : false;
+          const amount = spent ? 0 : scaled(st.trophies, tier, opts.balance.rebirth);
           campIn = CAMP_RETURN_TICKS;
           campFrom = st.n;
           if (!padsPayTrophies) sim.coins += amount;
-          events.emit('trophyTake', { tick: sim.tick, stage: st.n, amount, x: st.pad.x, y: st.pad.y, z: st.pad.z, total: sim.coins, trophies: padsPayTrophies });
+          events.emit('trophyTake', { tick: sim.tick, stage: st.n, amount, x: st.pad.x, y: st.pad.y, z: st.pad.z, total: sim.coins, trophies: padsPayTrophies, ...(spent ? { spent } : {}) });
         }
       }
       if (campIn > 0 && --campIn === 0 && !sim.caught) {
