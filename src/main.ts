@@ -1245,7 +1245,12 @@ async function boot(): Promise<void> {
             groups: community.length > 0 ? { ids: community.map(([id]) => id), sub: visitGift ? t(visitGift.kind === 'egg' ? 'gifts.visit' : 'gifts.visitCoins') : '' } : null,
             // MU round 3 (D19): the card only while the platform can ask for a review — «Rate» always a live button.
             review: communityGifts.review && !giftFlag('giftReview') && reviewCan === true ? { sub: t('gifts.reviewSub'), can: true } : null,
-            ad: adsView ? { title: t('gifts.speed', { n: formatNumber(adsView.giftStat(), numSuffix) }), busy: adsView.busy === 'stat_now' } : null,
+            ad: (() => {
+              const offer = adsView?.giftOffer();
+              if (!adsView || !offer) return null;
+              const wait = offer.wait > 0 ? { wait: t('daily.soon', { time: formatTimer(offer.wait) }) } : {};
+              return { title: t('gifts.speed', { n: formatNumber(adsView.giftStat(), numSuffix) }), busy: adsView.busy === 'stat_now', ...wait };
+            })(),
           },
           {
             claim: (i) => {

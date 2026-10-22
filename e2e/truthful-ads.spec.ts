@@ -22,6 +22,8 @@ async function start(page: Page, openGame: (q?: string) => Promise<void>): Promi
   await page.evaluate(() => {
     const t = window.__TEST__!;
     t.setPlaySec(400);
+    // M4 review: the ad of «Gifts» by the common rules — past the first avalanche.
+    t.setFlag('firstWaveDone', true);
     t.holdWave(9000);
     t.setStat(5000);
     const seen: string[] = [];

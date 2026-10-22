@@ -19,6 +19,8 @@ async function start(page: Page, openGame: (q?: string) => Promise<void>, mode: 
   await page.evaluate(() => {
     const t = window.__TEST__!;
     t.setPlaySec(400);
+    // M4 review: the ad of «Gifts» by the common rules — past the first avalanche.
+    t.setFlag('firstWaveDone', true);
     t.holdWave(9000);
     t.setStat(5000);
   });
@@ -89,4 +91,28 @@ test('ADS-05 a late onRewarded after the 10 s watchdog: the toast «unavailable�
   expect(await page.evaluate(() => window.__TEST__!.state().stat)).toBe(once);
   await page.keyboard.press('Escape');
   await goesOn(page, 'late');
+});
+
+test('M4 review: the ad of «Gifts» waits for the first avalanche, then rests ads.statNowCooldownSec after a view', async ({ page, openGame }) => {
+  test.setTimeout(90_000);
+  await openGame('pace=stages&mock_fullscreen=deny');
+  const { width, height } = page.viewportSize()!;
+  await page.evaluate(() => {
+    window.__TEST__!.setPlaySec(400);
+    window.__TEST__!.holdWave(9000);
+  });
+  await page.touchscreen.tap(width / 2, height / 2);
+  await tap(page, 'gift');
+  await expect(page.locator('[data-role="window"].open')).toHaveCount(1);
+  await expect(page.locator('[data-hud="gift-ad"]'), 'before the first avalanche: no ad').toHaveCount(0);
+  await page.keyboard.press('Escape');
+  await expect(page.locator('[data-role="window"].open')).toHaveCount(0);
+  await page.evaluate(() => window.__TEST__!.setFlag('firstWaveDone', true));
+  await page.waitForTimeout(500);
+  await tap(page, 'gift');
+  await expect(page.locator('[data-role="window"].open')).toHaveCount(1);
+  await page.locator('[data-role="window"].open [data-hud="gift-ad"]').click();
+  await expect.poll(() => resumed(page, 'rewarded'), { timeout: 20_000 }).toBe(1);
+  await expect(page.locator('[data-hud="gift-ad"]')).toBeDisabled();
+  await expect(page.locator('[data-role="window"].open .gf-card', { has: page.locator('[data-hud="gift-ad"]') })).toContainText(/через \d/);
 });

@@ -67,6 +67,9 @@ export interface AdsView {
   press(id: string): void;
   /** MU-07 (w1-gifts): the Speed of «+N Speed · Ad» of the «Gifts» window — a belt run of the best belt of the mountain. */
   giftStat(): number;
+  /** M4 review (game designer: the ad of «Gifts» had no pause and no common rules): null — not offered yet (60 s of play,
+   * the first avalanche); `wait` — seconds of its pause left (ads.statNowCooldownSec, shared with stat_now of the HUD). */
+  giftOffer(): { wait: number } | null;
   /** MU-07: that ad (place stat_now); `done` — after any outcome (the window re-renders). */
   giftAd(done: () => void): void;
   /** MU-07 (w5-summit): «Ad: ×2» by the chest (place x2_chest) — `coins` once more on `rewarded`. */
@@ -164,7 +167,14 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       seen('stat_now');
       return giftStat(d.getSim());
     },
+    giftOffer() {
+      const common = now >= ads.rewardedMinPlaySec && (d.save.flags?.['firstWaveDone'] ?? false);
+      if (!common) return null;
+      return { wait: Math.max(0, ads.statNowCooldownSec - (now - (lastAt.get('stat_now') ?? -Infinity))) };
+    },
     giftAd(done) {
+      const offer = view.giftOffer();
+      if (!offer || offer.wait > 0) return;
       const amount = giftStat(d.getSim());
       rewardAd('stat_now', () => {
         d.getSim().progress.stat += amount;
@@ -192,6 +202,8 @@ export function createAdsView(d: AdsViewDeps): AdsView {
         !(firstPortal && ads.skipFirstPortal) &&
         !busy &&
         !(d.noAds?.() ?? false) &&
+        // Never right after «Snowed in!» — not while the snowball rolls (docs/03 2.2).
+        !sim.caught &&
         // Never on the warning or while the avalanche runs (docs/01-gdd.md 9.2).
         phase !== 'warn' &&
         phase !== 'run' &&

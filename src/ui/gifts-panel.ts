@@ -26,7 +26,8 @@ export interface GiftsPanelModel {
   /** «Chest for a review»: null — no card. */
   review: { sub: string; can: boolean } | null;
   /** «+N Speed» for an ad: null — no card. */
-  ad: { title: string; busy: boolean } | null;
+  /** `wait` — M4 review (game designer): the pause between these ads, «in 3:20» under the title, the button off. */
+  ad: { title: string; busy: boolean; wait?: string } | null;
 }
 
 export interface GiftsPanelActions {
@@ -69,7 +70,7 @@ export function renderGiftsPanel(body: HTMLElement, m: GiftsPanelModel, a: Gifts
     } else tile.appendChild(el('span', 'gf-timer', x.state === 'got' ? t('time.got') : x.timer));
     tiles.appendChild(tile);
   }
-  body.appendChild(tiles);
+  // M4 review (07 rule 13: no ad in the lower third of a window): the cards with the ad come first, the timers under them.
   const cards = el('div', 'gf-cards');
   if (m.groups) {
     const c = el('div', 'card gf-card gf-groups');
@@ -94,14 +95,14 @@ export function renderGiftsPanel(body: HTMLElement, m: GiftsPanelModel, a: Gifts
   }
   if (m.ad) {
     const c = el('div', 'card gf-card');
-    c.append(el('span', 'card-name', m.ad.title), el('span', 'card-sub', t('gifts.forAd')));
+    c.append(el('span', 'card-name', m.ad.title), el('span', 'card-sub', m.ad.wait ?? t('gifts.forAd')));
     const b = el('button', 'card-btn quiet');
     b.dataset['hud'] = 'gift-ad';
     setRich(b, t('gifts.ad'));
-    b.disabled = m.ad.busy;
+    b.disabled = m.ad.busy || m.ad.wait !== undefined;
     b.addEventListener('click', () => a.ad());
     c.appendChild(b);
     cards.appendChild(c);
   }
-  body.appendChild(cards);
+  body.append(cards, tiles);
 }
