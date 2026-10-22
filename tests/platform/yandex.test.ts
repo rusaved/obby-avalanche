@@ -139,4 +139,27 @@ describe('YandexPlatform', () => {
     f.sdk.getFlags.mockRejectedValueOnce(new Error('x'));
     expect(await p.getFlags({ a: '1' })).toEqual({ a: '1' });
   });
+
+  it('M4-06 setScore: none for a player not signed in; signed in — at once, then not oftener than once in 5 s (the latest)', async () => {
+    const f = fakeSdk();
+    const setScore = vi.fn(async () => {});
+    (f.sdk as unknown as { leaderboards: unknown }).leaderboards = { setScore };
+    (f.sdk as unknown as { isAvailableMethod: unknown }).isAvailableMethod = async () => true;
+    const p = new YandexPlatform({ ...opts, leaderboardName: 'trophies' }, { yaGames: { init: async () => f.sdk as never } });
+    await p.init();
+    await p.submitScore(10);
+    await vi.advanceTimersByTimeAsync(6000);
+    expect(setScore).not.toHaveBeenCalled();
+    f.player.getMode = () => '';
+    await p.submitScore(11);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(setScore).toHaveBeenCalledTimes(1);
+    await p.submitScore(12);
+    await p.submitScore(13);
+    await vi.advanceTimersByTimeAsync(4000);
+    expect(setScore).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1100);
+    expect(setScore).toHaveBeenCalledTimes(2);
+    expect(setScore.mock.calls[1]).toEqual(['trophies', 13]);
+  });
 });

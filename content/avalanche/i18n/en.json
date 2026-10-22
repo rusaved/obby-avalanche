@@ -413,6 +413,8 @@
   "records.trophiesTotal": "Trophies total",
   "records.summits": "Summits {a}/{b}",
   "records.tier": "Tier {n}",
+  "records.login": "Sign in",
+  "records.loginWhy": "Sign in to get your trophies into the table",
   "records.loading": "Loading",
   "btn.shortcut": "Desktop shortcut: +{n}",
   "toast.shortcutOk": "Shortcut added! +{n} {trophy}",

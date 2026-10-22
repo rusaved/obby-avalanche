@@ -413,6 +413,8 @@
   "records.trophiesTotal": "Кубков всего",
   "records.summits": "Вершины {a}/{b}",
   "records.tier": "Ступень {n}",
+  "records.login": "Войти",
+  "records.loginWhy": "Войди, чтобы твои кубки попали в таблицу",
   "records.loading": "Загрузка",
   "btn.shortcut": "Ярлык на рабочий стол: +{n}",
   "toast.shortcutOk": "Ярлык готов! +{n} {trophy}",

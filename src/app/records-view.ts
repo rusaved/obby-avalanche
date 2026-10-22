@@ -18,6 +18,9 @@ export interface RecordsViewDeps {
   leaderboard: boolean;
   topScores(n: number): Promise<LeaderEntry[] | null>;
   numSuffix(k: string): string;
+  /** M4-06 (docs/02-tech.md 11.7): the player signed in — his trophies go to the table; else «Sign in» with its reason. */
+  authorized?(): boolean;
+  signIn?(): Promise<boolean>;
 }
 
 export interface RecordsView {
@@ -47,6 +50,20 @@ export function createRecordsView(d: RecordsViewDeps): RecordsView {
         list.appendChild(line);
       }
     body.appendChild(list);
+    // M4-06: only a signed-in player is in the table — «Sign in» with what it gives, by the button only.
+    if (d.authorized && !d.authorized()) {
+      const row = document.createElement('div');
+      row.className = 'rb-hint records-login';
+      const why = document.createElement('span');
+      why.textContent = t('records.loginWhy');
+      const b = document.createElement('button');
+      b.className = 'card-btn';
+      b.dataset['hud'] = 'records-login';
+      b.textContent = t('records.login');
+      b.addEventListener('click', () => void d.signIn?.().then(() => d.windows.current === 'records' && d.windows.refresh()));
+      row.append(why, b);
+      body.appendChild(row);
+    }
   };
   const view: RecordsView = {
     get available() {

@@ -54,6 +54,12 @@ export class NullPlatform implements Platform {
     return { shown: false };
   }
 
+  readonly authorized = false;
+
+  async signIn(): Promise<boolean> {
+    return false;
+  }
+
   async showRewarded(): Promise<{ rewarded: boolean; error?: string }> {
     return { rewarded: false, error: 'unavailable' };
   }

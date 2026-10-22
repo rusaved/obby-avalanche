@@ -33,7 +33,12 @@ export interface Platform {
   loadSave(): Promise<SaveData | null>;
   markDirty(data: SaveData, opts?: { flush?: boolean }): void;
   flushNow(): Promise<void>;
+  /** M4-06 (docs/02-tech.md 11.7): only for a player who signed in, not oftener than once in 5 s (the latest waits). */
   submitScore(score: number): Promise<void>;
+  /** M4-06: the player signed in on Yandex (setScore needs it). */
+  readonly authorized: boolean;
+  /** M4-06: the sign-in dialog of the platform (the «Sign in» button); true — signed in now. Never throws. */
+  signIn(): Promise<boolean>;
   topScores(n: number): Promise<LeaderEntry[] | null>;
   maybeRequestReview(trigger: string): Promise<void>;
   /** Desktop shortcut (docs/01-gdd.md 19.10; 03 SDK-08): the platform can offer it now. Never throws (false). */

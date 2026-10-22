@@ -1597,7 +1597,7 @@
     "milestone": "M4",
     "description": "Таблица рекордов по кубкам за флагом game.json.leaderboard: запись только у авторизованных, кнопка «Войти», setScore не чаще раза в 5 с (GDD-16)",
     "acceptance": "e2e на моке: без ?mock_auth=1 нет вызовов setScore и есть кнопка «Войти»; с авторизацией отправка на вершине и при перерождении, не чаще раза в 5 с; при пустом поле leaderboard кнопки «Рекорды» нет и вызовов лидерборда нет; ошибка, 404 или 3 с без ответа getEntries → кнопки «Рекорды» нет до конца сессии, окна нет",
-    "passes": false,
+    "passes": true,
     "priority": "P1",
     "deferred": false
   },
@@ -1615,7 +1615,7 @@
     "milestone": "M4",
     "description": "Локализация ru и en: все ключи docs/01a-content.md, раздел 11, язык из SDK, ?mock_lang=en, числа по языку (GDD-13)",
     "acceptance": "Vitest: ключи и плейсхолдеры ru.json и en.json совпадают, в en нет кириллицы, пустых строк нет; e2e (LOC-): у кнопок нет переполнения (scrollWidth ≤ clientWidth) на 640×360 в обоих языках; скриншоты всех ключевых экранов ru и en в docs/evidence/M4/",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
@@ -1633,7 +1633,7 @@
     "milestone": "M4",
     "description": "Сценарии модерации docs/03-yandex-compliance.md, 7.1.5: «Назад» браузера, смена вкладки, правый клик и долгий тап, клавиши в русской раскладке, нет WebGL2, потеря и восстановление WebGL-контекста",
     "acceptance": "moderation.spec.ts зелёный, имена тестов с ID пунктов 03; без WebGL2 показывается нейтральная заставка без ошибок консоли; после WEBGL_lose_context и восстановления игра снова рисует и управляется",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

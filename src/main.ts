@@ -676,6 +676,8 @@ async function boot(): Promise<void> {
       // Trophies of the summit g × (1 + n) (docs/01-gdd.md 8.1): to spend and over all time (the leaderboard, 7.9).
       const trophies = summitTrophies(balance, from, s.tier);
       addTrophies(save, trophies);
+      // M4-06 (docs/01-gdd.md 7.9): the trophies over all time to the table on a summit (signed in, a leaderboard on).
+      void platform.submitScore(save.trophiesTotal ?? 0);
       // The summit chest (docs/01-gdd.md 5.2, 8.1): its coins × wallScale[n], shown in the window.
       const chestAt = s.level.points.find((p) => p.type === 'chest');
       const chest = scaled(Number(chestAt?.['coins'] ?? 0), s.tier, balance.rebirth);
@@ -1425,6 +1427,8 @@ async function boot(): Promise<void> {
     ui.appendChild(flash);
     setTimeout(() => flash.remove(), 1000);
     if (r.tier === 1) trackOnce('rebirth_1', { rebirth: r.tier });
+    // M4-06: and on a rebirth.
+    void platform.submitScore(save.trophiesTotal ?? 0);
     persist(true);
   };
 
@@ -2038,7 +2042,14 @@ async function boot(): Promise<void> {
       egg: egg !== null && sim.coins >= eggPrice(egg, sim.tier, balance.rebirth),
     };
   };
-  recordsView = createRecordsView({ windows, leaderboard: platformOpts.leaderboardName !== '', topScores: (n) => platform.topScores(n), numSuffix });
+  recordsView = createRecordsView({
+    windows,
+    leaderboard: platformOpts.leaderboardName !== '',
+    topScores: (n) => platform.topScores(n),
+    numSuffix,
+    authorized: () => platform.authorized,
+    signIn: () => platform.signIn(),
+  });
   standsView = createStandsView({
     getSim: () => sim,
     hud,

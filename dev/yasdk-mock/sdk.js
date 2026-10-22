@@ -392,6 +392,14 @@
       canReview: function () { record('feedback.canReview'); return Promise.resolve(reviewMode === 'unavailable' ? { value: false, reason: 'GAME_RATED' } : { value: true }); },
       requestReview: function () { record('feedback.requestReview'); return Promise.resolve({ feedbackSent: reviewMode === 'sent' }); },
     },
+    // M4-06: ?mock_auth_dialog=ok — the dialog signs the player in; otherwise it is closed.
+    auth: {
+      openAuthDialog: function () {
+        record('auth.openAuthDialog');
+        if (cfg.mock_auth_dialog === 'ok') { authorized = true; return Promise.resolve(); }
+        return Promise.reject(new Error('yasdk-mock: auth dialog closed'));
+      },
+    },
     clipboard: { writeText: function (text) { record('clipboard.writeText', [text]); } },
     // ?mock_fullscreen=deny (MU round 3): the whole screen refused. Otherwise the page itself goes whole, as the platform
     // does with the game's frame — the producer's link runs this mock on a phone.

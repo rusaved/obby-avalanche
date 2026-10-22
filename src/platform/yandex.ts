@@ -14,7 +14,9 @@ import { mapLang, type DeviceType, type Lang, type LeaderEntry, type Platform, t
 /** How long YaGames.init() may take before the `sdk_init_slow` event (docs/02-tech.md 11.2); init itself is never cut. */
 export const SDK_SLOW_INIT_MS = 8000;
 /** Ad watchdog (docs/02-tech.md 11.4): no callback at all for this long → the game goes on. */
-export const AD_WATCHDOG_MS = 10000;
+export /** M4-06 (docs/02-tech.md 11.7): setScore not oftener than this. */
+const SCORE_GAP_MS = 5000;
+const AD_WATCHDOG_MS = 10000;
 /** Retry delay after a failed init (11.2). */
 export const INIT_RETRY_MS = 1000;
 
@@ -43,6 +45,10 @@ export class YandexPlatform implements Platform {
   private startupAd: 'none' | 'open' | 'done' = 'none';
   /** M4-03 (GDD-05; docs/02-tech.md 11.5): every ad call has its own requestId — a late callback counts for its own only. */
   private adSeq = 0;
+  /** M4-06: the last setScore sent (ms), the score waiting for its turn and its timer. */
+  private scoreAt = -Infinity;
+  private scoreNext: number | null = null;
+  private scoreTimer: ReturnType<typeof setTimeout> | null = null;
   private pauseCbs: Array<() => void> = [];
   private resumeCbs: Array<() => void> = [];
   /** Cloud writes (11.6): debounce, token bucket and retries on the platform clock. */
@@ -275,11 +281,44 @@ export class YandexPlatform implements Platform {
     await this.cloud.flush();
   }
 
+  get authorized(): boolean {
+    try {
+      return this.player?.getMode() === '';
+    } catch {
+      return false;
+    }
+  }
+
+  async signIn(): Promise<boolean> {
+    if (!this.sdk) return false;
+    try {
+      await this.sdk.auth.openAuthDialog();
+      this.player = await this.sdk.getPlayer({ signed: false });
+    } catch (err) {
+      log.debug('auth dialog closed', err);
+    }
+    return this.authorized;
+  }
+
   async submitScore(score: number): Promise<void> {
     const name = this.opts.leaderboardName;
-    if (!name || !this.sdk) return;
+    if (!name || !this.sdk || !this.authorized) return;
+    // Not oftener than once in SCORE_GAP_MS (the Yandex limit is once a second): the latest score waits for its turn.
+    this.scoreNext = Math.floor(score);
+    if (this.scoreTimer) return;
+    const wait = Math.max(0, this.scoreAt + SCORE_GAP_MS - Date.now());
+    this.scoreTimer = setTimeout(() => void this.sendScore(name), wait);
+  }
+
+  private async sendScore(name: string): Promise<void> {
+    this.scoreTimer = null;
+    const score = this.scoreNext;
+    if (score === null || !this.sdk) return;
+    this.scoreNext = null;
+    this.scoreAt = Date.now();
     try {
-      await this.sdk.leaderboards.setScore(name, Math.floor(score));
+      if (!(await this.sdk.isAvailableMethod('leaderboards.setScore'))) return;
+      await this.sdk.leaderboards.setScore(name, score);
     } catch (err) {
       log.warn('setScore failed', err);
     }
