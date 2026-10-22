@@ -626,12 +626,17 @@ async function boot(): Promise<void> {
       hud?.toast(t('wave.firstMiss'), 3);
     });
     // «Snowed in!» (M2-07, docs/01-gdd.md 4.5): toast; the ball and the pose follow sim.caught in renderFrame.
-    s.events.on('waveCaught', () => hud?.toast(t('wave.caught')));
+    // M4-R2 (producer 22.10): one outcome per wave — snowed in or rolled back drops a «Phew» still waiting for the snow.
+    s.events.on('waveCaught', () => {
+      survivedShow = null;
+      hud?.toast(t('wave.caught'));
+    });
     // RL-02 (docs/01-gdd.md 21.2): a fall rolls him back to the flag of the ridge (caught.to «flag») — a short toast.
     s.events.on('fall', () => {
       // SD-09: on the stages pace the roll-back goes to a stage start, not to a flag.
       // MU round 5: said only when he really goes back — a roll to where he stands is no «back».
       const c = s.caught;
+      if (c) survivedShow = null;
       if (c && Math.hypot(c.to.x - c.from.x, c.to.z - c.from.z) > 1) hud?.toast(t(s.level.stages ? 'toast.fallBackStage' : 'toast.fallBack'), 2);
     });
     s.events.on('waveEnd', ({ scripted, outcome }) => {
@@ -2074,7 +2079,23 @@ async function boot(): Promise<void> {
     onLook: () => cosmeticsView?.syncHero(),
     onBoost: () => meta?.apply(),
   });
-  dailyView = createDailyView({ balance, save, hud, windows, rewards, now: () => platform.serverTime(), track, persist, onNewDay: () => questsView?.refresh() });
+  dailyView = createDailyView({
+    balance,
+    save,
+    hud,
+    windows,
+    rewards,
+    now: () => platform.serverTime(),
+    track,
+    persist,
+    onNewDay: () => questsView?.refresh(),
+    numSuffix,
+    // M4-R4: a set of steps the calendar gives on its day — named on that day's card too.
+    dayExtra: (day) => {
+      const set = sfx.footsteps?.sets.find((s) => s.unlock === 'daily' && s.day === day);
+      return set ? t('daily.steps', { name: t(`footsteps.set.${set.id}`) }) : null;
+    },
+  });
   dailyView.tick(true);
   // Quests, time rewards and the wheel (docs/01-gdd.md 7.7, 7.8, 7.13): the game day of the calendar.
   questsView = createQuestsView({

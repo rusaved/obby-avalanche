@@ -59,8 +59,15 @@ async function windowProblems(page: Page, height: number): Promise<string[]> {
     }
     const range = document.createRange();
     const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT);
+    // M4-R3 (Q-MU-18 Б): a row of a list with no control in it may peek under the edge by its top 16 px, its lines cut.
+    const LISTS = '.win-grid, .foot-grid, .qs-list, .gf-cards, .gf-tiles, .dl-cards, .tr-grid, .rb-cols, .pause-grid, .more-grid, .tp-list';
+    const peeking = Array.from(body.querySelectorAll<HTMLElement>(`:scope :is(${LISTS}) > *`)).filter((u) => {
+      if (u.matches(`:is(${LISTS}), button, input, select`) || u.querySelector('button, input, select')) return false;
+      const r = u.getBoundingClientRect();
+      return r.top < b.bottom - 0.5 && r.bottom > b.bottom + 0.5 && b.bottom - r.top <= 16.5;
+    });
     for (let n = walker.nextNode(); n; n = walker.nextNode()) {
-      if (!(n.textContent ?? '').trim()) continue;
+      if (!(n.textContent ?? '').trim() || peeking.some((u) => u.contains(n))) continue;
       range.selectNodeContents(n);
       for (const r of Array.from(range.getClientRects())) {
         if (r.height > 0 && r.top < b.bottom - 0.5 && r.bottom > b.bottom + 0.5) out.push(`line cut by the edge: ${(n.textContent ?? '').trim().slice(0, 24)}`);
@@ -166,12 +173,18 @@ test('«Quests»: «For all three» without scrolling; «Shop → Sneakers»: th
     return { bottom: body.bottom, firstBottom: Math.max(...first), second: tops[1] ?? Infinity };
   });
   expect(rows.firstBottom, 'the first row whole').toBeLessThanOrEqual(rows.bottom + 0.5);
-  // MU round 4 (producer 20.10): a card whole or not seen — the second row is not cut by the edge (whole or under it).
-  const second = await page.evaluate(() => {
+  // MU round 4 (producer 20.10): a card with a button whole or not seen; M4-R3 (Q-MU-18 Б): a card with no button may
+  // peek by its top 16 px at most.
+  const cut = await page.evaluate(() => {
     const body = document.querySelector('[data-role="window"].open .win-body')!.getBoundingClientRect();
-    return Array.from(document.querySelectorAll('[data-role="window"].open [data-role="shop-grid"] .card')).map((c) => c.getBoundingClientRect()).filter((r) => r.top < body.bottom - 0.5 && r.bottom > body.bottom + 0.5).length;
+    return Array.from(document.querySelectorAll<HTMLElement>('[data-role="window"].open [data-role="shop-grid"] .card'))
+      .filter((c) => { const r = c.getBoundingClientRect(); return r.top < body.bottom - 0.5 && r.bottom > body.bottom + 0.5; })
+      .map((c) => ({ button: !!c.querySelector('button'), seen: body.bottom - c.getBoundingClientRect().top }));
   });
-  expect(second, 'no card cut by the edge').toBe(0);
+  for (const c of cut) {
+    expect(c.button, 'no card with a button cut by the edge').toBe(false);
+    expect(c.seen, 'a plain card peeks ≤ 16 px').toBeLessThanOrEqual(16.5);
+  }
 });
 
 test('the sets of steps («Shop → Steps», «Footsteps») show their first row whole; «Take» of «Calendar» in sight at 130 %', async ({ page, openGame }) => {

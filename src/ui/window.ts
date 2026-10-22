@@ -87,6 +87,9 @@ const ICON_OF: Record<string, string> = {
 const EDGE_GAP = 1;
 /** …and never comes higher than this (one row of 44 px): a middle that cannot keep it scrolls as it is. */
 const EDGE_MIN = 44;
+/** Q-MU-18 Б (producer 22.10): under the edge the next row of a list with no control in it peeks this much at most —
+ * the sign the list scrolls. */
+const PEEK_MAX = 16;
 /** MU round 4: the lists of the middle — their items are its cards and rows (the same as the snap rows, styles.css). */
 const LISTS = '.win-grid, .foot-grid, .qs-list, .gf-cards, .gf-tiles, .dl-cards, .tr-grid, .rb-cols, .pause-grid, .more-grid, .tp-list';
 /** The shortest bar of the rail (px). */
@@ -188,17 +191,29 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
   };
   /** Line boxes of the text, the boxes of the controls and of the cards with a control in the middle, in its scroll
    * coordinates. */
-  const atoms = (): { lines: Array<[number, number]>; controls: Array<[number, number]>; cards: Array<[number, number]> } => {
+  const atoms = (): { lines: Array<[number, number]>; own: Array<[number, number]>; controls: Array<[number, number]>; cards: Array<[number, number]>; plain: Array<[number, number]> } => {
     const base = body.getBoundingClientRect().top - body.scrollTop;
     const lines: Array<[number, number]> = [];
     const controls: Array<[number, number]> = [];
     // MU round 4 (producer 20.10: «Buy» of an egg and «Release» of a pet under the edge): a card — an item of a list of
     // the middle, or a row of its own — is seen whole with its button or not at all.
     const cards: Array<[number, number]> = [];
+    // Q-MU-18 Б: the items of a list with no control in them and not a control themselves — these may peek.
+    const plain: Array<[number, number]> = [];
+    const plainEls = Array.from(body.querySelectorAll<HTMLElement>(`:scope :is(${LISTS}) > *`)).filter(
+      (u) => !u.matches(`:is(${LISTS}), button, input, select`) && !u.querySelector('button, input, select'),
+    );
+    for (const u of plainEls) {
+      const r = u.getBoundingClientRect();
+      if (r.height > 0 && r.width > 0) plain.push([r.top - base, r.bottom - base]);
+    }
+    // Lines of text out of the plain rows.
+    const own: Array<[number, number]> = [];
     for (const u of Array.from(body.querySelectorAll<HTMLElement>(`:scope > *, :scope :is(${LISTS}) > *`))) {
       // MU round 4 (reviews: a row of locked sneakers cut in the middle): every item of a list is a card; a row of its own
       // counts when it holds a control.
       if (u.matches(`:is(${LISTS})`) || u.querySelector(`:is(${LISTS})`) || (u.parentElement === body && !u.querySelector('button, input, select'))) continue;
+      if (plainEls.includes(u)) continue;
       const r = u.getBoundingClientRect();
       if (r.height > 0 && r.width > 0) cards.push([r.top - base, r.bottom - base]);
     }
@@ -207,14 +222,20 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
     for (let n = walker.nextNode(); n; n = walker.nextNode()) {
       if (!(n.textContent ?? '').trim()) continue;
       range.selectNodeContents(n);
-      for (const r of Array.from(range.getClientRects())) if (r.height > 0) lines.push([r.top - base, r.bottom - base]);
+      const mine = !plainEls.some((e) => e.contains(n));
+      for (const r of Array.from(range.getClientRects())) {
+        if (r.height <= 0) continue;
+        lines.push([r.top - base, r.bottom - base]);
+        if (mine) own.push([r.top - base, r.bottom - base]);
+      }
     }
     for (const c of Array.from(body.querySelectorAll<HTMLElement>('button, input, select'))) {
       const r = c.getBoundingClientRect();
       if (r.height > 0 && r.width > 0) controls.push([r.top - base, r.bottom - base]);
     }
-    return { lines, controls, cards };
+    return { lines, own, controls, cards, plain };
   };
+
   /** MU round 3: the panel is as tall as its content up to the visible height minus 16 px a side (CSS); when the middle
    * scrolls, its lower edge goes up from the room it has to a place that cuts no control and no line of text — a gap
    * between rows or the edge of the next row (the room is never less than a row of 44 px). */
@@ -232,7 +253,7 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
     // MU round 4: the edge in the coordinates of the list as it stands (a snap may have moved it a few px).
     const top = body.scrollTop;
     const room = top + body.clientHeight;
-    const { lines, controls, cards } = atoms();
+    const { lines, own, controls, cards, plain } = atoms();
     /** The lowest edge up from the room that crosses none of `boxes`. */
     const clear = (boxes: Array<[number, number]>): number => {
       let edge = Math.floor(room);
@@ -244,10 +265,14 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
       }
       return edge;
     };
+    // Q-MU-18 Б (producer 22.10): a row of a list with no control in it may be cut while no more than its top 16 px is
+    // seen — the sign the list scrolls; its own lines may be cut. A card with a button stays whole or unseen.
+    const tops = plain.map(([a, b]): [number, number] => [a + PEEK_MAX, b]);
     // No card with a control, no control and no line cut; a middle too dense for that cuts no control at least.
-    let edge = clear([...cards, ...controls, ...lines]);
+    let edge = clear([...cards, ...tops, ...controls, ...own]);
+    if (edge - top < EDGE_MIN) edge = clear([...cards, ...plain, ...controls, ...lines]);
     // A card taller than the room: none would be seen — the edge falls back to cutting no control and no line.
-    if (edge - top < EDGE_MIN || (cards.length > 0 && !cards.some(([a, b]) => a >= top - 0.5 && b <= edge + 0.5))) edge = clear([...controls, ...lines]);
+    if (edge - top < EDGE_MIN || (cards.length + plain.length > 0 && ![...cards, ...plain].some(([a, b]) => a >= top - 0.5 && b <= edge + 0.5))) edge = clear([...controls, ...lines]);
     if (edge - top < EDGE_MIN) edge = clear(controls);
     if (edge - top < EDGE_MIN) edge = room;
     body.style.maxHeight = `${edge - top}px`;
@@ -263,10 +288,11 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
    * stands now — a line or a control across it fits the middle again (once). */
   const cutNow = (): boolean => {
     if (!opts.mu || current === null || !body.classList.contains('win-scrolls')) return false;
-    const { lines, controls } = atoms();
+    const { controls, own } = atoms();
     const lo = body.scrollTop;
     const hi = lo + body.clientHeight;
-    return [...controls, ...lines].some(([a, b]) => b > lo + 0.5 && a < hi - 0.5 && b > hi + 0.5);
+    // Q-MU-18 Б: the lines of a peeking plain row are cut on purpose.
+    return [...controls, ...own].some(([a, b]) => b > lo + 0.5 && a < hi - 0.5 && b > hi + 0.5);
   };
   let recheck = 0;
   const fit = (): void => {

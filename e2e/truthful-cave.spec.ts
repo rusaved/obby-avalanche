@@ -64,12 +64,14 @@ test('standing at a cave mouth within the grace: the wave lets him off, no «bac
   test.setTimeout(90_000);
   await start(page, openGame);
   const cave = (await page.evaluate(() => window.__TEST__!.shelters())).find((s) => s.kind === 'grotto')!;
-  // One metre out of the mouth onto the slope (the grace is 3).
+  // One metre out of the mouth onto the slope (the grace is 3). M4-R2: the test API's `mouth` is 4 m in front of the
+  // entrance — it was 5 m out, past the grace (the scripted wave hid it: its miss says no «Snowed in»).
   const out = Math.sign(cave.mouth[0] - cave.inside[0]);
-  const at = { x: cave.mouth[0] + out * 1, z: cave.mouth[1] };
+  const at = { x: cave.mouth[0] - out * 3, z: cave.mouth[1] };
   await page.evaluate(([x, z, y]) => window.__TEST__!.teleport(z, x, y + 0.5), [at.x, at.z, cave.y] as const);
   await waitTicks(page, 20);
   await page.evaluate(() => window.__TEST__!.triggerWave());
+  await expect.poll(() => phase(page), { timeout: 20_000 }).toMatch(/warn|run/);
   await expect.poll(() => phase(page), { timeout: 40_000 }).toMatch(/gone|idle/);
   await page.waitForTimeout(2_500);
   const all = await toasts(page);

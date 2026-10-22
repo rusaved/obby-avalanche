@@ -103,6 +103,23 @@ describe('avalanche phases (M2-06)', () => {
     }
   });
 
+  it('M4-R2: one outcome per wave — out of the cave after «survived», under the snow, it stays «survived»', () => {
+    const { t, log } = threat();
+    const hero: ThreatHero = { ...inCave };
+    let out = false;
+    runWave(t, hero, 0, (h) => {
+      // The front past him in the cave: he runs out onto the slope while the snow body still goes by.
+      if (!out && t.state.outcome === 'survived') {
+        out = true;
+        h.x = 0;
+        h.z = cave.z - 4;
+      }
+    });
+    expect(out).toBe(true);
+    expect(names(log).filter((n) => n === 'waveSurvived' || n === 'waveCaught')).toEqual(['waveSurvived']);
+    expect((log.find((r) => r.name === 'waveEnd')!.payload as ThreatEvents['waveEnd']).outcome).toBe('survived');
+  });
+
   it('from the end of the countdown to the front over the hero: 3–4 s on mountain 1', () => {
     const { t, log } = threat();
     runWave(t, { x: 0, y: 0, z: 500, vx: 0, vz: 0 });
