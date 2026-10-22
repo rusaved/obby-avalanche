@@ -53,7 +53,22 @@ export interface Platform {
    * the screen is whole now; false — refused or not supported, the game stays in the window. Never throws. */
   requestFullscreen(): Promise<boolean>;
   serverTime(): number;
+  /** M4-07 (IAP-01): the catalog of the console — price text and currency picture; null — no purchases (flag off, an error). */
+  catalog(): Promise<CatalogItem[] | null>;
+  /** M4-07: buy `id`; true — bought (the platform's own window said so). Never throws. */
+  purchase(id: string): Promise<boolean>;
+  /** M4-07: what the player has bought (restored at the start, IAP-01). Never throws ([]). */
+  purchased(): Promise<string[]>;
+  /** M4-07 (IAP-03): «No ads» — the sticky banner off. */
+  hideBanner(): void;
   getFlags(defaults: Record<string, string>): Promise<Record<string, string>>;
+}
+
+/** M4-07: a product of the console's catalog. */
+export interface CatalogItem {
+  id: string;
+  price: string;
+  currencyImage?: string;
 }
 
 export interface PlatformOptions {
@@ -61,6 +76,8 @@ export interface PlatformOptions {
   packId: string;
   /** Save of a pace other than classic (docs/01-gdd.md 16.1; src/platform/pace-save.ts); absent — the classic save. */
   saveSlot?: string | undefined;
+  /** M4-07: game.json payments.enabled — off: not a single call of ysdk.payments. */
+  payments?: boolean;
   /** Leaderboard name in the Yandex console; empty → leaderboard calls are no-ops. */
   leaderboardName: string;
   track: (name: EventName, params?: Record<string, unknown>) => void;

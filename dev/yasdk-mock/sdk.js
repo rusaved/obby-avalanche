@@ -179,6 +179,23 @@
     root.dispatchEvent(new Event('resize'));
   }
 
+  var CUR = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="#ffcc33"/><text x="8" y="12" font-size="10" text-anchor="middle" fill="#7a4b00">Y</text></svg>');
+  var bought = (cfg.mock_purchases || '').split(',').filter(Boolean);
+  function product(id, value) {
+    return { id: id, title: id, description: '', imageURI: '', price: value + (lang === 'en' ? ' YAN' : ' \u044f\u043d'), priceValue: String(value), priceCurrencyCode: 'YAN', getPriceCurrencyImage: function () { return CUR; } };
+  }
+  var payments = {
+    getCatalog: function () { record('payments.getCatalog'); return Promise.resolve([product('vip', 99), product('autopilot', 79), product('no_ads', 149), product('starter', 49)]); },
+    purchase: function (opts) {
+      record('payments.purchase', [opts && opts.id]);
+      if (cfg.mock_purchase === 'cancel') return Promise.reject(new Error('yasdk-mock: purchase closed'));
+      if (bought.indexOf(opts.id) < 0) bought.push(opts.id);
+      return Promise.resolve({ productID: opts.id, purchaseToken: 'mock-' + opts.id });
+    },
+    getPurchases: function () { record('payments.getPurchases'); return Promise.resolve(bought.map(function (id) { return { productID: id, purchaseToken: 'mock-' + id }; })); },
+    consumePurchase: function (token) { record('payments.consumePurchase', [token]); return Promise.resolve(); },
+  };
+
   var readyCalled = false;
   var gameplayState = 'stopped';
   var adBusy = false;
@@ -358,7 +375,15 @@
       showRewardedVideo: showRewardedVideo,
       getBannerAdvStatus: function () { record('adv.getBannerAdvStatus'); return Promise.resolve(BANNER_ON ? { stickyAdvIsShowing: bannerShown } : { stickyAdvIsShowing: false, reason: 'ADV_IS_NOT_CONNECTED' }); },
       showBannerAdv: function () { record('adv.showBannerAdv'); showBanner(); return Promise.resolve(BANNER_ON ? { stickyAdvIsShowing: bannerShown } : { stickyAdvIsShowing: false, reason: 'ADV_IS_NOT_CONNECTED' }); },
-      hideBannerAdv: function () { record('adv.hideBannerAdv'); return Promise.resolve({ stickyAdvIsShowing: false }); },
+      hideBannerAdv: function () {
+        record('adv.hideBannerAdv');
+        if (bannerEl && bannerEl.parentNode) bannerEl.parentNode.removeChild(bannerEl);
+        bannerEl = null;
+        bannerShown = false;
+        bannerResize();
+        root.dispatchEvent(new Event('resize'));
+        return Promise.resolve({ stickyAdvIsShowing: false });
+      },
     },
     on: on,
     off: off,
@@ -391,6 +416,12 @@
       // ?mock_review=sent|closed|unavailable (FM-16): the review dialog sent, closed without a review, or not offered.
       canReview: function () { record('feedback.canReview'); return Promise.resolve(reviewMode === 'unavailable' ? { value: false, reason: 'GAME_RATED' } : { value: true }); },
       requestReview: function () { record('feedback.requestReview'); return Promise.resolve({ feedbackSent: reviewMode === 'sent' }); },
+    },
+    // M4-07: the payments of the console — four products, a currency picture; ?mock_purchase=cancel — the window closed;
+    // ?mock_purchases=vip,no_ads — bought before (restored at the start).
+    getPayments: function () {
+      record('getPayments');
+      return Promise.resolve(payments);
     },
     // M4-06: ?mock_auth_dialog=ok — the dialog signs the player in; otherwise it is closed.
     auth: {

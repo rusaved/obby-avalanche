@@ -2,14 +2,14 @@
 // Called by: platform/index.ts; tests/platform/yandex.test.ts, tests/platform/pace-save.test.ts, tests/meta/save.test.ts (with a fake SDK / dev/yasdk-mock).
 // Keep: Ads follow docs/03 section 2 (game resumes after any outcome, reward only in onRewarded); LoadingAPI.ready strictly once; no ysdk outside this file.
 
-import type { Player, SDK } from 'ysdk';
+import type { Payments, Player, SDK } from 'ysdk';
 import type { SaveData } from '../meta/save.ts';
 import { newerSave, parseSave } from '../meta/save.ts';
 import { log } from '../core/log.ts';
 import { createStorage, type KeyValueStore } from './storage.ts';
 import { SaveQueue } from './save-queue.ts';
 import { joinCloud, mirrorKey, splitCloud } from './pace-save.ts';
-import { mapLang, type DeviceType, type Lang, type LeaderEntry, type Platform, type PlatformOptions } from './types.ts';
+import { mapLang, type DeviceType, type Lang, type CatalogItem, type LeaderEntry, type Platform, type PlatformOptions } from './types.ts';
 
 /** How long YaGames.init() may take before the `sdk_init_slow` event (docs/02-tech.md 11.2); init itself is never cut. */
 export const SDK_SLOW_INIT_MS = 8000;
@@ -418,6 +418,56 @@ export class YandexPlatform implements Platform {
       /* fall through */
     }
     return (this.deps.now ?? Date.now)();
+  }
+
+  private pay: Promise<Payments | null> | null = null;
+
+  /** M4-07: ysdk.payments only with the flag on, got once. */
+  private payments(): Promise<Payments | null> {
+    if (!this.opts.payments || !this.sdk) return Promise.resolve(null);
+    this.pay ??= this.sdk.getPayments({ signed: false }).catch((err: unknown) => {
+      log.warn('getPayments failed', err);
+      return null;
+    });
+    return this.pay;
+  }
+
+  async catalog(): Promise<CatalogItem[] | null> {
+    const p = await this.payments();
+    if (!p) return null;
+    try {
+      return (await p.getCatalog()).map((x) => ({ id: x.id, price: x.price, currencyImage: x.getPriceCurrencyImage('svg') }));
+    } catch (err) {
+      log.warn('getCatalog failed', err);
+      return null;
+    }
+  }
+
+  async purchase(id: string): Promise<boolean> {
+    const p = await this.payments();
+    if (!p) return false;
+    try {
+      await p.purchase({ id });
+      return true;
+    } catch (err) {
+      log.debug('purchase closed', err);
+      return false;
+    }
+  }
+
+  async purchased(): Promise<string[]> {
+    const p = await this.payments();
+    if (!p) return [];
+    try {
+      return (await p.getPurchases()).map((x) => x.productID);
+    } catch (err) {
+      log.warn('getPurchases failed', err);
+      return [];
+    }
+  }
+
+  hideBanner(): void {
+    void this.sdk?.adv.hideBannerAdv().catch(() => undefined);
   }
 
   async getFlags(defaults: Record<string, string>): Promise<Record<string, string>> {

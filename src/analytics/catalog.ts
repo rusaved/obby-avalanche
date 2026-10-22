@@ -47,6 +47,7 @@ export const EVENTS = [
   'setting_autorun',
   'shortcut_ok',
   'webgl_unavailable',
+  'purchase',
 ] as const;
 
 /** A name of the catalog, or a numbered step: gate_N, ridge_N, session_Ns (docs/06 section 2). */

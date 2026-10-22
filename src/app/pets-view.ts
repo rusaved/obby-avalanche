@@ -70,6 +70,9 @@ export interface PetsView {
   /** A pet came out of egg `egg` (`from` — where it jumps out); `gift` — the free egg of the first minute;
    * `quiet` — no toast (the «New pet!» window shows it). Returns its inventory index, null when there was no room. */
   hatched(pet: string, from: Vector3 | null, gift?: boolean, egg?: Egg, quiet?: boolean): number | null;
+  /** M4-07 (the show after a purchase): the first pet by the hero jumps up from `at`; the number of such jumps (tests). */
+  cheer(at: Vector3): void;
+  readonly cheers: number;
   /** Cards of the shop tab «Eggs». */
   shopCards(): ShopCard[];
   /** «Pets speed up your steps» is due: an egg open on this tier by balance.hints.pets (meta/pets.ts hintEgg); never
@@ -175,6 +178,7 @@ export function createPetsView(d: PetsViewDeps): PetsView {
       toShop: () => (d.toShop ? d.toShop() : d.windows.close()),
     });
 
+  let cheers = 0;
   const view: PetsView = {
     get eggButton() {
       return eggButton;
@@ -233,6 +237,13 @@ export function createPetsView(d: PetsViewDeps): PetsView {
         d.hud.setEggButton(null);
       }
       d.visual.update(hero, heroYaw, running, gameDt, timeSec, hatch ? { stand: hatch.stand, k: Math.min(1, hatch.t / d.balance.ftue.eggHatchSec) } : null);
+    },
+    cheer(at) {
+      cheers++;
+      if (d.visual.shown > 0) d.visual.jumpOut(0, at);
+    },
+    get cheers() {
+      return cheers;
     },
     hatched(pet, from, gift = false, egg, quiet = false) {
       const res = addPet(d.save, d.pets, d.balance.pets, pet);

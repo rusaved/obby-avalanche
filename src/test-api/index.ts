@@ -135,6 +135,8 @@ export interface TestState {
   pets: string[];
   /** M3-03: ids of the pets on, pets drawn next to the hero, the egg button over a stand, the egg being hatched. */
   petsOn: string[];
+  /** M4-07: jumps of the pet by the hero after a purchase. */
+  petCheers: number;
   petsShown: number;
   eggButton: { shown: boolean; text: string; can: boolean; egg: string | null };
   hatching: { egg: string; t: number } | null;
@@ -688,6 +690,7 @@ export function installTestApi(g: GameHandles): TestApi {
         },
         pets: [...(g.save.pets ?? [])],
         petsOn: g.pets?.equippedIds ?? [],
+        petCheers: g.pets?.cheers ?? 0,
         petsShown: g.pets?.shownPets ?? 0,
         eggButton: { ...(g.pets?.eggButton ?? { shown: false, text: '', can: false, egg: null }) },
         hatching: g.pets?.hatching ?? null,

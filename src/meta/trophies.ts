@@ -17,6 +17,11 @@ export function addTrophies(save: Pick<SaveData, 'trophies' | 'trophiesTotal'>, 
   save.trophiesTotal = Math.min(Number.MAX_SAFE_INTEGER, (save.trophiesTotal ?? 0) + add);
 }
 
+/** M4-07 (docs/01-gdd.md 9.3): trophies of the starter pack — to spend only, never to the all-time counter (the records). */
+export function addSpendableTrophies(save: Pick<SaveData, 'trophies'>, n: number): void {
+  save.trophies = Math.min(Number.MAX_SAFE_INTEGER, (save.trophies ?? 0) + Math.max(0, Math.floor(n)));
+}
+
 /** Save fields a leaderboard may score by (game.json leaderboard.score): whole counters only, never the stat. */
 export const LEADERBOARD_SCORES = ['trophiesTotal'] as const;
 

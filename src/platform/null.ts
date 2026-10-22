@@ -122,6 +122,20 @@ export class NullPlatform implements Platform {
     return Date.now();
   }
 
+  async catalog(): Promise<null> {
+    return null;
+  }
+
+  async purchase(): Promise<boolean> {
+    return false;
+  }
+
+  async purchased(): Promise<string[]> {
+    return [];
+  }
+
+  hideBanner(): void {}
+
   async getFlags(defaults: Record<string, string>): Promise<Record<string, string>> {
     return { ...defaults };
   }

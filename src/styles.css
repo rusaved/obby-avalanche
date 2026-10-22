@@ -1042,3 +1042,9 @@ canvas.fallback {
 #ui.mu.mu-low .win-grid.swatch-list > .card:has(> :is(.card-pic, .card-swatch)) { padding-top: 4px; padding-bottom: 4px; }
 #ui.mu.mu-low .win-grid.swatch-list > .card > .card-name, #ui.mu.mu-low .win-grid.swatch-list > .card > .card-line, #ui.mu.mu-low .win-grid.swatch-list > .card > .card-line > .card-big { font-size: 12px; line-height: 1.2; }
 #ui.mu.mu-low .wardrobe .card-name { font-size: 11px; white-space: nowrap; }
+/* M4-07: VIP — a gold star by the Speed and the «+N» of a step in gold; «No ads» — its mark in the pause. */
+.hud.vip .hud-stat::after { content: '\2605'; margin-left: 4px; color: var(--mu-gold); text-shadow: 0 0 2px var(--ink); }
+.hud.vip .hud-gain { color: var(--mu-gold); }
+.no-ads-mark { align-self: center; margin: 0 0 6px; padding: 4px 10px; border-radius: 10px; background: var(--mu-card); color: var(--mu-gold); font-size: 13px; font-weight: 700; }
+.iap-price { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; }
+.iap-cur { width: 16px; height: 16px; }

@@ -41,6 +41,8 @@ export interface ShopCard {
   sound?: boolean;
   /** Round of fixes MU: a picture (an icon id, drawn in `color`) instead of the swatch — the sneakers. */
   pic?: string;
+  /** M4-07 (IAP-01): a price of the platform's catalog — its text and its currency picture, instead of coins/trophies. */
+  money?: { text: string; icon?: string };
   /** M4-03 (docs/01-gdd.md 9.1, place egg): «▶ Ad: {egg}» under the card; `busy` — locked until the ad answers. */
   ad?: { text: string; busy: boolean };
 }
@@ -194,7 +196,18 @@ export function renderShopPanel(body: HTMLElement, head: HTMLElement, m: ShopPan
       btn.innerHTML = markIcon('lock');
       btn.appendChild(el('span', '', c.lock ?? ''));
     } else {
-      line.appendChild(c.coin ? coinPrice(c.price) : trophyPrice(c.price));
+      if (c.money) {
+        const m = el('span', 'card-price iap-price');
+        m.dataset['role'] = 'iap-price';
+        if (c.money.icon) {
+          const img = el('img', 'iap-cur');
+          img.src = c.money.icon;
+          img.alt = '';
+          m.appendChild(img);
+        }
+        m.appendChild(el('span', '', c.money.text));
+        line.appendChild(m);
+      } else line.appendChild(c.coin ? coinPrice(c.price) : trophyPrice(c.price));
       btn = el('button', c.state === 'short' ? 'card-btn off' : 'card-btn', c.state === 'short' ? c.need : (c.action ?? t('btn.buy')));
       if (c.state === 'buy') btn.addEventListener('click', () => a.buy(c.id));
     }

@@ -55,7 +55,9 @@ export interface CosmeticsViewDeps {
   /** Puts wings `id` on the hero's back, null — none (M3-04b). */
   setHeroWings(id: string | null): void;
   /** Tabs «Sneakers» and «Eggs» of the shop (M3-09), first in the tab row. */
-  shopTabs?: Partial<Record<'shoes' | 'eggs' | 'steps', ShopTabSource>>;
+  shopTabs?: Partial<Record<'shoes' | 'eggs' | 'steps' | 'special', ShopTabSource>>;
+  /** M4-07 (docs/01-gdd.md 9.3): the «Special» tab is due (300 s of play, purchases on). */
+  specialDue?(): boolean;
   /** The trophy plaque is due (docs/01-gdd.md 6.4: after the «Mountain cleared» window of the first summit). */
   trophiesDue?(): boolean;
   /** SD-03 (docs/01-gdd.md 23.3): trophies come from the stage buttons — the plaque shows once there are any. */
@@ -82,7 +84,7 @@ export interface CosmeticsView {
 
 export function createCosmeticsView(d: CosmeticsViewDeps): CosmeticsView {
   let tab: ShopTab = d.shopTabs?.shoes ? 'shoes' : 'trails';
-  const tabs = (): ShopTab[] => [...(['shoes', 'eggs', 'steps'] as const).filter((x) => d.shopTabs?.[x]), 'trails', 'auras'];
+  const tabs = (): ShopTab[] => [...(['shoes', 'eggs', 'steps'] as const).filter((x) => d.shopTabs?.[x]), 'trails', 'auras', ...(d.shopTabs?.special && (d.specialDue?.() ?? false) ? (['special'] as const) : [])];
   let shown = '';
   const items = (kind: CosmeticKind): CosmeticItem[] => (kind === 'trail' ? d.trails.trails : d.auras.auras);
   const kindOf = (x: ShopTab): CosmeticKind => (x === 'trails' ? 'trail' : 'aura');
@@ -104,7 +106,7 @@ export function createCosmeticsView(d: CosmeticsViewDeps): CosmeticsView {
       tab = next;
       d.windows.refresh();
     };
-    const source = tab === 'shoes' || tab === 'eggs' || tab === 'steps' ? d.shopTabs?.[tab] : undefined;
+    const source = tab === 'shoes' || tab === 'eggs' || tab === 'steps' || tab === 'special' ? d.shopTabs?.[tab] : undefined;
     if (source) {
       renderShopPanel(body, head, { tab, tabs: tabs(), balance: source.balance(), coin: !(source.trophies?.() ?? false), cards: source.cards(), ...(d.wallet ? { wallet: d.wallet() } : {}) }, { tab: toTab, buy: (id) => source.buy(id), equip: (id) => source.equip?.(id), ...(source.preview ? { preview: source.preview } : {}), ...(source.ad ? { ad: source.ad } : {}) });
       return;

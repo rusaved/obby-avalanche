@@ -6,6 +6,8 @@ import './styles.css';
 import { Vector3 } from 'three';
 import { content, i18nUrls, pace, usePace } from './content/index.ts';
 import type { EventName } from './analytics/catalog.ts';
+import { createIapView, type IapView } from './app/iap-view.ts';
+import { equipLook, grantLook } from './meta/cosmetics.ts';
 import { applyFlags, flagDefaults, type FlagDef, type FlagRoot } from './content/flags.ts';
 import { CLASSIC_PACE } from './content/pace.ts';
 import { configureAnalytics, track } from './analytics/index.ts';
@@ -153,7 +155,9 @@ async function boot(): Promise<void> {
     track('community_open', { to: id });
   };
   // `?leaderboard=` (debug builds): a leaderboard name for the e2e of the records (game.json has none yet, M4-06).
-  const platformOpts: PlatformOptions = { packId: game.id, leaderboardName: debugParams.get('leaderboard') ?? game.leaderboard?.name ?? '', track };
+  // M4-07: purchases behind game.json payments.enabled (off in the game; `?payments=1` for the e2e of debug builds).
+  const paymentsOn = (game.payments?.enabled ?? false) || debugParams.get('payments') === '1';
+  const platformOpts: PlatformOptions = { packId: game.id, leaderboardName: debugParams.get('leaderboard') ?? game.leaderboard?.name ?? '', track, payments: paymentsOn };
   const platform = await createPlatform(platformOpts);
   // The remote flag `pace` (docs/06 8.1–8.2) picks the pace before the save is read; each pace keeps its own progress
   // (docs/01-gdd.md 16.1): classic in the old place, other paces in their slot.
@@ -368,7 +372,7 @@ async function boot(): Promise<void> {
       playSec: save.totalPlaySec ?? 0,
       summit: (save.trophiesTotal ?? 0) > 0 || (save.tier ?? 0) > 0,
       summitAt,
-      payments: game.payments?.enabled ?? false,
+      payments: paymentsOn,
       summits: (save.tier ?? 0) > 0 ? Infinity : summitsDone(save),
     });
   /** The summit of mountain `n` on tier 0 brings elements of the summit group (6.4: the first; FM-08: by `ui.summitGroup`). */
@@ -425,6 +429,7 @@ async function boot(): Promise<void> {
   let standsView: StandsView | null = null;
   let recordsView: RecordsView | null = null;
   let cosmeticsView: CosmeticsView | null = null;
+  let iapView: IapView | null = null;
   let rebirthView: RebirthView | null = null;
   let dailyView: DailyView | null = null;
   let questsView: QuestsView | null = null;
@@ -1979,6 +1984,30 @@ async function boot(): Promise<void> {
   // Trails, auras and the wardrobe (docs/01-gdd.md 7.3, 7.4): the hero wears the skin of the save or the default one.
   cosmeticsVisual = createCosmeticsVisual();
   gr.scene.add(cosmeticsVisual.group);
+  // M4-07 (docs/01-gdd.md 9.3): purchases behind the flag — the «Special» tab and the show after a purchase.
+  if (paymentsOn)
+    iapView = createIapView({
+      platform,
+      balance,
+      save,
+      hud,
+      getSim: () => sim,
+      pets: () => petsView,
+      heroPos: () => sim.hero.pos,
+      numSuffix,
+      applyMeta: () => meta?.apply(),
+      setAutoRun: (on) => g.setAutoRun(on),
+      wearSkin: (id) => {
+        grantLook(save, 'skin', skins.skins, id);
+        equipLook(save, 'skin', skins.skins, id);
+        cosmeticsView?.syncHero();
+      },
+      play: (name) => audio?.play(name),
+      persist,
+      track,
+      closeWindow: () => windows?.close(),
+      gold: theme.ui.mu?.['gold'] ?? theme.ui.coins,
+    });
   cosmeticsView = createCosmeticsView({
     balance,
     trails,
@@ -1998,7 +2027,9 @@ async function boot(): Promise<void> {
     setHeroWings: (id) => {
       if (characters && heroChar) characters.setWings(heroChar, id);
     },
+    specialDue: () => hudDueNow().has('special'),
     shopTabs: {
+      ...(iapView ? { special: iapView.shop } : {}),
       // MU-12 (Q-090 decided: B): the sets of steps are bought in the shop, the «Footsteps» window only chooses.
       ...(footstepsView && muLayout ? { steps: footstepsView.shopTab } : {}),
       shoes: {
@@ -2376,6 +2407,8 @@ async function boot(): Promise<void> {
   track('game_ready', { pace, flags: flagsApplied });
   persist();
   if (!pause.paused) platform.gameplayStart();
+  // M4-07: the catalog and the purchases made before (IAP-01), granted with their show.
+  void iapView?.start();
 
   // SD-08 (docs/01-gdd.md 23.8): the build label of the producer link only with ?debug=1 — the game itself is clean.
   if (__BUILD_LABEL__ && params.get('debug') === '1') mountLabel(__BUILD_LABEL__, ui);

@@ -78,6 +78,8 @@ export function createMetaView(d: MetaViewDeps): MetaView {
         trail: cosmeticMult(d.save, 'trail', d.trails?.trails ?? []),
         aura: cosmeticMult(d.save, 'aura', d.auras?.auras ?? []),
         boost: (d.save.boostSec ?? 0) > 0,
+        // M4-07: the VIP purchase (iap.vipMult).
+        vip: d.save.flags?.['vip'] ?? false,
       });
     },
     update() {

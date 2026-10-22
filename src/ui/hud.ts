@@ -231,6 +231,10 @@ export interface Hud {
   setPadLabel(state: { text: string; x: number; y: number; tap?: boolean; sub?: string; hero?: { x0: number; y0: number; x1: number; y1: number }; pad?: { x0: number; y0: number; x1: number; y1: number } } | null): void;
   /** The portrait of a phone (the game is landscape, docs/03): «Turn your phone» over everything; false — hidden. */
   setRotate(on: boolean): void;
+  /** M4-07: VIP bought — a gold star by the Speed, the «+N» of a step in gold. */
+  setVip(on: boolean): void;
+  /** M4-07: «No ads» bought — its mark in the pause (`text`), or none. */
+  setNoAds(text: string | null): void;
   /** MU-02: the gift plaque under pause and sound — a timer, or «Take» in gold when a gift is ready; null hides it. */
   setGift(state: { text: string; ready: boolean } | null): void;
   /** MU-07 (w3-pause): the name of the set of steps on, by «Steps» of the pause window. */
@@ -1536,6 +1540,22 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     },
     setRotate(on) {
       rotate.classList.toggle('shown', on);
+    },
+    setVip(on) {
+      root.classList.toggle('vip', on);
+    },
+    setNoAds(text) {
+      let mark = hud.pausePanel.querySelector<HTMLElement>('[data-role="no-ads-mark"]');
+      if (!text) {
+        mark?.remove();
+        return;
+      }
+      if (!mark) {
+        mark = el('div', 'no-ads-mark');
+        mark.dataset['role'] = 'no-ads-mark';
+        hud.pausePanel.prepend(mark);
+      }
+      mark.textContent = text;
     },
     setGateSign(state) {
       if (gateBoard.classList.contains('shown') !== (state !== null)) gateBoard.classList.toggle('shown', state !== null);
