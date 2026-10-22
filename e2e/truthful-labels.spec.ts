@@ -57,11 +57,12 @@ function check(samples: Sample[], width: number, height: number, label: string):
   }
 }
 
-test('a run to the pad of stage 3: «Stage reward» only within 31 m, no blinking, a quarter wide at most', async ({ page, openGame }) => {
+test('a run to the pad of stage 5: «Stage reward» only within 31 m, no blinking, a quarter wide at most', async ({ page, openGame }) => {
   test.setTimeout(120_000);
   await openGame('pace=stages&mock_fullscreen=deny');
   const { width, height } = page.viewportSize()!;
-  const st = W.stages[2]!;
+  // ST-02: the flat avalanche stage 5 (stage 3 is the giant's).
+  const st = W.stages[4]!;
   await page.evaluate(([s]) => {
     window.__TEST__!.setPlaySec(400);
     window.__TEST__!.holdWave(900);

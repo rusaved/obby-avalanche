@@ -168,8 +168,6 @@ export type Reward =
 export type DailyReward = Reward & { alt?: Reward };
 
 export interface BalanceJson {
-  /** ST-06: the times a stage pad pays in a life (meta/trophies.ts padPays); absent — always. */
-  stagePads?: { takes: number };
   stepLength: number;
   gainPerStep: number;
   gainTrigger: 'step';
@@ -642,6 +640,8 @@ export interface WorldCover {
 }
 
 export interface World {
+  /** ST-06 (worlds-spec stages.padBehindTakes): a stage pad behind the farthest stage reached pays this many times a life. */
+  padBehindTakes?: number;
   id: string;
   index: number;
   length: number;
@@ -1107,6 +1107,8 @@ export interface StageSpec {
   stairsRise?: number;
   /** ST-04 (producer 22.10: each mountain its own look): by mountain — the decor at the edges of every start pad (`start`)
    * and finish (`finish`), and the landmark by the last finish (`landmark` × `size`); absent — no decor on that mountain. */
-  decor?: Array<{ start: string; finish: string; landmark: string; size: number }>;
+  decor?: Array<{ start: string; finish: string; landmark: string; size: number; scale?: number }>;
+  /** ST-06: a stage pad behind the farthest stage reached pays this many times a life, then nothing (World.padBehindTakes). */
+  padBehindTakes?: number;
 }
 

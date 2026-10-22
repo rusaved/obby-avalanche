@@ -4,7 +4,7 @@ import { STAGES, flagOf, ready, threshold } from './lv-stage-data.ts';
 
 // ST-01 (producer 22.10: the tutorial 2–3 times fuller, up to stage 2 of mountain 2): a new player past the first minute
 // does only what the plaque says — the treadmill (with its arrow), the level, the way through the ridge, the reward pad,
-// the sneakers in the shop, the gift, on to the summit, the portal of mountain 2 and its stage 2. Each plaque is short
+// the sneakers in the shop, on to the summit, the portal of mountain 2, its stage 2 and the gift. Each plaque is short
 // (6 words at most), one at a time, and none stands over an open window. The run between the plaques (the trials
 // themselves) is the bot of lv-types — here the hero is carried along the stages the plaque sends him to.
 const W1 = STAGES[0]!;
@@ -82,19 +82,7 @@ test('ST-01: a new player gets to stage 2 of mountain 2 by the plaques alone', a
   await page.locator('[data-hud="win-close"]').click();
   await expect.poll(() => tutorStep(page), { timeout: 20_000 }).toBe(5);
 
-  // 6. «Take your gift, top right» — the gift plaque of the HUD, «Take» in the window.
-  // Five minutes of play in all (the gift plaque opens, balance.ui.unlockTimeRewardsSec) and a minute today (its first gift).
-  await page.evaluate(() => {
-    window.__TEST__!.setPlaySec(310);
-    window.__TEST__!.addPlayToday(70);
-  });
-  await tutorText(page, /Забери подарок|Take your gift/);
-  await page.locator('[data-hud="gift"]').dispatchEvent('pointerdown');
-  await page.locator('[data-role="window"].open [data-hud="gift-claim"]').first().click();
-  await page.locator('[data-hud="win-close"]').click();
-  await expect.poll(() => tutorStep(page), { timeout: 20_000 }).toBe(6);
-
-  // 7. «Run on to the summit!» — on up, the stages carried to the summit and its portal.
+  // 6. «Run on to the summit!» — on up, the stages carried to the summit and its portal.
   const back = await testState(page);
   const at = W1.stages.find((s) => s.n === Math.max(2, back.stage))!;
   await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.5), [at.finish[0] + 2, at.y] as const);
@@ -105,13 +93,13 @@ test('ST-01: a new player gets to stage 2 of mountain 2 by the plaques alone', a
     window.__TEST__!.setStat(s);
     window.__TEST__!.teleport(z, 0, y + 0.5);
   }, [threshold(last.level) * 2, last.finish[0] + 2, last.y] as const);
-  await expect.poll(() => tutorStep(page), { timeout: 20_000 }).toBe(7);
+  await expect.poll(() => tutorStep(page), { timeout: 20_000 }).toBe(6);
   await page.evaluate((z) => window.__TEST__!.botPath([[0, z + 2]]), portal.z);
   await expect(page.locator('[data-role="window"].open')).toBeVisible({ timeout: 40_000 });
   await page.evaluate(() => window.__TEST__!.botPath(null));
   await page.locator('[data-hud="win-next"]').click();
 
-  // 8. On the base: «Run into the mountain 2 portal», its arrow.
+  // 7. On the base: «Run into the mountain 2 portal», its arrow.
   await tutorText(page, /портал горы 2|mountain 2 portal/);
   await expect(page.locator('[data-role=tutor] [data-role=slot-arrow]')).toBeVisible();
   const bp = (await testState(page)).basePortals.find((b) => b.world === 2)!;
@@ -119,9 +107,9 @@ test('ST-01: a new player gets to stage 2 of mountain 2 by the plaques alone', a
   await expect.poll(async () => (await testState(page)).world, { timeout: 60_000 }).toBe((W2 as unknown as { id: string }).id);
   await page.evaluate(() => window.__TEST__!.botPath(null));
   await waitTicks(page, 20);
-  await expect.poll(() => tutorStep(page), { timeout: 20_000 }).toBe(8);
+  await expect.poll(() => tutorStep(page), { timeout: 20_000 }).toBe(7);
 
-  // 9. «Mountain 2: new trials!» — up to its stage 2.
+  // 8. «Mountain 2: new trials!» — up to its stage 2.
   await tutorText(page, /Гора 2|Mountain 2/);
   const m2s2 = W2.stages[1]!;
   const f = flagOf(2, m2s2);
@@ -129,6 +117,19 @@ test('ST-01: a new player gets to stage 2 of mountain 2 by the plaques alone', a
     window.__TEST__!.setStat(s);
     window.__TEST__!.teleport(z, 0, y + 0.5);
   }, [threshold(m2s2.level) * 1.05, f.z, f.y] as const);
+  await expect.poll(() => tutorStep(page), { timeout: 20_000 }).toBe(8);
+
+  // 9. «Take your gift, top right» — last (game designer review: the time gifts open at 5 min, the steps did not wait for them) — the gift plaque of the HUD, «Take» in the window.
+  // Five minutes of play in all (the gift plaque opens, balance.ui.unlockTimeRewardsSec) and a minute today (its first gift).
+  await page.evaluate(() => {
+    window.__TEST__!.setPlaySec(310);
+    window.__TEST__!.addPlayToday(70);
+  });
+  await tutorText(page, /Забери подарок|Take your gift/);
+  await page.locator('[data-hud="gift"]').dispatchEvent('pointerdown');
+  await page.locator('[data-role="window"].open [data-hud="gift-claim"]').first().click();
+  await page.locator('[data-hud="win-close"]').click();
   await expect.poll(() => tutorStep(page), { timeout: 20_000 }).toBe(9);
+
   await expect(page.locator('[data-role=tutor]')).toBeHidden();
 });

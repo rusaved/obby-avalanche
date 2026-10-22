@@ -76,10 +76,11 @@ for (const k of [1, 1.3]) {
   });
 }
 
-test('l3: the pad of stage 3 from 34 m (no plaque; M4-R1: they come in at 27 m) and from 8 m (the plaque)', async ({ page, openGame }) => {
+test('l3: the pad of stage 5 from 34 m (no plaque; M4-R1: they come in at 27 m) and from 8 m (the plaque)', async ({ page, openGame }) => {
   await openGame('pace=stages&mock_fullscreen=deny');
   const { width, height } = page.viewportSize()!;
-  const st = W.stages[2]!;
+  // ST-02: the flat avalanche stage 5 (stage 3 is the giant's).
+  const st = W.stages[4]!;
   await page.evaluate(([s]) => {
     window.__TEST__!.setPlaySec(400);
     window.__TEST__!.holdWave(900);

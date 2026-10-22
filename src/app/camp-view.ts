@@ -27,7 +27,8 @@ const PAD_REACH = 3.2;
  * near, sneakers affordable, a gift ready, the base, mountain 2) and never over a window; a later step whose moment comes
  * first waits for the earlier ones — the next step is always the first one not done.
  */
-export const TUTOR_STEPS = ['belt', 'level', 'pass', 'pad', 'shoes', 'gift', 'onward', 'portal', 'next'] as const;
+// The gift last (game designer review: the time gifts open at 5 min of play, the steps after it waited for them).
+export const TUTOR_STEPS = ['belt', 'level', 'pass', 'pad', 'shoes', 'onward', 'portal', 'next', 'gift'] as const;
 export type TutorStep = (typeof TUTOR_STEPS)[number];
 export const TUTOR_DONE = TUTOR_STEPS.length;
 /** «Stand on the treadmill» shows with a belt this close (m), done after this long on it (s). */
@@ -83,6 +84,8 @@ export interface CampView {
   known(): boolean;
   /** Teleports to stage n paying its trophies; false — not passed or short. */
   teleport(n: number): boolean;
+  /** ST-01: the step of the tutorial now (null — all done). */
+  readonly step: TutorStep | null;
 }
 
 export function createCampView(d: CampViewDeps): CampView {
@@ -280,7 +283,10 @@ export function createCampView(d: CampViewDeps): CampView {
       // MU-02 (one message slot): a jump and the wave go before the gate plaque, the other steps after it.
       // ST-01: never over a window.
       if (d.windows.current) show = null;
-      d.hud.setTutor(show, show !== null && (show === t('tutor.jump') || wave), show !== null && show === show0.text ? show0.arrow : null);
+      // ST-01 (usability review: the ridge plaque hid the steps): the level, the pad and on go before the ridge plaque; the
+      // treadmill step leaves it the slot (its «Level up on a treadmill» points to the same belt).
+      const lead = show !== null && show === show0.text && (TUTOR_STEPS[d.save.tutor ?? 0] === 'level' || TUTOR_STEPS[d.save.tutor ?? 0] === 'pad' || TUTOR_STEPS[d.save.tutor ?? 0] === 'onward');
+      d.hud.setTutor(show, show !== null && (show === t('tutor.jump') || wave || lead), show !== null && show === show0.text ? show0.arrow : null);
       // The teleport pad of the camp: stepping on it opens the window once a step-on.
       // SD-13 (producer 16.10: «it worked once, then broke»): on the next mountain the pad stood dead until its own
       // stage 2 — now it answers once the player knows it (a stage 2 passed anywhere), the stages not passed locked.
@@ -288,6 +294,9 @@ export function createCampView(d: CampViewDeps): CampView {
       const on = !!p && Math.abs(h.x - p.x) <= PAD_REACH && Math.abs(h.z - p.z) <= PAD_REACH && sim.hero.onGround;
       if (on && !onPad && !d.windows.current && view.known()) view.open();
       onPad = on;
+    },
+    get step() {
+      return TUTOR_STEPS[d.save.tutor ?? 0] ?? null;
     },
     hasPassed: () => best(d.getWorld()) >= 2,
     known: () => Object.values(d.save.stageBest ?? {}).some((n) => n >= 2),

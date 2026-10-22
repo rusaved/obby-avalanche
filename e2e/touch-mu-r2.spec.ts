@@ -121,10 +121,11 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
       test.setTimeout(180_000);
       const W = STAGES[0]!;
       await openGame('pace=stages');
-      const st3 = W.stages[2]!;
+      // ST-02: the stage of cracks and the one after it (the giant of stage 3 runs into his finish).
+      const st3 = W.stages[3]!;
       await prepare(page, threshold(st3.level + 1));
-      const st4 = W.stages[3]!;
-      // l2-gate: at the ridge of stage 4, the pad of stage 3 behind.
+      const st4 = W.stages[4]!;
+      // l2-gate: at the ridge of the next stage, the pad of this one behind.
       await page.evaluate(([s, z]) => {
         window.__TEST__!.setStat(s);
         window.__TEST__!.teleport(z);

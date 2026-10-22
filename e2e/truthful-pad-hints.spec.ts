@@ -10,7 +10,8 @@ import { STAGES, threshold } from './lv-stage-data.ts';
 
 const W = STAGES[0]!;
 const s2 = W.stages[1]!;
-const s3 = W.stages[2]!;
+// ST-02: the flat avalanche stage 5 (stage 3 is the giant's, stage 4 the cracks).
+const s3 = W.stages[4]!;
 const PAD_HALF = 3;
 const dirOf = (page: Page): string => {
   const { width, height } = page.viewportSize()!;
@@ -59,7 +60,9 @@ test('«Stand on the gold pad» only near the pad, with an arrow; the label from
   await page.touchscreen.tap(width / 2, height / 2);
   // The safe finish of stage 2 turns the tutorial to «take the trophies».
   await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.5), [s2.finish[0] + 2, s2.y] as const);
-  await expect.poll(async () => (await page.evaluate(() => window.__TEST__!.state().tutor))).toBe(1);
+  // ST-01: the step of the pad (the treadmill, the level and the way done).
+  await page.evaluate(() => window.__TEST__!.setTutor(3));
+  await expect.poll(async () => (await page.evaluate(() => window.__TEST__!.state().tutor))).toBe(3);
   const dir = dirOf(page);
   // Far from every pad not taken, mid-stage: no step at the top.
   await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.5), [s3.start + 60, s3.y] as const);
@@ -101,7 +104,7 @@ test('mountain 1, the first run, a level short at a ridge: «Level up on a tread
     t.setStat(s);
   }, threshold(3));
   await page.touchscreen.tap(width / 2, height / 2);
-  // Stage 3 (stage 2 is the giant's: his toast holds the slot), 20 m short of its ridge.
+  // Stage 5 (ST-02: the flat avalanche stage), 20 m short of the ridge of stage 6.
   await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.5), [s3.finish[0] - 20, s3.y] as const);
   await waitTicks(page, 30);
   await page.waitForTimeout(2500);

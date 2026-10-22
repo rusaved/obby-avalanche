@@ -31,10 +31,10 @@ describe('the avalanche on the stages (SD-06)', () => {
   });
 
   for (const hide of [false, true])
-    it(`mountain 1, the first stage with its own avalanche (ST-02: stage 4): standing still the wave comes; ${hide ? 'in the grotto of the start — saved' : 'on the body — snowed in'}`, () => {
+    it(`mountain 1, the first stage with its own avalanche (ST-02: a field stage of its own avalanche): standing still the wave comes; ${hide ? 'in the grotto of the start — saved' : 'on the body — snowed in'}`, () => {
       const w = worlds.worlds[0]!;
       // ST-02: the giant took stage 3 — the first stage past the first minute with the avalanche of a stage.
-      const st = w.stages!.find((s) => s.n >= 2 && !['giant', 'avalanche', 'maze', 'intro'].includes(s.type) && s.n > 2)!;
+      const st = w.stages!.find((s) => ['cracks', 'dips', 'ice'].includes(s.type))!;
       const level = buildLevel(w);
       const sim = createSim(level, tuning, {
         balance,

@@ -5,12 +5,14 @@ import { padPays } from '../../src/meta/trophies.ts';
 import { applyRebirth } from '../../src/meta/rebirth.ts';
 import type { SaveData } from '../../src/meta/save.ts';
 
-// ST-06 (producer 22.10: the first stage farmed for ever): a stage pad pays `stagePads.takes` times a life, then nothing.
-const balance = JSON.parse(readFileSync(resolve(__dirname, '../../content/avalanche/pace/stages/balance.json'), 'utf8')) as { stagePads: { takes: number } };
+// ST-06 (producer 22.10: the first stage farmed for ever): a stage pad behind the farthest stage pays
+// `stages.padBehindTakes` times a life (main.ts asks padPays only for those), then nothing.
+const worlds = JSON.parse(readFileSync(resolve(__dirname, '../../content/avalanche/pace/stages/worlds.json'), 'utf8')) as { worlds: Array<{ padBehindTakes?: number }> };
 
-describe('ST-06 stage pads pay a few times a life', () => {
+describe('ST-06 stage pads behind the farthest stage pay a few times a life', () => {
   it('the pad of stage 1 pays `takes` times, then 0; a farther stage and another mountain count apart', () => {
-    const takes = balance.stagePads.takes;
+    const takes = worlds.worlds[0]!.padBehindTakes!;
+    for (const w of worlds.worlds) expect(w.padBehindTakes).toBe(takes);
     expect(takes).toBeGreaterThanOrEqual(1);
     expect(takes).toBeLessThanOrEqual(5);
     const save: Pick<SaveData, 'padTakes'> = {};

@@ -41,6 +41,14 @@ test('from a clean save on mountain 1: holding forward is caught at 10 meetings 
   test.setTimeout(420_000);
   await openGame('pace=stages');
   await waitTicks(page, 10);
+  // ST-02: the giant is the stage 3 now (its ridge asks for a level a clean save has not): the Speed of its level, at its flag.
+  const gs = STAGES[0]!.stages.find((x) => x.type === 'giant')!;
+  const gf = flagOf(1, gs);
+  await page.evaluate(([st, z, y]) => {
+    window.__TEST__!.setStat(st);
+    window.__TEST__!.teleport(z, 0, y + 0.5);
+  }, [threshold(gs.level), gf.z, gf.y] as const);
+  await waitTicks(page, 10);
   await page.evaluate(() => window.__TEST__!.setTimeScale(3));
   // The meetings counted in the page (simEvents keeps the last 2000 events: the cracks of a long run push the giant's out):
   // a meeting is the hero in the zone, then caught (out with the snowball) or past it; a pass logs where both stood.
@@ -146,8 +154,8 @@ test('phone: a fall on the first bridge stage rolls to the stage before and the 
   test.setTimeout(180_000);
   await openGame('pace=stages&mock_ad=ok');
   await waitTicks(page, 10);
-  // ST-02: the first bridge stage of mountain 1 (off it at x 30 — the pit).
-  const st = STAGES[0]!.stages.find((x) => x.n > 2 && x.width === 'bridge')!;
+  // ST-02: the bridge stage of mountain 1 after the maze (off it at x 30 — the pit; no wave where it rolls back to).
+  const st = STAGES[0]!.stages.find((x) => x.n > 2 && x.width === 'bridge' && STAGES[0]!.stages[x.n - 2]!.type === 'maze')!;
   await page.evaluate(([s, z, y]) => {
     window.__TEST__!.setPlaySec(400);
     window.__TEST__!.setStat(s);

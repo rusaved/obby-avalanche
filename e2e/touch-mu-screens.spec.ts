@@ -77,7 +77,7 @@ async function windowFacts(page: Page): Promise<{ id: string; w: number; h: numb
 test.describe('MU phone screens', () => {
   test('MU-03 gate: the dark sign in the world and one plaque «N more levels to the gate» in the slot, nothing else', async ({ page, openGame }) => {
     await openGame('pace=stages');
-    const st = STAGES[0]!.stages[3]!;
+    const st = STAGES[0]!.stages[5]!; // ST-02: the ridge of stage 6 — past the flat avalanche stage (stage 3 is the giant's)
     const need = st.level;
     // Round of fixes 3: by the ridge, as l2 — the sign on its post right of the hero (further off it hides under the HUD).
     // MU round 5: not the first run of mountain 1 (there the plaque points to a treadmill — truthful-pad-hints).

@@ -12,7 +12,7 @@
   "sky": { "top": "#7EA6C8", "bottom": "#E2ECF4" },
   "fog": { "color": "#E2ECF4", "near": 60, "far": 220 },
   "tints": {
-    "pines": { "sky": { "top": "#5F8F8A", "bottom": "#DCE8E4" }, "fog": "#DCE8E4", "track": "#EDF3F0" },
+    "pines": { "sky": { "top": "#4F7A74", "bottom": "#B7CCC3" }, "fog": "#B7CCC3", "track": "#E3ECE7" },
     "pass": { "sky": { "top": "#A9B8F2", "bottom": "#EEEAFB" }, "fog": "#EEEAFB", "track": "#F3F1FB" },
     "falls": { "sky": { "top": "#6FC3E8", "bottom": "#DDF3FA" }, "fog": "#DDF3FA", "track": "#EEF8FC" },
     "canyon": { "sky": { "top": "#F2B48C", "bottom": "#FBEDE2" }, "fog": "#FBEDE2", "track": "#FBF4EE" },

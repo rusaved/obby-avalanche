@@ -329,6 +329,8 @@ export interface TestApi {
   setAdEgg(k: number): void;
   /** ST-07: eggs for an ad already taken today (ads.eggPerDay). */
   setAdEggToday(n: number): void;
+  /** ST-01: the steps of the tutorial done (app/camp-view.ts TUTOR_STEPS). */
+  setTutor(n: number): void;
   /** Quest progress as the game counts it, and play seconds today (M3-08b). */
   questProgress(id: string, amount: number): void;
   addPlayToday(sec: number): void;
@@ -1021,6 +1023,10 @@ export function installTestApi(g: GameHandles): TestApi {
     },
     setAdEgg(k) {
       g.save.adEgg = k;
+      g.persist(true);
+    },
+    setTutor(n) {
+      g.save.tutor = n;
       g.persist(true);
     },
     setAdEggToday(n) {

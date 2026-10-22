@@ -1,5 +1,5 @@
 import { test, expect, waitTicks } from './fixtures.ts';
-import { STAGES } from './lv-stage-data.ts';
+import { STAGES, flagOf, threshold } from './lv-stage-data.ts';
 
 // MU round 3, item 3 (staff 19.10 at 915 × 412: three series from a clean save, holding forward got past the giant 3
 // of 19 times; round 1 had 14 of 14). The giant ran after a bot 20 units aside and the head-on guess left it behind the
@@ -14,6 +14,13 @@ for (const series of [1, 2, 3]) {
   test(`series ${series} from a clean save: holding forward is caught at 10 meetings in a row, bots about`, async ({ page, openGame }) => {
     test.setTimeout(480_000);
     await openGame('pace=stages&mock_fullscreen=deny');
+    await waitTicks(page, 10);
+    // ST-02: the giant is the stage 3 now (its ridge asks for a level a clean save has not): the Speed of its level, at its flag.
+    const gf = flagOf(1, ZONE);
+    await page.evaluate(([st, z, y]) => {
+      window.__TEST__!.setStat(st);
+      window.__TEST__!.teleport(z, 0, y + 0.5);
+    }, [threshold(ZONE.level), gf.z, gf.y] as const);
     await waitTicks(page, 10);
     await page.evaluate(() => window.__TEST__!.setTimeScale(3));
     // A meeting: the hero in the zone, then caught (out with the snowball) or past it; where the bots stood as he stepped in.

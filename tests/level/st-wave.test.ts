@@ -32,20 +32,18 @@ describe('ST: the wave, the joins, two different mountains', () => {
     };
     const m1 = worlds[0]!;
     const cracks = m1.stages!.find((s) => s.type === 'cracks')!;
-    expect(cracks.tier).toBe('hard');
-    expect(pits(m1, cracks.n)).toBeGreaterThanOrEqual(4);
+    expect(cracks.tier).toBe('veryHard');
+    expect(pits(m1, cracks.n)).toBeGreaterThanOrEqual(5);
     // The very hard throat has a leg more than the plain one (3).
     const throat = m1.stages!.find((s) => s.type === 'throat')!;
     expect(throat.tier).toBe('veryHard');
     const legs = m1.segments.filter((s) => s.type === 'floor' && s.z >= throat.start && s.z < throat.end && (s['x1'] as number) - (s['x0'] as number) <= 10 && (s['length'] as number) > 20).length;
     expect(legs).toBeGreaterThanOrEqual(4);
   });
-  it('the first two stages of mountain 1 have no gap to jump at the edge of the reach', () => {
+  it('the first two stages of mountain 1 have no gap to jump at the edge of the reach (the first minute, the giant)', () => {
     const m1 = worlds[0]!;
-    for (const st of m1.stages!.slice(0, 2)) {
-      expect(['intro', 'dips', 'ice', 'stairs']).toContain(st.type);
-      expect(['easy', 'veryEasy']).toContain(st.tier);
-    }
+    for (const st of m1.stages!.slice(0, 2)) expect(['intro', 'giant', 'dips', 'ice', 'stairs']).toContain(st.type);
+    expect(m1.stages![0]!.tier).toBe('easy');
   });
   it('mountains 1 and 2 differ in half their stages at least; each has a trial the other has not', () => {
     const [a, b] = [worlds[0]!.stages!, worlds[1]!.stages!];

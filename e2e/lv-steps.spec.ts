@@ -67,15 +67,16 @@ test('steps sound at most ~3 a second: snow on the slope, ice on the slide; quie
   expect(f.surface).toBe('snow');
 });
 
-test('«Footsteps» from the pause (MU-07, MU-12): five cards, «Light snow» on, the rest locked — the calendar day 2, the shop; «To the shop» opens its «Steps» tab', async ({ page, openGame }) => {
+test('«Footsteps» from the pause (MU-07, MU-12, ST-07): seven cards, «Light snow» on, the rest locked — the calendar day 2, the shop, two for an ad; «To the shop» opens its «Steps» tab', async ({ page, openGame }) => {
   await openGame('pace=stages');
   await openFootsteps(page);
   const win = page.locator('[data-role="window"][data-window="footsteps"]');
   await expect(win.locator('.win-title')).toHaveText('Звук шагов');
-  await expect(win.locator('[data-footsteps]')).toHaveCount(5);
+  await expect(win.locator('[data-footsteps]')).toHaveCount(steps.sets.length);
   await expect(win.locator(`[data-footsteps="${free[0]}"][data-state="on"]`)).toBeVisible();
   await expect(win.locator(`[data-footsteps="${free[0]}"] .card-name`)).toHaveText('Лёгкий снег');
-  await expect(win.locator('[data-hud="footsteps-ad"]')).toHaveCount(0);
+  // ST-07: two sets for an ad.
+  await expect(win.locator('[data-hud="footsteps-ad"]')).toHaveCount(steps.sets.filter((x) => x.unlock === 'ad').length);
   await expect(win.locator('[data-hud="footsteps-buy"]')).toHaveCount(0);
   await expect(win.locator('[data-footsteps="velvet_snow"]')).toContainText('День 2');
   for (const s of shop) await expect(win.locator(`[data-footsteps="${s.id}"] [data-hud="footsteps-shop"]`)).toBeVisible();

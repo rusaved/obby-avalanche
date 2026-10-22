@@ -327,7 +327,8 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
         break;
       }
       case 'giant': {
-        const L = round3(clamp(5 * v, 150, 360));
+        // ST-02: the tier stretches or shortens the chase.
+        const L = round3(clamp(5 * v * (1 + 0.15 * add), 150, 360));
         floor(zb, L, y);
         const covers = [
           { x: round3(half / 2), z: round3(zb + 0.4 * L), r: 4, h: 6 },
@@ -364,7 +365,8 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
         const c = round3(cfg.catapultK ? clamp(cfg.catapultK * F, 12, 120) : clamp(0.7 * F, 12, 90));
         const land = round3(0.6 * F + 10);
         floor(zb, 10, y);
-        const pads = add > 1 ? 3 : 2;
+        // ST-02 (reviews: «hard» was the plain two): a trampoline more a tier above the middle.
+        const pads = 2 + Math.max(0, add);
         for (let k = 0; k < pads; k++) {
           const padZ = k === 0 ? zb + 6 : zb - 4;
           seg.push({ type: 'jumpPad', z: round3(padZ), x: 0, y, width: round3(cfg.field - 4), length: 4, stretch: s, forward, shape: 'catapult' });
@@ -381,7 +383,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
       case 'chute': {
         const L = round3(clamp(3 * v, 90, 300));
         // ST-02: a very easy chute is a bridge as wide as the others.
-        const cw = index === 1 && tier !== 'veryEasy' ? 5 : bw;
+        const cw = tier === 'veryEasy' ? bw + 1 : index === 1 ? 5 : bw;
         pit(zb, L, y, s);
         floor(zb, L, y, -cw, cw, { material: 'ice' });
         seg.push({ type: 'slide', z: round3(zb + L / 2), x: 0, y, width: round3(2 * cw), length: L, stretch: s, mult: spec.relief?.chute?.mult ?? 1.6 });
@@ -391,7 +393,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
       case 'throat':
       case 'blizzard': {
         // A ledge 1–3 steps wide over the pit, turning side to side (22.5): three legs (the blizzard — two, wider, in fog).
-        const legs = (type === 'throat' ? 3 : 2) + (add > 0 ? 1 : 0);
+        const legs = (type === 'throat' ? 3 : 2) + Math.max(0, add);
         const lw = type === 'throat' ? 5 : 6;
         const leg = round3(clamp((type === 'throat' ? 1.2 : 1.6) * v, 36, 150));
         const off = type === 'throat' ? 12 : 8;
@@ -410,9 +412,10 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
       case 'avalanche': {
         // The wave comes from the top of the stage on entering (22.5): a run to the end is caught, a grotto in a rock by
         // the axis every `every` × v saves — at v(N) the nearest is within reach of the short warning.
-        const L = round3(clamp(7 * v, 210, 900));
+        // ST-02: the tier — a longer run and the grottos further apart above the middle, shorter and closer below.
+        const L = round3(clamp(7 * v * (1 + 0.15 * add), 210, 900));
         floor(zb, L, y);
-        const every = round3(clamp(cfg.avalanche.every * v, 45, 200));
+        const every = round3(clamp(cfg.avalanche.every * v * (1 + 0.1 * add), 45, 200));
         let k = 0;
         for (let zg = zb + every / 2; zg < zb + L - 10; zg += every, k++) seg.push({ type: 'island', z: round3(zg), x: (k % 2 === 0 ? -1 : 1) * cfg.avalanche.x, y, size: 12, zone: s, stretch: s, ...(cfg.avalanche.through ? { through: true } : {}) });
         waveZones.push([round3(z0), round3(zb + L)]);
@@ -522,9 +525,10 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     const dec = cfg.decor?.[index - 1];
     if (dec) {
       const edge = round3(half - 4);
-      seg.push({ type: 'decor', z: round3(start - cfg.start / 2), x: (s % 2 === 0 ? 1 : -1) * edge, y: yStart, kind: dec.start });
-      seg.push({ type: 'decor', z: round3(end + 3), x: -edge, y, kind: dec.finish });
-      seg.push({ type: 'decor', z: round3(end + cfg.finish - 3), x: edge, y, kind: dec.finish });
+      const sz = dec.scale !== undefined ? { size: dec.scale } : {};
+      seg.push({ type: 'decor', z: round3(start - cfg.start / 2), x: (s % 2 === 0 ? 1 : -1) * edge, y: yStart, kind: dec.start, ...sz });
+      seg.push({ type: 'decor', z: round3(end + 3), x: -edge, y, kind: dec.finish, ...sz });
+      seg.push({ type: 'decor', z: round3(end + cfg.finish - 3), x: edge, y, kind: dec.finish, ...sz });
       if (s === K) seg.push({ type: 'decor', z: round3(end + cfg.finish - 2), x: round3(-Math.sign(padX) * (half - 8)), y, kind: dec.landmark, size: dec.size, landmark: true });
     }
     safe.push([end, round3(end + cfg.finish)]);
@@ -565,6 +569,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     profile: [[0, half]],
     stages,
     campTeleport: { x: CAMP_TELEPORT[0], y: 0, z: CAMP_TELEPORT[1] },
+    ...(cfg.padBehindTakes !== undefined ? { padBehindTakes: cfg.padBehindTakes } : {}),
   };
 }
 

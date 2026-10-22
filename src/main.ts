@@ -272,11 +272,16 @@ async function boot(): Promise<void> {
   const speedCurve = () => ({ ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed });
   // The avalanche (docs/02-tech.md 8.1): live world threat (debug sliders change it), save counters.
   // ST-06: the stage pads of a mountain pay balance.stagePads.takes times a life (the count in the save).
+  // ST-06: a stage pad behind the farthest stage reached on its mountain pays world.padBehindTakes times a life (the count in
+  // the save); the farthest one — always.
+  const padBehind = (w: World, n: number): boolean => n < (save.stageBest?.[String(w.index)] ?? 0);
   const padPayOf = (w: World) => (n: number): boolean => {
-    const pays = padPays(save, w.index, n, balance.stagePads?.takes);
+    if (!padBehind(w, n)) return true;
+    const pays = padPays(save, w.index, n, w.padBehindTakes);
     persist();
     return pays;
   };
+  const padSpent = (w: World, n: number): boolean => w.padBehindTakes !== undefined && padBehind(w, n) && (save.padTakes?.[`${w.index}:${n}`] ?? 0) >= w.padBehindTakes;
   const threatOptions = (w: World, firstSec?: number): ThreatOptions => ({
     firstSec,
     threat: w.threat,
@@ -1268,7 +1273,7 @@ async function boot(): Promise<void> {
             boost: (() => {
               const offer = adsView?.boostOffer();
               if (!adsView || !offer) return null;
-              const wait = offer.run > 0 ? { wait: t('gifts.boostRun', { time: formatTimer(offer.run) }) } : offer.wait > 0 ? { wait: t('daily.soon', { time: formatTimer(offer.wait) }) } : {};
+              const wait = offer.run > 0 ? { running: t('gifts.boostRun', { time: formatTimer(offer.run) }) } : offer.wait > 0 ? { wait: t('daily.soon', { time: formatTimer(offer.wait) }) } : {};
               return { title: t('gifts.boost', { n: Math.round(balance.boost.x2Sec / 60) }), busy: adsView.busy === 'x2_stat', ...wait };
             })(),
           },
@@ -1634,7 +1639,8 @@ async function boot(): Promise<void> {
       if (windows?.current === 'pets') petsSeen = pets;
       hud?.setMenu([
         { id: 'teleport', label: t('btn.teleport'), icon: 'teleport' },
-        { id: 'shop', label: t('btn.shop'), icon: 'bag' },
+        // ST-01 (usability review: nothing led to the purchase): «!» on the shop while the step of the sneakers is on.
+        { id: 'shop', label: t('btn.shop'), icon: 'bag', badge: campView?.step === 'shoes' && shopAfford().shoes ? '!' : '' },
         { id: 'pets', label: t('btn.pets'), icon: 'paw', badge: pets > petsSeen ? '!' : '' },
         { id: 'more', label: t('btn.more'), icon: 'dots' },
       ]);
@@ -2274,7 +2280,7 @@ async function boot(): Promise<void> {
   });
   hudView.wire(sim);
   // The stage finishes of the stages pace (docs/01-gdd.md 22.8): the trophy buttons.
-  stageView = createStageView({ getSim: () => sim, hud, camera: cameraRig, theme, field: () => field, fx: () => fx, play: (n) => audio?.play(n), numSuffix, mu: muLayout,
+  stageView = createStageView({ padSpent: (n) => padSpent(g.world, n), getSim: () => sim, hud, camera: cameraRig, theme, field: () => field, fx: () => fx, play: (n) => audio?.play(n), numSuffix, mu: muLayout,
     basePortals: () => (onBase ? basePortals.map((p) => ({ x: p.x, z: p.z, height: p.height, text: t(`world.${p.id}`), sub: portalPlaque(p).text, locked: portalPlaque(p).locked })) : null),
     onTrophy: (n, trophies) => {
       campView?.trophyTaken();

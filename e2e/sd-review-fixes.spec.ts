@@ -13,6 +13,11 @@ test('finish of stage 6: no plate over it; a ridge: no «+0»; the maze: no wave
     window.__TEST__!.setPlaySec(400);
     window.__TEST__!.setStat(1e15);
   });
+  // The maze (ST-02: first — a wave of the stage before it would still run): standing in it for its delay and more — no warning.
+  const mz = m1.find((s) => s.type === 'maze')!;
+  await page.evaluate(([z, x, y]) => window.__TEST__!.teleport(z, x, y + 0.5), [mz.maze!.z0 + mz.maze!.cell / 2, mz.maze!.x0 + (mz.maze!.entrance + 0.5) * mz.maze!.cell, mz.y] as const);
+  await waitTicks(page, 60 * 8);
+  expect((await testState(page)).wave?.phase ?? 'idle').toBe('idle');
   const s6 = m1.find((s) => s.n === 6)!;
   await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.5), [s6.finish[0] + 4, s6.y] as const);
   await waitTicks(page, 30);
@@ -24,11 +29,6 @@ test('finish of stage 6: no plate over it; a ridge: no «+0»; the maze: no wave
   await page.evaluate(() => window.__TEST__!.botPath(null));
   await waitTicks(page, 60);
   await expect(page.locator('[data-role=coin-gain]')).not.toContainText('+0');
-  // The maze: standing in it for its delay and more — no warning.
-  const mz = m1.find((s) => s.type === 'maze')!;
-  await page.evaluate(([z, x, y]) => window.__TEST__!.teleport(z, x, y + 0.5), [mz.maze!.z0 + mz.maze!.cell / 2, mz.maze!.x0 + (mz.maze!.entrance + 0.5) * mz.maze!.cell, mz.y] as const);
-  await waitTicks(page, 60 * 8);
-  expect((await testState(page)).wave?.phase ?? 'idle').toBe('idle');
 });
 
 test('past the giant the view stays along the slope', async ({ page, openGame }) => {

@@ -1374,7 +1374,7 @@
     ],
     "giantLevel": {
       "g": [
-        1.16,
+        1.13,
         1.13,
         1.25
       ],
@@ -1385,26 +1385,26 @@
     "plan": [
       [
         "intro",
-        "dips",
         "giant",
-        "cracks",
-        "avalanche",
         "plates",
+        "avalanche",
+        "dips",
         "ice",
-        "maze",
+        "cracks",
         "throat",
+        "maze",
         "chute"
       ],
       [
         "stairs",
-        "plates",
         "catapult",
+        "plates",
         "cracks",
         "giant",
         "avalanche",
         "dips",
-        "blizzard",
         "maze",
+        "blizzard",
         "chute"
       ],
       [
@@ -1528,12 +1528,12 @@
     "waves": [
       [
         "easy",
-        "easy",
         "mid",
         "hard",
         "mid",
-        "mid",
         "easy",
+        "easy",
+        "veryHard",
         "veryHard",
         "veryHard",
         "veryEasy"
@@ -1544,7 +1544,7 @@
         "hard",
         "hard",
         "mid",
-        "easy",
+        "mid",
         "easy",
         "veryHard",
         "veryHard",
@@ -1560,8 +1560,20 @@
     },
     "stairsRise": 0.8,
     "decor": [
-      { "start": "cairn", "finish": "lantern", "landmark": "cairn", "size": 3 },
-      { "start": "pine", "finish": "pine", "landmark": "pine", "size": 3.5 }
-    ]
+      {
+        "start": "cairn",
+        "finish": "lantern",
+        "landmark": "cairn",
+        "size": 3
+      },
+      {
+        "start": "pine",
+        "finish": "pine",
+        "landmark": "pine",
+        "size": 3.5,
+        "scale": 1.6
+      }
+    ],
+    "padBehindTakes": 3
   }
 }

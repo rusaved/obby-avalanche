@@ -30,7 +30,7 @@ export interface GiftsPanelModel {
   ad: { title: string; busy: boolean; wait?: string } | null;
   /** ST-07 (Q-M4-1 B): «×2 per step · 3 min» for an ad beside «+N Speed»; `wait` — the boost runs (its time left) or the
    * pause of the ads, the button off; null — no card. */
-  boost?: { title: string; busy: boolean; wait?: string } | null;
+  boost?: { title: string; busy: boolean; wait?: string; running?: string } | null;
 }
 
 export interface GiftsPanelActions {
@@ -111,14 +111,18 @@ export function renderGiftsPanel(body: HTMLElement, m: GiftsPanelModel, a: Gifts
   if (m.boost) {
     const c = el('div', 'card gf-card');
     c.dataset['role'] = 'gift-boost';
-    c.append(el('span', 'card-name', m.boost.title), el('span', 'card-sub', m.boost.wait ?? t('gifts.forAd')));
+    c.append(el('span', 'card-name', m.boost.title), el('span', 'card-sub', m.boost.running ? t('gifts.forAd') : (m.boost.wait ?? t('gifts.forAd'))));
     const b = el('button', 'card-btn quiet');
     b.dataset['hud'] = 'gift-boost-ad';
-    setRich(b, t('gifts.ad'));
-    b.disabled = m.boost.busy || m.boost.wait !== undefined;
+    // ST-07 (usability review): while the boost runs the button says so with its time, grey.
+    if (m.boost.running) b.textContent = m.boost.running;
+    else setRich(b, t('gifts.ad'));
+    b.disabled = m.boost.busy || m.boost.wait !== undefined || m.boost.running !== undefined;
     b.addEventListener('click', () => a.boostAd?.());
     c.appendChild(b);
     cards.appendChild(c);
   }
+  // ST-07 (usability review: a fourth card went to a row of its own and the window cut the body to one row): four in a row.
+  if (cards.children.length >= 4) cards.classList.add('four');
   body.append(cards, tiles);
 }

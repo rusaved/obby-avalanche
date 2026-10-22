@@ -20,7 +20,7 @@ const steps = (pack['sfx.json'] as SfxJson).footsteps as FootstepsJson;
 
 describe('footsteps manifest (sfx.json)', () => {
   it('SD-14, MU-12 (Q-MU-6), ST-07: 7 sets of files — «Light snow» free, «Velvet» of the calendar day 2, «Whisper» for coins (Q-MU-6 changed 21.10), 2 for trophies, 2 for an ad (ST-07); the common ice; ~3 a second, ± 1 semitone; every file on disk; no synth', () => {
-    expect(steps.sets.map((s) => s.id)).toEqual(['light_snow', 'whisper_snow', 'velvet_snow', 'magic_snow', 'quiet_crust', 'frost_chime', 'deep_drift']);
+    expect(steps.sets.map((s) => s.id)).toEqual(['light_snow', 'frost_chime', 'deep_drift', 'whisper_snow', 'velvet_snow', 'magic_snow', 'quiet_crust']);
     const by = (u: string): string[] => steps.sets.filter((s) => s.unlock === u).map((s) => s.id);
     expect(by('free')).toEqual(['light_snow']);
     expect(by('daily')).toEqual(['velvet_snow']);

@@ -43,6 +43,8 @@ export interface StageViewDeps {
   onCampReturn?: () => void;
   /** The teleport pad of the camp of this mountain (docs/01-gdd.md 22.12); absent — none. */
   campTeleport?: () => { x: number; y: number; z: number } | undefined;
+  /** ST-06: the pad of stage n pays nothing any more (its label says «Reward taken»). */
+  padSpent?(stage: number): boolean;
   /** MU-04 (l3-stage-finish): the light plaque «Stage reward · coin N / you can run past» over the pad. */
   mu?: boolean;
   /** Round of fixes MU (l5-camp): on the base, its portals with their plaque texts; null — not on the base. */
@@ -152,10 +154,11 @@ export function createStageView(d: StageViewDeps): StageView {
         const corners = [-1, 1].flatMap((sx) => [-1, 1].map((sz) => project(st.pad.x + sx * PAD_HALF, st.pad.y, st.pad.z + sz * PAD_HALF)));
         const seen = corners.filter((c): c is { x: number; y: number } => c !== null);
         const pad = seen.length === 4 ? { x0: Math.min(...seen.map((c) => c.x)), y0: Math.min(...seen.map((c) => c.y)), x1: Math.max(...seen.map((c) => c.x)), y1: Math.max(...seen.map((c) => c.y)) } : undefined;
+        const spent = d.padSpent?.(st.n) ?? false;
         return d.hud.setPadLabel({
-          ...(pad ? { pad } : {}), text: t('stage.padReward', { n: fmt(st.trophies) }), ...(sim.padTaken[best] ? {} : { sub: t('stage.padPass') }), x: at.x, y: at.y, ...(hero ? { hero } : {}) });
+          ...(pad ? { pad } : {}), text: spent ? t('stage.padTaken') : t('stage.padReward', { n: fmt(st.trophies) }), ...(sim.padTaken[best] || spent ? {} : { sub: t('stage.padPass') }), x: at.x, y: at.y, ...(hero ? { hero } : {}) });
       }
-      d.hud.setPadLabel(st && at ? { text: `+${fmt(st.trophies)}`, x: at.x, y: at.y } : tpAt ? { text: t('teleport.title'), x: tpAt.x, y: tpAt.y, tap: true } : null);
+      d.hud.setPadLabel(st && at ? { text: d.padSpent?.(st.n) ? t('stage.padTaken') : `+${fmt(st.trophies)}`, x: at.x, y: at.y } : tpAt ? { text: t('teleport.title'), x: tpAt.x, y: tpAt.y, tap: true } : null);
     },
   };
 }

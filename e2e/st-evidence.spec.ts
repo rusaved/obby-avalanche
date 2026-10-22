@@ -54,24 +54,27 @@ for (const [w, h] of [[880, 405], [815, 290]] as const)
       await expect.poll(async () => (await testState(page)).tutor, { timeout: 30_000 }).toBe(4);
       await page.evaluate(() => window.__TEST__!.botPath(null));
       await waitTicks(page, 60);
+      await page.waitForTimeout(3500);
       await shot(page, 'tut-5-shoes');
       await page.locator('[data-hud="menu-shop"]').dispatchEvent('pointerdown');
       await page.locator('[data-hud="shop-tab-shoes"]').click();
       await shot(page, 'tut-5-shop');
       await page.locator('[data-role="window"].open [data-item="runners"] [data-hud="shop-item"]').click();
       await page.locator('[data-hud="win-close"]').click();
+      await waitTicks(page, 30);
+      await shot(page, 'tut-6-onward');
+      // The gift — the last step (its time gifts open at 5 min of play).
       await page.evaluate(() => {
+        window.__TEST__!.setTutor(8);
         window.__TEST__!.setPlaySec(310);
         window.__TEST__!.addPlayToday(70);
       });
       await waitTicks(page, 30);
-      await shot(page, 'tut-6-gift');
+      await shot(page, 'tut-9-gift');
       await page.locator('[data-hud="gift"]').dispatchEvent('pointerdown');
-      await shot(page, 'tut-6-gifts-window');
+      await shot(page, 'tut-9-gifts-window');
       await page.locator('[data-role="window"].open [data-hud="gift-claim"]').first().click();
       await page.locator('[data-hud="win-close"]').click();
-      await waitTicks(page, 30);
-      await shot(page, 'tut-7-onward');
     });
 
     for (const wi of [1, 2])

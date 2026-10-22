@@ -1056,5 +1056,10 @@ canvas.fallback {
 .hud.mu .hud-shoes.short { padding-left: 8px; padding-right: 8px; }
 .hud.mu .hud-shoes-cap { font-size: 13px; font-weight: 700; }
 .hud.mu .hud-level-bar { height: 32px; border-radius: 16px; border: 2px solid rgba(255, 255, 255, 0.7); }
+/* …its middle on the line of the sneakers button (44 high, 16 over the bottom): 3 px lower. */
+.hud.mu .hud-level { bottom: calc(22px + env(safe-area-inset-bottom)); }
 .hud.mu .hud-level-text { font-size: 16px; }
 .hud.mu .hud-level-title { font-weight: 800; }
+/* ST-07 (usability review): four cards of «Gifts» in one row — the group's two buttons one over the other. */
+#ui.mu .gf-cards.four { grid-template-columns: 1.15fr 1fr 1fr 1fr; }
+#ui.mu .gf-cards.four .gf-btns { flex-direction: column; gap: 6px; }

@@ -48,7 +48,7 @@ for (const k of [1, 1.3]) {
     await page.waitForTimeout(300);
     await page.screenshot({ path: `${dir}/strip-out${tag}.png` });
     // l2-gate: three levels short at the ridge of stage 4.
-    const st4 = W.stages[3]!;
+    const st4 = W.stages[5]!; // ST-02: the ridge of stage 6 — past the flat avalanche stage (stage 3 is the giant's)
     await page.evaluate(([s, z]) => {
       window.__TEST__!.setStat(s);
       window.__TEST__!.teleport(z);
