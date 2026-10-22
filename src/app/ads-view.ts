@@ -43,7 +43,16 @@ export interface AdsViewDeps {
   numSuffix(k: string): string;
   /** The stat changed by a reward: persist and update what depends on it. */
   onStat(): void;
+  /** M4-04: the points of `game.json.ads.interstitial` (docs/01-gdd.md 9.2). */
+  interstitialPoints?: readonly string[];
+  /** M4-04: play seconds of this load (from gameReady; pauses not counted). */
+  sessionSec?(): number;
+  /** M4-04: «No ads» bought (IAP-03) — no fullscreen ads. */
+  noAds?(): boolean;
 }
+
+/** M4-04 (docs/01-gdd.md 9.2): where a fullscreen ad may follow a press of the player. */
+export type InterstitialPoint = 'portal' | 'rebirth' | 'menu';
 
 export interface AdsView {
   /** Ids of the buttons shown now (tests). */
@@ -58,6 +67,9 @@ export interface AdsView {
   giftAd(done: () => void): void;
   /** MU-07 (w5-summit): «Ad: ×2» by the chest (place x2_chest) — `coins` once more on `rewarded`. */
   chestAd(coins: number, done: () => void): void;
+  /** M4-04: the player pressed at `point` — a fullscreen ad if its rules allow (called at once, within the press), then
+   * `then` (at once when no ad). The game stands («ad») while it plays and goes on after any outcome. */
+  interstitial(point: InterstitialPoint, then: () => void): void;
 }
 
 export function createAdsView(d: AdsViewDeps): AdsView {
@@ -71,6 +83,10 @@ export function createAdsView(d: AdsViewDeps): AdsView {
   const freeSpent = new Set<number>();
   let shown: string[] = [];
   let busy: string | null = null;
+  /** M4-04: session seconds of the last fullscreen ad shown and of the last rewarded ad played. */
+  let interAt = -Infinity;
+  let rewardedAt = -Infinity;
+  const session = (): number => d.sessionSec?.() ?? now;
   /** Play seconds of the last reward of each place (its cooldown counts from there). */
   const lastAt = new Map<string, number>();
   let now = 0;
@@ -98,6 +114,7 @@ export function createAdsView(d: AdsViewDeps): AdsView {
     void d.platform
       .showRewarded(place)
       .then((r) => {
+        if (!r.error) rewardedAt = session();
         if (r.rewarded) {
           lastAt.set(place, now);
           d.hud.toast(give(), 3, true, undefined, undefined, true);
@@ -133,6 +150,47 @@ export function createAdsView(d: AdsViewDeps): AdsView {
         d.onStat();
         return t('toast.adCoins', { n: fmt(coins) });
       }, done);
+    },
+    interstitial(point, then) {
+      const sim = d.getSim();
+      const phase = sim.threat?.state.phase ?? 'idle';
+      const flags = (d.save.flags ??= {});
+      // The first portal of a new player passes with no ad (Q-014); the cooldown stays as it was.
+      const firstPortal = point === 'portal' && !flags['firstPortalDone'];
+      if (point === 'portal') flags['firstPortalDone'] = true;
+      const t0 = session();
+      const allowed =
+        (d.interstitialPoints ?? []).includes(point) &&
+        !(firstPortal && ads.skipFirstPortal) &&
+        !busy &&
+        !(d.noAds?.() ?? false) &&
+        // Never on the warning or while the avalanche runs (docs/01-gdd.md 9.2).
+        phase !== 'warn' &&
+        phase !== 'run' &&
+        t0 >= ads.interstitialMinSec &&
+        t0 - interAt >= ads.interstitialCooldownSec &&
+        t0 - rewardedAt >= ads.interstitialAfterRewardedSec;
+      if (!allowed) {
+        then();
+        return;
+      }
+      busy = `inter_${point}`;
+      d.pause.add('ad');
+      void d.platform
+        .showInterstitial(point)
+        .then((r) => {
+          // The cooldown counts from an ad really shown (wasShown, docs/01-gdd.md 9.2).
+          if (r.shown) {
+            interAt = session();
+            track('inter_shown', { placement: point });
+          }
+        })
+        .finally(() => {
+          busy = null;
+          d.pause.remove('ad');
+          track('ad_resume_ok', { placement: point, type: 'interstitial' });
+          then();
+        });
     },
     get shown() {
       return shown;
@@ -206,6 +264,7 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       void d.platform
         .showRewarded(id)
         .then((r) => {
+          if (!r.error) rewardedAt = session();
           if (r.rewarded) {
             lastAt.set(id, now);
             let got = t('toast.reward');

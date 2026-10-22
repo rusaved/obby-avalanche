@@ -40,7 +40,12 @@
   var advanced = 0;
 
   var LIMIT_WINDOW_MS = 5 * 60 * 1000;
-  var AD_SHOW_MS = 1500;
+  // M4-00 (producer 22.10, the truthful stand): the producer's link (build:pages marks the copy __YA_MOCK_PAGES__) shows
+  // an ad for 3 s and the sticky banner on the right; e2e keep 1.5 s and no banner unless asked (?mock_ad_ms, ?mock_banner).
+  var PAGES = !!root.__YA_MOCK_PAGES__;
+  var AD_SHOW_MS = Number(cfg.mock_ad_ms) || (PAGES ? 3000 : 1500);
+  var BANNER_ON = cfg.mock_banner !== undefined ? cfg.mock_banner === '1' : PAGES;
+  var BANNER_W = 160;
   var AD_SLOW_OPEN_MS = 5000;
   var STARTUP_AD_MS = 2000;
 
@@ -135,6 +140,45 @@
     },
   };
 
+  // M4-00: the sticky banner of the platform on the right (landscape and desktop): the platform squeezes the frame of the
+  // game by its width — here the visible part of the window the game measures (visualViewport) is narrower by it.
+  var bannerShown = false;
+  var bannerEl = null;
+  var realViewport = root.visualViewport;
+  var viewport = null;
+  function bannerSide() { return bannerShown && root.innerWidth > root.innerHeight ? BANNER_W : 0; }
+  function bannerResize() {
+    if (bannerEl) bannerEl.style.display = bannerSide() ? 'flex' : 'none';
+    if (viewport) viewport.dispatchEvent(new Event('resize'));
+  }
+  if (BANNER_ON && typeof EventTarget !== 'undefined' && root.addEventListener) {
+    viewport = new EventTarget();
+    Object.defineProperties(viewport, {
+      width: { get: function () { return Math.max(0, (realViewport ? realViewport.width : root.innerWidth) - bannerSide()); } },
+      height: { get: function () { return realViewport ? realViewport.height : root.innerHeight; } },
+      offsetLeft: { value: 0 },
+      offsetTop: { value: 0 },
+      pageLeft: { value: 0 },
+      pageTop: { value: 0 },
+      scale: { value: 1 },
+    });
+    if (realViewport) realViewport.addEventListener('resize', bannerResize);
+    root.addEventListener('resize', bannerResize);
+    Object.defineProperty(root, 'visualViewport', { configurable: true, get: function () { return viewport; } });
+  }
+  function showBanner() {
+    var doc = root.document;
+    if (!viewport || bannerShown || !doc || !doc.body) return;
+    bannerShown = true;
+    bannerEl = doc.createElement('div');
+    bannerEl.id = '__ya_mock_banner__';
+    bannerEl.style.cssText = 'position:fixed;top:0;right:0;width:' + BANNER_W + 'px;height:100%;z-index:99990;background:repeating-linear-gradient(45deg,#d8dde3 0 12px,#c5ccd4 12px 24px);display:flex;align-items:center;justify-content:center;font:600 14px system-ui,sans-serif;color:#556;';
+    bannerEl.textContent = (lang === 'en' ? 'Ad' : '\u0420\u0435\u043a\u043b\u0430\u043c\u0430') + ' \u00b7 ' + BANNER_W;
+    doc.body.appendChild(bannerEl);
+    bannerResize();
+    root.dispatchEvent(new Event('resize'));
+  }
+
   var readyCalled = false;
   var gameplayState = 'stopped';
   var adBusy = false;
@@ -145,8 +189,16 @@
     var el = doc.createElement('div');
     el.id = '__ya_mock_ad__';
     el.setAttribute('data-kind', kind);
-    el.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(10,20,40,.92);color:#fff;display:flex;align-items:center;justify-content:center;font:600 24px/1.2 system-ui,sans-serif;';
-    el.textContent = 'mock ' + kind + ' ad';
+    // M4-00: a dark screen with the one word the platform shows over its ads, in the language of the game.
+    el.style.cssText = 'position:fixed;inset:0;z-index:100000;background:#0b1220;color:#fff;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;font:700 28px/1.2 system-ui,sans-serif;';
+    var word = doc.createElement('div');
+    word.textContent = lang === 'en' ? 'Ad' : '\u0420\u0435\u043a\u043b\u0430\u043c\u0430';
+    var sub = doc.createElement('div');
+    sub.style.cssText = 'font:500 14px/1.2 system-ui,sans-serif;opacity:.6;';
+    var kindRu = kind === 'rewarded' ? '\u0437\u0430 \u043d\u0430\u0433\u0440\u0430\u0434\u0443' : '\u043f\u043e\u043b\u043d\u043e\u044d\u043a\u0440\u0430\u043d\u043d\u0430\u044f';
+    sub.textContent = (lang === 'en' ? kind : kindRu) + ' \u00b7 ' + Math.round(AD_SHOW_MS / 1000) + (lang === 'en' ? ' s' : ' \u0441');
+    el.appendChild(word);
+    el.appendChild(sub);
     doc.body.appendChild(el);
     return el;
   }
@@ -281,6 +333,8 @@
           record('LoadingAPI.ready');
           if (readyCalled) throw violate('LoadingAPI.ready() called twice');
           readyCalled = true;
+          // M4-00: a sticky banner switched on in the console shows once the game is ready.
+          showBanner();
         },
       },
       GameplayAPI: {
@@ -291,8 +345,8 @@
     adv: {
       showFullscreenAdv: showFullscreenAdv,
       showRewardedVideo: showRewardedVideo,
-      getBannerAdvStatus: function () { record('adv.getBannerAdvStatus'); return Promise.resolve({ stickyAdvIsShowing: false, reason: 'ADV_IS_NOT_CONNECTED' }); },
-      showBannerAdv: function () { record('adv.showBannerAdv'); return Promise.resolve({ stickyAdvIsShowing: false, reason: 'ADV_IS_NOT_CONNECTED' }); },
+      getBannerAdvStatus: function () { record('adv.getBannerAdvStatus'); return Promise.resolve(BANNER_ON ? { stickyAdvIsShowing: bannerShown } : { stickyAdvIsShowing: false, reason: 'ADV_IS_NOT_CONNECTED' }); },
+      showBannerAdv: function () { record('adv.showBannerAdv'); showBanner(); return Promise.resolve(BANNER_ON ? { stickyAdvIsShowing: bannerShown } : { stickyAdvIsShowing: false, reason: 'ADV_IS_NOT_CONNECTED' }); },
       hideBannerAdv: function () { record('adv.hideBannerAdv'); return Promise.resolve({ stickyAdvIsShowing: false }); },
     },
     on: on,

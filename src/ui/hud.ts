@@ -287,6 +287,9 @@ const LOW_H = 340;
 const STRIP_PEEK_MS = 2500;
 /** MU round 3: the level bar (320, never under 160) and the shoes button on one line between the stick and the jump. */
 const ROW_GAP = 8;
+/** M4-R4 (reviewer: squeezed by the sticky banner, «Mountain N · stage» was gone): a frame narrower than this keeps the
+ * label of the stage strip between its moments — only the strip itself slides away. */
+const MU_NARROW = 760;
 const BAR_W = 320;
 const BAR_MIN = 160;
 const MU_JUMP = 64;
@@ -650,6 +653,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const placeRow = (): void => {
     if (!opts.mu) return;
     const shoesOn = shoes.classList.contains('shown') && !root.classList.contains('camp');
+    root.classList.toggle('narrow', fieldW < MU_NARROW);
     // The ring is placed by its margin of −size / 2; its border makes it wider than its size.
     const lo = MU_STICK_X - stickD / 2 + (stickBase.offsetWidth || stickD) + ROW_GAP;
     // MU round 4 (Q-MU-16: the platform squeezes the frame by its banner; A66): the level bar comes first and keeps its

@@ -292,6 +292,8 @@ canvas.fallback {
 .card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 6px; border-radius: 12px; border: 3px solid var(--rim, #c8d6e5); background: #fff; text-align: center; }
 .card.on { box-shadow: 0 0 0 3px #4cd964 inset; }
 .card-name { font-size: 13px; font-weight: 800; line-height: 1.1; }
+/* M4-R4: what else a calendar day brings (day 2 — a set of steps), a quieter line under the name. */
+.card-extra { display: block; max-width: 100%; font-size: 12px; font-weight: 600; line-height: 1.15; opacity: 0.85; }
 .card-big { font-size: 20px; font-weight: 800; }
 .card-sub { font-size: 12px; opacity: 0.8; }
 .card-swatch { width: 52px; height: 52px; border-radius: 10px; border: 2px solid rgba(27, 42, 58, 0.25); }
@@ -350,7 +352,7 @@ canvas.fallback {
 .rb-reward { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
 .rb-reward-text { display: flex; flex-direction: column; text-align: left; }
 .rb-small { margin: 6px 0 0; font-size: 12px; font-weight: 700; opacity: 0.75; }
-.rb-hint { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; font-size: 13px; font-weight: 800; }
+.rb-hint { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 0 0 6px; font-size: 13px; font-weight: 800; }
 .rb-btns { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
 .rb-go { min-width: 160px; font-size: 15px; }
 .rb-text { margin: 4px 0 8px; font-size: 16px; font-weight: 700; }
@@ -568,6 +570,8 @@ canvas.fallback {
 #ui.mu .win-title { margin: 0; font-size: 18px; font-weight: 800; line-height: 22px; color: #fff; }
 #ui.mu .win-sub { display: block; font-size: 14px; font-weight: 500; line-height: 18px; color: var(--mu-muted); }
 #ui.mu .win-sub:empty { display: none; }
+/* M4-R4: on the phone «Spend the coins…» is the subtitle of «Rebirth»; its row keeps the button only. */
+#ui.mu .rb-hint > span { display: none; }
 #ui.mu .win-head { flex: none; align-self: center; font-size: 14px; font-weight: 700; color: #fff; }
 #ui.mu .win-close { width: 44px; height: 44px; border-radius: 50%; background: var(--mu-quiet); color: #fff; display: flex; align-items: center; justify-content: center; padding: 0; }
 #ui.mu .win-close[hidden] { display: none; }
@@ -865,6 +869,10 @@ canvas.fallback {
 .hud.mu .hud-mountain { transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
 .hud.mu.strip-off .hud-mountain { transform: translate(-50%, calc(-100% - 16px)); opacity: 0; }
 .hud.mu.strip-off .hud-hint, .hud.mu.strip-off .hud-need, .hud.mu.strip-off .hud-tutor, .hud.mu.strip-off .hud-wave, .hud.mu.strip-off .hud-ads, .hud.mu.strip-off .hud-toast { top: calc(8px + env(safe-area-inset-top)); }
+/* M4-R4: a narrow frame (squeezed by the banner) keeps «Mountain N · stage» on top; the strip slides away, the slot under the label. */
+.hud.mu.narrow.strip-off .hud-mountain { transform: translateX(-50%); opacity: 1; }
+.hud.mu.narrow.strip-off .hud-mountain > :not(.hud-mountain-label) { opacity: 0; }
+.hud.mu.narrow.strip-off .hud-hint, .hud.mu.narrow.strip-off .hud-need, .hud.mu.narrow.strip-off .hud-tutor, .hud.mu.narrow.strip-off .hud-wave, .hud.mu.narrow.strip-off .hud-ads, .hud.mu.narrow.strip-off .hud-toast { top: calc(32px + env(safe-area-inset-top)); }
 /* MU round 4 (producer 20.10: «Buy» of an egg out of sight at 880 × 405): an egg card — the swatch, the name with the
    price and «Buy» on top, the pets of the egg as faces with their % under them in two rows. */
 #ui.mu .win-grid:has(> .egg-card) { grid-template-columns: repeat(auto-fill, minmax(min(100%, 264px), 1fr)); }

@@ -90,7 +90,10 @@ export function createRebirthView(d: RebirthViewDeps): RebirthView {
       return rebirthReady(d.save, d.balance);
     },
     openWindow() {
-      d.windows.open('rebirth', t('rebirth.title'), render, { next: false });
+      // M4-R4 (reviewer: at 815 × 290 «Spend the coins…» only after a scroll): on the phone the advice is the subtitle.
+      const sim = d.getSim();
+      const cheapest = Math.min(...d.eggs.eggs.map((e) => eggPrice(e, sim.tier, d.balance.rebirth)));
+      d.windows.open('rebirth', t('rebirth.title'), render, { next: false, ...(sim.coins >= cheapest ? { sub: t('rebirth.spendHint') } : {}) });
     },
     openAllDone() {
       d.windows.open('allDone', t('allDone.title'), (body) =>

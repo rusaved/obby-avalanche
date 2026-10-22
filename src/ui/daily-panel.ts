@@ -14,6 +14,8 @@ const DAY_NAME_MIN = 9;
 export interface DailyCard {
   day: string;
   name: string;
+  /** M4-R4: what else the day brings (a set of steps on day 2), a line under the name. */
+  extra?: string;
   icon: string;
   state: 'past' | 'today' | 'future';
 }
@@ -59,6 +61,7 @@ export function renderDailyPanel(body: HTMLElement, m: DailyPanelModel, claim: (
     card.dataset['role'] = 'daily-card';
     card.dataset['state'] = c.state;
     card.append(el('span', 'card-sub', c.day), rewardIcon(c.icon), el('span', 'card-name', c.name));
+    if (c.extra) card.appendChild(el('span', 'card-extra', c.extra));
     if (c.state !== 'today') {
       const mark = el('span', 'dl-mark');
       mark.innerHTML = markIcon(c.state === 'past' ? 'check' : 'lock');
@@ -84,7 +87,8 @@ export function renderDailyPanel(body: HTMLElement, m: DailyPanelModel, claim: (
   // wider than its card gets a smaller font, half a pixel at a time, never a word broken in two.
   if (typeof ResizeObserver !== 'undefined' && body.closest('#ui.mu')) {
     const fit = (): void => {
-      for (const n of Array.from(row.querySelectorAll<HTMLElement>('.card-name'))) {
+      // M4-R4: the line of what else the day brings (day 2 — a set of steps) fits the same way.
+      for (const n of Array.from(row.querySelectorAll<HTMLElement>('.card-name, .card-extra'))) {
         let px = Number.parseFloat(getComputedStyle(n).fontSize);
         for (let i = 0; i < 12 && n.scrollWidth > n.clientWidth + 0.5 && px > DAY_NAME_MIN; i++) {
           px -= 0.5;
@@ -93,7 +97,7 @@ export function renderDailyPanel(body: HTMLElement, m: DailyPanelModel, claim: (
       }
     };
     const ro = new ResizeObserver(() => row.isConnected && fit());
-    for (const n of Array.from(row.querySelectorAll<HTMLElement>('.card-name'))) ro.observe(n);
+    for (const n of Array.from(row.querySelectorAll<HTMLElement>('.card-name, .card-extra'))) ro.observe(n);
   }
   // A name wider than its card (one long word at a large text size of the phone): 4 + 3 cards, not a word cut in two.
   if (typeof ResizeObserver !== 'undefined' && !body.closest('#ui.mu')) {
@@ -102,7 +106,7 @@ export function renderDailyPanel(body: HTMLElement, m: DailyPanelModel, claim: (
       // A name wider than the inside of its card (its padding kept, MU round 3: «Skin "Penguin"» ran 1.5 px into it).
       const inner = (e: HTMLElement | null): number => (e ? e.clientWidth - Number.parseFloat(getComputedStyle(e).paddingLeft) - Number.parseFloat(getComputedStyle(e).paddingRight) : 0);
       // A word longer than its line shows in scrollWidth, not in offsetWidth.
-      if (Array.from(row.querySelectorAll<HTMLElement>('.card-name')).some((n) => Math.max(n.offsetWidth, n.scrollWidth) > inner(n.parentElement) + 1)) {
+      if (Array.from(row.querySelectorAll<HTMLElement>('.card-name, .card-extra')).some((n) => Math.max(n.offsetWidth, n.scrollWidth) > inner(n.parentElement) + 1)) {
         row.classList.add('dl-fit4');
         // MU round of fixes 2 (staff: at 130 % day 7 was under the fold): «Take» in the free eighth cell of 4 + 3. MU round 3
         // (reviews: at 815 × 290 that cell went under the edge of the scrolling middle): a «Take» standing under the

@@ -792,6 +792,8 @@ async function boot(): Promise<void> {
         windows.open('pause', t('settings.title'), (body) => body.appendChild(panel), { next: false, sub: t('game.title'), size: 'cards' });
       } else windows.open('pause', t('game.title'), (body) => body.appendChild(panel), { next: false, fitTitle: true });
       track('menu_open');
+      // M4-04 (point menu): the player opened the pause himself — a fullscreen ad may come over it.
+      adsView?.interstitial('menu', () => undefined);
     },
     teleport(x, y, z) {
       sim.teleport(x, y, z);
@@ -1114,7 +1116,10 @@ async function boot(): Promise<void> {
       next: t('btn.next'),
       onClose: () => {
         if (summitAt === Infinity) summitAt = save.totalPlaySec ?? 0;
-        go(flow({ kind: 'summit', world: info.from, replay: false }));
+        // M4-04 (docs/01-gdd.md 9.2, point portal): «Next» may bring a fullscreen ad, the way on after it.
+        const next = (): void => go(flow({ kind: 'summit', world: info.from, replay: false }));
+        if (adsView) adsView.interstitial('portal', next);
+        else next();
       },
     });
     // SD-14: the trophy of the summit — its fanfare from ui/ (the window keeps the sound, see createAudio).
@@ -1872,6 +1877,9 @@ async function boot(): Promise<void> {
     moving: () => input.autoRun || (lastSnap ? lastSnap.moveX !== 0 || lastSnap.moveY !== 0 : false) || !!g.botPath,
     numSuffix,
     onStat: () => persist(),
+    interstitialPoints: game.ads?.interstitial ?? [],
+    sessionSec: () => playSec,
+    noAds: () => !!save.flags?.['noAds'],
   });
   // Fun between the gates and the reward of every gate (docs/01-gdd.md 16.4, 16.5): sounds, particles, the fountain.
   fx = createFx();
@@ -2061,7 +2069,8 @@ async function boot(): Promise<void> {
     numSuffix,
     persist,
     lookFigure: (kind, id) => cosmeticsView!.lookFigure(kind, id),
-    onRebirth: () => rebirth(),
+    // M4-04 (point rebirth): «Rebirth» may bring a fullscreen ad, the rebirth after it.
+    onRebirth: () => (adsView ? adsView.interstitial('rebirth', rebirth) : rebirth()),
     toEggs: () => cosmeticsView?.openShop('eggs'),
   });
   // Calendar (docs/01-gdd.md 7.6): rewards by the data, the game day by server time; the window opens only by its button.

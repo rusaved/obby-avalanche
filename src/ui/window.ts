@@ -90,6 +90,7 @@ const EDGE_MIN = 44;
 /** Q-MU-18 Б (producer 22.10): under the edge the next row of a list with no control in it peeks this much at most —
  * the sign the list scrolls. */
 const PEEK_MAX = 16;
+const NO_PEEK = '.rb-cols, .pause-grid, .more-grid';
 /** MU round 4: the lists of the middle — their items are its cards and rows (the same as the snap rows, styles.css). */
 const LISTS = '.win-grid, .foot-grid, .qs-list, .gf-cards, .gf-tiles, .dl-cards, .tr-grid, .rb-cols, .pause-grid, .more-grid, .tp-list';
 /** The shortest bar of the rail (px). */
@@ -200,8 +201,9 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
     const cards: Array<[number, number]> = [];
     // Q-MU-18 Б: the items of a list with no control in them and not a control themselves — these may peek.
     const plain: Array<[number, number]> = [];
+    // Lists of rows only: the columns of «Rebirth» and the menu grids are a layout, not a list to scroll through.
     const plainEls = Array.from(body.querySelectorAll<HTMLElement>(`:scope :is(${LISTS}) > *`)).filter(
-      (u) => !u.matches(`:is(${LISTS}), button, input, select`) && !u.querySelector('button, input, select'),
+      (u) => !u.matches(`:is(${LISTS}), button, input, select`) && !u.querySelector('button, input, select') && !u.parentElement!.matches(NO_PEEK),
     );
     for (const u of plainEls) {
       const r = u.getBoundingClientRect();

@@ -15,7 +15,7 @@ import type { WindowFrame } from '../ui/window.ts';
 import type { Rewards } from './rewards.ts';
 import { canClaimDaily, claimDaily, claimedToday, dailyIndex, dailyReward, nextDayAt, rollDay } from '../meta/daily.ts';
 import { renderDailyPanel, type DailyCard } from '../ui/daily-panel.ts';
-import { formatTimer } from '../ui/format.ts';
+import { formatNumber, formatTimer } from '../ui/format.ts';
 import { t } from '../ui/i18n.ts';
 
 export interface DailyViewDeps {
@@ -29,6 +29,9 @@ export interface DailyViewDeps {
   persist(flush?: boolean): void;
   /** A new game day began (quests and time rewards of M3-08b refresh). */
   onNewDay?(): void;
+  numSuffix(k: string): string;
+  /** M4-R4: what else day `day` (1…7) of the first circle brings besides its reward (a set of steps), or null. */
+  dayExtra?(day: number): string | null;
 }
 
 export interface DailyView {
@@ -74,6 +77,7 @@ export function createDailyView(d: DailyViewDeps): DailyView {
       return {
         day: t('daily.day', { n: i + 1 }),
         name: view.cardName(i, c),
+        ...(c === 0 && d.dayExtra?.(i + 1) ? { extra: d.dayExtra(i + 1)! } : {}),
         icon: REWARD_ICON[reward.kind],
         state: i < today || (i === today && taken) ? 'past' : i === today ? 'today' : 'future',
       };
@@ -122,8 +126,10 @@ export function createDailyView(d: DailyViewDeps): DailyView {
       }
     },
     cardName(index, c) {
-      const { alt } = pick(index, c);
-      return t(alt ? `daily.r${index + 1}alt` : `daily.r${index + 1}`);
+      const { alt, reward } = pick(index, c);
+      // M4-R4: the coins of a day with their number.
+      const n = reward.kind === 'coins' ? formatNumber(d.rewards.coinsOf(reward.gifts), d.numSuffix) : undefined;
+      return t(alt ? `daily.r${index + 1}alt` : `daily.r${index + 1}`, n !== undefined ? { n } : undefined);
     },
     openWindow() {
       d.windows.open('daily', t('daily.title'), render);

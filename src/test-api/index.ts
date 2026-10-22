@@ -47,6 +47,8 @@ export interface TestState {
   baseBoard: string[];
   /** Best Speed of the save (the records board, FM-12). */
   bestStat: number;
+  /** M4-04: the flags of the save (firstWaveDone, firstPortalDone, noAds…). */
+  flags: Record<string, boolean>;
   world: string;
   controllable: boolean;
   pauseReasons: string[];
@@ -300,6 +302,8 @@ export interface TestApi {
   gotoWorld(index: number): void;
   /** Summits done on this tier, as after walking the portals of mountains 1…n (M3-06: the rebirth opens at the last). */
   setSummits(n: number): void;
+  /** M4-04: a flag of the save, as the game would set it (noAds — as after the purchase). */
+  setFlag(name: string, on: boolean): void;
   /** A number as the game writes it (formatNumber with the suffixes of the language). */
   fmt(n: number): string;
   /** The hero carries a golden gift now (threat.bonus in the data, on warn or run); false otherwise (docs/02-tech.md 17). */
@@ -616,6 +620,7 @@ export function installTestApi(g: GameHandles): TestApi {
         giftReady: g.baseGiftReady,
         baseBoard: [...g.baseBoard],
         bestStat: g.save.bestStat ?? 0,
+        flags: { ...(g.save.flags ?? {}) },
         world: g.world.id,
         controllable: g.boot.controllable,
         pauseReasons: g.pause.reasons,
@@ -978,6 +983,9 @@ export function installTestApi(g: GameHandles): TestApi {
     },
     gotoWorld: (index) => g.gotoWorld(index),
     fmt: (n) => formatNumber(n, (k) => t(`num.${k}`)),
+    setFlag(name, on) {
+      (g.save.flags ??= {})[name] = on;
+    },
     setSummits(n) {
       g.save.summits = n;
     },
