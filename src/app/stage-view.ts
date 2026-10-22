@@ -22,9 +22,10 @@ const MU_LABEL_ABOVE = 0.5;
 const PORTAL_AT = 0.15;
 /** MU round 4 (producer 20.10: the world labels read from afar, stood in the middle and shook): on the phone a label
  * comes in at this distance (units = metres), goes out past the second one at once — no blinking at the border — and
- * comes in again no sooner than this time (s) after it flipped. MU round 5 (producer 21.10): ×1.5 — 18 in, out past 21. */
-const MU_SHOW = 18;
-const MU_HIDE = 21;
+ * comes in again no sooner than this time (s) after it flipped. MU round 5 (producer 21.10): ×1.5 — 18 in, out past 21;
+ * MU rest R1 (producer 22.10): ×1.5 again — 27 in, out past 31. */
+const MU_SHOW = 27;
+const MU_HIDE = 31;
 const MU_FLIP_SEC = 0.5;
 
 export interface StageViewDeps {
