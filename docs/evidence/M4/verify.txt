@@ -267,3 +267,7 @@ first wave from the rock: 138 ticks of the pass, front in the frame 120, hero 13
   ✓  161 [desktop] › e2e/open-perf.spec.ts:121:1 › the ridge view and the giant’s shot come back behind the hero within 1.5 s; a turn by hand ends them (13.1s)
   ✓  162 [desktop] › e2e/open-perf.spec.ts:156:1 › 640×360: both lanes of the fork of section 3 of mountain 4 are in the frame from its start (15.5s)
   ✘  160 [desktop] › e2e/open-perf.spec.ts:70:1 › a simulation step on mountain 10 at CPU ×4 stays within 2 ms; memory does not grow over 5 transitions (40.1s)
+  ✓  163 [desktop] › e2e/open-ridge.spec.ts:29:1 › ridge 1 opens on the approach of the physical bot; all passages melt at once, fountain, flag, view frame; at ridge 2 only belt or run (1.0m)
+  ✓  164 [desktop] › e2e/open-ridge.spec.ts:107:1 › no «▶ Ad: open the wall» at any ridge; «▶ Ad: +N speed» in the ridge grotto after 60 s and the first avalanche (29.4s)
+  ✓  165 [desktop] › e2e/open-ridge.spec.ts:141:1 › section multiplier: past ridge 1 a step gives ×1.2 with the same shoes and pets; the plaque shows ×1,2 (18.7s)
+  ✓  166 [desktop] › e2e/open-ridge.spec.ts:169:1 › the sign of a ridge the hero has passed is gone for good, also when he looks back down (13.7s)
