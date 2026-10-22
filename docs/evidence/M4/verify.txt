@@ -384,3 +384,39 @@ m3 island z 1890: in 11.5, off 7.6, turn 8.8, off after the turn 11.3; 3 drags l
   ✓  230 [desktop] › e2e/sp-belt-camera.spec.ts:54:1 › belts of mountains 1–3: in, off without a turn, turned round by hand and out — the camera ≥ NEAR off the head; screenshot (10.9m)
   ✓  238 [desktop] › e2e/sp-field.spec.ts:65:1 › in the middle of the field of mountain 1 at the hero’s level the borders are out of the frame; screenshot (26.7s)
   ✓  237 [desktop] › e2e/sp-field.spec.ts:25:1 › a runner at an edge of the field of mountain 1 (±(width/2 − 5)) reaches a shelter on the siren 10 of 10 (3.6m)
+  ✓  240 [desktop] › e2e/sp-fork.spec.ts:68:1 › dropped on the bottom of the crevasse: out up its slope within 4 s, no fall (20.0s)
+  ✓  239 [desktop] › e2e/sp-fork.spec.ts:23:1 › each lane of the fork up to ridge 2, no fall; the other lane in the frame; screenshot (1.1m)
+  ✓  241 [desktop] › e2e/sp-fork.spec.ts:100:1 › «Two ways: pick one»: not while running through the fork; after a 2 s stop at it (21.8s)
+side grotto controls:
+mountain 1 left z 94: out by «back» at -43.9; «forward» 0° off up the slope (v 0.0, 24.4; view 0°)
+mountain 1 right z 148: out by «back» at 45.5; «forward» 0° off up the slope (v 0.0, 26.8; view 0°)
+mountain 2 left z 104: out by «back» at -51.0; «forward» 0° off up the slope (v 0.0, 30.1; view 0°)
+mountain 2 right z 168: out by «back» at 46.7; «forward» 0° off up the slope (v 0.0, 31.9; view 0°)
+  ✓  243 [desktop] › e2e/sp-grotto-controls.spec.ts:24:1 › side grottos of mountains 1–2: in sideways, out by «back», then «forward» leads up the slope (48.5s)
+  ✓  244 [desktop] › e2e/sp-pets-hint.spec.ts:6:1 › the pets hint: up with the shop on screen and the coins for the egg, never before the shop, gone without the coins (24.0s)
+advice: passed
+0.85: passed passed
+0.7: caught caught
+  ✓  242 [desktop] › e2e/sp-giant.spec.ts:216:1 › mountain 1, a run of each: the advice straight passes, 0.85 behind a rock passes, 0.7 is caught; the giant in view; the hint once; cover in the events (1.9m)
+  ✓  246 [desktop] › e2e/sp-giant.spec.ts:242:1 › draw calls in the giant’s zones of mountains 1, 5, 10 ≤ 45; screenshot of the zone of mountain 1 (1.2m)
+  ✓  247 [desktop] › e2e/sp-relief.spec.ts:83:1 › the relief of mountain 8: the terrace up to its ridge and the hump of section 2; screenshot (43.6s)
+«Phew» early: front 92.0 hero 94.0
+run 1: up to z 1353, falls 0
+run 2: up to z 151, falls 0
+run 3: up to z 151, falls 0
+run 4: up to z 264, falls 0
+run 5: up to z 151, falls 0
+run 6: up to z 151, falls 0
+run 7: up to z 171, falls 0
+run 8: up to z 151, falls 0
+run 9: up to z 151, falls 0
+run 10: up to z 151, falls 0
+  ✓  245 [desktop] › e2e/sp-relief.spec.ts:33:1 › mountain 1: a «child» bot, 10 runs of 40 s from the camp up the terraces — not one fall (4.1m)
+  ✓  249 [desktop] › e2e/sp-shelter-white.spec.ts:129:1 › the scripted first wave: the free egg shows only once its snow has passed the hero in the grotto (28.2s)
+«Phew» early: front 93.5 hero 94.3
+  ✓  250 [desktop] › e2e/sp-speed.spec.ts:28:1 › mountain 1: the run at ridge 2 ≥ 2.2 ×, at the giant ≥ 2.6 × the start; the camera farther and wider; screenshots (38.3s)
+  ✓  251 [desktop] › e2e/sp-speed.spec.ts:74:1 › on a belt the hero does not speed up: the belt runs, not he (14.1s)
+«Phew» early: front 92.0 hero 94.2
+«Phew» early: front 307.3 hero 310.0
+first rock, back to the mouth: in his face 100% of 45 frames without shelterKeep, 33% of 15 with it
+  ✘  252 [desktop] › e2e/sp-wave-camera.spec.ts:57:1 › the first rock: back to its mouth on the siren the camera is in his face in ≤ FACE of the frames (with shelterKeep); screenshot (1.4m)
