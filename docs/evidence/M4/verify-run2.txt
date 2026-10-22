@@ -1,0 +1,13 @@
+start 07:07 84c95a3
+
+> obby-avalanche@0.1.0 verify
+> node scripts/verify.mjs
+
+
+== verify: typecheck
+-- verify: typecheck ok, 4.1 s
+
+== verify: test
+
+ RUN  v5.0.3 /home/user/obby-avalanche
+
