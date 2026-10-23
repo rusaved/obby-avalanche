@@ -13,14 +13,14 @@
   "fog": { "color": "#E2ECF4", "near": 60, "far": 220 },
   "tints": {
     "pines": { "sky": { "top": "#4F7A74", "bottom": "#B7CCC3" }, "fog": "#B7CCC3", "track": "#E3ECE7" },
-    "pass": { "sky": { "top": "#A9B8F2", "bottom": "#EEEAFB" }, "fog": "#EEEAFB", "track": "#F3F1FB" },
-    "falls": { "sky": { "top": "#6FC3E8", "bottom": "#DDF3FA" }, "fog": "#DDF3FA", "track": "#EEF8FC" },
-    "canyon": { "sky": { "top": "#F2B48C", "bottom": "#FBEDE2" }, "fog": "#FBEDE2", "track": "#FBF4EE" },
-    "crystal": { "sky": { "top": "#7EE0E0", "bottom": "#E2FAF8" }, "fog": "#E2FAF8", "track": "#F0FBFA" },
+    "pass": { "sky": { "top": "#9AA6D6", "bottom": "#E9E8F5" }, "fog": "#E9E8F5", "track": "#F3F2F9" },
+    "falls": { "sky": { "top": "#6FAFD0", "bottom": "#DCEEF5" }, "fog": "#DCEEF5", "track": "#EDF6FA" },
+    "canyon": { "sky": { "top": "#C99A80", "bottom": "#F1E4DB" }, "fog": "#F1E4DB", "track": "#F8F1EC" },
+    "crystal": { "sky": { "top": "#7FC0C3", "bottom": "#E1F1F1" }, "fog": "#E1F1F1", "track": "#EFF8F8" },
     "blizzard": { "sky": { "top": "#9DB1C6", "bottom": "#E3E9EF" }, "fog": "#E3E9EF", "track": "#EEF1F4" },
-    "clouds": { "sky": { "top": "#F2A9C8", "bottom": "#FCEAF2" }, "fog": "#FCEAF2", "track": "#FBF3F7" },
-    "aurora": { "sky": { "top": "#8E86E6", "bottom": "#E6E3FA" }, "fog": "#E6E3FA", "track": "#F1F0FB" },
-    "stars": { "sky": { "top": "#6E7FD8", "bottom": "#DCE0F7" }, "fog": "#DCE0F7", "track": "#EDEFFA" }
+    "clouds": { "sky": { "top": "#B99AAE", "bottom": "#EFE5EA" }, "fog": "#EFE5EA", "track": "#F7F1F4" },
+    "aurora": { "sky": { "top": "#7C77C2", "bottom": "#E1DFF2" }, "fog": "#E1DFF2", "track": "#EFEEF8" },
+    "stars": { "sky": { "top": "#56639F", "bottom": "#D3D8EE" }, "fog": "#D3D8EE", "track": "#E8EAF6" }
   },
   "light": {
     "sun": "#FFF4E0",

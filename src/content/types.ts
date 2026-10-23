@@ -672,7 +672,7 @@ export interface World {
 }
 
 /** Types of a stage (docs/01-gdd.md 22.5); `intro` — the first minute of mountain 1 as built (22.1). */
-export type StageType = 'intro' | 'dips' | 'cracks' | 'giant' | 'plates' | 'catapult' | 'chute' | 'throat' | 'avalanche' | 'blizzard' | 'maze' | 'ice' | 'stairs';
+export type StageType = 'intro' | 'dips' | 'cracks' | 'giant' | 'plates' | 'catapult' | 'chute' | 'throat' | 'avalanche' | 'blizzard' | 'maze' | 'ice' | 'stairs' | 'ball';
 
 /** ST-02 (wave of difficulty, producer 22.10): the tier of a stage — the number of its pieces goes by it (StageSpec.tierAdd). */
 export type StageTier = 'veryEasy' | 'easy' | 'mid' | 'hard' | 'veryHard';
@@ -1108,6 +1108,11 @@ export interface StageSpec {
   /** ST-04 (producer 22.10: each mountain its own look): by mountain — the decor at the edges of every start pad (`start`)
    * and finish (`finish`), and the landmark by the last finish (`landmark` × `size`); absent — no decor on that mountain. */
   decor?: Array<{ start: string; finish: string; landmark: string; size: number; scale?: number }>;
+  /** MT-01 (RG 18.5: «the giant is not alone»): from this mountain on the giant stages bring the helpers of the open
+   * mountain's giant to the borders of the field; absent — no helpers on the stages. */
+  giantHelpersFrom?: number;
+  /** MT-06: from mountain `from` on a ridge asks at most `max` levels over the stage before it; absent — as the log scale gives. */
+  levelStep?: { from: number; max: number };
   /** ST-06: a stage pad behind the farthest stage reached pays this many times a life, then nothing (World.padBehindTakes). */
   padBehindTakes?: number;
 }

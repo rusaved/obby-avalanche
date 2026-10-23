@@ -52,6 +52,7 @@ export const STAGE_WIDTH: Record<StageType, WorldStage['width']> = {
   maze: 'cave',
   ice: 'field',
   stairs: 'field',
+  ball: 'field',
 };
 
 /** ST-02: the wave of a mountain (producer 22.10) — its tiers with the repeats folded must read exactly so. */
@@ -206,7 +207,9 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
   const carried = index > 1 ? nearestLevel(spec.mountains[index - 2]!.boss.requires, levels) : 1;
   const levelOfStage: number[] = [];
   // `gateK` (LV-12 review «the gates never hold»): every requirement × it before it becomes a level — one data knob.
-  for (let s = 1; s <= K; s++) levelOfStage.push(s === 1 ? carried : Math.max(levelOfStage[s - 2] ?? 1, nearestLevel(reqAt(s) * (s === 2 && index === 1 ? 1 : cfg.gateK ?? 1), levels)));
+  // MT-06 (an easy start after a hard mountain): from `levelStep.from` on a ridge asks at most `levelStep.max` levels over the last one.
+  const stepMax = cfg.levelStep && index >= cfg.levelStep.from ? cfg.levelStep.max : Infinity;
+  for (let s = 1; s <= K; s++) levelOfStage.push(s === 1 ? carried : Math.min(levelOfStage[s - 2]! + stepMax, Math.max(levelOfStage[s - 2] ?? 1, nearestLevel(reqAt(s) * (s === 2 && index === 1 ? 1 : cfg.gateK ?? 1), levels))));
 
   // Step multipliers and gift zones of the open sections along the same share of the mountain (17.4: moved, not recounted).
   const openZone = (s: number): WorldZone => ow.zones[Math.min(ow.zones.length - 1, Math.floor(((s - 1) * ow.zones.length) / K))]!;
@@ -335,7 +338,9 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
           { x: round3(-half / 2), z: round3(zb + 0.7 * L), r: 4, h: 6 },
         ];
         for (const c of covers) seg.push({ type: 'cover', z: c.z, x: c.x, y, r: c.r, h: c.h, zone: s });
-        bosses.push({ zone: [round3(zb), round3(zb + L)], requires: round3(levelThreshold(level, levels)), returnMult: 1.5, giants: [{ speed: Math.floor((v / (1 + (cfg.giantMargin?.[index - 1] ?? cfg.giantMarginRest ?? m.boss.margin))) * 1000) / 1000, patrol: 'chase', seeDist: 0, turnSec: 0.5, ...(cfg.giantSlipPast === false ? { slipPast: false } : {}), ...(cfg.giantSide !== undefined ? { side: byMountain(cfg.giantSide, index) } : {}), ...(cfg.giantLag ? { lag: byMountain(cfg.giantLag, index) } : {}), ...(cfg.giantSlipMargin !== undefined ? { slipMargin: byMountain(cfg.giantSlipMargin, index) } : {}) }], width: cfg.field, covers, ...(cfg.giantEveryRun ? { rearm: true } : {}), ...(cfg.giantLevel ? { level: { n: level, ...cfg.giantLevel, g: byMountain(cfg.giantLevel.g, index) } } : {}) } as WorldBoss);
+        // MT-01: the helpers of the open giant (RG 18.5) on the borders of this field, from `giantHelpersFrom` on.
+        const helpers = index >= (cfg.giantHelpersFrom ?? Infinity) ? (ow.bosses?.[0]?.helpers ?? []).map((h) => ({ ...h, x: round3(Math.sign(h.x) * (half + 2)) })) : [];
+        bosses.push({ ...(helpers.length > 0 ? { helpers } : {}), zone: [round3(zb), round3(zb + L)], requires: round3(levelThreshold(level, levels)), returnMult: 1.5, giants: [{ speed: Math.floor((v / (1 + (cfg.giantMargin?.[index - 1] ?? cfg.giantMarginRest ?? m.boss.margin))) * 1000) / 1000, patrol: 'chase', seeDist: 0, turnSec: 0.5, ...(cfg.giantSlipPast === false ? { slipPast: false } : {}), ...(cfg.giantSide !== undefined ? { side: byMountain(cfg.giantSide, index) } : {}), ...(cfg.giantLag ? { lag: byMountain(cfg.giantLag, index) } : {}), ...(cfg.giantSlipMargin !== undefined ? { slipMargin: byMountain(cfg.giantSlipMargin, index) } : {}) }], width: cfg.field, covers, ...(cfg.giantEveryRun ? { rearm: true } : {}), ...(cfg.giantLevel ? { level: { n: level, ...cfg.giantLevel, g: byMountain(cfg.giantLevel.g, index) } } : {}) } as WorldBoss);
         zb += L;
         break;
       }
@@ -479,6 +484,14 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
         seg.push({ type: 'stairs', z: round3(start), length: round3(zb - start), y: yStart, x: 0, count: n, gap: w, rise, section: s, stage: true });
         break;
       }
+      case 'ball': {
+        // MT-02 (the snowball of RG 18.4, the canyon's own trial): a field down which balls roll one after another at the
+        // hero (sim/events.ts) — a step aside or a jump; a hit is a tumble and a slowdown, no failure. The tier — longer or shorter.
+        const L = round3(clamp(8 * v * (1 + 0.15 * add), 240, 600));
+        floor(zb, L, y, -half, half, { ball: s });
+        zb += L;
+        break;
+      }
       case 'intro':
         throw new Error(`${m.id}: stage ${s} — intro is the first stage of mountain 1 only`);
     }
@@ -503,8 +516,8 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     // the first minute. A grotto in a rock on the start pad beside the axis; the first wave `stageExtraSec` later than a
     // clean run of the body at v(N) — the slow one hides in it or runs on to the safe finish.
     const extra = cfg.avalanche.stageExtraSec;
-    // Not in the maze either (SD-09 review: under its walls no grotto is in reach — it is a trial of its own).
-    if (extra !== undefined && type !== 'giant' && type !== 'avalanche' && type !== 'maze') {
+    // Not in the maze either (SD-09 review: under its walls no grotto is in reach — it is a trial of its own), nor the balls (MT-02).
+    if (extra !== undefined && type !== 'giant' && type !== 'avalanche' && type !== 'maze' && type !== 'ball') {
       // By the edge of the field (SD-09 review: by the axis, seen from the ridge below, it read as a plate in the air).
       seg.push({ type: 'island', z: round3(start - cfg.start / 2), x: (s % 2 === 0 ? -1 : 1) * round3(half - cfg.start / 2 - EDGE_GAP), y: round3(yStart), size: cfg.start, zone: s, stretch: s, ...(cfg.avalanche.through ? { through: true } : {}) });
       waveZones.push([round3(z0), round3(zb), round3((zb - start) / v + extra)]);

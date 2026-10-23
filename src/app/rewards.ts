@@ -58,7 +58,9 @@ export function createRewards(d: RewardsDeps): Rewards {
       const zg = sim.level.zoneGifts ?? {};
       // The base has no zones: the first zone of the player's mountain.
       const own = d.worlds.find((w) => w.index === (d.save.world ?? 1))?.zones[0]?.gift;
-      const value = gift?.coins ?? zg[zone] ?? Object.values(zg)[0] ?? own ?? 0;
+      // MT-07 (the calendar of day 1 paid 9 000 at an egg of 500): on the stages the zone value first — a gift on that
+      // track is the golden snowflake (× its mult) or the coin trail of the first minute, not the worth of a gift.
+      const value = (sim.level.stages ? zg[zone] : undefined) ?? gift?.coins ?? zg[zone] ?? Object.values(zg)[0] ?? own ?? 0;
       return scaled(gifts * value, sim.tier, d.balance.rebirth);
     },
     eggOf(id) {

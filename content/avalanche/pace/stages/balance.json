@@ -260,5 +260,63 @@
   "levels": {
     "first": 50,
     "growth": 1.18
-  }
+  },
+  "timeRewards": [
+    {
+      "min": 1,
+      "reward": {
+        "kind": "coins",
+        "gifts": 50
+      }
+    },
+    {
+      "min": 3,
+      "reward": {
+        "kind": "boost",
+        "min": 3
+      }
+    },
+    {
+      "min": 5,
+      "reward": {
+        "kind": "egg",
+        "id": "snow"
+      }
+    },
+    {
+      "min": 10,
+      "reward": {
+        "kind": "trophies",
+        "n": 3
+      }
+    },
+    {
+      "min": 15,
+      "reward": {
+        "kind": "coins",
+        "gifts": 200
+      }
+    },
+    {
+      "min": 25,
+      "reward": {
+        "kind": "boost",
+        "min": 5
+      }
+    },
+    {
+      "min": 40,
+      "reward": {
+        "kind": "egg",
+        "id": "best"
+      }
+    },
+    {
+      "min": 60,
+      "reward": {
+        "kind": "trophies",
+        "n": 10
+      }
+    }
+  ]
 }

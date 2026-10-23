@@ -22,7 +22,7 @@ describe('the avalanche on the stages (SD-06)', () => {
     for (const w of worlds.worlds)
       for (const st of w.stages!) {
         const zone = (w.threat.zones ?? []).find((z) => z[0] >= st.z0 - 1e-6 && z[1] <= st.end + 1e-6);
-        if (st.type === 'giant' || st.type === 'intro' || st.type === 'maze') expect(zone, `${w.id} ${st.n}`).toBeUndefined();
+        if (st.type === 'giant' || st.type === 'intro' || st.type === 'maze' || st.type === 'ball') expect(zone, `${w.id} ${st.n}`).toBeUndefined();
         else {
           expect(zone, `${w.id} ${st.n}`).toBeDefined();
           expect(w.segments.some((s) => s.type === 'island' && s.z >= st.z0 && s.z <= st.end), `${w.id} ${st.n}`).toBe(true);

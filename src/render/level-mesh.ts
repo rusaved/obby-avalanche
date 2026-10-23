@@ -62,6 +62,12 @@ const STAGE_SIGN_K = 0.35;
 const STAGE_SIDE_GAP = 5.5;
 const STAGE_POST = 0.6;
 const STAGE_POST_W = 0.3;
+/** MT-05: the decor of mountains 3–10 in boxes (the spire with a snow cap) [x0, x1, y0, y1, z0, z1, material] at size 1 (the pine and the cairn are drawn below). */
+const DECOR_PARTS: Record<'spire' | 'crystal' | 'icefall', Array<[number, number, number, number, number, number, string]>> = {
+  spire: [[-1.3, 1.3, 0, 2.2, -1.3, 1.3, 'rock'], [-0.9, 0.8, 2.2, 4.6, -0.8, 0.9, 'throatWall'], [-0.5, 0.4, 4.6, 6.4, -0.4, 0.5, 'throatWall'], [-0.55, 0.45, 6.4, 6.9, -0.45, 0.55, 'border']],
+  crystal: [[-0.5, 0.5, 0, 4.2, -0.5, 0.5, 'ice'], [0.4, 1.1, 0, 2.6, -0.2, 0.5, 'ice'], [-1.2, -0.5, 0, 1.8, -0.6, 0.1, 'ice'], [-1.6, 1.6, 0, 0.3, -1.2, 1.2, 'rock']],
+  icefall: [[-2.2, 2.2, 0, 1.2, -1.2, 1.2, 'rock'], [-1.6, 1.6, 1.2, 5.5, -0.3, 0.3, 'ice'], [-1.1, 1.1, 5.5, 7.2, -0.25, 0.25, 'ice'], [-1.9, 1.9, 1.2, 1.9, -0.9, 0.9, 'ice']],
+};
 /** The glyph height of a gate's number: a ridge's own from the data (SP-04: larger on the field), else the defaults. */
 function signText(g: LevelData['gates'][number]): number {
   return g.kind === 'ridge' ? (g.digits ?? RIDGE_TEXT) : SIGN_TEXT;
@@ -275,6 +281,12 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       parts.push({ min: [p.x - 0.08 * k, p.y + 2.1 * k, p.z - 0.08 * k], max: [p.x + 0.08 * k, p.y + 3.4 * k, p.z + 0.08 * k], material: 'pole', kind: 'decor', solid: false });
       parts.push({ min: [p.x + 0.08 * k, p.y + 2.8 * k, p.z - 0.04 * k], max: [p.x + 0.9 * k, p.y + 3.35 * k, p.z + 0.04 * k], material: 'tent', kind: 'decor', solid: false });
       bucketOf(p.z).push(...parts.map((b) => boxGeometry(b, theme)));
+    } else if (p.type === 'decor' && (p['kind'] === 'spire' || p['kind'] === 'crystal' || p['kind'] === 'icefall')) {
+      // MT-05 (mountains 3–10): a rock spire of three stacked blocks, an ice crystal of three columns or a frozen fall of
+      // stepped ice slabs; `size` — the landmark by the summit.
+      const k = typeof p['size'] === 'number' ? (p['size'] as number) : 1;
+      const parts = DECOR_PARTS[p['kind'] as 'spire' | 'crystal' | 'icefall'];
+      bucketOf(p.z).push(...parts.map(([x0, x1, y0, y1, z0, z1, material]) => boxGeometry({ min: [p.x + x0 * k, p.y + y0 * k, p.z + z0 * k], max: [p.x + x1 * k, p.y + y1 * k, p.z + z1 * k], material, kind: 'decor', solid: false }, theme)));
     } else if (p.type === 'decor' && p['kind'] === 'tent') {
       const tent: LevelBox = { min: [p.x - 2.5, p.y, p.z - 2.5], max: [p.x + 2.5, p.y + 3, p.z + 2.5], material: 'tent', kind: 'decor', solid: false };
       bucketOf(p.z).push(boxGeometry(tent, theme));

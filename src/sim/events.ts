@@ -16,8 +16,7 @@ import { inSafeZone } from './shelter.ts';
 
 export type EventId = 'snowball' | 'blizzard';
 
-/** The trail on lane `x` from z0 (the top, where the ball starts) down to z1; the ball at `z`; `dz` — ball minus hero on
- * the last tick (a hit is the ball crossing him), the same of each bot in `bots` (Infinity — hit). */
+/** The trail on lane `x` from z0 (the top, where the ball starts) down to z1; the ball at `z`; `dz` — ball minus hero on the last tick (a hit is the ball crossing him), the same of each bot in `bots` (Infinity — hit). */
 export interface SnowballState { x: number; z0: number; z1: number; z: number; speed: number; dz: number; bots: Map<number, number>; hit: boolean }
 /** The blizzard over the section [z0, z1) for `left` more seconds. */
 export interface BlizzardState { z0: number; z1: number; left: number }
@@ -42,8 +41,7 @@ export interface Events {
   step(dt: number, ctx: EventsContext): void;
 }
 
-/** Half the hero across; the trail this far inside the borders, on this far below the hero; the free lane ends this far
- * below a closed gate, a throat or a cliff. */
+/** Half the hero across; the trail this far inside the borders, on this far below the hero; the free lane ends this far below a closed gate, a throat or a cliff. */
 const [HERO_HALF, TRAIL_INSET, PAST, GATE_GAP] = [0.5, 1, 20, 2];
 
 /** `force` (?mock_event=, tests): that event starts on every section entry its rules allow, no chance, no gap. */
@@ -90,8 +88,9 @@ export function createEvents(level: LevelData, cfg: GameEvents, seed: number, ga
     const half = level.halfAt(ctx.hero.z) - sb.trailWidth / 2 - TRAIL_INSET;
     const speed = sb.speedMult * ctx.run;
     const x = Math.max(-half, Math.min(half, ctx.hero.x));
-    const ahead = (ctx.run + speed) * sb.aheadSec;
-    if (room(x, ctx.hero.z, sb.trailWidth / 2) < ahead) return false;
+    const st = level.stages?.[k - 1]; // MT-02: a ball of a stage starts no higher than its body's top, seen half aheadSec at least
+    const ahead = Math.min(st ? st.end - ctx.hero.z : Infinity, (ctx.run + speed) * sb.aheadSec);
+    if (st ? ahead < ((ctx.run + speed) * sb.aheadSec) / 2 : room(x, ctx.hero.z, sb.trailWidth / 2) < ahead) return false;
     state.snowball = { x, z0: ctx.hero.z + ahead, z1: ctx.hero.z - PAST, z: ctx.hero.z + ahead, speed, dz: ahead, bots: new Map(), hit: false };
     return true;
   };
@@ -99,6 +98,7 @@ export function createEvents(level: LevelData, cfg: GameEvents, seed: number, ga
   const end = (id: EventId, why: EventEvents['eventEnd']['why'], tick: number): void => {
     state[id] = null;
     emit('eventEnd', { tick, id, why });
+    if (id === 'snowball' && why === 'past' && level.stages?.[section - 1]?.type === 'ball') [armed, armedAt] = ['snowball', time - cfg.delaySec]; // MT-02: the next ball
   };
 
   // The ball crossed him this tick (or touches him now): the gap went from one side of ±reach to the other.
@@ -138,9 +138,9 @@ export function createEvents(level: LevelData, cfg: GameEvents, seed: number, ga
       if (state.snowball) stepSnowball(dt, ctx, state.snowball);
       if (state.blizzard && (state.blizzard.left -= dt) <= 1e-9) end('blizzard', 'over', ctx.tick);
       const k = sectionAt(ctx.hero.z);
-      if (k !== section) { // stages pace (docs/01-gdd.md 22.5): the blizzard is its stage's trial, no random events
+      if (k !== section) { // stages pace (22.5): the blizzard and the balls (MT-02) are their stages' trials, no random events
         [section, armedAt] = [k, time];
-        armed = level.stages ? (level.stages[k - 1]?.type === 'blizzard' ? 'blizzard' : null) : !force && owed && k >= owed && !busy() ? 'blizzard' : k >= cfg.sections[0] && k <= cfg.sections[1] && !busy() && quiet(ctx) ? roll() : null;
+        armed = level.stages ? ({ blizzard: 'blizzard', ball: 'snowball' } as Record<string, EventId>)[level.stages[k - 1]?.type ?? ''] ?? null : !force && owed && k >= owed && !busy() ? 'blizzard' : k >= cfg.sections[0] && k <= cfg.sections[1] && !busy() && quiet(ctx) ? roll() : null;
       }
       if (!armed || busy() || time - armedAt < cfg.delaySec - 1e-9 || !quiet(ctx) || !start(armed, ctx, k)) return;
       emit('eventStart', { tick: ctx.tick, id: armed, section: k });

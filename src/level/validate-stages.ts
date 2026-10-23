@@ -1,4 +1,4 @@
-// What: Level checks of the stages pace (layout stageSlope, docs/01-gdd.md 22): ridges ask for levels, 10–15 stages of one trial each in the order of 22.5, no strip without a trial, 2–3 width changes, mazes with one real exit and 2–3 false ones, one trophy button per finish, the trials passable at v(N), the edge lines on the ground (MU-13).
+// What: Level checks of the stages pace (layout stageSlope, docs/01-gdd.md 22): ridges ask for levels, 10–15 stages of one trial each in the order of 22.5, the wave across the mountains (MT-06), no strip without a trial, 2–3 width changes, mazes with one real exit and 2–3 false ones, one trophy button per finish, the trials passable at v(N), the edge lines on the ground (MU-13).
 // Called by: level/validate.ts (validatePack, when worlds-spec.json has layout stageSlope); tests/level/stages.test.ts.
 // Keep: Pure; reads worlds.json, balance and tuning only; every message names the mountain and the stage; the physics numbers as stage-slope.ts builds them.
 
@@ -272,7 +272,7 @@ export function freeRuns(w: World, st: WorldStage, tuning: Physics): Array<[numb
     else if (s.type === 'jumpPad') cover.push([z0 - 10, z0 + padFlight(tuning, st.speed, typeof s['forward'] === 'number' ? num(s, 'forward') : tuning.fun.padForward)]);
     else if (s.type === 'stairs' && s['stage'] === true) cover.push([z0, z1]);
     else if (s.type === 'slide') cover.push([z0 - num(s, 'length') / 2, z0 + num(s, 'length') / 2]);
-    else if (s.type === 'floor' && s['maze'] !== undefined) cover.push([z0, z1]);
+    else if (s.type === 'floor' && (s['maze'] !== undefined || s['ball'] !== undefined)) cover.push([z0, z1]);
     else if (s.type === 'floor' && num(s, 'x1') - num(s, 'x0') <= BRIDGE_WIDTH[1] + 1e-6) cover.push([z0, z1]);
   }
   for (const b of w.bosses ?? []) cover.push([b.zone[0], b.zone[1]]);
@@ -384,11 +384,11 @@ export function validateStageWorld(w: World, levels: Levels, tuning: Physics, ma
   const zones = w.threat.zones ?? [];
   for (const zn of zones) {
     const st = stages.find((s) => zn[0] >= s.z0 - 1e-6 && zn[1] <= s.end + 1e-6);
-    if (!st || st.type === 'giant' || st.type === 'maze') errors.push(`${at}: an avalanche zone ${zn.join('–')} outside a stage of its own or on the giant's or the maze`);
+    if (!st || st.type === 'giant' || st.type === 'maze' || st.type === 'ball') errors.push(`${at}: an avalanche zone ${zn.join('–')} outside a stage of its own or on the giant's or the maze`);
   }
   const extra = zones.some((zn) => zn[2] !== undefined);
   for (const st of extra ? stages : []) {
-    if (st.type === 'giant' || st.type === 'intro' || st.type === 'avalanche' || st.type === 'maze') continue;
+    if (st.type === 'giant' || st.type === 'intro' || st.type === 'avalanche' || st.type === 'maze' || st.type === 'ball') continue;
     const zn = zones.find((x) => x[0] >= st.z0 - 1e-6 && x[1] <= st.end + 1e-6);
     const isl = w.segments.filter((s) => s.type === 'island' && s.z >= st.z0 - 1e-6 && s.z <= st.end + 1e-6).map((s) => s.z);
     if (!zn || isl.length === 0) {
@@ -407,7 +407,30 @@ export function validateStageWorld(w: World, levels: Levels, tuning: Physics, ma
   return errors;
 }
 
+/**
+ * MT-06 (producer 22.10: the wave over the whole game): with a wave on one mountain every mountain has its own; the next
+ * mountain starts no higher than the last stage of the one before (an easy start after a hard top); neighbour mountains
+ * differ in half their stages at least and each has a trial the one before has not.
+ */
+export function crossErrors(worlds: readonly World[]): string[] {
+  const errors: string[] = [];
+  const waved = worlds.some((w) => (w.stages ?? []).some((s) => s.tier !== undefined));
+  for (const [i, w] of worlds.entries()) {
+    const at = `worlds.json: worlds[${i}] (${w.id})`;
+    const st = w.stages ?? [];
+    if (waved && !st.some((s) => s.tier !== undefined)) errors.push(`${at}: no wave (every mountain has one, MT-06)`);
+    const prev = i > 0 ? worlds[i - 1]!.stages ?? [] : [];
+    if (prev.length === 0 || st.length === 0) continue;
+    if (st[0]!.level > prev[prev.length - 1]!.level) errors.push(`${at}: stage 1 asks level ${st[0]!.level}, over the last stage of mountain ${i} (${prev[prev.length - 1]!.level})`);
+    const same = st.filter((s, k) => prev[k]?.type === s.type).length;
+    if (same > st.length / 2) errors.push(`${at}: ${same} of ${st.length} stages as on mountain ${i} (half at most)`);
+    const [mine, theirs] = [new Set(st.map((s) => s.type)), new Set(prev.map((s) => s.type))];
+    if (![...mine].some((x) => !theirs.has(x))) errors.push(`${at}: no trial of its own against mountain ${i}`);
+  }
+  return errors;
+}
+
 export function validateStageWorlds(worlds: WorldsJson, levels: Levels | undefined, tuning: Physics, margin = 0.05, curve?: Curve): string[] {
   if (!levels) return ['balance.json: levels — required by the stages pace (docs/01-gdd.md 22.2)'];
-  return worlds.worlds.flatMap((w) => validateStageWorld(w, levels, tuning, margin, curve));
+  return [...worlds.worlds.flatMap((w) => validateStageWorld(w, levels, tuning, margin, curve)), ...crossErrors(worlds.worlds)];
 }

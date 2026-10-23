@@ -477,6 +477,7 @@
   "stageType.throat": "gorge",
   "stageType.ice": "ice",
   "stageType.stairs": "stairs",
+  "stageType.ball": "balls",
   "teleport.sub": "to a stage passed on mountain {n}",
   "teleport.buy": "Buy",
   "teleport.yes": "Yes, buy",

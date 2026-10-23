@@ -95,8 +95,9 @@ describe('stages pace: the mountain of stages (LV-03…LV-07, docs/01-gdd.md 22.
     // A free strip: the pits of the cracks stage gone.
     const cracks = full[2]!.stages!.find((s) => s.type === 'cracks')!;
     expect(errs((w) => (w.segments = w.segments.filter((s) => !(s.type === 'pit' && s.z >= cracks.start && s.z < cracks.end)))).some((e) => e.includes('without its trial'))).toBe(true);
-    expect(errs((w) => ([w.stages![1]!.type, w.stages![2]!.type] = ['cracks', 'giant'])).some((e) => e.includes('the giant second'))).toBe(true);
-    const plates = full[2]!.stages!.find((s) => s.type === 'plates')!;
+    // MT-06: mountain 3 has a wave — the giant in its first half.
+    expect(errs((w) => ([w.stages![1]!.type, w.stages![9]!.type] = [w.stages![9]!.type, 'giant'])).some((e) => e.includes('the giant outside the first half'))).toBe(true);
+    const plates = full[2]!.stages!.find((s) => s.width === 'bridge')!;
     expect(errs((w) => w.segments.forEach((s) => s.type === 'floor' && s.z > plates.start && s.z < plates.end && (s['x1'] as number) - (s['x0'] as number) <= 12 && ((s['x0'] = -20), (s['x1'] = 20)))).some((e) => e.includes('bridge'))).toBe(true);
     expect(errs((w) => (w.segments = w.segments.filter((s) => s.type !== 'trophyPad'))).some((e) => e.includes('trophy buttons'))).toBe(true);
     // SD-06: an avalanche on the giant's stage (he is its trial) is named.

@@ -477,6 +477,7 @@
   "stageType.throat": "теснина",
   "stageType.ice": "лёд",
   "stageType.stairs": "ступени",
+  "stageType.ball": "шары",
   "teleport.sub": "к пройденному этапу горы {n}",
   "teleport.buy": "Купить",
   "teleport.yes": "Да, купить",

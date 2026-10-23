@@ -491,6 +491,28 @@ if (LIM.experienced) {
   }
 }
 
+// F20 (MT-07, producer 22.10: «coins for idling never beat the run»): on a pace of stages, per mountain the coins a minute
+// of the greedy run (its trophy buttons over its minutes) against the time rewards («Gifts») a minute of the first hour
+// and against idling (the time rewards only); the calendar of day 1 at most 3 cheapest eggs on mountain 1. The coins of
+// «N gifts» are N × the zone gift of the mountain (app/rewards.ts).
+let income = null;
+if (pack.worlds.some((w) => w.stages)) {
+  const giftOf = (w) => w.zones?.[0]?.gift ?? 0;
+  const coinGifts = (rs) => rs.reduce((a, r) => a + (r.kind === 'coins' ? r.gifts ?? 0 : 0), 0);
+  const hour = (pack.balance.timeRewards ?? []).filter((t) => t.min <= 60).map((t) => t.reward);
+  const day1 = coinGifts([pack.balance.daily?.days?.[0] ?? {}]);
+  const egg = Math.min(...pack.eggs.eggs.map((e) => e.price));
+  const rows = pack.worlds.map((w, i) => {
+    const run = (w.stages ?? []).reduce((a, s) => a + s.trophies, 0) / ((greedy.mountains[i] ?? Infinity) / 60);
+    return { m: w.index, run, gifts: (coinGifts(hour) * giftOf(w)) / 60, day1: day1 * giftOf(w) };
+  });
+  const firstBuy = greedy.shoeBuys[0];
+  const wall = greedy.walls.find((r) => (r.standSec ?? 0) >= 30);
+  income = { rows, firstBuy, wall, egg };
+  const worst = rows.reduce((a, r) => (r.run / Math.max(r.gifts, 1e-9) < a.run / Math.max(a.gifts, 1e-9) ? r : a));
+  check(20, `MT-07: бег — лучший заработок: монеты бега в минуту ≥ 5 × «Подарков» и простоя на каждой горе; календарь дня 1 на горе 1 ≤ 3 яйца (${egg})`, rows.every((r) => r.run >= 5 * r.gifts) && rows[0].day1 <= 3 * egg, `худшая гора ${worst.m}: бег ${Math.round(worst.run)} в мин, «Подарки» и простой ${Math.round(worst.gifts)} в мин (×${(worst.run / Math.max(worst.gifts, 1e-9)).toFixed(0)}); календарь дня 1 на горе 1 — ${rows[0].day1}`);
+}
+
 // ---------- M3-10: the port repeats the reference; the gold seeker thresholds ----------
 const gates = [];
 let fidelity = null;
@@ -551,6 +573,10 @@ if (rhythm) L(` новичок (F14)       ${min(rhythm.novice.sec).padStart(5)}
 if (lazy.caughtAt.length) L(` ленивый: «Накрыло» на секундах цикла ${lazy.caughtAt.slice(0, 12).map((t) => t.toFixed(0)).join(', ')}${lazy.caughtAt.length > 12 ? ', …' : ''}`);
 if (greedy.eggsAt.some((n) => n > 0)) L(` жадный: яиц к вершине горы 1…${greedy.eggsAt.length} — ${greedy.eggsAt.join(' / ')}`);
 L(` жадный: кроссовки куплены на секундах цикла ${greedy.shoeBuys.map((t) => t.toFixed(0)).join(', ')}`);
+if (income) {
+  L(` доход (MT-07), монет в минуту по горам — бег / «Подарки» и простой: ${income.rows.map((r) => `${r.m}: ${fmt(r.run)} / ${fmt(r.gifts)}`).join('; ')}; календарь дня 1 по горам ${income.rows.map((r) => fmt(r.day1)).join(' / ')}`);
+  L(` первая покупка на ${income.firstBuy?.toFixed(0) ?? '—'} с, стена на ${income.wall ? `${(income.wall.total / 60).toFixed(1)} мин (рубеж ${income.wall.mountain}-${income.wall.wall}, стоянка ${income.wall.standSec.toFixed(0)} с)` : '— мин (ни одной стоянки у рубежа от 30 с)'}`);
+}
 {
   // The giant (docs/01-gdd.md 17.6): his zone is the last check of an open mountain; the bot sees him on the horizon from the camp.
   const races = greedy.walls.filter((w) => w.boss);
