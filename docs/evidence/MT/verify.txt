@@ -589,3 +589,314 @@ series 3: caught 10, passed 0, bots by the zone at 4 meetings; towards the hero 
   ✓  385 [truthful-880x405] › e2e/truthful-hud.spec.ts:80:1 › the stage strip slides in on a new stage, at a ridge and at the giant for 2–3 s, then hides; the slot moves up (17.6s)
   ✓  386 [truthful-880x405] › e2e/truthful-hud.spec.ts:120:1 › toasts keep out of the middle; «Stage reward» never on the hero (14.2s)
   ✓  387 [truthful-880x405] › e2e/truthful-labels.spec.ts:60:1 › a run to the pad of stage 5: «Stage reward» only within 31 m, no blinking, a quarter wide at most (12.3s)
+  ✓  388 [truthful-880x405] › e2e/truthful-labels.spec.ts:88:1 › a run to the arches of the base: the portal plaques only within 31 m, no blinking (19.3s)
+  ✓  389 [truthful-880x405] › e2e/truthful-pad-hints.spec.ts:50:1 › «Stand on the gold pad» only near the pad, with an arrow; the label from 27 m and never over the pad (19.0s)
+  ✓  390 [truthful-880x405] › e2e/truthful-pad-hints.spec.ts:97:1 › mountain 1, the first run, a level short at a ridge: «Level up on a treadmill» with an arrow (12.3s)
+  ✓  392 [truthful-880x405] › e2e/truthful-pads.spec.ts:50:1 › on the pad: «Stage reward» without «you can run past» once taken (9.8s)
+no peek: more-wardrobe · wardrobe-tab-skins at 880×405
+peeks: menu-shop · shop-tab-shoes at 880×405; menu-shop · shop-tab-eggs at 880×405
+  ✓  393 [truthful-880x405] › e2e/truthful-peek.spec.ts:38:1 › Q-MU-18 Б: the next plain row peeks ≤ 16 px, a card with a button is never cut (19.2s)
+  ✓  394 [truthful-880x405] › e2e/truthful-r4-evidence.spec.ts:29:3 › every window and tab at 100 % (24.9s)
+  ✓  391 [truthful-880x405] › e2e/truthful-pads.spec.ts:15:1 › straight runs up through the finishes of stages 2–5, anywhere across the passes (x −38…38), never step on the pad (1.4m)
+  ✓  395 [truthful-880x405] › e2e/truthful-r4-evidence.spec.ts:29:3 › every window and tab at 130 % (28.7s)
+  ✓  396 [truthful-880x405] › e2e/truthful-r4-evidence.spec.ts:79:1 › l3: the pad of stage 5 from 34 m (no plaque; M4-R1: they come in at 27 m) and from 8 m (the plaque) (12.2s)
+  ✓  397 [truthful-880x405] › e2e/truthful-r4-evidence.spec.ts:101:1 › the base: from the arrival and at the arch of its portal (16.3s)
+  ✓  398 [truthful-880x405] › e2e/truthful-r4-evidence.spec.ts:132:1 › the row of the HUD in a frame squeezed by a sticky banner on the right (a stub of 160 px) (12.1s)
+  ✓  400 [truthful-880x405] › e2e/truthful-r4-rest.spec.ts:69:1 › «Rebirth»: «Spend the coins…» seen without a scroll (8.1s)
+  ✓  399 [truthful-880x405] › e2e/truthful-r4-rest.spec.ts:42:1 › the gift calendar: «Coins +N» on day 1, the skin and «Velvet snow» on day 2, the dot of the boost on its line (9.7s)
+  ✓  401 [truthful-880x405] › e2e/truthful-r4-rest.spec.ts:87:1 › «Gifts»: Telegram and VK with their words, not cut (8.4s)
+  ✓  402 [truthful-880x405] › e2e/truthful-r4-rest.spec.ts:103:1 › squeezed by the banner (−160 px): «Mountain N · stage» stays on top between the moments of the strip (13.1s)
+  ✓  403 [truthful-880x405] › e2e/truthful-r5-evidence.spec.ts:27:3 › every window and tab at 100 % (26.0s)
+  ✓  404 [truthful-880x405] › e2e/truthful-r5-evidence.spec.ts:27:3 › every window and tab at 130 % (27.1s)
+  ✓  406 [truthful-880x405] › e2e/truthful-shoes.spec.ts:57:1 › the shoes button: blue with «Sneakers» over it when it buys, quiet and shaking with «Short of N» when not (10.5s)
+  ✓  405 [truthful-880x405] › e2e/truthful-rise.spec.ts:16:1 › the rises of mountains 1–2: nothing hangs over them (20.7s)
+  ✓  408 [truthful-880x405] › e2e/truthful-size.spec.ts:56:1 › the first tap of a finger asks for the whole screen; outside it any tap asks again (10.5s)
+  ✓  409 [truthful-880x405] › e2e/truthful-size.spec.ts:97:1 › the window resized while out of the whole screen: canvas and HUD follow the visible part (10.1s)
+off buttons answered: 22
+  ✓  407 [truthful-880x405] › e2e/truthful-shoes.spec.ts:101:1 › every off button of every window answers a tap with a shake and does nothing else (28.8s)
+  ✓  410 [truthful-880x405] › e2e/truthful-size.spec.ts:114:1 › the whole screen refused: the game is whole in the window — the HUD and the windows (8.5s)
+  ✓  412 [truthful-880x405] › e2e/truthful-steps.spec.ts:30:1 › the sets differ: own files and own pitch for each (404ms)
+  ✓  411 [truthful-880x405] › e2e/truthful-size.spec.ts:141:1 › a browser panel over the page: the field is the visible part of the window (visualViewport) (7.9s)
+  ✓  413 [truthful-880x405] › e2e/truthful-steps.spec.ts:38:1 › «Velvet snow» bought in the shop without a preview: chosen at once, the steps are its own — after a reload too (17.5s)
+  ✓  414 [truthful-880x405] › e2e/truthful-windows.spec.ts:102:3 › every window at 100 %: by its content, no control or line cut, the rail shows the scroll (22.4s)
+  ✓  416 [truthful-880x405] › e2e/truthful-windows.spec.ts:141:1 › «Quests»: «For all three» without scrolling; «Shop → Sneakers»: the first row whole, the second by its edge (10.0s)
+  ✓  415 [truthful-880x405] › e2e/truthful-windows.spec.ts:102:3 › every window at 130 %: by its content, no control or line cut, the rail shows the scroll (21.3s)
+  ✓  417 [truthful-880x405] › e2e/truthful-windows.spec.ts:190:1 › the sets of steps («Shop → Steps», «Footsteps») show their first row whole; «Take» of «Calendar» in sight at 130 % (10.5s)
+  ✓  418 [truthful-880x405] › e2e/truthful-windows.spec.ts:245:1 › the middle snaps by rows: after a scroll the top of the list stands on a row (8.8s)
+  ✓  420 [truthful-915x412] › e2e/truthful-ads-evidence.spec.ts:61:1 › frames: «Mountain cleared» — «Next» and «Ad: ×2» by the chest apart (11.6s)
+  ✓  419 [truthful-915x412] › e2e/truthful-ads-evidence.spec.ts:35:1 › frames: «Gifts» with «Ad», its toast; «Shop → Eggs» with «Ad: Snow egg»; the fullscreen stub over the pause (19.3s)
+  ✓  421 [truthful-915x412] › e2e/truthful-ads-outcomes.spec.ts:43:3 › ADS-05 rewarded × ok: the game goes on, the reward only with onRewarded and once (11.7s)
+  ✓  422 [truthful-915x412] › e2e/truthful-ads-outcomes.spec.ts:64:3 › ADS-05 fullscreen × ok: the game goes on after the ad (10.0s)
+  ✓  423 [truthful-915x412] › e2e/truthful-ads-outcomes.spec.ts:43:3 › ADS-05 rewarded × error: the game goes on, the reward only with onRewarded and once (9.2s)
+  ✓  424 [truthful-915x412] › e2e/truthful-ads-outcomes.spec.ts:64:3 › ADS-05 fullscreen × error: the game goes on after the ad (7.8s)
+  ✓  425 [truthful-915x412] › e2e/truthful-ads-outcomes.spec.ts:43:3 › ADS-05 rewarded × noshow: the game goes on, the reward only with onRewarded and once (8.3s)
+  ✓  426 [truthful-915x412] › e2e/truthful-ads-outcomes.spec.ts:64:3 › ADS-05 fullscreen × noshow: the game goes on after the ad (7.9s)
+  ✓  427 [truthful-915x412] › e2e/truthful-ads-outcomes.spec.ts:43:3 › ADS-05 rewarded × slow: the game goes on, the reward only with onRewarded and once (15.5s)
+  ✓  428 [truthful-915x412] › e2e/truthful-ads-outcomes.spec.ts:64:3 › ADS-05 fullscreen × slow: the game goes on after the ad (15.0s)
+  ✓  429 [truthful-915x412] › e2e/truthful-ads-outcomes.spec.ts:43:3 › ADS-05 rewarded × closenoreward: the game goes on, the reward only with onRewarded and once (11.2s)
+  ✓  430 [truthful-915x412] › e2e/truthful-ads-outcomes.spec.ts:64:3 › ADS-05 fullscreen × closenoreward: the game goes on after the ad (10.4s)
+  ✓  432 [truthful-915x412] › e2e/truthful-ads-outcomes.spec.ts:96:1 › M4 review: the ad of «Gifts» waits for the first avalanche, then rests ads.statNowCooldownSec after a view (10.4s)
+  ✓  433 [truthful-915x412] › e2e/truthful-ads-stand.spec.ts:17:1 › the banner stub on the right: the canvas and the HUD wholly left of it (8.8s)
+  ✓  431 [truthful-915x412] › e2e/truthful-ads-outcomes.spec.ts:78:1 › ADS-05 a late onRewarded after the 10 s watchdog: the toast «unavailable», then the reward once (21.5s)
+  ✓  434 [truthful-915x412] › e2e/truthful-ads-stand.spec.ts:43:1 › a fullscreen ad: the dark screen «Реклама» for 3 s, the game and the sound stand, then go on (10.1s)
+  ✓  435 [truthful-915x412] › e2e/truthful-ads.spec.ts:42:1 › the Speed ad of «Gifts»: a toast «+N Speed» (9.6s)
+in the blizzard: feet 40.71, air 65.72
+  ✓  437 [truthful-915x412] › e2e/truthful-cards.spec.ts:79:3 › 07: every window and every tab at 100 % — the button of every card seen is in sight (17.6s)
+  ✓  436 [truthful-915x412] › e2e/truthful-blizzard.spec.ts:20:1 › in the blizzard: «Blizzard! Jump, it's faster» in the slot, a jump not slowed (21.6s)
+  ✓  438 [truthful-915x412] › e2e/truthful-cards.spec.ts:79:3 › 07: every window and every tab at 130 % — the button of every card seen is in sight (20.2s)
+  ✓  439 [truthful-915x412] › e2e/truthful-cave-out.spec.ts:68:1 › in-out-in during the warning: one outcome — «Phew, made it!» (36.4s)
+  ✓  440 [truthful-915x412] › e2e/truthful-cave-out.spec.ts:81:1 › in the cave when the front passed, out while its snow still goes by: one outcome (39.1s)
+  ✓  441 [truthful-915x412] › e2e/truthful-cave-out.spec.ts:95:1 › ran out during the warning and never came back: one outcome (38.9s)
+  ✓  442 [truthful-915x412] › e2e/truthful-cave-out.spec.ts:107:1 › stood at the mouth within the grace: one outcome — «Phew, made it!», no «back» (38.0s)
+  ✓  443 [truthful-915x412] › e2e/truthful-cave-out.spec.ts:119:1 › in the cave when the front passed, then rolled back (a fall) while the snow still goes by: one outcome — «back», no «Phew» (40.7s)
+  ✓  444 [truthful-915x412] › e2e/truthful-cave.spec.ts:37:1 › the golden gift handed in: one toast «Gift saved! +N» with the coin, then «Phew, made it!» with no number (27.7s)
+  ✓  446 [truthful-915x412] › e2e/truthful-details.spec.ts:48:1 › D50: a set of steps looks the same in «Footsteps» and in «Shop → Steps» (9.2s)
+  ✓  447 [truthful-915x412] › e2e/truthful-details.spec.ts:68:1 › D5, D19, D26: marks on the middle of their words; «Rate» live ≥ 4.5:1; «Boost ×2 · 3 min» once (8.6s)
+  ✓  445 [truthful-915x412] › e2e/truthful-cave.spec.ts:63:1 › standing at a cave mouth within the grace: the wave lets him off, no «back to the stage start», he stays (23.8s)
+  ✓  448 [truthful-915x412] › e2e/truthful-details.spec.ts:131:1 › D38: the tiles of «More» keep 8 px around their words at 130 % (8.7s)
+  ✓  450 [truthful-915x412] › e2e/truthful-evidence.spec.ts:22:3 › the run, the ridge, the pad, the level toast, the strip (15.7s)
+  ✓  449 [truthful-915x412] › e2e/truthful-details.spec.ts:160:1 › A58: no stub of the ridge post under its plaque (36.9s)
+  ✓  451 [truthful-915x412] › e2e/truthful-evidence.spec.ts:80:3 › the windows «Gifts», «Quests», «Shop → Sneakers», «Rebirth», «Calendar» (15.8s)
+  ✓  452 [truthful-915x412] › e2e/truthful-evidence.spec.ts:22:3 › the run, the ridge, the pad, the level toast, the strip at 130 % (15.0s)
+  ✓  453 [truthful-915x412] › e2e/truthful-evidence.spec.ts:80:3 › the windows «Gifts», «Quests», «Shop → Sneakers», «Rebirth», «Calendar» at 130 % (16.2s)
+series 1: caught 10, passed 0, bots by the zone at 4 meetings; towards the hero 69 of 70 samples {"chase":61,"turn":9}
+  ✓  454 [truthful-915x412] › e2e/truthful-giant.spec.ts:14:3 › series 1 from a clean save: holding forward is caught at 10 meetings in a row, bots about (24.2s)
+series 2: caught 10, passed 0, bots by the zone at 3 meetings; towards the hero 63 of 64 samples {"chase":56,"turn":8}
+  ✓  455 [truthful-915x412] › e2e/truthful-giant.spec.ts:14:3 › series 2 from a clean save: holding forward is caught at 10 meetings in a row, bots about (23.4s)
+915: bar 320, shoes 137, to the jump 145
+755: bar 320, shoes 104 (short), to the jump 100
+  ✓  457 [truthful-915x412] › e2e/truthful-hud.spec.ts:46:1 › the bar and the shoes on one line between the stick and the jump, «N Speed» 8 px over the bar; at −160 px too (10.4s)
+series 3: caught 10, passed 0, bots by the zone at 4 meetings; towards the hero 68 of 68 samples {"chase":60,"turn":8}
+  ✓  456 [truthful-915x412] › e2e/truthful-giant.spec.ts:14:3 › series 3 from a clean save: holding forward is caught at 10 meetings in a row, bots about (24.6s)
+  ✓  458 [truthful-915x412] › e2e/truthful-hud.spec.ts:80:1 › the stage strip slides in on a new stage, at a ridge and at the giant for 2–3 s, then hides; the slot moves up (17.0s)
+  ✓  459 [truthful-915x412] › e2e/truthful-hud.spec.ts:120:1 › toasts keep out of the middle; «Stage reward» never on the hero (12.4s)
+  ✓  460 [truthful-915x412] › e2e/truthful-labels.spec.ts:60:1 › a run to the pad of stage 5: «Stage reward» only within 31 m, no blinking, a quarter wide at most (10.5s)
+  ✓  461 [truthful-915x412] › e2e/truthful-labels.spec.ts:88:1 › a run to the arches of the base: the portal plaques only within 31 m, no blinking (16.4s)
+  ✘  462 [truthful-915x412] › e2e/truthful-pad-hints.spec.ts:50:1 › «Stand on the gold pad» only near the pad, with an arrow; the label from 27 m and never over the pad (15.6s)
+  ✓  463 [truthful-915x412] › e2e/truthful-pad-hints.spec.ts:97:1 › mountain 1, the first run, a level short at a ridge: «Level up on a treadmill» with an arrow (10.7s)
+  ✓  465 [truthful-915x412] › e2e/truthful-pads.spec.ts:50:1 › on the pad: «Stage reward» without «you can run past» once taken (8.9s)
+peeks: menu-shop · shop-tab-shoes at 915×412; menu-shop · shop-tab-eggs at 915×412; more-wardrobe · wardrobe-tab-skins at 915×412
+  ✓  466 [truthful-915x412] › e2e/truthful-peek.spec.ts:38:1 › Q-MU-18 Б: the next plain row peeks ≤ 16 px, a card with a button is never cut (18.3s)
+  -  467 [truthful-915x412] › e2e/truthful-r4-evidence.spec.ts:29:3 › every window and tab at 100 %
+  -  468 [truthful-915x412] › e2e/truthful-r4-evidence.spec.ts:29:3 › every window and tab at 130 %
+  -  469 [truthful-915x412] › e2e/truthful-r4-evidence.spec.ts:79:1 › l3: the pad of stage 5 from 34 m (no plaque; M4-R1: they come in at 27 m) and from 8 m (the plaque)
+  -  470 [truthful-915x412] › e2e/truthful-r4-evidence.spec.ts:101:1 › the base: from the arrival and at the arch of its portal
+  -  471 [truthful-915x412] › e2e/truthful-r4-evidence.spec.ts:132:1 › the row of the HUD in a frame squeezed by a sticky banner on the right (a stub of 160 px)
+  ✓  472 [truthful-915x412] › e2e/truthful-r4-rest.spec.ts:42:1 › the gift calendar: «Coins +N» on day 1, the skin and «Velvet snow» on day 2, the dot of the boost on its line (8.8s)
+  ✓  473 [truthful-915x412] › e2e/truthful-r4-rest.spec.ts:69:1 › «Rebirth»: «Spend the coins…» seen without a scroll (8.8s)
+  ✓  474 [truthful-915x412] › e2e/truthful-r4-rest.spec.ts:87:1 › «Gifts»: Telegram and VK with their words, not cut (8.3s)
+  ✓  475 [truthful-915x412] › e2e/truthful-r4-rest.spec.ts:103:1 › squeezed by the banner (−160 px): «Mountain N · stage» stays on top between the moments of the strip (12.3s)
+  -  476 [truthful-915x412] › e2e/truthful-r5-evidence.spec.ts:27:3 › every window and tab at 100 %
+  -  477 [truthful-915x412] › e2e/truthful-r5-evidence.spec.ts:27:3 › every window and tab at 130 %
+  ✓  464 [truthful-915x412] › e2e/truthful-pads.spec.ts:15:1 › straight runs up through the finishes of stages 2–5, anywhere across the passes (x −38…38), never step on the pad (1.4m)
+  ✓  479 [truthful-915x412] › e2e/truthful-shoes.spec.ts:57:1 › the shoes button: blue with «Sneakers» over it when it buys, quiet and shaking with «Short of N» when not (11.2s)
+  ✓  478 [truthful-915x412] › e2e/truthful-rise.spec.ts:16:1 › the rises of mountains 1–2: nothing hangs over them (19.5s)
+  ✓  481 [truthful-915x412] › e2e/truthful-size.spec.ts:56:1 › the first tap of a finger asks for the whole screen; outside it any tap asks again (10.5s)
+  ✓  482 [truthful-915x412] › e2e/truthful-size.spec.ts:97:1 › the window resized while out of the whole screen: canvas and HUD follow the visible part (8.8s)
+  ✓  483 [truthful-915x412] › e2e/truthful-size.spec.ts:114:1 › the whole screen refused: the game is whole in the window — the HUD and the windows (8.9s)
+off buttons answered: 22
+  ✓  480 [truthful-915x412] › e2e/truthful-shoes.spec.ts:101:1 › every off button of every window answers a tap with a shake and does nothing else (29.8s)
+  ✓  485 [truthful-915x412] › e2e/truthful-steps.spec.ts:30:1 › the sets differ: own files and own pitch for each (651ms)
+  ✓  484 [truthful-915x412] › e2e/truthful-size.spec.ts:141:1 › a browser panel over the page: the field is the visible part of the window (visualViewport) (8.7s)
+  ✓  486 [truthful-915x412] › e2e/truthful-steps.spec.ts:38:1 › «Velvet snow» bought in the shop without a preview: chosen at once, the steps are its own — after a reload too (19.8s)
+  ✓  487 [truthful-915x412] › e2e/truthful-windows.spec.ts:102:3 › every window at 100 %: by its content, no control or line cut, the rail shows the scroll (22.1s)
+  ✓  489 [truthful-915x412] › e2e/truthful-windows.spec.ts:141:1 › «Quests»: «For all three» without scrolling; «Shop → Sneakers»: the first row whole, the second by its edge (10.5s)
+  ✓  488 [truthful-915x412] › e2e/truthful-windows.spec.ts:102:3 › every window at 130 %: by its content, no control or line cut, the rail shows the scroll (21.8s)
+  ✓  491 [truthful-915x412] › e2e/truthful-windows.spec.ts:245:1 › the middle snaps by rows: after a scroll the top of the list stands on a row (8.7s)
+  ✓  490 [truthful-915x412] › e2e/truthful-windows.spec.ts:190:1 › the sets of steps («Shop → Steps», «Footsteps») show their first row whole; «Take» of «Calendar» in sight at 130 % (10.5s)
+  ✓  493 [truthful-815x290] › e2e/truthful-ads-evidence.spec.ts:61:1 › frames: «Mountain cleared» — «Next» and «Ad: ×2» by the chest apart (12.0s)
+  ✓  492 [truthful-815x290] › e2e/truthful-ads-evidence.spec.ts:35:1 › frames: «Gifts» with «Ad», its toast; «Shop → Eggs» with «Ad: Snow egg»; the fullscreen stub over the pause (17.5s)
+  ✓  494 [truthful-815x290] › e2e/truthful-ads-outcomes.spec.ts:43:3 › ADS-05 rewarded × ok: the game goes on, the reward only with onRewarded and once (10.0s)
+  ✓  495 [truthful-815x290] › e2e/truthful-ads-outcomes.spec.ts:64:3 › ADS-05 fullscreen × ok: the game goes on after the ad (9.0s)
+  ✓  496 [truthful-815x290] › e2e/truthful-ads-outcomes.spec.ts:43:3 › ADS-05 rewarded × error: the game goes on, the reward only with onRewarded and once (8.7s)
+  ✓  497 [truthful-815x290] › e2e/truthful-ads-outcomes.spec.ts:64:3 › ADS-05 fullscreen × error: the game goes on after the ad (8.0s)
+  ✓  498 [truthful-815x290] › e2e/truthful-ads-outcomes.spec.ts:43:3 › ADS-05 rewarded × noshow: the game goes on, the reward only with onRewarded and once (9.0s)
+  ✓  499 [truthful-815x290] › e2e/truthful-ads-outcomes.spec.ts:64:3 › ADS-05 fullscreen × noshow: the game goes on after the ad (7.8s)
+  ✓  500 [truthful-815x290] › e2e/truthful-ads-outcomes.spec.ts:43:3 › ADS-05 rewarded × slow: the game goes on, the reward only with onRewarded and once (14.8s)
+  ✓  501 [truthful-815x290] › e2e/truthful-ads-outcomes.spec.ts:64:3 › ADS-05 fullscreen × slow: the game goes on after the ad (14.7s)
+  ✓  502 [truthful-815x290] › e2e/truthful-ads-outcomes.spec.ts:43:3 › ADS-05 rewarded × closenoreward: the game goes on, the reward only with onRewarded and once (9.3s)
+  ✓  503 [truthful-815x290] › e2e/truthful-ads-outcomes.spec.ts:64:3 › ADS-05 fullscreen × closenoreward: the game goes on after the ad (9.4s)
+  ✓  505 [truthful-815x290] › e2e/truthful-ads-outcomes.spec.ts:96:1 › M4 review: the ad of «Gifts» waits for the first avalanche, then rests ads.statNowCooldownSec after a view (8.4s)
+  ✓  506 [truthful-815x290] › e2e/truthful-ads-stand.spec.ts:17:1 › the banner stub on the right: the canvas and the HUD wholly left of it (7.0s)
+  ✓  504 [truthful-815x290] › e2e/truthful-ads-outcomes.spec.ts:78:1 › ADS-05 a late onRewarded after the 10 s watchdog: the toast «unavailable», then the reward once (20.5s)
+  ✓  507 [truthful-815x290] › e2e/truthful-ads-stand.spec.ts:43:1 › a fullscreen ad: the dark screen «Реклама» for 3 s, the game and the sound stand, then go on (9.8s)
+  ✓  508 [truthful-815x290] › e2e/truthful-ads.spec.ts:42:1 › the Speed ad of «Gifts»: a toast «+N Speed» (10.4s)
+in the blizzard: feet 40.71, air 65.72
+  ✓  510 [truthful-815x290] › e2e/truthful-cards.spec.ts:79:3 › 07: every window and every tab at 100 % — the button of every card seen is in sight (15.9s)
+  ✓  509 [truthful-815x290] › e2e/truthful-blizzard.spec.ts:20:1 › in the blizzard: «Blizzard! Jump, it's faster» in the slot, a jump not slowed (20.4s)
+  ✓  511 [truthful-815x290] › e2e/truthful-cards.spec.ts:79:3 › 07: every window and every tab at 130 % — the button of every card seen is in sight (17.6s)
+  ✓  512 [truthful-815x290] › e2e/truthful-cave-out.spec.ts:68:1 › in-out-in during the warning: one outcome — «Phew, made it!» (33.9s)
+  ✓  513 [truthful-815x290] › e2e/truthful-cave-out.spec.ts:81:1 › in the cave when the front passed, out while its snow still goes by: one outcome (37.7s)
+  ✓  514 [truthful-815x290] › e2e/truthful-cave-out.spec.ts:95:1 › ran out during the warning and never came back: one outcome (36.0s)
+  ✓  515 [truthful-815x290] › e2e/truthful-cave-out.spec.ts:107:1 › stood at the mouth within the grace: one outcome — «Phew, made it!», no «back» (38.0s)
+  ✓  516 [truthful-815x290] › e2e/truthful-cave-out.spec.ts:119:1 › in the cave when the front passed, then rolled back (a fall) while the snow still goes by: one outcome — «back», no «Phew» (37.4s)
+  ✓  517 [truthful-815x290] › e2e/truthful-cave.spec.ts:37:1 › the golden gift handed in: one toast «Gift saved! +N» with the coin, then «Phew, made it!» with no number (31.1s)
+  ✓  518 [truthful-815x290] › e2e/truthful-cave.spec.ts:63:1 › standing at a cave mouth within the grace: the wave lets him off, no «back to the stage start», he stays (22.5s)
+  ✓  519 [truthful-815x290] › e2e/truthful-details.spec.ts:48:1 › D50: a set of steps looks the same in «Footsteps» and in «Shop → Steps» (8.6s)
+  ✓  520 [truthful-815x290] › e2e/truthful-details.spec.ts:68:1 › D5, D19, D26: marks on the middle of their words; «Rate» live ≥ 4.5:1; «Boost ×2 · 3 min» once (7.5s)
+  ✓  521 [truthful-815x290] › e2e/truthful-details.spec.ts:131:1 › D38: the tiles of «More» keep 8 px around their words at 130 % (8.2s)
+  ✓  523 [truthful-815x290] › e2e/truthful-evidence.spec.ts:22:3 › the run, the ridge, the pad, the level toast, the strip (15.0s)
+  ✓  524 [truthful-815x290] › e2e/truthful-evidence.spec.ts:80:3 › the windows «Gifts», «Quests», «Shop → Sneakers», «Rebirth», «Calendar» (14.6s)
+  ✓  522 [truthful-815x290] › e2e/truthful-details.spec.ts:160:1 › A58: no stub of the ridge post under its plaque (33.5s)
+  ✓  525 [truthful-815x290] › e2e/truthful-evidence.spec.ts:22:3 › the run, the ridge, the pad, the level toast, the strip at 130 % (15.6s)
+  ✓  526 [truthful-815x290] › e2e/truthful-evidence.spec.ts:80:3 › the windows «Gifts», «Quests», «Shop → Sneakers», «Rebirth», «Calendar» at 130 % (15.3s)
+series 1: caught 10, passed 0, bots by the zone at 4 meetings; towards the hero 67 of 67 samples {"turn":9,"chase":58}
+  ✓  527 [truthful-815x290] › e2e/truthful-giant.spec.ts:14:3 › series 1 from a clean save: holding forward is caught at 10 meetings in a row, bots about (23.9s)
+series 2: caught 10, passed 0, bots by the zone at 4 meetings; towards the hero 67 of 68 samples {"chase":59,"turn":9}
+  ✓  528 [truthful-815x290] › e2e/truthful-giant.spec.ts:14:3 › series 2 from a clean save: holding forward is caught at 10 meetings in a row, bots about (24.1s)
+815: bar 320, shoes 137, to the jump 100
+655: bar 316, shoes 104 (short), to the jump 24
+  ✓  530 [truthful-815x290] › e2e/truthful-hud.spec.ts:46:1 › the bar and the shoes on one line between the stick and the jump, «N Speed» 8 px over the bar; at −160 px too (9.2s)
+series 3: caught 10, passed 0, bots by the zone at 4 meetings; towards the hero 65 of 65 samples {"chase":59,"turn":6}
+  ✓  529 [truthful-815x290] › e2e/truthful-giant.spec.ts:14:3 › series 3 from a clean save: holding forward is caught at 10 meetings in a row, bots about (24.0s)
+  ✓  531 [truthful-815x290] › e2e/truthful-hud.spec.ts:80:1 › the stage strip slides in on a new stage, at a ridge and at the giant for 2–3 s, then hides; the slot moves up (16.9s)
+  ✓  532 [truthful-815x290] › e2e/truthful-hud.spec.ts:120:1 › toasts keep out of the middle; «Stage reward» never on the hero (12.1s)
+  ✓  533 [truthful-815x290] › e2e/truthful-labels.spec.ts:60:1 › a run to the pad of stage 5: «Stage reward» only within 31 m, no blinking, a quarter wide at most (10.3s)
+  ✘  535 [truthful-815x290] › e2e/truthful-pad-hints.spec.ts:50:1 › «Stand on the gold pad» only near the pad, with an arrow; the label from 27 m and never over the pad (13.4s)
+  ✓  534 [truthful-815x290] › e2e/truthful-labels.spec.ts:88:1 › a run to the arches of the base: the portal plaques only within 31 m, no blinking (15.9s)
+  ✓  537 [truthful-815x290] › e2e/truthful-pad-hints.spec.ts:97:1 › mountain 1, the first run, a level short at a ridge: «Level up on a treadmill» with an arrow (13.2s)
+  ✓  538 [truthful-815x290] › e2e/truthful-pads.spec.ts:50:1 › on the pad: «Stage reward» without «you can run past» once taken (11.1s)
+no peek: more-wardrobe · wardrobe-tab-skins at 815×290
+peeks: menu-shop · shop-tab-shoes at 815×290; menu-shop · shop-tab-eggs at 815×290; more-wardrobe · wardrobe-tab-wings at 815×290
+  ✓  539 [truthful-815x290] › e2e/truthful-peek.spec.ts:38:1 › Q-MU-18 Б: the next plain row peeks ≤ 16 px, a card with a button is never cut (19.5s)
+  ✓  540 [truthful-815x290] › e2e/truthful-r4-evidence.spec.ts:29:3 › every window and tab at 100 % (24.0s)
+  ✓  536 [truthful-815x290] › e2e/truthful-pads.spec.ts:15:1 › straight runs up through the finishes of stages 2–5, anywhere across the passes (x −38…38), never step on the pad (1.3m)
+  ✓  542 [truthful-815x290] › e2e/truthful-r4-evidence.spec.ts:79:1 › l3: the pad of stage 5 from 34 m (no plaque; M4-R1: they come in at 27 m) and from 8 m (the plaque) (11.9s)
+  ✓  541 [truthful-815x290] › e2e/truthful-r4-evidence.spec.ts:29:3 › every window and tab at 130 % (26.8s)
+  ✓  544 [truthful-815x290] › e2e/truthful-r4-evidence.spec.ts:132:1 › the row of the HUD in a frame squeezed by a sticky banner on the right (a stub of 160 px) (11.0s)
+  ✓  543 [truthful-815x290] › e2e/truthful-r4-evidence.spec.ts:101:1 › the base: from the arrival and at the arch of its portal (16.2s)
+  ✓  545 [truthful-815x290] › e2e/truthful-r4-rest.spec.ts:42:1 › the gift calendar: «Coins +N» on day 1, the skin and «Velvet snow» on day 2, the dot of the boost on its line (8.0s)
+  ✓  546 [truthful-815x290] › e2e/truthful-r4-rest.spec.ts:69:1 › «Rebirth»: «Spend the coins…» seen without a scroll (7.4s)
+  ✓  547 [truthful-815x290] › e2e/truthful-r4-rest.spec.ts:87:1 › «Gifts»: Telegram and VK with their words, not cut (8.3s)
+  ✓  548 [truthful-815x290] › e2e/truthful-r4-rest.spec.ts:103:1 › squeezed by the banner (−160 px): «Mountain N · stage» stays on top between the moments of the strip (12.1s)
+  ✓  549 [truthful-815x290] › e2e/truthful-r5-evidence.spec.ts:27:3 › every window and tab at 100 % (26.8s)
+  ✓  550 [truthful-815x290] › e2e/truthful-r5-evidence.spec.ts:27:3 › every window and tab at 130 % (27.5s)
+  ✓  552 [truthful-815x290] › e2e/truthful-shoes.spec.ts:57:1 › the shoes button: blue with «Sneakers» over it when it buys, quiet and shaking with «Short of N» when not (10.3s)
+  ✓  551 [truthful-815x290] › e2e/truthful-rise.spec.ts:16:1 › the rises of mountains 1–2: nothing hangs over them (19.9s)
+  ✓  554 [truthful-815x290] › e2e/truthful-size.spec.ts:56:1 › the first tap of a finger asks for the whole screen; outside it any tap asks again (10.7s)
+  ✓  555 [truthful-815x290] › e2e/truthful-size.spec.ts:97:1 › the window resized while out of the whole screen: canvas and HUD follow the visible part (9.7s)
+off buttons answered: 22
+  ✓  553 [truthful-815x290] › e2e/truthful-shoes.spec.ts:101:1 › every off button of every window answers a tap with a shake and does nothing else (27.4s)
+  ✓  556 [truthful-815x290] › e2e/truthful-size.spec.ts:114:1 › the whole screen refused: the game is whole in the window — the HUD and the windows (9.5s)
+  ✓  557 [truthful-815x290] › e2e/truthful-size.spec.ts:141:1 › a browser panel over the page: the field is the visible part of the window (visualViewport) (7.8s)
+  ✓  558 [truthful-815x290] › e2e/truthful-steps.spec.ts:30:1 › the sets differ: own files and own pitch for each (563ms)
+  ✓  559 [truthful-815x290] › e2e/truthful-steps.spec.ts:38:1 › «Velvet snow» bought in the shop without a preview: chosen at once, the steps are its own — after a reload too (18.9s)
+  ✓  560 [truthful-815x290] › e2e/truthful-windows.spec.ts:102:3 › every window at 100 %: by its content, no control or line cut, the rail shows the scroll (22.5s)
+  ✓  562 [truthful-815x290] › e2e/truthful-windows.spec.ts:141:1 › «Quests»: «For all three» without scrolling; «Shop → Sneakers»: the first row whole, the second by its edge (8.9s)
+  ✓  561 [truthful-815x290] › e2e/truthful-windows.spec.ts:102:3 › every window at 130 %: by its content, no control or line cut, the rail shows the scroll (20.2s)
+  ✓  563 [truthful-815x290] › e2e/truthful-windows.spec.ts:190:1 › the sets of steps («Shop → Steps», «Footsteps») show their first row whole; «Take» of «Calendar» in sight at 130 % (10.9s)
+  ✓  564 [truthful-815x290] › e2e/truthful-windows.spec.ts:245:1 › the middle snaps by rows: after a scroll the top of the list stands on a row (8.1s)
+
+
+  1) [truthful-880x405] › e2e/truthful-hud.spec.ts:46:1 › the bar and the shoes on one line between the stick and the jump, «N Speed» 8 px over the bar; at −160 px too 
+
+    Error: 720
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 3
+
+    - Array []
+    + Array [
+    +   "strip–slot -10px",
+    + ]
+
+      73 |     const boxes = await hudBoxes(page);
+      74 |     for (const b of boxes) expect(b.x + b.w, `${w}: ${b.id} inside`).toBeLessThanOrEqual(w - 16 + 0.5);
+    > 75 |     expect(tooClose(boxes, 8), `${w}`).toEqual([]);
+         |                                        ^
+      76 |     await page.screenshot({ path: `docs/evidence/MU/r4/${width}x${height}/hud-${w}.png` });
+      77 |   }
+      78 | });
+        at /home/user/obby-avalanche/e2e/truthful-hud.spec.ts:75:40
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/truthful-hud-the-bar-and-t-f5c7a-over-the-bar-at-−160-px-too-truthful-880x405/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/truthful-hud-the-bar-and-t-f5c7a-over-the-bar-at-−160-px-too-truthful-880x405/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/truthful-hud-the-bar-and-t-f5c7a-over-the-bar-at-−160-px-too-truthful-880x405/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/truthful-hud-the-bar-and-t-f5c7a-over-the-bar-at-−160-px-too-truthful-880x405/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [truthful-915x412] › e2e/truthful-pad-hints.spec.ts:50:1 › «Stand on the gold pad» only near the pad, with an arrow; the label from 27 m and never over the pad 
+
+    Error: 8 m: the step
+
+    expect(received).toMatch(expected)
+
+    Expected pattern: /Встань на золотую площадку|Stand on the gold pad/
+    Received string:  "Беги к финишу!"
+
+      86 |       expect(cover.crosses, '25 m: the label off the pad').toBe(false);
+      87 |     } else {
+    > 88 |       expect(s.tutor, `${m} m: the step`).toMatch(/Встань на золотую площадку|Stand on the gold pad/);
+         |                                           ^
+      89 |       expect(s.arrow, `${m} m: the arrow to the pad`).toBe(true);
+      90 |       expect(cover.shown, `${m} m: the label`).toBe(true);
+      91 |       expect(cover.crosses, `${m} m: the label off the pad`).toBe(false);
+        at /home/user/obby-avalanche/e2e/truthful-pad-hints.spec.ts:88:43
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/truthful-pad-hints-«Stand--cd187-27-m-and-never-over-the-pad-truthful-915x412/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/truthful-pad-hints-«Stand--cd187-27-m-and-never-over-the-pad-truthful-915x412/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/truthful-pad-hints-«Stand--cd187-27-m-and-never-over-the-pad-truthful-915x412/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/truthful-pad-hints-«Stand--cd187-27-m-and-never-over-the-pad-truthful-915x412/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [truthful-815x290] › e2e/truthful-pad-hints.spec.ts:50:1 › «Stand on the gold pad» only near the pad, with an arrow; the label from 27 m and never over the pad 
+
+    TypeError: expect(received).toMatch(expected)
+
+    Matcher error: received value must be a string
+
+    Received has value: null
+
+      86 |       expect(cover.crosses, '25 m: the label off the pad').toBe(false);
+      87 |     } else {
+    > 88 |       expect(s.tutor, `${m} m: the step`).toMatch(/Встань на золотую площадку|Stand on the gold pad/);
+         |                                           ^
+      89 |       expect(s.arrow, `${m} m: the arrow to the pad`).toBe(true);
+      90 |       expect(cover.shown, `${m} m: the label`).toBe(true);
+      91 |       expect(cover.crosses, `${m} m: the label off the pad`).toBe(false);
+        at /home/user/obby-avalanche/e2e/truthful-pad-hints.spec.ts:88:43
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/truthful-pad-hints-«Stand--cd187-27-m-and-never-over-the-pad-truthful-815x290/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/truthful-pad-hints-«Stand--cd187-27-m-and-never-over-the-pad-truthful-815x290/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/truthful-pad-hints-«Stand--cd187-27-m-and-never-over-the-pad-truthful-815x290/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/truthful-pad-hints-«Stand--cd187-27-m-and-never-over-the-pad-truthful-815x290/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: [desktop] › e2e/sp-belt-camera.spec.ts (9.9m)
+  Slow test file: [desktop] › e2e/sp-camera.spec.ts (6.0m)
+  Slow test file: [desktop] › e2e/fm-camera.spec.ts (6.0m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  3 failed
+    [truthful-880x405] › e2e/truthful-hud.spec.ts:46:1 › the bar and the shoes on one line between the stick and the jump, «N Speed» 8 px over the bar; at −160 px too 
+    [truthful-915x412] › e2e/truthful-pad-hints.spec.ts:50:1 › «Stand on the gold pad» only near the pad, with an arrow; the label from 27 m and never over the pad 
+    [truthful-815x290] › e2e/truthful-pad-hints.spec.ts:50:1 › «Stand on the gold pad» only near the pad, with an arrow; the label from 27 m and never over the pad 
+  7 skipped
+  554 passed (2.2h)
+-- verify: e2e FAILED after 7953.2 s (exit 1)
+EXIT=1
