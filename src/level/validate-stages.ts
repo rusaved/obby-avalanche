@@ -410,8 +410,12 @@ export function validateStageWorld(w: World, levels: Levels, tuning: Physics, ma
 /**
  * MT-06 (producer 22.10: the wave over the whole game): with a wave on one mountain every mountain has its own; the next
  * mountain starts no higher than the last stage of the one before (an easy start after a hard top); neighbour mountains
- * differ in half their stages at least and each has a trial the one before has not.
+ * differ in half their stages at least and each has a trial the one before has not; no mountain repeats RUN_SAME
+ * stages in a row of any earlier one.
  */
+/** MT review: this many stages in a row as on an earlier mountain at the same places — a repeat. */
+export const RUN_SAME = 4;
+
 export function crossErrors(worlds: readonly World[]): string[] {
   const errors: string[] = [];
   const waved = worlds.some((w) => (w.stages ?? []).some((s) => s.tier !== undefined));
@@ -424,6 +428,14 @@ export function crossErrors(worlds: readonly World[]): string[] {
     if (st[0]!.level > prev[prev.length - 1]!.level) errors.push(`${at}: stage 1 asks level ${st[0]!.level}, over the last stage of mountain ${i} (${prev[prev.length - 1]!.level})`);
     const same = st.filter((s, k) => prev[k]?.type === s.type).length;
     if (same > st.length / 2) errors.push(`${at}: ${same} of ${st.length} stages as on mountain ${i} (half at most)`);
+    // MT review: no run of RUN_SAME stages as on any mountain before (mountain 9 began as mountain 4).
+    for (const [j, o] of worlds.slice(0, i).entries()) {
+      let run = 0;
+      for (const [k, s] of st.entries()) if ((run = o.stages?.[k]?.type === s.type ? run + 1 : 0) >= RUN_SAME) {
+        errors.push(`${at}: stages ${k + 2 - RUN_SAME}–${k + 1} as on mountain ${j + 1}`);
+        break;
+      }
+    }
     const [mine, theirs] = [new Set(st.map((s) => s.type)), new Set(prev.map((s) => s.type))];
     if (![...mine].some((x) => !theirs.has(x))) errors.push(`${at}: no trial of its own against mountain ${i}`);
   }

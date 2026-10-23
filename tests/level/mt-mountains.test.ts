@@ -27,6 +27,10 @@ describe('MT: mountains 3–10', () => {
     const high = clone(worlds);
     high[4]!.stages![0]!.level = high[3]!.stages![high[3]!.stages!.length - 1]!.level + 1;
     expect(crossErrors(high).some((e) => e.includes('over the last stage'))).toBe(true);
+    // Review: mountain 9 began as mountain 4 — a run of RUN_SAME stages as on any earlier mountain is named.
+    const rep = clone(worlds);
+    for (let k = 0; k < 5; k++) rep[8]!.stages![k]!.type = rep[3]!.stages![k]!.type;
+    expect(crossErrors(rep).some((e) => e.includes('as on mountain 4'))).toBe(true);
     const flat = clone(worlds);
     for (const s of flat[6]!.stages!) delete s.tier;
     expect(crossErrors(flat).some((e) => e.includes('no wave'))).toBe(true);
@@ -52,6 +56,11 @@ describe('MT: mountains 3–10', () => {
       const first = tiers.indexOf('veryHard');
       expect(tiers.filter((t) => t === 'veryHard').length, w.id).toBeLessThanOrEqual(w.index <= 2 ? 3 : 4);
       expect(tiers[first - 1], w.id).toBe('easy');
+    }
+    // Review: the very hard giant is longer than the middle one (the ceiling of 360 made them equal).
+    for (const w of worlds.slice(8)) {
+      const [a, b] = w.stages!.filter((s) => s.type === 'giant');
+      expect(b!.end - b!.start, w.id).toBeGreaterThan(1.2 * (a!.end - a!.start));
     }
     const m10 = worlds[9]!.stages!;
     expect(m10[m10.length - 1]!.level - m10[m10.length - 2]!.level).toBeLessThanOrEqual(1);

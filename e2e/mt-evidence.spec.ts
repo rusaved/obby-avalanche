@@ -15,6 +15,8 @@ test.describe('880 × 405 @full', () => {
       await page.evaluate(() => {
         window.__TEST__!.setPlaySec(400);
         window.__TEST__!.setFlag('firstWaveDone', true);
+        // MT review: no tutorial hint over the frames (its steps passed).
+        window.__TEST__!.setTutor(9);
       });
       if (wi > 1) {
         await page.evaluate((i) => window.__TEST__!.gotoWorld(i), wi);

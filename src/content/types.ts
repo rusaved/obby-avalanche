@@ -1111,8 +1111,11 @@ export interface StageSpec {
   /** MT-01 (RG 18.5: «the giant is not alone»): from this mountain on the giant stages bring the helpers of the open
    * mountain's giant to the borders of the field; absent — no helpers on the stages. */
   giantHelpersFrom?: number;
-  /** MT-06: from mountain `from` on a ridge asks at most `max` levels over the stage before it; absent — as the log scale gives. */
-  levelStep?: { from: number; max: number };
+  /** MT-01: the slowdown of the helpers' snowball on the stages; absent — as the open giant's helpers. */
+  giantHelperSlow?: number;
+  /** MT-06: from mountain `from` on a ridge asks at most `max` levels over the stage before it (`easy` on the first ridge
+   * and the easy tiers); absent — as the log scale gives. */
+  levelStep?: { from: number; max: number; easy?: number };
   /** ST-06: a stage pad behind the farthest stage reached pays this many times a life, then nothing (World.padBehindTakes). */
   padBehindTakes?: number;
 }

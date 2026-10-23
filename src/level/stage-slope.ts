@@ -208,8 +208,11 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
   const levelOfStage: number[] = [];
   // `gateK` (LV-12 review «the gates never hold»): every requirement × it before it becomes a level — one data knob.
   // MT-06 (an easy start after a hard mountain): from `levelStep.from` on a ridge asks at most `levelStep.max` levels over the last one.
-  const stepMax = cfg.levelStep && index >= cfg.levelStep.from ? cfg.levelStep.max : Infinity;
-  for (let s = 1; s <= K; s++) levelOfStage.push(s === 1 ? carried : Math.min(levelOfStage[s - 2]! + stepMax, Math.max(levelOfStage[s - 2] ?? 1, nearestLevel(reqAt(s) * (s === 2 && index === 1 ? 1 : cfg.gateK ?? 1), levels))));
+  // MT review: the first ridge of a mountain and the easy tiers ask at most `levelStep.easy` (the long wait moves to the hard stages).
+  const ls = cfg.levelStep && index >= cfg.levelStep.from ? cfg.levelStep : undefined;
+  const easyTier = (s: number): boolean => s === 2 || ['easy', 'veryEasy'].includes(cfg.waves?.[index - 1]?.[s - 1] ?? '');
+  const stepMax = (s: number): number => (!ls ? Infinity : ls.easy !== undefined && easyTier(s) ? ls.easy : ls.max);
+  for (let s = 1; s <= K; s++) levelOfStage.push(s === 1 ? carried : Math.min(levelOfStage[s - 2]! + stepMax(s), Math.max(levelOfStage[s - 2] ?? 1, nearestLevel(reqAt(s) * (s === 2 && index === 1 ? 1 : cfg.gateK ?? 1), levels))));
 
   // Step multipliers and gift zones of the open sections along the same share of the mountain (17.4: moved, not recounted).
   const openZone = (s: number): WorldZone => ow.zones[Math.min(ow.zones.length - 1, Math.floor(((s - 1) * ow.zones.length) / K))]!;
@@ -331,15 +334,17 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
       }
       case 'giant': {
         // ST-02: the tier stretches or shortens the chase.
-        const L = round3(clamp(5 * v * (1 + 0.15 * add), 150, 360));
+        // MT review: the ceiling grows with the tier too (at 360 a very hard giant was the middle one again).
+        const L = round3(clamp(5 * v * (1 + 0.15 * add), 150, 360 * (1 + 0.15 * Math.max(0, add))));
         floor(zb, L, y);
         const covers = [
           { x: round3(half / 2), z: round3(zb + 0.4 * L), r: 4, h: 6 },
           { x: round3(-half / 2), z: round3(zb + 0.7 * L), r: 4, h: 6 },
         ];
         for (const c of covers) seg.push({ type: 'cover', z: c.z, x: c.x, y, r: c.r, h: c.h, zone: s });
-        // MT-01: the helpers of the open giant (RG 18.5) on the borders of this field, from `giantHelpersFrom` on.
-        const helpers = index >= (cfg.giantHelpersFrom ?? Infinity) ? (ow.bosses?.[0]?.helpers ?? []).map((h) => ({ ...h, x: round3(Math.sign(h.x) * (half + 2)) })) : [];
+        // MT-01: the helpers of the open giant (RG 18.5) on the borders of this field, from `giantHelpersFrom` on; their
+        // snowball softer on the stages (`giantHelperSlow`: the dodge of SD-12 holds, Speed decides).
+        const helpers = index >= (cfg.giantHelpersFrom ?? Infinity) ? (ow.bosses?.[0]?.helpers ?? []).map((h) => ({ ...h, x: round3(Math.sign(h.x) * (half + 2)), ...(cfg.giantHelperSlow !== undefined ? { slow: cfg.giantHelperSlow } : {}) })) : [];
         bosses.push({ ...(helpers.length > 0 ? { helpers } : {}), zone: [round3(zb), round3(zb + L)], requires: round3(levelThreshold(level, levels)), returnMult: 1.5, giants: [{ speed: Math.floor((v / (1 + (cfg.giantMargin?.[index - 1] ?? cfg.giantMarginRest ?? m.boss.margin))) * 1000) / 1000, patrol: 'chase', seeDist: 0, turnSec: 0.5, ...(cfg.giantSlipPast === false ? { slipPast: false } : {}), ...(cfg.giantSide !== undefined ? { side: byMountain(cfg.giantSide, index) } : {}), ...(cfg.giantLag ? { lag: byMountain(cfg.giantLag, index) } : {}), ...(cfg.giantSlipMargin !== undefined ? { slipMargin: byMountain(cfg.giantSlipMargin, index) } : {}) }], width: cfg.field, covers, ...(cfg.giantEveryRun ? { rearm: true } : {}), ...(cfg.giantLevel ? { level: { n: level, ...cfg.giantLevel, g: byMountain(cfg.giantLevel.g, index) } } : {}) } as WorldBoss);
         zb += L;
         break;
@@ -371,7 +376,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
         const land = round3(0.6 * F + 10);
         floor(zb, 10, y);
         // ST-02 (reviews: «hard» was the plain two): a trampoline more a tier above the middle.
-        const pads = 2 + Math.max(0, add);
+        const pads = Math.max(1, 2 + add); // MT review: an easy catapult — one trampoline
         for (let k = 0; k < pads; k++) {
           const padZ = k === 0 ? zb + 6 : zb - 4;
           seg.push({ type: 'jumpPad', z: round3(padZ), x: 0, y, width: round3(cfg.field - 4), length: 4, stretch: s, forward, shape: 'catapult' });
