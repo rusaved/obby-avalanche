@@ -1,5 +1,5 @@
 check-release: release/avalanche-0.1.0.zip
-date: 2026-10-22T09:56:43.607Z
+date: 2026-10-23T01:14:47.106Z
 files: 47
   assets/1-BN7IT56u.mp3  16.8 KB
   assets/1-BVny-jN9.mp3  16.8 KB
@@ -24,13 +24,13 @@ files: 47
   assets/4-CJ7_h6Iw.mp3  16.8 KB
   assets/4-CjOsbRXB.mp3  16.8 KB
   assets/ZzFX-C1HKDoVW.js  2.0 KB
-  assets/en-BPfkV31U.json  17.5 KB
-  assets/index-D5R60wIP.js  1710.9 KB
-  assets/index-DscDJaoB.css  72.3 KB
+  assets/en-DCaseUcG.json  18.7 KB
+  assets/index-B0_utT-c.js  1729.2 KB
+  assets/index-CgZgT-mc.css  73.6 KB
   assets/level-up-CA_B7FUa.mp3  32.3 KB
   assets/reward-coins-Cb3RXhlr.mp3  32.3 KB
   assets/reward-trophy-CEJUg0DD.mp3  32.3 KB
-  assets/ru-Bu7ECPCK.json  22.9 KB
+  assets/ru-k6m76-W0.json  24.6 KB
   assets/rubik-cyrillic-500-normal-BH_pkKR0.woff  9.7 KB
   assets/rubik-cyrillic-500-normal-Didq2w9O.woff2  7.7 KB
   assets/rubik-cyrillic-600-normal-AdySaCq0.woff2  7.7 KB
@@ -51,7 +51,7 @@ files: 47
 
 PASS  1. index.html at the root, paths only [A-Za-z0-9._/-]
 PASS  2. unpacked ≤ 10 MB and JS gzip ≤ 800 KB
-        zip 1106.2 KB, unpacked 2531.7 KB, js gzip 368.0 KB
+        zip 1112.4 KB, unpacked 2554.2 KB, js gzip 373.0 KB
 PASS  3. no external addresses except /sdk.js and mc.yandex.ru (namespaces allowed)
 PASS  4. <script src="/sdk.js"> exactly once
         found 1

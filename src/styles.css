@@ -1063,3 +1063,5 @@ canvas.fallback {
 /* ST-07 (usability review): four cards of «Gifts» in one row — the group's two buttons one over the other. */
 #ui.mu .gf-cards.four { grid-template-columns: 1.15fr 1fr 1fr 1fr; }
 #ui.mu .gf-cards.four .gf-btns { flex-direction: column; gap: 6px; }
+/* ST (truthful-hud at 655 px, squeezed by a banner: the slot over a tile by 9 px): the slot keeps off the columns of tiles. */
+.hud.mu .hud-hint, .hud.mu .hud-need, .hud.mu .hud-tutor, .hud.mu .hud-wave { max-width: min(54%, calc(100% - 336px)); }

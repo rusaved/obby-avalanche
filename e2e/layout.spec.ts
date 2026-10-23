@@ -50,7 +50,8 @@ test.describe('layout', () => {
       if (w === 2560 && h === 1080) {
         expect(field.left).toBe(200);
         const bg = await page.evaluate(() => getComputedStyle(document.getElementById('app')!).backgroundColor);
-        expect(bg.replace(/\s/g, '')).toBe('rgb(232,246,255)');
+        // ST-04: the sky of the theme calmer (#E2ECF4).
+        expect(bg.replace(/\s/g, '')).toBe('rgb(226,236,244)');
       }
       expect(await hudInsideField(page), `${w}x${h}`).toEqual([]);
       expect(await page.evaluate(() => window.scrollY)).toBe(0);

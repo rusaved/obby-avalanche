@@ -45,7 +45,7 @@ async function start(page: Page, openGame: (q?: string) => Promise<void>, stat: 
 
 test('the bar and the shoes on one line between the stick and the jump, «N Speed» 8 px over the bar; at −160 px too', async ({ page, openGame }) => {
   await start(page, openGame, threshold(3));
-  await page.evaluate((z) => window.__TEST__!.teleport(z), W.stages[2]!.start + 20);
+  await page.evaluate((z) => window.__TEST__!.teleport(z), W.stages[3]!.start + 20); // ST-02: the field of the avalanche stage (stage 3 is plates over a pit)
   await waitTicks(page, 20);
   const { width, height } = page.viewportSize()!;
   for (const w of [width, width - 160]) {
@@ -81,7 +81,7 @@ test('the stage strip slides in on a new stage, at a ridge and at the giant for 
   test.setTimeout(120_000);
   await start(page, openGame, threshold(3));
   // A new stage: in sight now, gone in 3.5 s; the slot at the top then.
-  await page.evaluate((z) => window.__TEST__!.teleport(z), W.stages[2]!.start + 20);
+  await page.evaluate((z) => window.__TEST__!.teleport(z), W.stages[3]!.start + 20); // ST-02: the field of the avalanche stage (stage 3 is plates over a pit)
   await waitTicks(page, 5);
   await expect.poll(() => stripShown(page), { message: 'a new stage shows the strip', timeout: 2_000, intervals: [100] }).toBe(true);
   await page.screenshot({ path: `docs/evidence/MU/r4/${page.viewportSize()!.width}x${page.viewportSize()!.height}/strip-in.png` });
