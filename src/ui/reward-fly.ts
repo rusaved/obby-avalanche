@@ -10,6 +10,8 @@ const POOL = 12;
 const STAGGER_MS = 45;
 /** The copy of a counter over a window stays this long after its tick (its new number is read). */
 const GHOST_KEEP_MS = 900;
+/** Not more than one tick sound in this long (review FX: the ticks spent the ceiling of the interface sounds). */
+const TICK_SOUND_MS = 150;
 
 export interface RewardFlyOptions {
   flyIcons: number;
@@ -56,6 +58,7 @@ export function createRewardFly(host: HTMLElement, o: RewardFlyOptions): RewardF
   let flying = 0;
   let press: { x: number; y: number; at: number } | null = null;
   const ticks = new Map<string, number>();
+  let tickSoundAt = -Infinity;
 
   const tick = (kind: 'coins' | 'trophies', before: number, after: number, node: HTMLElement, done: () => void): void => {
     const t0 = performance.now();
@@ -69,7 +72,11 @@ export function createRewardFly(host: HTMLElement, o: RewardFlyOptions): RewardF
       if (text !== shown) {
         shown = text;
         node.textContent = text;
-        o.onTick?.();
+        const now = performance.now();
+        if (now - tickSoundAt >= TICK_SOUND_MS) {
+          tickSoundAt = now;
+          o.onTick?.();
+        }
       }
       if (k < 1) requestAnimationFrame(step);
       else done();
@@ -96,6 +103,14 @@ export function createRewardFly(host: HTMLElement, o: RewardFlyOptions): RewardF
       const to = { x: c.rect.left + Math.min(c.rect.width, c.rect.height) / 2, y: c.rect.top + c.rect.height / 2 };
       const n = Math.max(3, Math.min(o.flyIcons, POOL, Math.round(Math.log2(after - before + 1)) + 2));
       const svg = icon(kind === 'coins' ? 'coin' : 'cup');
+      // Under a window the copy of the counter shows from the start: the marks fly to something seen (review FX).
+      if (c.hidden) {
+        ghostIcon.innerHTML = svg;
+        ghostValue.textContent = o.format(before);
+        ghost.style.transform = `translate(${Math.round(c.rect.left - hb.left)}px, ${Math.round(c.rect.top - hb.top)}px)`;
+        ghost.style.minWidth = `${Math.round(c.rect.width)}px`;
+        ghost.classList.add('shown');
+      }
       for (let i = 0; i < n; i++) {
         const m = marks[next]!;
         next = (next + 1) % POOL;

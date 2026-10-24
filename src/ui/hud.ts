@@ -329,7 +329,7 @@ const TAP_CLICK_MS = 800;
 /** How long the Speed plaque keeps its flash class (the CSS animation is shorter). */
 const STAT_FLASH_MS = 1200;
 /** Toasts waiting for the avalanche banner to go (playtest M2), the oldest dropped past this. */
-const TOAST_QUEUE_MAX = 3;
+const TOAST_QUEUE_MAX = 5;
 /** FX-01: a toast that tells a gain («+15», «×2») is a reward, the rest are events (their mark, toast-queue.ts). */
 const REWARD_RE = /[+\u00d7]\s?\d/;
 

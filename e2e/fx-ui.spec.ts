@@ -79,7 +79,9 @@ test('FX-02 FX-06 every press squeezes and taps; what cannot act shakes, says «
   n0 = (await sfx(page)).length;
   await tap(page, '[data-hud="rebirth-do"]');
   await expect(go).toHaveClass(/\bnudge\b/);
-  await expect(page.locator('[data-role="why"].shown')).toHaveText(/\S+/);
+  // The reason is written by the button already: its line flashes, no bubble twice (review FX).
+  await expect(page.locator('[data-role="rebirth-locked"]')).toHaveClass(/fx-flash/);
+  expect(await page.locator('[data-role="why"].shown').count()).toBe(0);
   await expect.poll(async () => (await sfx(page)).slice(n0)).toContain('uiDeny');
   expect((await sfx(page)).slice(n0)).not.toContain('uiTap');
   // The ceiling: 20 taps inside a second give at most fx.uiSoundPerSec interface sounds.

@@ -997,8 +997,11 @@ canvas.fallback {
 button, [role='button'] { transition: scale 0.08s ease-out; }
 button.press, [role='button'].press { scale: 0.93; }
 /* FX-02: the reason of a control that cannot act now, in a bubble over it. */
-.fx-why { position: absolute; left: 0; top: 0; z-index: 30; max-width: 280px; padding: 6px 12px; border-radius: 12px; background: rgba(10, 25, 45, 0.92); color: #ffffff; font-size: 15px; font-weight: 700; line-height: 1.25; text-align: center; pointer-events: none; opacity: 0; transition: opacity 0.15s; }
+.fx-why { position: absolute; left: 0; top: 0; z-index: 30; max-width: 260px; padding: 6px 12px; border-radius: 12px; background: var(--mu-plaque-strong, rgba(10, 25, 45, 0.92)); border: 1.5px solid rgba(255, 255, 255, 0.45); color: #ffffff; font-size: 15px; font-weight: 700; line-height: 1.25; text-align: center; pointer-events: none; opacity: 0; transition: opacity 0.15s; }
 .fx-why.shown { opacity: 1; }
+/* FX-02: the reason already written by the button flashes gold instead of a bubble. */
+@keyframes fx-flash { 0%, 100% { color: inherit; } 30%, 70% { color: var(--mu-gold, currentColor); } }
+.fx-flash { animation: fx-flash 0.6s ease-in-out; }
 /* FX-03: the marks of a reward fly over everything (a window too) to their counter; the counter glows as they land. */
 .fx-fly { position: absolute; inset: 0; z-index: 40; pointer-events: none; overflow: hidden; }
 .fx-fly-mark { position: absolute; left: -14px; top: -14px; width: 28px; height: 28px; opacity: 0; will-change: transform; }

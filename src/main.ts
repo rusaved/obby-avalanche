@@ -1969,12 +1969,13 @@ async function boot(): Promise<void> {
       pause.set_('menu', id !== null);
       // MU-07 (rule 13): the HUD under an open window is hidden whole.
       ui.classList.toggle('win-open', id !== null);
-      // FX-06: a window opens and closes with its own short sound.
+      // FX-06: a window opens and closes with its own short sound; FX-02: a reason bubble never outlives its window.
       audio?.play(id !== null ? 'uiOpen' : 'uiClose');
+      press?.hideWhy();
     },
   });
   // FX-02: every press of the HUD and of the windows squeezes and taps; what cannot act now shakes and tells why.
-  createPressFeedback(ui, { sound: (n) => audio?.play(n) });
+  const press = createPressFeedback(ui, { sound: (n) => audio?.play(n) });
   // FX-03: the rewards fly to their counter and it ticks (calendar, quests, «Gifts», the stage pad).
   if (tuning.fx?.flyMs && tuning.fx.tickMs) {
     const fxs = tuning.fx;

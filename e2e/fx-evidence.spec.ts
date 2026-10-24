@@ -70,9 +70,23 @@ for (const [w, h] of [[880, 405], [815, 290]] as const)
         await shot(page, `win-${id}`);
         if (id === 'rebirth') {
           await tap(page, 'rebirth-do');
-          await expect(page.locator('[data-role="why"].shown')).toHaveCount(1);
           await page.waitForTimeout(250);
           await shot(page, 'why-rebirth');
+        }
+        if (id === 'pets') {
+          // The bubble of a reason not written by the button: every place taken.
+          await page.keyboard.press('Escape');
+          await expect(page.locator('[data-role="window"].open')).toHaveCount(0);
+          await page.evaluate(() => {
+            for (const p of ['bunny', 'penguin', 'fox', 'owl']) window.__TEST__!.givePet(p);
+          });
+          await open(page);
+          const off = page.locator('[data-role="window"].open [data-hud="pet-equip"].off').first();
+          if ((await off.count()) > 0) {
+            await off.dispatchEvent('pointerdown', { pointerType: 'touch', button: 0 });
+            await page.waitForTimeout(250);
+            await shot(page, 'why-pets');
+          }
         }
         if (id === 'daily' && (await page.locator('[data-hud="daily-claim"]').count()) > 0) {
           await page.locator('[data-hud="daily-claim"]').click();
