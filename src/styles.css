@@ -279,7 +279,8 @@ canvas.fallback {
 .hud-toast { display: flex; flex-direction: column; align-items: center; }
 .hud-toast-sub { font-size: 0.6em; }
 /* FX-01: the mark of the toast's kind (a reward — the star, an event — the flag) before its words. */
-.hud-toast-icon { display: inline-block; width: 0.9em; height: 0.9em; margin-right: 0.25em; vertical-align: -0.1em; line-height: 0; }
+.hud-toast-main { position: relative; }
+.hud-toast-icon { position: absolute; right: 100%; top: 50%; width: 0.9em; height: 0.9em; margin-right: 0.25em; translate: 0 -50%; line-height: 0; }
 .hud-toast-icon svg { width: 100%; height: 100%; display: block; }
 .hud-toast-sub:empty { display: none; }
 

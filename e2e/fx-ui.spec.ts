@@ -38,9 +38,9 @@ test('FX-01 toasts: one at a time, the first held its minimum, an equal one once
     seen.push(t);
   }
   expect(seen.filter((t) => t === 'Beta +5').length, 'the equal toast once').toBe(1);
-  const a = log.find((x) => x[1] === 'Alpha')![0];
+  // Both were pushed at 0 (the log's start): Beta comes no sooner than Alpha's minimum (a frame may show Alpha late).
   const b = log.find((x) => x[1] === 'Beta +5')![0];
-  expect(b - a, 'Alpha held at least fx.toastMinSec').toBeGreaterThanOrEqual(1150);
+  expect(b, 'Alpha held at least fx.toastMinSec').toBeGreaterThanOrEqual(1150);
   const dur = await page.evaluate(() => getComputedStyle(document.querySelector('[data-role="toast"]')!).transitionDuration);
   for (const d of dur.split(',')) expect(Number.parseFloat(d) * 1000).toBeLessThanOrEqual(250);
 });

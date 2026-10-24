@@ -120,6 +120,8 @@ test('every off button of every window answers a tap with a shake and does nothi
   await tap(page, 'menu-more');
   const more = await page.evaluate(() => Array.from(document.querySelectorAll<HTMLElement>('[data-role="window"].open [data-hud^="more-"]')).map((e) => e.dataset['hud']!));
   await page.keyboard.press('Escape');
+  // Esc is taken on the next frame: a tap before it would open a window the Esc then closes.
+  await expect(page.locator('[data-role="window"].open')).toHaveCount(0);
   const ways: Array<[string, () => Promise<void>]> = [
     ...hud.map((id): [string, () => Promise<void>] => [id, () => tap(page, id)]),
     ...more.map((id): [string, () => Promise<void>] => [id, async () => { await tap(page, 'menu-more'); await page.locator(`[data-hud="${id}"]`).click(); }]),
@@ -154,6 +156,7 @@ test('every off button of every window answers a tap with a shake and does nothi
     // Closed by its cross from the DOM (Esc toggles the pause; the cross may be mid-fade for a pointer).
     await page.evaluate(() => document.querySelector<HTMLElement>('[data-role="window"].open [data-hud="win-close"]')?.click());
     if ((await page.locator('[data-role="window"].open').count()) > 0) await page.keyboard.press('Escape');
+    await expect(page.locator('[data-role="window"].open')).toHaveCount(0);
     await expect(page.locator('[data-role="window"].open'), `${name} closed`).toHaveCount(0);
     await page.waitForTimeout(400);
   }

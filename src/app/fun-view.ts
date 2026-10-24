@@ -33,7 +33,9 @@ const PUFF = 26;
 const TRAIL_EVERY = 1 / 30;
 const CONFETTI = 60;
 /** FX-05: sparks of a step of growth at the feet, the snow of being snowed in and of rolling out, the summit confetti. */
-const STEP_SPARKS = 3;
+const STEP_SPARKS = 2;
+/** Sparks of steps not more often than this (s of game time): a fast run steps many times a second. */
+const STEP_SPARK_GAP = 0.3;
 const CAUGHT_PUFF = 40;
 const OUT_PUFF = 30;
 const SUMMIT_CONFETTI = 90;
@@ -110,6 +112,7 @@ export function createFunView(d: FunViewDeps): FunView {
   let now = 0;
   let trailAcc = 0;
   let sparkN = 0;
+  let stepSparkAt = -Infinity;
   let windAcc = 0;
   let sim: Sim | null = null;
   const p = new Vector3();
@@ -136,6 +139,9 @@ export function createFunView(d: FunViewDeps): FunView {
       // FX-05: the world answers its events — sparks of the Speed colour at every step of growth, a burst of snow when the
       // avalanche covers the hero and when he rolls out of the ball, confetti of the portal colours at the summit.
       s.events.on('step', () => {
+        // On a belt the steps stream by themselves (the treadmill ×N): no sparks there — the belt's own whirl speaks.
+        if (s.onBelt || now - stepSparkAt < STEP_SPARK_GAP) return;
+        stepSparkAt = now;
         world.step++;
         const h = s.hero.pos;
         d.fx.burst('spark', h.x, h.y + 0.3, h.z, [d.theme.ui.stat, '#ffffff'], STEP_SPARKS, 4, 0.5);

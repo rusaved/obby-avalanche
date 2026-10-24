@@ -735,7 +735,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     toastIcon.remove();
     if (!hasMark(text)) {
       toastIcon.innerHTML = icon(kind === 'reward' ? 'star' : 'flag');
-      toastMain.prepend(toastIcon);
+      // Last in the line and placed left of it by CSS: the line box and the first box of its text stay as they were.
+      toastMain.append(toastIcon);
     }
     placeMuToast();
     toastEl.classList.toggle('gold', gold);

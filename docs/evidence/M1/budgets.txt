@@ -1,4 +1,4 @@
-budgets (docs/02-tech.md 9.5), mountain 1, quality high, 2026-10-23T08:17:38.908Z
-z=20: draw calls 24, triangles 46194, textures 4, geometries 24, character draw calls 8
-z=400: draw calls 28, triangles 45376, textures 4, geometries 27, character draw calls 8
-z=1150: draw calls 27, triangles 44776, textures 4, geometries 28, character draw calls 8
+budgets (docs/02-tech.md 9.5), mountain 1, quality high, 2026-10-24T20:15:40.875Z
+z=20: draw calls 25, triangles 46194, textures 4, geometries 25, character draw calls 8
+z=400: draw calls 29, triangles 45376, textures 4, geometries 28, character draw calls 8
+z=1150: draw calls 28, triangles 44776, textures 4, geometries 29, character draw calls 8

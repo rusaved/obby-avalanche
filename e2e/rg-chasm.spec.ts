@@ -94,7 +94,8 @@ test('mountain 2: by the walk at the edge down into the chasm, its gift, out up 
   await page.waitForFunction(() => window.__TEST__!.state().hero?.onGround === true, undefined, { timeout: 10_000 });
   s = await testState(page);
   expect(s.hero!.y).toBeCloseTo(chasm.y!, 0);
-  expect(first).toContain(want);
+  // FX-01: the toast waits its turn behind one up before it (each holds its minimum) — it may come after the walk.
+  if (!first.includes(want)) await page.waitForFunction((w) => window.__TEST__!.state().waveHud.toast === w, want, { timeout: 5_000 });
   // Down again, the first toast gone: no toast this time (once a save).
   await page.waitForFunction((w) => window.__TEST__!.state().waveHud.toast !== w, want, { timeout: 30_000 });
   await page.evaluate(([z, x]) => window.__TEST__!.teleport(z!, x!), [c0 - 12, WALK]);
