@@ -32,6 +32,11 @@ const CHIME_GAP = 0.09;
 const PUFF = 26;
 const TRAIL_EVERY = 1 / 30;
 const CONFETTI = 60;
+/** FX-05: sparks of a step of growth at the feet, the snow of being snowed in and of rolling out, the summit confetti. */
+const STEP_SPARKS = 3;
+const CAUGHT_PUFF = 40;
+const OUT_PUFF = 30;
+const SUMMIT_CONFETTI = 90;
 /** MU-04: coins of a stage finish in the fountain, out of this height over the pad. */
 const PAD_COINS = 14;
 const PAD_COINS_AT = 1.5;
@@ -86,6 +91,8 @@ export interface FunViewState {
   puffAlive: number;
   giftNote: number;
   slides: number;
+  /** FX-05: bursts of the world events so far — a step of growth, snowed in, out of the ball, the summit portal. */
+  world: { step: number; caught: number; out: number; summit: number };
 }
 
 export interface FunView {
@@ -97,6 +104,7 @@ export interface FunView {
 export function createFunView(d: FunViewDeps): FunView {
   const fountain: CoinFountain = createCoinFountain(d.hud.root, () => d.hud.coinTarget(), d.theme.ui.coins);
   const st = { fountains: 0, chimes: 0, gateNote: 0, puffs: 0, giftNote: 0, slides: 0 };
+  const world = { step: 0, caught: 0, out: 0, summit: 0 };
   let gateStreak: Streak = { step: 0, at: -Infinity };
   let giftStreak: Streak = { step: 0, at: -Infinity };
   let now = 0;
@@ -124,6 +132,26 @@ export function createFunView(d: FunViewDeps): FunView {
         d.audio()?.play('jumpPad');
         d.fx.burst('puff', x, y + 0.2, z, [color('snowPuff', '#ffffff')], PUFF, 7, 1.6);
         d.meshes()?.pressPad(index, now);
+      });
+      // FX-05: the world answers its events — sparks of the Speed colour at every step of growth, a burst of snow when the
+      // avalanche covers the hero and when he rolls out of the ball, confetti of the portal colours at the summit.
+      s.events.on('step', () => {
+        world.step++;
+        const h = s.hero.pos;
+        d.fx.burst('spark', h.x, h.y + 0.3, h.z, [d.theme.ui.stat, '#ffffff'], STEP_SPARKS, 4, 0.5);
+      });
+      s.events.on('waveCaught', ({ x, y, z }) => {
+        world.caught++;
+        d.fx.burst('puff', x, y + 0.8, z, [color('snowPuff', '#ffffff')], CAUGHT_PUFF, 9, 2.2);
+      });
+      s.events.on('caughtEnd', ({ x, y, z }) => {
+        world.out++;
+        d.fx.burst('puff', x, y + 0.5, z, [color('snowPuff', '#ffffff')], OUT_PUFF, 8, 1.8);
+      });
+      s.events.on('portal', () => {
+        world.summit++;
+        const h = s.hero.pos;
+        d.fx.burst('confetti', h.x, h.y + 2.5, h.z, [color('portalLight', '#ffffff'), d.theme.ui.coins, d.theme.ui.stat, '#ffffff'], SUMMIT_CONFETTI, 11, 4);
       });
       s.events.on('slideEnter', () => {
         st.slides++;
@@ -205,6 +233,7 @@ export function createFunView(d: FunViewDeps): FunView {
         puffAlive: d.fx.alive('puff'),
         giftNote: st.giftNote,
         slides: st.slides,
+        world: { ...world },
       };
     },
   };

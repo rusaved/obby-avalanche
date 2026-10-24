@@ -23,6 +23,17 @@ const FILES: Record<string, string> = Object.fromEntries(
   Object.entries(import.meta.glob('../../assets/audio/**/*.mp3', { query: '?url', import: 'default', eager: true }) as Record<string, string>).map(([k, url]) => [k.replace(/^.*\/assets\/audio\//, ''), url]),
 );
 
+/** FX-06: the interface sounds (`ui…` of sfx.json) share one ceiling of `perSec` a second; true — this one may play. */
+export function createRateCap(perSec: number): (now: number) => boolean {
+  const times: number[] = [];
+  return (now) => {
+    while (times.length > 0 && now - times[0]! >= 1000) times.shift();
+    if (times.length >= perSec) return false;
+    times.push(now);
+    return true;
+  };
+}
+
 /** The bits of an AudioContext the step voice uses (a fake one in tests). */
 export interface VoiceContext {
   readonly currentTime: number;
@@ -108,7 +119,10 @@ export function createAudio(opts: {
   paused: () => boolean;
   onPauseChange: (fn: (paused: boolean) => void) => void;
   gestureTarget: EventTarget;
+  /** FX-06 (tuning.json fx.uiSoundPerSec): the ceiling of the interface sounds a second; absent — none beyond SAME_MAX. */
+  uiPerSec?: number | undefined;
 }): GameAudio {
+  const uiCap = opts.uiPerSec ? createRateCap(opts.uiPerSec) : null;
   let ctx: AudioContext | null = null;
   let sfxGain: GainNode | null = null;
   let enabled = opts.enabled;
@@ -196,6 +210,7 @@ export function createAudio(opts: {
     const now = performance.now();
     const times = (recent.get(name) ?? []).filter((t) => now - t < SAME_WINDOW_MS);
     if (times.length >= SAME_MAX) return false;
+    if (uiCap && name.startsWith('ui') && !uiCap(now)) return false;
     times.push(now);
     recent.set(name, times);
     const src = ctx.createBufferSource();

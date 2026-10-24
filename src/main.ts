@@ -65,6 +65,8 @@ import { levelNeeded } from './sim/levels.ts';
 import { createBotsView, type BotsView, type HudMode } from './app/bots-view.ts';
 import { faceDataUrl } from './render/characters.ts';
 import { createAudio, type GameAudio } from './audio/index.ts';
+import { createPressFeedback } from './ui/press-feedback.ts';
+import { createRewardFly, type RewardFly } from './ui/reward-fly.ts';
 import type { ThreatOptions } from './sim/threat.ts';
 import type { ThemeJson, ThemeTint, World } from './content/types.ts';
 import { freshGifts, keepGift, keptGifts } from './meta/kept-gifts.ts';
@@ -450,6 +452,7 @@ async function boot(): Promise<void> {
   let stageView: StageView | null = null;
   let campView: CampView | null = null;
   let audio: GameAudio | null = null;
+  let rewardFly: RewardFly | null = null;
   /** Footsteps (LV-09): a sound at every step, the «Footsteps» window; null — the pack has no footsteps. */
   let footstepsView: FootstepsView | null = null;
   let botsView: BotsView | null = null;
@@ -1279,7 +1282,10 @@ async function boot(): Promise<void> {
           },
           {
             claim: (i) => {
-              if (questsView?.claimTime(i)) windows?.refresh();
+              if (!questsView?.claimTime(i)) return;
+              windows?.refresh();
+              // FX-03: the gift taken opens on its tile.
+              ui.querySelector(`[data-role="window"].open [data-tile="${i}"]`)?.classList.add('opened');
             },
             visit: (id) => {
               // The reward is for the visit (no «subscribe»): given when the player is back from the group.
@@ -1871,6 +1877,10 @@ async function boot(): Promise<void> {
     plaqueAlpha: theme.ui.plaqueAlpha,
     plaqueText: theme.ui.plaqueText,
     toastPlate: theme.ui.toastPlate,
+    glow: theme.ui.glow,
+    toastMinSec: tuning.fx?.toastMinSec,
+    toastGapMs: tuning.fx?.toastGapMs,
+    onToast: () => audio?.play('uiToast'),
     gainText: theme.ui.gainText,
     arrowScale: tuning.avalanche.arrowScale,
     okColor: theme.ui.ok,
@@ -1897,11 +1907,14 @@ async function boot(): Promise<void> {
   audio = createAudio({
     sfx,
     enabled: save.settings.sound,
-    // Any pause reason stops the sound; the «Footsteps» window alone (reason `menu` only) keeps it for its previews, the
-    // summit window (SD-14) for its trophy fanfare.
-    paused: () => pause.paused && !((windows?.current === FOOTSTEPS_WINDOW || windows?.current === 'summit') && pause.reasons.length === 1 && pause.has('menu')),
-    onPauseChange: (fn) => void pause.onChange(fn),
+    // Any pause reason stops the sound; a window alone (reason `menu` only) keeps it: the previews of «Footsteps», the
+    // trophy fanfare of the summit (SD-14), the interface sounds of every window (FX-06). The game stands there, so
+    // nothing of the run sounds; an ad, a blur, a hidden tab add their reason and silence it.
+    paused: () => pause.paused && !(pause.reasons.length === 1 && pause.has('menu')),
+    // FX-06: on every change of the reasons — an ad over a window adds one while the game already stands.
+    onPauseChange: (fn) => void pause.onReasons(fn),
     gestureTarget: window,
+    uiPerSec: tuning.fx?.uiSoundPerSec,
   });
   audio.setVolume(save.settings.volume);
   waveView = createWaveView({
@@ -1951,12 +1964,32 @@ async function boot(): Promise<void> {
     mu: muLayout,
     closeLabel: t('btn.close'),
     okLabel: t('btn.ok'),
+    animMs: tuning.fx?.windowMs,
     onChange: (id) => {
       pause.set_('menu', id !== null);
       // MU-07 (rule 13): the HUD under an open window is hidden whole.
       ui.classList.toggle('win-open', id !== null);
+      // FX-06: a window opens and closes with its own short sound.
+      audio?.play(id !== null ? 'uiOpen' : 'uiClose');
     },
   });
+  // FX-02: every press of the HUD and of the windows squeezes and taps; what cannot act now shakes and tells why.
+  createPressFeedback(ui, { sound: (n) => audio?.play(n) });
+  // FX-03: the rewards fly to their counter and it ticks (calendar, quests, «Gifts», the stage pad).
+  if (tuning.fx?.flyMs && tuning.fx.tickMs) {
+    const fxs = tuning.fx;
+    const h = hud;
+    rewardFly = createRewardFly(ui, {
+      flyIcons: fxs.flyIcons ?? 8,
+      flyMs: fxs.flyMs ?? 650,
+      tickMs: fxs.tickMs ?? 600,
+      format: (n) => formatNumber(n, numSuffix),
+      counter: (k) => h.counterBox(k),
+      hold: (k, on) => h.holdCounter(k, on),
+      onTick: () => audio?.play('uiTick'),
+    });
+    ui.addEventListener('pointerdown', (ev) => rewardFly?.pressedAt(ev.clientX, ev.clientY), true);
+  }
   if (sfx.footsteps)
     footstepsView = createFootstepsView({
       manifest: sfx.footsteps,
@@ -2187,6 +2220,7 @@ async function boot(): Promise<void> {
     numSuffix,
     onLook: () => cosmeticsView?.syncHero(),
     onBoost: () => meta?.apply(),
+    onGain: (kind, before, after) => rewardFly?.play(kind, before, after),
   });
   dailyView = createDailyView({
     balance,
@@ -2290,6 +2324,10 @@ async function boot(): Promise<void> {
         hud.setTrophies(formatNumber(save.trophies, numSuffix));
         persist(true);
       }
+    },
+    onGain: (kind, amount, at) => {
+      const after = kind === 'trophies' ? (save.trophies ?? 0) : sim.coins;
+      rewardFly?.play(kind, after - amount, after, at ?? undefined);
     },
     onCampReturn: () => {
       const flash = document.createElement('div');

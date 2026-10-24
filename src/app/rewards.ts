@@ -35,6 +35,8 @@ export interface RewardsDeps {
   onLook(): void;
   /** The boost started or grew: the step multiplier refreshes. */
   onBoost(): void;
+  /** FX-03: a wallet grew from `before` to `after` (its marks fly to the counter). */
+  onGain?: (kind: 'coins' | 'trophies', before: number, after: number) => void;
 }
 
 export interface Rewards {
@@ -81,13 +83,19 @@ export function createRewards(d: RewardsDeps): Rewards {
     give(rw) {
       const sim = d.getSim();
       switch (rw.kind) {
-        case 'coins':
+        case 'coins': {
+          const before = sim.coins;
           sim.coins += r.coinsOf(rw.gifts);
           d.hud.setCoins(formatNumber(sim.coins, d.numSuffix));
+          d.onGain?.('coins', before, sim.coins);
           break;
-        case 'trophies':
+        }
+        case 'trophies': {
+          const before = d.save.trophies ?? 0;
           addTrophies(d.save, rw.n);
+          d.onGain?.('trophies', before, d.save.trophies ?? 0);
           break;
+        }
         case 'boost':
           d.save.boostSec = (d.save.boostSec ?? 0) + rw.min * 60;
           d.onBoost();

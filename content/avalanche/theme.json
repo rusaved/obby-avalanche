@@ -89,7 +89,8 @@
     "plaqueAlpha": 0.78,
     "plaqueText": "#FFFFFF",
     "toastPlate": { "bg": "#0B2238", "alpha": 0.72, "radius": 12, "padX": 14, "padY": 6 },
-    "gainText": { "scale": 1.5, "outline": 2 }
+    "gainText": { "scale": 1.5, "outline": 2 },
+    "glow": { "color": "#FFD34D", "alpha": 0.55, "blur": 10 }
   },
   "threat": {
     "front": ["#FFFFFF", "#BFE6FF"],

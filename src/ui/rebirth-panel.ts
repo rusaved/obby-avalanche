@@ -96,6 +96,8 @@ export function renderRebirthPanel(body: HTMLElement, head: HTMLElement, m: Rebi
   const go = el('button', m.ready ? 'card-btn rb-go' : 'card-btn rb-go off', t('btn.doRebirth'));
   go.dataset['hud'] = 'rebirth-do';
   setOff(go, !m.ready);
+  // FX-02: a tap on the locked button tells what is missing.
+  if (!m.ready && m.locked) go.dataset['why'] = m.locked;
   if (m.ready) go.addEventListener('click', () => a.rebirth());
   const later = el('button', 'card-btn alt', t('btn.later'));
   later.dataset['hud'] = 'rebirth-later';

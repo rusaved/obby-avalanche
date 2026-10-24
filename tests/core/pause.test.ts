@@ -41,4 +41,15 @@ describe('PauseManager (docs/02-tech.md 4.3)', () => {
     pm.set_('hidden', false);
     expect(pm.paused).toBe(false);
   });
+
+  it('FX-06: onReasons fires on every change of the set — an ad over an open window (the sound must stop)', () => {
+    const pm = new PauseManager();
+    const seen: string[][] = [];
+    pm.onReasons((_, r) => seen.push([...r]));
+    pm.add('menu');
+    pm.add('ad');
+    pm.add('ad');
+    pm.remove('ad');
+    expect(seen).toEqual([['menu'], ['menu', 'ad'], ['menu']]);
+  });
 });

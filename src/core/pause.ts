@@ -1,6 +1,6 @@
 // What: PauseManager: one set of pause reasons (ad, sdk, hidden, blur, menu, shop, pointerlock, orientation, transition); the game runs only while it is empty.
 // Called by: main.ts, app/handles.ts; tests/core/pause.test.ts, tests/sim/threat.test.ts.
-// Keep: A reason is removed only by the source that added it, never by a timer; listeners fire only on paused/running transitions; ad and sdk must keep pausing.
+// Keep: A reason is removed only by the source that added it, never by a timer; onChange fires only on paused/running transitions (onReasons on every change of the set); ad and sdk must keep pausing.
 
 /**
  * PauseManager (docs/02-tech.md 4.3): one set of reasons, the game runs only while the set is empty.
@@ -25,6 +25,7 @@ export type PauseListener = (paused: boolean, reasons: readonly PauseReason[]) =
 export class PauseManager {
   private readonly set = new Set<PauseReason>();
   private readonly listeners = new Set<PauseListener>();
+  private readonly reasonListeners = new Set<PauseListener>();
 
   get paused(): boolean {
     return this.set.size > 0;
@@ -43,11 +44,13 @@ export class PauseManager {
     if (this.set.has(reason)) return;
     this.set.add(reason);
     if (!wasPaused) this.notify();
+    this.notifyReasons();
   }
 
   remove(reason: PauseReason): void {
     if (!this.set.delete(reason)) return;
     if (!this.paused) this.notify();
+    this.notifyReasons();
   }
 
   /** Adds or removes a reason depending on `on`. */
@@ -60,6 +63,18 @@ export class PauseManager {
   onChange(fn: PauseListener): () => void {
     this.listeners.add(fn);
     return () => this.listeners.delete(fn);
+  }
+
+  /** FX-06: called on every change of the set (a window holds the game and an ad comes: the sound must stop). */
+  onReasons(fn: PauseListener): () => void {
+    this.reasonListeners.add(fn);
+    return () => this.reasonListeners.delete(fn);
+  }
+
+  private notifyReasons(): void {
+    const paused = this.paused;
+    const reasons = this.reasons;
+    for (const fn of Array.from(this.reasonListeners)) fn(paused, reasons);
   }
 
   private notify(): void {

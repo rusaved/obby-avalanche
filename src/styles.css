@@ -278,6 +278,9 @@ canvas.fallback {
 .hud.toasting .hud-egg { visibility: hidden; }
 .hud-toast { display: flex; flex-direction: column; align-items: center; }
 .hud-toast-sub { font-size: 0.6em; }
+/* FX-01: the mark of the toast's kind (a reward — the star, an event — the flag) before its words. */
+.hud-toast-icon { display: inline-block; width: 0.9em; height: 0.9em; margin-right: 0.25em; vertical-align: -0.1em; line-height: 0; }
+.hud-toast-icon svg { width: 100%; height: 100%; display: block; }
 .hud-toast-sub:empty { display: none; }
 
 /* Windows (docs/01-gdd.md 10.2): cross 48 px at the top right, only the card grid scrolls. */
@@ -990,6 +993,39 @@ canvas.fallback {
 .hud:not(.mu) .hud-shoes-cap { display: inline; }
 @keyframes nudge { 0%, 100% { translate: 0 0; } 20% { translate: -6px 0; } 40% { translate: 5px 0; } 60% { translate: -3px 0; } 80% { translate: 2px 0; } }
 .nudge { animation: nudge 0.32s ease-out; }
+/* FX-02: every press squeezes the button for a moment (scale, apart from the transform and translate of the button). */
+button, [role='button'] { transition: scale 0.08s ease-out; }
+button.press, [role='button'].press { scale: 0.93; }
+/* FX-02: the reason of a control that cannot act now, in a bubble over it. */
+.fx-why { position: absolute; left: 0; top: 0; z-index: 30; max-width: 280px; padding: 6px 12px; border-radius: 12px; background: rgba(10, 25, 45, 0.92); color: #ffffff; font-size: 15px; font-weight: 700; line-height: 1.25; text-align: center; pointer-events: none; opacity: 0; transition: opacity 0.15s; }
+.fx-why.shown { opacity: 1; }
+/* FX-03: the marks of a reward fly over everything (a window too) to their counter; the counter glows as they land. */
+.fx-fly { position: absolute; inset: 0; z-index: 40; pointer-events: none; overflow: hidden; }
+.fx-fly-mark { position: absolute; left: -14px; top: -14px; width: 28px; height: 28px; opacity: 0; will-change: transform; }
+.fx-fly-mark svg { width: 100%; height: 100%; display: block; }
+.fx-fly-ghost { position: absolute; left: 0; top: 0; display: flex; align-items: center; gap: 6px; height: 36px; padding: 0 10px; box-sizing: border-box; border-radius: 18px; background: rgba(10, 25, 45, 0.85); color: #ffffff; font-size: 20px; font-weight: 800; opacity: 0; transition: opacity 0.15s; }
+.fx-fly-ghost.shown { opacity: 1; }
+.fx-fly-ghost .mark { width: 24px; height: 24px; }
+@keyframes fx-got { 0% { scale: 1; } 40% { scale: 1.12; } 100% { scale: 1; } }
+.fx-got { animation: fx-got 0.3s ease-out infinite; }
+/* FX-03: the gift taken opens — its picture pops up and turns, the card flashes. */
+@keyframes fx-open { 0% { scale: 1; rotate: 0deg; } 35% { scale: 1.35; rotate: -10deg; } 65% { scale: 0.95; rotate: 6deg; } 100% { scale: 1; rotate: 0deg; } }
+.gf-tile.opened .gf-icon { animation: fx-open 0.55s ease-out; }
+/* FX-07 (theme.json ui.glow): rewards glow — the golden toast, the flying marks, the counter they land on. */
+.fx-glow .hud-toast.gold .hud-toast-main { filter: drop-shadow(0 0 var(--fx-glow-blur) var(--fx-glow)); }
+.fx-glow .fx-fly-mark { filter: drop-shadow(0 0 calc(var(--fx-glow-blur) * 0.6) var(--fx-glow)); }
+.fx-glow .fx-got { box-shadow: 0 0 var(--fx-glow-blur) var(--fx-glow); }
+.fx-glow .gf-tile.ready .gf-icon, .fx-glow .gf-tile.opened .gf-icon { filter: drop-shadow(0 0 calc(var(--fx-glow-blur) * 0.6) var(--fx-glow)); }
+/* FX-04: a window grows in and fades out over --win-ms (tuning.json fx.windowMs ≤ 150); a new tab fades its rows in. */
+@keyframes fx-win-in { from { opacity: 0; scale: 0.94; } to { opacity: 1; scale: 1; } }
+@keyframes fx-dim-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fx-dim-out { from { opacity: 1; } to { opacity: 0; } }
+.dim.win.fx-anim.open { animation: fx-dim-in var(--win-ms) ease-out; }
+.dim.win.fx-anim.open .win-panel { animation: fx-win-in var(--win-ms) ease-out; }
+.dim.win.fx-anim.closing { display: flex; animation: fx-dim-out var(--win-ms) ease-in forwards; }
+#ui .dim.win.fx-anim.closing, #ui .dim.win.fx-anim.closing * { pointer-events: none; }
+@keyframes fx-tab-in { from { opacity: 0.2; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
+.win-body.tab-in > :not(.win-tabs) { animation: fx-tab-in 0.14s ease-out; }
 #ui.mu .card-btn[aria-disabled='true'] { background: var(--mu-quiet); color: var(--mu-muted); cursor: default; }
 .tp-item[aria-disabled='true'] { background: #c9d1da; color: #3a4a5c; cursor: default; }
 #ui.mu .tp-item[aria-disabled='true'] { background: var(--mu-quiet); color: var(--mu-muted); }

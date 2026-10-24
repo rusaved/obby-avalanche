@@ -123,6 +123,8 @@ export interface ThemeJson {
     plaqueText: string;
     /** FM-04 (docs/01-gdd.md 19.8): the dark see-through plaque under the toasts (text contrast over snow ≥ 4.5:1). */
     toastPlate?: { bg: string; alpha: number; radius: number; padX: number; padY: number };
+    /** FX-07: the glow of rewards — the golden toast, the flying marks, the counter they land on; absent — none. */
+    glow?: { color: string; alpha: number; blur: number };
     /** MU-01 tokens of the phone layout (docs/07-mobile-ui.md «Токены»): set as CSS variables --mu-<key> on the page. */
     mu?: Record<string, string>;
     /** FM-04: «+N» `scale` times its old size, in the Speed plaque colour with a dark `outline` (px). */
@@ -476,6 +478,13 @@ export interface TuningJson {
    * coming within `streakSec` of each other ring a semitone higher each, up to `streakSteps` steps.
    */
   gateReward: { fountain: [number, number]; streakSec: number; streakSteps: number };
+  /**
+   * FX (producer 22.10): a toast stays `toastMinSec` before the next, `toastGapMs` between two; a counter ticks to its new
+   * number over `tickMs`; a window opens and closes over `windowMs` (≤ 150); interface sounds — not more than
+   * `uiSoundPerSec` a second; a reward flies `flyIcons` marks to its counter over `flyMs`. Absent — none of it.
+   * SP-03 (docs/01-gdd.md 20.3): wind lines past the hero from `windFrom` of the run speed (camera.speedPow); absent — none.
+   */
+  fx?: { windFrom?: number; toastMinSec?: number; toastGapMs?: number; tickMs?: number; windowMs?: number; uiSoundPerSec?: number; flyIcons?: number; flyMs?: number };
   /** Pace open (docs/01a-content.md 16.7): the ridge view — up `rise`, back `back`, `sec` long (docs/01-gdd.md 17.9). */
   ridgeShot?: { rise: number; back: number; sec: number };
   /** The giant-zone shot: from the side `side` units, up `rise`, back `back`, `sec` long (docs/01-gdd.md 17.9). */
@@ -487,8 +496,6 @@ export interface TuningJson {
   /** Pace open (docs/01-gdd.md 19.9, Q-048): an invisible wall over the side borders, along the summit and behind its
    * portal, `wallHeight` units over the floor; only the hero meets it (not the camera). Absent — no wall. */
   bounds?: { wallHeight: number };
-  /** SP-03 (docs/01-gdd.md 20.3): wind lines past the hero from this share of the run speed (camera.speedPow); absent — none. */
-  fx?: { windFrom: number };
 }
 
 export type SegmentType =

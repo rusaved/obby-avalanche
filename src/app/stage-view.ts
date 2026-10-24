@@ -39,6 +39,8 @@ export interface StageViewDeps {
   numSuffix(k: string): string;
   /** A trophy button taken (the tutorial step, docs/01-gdd.md 22.12); SD-03: `trophies` — they go to the trophy wallet. */
   onTrophy?: (amount: number, trophies: boolean) => void;
+  /** FX-03: the pad paid `amount` (after onTrophy) — its marks fly from `at` (field px, null — off screen) to the counter. */
+  onGain?: (kind: 'coins' | 'trophies', amount: number, at: { x: number; y: number } | null) => void;
   /** SD-03 (docs/01-gdd.md 23.3): back in the camp after the trophies — a flash over the jump. */
   onCampReturn?: () => void;
   /** The teleport pad of the camp of this mountain (docs/01-gdd.md 22.12); absent — none. */
@@ -96,6 +98,7 @@ export function createStageView(d: StageViewDeps): StageView {
         // SD-14: the button pays coins (SD-11) — the coin reward of ui/ (trophies — the SD-03 wallet test — the trophy one).
         d.play(trophies ? 'rewardTrophy' : 'rewardCoins');
         d.onTrophy?.(amount, trophies);
+        d.onGain?.(trophies ? 'trophies' : 'coins', amount, project(x, y + 1.5, z));
       });
       sim.events.on('campReturn', () => d.onCampReturn?.());
     },

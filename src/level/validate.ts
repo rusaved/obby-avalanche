@@ -200,6 +200,8 @@ const themeSchema = v.object({
     plaqueAlpha: v.pipe(v.number(), v.minValue(0.5), v.maxValue(1)),
     plaqueText: hex,
     toastPlate: v.optional(v.object({ bg: hex, alpha: v.pipe(v.number(), v.minValue(0.5), v.maxValue(1)), radius: nonNeg, padX: nonNeg, padY: nonNeg })),
+    // FX-07: the glow of rewards.
+    glow: v.optional(v.object({ color: hex, alpha: v.pipe(v.number(), v.minValue(0), v.maxValue(1)), blur: v.pipe(v.number(), v.minValue(0), v.maxValue(30)) })),
     gainText: v.optional(v.object({ scale: v.pipe(v.number(), v.minValue(1), v.maxValue(3)), outline: nonNeg })),
     // MU-01 (docs/07-mobile-ui.md, tokens): the colours of the phone layout, a hex or an rgba() each.
     mu: v.optional(v.record(name, v.pipe(v.string(), v.regex(/^(#[0-9a-fA-F]{6}|rgba\(\d{1,3}, \d{1,3}, \d{1,3}, (0|1|0?\.\d+)\))$/)))),
@@ -451,7 +453,19 @@ const tuningSchema = v.object({
   bossShot: v.optional(v.object({ side: positive, rise: nonNeg, back: nonNeg, sec: positive })),
   boss: v.optional(v.object({ stompShake: nonNeg })),
   far: v.optional(v.object({ pc: positive, mobile: positive })),
-  fx: v.optional(v.object({ windFrom: v.pipe(v.number(), v.minValue(0), v.maxValue(1)) })),
+  fx: v.optional(
+    v.object({
+      windFrom: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
+      // FX (producer 22.10): the toast queue, the counter tick, the windows (≤ 150 ms), the interface sounds, the reward marks.
+      toastMinSec: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(5))),
+      toastGapMs: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(500))),
+      tickMs: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(3000))),
+      windowMs: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(150))),
+      uiSoundPerSec: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(30))),
+      flyIcons: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(12))),
+      flyMs: v.optional(v.pipe(v.number(), v.minValue(100), v.maxValue(2000))),
+    }),
+  ),
   bounds: v.optional(v.object({ wallHeight: positive })),
   gateReward: v.object({
     fountain: v.pipe(v.tuple([v.pipe(v.number(), v.integer(), v.minValue(1)), v.pipe(v.number(), v.integer(), v.minValue(1))]), v.check((r) => r[0] <= r[1], 'expected [min, max]')),

@@ -108,7 +108,13 @@ export function renderPetsPanel(body: HTMLElement, head: HTMLElement, m: PetsPan
       btns.append(el('span', 'card-sub', t('pets.releaseAsk')), button(t('btn.yes'), 'pet-yes', () => a.release(c.index)), button(t('btn.no'), 'pet-no', () => a.askRelease(null), 'alt'));
     } else {
       if (c.on) btns.appendChild(button(t('btn.unequip'), 'pet-unequip', () => a.unequip(c.index), 'alt'));
-      else btns.appendChild(button(t('btn.equip'), 'pet-equip', () => a.equip(c.index), m.on.length >= m.slotCount ? 'off' : ''));
+      else {
+        const full = m.on.length >= m.slotCount;
+        const b = button(t('btn.equip'), 'pet-equip', () => a.equip(c.index), full ? 'off' : '');
+        // FX-02: a tap with every place taken tells it.
+        if (full) b.dataset['why'] = t('pets.slots', { a: m.on.length });
+        btns.appendChild(b);
+      }
       btns.appendChild(button(t('btn.release'), 'pet-release', () => a.askRelease(c.index), 'alt'));
     }
     card.appendChild(btns);

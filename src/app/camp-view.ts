@@ -339,6 +339,8 @@ export function createCampView(d: CampViewDeps): CampView {
           b.className = passed ? 'card-btn tp-item' : 'tp-item tp-locked';
           b.dataset['stage'] = String(st.n);
           setOff(b, !can);
+          // FX-02: a tap on a stage it cannot buy tells why (not passed yet, or the coins short).
+          if (!can) b.dataset['why'] = passed ? t('teleport.short', { n: fmt(st.trophies - coins) }) : t('teleport.locked');
           if (passed) {
             const price = document.createElement('span');
             price.className = 'card-price tp-price';

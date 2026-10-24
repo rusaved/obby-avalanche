@@ -46,6 +46,8 @@ export interface WindowFrameOptions {
   /** Default caption of the «next» button («OK»). */
   okLabel: string;
   onChange(id: string | null): void;
+  /** FX-04 (tuning.json fx.windowMs, ≤ 150): the window opens and goes over this long, a tab changes softly; absent — at once. */
+  animMs?: number | undefined;
 }
 
 /** MU-08: the width of the windows of the second wave (docs/07-mobile-ui.md, rule 13): cards 640, summaries 480. */
@@ -102,6 +104,15 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
   const dim = document.createElement('div');
   dim.className = 'dim win';
   dim.dataset['role'] = 'window';
+  // FX-04: the panel grows in and the window fades out over animMs; it takes presses at once (no wait for the end).
+  const animMs = Math.min(150, Math.max(0, opts.animMs ?? 0));
+  if (animMs > 0) {
+    dim.classList.add('fx-anim');
+    dim.style.setProperty('--win-ms', `${animMs}ms`);
+  }
+  let closing: ReturnType<typeof setTimeout> | null = null;
+  /** The tab on when the body was last drawn: a new one fades its rows in. */
+  let tabOn = '';
   const panel = document.createElement('div');
   panel.className = 'panel win-panel';
   const top = document.createElement('div');
@@ -350,6 +361,10 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
       close.hidden = o.closable === false;
       foot.hidden = o.next === false || (!!opts.mu && o.next === undefined);
       next.textContent = typeof o.next === 'string' ? o.next : opts.okLabel;
+      if (closing) clearTimeout(closing);
+      closing = null;
+      dim.classList.remove('closing');
+      tabOn = '';
       frame.refresh();
       dim.classList.add('open');
       body.scrollTop = 0;
@@ -370,6 +385,14 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
       }
       pin.hidden = pin.childElementCount === 0;
       body.scrollTop = scroll;
+      // FX-04: a tab changed — its rows fade in (a refresh of the same tab stays still).
+      const on = body.querySelector('.win-tab.on')?.textContent ?? '';
+      if (animMs > 0 && tabOn !== '' && on !== tabOn) {
+        body.classList.remove('tab-in');
+        void body.offsetWidth;
+        body.classList.add('tab-in');
+      }
+      tabOn = on;
       if (watch) {
         watch.disconnect();
         watch.observe(dim);
@@ -385,6 +408,15 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
       render = null;
       delete dim.dataset['window'];
       dim.classList.remove('open');
+      if (animMs > 0) {
+        // FX-04: it fades out without taking a press; the game goes on at once.
+        dim.classList.add('closing');
+        if (closing) clearTimeout(closing);
+        closing = setTimeout(() => {
+          closing = null;
+          dim.classList.remove('closing');
+        }, animMs);
+      }
       leave();
       // onClose may open the next window (the shop after «New pet»): the game stays paused then.
       if (current === null) opts.onChange(null);

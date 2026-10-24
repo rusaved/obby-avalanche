@@ -10,7 +10,8 @@
  * hand over the free egg and the shoes button (M2-08).
  */
 import { t } from './i18n.ts';
-import { icon, setRich } from './icons.ts';
+import { hasMark, icon, setRich } from './icons.ts';
+import { createToastQueue } from './toast-queue.ts';
 import { nudge } from './nudge.ts';
 import type { StickState } from '../input/types.ts';
 
@@ -64,6 +65,13 @@ export interface HudOptions {
   plaqueText: string;
   /** FM-04 (docs/01-gdd.md 19.8): the plaque under the toasts (theme.json ui.toastPlate); absent — no plaque. */
   toastPlate?: { bg: string; alpha: number; radius: number; padX: number; padY: number } | undefined;
+  /** FX-01 (tuning.json fx): a toast stays at least this long before the next one takes its place; the gap between two. */
+  toastMinSec?: number | undefined;
+  toastGapMs?: number | undefined;
+  /** FX-07 (theme.json ui.glow): the glow of rewards; absent — none. */
+  glow?: { color: string; alpha: number; blur: number } | undefined;
+  /** FX-06: a toast came up (its sound). */
+  onToast?: () => void;
   /** FM-04: «+N» size and dark outline (theme.json ui.gainText), in the Speed colour; absent — as before. */
   gainText?: { scale: number; outline: number } | undefined;
   /** FM-04: the arrow to the shelter this many times its old size (tuning avalanche.arrowScale); absent — 1. */
@@ -214,6 +222,10 @@ export interface Hud {
   setAdButtons(list: ReadonlyArray<{ id: string; text: string; busy: boolean }>): void;
   /** Trophy plaque under the coins (docs/01-gdd.md 6.4: from the first summit); null hides it. */
   setTrophies(text: string | null): void;
+  /** FX-03: the counter plaque of a wallet (client px), its number node, hidden under a window; null — not shown. */
+  counterBox(kind: 'coins' | 'trophies'): { rect: DOMRect; value: HTMLElement; hidden: boolean } | null;
+  /** FX-03: a reward ticks this counter: setCoins/setTrophies keep the true text aside until it is over. */
+  holdCounter(kind: 'coins' | 'trophies', on: boolean): void;
   /** Level bar at the bottom centre (docs/01-gdd.md 22.2, pace stages): «Level N · x / need» with the Speed plaque moved
    * over it; null — no bar (the other paces), the plaque stays in the left column. */
   setLevel(state: { title: string; progress: string; frac: number } | null): void;
@@ -318,6 +330,8 @@ const TAP_CLICK_MS = 800;
 const STAT_FLASH_MS = 1200;
 /** Toasts waiting for the avalanche banner to go (playtest M2), the oldest dropped past this. */
 const TOAST_QUEUE_MAX = 3;
+/** FX-01: a toast that tells a gain («+15», «×2») is a reward, the rest are events (their mark, toast-queue.ts). */
+const REWARD_RE = /[+\u00d7]\s?\d/;
 
 /** «#RRGGBB» and an alpha → «rgba(r, g, b, a)». */
 function rgba(hex: string, alpha: number): string {
@@ -540,6 +554,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const trophyValue = el('span', 'hud-trophy-value', '0');
   trophies.append(trophyIcon, trophyValue);
   left.appendChild(trophies);
+  // FX-03: while a reward ticks a counter (reward-fly.ts) its true text waits here and comes back when the tick ends.
+  const held = { coins: false, trophies: false };
+  const shownText = { coins: '0', trophies: '0' };
+  const plaqueOf = (kind: 'coins' | 'trophies'): 'coins' | 'trophies' => (opts.coinsAsTrophies ? 'coins' : kind);
 
   // Right column (docs/01-gdd.md 10.1): shop, pets, wardrobe … under pause and sound, icon with a caption.
   const menu = el('div', 'hud-menu');
@@ -607,6 +625,12 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   root.style.setProperty('--plaque', rgba(opts.plaqueColor, opts.plaqueAlpha));
   root.style.setProperty('--plaque-text', opts.plaqueText);
   // Readability (FM-04): the toast plaque, «+N» in the Speed colour with a dark outline, the bigger shelter arrow.
+  // FX-07: the glow of rewards on the whole layer (the flying marks live beside the HUD, over the windows).
+  if (opts.glow) {
+    host.style.setProperty('--fx-glow', rgba(opts.glow.color, opts.glow.alpha));
+    host.style.setProperty('--fx-glow-blur', `${opts.glow.blur}px`);
+    host.classList.add('fx-glow');
+  }
   if (opts.toastPlate) {
     const tp = opts.toastPlate;
     root.classList.add('plated');
@@ -640,7 +664,6 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   toastSub.dataset['role'] = 'toast-sub';
   toastEl.append(toastMain, toastSub);
   root.append(frost, veil, wayArrow, banner, arrow, toastEl);
-  let toastTimer: ReturnType<typeof setTimeout> | null = null;
   let stripTimer: ReturnType<typeof setTimeout> | null = null;
   // MU round 3: the stage strip hides between its moments.
   if (opts.mu) root.classList.add('strip-off');
@@ -689,9 +712,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     levelBox.style.left = `${x0}px`;
     shoes.style.left = `${x0 + bw + ROW_GAP}px`;
   };
-  type Toast = { text: string; sec: number; gold: boolean; sub: string | undefined; onShow?: (() => void) | undefined };
-  const pendingToasts: Toast[] = [];
-  let currentToast: Toast | null = null;
+  type Toast = { text: string; sec: number; gold: boolean; sub: string | undefined; onShow?: (() => void) | undefined; now?: boolean };
   // Round of fixes MU (staff 19.10: «+150» and «LEVEL UP!» at 130 % text lay on the stage strip): the phone toast's
   // letters start 8 px under the strip as it is now (it grows with the text) — its line box is tighter than the letters.
   const placeMuToast = (): void => {
@@ -702,30 +723,44 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     const lh = Number.parseFloat(cs.lineHeight) || fs;
     toastEl.style.top = `${Math.ceil(Math.max(SLOT_TOP_MU, strip + LABEL_GAP) + Math.max(0, (fs * GLYPH_EM - lh) / 2))}px`;
   };
-  const showToast = (text: string, sec: number, gold: boolean, sub: string | undefined, onShow?: () => void): void => {
-    currentToast = { text, sec, gold, sub };
+  // FX-01: a toast without a mark of its own gets the mark of its kind (a reward — the star, an event — the flag).
+  const toastIcon = el('span', 'hud-toast-icon');
+  toastIcon.dataset['role'] = 'toast-icon';
+  const showToast = (item: Toast): void => {
+    const { text, gold, sub } = item;
     setRich(toastMain, text);
     toastSub.textContent = sub ?? '';
+    const kind = gold || REWARD_RE.test(text) ? 'reward' : 'event';
+    toastEl.dataset['kind'] = kind;
+    toastIcon.remove();
+    if (!hasMark(text)) {
+      toastIcon.innerHTML = icon(kind === 'reward' ? 'star' : 'flag');
+      toastMain.prepend(toastIcon);
+    }
     placeMuToast();
     toastEl.classList.toggle('gold', gold);
+    toastEl.classList.toggle('now', !!item.now);
     toastEl.classList.remove('shown');
     void toastEl.offsetWidth;
     toastEl.classList.add('shown');
-    onShow?.();
+    item.onShow?.();
+    opts.onToast?.();
     // The hint plaque steps aside while a toast is up: one message near the hero at a time.
     root.classList.add('toasting');
     updateSlot();
-    if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => {
-      toastTimer = null;
-      currentToast = null;
+  };
+  const toasts = createToastQueue<Toast>({
+    minSec: opts.toastMinSec ?? 0,
+    gapMs: opts.toastGapMs ?? 0,
+    max: TOAST_QUEUE_MAX,
+    blocked: () => banner.classList.contains('shown'),
+    show: showToast,
+    hide: () => {
       toastEl.classList.remove('shown', 'now');
       root.classList.remove('toasting');
-      const next = banner.classList.contains('shown') ? undefined : pendingToasts.shift();
-      if (next) showToast(next.text, next.sec, next.gold, next.sub, next.onShow);
-      else updateSlot();
-    }, sec * 1000);
-  };
+      updateSlot();
+    },
+  });
 
   // Hint plaque (docs/01-gdd.md 6.5): one line up to 5 words, optional pictogram of the controls (WASD and arrows or the stick).
   const hint = el('div', 'hud-hint');
@@ -1236,21 +1271,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       const was = banner.classList.contains('shown');
       banner.classList.toggle('shown', text !== null);
       if (text !== null && banner.textContent !== text) banner.textContent = text;
-      if (text !== null && toastTimer && !toastEl.classList.contains('now')) {
-        // A toast already up when the banner comes: it steps back into the queue, the banner speaks alone (MU round 5:
-        // not a reward said `now` — the gift handed in in the cave is seen at once, over the avalanche plaque).
-        clearTimeout(toastTimer);
-        toastTimer = null;
-        if (currentToast) pendingToasts.unshift(currentToast);
-        if (pendingToasts.length > TOAST_QUEUE_MAX) pendingToasts.pop();
-        currentToast = null;
-        toastEl.classList.remove('shown');
-        root.classList.remove('toasting');
-      }
-      if (was && text === null && !toastTimer) {
-        const next = pendingToasts.shift();
-        if (next) showToast(next.text, next.sec, next.gold, next.sub, next.onShow);
-      }
+      // A plain toast already up when the banner comes steps back into the queue, the banner speaks alone (MU round 5:
+      // not a reward said `now` — the gift handed in in the cave is seen at once, over the avalanche plaque).
+      if (text !== null && !was) toasts.hold();
+      if (was && text === null) toasts.release();
       if (was !== (text !== null)) updateSlot();
     },
     clearOfHud(r) {
@@ -1277,21 +1301,27 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     toast(text, sec = 2, gold = false, sub, onShow, now = false) {
       // Never over the avalanche banner (playtest M2): it waits until the banner goes, the latest few in order. MU round 5:
       // nor over a reward said `now` (the gift handed in, an ad's reward) — «LEVEL UP!» of that Speed comes after it.
-      const held = toastEl.classList.contains('shown') && toastEl.classList.contains('now');
-      if ((banner.classList.contains('shown') || held) && !now) {
-        pendingToasts.push({ text, sec, gold, sub, onShow });
-        if (pendingToasts.length > TOAST_QUEUE_MAX) pendingToasts.shift();
-        return;
-      }
-      toastEl.classList.toggle('now', now);
-      showToast(text, sec, gold, sub, onShow);
+      // FX-01: one at a time, each held `fx.toastMinSec` before the next (toast-queue.ts).
+      toasts.push({ text, sec, gold, sub, onShow, now });
     },
     setVeil(on) {
       veil.classList.toggle('shown', on);
     },
     setCoins(text) {
-      if (coinValue.textContent !== text) coinValue.textContent = text;
+      shownText.coins = text;
+      if (!held.coins && coinValue.textContent !== text) coinValue.textContent = text;
       coins.classList.add('shown');
+    },
+    counterBox(kind) {
+      const k = plaqueOf(kind);
+      const box = k === 'coins' ? coins : trophies;
+      if (!box.classList.contains('shown')) return null;
+      return { rect: box.getBoundingClientRect(), value: k === 'coins' ? coinValue : trophyValue, hidden: getComputedStyle(box).visibility === 'hidden' };
+    },
+    holdCounter(kind, on) {
+      const k = plaqueOf(kind);
+      held[k] = on;
+      if (!on) (k === 'coins' ? coinValue : trophyValue).textContent = shownText[k];
     },
     popCoinGain(text) {
       coinGain.textContent = text;
@@ -1703,7 +1733,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     setTrophies(text) {
       if (opts.coinsAsTrophies) text = null;
       trophies.classList.toggle('shown', text !== null);
-      if (text !== null && trophyValue.textContent !== text) trophyValue.textContent = text;
+      if (text !== null) shownText.trophies = text;
+      if (text !== null && !held.trophies && trophyValue.textContent !== text) trophyValue.textContent = text;
     },
     popGain(text, x, y) {
       const node = opts.mu ? muGain : gainPool[gainNext % gainPool.length]!;

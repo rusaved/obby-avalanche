@@ -129,7 +129,7 @@ export interface TestState {
    * app/fun-view.ts).
    */
   fun: { padFlight: boolean; launches: number; top: number; onSlide: number; slideLeft: number; runSpeed: number };
-  funFx: { fountains: number; coinsFlying: number; confetti: number; gateNote: number; chimes: number; puffs: number; trail: number; spark: number; puffAlive: number; giftNote: number; slides: number };
+  funFx: { fountains: number; coinsFlying: number; confetti: number; gateNote: number; chimes: number; puffs: number; trail: number; spark: number; puffAlive: number; giftNote: number; slides: number; world?: { step: number; caught: number; out: number; summit: number } };
   /** «+N» by the coin plaque: its text and whether it is playing. */
   coinGain: { text: string; shown: boolean };
   pets: string[];

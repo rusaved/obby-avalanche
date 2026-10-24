@@ -39,7 +39,8 @@ describe('pace open by default (PS-02)', () => {
     expect(open.ridgeShot).toEqual({ rise: 6, back: 4, sec: 1.5 });
     expect(open.bossShot).toEqual({ side: 10, rise: 2, back: 2, sec: 1 });
     expect(open.far).toEqual({ pc: 800, mobile: 600 });
-    expect(open.fx).toEqual({ windFrom: 0.4 });
+    // FX: the toast, window and reward numbers shared, the wind of the open slope its own.
+    expect(open.fx).toEqual({ ...shared.fx, windFrom: 0.4 });
     // RL-06: the light sway on an ice slide of the open slope.
     expect(open.fun).toEqual({ ...shared.fun, slideSway: 6, slideSwayHz: 1.6 });
     expect(shared.camera.distance).toBe(10);
