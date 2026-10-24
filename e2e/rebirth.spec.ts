@@ -75,7 +75,8 @@ test('rebirth window ru: locked until mountain 5, then rebirth to tier 1 — cam
   expect(s.skin).toBe('snow_ninja');
   expect(s.trophies.now).toBe(3);
   expect(s.pets).toContain('bunny');
-  expect(s.waveHud.toast).toContain('Ступень 2! Шаг ×3');
+  // FX-01: the toast up before it (the shoes) keeps its minimum first.
+  await expect.poll(async () => (await testState(page)).waveHud.toast, { timeout: 5_000 }).toContain('Ступень 2! Шаг ×3');
   // Step ×3 of the tier with the starting pair: the shoes multiplier went, the pet (Bunny +20%) stayed.
   expect(s.gainMult).toBeCloseTo(3 * 1.2, 6);
   // Walls of tier 1: × wallScale[1] = 15 (wall 1: 20 → 300).

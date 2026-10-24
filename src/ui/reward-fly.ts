@@ -8,6 +8,8 @@ import { icon } from './icons.ts';
 const POOL = 12;
 /** Each next mark starts this much later. */
 const STAGGER_MS = 45;
+/** The copy of a counter over a window stays this long after its tick (its new number is read). */
+const GHOST_KEEP_MS = 900;
 
 export interface RewardFlyOptions {
   flyIcons: number;
@@ -130,7 +132,7 @@ export function createRewardFly(host: HTMLElement, o: RewardFlyOptions): RewardF
           ghost.style.transform = `translate(${Math.round(cc.rect.left - hb.left)}px, ${Math.round(cc.rect.top - hb.top)}px)`;
           ghost.style.minWidth = `${Math.round(cc.rect.width)}px`;
           ghost.classList.add('shown');
-          tick(kind, before, after, ghostValue, () => setTimeout(() => ghost.classList.remove('shown'), 600));
+          tick(kind, before, after, ghostValue, () => setTimeout(() => ghost.classList.remove('shown'), GHOST_KEEP_MS));
           return;
         }
         o.hold(kind, true);

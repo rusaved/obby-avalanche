@@ -237,6 +237,9 @@ test.describe('MU phone screens', () => {
         window.__TEST__!.showToast(a, 2, true);
         if (b) document.querySelector('[data-role="toast"] .hud-toast-sub')!.textContent = b;
       }, [text, sub] as const);
+      // FX-01: a toast still waiting in the queue goes first (each holds its minimum).
+      await expect.poll(() => page.evaluate(() => document.querySelector('[data-role="toast"].shown')?.textContent ?? ''), { timeout: 5_000 }).toContain(text);
+      if (sub) await page.evaluate((b) => void (document.querySelector('[data-role="toast"] .hud-toast-sub')!.textContent = b), sub);
       await page.waitForTimeout(350);
       const g = await gap();
       expect(g.text).toContain(text);

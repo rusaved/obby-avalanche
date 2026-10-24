@@ -1016,15 +1016,16 @@ button.press, [role='button'].press { scale: 0.93; }
 .fx-glow .fx-fly-mark { filter: drop-shadow(0 0 calc(var(--fx-glow-blur) * 0.6) var(--fx-glow)); }
 .fx-glow .fx-got { box-shadow: 0 0 var(--fx-glow-blur) var(--fx-glow); }
 .fx-glow .gf-tile.ready .gf-icon, .fx-glow .gf-tile.opened .gf-icon { filter: drop-shadow(0 0 calc(var(--fx-glow-blur) * 0.6) var(--fx-glow)); }
-/* FX-04: a window grows in and fades out over --win-ms (tuning.json fx.windowMs ≤ 150); a new tab fades its rows in. */
-@keyframes fx-win-in { from { opacity: 0; scale: 0.94; } to { opacity: 1; scale: 1; } }
+/* FX-04: a window fades in and out over --win-ms (tuning.json fx.windowMs ≤ 150), its boxes never move or scale (the
+   layout checks measure it at once); a new tab fades its rows in. */
+@keyframes fx-win-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes fx-dim-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes fx-dim-out { from { opacity: 1; } to { opacity: 0; } }
 .dim.win.fx-anim.open { animation: fx-dim-in var(--win-ms) ease-out; }
 .dim.win.fx-anim.open .win-panel { animation: fx-win-in var(--win-ms) ease-out; }
 .dim.win.fx-anim.closing { display: flex; animation: fx-dim-out var(--win-ms) ease-in forwards; }
 #ui .dim.win.fx-anim.closing, #ui .dim.win.fx-anim.closing * { pointer-events: none; }
-@keyframes fx-tab-in { from { opacity: 0.2; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
+@keyframes fx-tab-in { from { opacity: 0.2; } to { opacity: 1; } }
 .win-body.tab-in > :not(.win-tabs) { animation: fx-tab-in 0.14s ease-out; }
 #ui.mu .card-btn[aria-disabled='true'] { background: var(--mu-quiet); color: var(--mu-muted); cursor: default; }
 .tp-item[aria-disabled='true'] { background: #c9d1da; color: #3a4a5c; cursor: default; }
