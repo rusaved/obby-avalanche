@@ -455,6 +455,9 @@ async function boot(): Promise<void> {
   let audio: GameAudio | null = null;
   // M5-03, M5-04 (docs/01-gdd.md 10.3): the cues of sfx.json on the sim events and by name.
   const sfxEvents = createSfxEvents(sfx, () => audio);
+  /** M5-05: the figures of the contact sheet (test API showLineup), made once and reused. */
+  const LINEUP = 6;
+  const lineup: CharacterInstance[] = [];
   let rewardFly: RewardFly | null = null;
   /** Footsteps (LV-09): a sound at every step, the «Footsteps» window; null — the pack has no footsteps. */
   let footstepsView: FootstepsView | null = null;
@@ -879,6 +882,24 @@ async function boot(): Promise<void> {
         c.pose = 'idle';
       }
       cameraRig.shot = { yaw: 0, pitch: 0.12, distance: 14 };
+      frame.pitch = 0.12;
+    },
+    showLineup(ids, wings) {
+      if (!characters || !cameraRig) return;
+      const base = sim.hero.pos;
+      for (let i = 0; i < LINEUP; i++) {
+        const c = (lineup[i] ??= characters.create(skins.default));
+        c.visible = i < ids.length;
+        if (!c.visible) continue;
+        characters.setSkin(c, ids[i]!);
+        characters.setWings(c, wings[i] ?? null);
+        c.position.set(base.x - ((LINEUP - 1) * 2.6) / 2 + i * 2.6, base.y, base.z + 5);
+        // Wings are on the back: those figures turn their side to the camera.
+        c.yaw = wings[i] ? Math.PI * 0.45 : Math.PI * 0.85;
+        c.pose = 'idle';
+      }
+      if (heroChar) heroChar.visible = ids.length === 0;
+      cameraRig.shot = { yaw: 0, pitch: 0.1, distance: 9 };
       frame.pitch = 0.12;
     },
     get avalanche() {

@@ -100,6 +100,8 @@ export interface GameHandles {
   renderOnce(): void;
   /** Eight characters in a row with the eight faces, camera on them (faces.png evidence). */
   showFaces(): void;
+  /** M5-05: up to 6 figures in a row facing the camera, each in its skin and wings (null — none); the contact sheet. */
+  showLineup(skins: readonly string[], wings: ReadonlyArray<string | null>): void;
   /** The base of the pace switched off for this run (FM-07 e2e: «enabled false — the game as before FM»); absent — on. */
   baseEnabled?: boolean;
   /** The hero is on the base (docs/01-gdd.md 19); its portals; the mountain now is one passed, run again. */

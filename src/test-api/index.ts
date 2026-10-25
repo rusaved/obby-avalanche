@@ -290,6 +290,7 @@ export interface TestApi {
   qualityAutoFrom(level: QualityLevel): void;
   openMenu(open: boolean): void;
   showFaces(): void;
+  showLineup(skins: string[], wings: Array<string | null>): void;
   setFace(index: number): void;
   charactersDrawCalls(): number;
   gateSign(index: number): { text: string; open: boolean };
@@ -970,6 +971,7 @@ export function installTestApi(g: GameHandles): TestApi {
     qualityAutoFrom: (level) => g.quality.setLevel(level, false),
     openMenu: (open) => g.toggleMenu(open),
     showFaces: () => g.showFaces(),
+    showLineup: (skins, wings) => g.showLineup(skins, wings),
     setFace(index) {
       if (g.hero) g.hero.face = index;
     },
