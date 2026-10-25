@@ -1,77 +1,76 @@
-M6-03 · bot session, seed 7, pace stages, setTimeScale(20), build:e2e, 2026-10-25T13:45:26.015Z
-game time 908 s, of them waiting for a wave that did not come 273 s — play 635 s (goal 600); the summit of mountain 1 at 117 s
-on its own (no teleport to the flag, no Speed given, not caught): 2 of 54 stages; teleports to a flag 52; waves called after 90 s of waiting 3; the giant is gone round by x = 40 (not the calibrated route)
-stages 54, caught or rolled back 11 (then put past the stage 11), Speed given as from a treadmill 43 times; pauses 4, windows 5, rewarded pressed 5
-SDK mock: violations 0, fullscreen ads 0, rewarded 5; console errors and page errors — the fixture (0, or the test fails)
+M6-03 · bot session, seed 7, pace stages, setTimeScale(20), build:e2e, 2026-10-25T21:46:58.780Z
+game time 814 s, of them waiting for a wave that did not come 183 s — play 632 s (goal 600); the summit of mountain 1 at 120 s
+on its own (no teleport to the flag, no Speed given, not caught): 2 of 54 stages; teleports to a flag 52; waves called after 90 s of waiting 2; the giant is gone round by x = 40 (not the calibrated route)
+stages 54, caught or rolled back 8 (then put past the stage 8), Speed given as from a treadmill 43 times; pauses 4, windows 5, rewarded pressed 5
+SDK mock: violations 0, fullscreen ads 1, rewarded 5; console errors and page errors — the fixture (0, or the test fails)
 
-22 s: mountain 1 stage 1 (intro) passed
-32 s: mountain 1 stage 2 (giant) passed
-43 s: mountain 1 stage 3 (plates) passed
-64 s: mountain 1 stage 4 (avalanche) passed
-69 s: mountain 1 stage 5 (dips) passed
-75 s: mountain 1 stage 6 (ice) passed
-85 s: mountain 1 stage 7 (cracks) passed
-100 s: mountain 1 stage 8 (throat) passed
-109 s: mountain 1 stage 9 (maze) passed
-115 s: mountain 1 stage 10 (chute) passed
-117 s: the summit of mountain 1
-123 s: the base
-133 s: mountain 2 stage 1 (stairs) caught
-146 s: mountain 2 stage 2 (catapult) passed
-156 s: mountain 2 stage 3 (plates) passed
-156 s: pause, fullscreen ads 0
-169 s: mountain 2 stage 4 (cracks) passed
-176 s: mountain 2 stage 5 (giant) caught
-207 s: mountain 2 stage 6 (avalanche) passed
-213 s: mountain 2 stage 7 (dips) passed
-223 s: mountain 2 stage 8 (maze) passed
-237 s: mountain 2 stage 9 (blizzard) caught
-251 s: mountain 2 stage 10 (chute) passed
-253 s: the summit of mountain 2
-258 s: the base
-268 s: mountain 3 stage 1 (dips) passed
-275 s: mountain 3 stage 2 (giant) caught
-292 s: mountain 3 stage 3 (throat) passed
-300 s: mountain 3 stage 4 (chute) passed
-394 s: no wave on the avalanche stage in 90 game seconds — called (triggerWave)
-396 s: mountain 3 stage 5 (avalanche) passed
-396 s: pause, fullscreen ads 0
-404 s: mountain 3 stage 6 (cracks) caught
-420 s: mountain 3 stage 7 (ice) passed
-428 s: mountain 3 stage 8 (stairs) passed
-438 s: mountain 3 stage 9 (maze) passed
-448 s: mountain 3 stage 10 (throat) passed
-453 s: mountain 3 stage 11 (chute) passed
-455 s: the summit of mountain 3
-462 s: the base
-476 s: mountain 4 stage 1 (cracks) passed
-481 s: mountain 4 stage 2 (giant) caught
-495 s: mountain 4 stage 3 (catapult) passed
-506 s: mountain 4 stage 4 (plates) passed
-515 s: mountain 4 stage 5 (throat) passed
-610 s: no wave on the avalanche stage in 90 game seconds — called (triggerWave)
-612 s: mountain 4 stage 6 (avalanche) passed
-612 s: pause, fullscreen ads 0
-620 s: mountain 4 stage 7 (dips) caught
-634 s: mountain 4 stage 8 (giant) caught
-653 s: mountain 4 stage 9 (maze) passed
-666 s: mountain 4 stage 10 (plates) passed
-671 s: mountain 4 stage 11 (chute) passed
-673 s: the summit of mountain 4
-680 s: the base
-702 s: mountain 5 stage 1 (ball) passed
-709 s: mountain 5 stage 2 (giant) caught
-723 s: mountain 5 stage 3 (cracks) passed
-731 s: mountain 5 stage 4 (throat) passed
-741 s: mountain 5 stage 5 (plates) passed
-835 s: no wave on the avalanche stage in 90 game seconds — called (triggerWave)
-837 s: mountain 5 stage 6 (avalanche) passed
-839 s: pause, fullscreen ads 0
-845 s: mountain 5 stage 7 (ball) caught
-853 s: mountain 5 stage 8 (dips) passed
-863 s: mountain 5 stage 9 (cracks) passed
-873 s: mountain 5 stage 10 (maze) passed
-882 s: mountain 5 stage 11 (throat) caught
-894 s: mountain 5 stage 12 (chute) passed
-896 s: the summit of mountain 5
-900 s: the base
+23 s: mountain 1 stage 1 (intro) passed
+33 s: mountain 1 stage 2 (giant) passed
+42 s: mountain 1 stage 3 (plates) passed
+67 s: mountain 1 stage 4 (avalanche) passed
+73 s: mountain 1 stage 5 (dips) passed
+80 s: mountain 1 stage 6 (ice) passed
+90 s: mountain 1 stage 7 (cracks) passed
+102 s: mountain 1 stage 8 (throat) passed
+111 s: mountain 1 stage 9 (maze) passed
+117 s: mountain 1 stage 10 (chute) passed
+120 s: the summit of mountain 1
+126 s: the base
+139 s: mountain 2 stage 1 (stairs) caught
+152 s: mountain 2 stage 2 (catapult) passed
+152 s: pause, fullscreen ads 0
+166 s: mountain 2 stage 3 (plates) passed
+175 s: mountain 2 stage 4 (cracks) passed
+182 s: mountain 2 stage 5 (giant) caught
+211 s: mountain 2 stage 6 (avalanche) passed
+218 s: mountain 2 stage 7 (dips) passed
+226 s: mountain 2 stage 8 (maze) passed
+239 s: mountain 2 stage 9 (blizzard) passed
+245 s: mountain 2 stage 10 (chute) passed
+247 s: the summit of mountain 2
+251 s: the base
+261 s: mountain 3 stage 1 (dips) passed
+267 s: mountain 3 stage 2 (giant) caught
+285 s: mountain 3 stage 3 (throat) passed
+291 s: mountain 3 stage 4 (chute) passed
+385 s: no wave on the avalanche stage in 90 game seconds — called (triggerWave)
+387 s: mountain 3 stage 5 (avalanche) passed
+387 s: pause, fullscreen ads 0
+395 s: mountain 3 stage 6 (cracks) passed
+401 s: mountain 3 stage 7 (ice) passed
+410 s: mountain 3 stage 8 (stairs) passed
+420 s: mountain 3 stage 9 (maze) passed
+431 s: mountain 3 stage 10 (throat) passed
+436 s: mountain 3 stage 11 (chute) passed
+438 s: the summit of mountain 3
+442 s: the base
+456 s: mountain 4 stage 1 (cracks) passed
+462 s: mountain 4 stage 2 (giant) caught
+476 s: mountain 4 stage 3 (catapult) passed
+488 s: mountain 4 stage 4 (plates) passed
+497 s: mountain 4 stage 5 (throat) passed
+520 s: mountain 4 stage 6 (avalanche) passed
+524 s: mountain 4 stage 7 (dips) passed
+530 s: mountain 4 stage 8 (giant) caught
+544 s: mountain 4 stage 9 (maze) passed
+545 s: pause, fullscreen ads 1
+560 s: mountain 4 stage 10 (plates) passed
+565 s: mountain 4 stage 11 (chute) passed
+567 s: the summit of mountain 4
+573 s: the base
+595 s: mountain 5 stage 1 (ball) passed
+602 s: mountain 5 stage 2 (giant) caught
+621 s: mountain 5 stage 3 (cracks) passed
+630 s: mountain 5 stage 4 (throat) passed
+641 s: mountain 5 stage 5 (plates) passed
+734 s: no wave on the avalanche stage in 90 game seconds — called (triggerWave)
+736 s: mountain 5 stage 6 (avalanche) passed
+736 s: pause, fullscreen ads 0
+743 s: mountain 5 stage 7 (ball) caught
+761 s: mountain 5 stage 8 (dips) passed
+773 s: mountain 5 stage 9 (cracks) passed
+781 s: mountain 5 stage 10 (maze) passed
+790 s: mountain 5 stage 11 (throat) caught
+800 s: mountain 5 stage 12 (chute) passed
+802 s: the summit of mountain 5
+808 s: the base
