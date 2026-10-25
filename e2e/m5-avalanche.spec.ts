@@ -76,5 +76,25 @@ test.describe('880 × 405', () => {
       // «Phew, made it!» heard: the whoosh over the cave and its three notes.
       expect(s.sfx).toContain('avalancheWhoosh');
       expect(s.sfx).toContain('phew');
+      // M5-03: snow sparkles round him at «Phew».
+      expect(s.funFx.world?.phew ?? 0).toBeGreaterThan(0);
     });
+});
+
+// M5-03 (docs/01-gdd.md 10.3): snow from under the feet on the run, ice shards and the melt sound of a wall opening.
+test('M5-03: snow off the feet, a melting wall bursts and sounds', async ({ page, openGame }) => {
+  await openGame('pace=fast');
+  await page.keyboard.press('F8');
+  await expect.poll(() => page.evaluate(() => window.__TEST__!.state().audioRunning), { timeout: 15_000 }).toBe(true);
+  await page.waitForTimeout(500);
+  await page.evaluate(() => window.__TEST__!.keyDown('KeyW'));
+  await waitTicks(page, 120);
+  await page.evaluate(() => window.__TEST__!.keyUp('KeyW'));
+  let s = await testState(page);
+  expect(s.funFx.world?.feet ?? 0).toBeGreaterThan(0);
+  expect(s.gatesOpen.some((o) => !o)).toBe(true);
+  await page.evaluate(() => window.__TEST__!.setStat(1e9));
+  await expect.poll(async () => (await testState(page)).funFx.world?.melt ?? 0, { timeout: 10_000 }).toBeGreaterThan(0);
+  s = await testState(page);
+  expect(s.sfx).toContain('wallMelt');
 });

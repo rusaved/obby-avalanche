@@ -1876,7 +1876,7 @@
     "milestone": "M5",
     "description": "Звук: ZzFX по sfx.json на каждое событие, музыка из assets/ после ready() (если продюсер её положил), раздельные кнопки музыки и эффектов, выбор сохраняется",
     "acceptance": "e2e (SND-01, SND-05): ни одного <audio>, <video>, new Audio(); музыка начинает грузиться только после ready(); без файлов музыки игра работает без ошибок; выключатели переживают F5",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
