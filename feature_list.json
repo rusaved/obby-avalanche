@@ -2011,7 +2011,7 @@
     "milestone": "M6",
     "description": "Архивы и ссылка продюсера: релизный и playtest-архивы в downloads/, check-release, итоговый отчёт",
     "acceptance": "check-release зелёный на релизном архиве и красный на playtest; после push в main оба архива доступны в dist-pages/downloads/ со страницей-списком; в progress.md итоговый отчёт: что сделано, чем доказано, чек-лист продюсера по docs/03-yandex-compliance.md, 7.2 с полями черновика 7.3",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

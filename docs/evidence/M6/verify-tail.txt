@@ -1,0 +1,500 @@
+== tail: e2e:sample
+vite v8.3.2 building client environment for e2e...
+transforming...
+<script src="/sdk.js"> in "/index.html" can't be bundled without type="module" attribute
+✓ 190 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-e2e-sample/index.html                                         1.72 kB │ gzip:   0.93 kB
+dist-e2e-sample/assets/rubik-cyrillic-800-normal-wonQiwhm.woff2    7.85 kB
+dist-e2e-sample/assets/rubik-cyrillic-600-normal-AdySaCq0.woff2    7.90 kB
+dist-e2e-sample/assets/rubik-cyrillic-700-normal-DFnztZBh.woff2    7.90 kB
+dist-e2e-sample/assets/rubik-cyrillic-500-normal-Didq2w9O.woff2    7.92 kB
+dist-e2e-sample/assets/en-BqYy_QXL.json                            8.31 kB │ gzip:   2.81 kB
+dist-e2e-sample/assets/rubik-cyrillic-800-normal-DocVmW4N.woff     9.85 kB
+dist-e2e-sample/assets/rubik-cyrillic-700-normal-C_jxLOfU.woff     9.87 kB
+dist-e2e-sample/assets/rubik-cyrillic-600-normal-CtS_KWzi.woff     9.89 kB
+dist-e2e-sample/assets/rubik-cyrillic-500-normal-BH_pkKR0.woff     9.92 kB
+dist-e2e-sample/assets/ru-COq2nqTD.json                           10.94 kB │ gzip:   3.64 kB
+dist-e2e-sample/assets/1-BN7IT56u.mp3                             17.17 kB
+dist-e2e-sample/assets/1-BVny-jN9.mp3                             17.17 kB
+dist-e2e-sample/assets/1-CP3C_qXY.mp3                             17.17 kB
+dist-e2e-sample/assets/1-DQLOuCnM.mp3                             17.17 kB
+dist-e2e-sample/assets/1-DUTY0SV5.mp3                             17.17 kB
+dist-e2e-sample/assets/1-gSaViLAo.mp3                             17.17 kB
+dist-e2e-sample/assets/2-83wtGG6r.mp3                             17.17 kB
+dist-e2e-sample/assets/2-BzuV1erg.mp3                             17.17 kB
+dist-e2e-sample/assets/2-CK6gaR7E.mp3                             17.17 kB
+dist-e2e-sample/assets/2-CzofyL7K.mp3                             17.17 kB
+dist-e2e-sample/assets/2-D-PP5Pz4.mp3                             17.17 kB
+dist-e2e-sample/assets/2-vl6dV_Xq.mp3                             17.17 kB
+dist-e2e-sample/assets/3-C8SPF8Q5.mp3                             17.17 kB
+dist-e2e-sample/assets/3-CaWfxQbg.mp3                             17.17 kB
+dist-e2e-sample/assets/3-Cvtbo-7Q.mp3                             17.17 kB
+dist-e2e-sample/assets/3-D8pGxtPh.mp3                             17.17 kB
+dist-e2e-sample/assets/3-EDy5jjBy.mp3                             17.17 kB
+dist-e2e-sample/assets/4-BvGHYDEo.mp3                             17.17 kB
+dist-e2e-sample/assets/4-C-jIC94z.mp3                             17.17 kB
+dist-e2e-sample/assets/4-CHs3j__0.mp3                             17.17 kB
+dist-e2e-sample/assets/4-CJ7_h6Iw.mp3                             17.17 kB
+dist-e2e-sample/assets/4-CjOsbRXB.mp3                             17.17 kB
+dist-e2e-sample/assets/rubik-latin-500-normal-1os41rQk.woff2      19.03 kB
+dist-e2e-sample/assets/rubik-latin-600-normal-7iWW07_k.woff2      19.06 kB
+dist-e2e-sample/assets/rubik-latin-800-normal-BtaGuVpR.woff2      19.06 kB
+dist-e2e-sample/assets/rubik-latin-700-normal-D-tMm-eS.woff2      19.11 kB
+dist-e2e-sample/assets/rubik-latin-800-normal-Dq1miTTj.woff       24.17 kB
+dist-e2e-sample/assets/rubik-latin-500-normal-LZYVHeqz.woff       24.21 kB
+dist-e2e-sample/assets/rubik-latin-600-normal-Bd1rsTk4.woff       24.21 kB
+dist-e2e-sample/assets/rubik-latin-700-normal-KHOtubUA.woff       24.28 kB
+dist-e2e-sample/assets/level-up-CA_B7FUa.mp3                      33.06 kB
+dist-e2e-sample/assets/reward-coins-Cb3RXhlr.mp3                  33.06 kB
+dist-e2e-sample/assets/reward-trophy-CEJUg0DD.mp3                 33.06 kB
+dist-e2e-sample/assets/index-DlJJ55FI.css                         77.90 kB │ gzip:  14.88 kB
+dist-e2e-sample/assets/ZzFX-C1HKDoVW.js                            2.00 kB │ gzip:   1.17 kB
+dist-e2e-sample/assets/test-api-BKiUepvk.js                       20.27 kB │ gzip:   8.04 kB
+dist-e2e-sample/assets/debug-DKuxTT7D.js                          47.26 kB │ gzip:  15.10 kB
+dist-e2e-sample/assets/index-BZP2bwTp.js                         981.83 kB │ gzip: 286.52 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 900 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.25s
+
+Running 2 tests using 2 workers
+
+  ✓  2 [desktop] › e2e/sample.spec.ts:4:1 › sample pack boots, renders and calls ready() once (6.4s)
+  ✓  1 [desktop] › e2e/sample.spec.ts:19:1 › sample pack: the jump grows with the stat, the run does not; the frame (15.3s)
+
+  2 passed (17.8s)
+-- tail: e2e:sample exit 0, 21 s
+== tail: build
+vite v8.3.2 building client environment for production...
+transforming...
+<script src="/sdk.js"> in "/index.html" can't be bundled without type="module" attribute
+✓ 197 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                           1.73 kB │ gzip:   0.94 kB
+dist/assets/rubik-cyrillic-800-normal-wonQiwhm.woff2      7.85 kB
+dist/assets/rubik-cyrillic-600-normal-AdySaCq0.woff2      7.90 kB
+dist/assets/rubik-cyrillic-700-normal-DFnztZBh.woff2      7.90 kB
+dist/assets/rubik-cyrillic-500-normal-Didq2w9O.woff2      7.92 kB
+dist/assets/rubik-cyrillic-800-normal-DocVmW4N.woff       9.85 kB
+dist/assets/rubik-cyrillic-700-normal-C_jxLOfU.woff       9.87 kB
+dist/assets/rubik-cyrillic-600-normal-CtS_KWzi.woff       9.89 kB
+dist/assets/rubik-cyrillic-500-normal-BH_pkKR0.woff       9.92 kB
+dist/assets/1-BN7IT56u.mp3                               17.17 kB
+dist/assets/1-BVny-jN9.mp3                               17.17 kB
+dist/assets/1-CP3C_qXY.mp3                               17.17 kB
+dist/assets/1-DQLOuCnM.mp3                               17.17 kB
+dist/assets/1-DUTY0SV5.mp3                               17.17 kB
+dist/assets/1-gSaViLAo.mp3                               17.17 kB
+dist/assets/2-83wtGG6r.mp3                               17.17 kB
+dist/assets/2-BzuV1erg.mp3                               17.17 kB
+dist/assets/2-CK6gaR7E.mp3                               17.17 kB
+dist/assets/2-CzofyL7K.mp3                               17.17 kB
+dist/assets/2-D-PP5Pz4.mp3                               17.17 kB
+dist/assets/2-vl6dV_Xq.mp3                               17.17 kB
+dist/assets/3-C8SPF8Q5.mp3                               17.17 kB
+dist/assets/3-CaWfxQbg.mp3                               17.17 kB
+dist/assets/3-Cvtbo-7Q.mp3                               17.17 kB
+dist/assets/3-D8pGxtPh.mp3                               17.17 kB
+dist/assets/3-EDy5jjBy.mp3                               17.17 kB
+dist/assets/4-BvGHYDEo.mp3                               17.17 kB
+dist/assets/4-C-jIC94z.mp3                               17.17 kB
+dist/assets/4-CHs3j__0.mp3                               17.17 kB
+dist/assets/4-CJ7_h6Iw.mp3                               17.17 kB
+dist/assets/4-CjOsbRXB.mp3                               17.17 kB
+dist/assets/rubik-latin-500-normal-1os41rQk.woff2        19.03 kB
+dist/assets/rubik-latin-600-normal-7iWW07_k.woff2        19.06 kB
+dist/assets/rubik-latin-800-normal-BtaGuVpR.woff2        19.06 kB
+dist/assets/rubik-latin-700-normal-D-tMm-eS.woff2        19.11 kB
+dist/assets/en-CKyhPl7c.json                             19.27 kB │ gzip:   6.13 kB
+dist/assets/rubik-latin-800-normal-Dq1miTTj.woff         24.17 kB
+dist/assets/rubik-latin-500-normal-LZYVHeqz.woff         24.21 kB
+dist/assets/rubik-latin-600-normal-Bd1rsTk4.woff         24.21 kB
+dist/assets/rubik-latin-700-normal-KHOtubUA.woff         24.28 kB
+dist/assets/ru-CW_8Q702.json                             25.26 kB │ gzip:   7.72 kB
+dist/assets/level-up-CA_B7FUa.mp3                        33.06 kB
+dist/assets/reward-coins-Cb3RXhlr.mp3                    33.06 kB
+dist/assets/reward-trophy-CEJUg0DD.mp3                   33.06 kB
+dist/assets/index-DlJJ55FI.css                           77.90 kB │ gzip:  14.88 kB
+dist/assets/ZzFX-C1HKDoVW.js                              2.00 kB │ gzip:   1.17 kB
+dist/assets/index-DCOQR1MF.js                         1,820.30 kB │ gzip: 406.01 kB
+
+✓ built in 1.63s
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 900 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+-- tail: build exit 0, 2 s
+== tail: size
+size: dist
+  assets/1-BN7IT56u.mp3                               16.8 KB 
+  assets/1-BVny-jN9.mp3                               16.8 KB 
+  assets/1-CP3C_qXY.mp3                               16.8 KB 
+  assets/1-DQLOuCnM.mp3                               16.8 KB 
+  assets/1-DUTY0SV5.mp3                               16.8 KB 
+  assets/1-gSaViLAo.mp3                               16.8 KB 
+  assets/2-83wtGG6r.mp3                               16.8 KB 
+  assets/2-BzuV1erg.mp3                               16.8 KB 
+  assets/2-CK6gaR7E.mp3                               16.8 KB 
+  assets/2-CzofyL7K.mp3                               16.8 KB 
+  assets/2-D-PP5Pz4.mp3                               16.8 KB 
+  assets/2-vl6dV_Xq.mp3                               16.8 KB 
+  assets/3-C8SPF8Q5.mp3                               16.8 KB 
+  assets/3-CaWfxQbg.mp3                               16.8 KB 
+  assets/3-Cvtbo-7Q.mp3                               16.8 KB 
+  assets/3-D8pGxtPh.mp3                               16.8 KB 
+  assets/3-EDy5jjBy.mp3                               16.8 KB 
+  assets/4-BvGHYDEo.mp3                               16.8 KB 
+  assets/4-C-jIC94z.mp3                               16.8 KB 
+  assets/4-CHs3j__0.mp3                               16.8 KB 
+  assets/4-CJ7_h6Iw.mp3                               16.8 KB 
+  assets/4-CjOsbRXB.mp3                               16.8 KB 
+  assets/en-CKyhPl7c.json                             18.8 KB 
+  assets/index-DCOQR1MF.js                          1777.6 KB gzip 389.4 KB
+  assets/index-DlJJ55FI.css                           76.1 KB 
+  assets/level-up-CA_B7FUa.mp3                        32.3 KB 
+  assets/reward-coins-Cb3RXhlr.mp3                    32.3 KB 
+  assets/reward-trophy-CEJUg0DD.mp3                   32.3 KB 
+  assets/ru-CW_8Q702.json                             24.7 KB 
+  assets/rubik-cyrillic-500-normal-BH_pkKR0.woff       9.7 KB 
+  assets/rubik-cyrillic-500-normal-Didq2w9O.woff2      7.7 KB 
+  assets/rubik-cyrillic-600-normal-AdySaCq0.woff2      7.7 KB 
+  assets/rubik-cyrillic-600-normal-CtS_KWzi.woff       9.7 KB 
+  assets/rubik-cyrillic-700-normal-C_jxLOfU.woff       9.6 KB 
+  assets/rubik-cyrillic-700-normal-DFnztZBh.woff2      7.7 KB 
+  assets/rubik-cyrillic-800-normal-DocVmW4N.woff       9.6 KB 
+  assets/rubik-cyrillic-800-normal-wonQiwhm.woff2      7.7 KB 
+  assets/rubik-latin-500-normal-1os41rQk.woff2        18.6 KB 
+  assets/rubik-latin-500-normal-LZYVHeqz.woff         23.6 KB 
+  assets/rubik-latin-600-normal-7iWW07_k.woff2        18.6 KB 
+  assets/rubik-latin-600-normal-Bd1rsTk4.woff         23.6 KB 
+  assets/rubik-latin-700-normal-D-tMm-eS.woff2        18.7 KB 
+  assets/rubik-latin-700-normal-KHOtubUA.woff         23.7 KB 
+  assets/rubik-latin-800-normal-BtaGuVpR.woff2        18.6 KB 
+  assets/rubik-latin-800-normal-Dq1miTTj.woff         23.6 KB 
+  assets/ZzFX-C1HKDoVW.js                              2.0 KB gzip 1.1 KB
+  index.html                                           1.7 KB 
+  total 2605.3 KB (target 4096.0 KB, limit 10240.0 KB)
+  js 1779.6 KB → gzip 390.6 KB (target 500.0 KB, limit 800.0 KB)
+-- tail: size exit 0, 0 s
+== tail: pack
+pack: 47 files, 2605.3 KB → release/avalanche-0.1.0.zip 1132.3 KB
+-- tail: pack exit 0, 1 s
+== tail: check-release
+check-release: release/avalanche-0.1.0.zip
+date: 2026-10-25T16:06:55.084Z
+files: 47
+  assets/1-BN7IT56u.mp3  16.8 KB
+  assets/1-BVny-jN9.mp3  16.8 KB
+  assets/1-CP3C_qXY.mp3  16.8 KB
+  assets/1-DQLOuCnM.mp3  16.8 KB
+  assets/1-DUTY0SV5.mp3  16.8 KB
+  assets/1-gSaViLAo.mp3  16.8 KB
+  assets/2-83wtGG6r.mp3  16.8 KB
+  assets/2-BzuV1erg.mp3  16.8 KB
+  assets/2-CK6gaR7E.mp3  16.8 KB
+  assets/2-CzofyL7K.mp3  16.8 KB
+  assets/2-D-PP5Pz4.mp3  16.8 KB
+  assets/2-vl6dV_Xq.mp3  16.8 KB
+  assets/3-C8SPF8Q5.mp3  16.8 KB
+  assets/3-CaWfxQbg.mp3  16.8 KB
+  assets/3-Cvtbo-7Q.mp3  16.8 KB
+  assets/3-D8pGxtPh.mp3  16.8 KB
+  assets/3-EDy5jjBy.mp3  16.8 KB
+  assets/4-BvGHYDEo.mp3  16.8 KB
+  assets/4-C-jIC94z.mp3  16.8 KB
+  assets/4-CHs3j__0.mp3  16.8 KB
+  assets/4-CJ7_h6Iw.mp3  16.8 KB
+  assets/4-CjOsbRXB.mp3  16.8 KB
+  assets/ZzFX-C1HKDoVW.js  2.0 KB
+  assets/en-CKyhPl7c.json  18.8 KB
+  assets/index-DCOQR1MF.js  1777.6 KB
+  assets/index-DlJJ55FI.css  76.1 KB
+  assets/level-up-CA_B7FUa.mp3  32.3 KB
+  assets/reward-coins-Cb3RXhlr.mp3  32.3 KB
+  assets/reward-trophy-CEJUg0DD.mp3  32.3 KB
+  assets/ru-CW_8Q702.json  24.7 KB
+  assets/rubik-cyrillic-500-normal-BH_pkKR0.woff  9.7 KB
+  assets/rubik-cyrillic-500-normal-Didq2w9O.woff2  7.7 KB
+  assets/rubik-cyrillic-600-normal-AdySaCq0.woff2  7.7 KB
+  assets/rubik-cyrillic-600-normal-CtS_KWzi.woff  9.7 KB
+  assets/rubik-cyrillic-700-normal-C_jxLOfU.woff  9.6 KB
+  assets/rubik-cyrillic-700-normal-DFnztZBh.woff2  7.7 KB
+  assets/rubik-cyrillic-800-normal-DocVmW4N.woff  9.6 KB
+  assets/rubik-cyrillic-800-normal-wonQiwhm.woff2  7.7 KB
+  assets/rubik-latin-500-normal-1os41rQk.woff2  18.6 KB
+  assets/rubik-latin-500-normal-LZYVHeqz.woff  23.6 KB
+  assets/rubik-latin-600-normal-7iWW07_k.woff2  18.6 KB
+  assets/rubik-latin-600-normal-Bd1rsTk4.woff  23.6 KB
+  assets/rubik-latin-700-normal-D-tMm-eS.woff2  18.7 KB
+  assets/rubik-latin-700-normal-KHOtubUA.woff  23.7 KB
+  assets/rubik-latin-800-normal-BtaGuVpR.woff2  18.6 KB
+  assets/rubik-latin-800-normal-Dq1miTTj.woff  23.6 KB
+  index.html  1.7 KB
+
+PASS  1. index.html at the root, paths only [A-Za-z0-9._/-]
+PASS  2. unpacked ≤ 10 MB and JS gzip ≤ 800 KB
+        zip 1132.3 KB, unpacked 2605.3 KB, js gzip 390.6 KB
+PASS  3. no external addresses except /sdk.js and mc.yandex.ru (namespaces allowed)
+PASS  4. <script src="/sdk.js"> exactly once
+        found 1
+PASS  5. no <audio>, <video>, new Audio(
+PASS  6. no lil-gui, __TEST__, __STUDIO__, __YA_MOCK__, yasdk-mock, localhost, debugger, sourceMappingURL, ?pace=, debugcheck
+PASS  7. no development or stop-list words in shipped texts
+
+WARN  other absolute addresses in strings (not loaded): https://t.me/sunhearth_games, https://vk.ru/sunhearth_yandex
+RESULT: PASS
+
+-- tail: check-release exit 0, 1 s
+== tail: e2e:release
+e2e:release: unpacked /tmp/claude-0/-home-user-obby-avalanche/9e1d3af0-36cf-5078-a836-79afdcc60a5f/scratchpad/clean/release/avalanche-0.1.0.zip (47 entries) to /tmp/claude-0/-home-user-obby-avalanche/9e1d3af0-36cf-5078-a836-79afdcc60a5f/scratchpad/clean/.cache/release-unpacked
+
+Running 2 tests using 1 worker
+
+  ✓  1 e2e/smoke-release.spec.ts:6:1 › release build: ready() exactly once, first frame drawn, zero console errors (7.1s)
+  ✓  2 e2e/smoke-release.spec.ts:25:1 › release build ignores ?pace=classic: the save lands in the slot of the game.json pace (5.5s)
+
+  2 passed (14.2s)
+-- tail: e2e:release exit 0, 16 s
+== tail: e2e:full
+
+Running 26 tests using 2 workers
+
+  ✘   1 [desktop] › e2e/belt-exit.spec.ts:12:3 › belt exit (classic): 3 exits in a row by W — the view back to the yaw before the frame, never at the hero, forward up the slope; also after an avalanche @full (24.6s)
+  ✘   2 [desktop] › e2e/belt-exit.spec.ts:12:3 › belt exit (fast): 10 exits in a row by W — the view back to the yaw before the frame, never at the hero, forward up the slope; also after an avalanche @full (28.1s)
+  ✓   4 [desktop] › e2e/cave-shot.spec.ts:131:5 › cave frame on the avalanche (classic, 1920x1080): scripted and normal wave, hero on the belt @full (1.9m)
+  ✓   3 [desktop] › e2e/bot-session.spec.ts:149:1 › @full M6-03 bot session: 10 minutes of game time, seed 7, release pace — no errors, SDK limits kept, nothing frozen, the summit of mountain 1 (2.1m)
+  ✓   5 [desktop] › e2e/cave-shot.spec.ts:131:5 › cave frame on the avalanche (classic, 1280x720): scripted and normal wave, hero on the belt @full (1.1m)
+  ✓   7 [desktop] › e2e/cave-shot.spec.ts:131:5 › cave frame on the avalanche (fast, 1280x720): scripted and normal wave, hero on the belt @full (1.2m)
+  ✓   6 [desktop] › e2e/cave-shot.spec.ts:131:5 › cave frame on the avalanche (fast, 1920x1080): scripted and normal wave, hero on the belt @full (2.2m)
+  ✓   9 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 1: start, its own trial, the last finish (17.3s)
+  ✓  10 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 2: start, its own trial, the last finish (18.1s)
+  ✘   8 [desktop] › e2e/m5-perf.spec.ts:93:1 › M5-06 @full: time to ready() ≤ 4 s and ≤ 1.2 MB before it — median of 3 loads at 10 Mbit/s, RTT 100 ms, CPU ×4 (51.0s)
+  ✓  11 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 3: start, its own trial, the last finish (15.4s)
+  ✓  12 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 4: start, its own trial, the last finish (16.5s)
+  ✓  13 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 5: start, its own trial, the last finish (30.3s)
+  ✓  14 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 6: start, its own trial, the last finish (17.4s)
+  ✓  15 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 7: start, its own trial, the last finish (15.7s)
+  ✓  16 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 8: start, its own trial, the last finish (16.4s)
+  ✓  17 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 9: start, its own trial, the last finish (17.4s)
+  ✓  18 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 10: start, its own trial, the last finish (24.2s)
+setData calls: 104, max in 5 minutes: 24, last mountain: slope
+  ✓  19 [desktop] › e2e/save.spec.ts:142:1 › @full bot plays 15 minutes of game time: no 5-minute window of the mock log has more than 100 setData (≤ 86) (50.0s)
+  ✓  21 [desktop] › e2e/treadmill-shot.spec.ts:87:3 › belt frame (classic): 20 s on the belt of a cave at a closed gate — wide frame, never in the hero; a mouse turn gives the camera back @full (1.8m)
+gate sign (classic): frames 104, sign hidden in 38 of 77 polls
+  ✓  22 [desktop] › e2e/treadmill-shot.spec.ts:150:3 › open gate (classic): walking through it the gate sign is in no frame between the camera and the hero @full (16.2s)
+  ✓  23 [desktop] › e2e/treadmill-shot.spec.ts:87:3 › belt frame (fast): 20 s on the belt of a cave at a closed gate — wide frame, never in the hero; a mouse turn gives the camera back @full (1.9m)
+gate sign (fast): frames 93, sign hidden in 25 of 69 polls
+  ✓  24 [desktop] › e2e/treadmill-shot.spec.ts:150:3 › open gate (fast): walking through it the gate sign is in no frame between the camera and the hero @full (16.2s)
+  ✘  25 [mobile] › e2e/touch-belt-shot.spec.ts:10:3 › touch belt frame (classic): with the stick and a resting thumb the wide frame comes on the belt in 5 caves of 5; exits by the stick as on PC @full (19.0s)
+  ✘  26 [mobile] › e2e/touch-belt-shot.spec.ts:10:3 › touch belt frame (fast): with the stick and a resting thumb the wide frame comes on the belt in 5 caves of 5; exits by the stick as on PC @full (20.9s)
+advice: passed passed passed passed passed passed passed passed passed passed
+0.85: passed passed passed passed passed passed passed passed passed passed
+0.7: caught caught caught caught caught caught caught caught caught caught
+  ✓  20 [desktop] › e2e/sp-giant.spec.ts:229:1 › mountain 1: 10 runs a policy — the advice straight ≥ 9 pass, 0.85 behind a rock ≥ 7 pass, 0.7 ≥ 9 caught; the giant in view; the hint once; cover in the events @full (7.0m)
+
+
+  1) [desktop] › e2e/belt-exit.spec.ts:12:3 › belt exit (classic): 3 exits in a row by W — the view back to the yaw before the frame, never at the hero, forward up the slope; also after an avalanche @full 
+
+    Error: classic cave 3: view yaw shotReturnSec + 0.2 s off the belt vs before the frame
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 10
+    Received:    68.71001811386371
+
+       at belt-exit.ts:229
+
+      227 |       await mover.release();
+      228 |       expect(atReturn.fixed, `${label}: back to the player's camera`).toBe(0);
+    > 229 |       expect(yawErrDeg, `${label}: view yaw shotReturnSec + 0.2 s off the belt vs before the frame`).toBeLessThanOrEqual(10);
+          |                                                                                                      ^
+      230 |       expect(ctlErrDeg, `${label}: «forward» up the slope again`).toBeLessThanOrEqual(10);
+      231 |       // Up the slope: higher than where he left the belt, and still climbing unless the next closed gate stops him.
+      232 |       expect(atReturn.z - leftZ, `${label}: the hero went up the slope`).toBeGreaterThan(2);
+        at beltExit (/tmp/claude-0/-home-user-obby-avalanche/9e1d3af0-36cf-5078-a836-79afdcc60a5f/scratchpad/clean/e2e/belt-exit.ts:229:102)
+        at /tmp/claude-0/-home-user-obby-avalanche/9e1d3af0-36cf-5078-a836-79afdcc60a5f/scratchpad/clean/e2e/belt-exit.spec.ts:26:20
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/belt-exit-belt-exit-classi-e8e65-lso-after-an-avalanche-full-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/belt-exit-belt-exit-classi-e8e65-lso-after-an-avalanche-full-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/belt-exit-belt-exit-classi-e8e65-lso-after-an-avalanche-full-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/belt-exit-belt-exit-classi-e8e65-lso-after-an-avalanche-full-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › e2e/belt-exit.spec.ts:12:3 › belt exit (fast): 10 exits in a row by W — the view back to the yaw before the frame, never at the hero, forward up the slope; also after an avalanche @full 
+
+    Error: fast cave 6: view yaw shotReturnSec + 0.2 s off the belt vs before the frame
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 10
+    Received:    68.71001811386371
+
+       at belt-exit.ts:229
+
+      227 |       await mover.release();
+      228 |       expect(atReturn.fixed, `${label}: back to the player's camera`).toBe(0);
+    > 229 |       expect(yawErrDeg, `${label}: view yaw shotReturnSec + 0.2 s off the belt vs before the frame`).toBeLessThanOrEqual(10);
+          |                                                                                                      ^
+      230 |       expect(ctlErrDeg, `${label}: «forward» up the slope again`).toBeLessThanOrEqual(10);
+      231 |       // Up the slope: higher than where he left the belt, and still climbing unless the next closed gate stops him.
+      232 |       expect(atReturn.z - leftZ, `${label}: the hero went up the slope`).toBeGreaterThan(2);
+        at beltExit (/tmp/claude-0/-home-user-obby-avalanche/9e1d3af0-36cf-5078-a836-79afdcc60a5f/scratchpad/clean/e2e/belt-exit.ts:229:102)
+        at /tmp/claude-0/-home-user-obby-avalanche/9e1d3af0-36cf-5078-a836-79afdcc60a5f/scratchpad/clean/e2e/belt-exit.spec.ts:26:20
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/belt-exit-belt-exit-fast-1-e272d-lso-after-an-avalanche-full-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/belt-exit-belt-exit-fast-1-e272d-lso-after-an-avalanche-full-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/belt-exit-belt-exit-fast-1-e272d-lso-after-an-avalanche-full-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/belt-exit-belt-exit-fast-1-e272d-lso-after-an-avalanche-full-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop] › e2e/m5-perf.spec.ts:93:1 › M5-06 @full: time to ready() ≤ 4 s and ≤ 1.2 MB before it — median of 3 loads at 10 Mbit/s, RTT 100 ms, CPU ×4 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 4000
+    Received:    11022
+
+      127 |     ].join('\n'),
+      128 |   );
+    > 129 |   expect(ms).toBeLessThanOrEqual(LIMIT.readyMs);
+          |              ^
+      130 |   expect(mb).toBeLessThanOrEqual(LIMIT.readyBytes);
+      131 | });
+      132 |
+        at /tmp/claude-0/-home-user-obby-avalanche/9e1d3af0-36cf-5078-a836-79afdcc60a5f/scratchpad/clean/e2e/m5-perf.spec.ts:129:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/m5-perf-M5-06-full-time-to-9df63-10-Mbit-s-RTT-100-ms-CPU-×4-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/m5-perf-M5-06-full-time-to-9df63-10-Mbit-s-RTT-100-ms-CPU-×4-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/m5-perf-M5-06-full-time-to-9df63-10-Mbit-s-RTT-100-ms-CPU-×4-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/m5-perf-M5-06-full-time-to-9df63-10-Mbit-s-RTT-100-ms-CPU-×4-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [mobile] › e2e/touch-belt-shot.spec.ts:10:3 › touch belt frame (classic): with the stick and a resting thumb the wide frame comes on the belt in 5 caves of 5; exits by the stick as on PC @full 
+
+    Error: classic touch cave 3: view yaw shotReturnSec + 0.2 s off the belt vs before the frame
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 10
+    Received:    68.94151733908359
+
+       at belt-exit.ts:229
+
+      227 |       await mover.release();
+      228 |       expect(atReturn.fixed, `${label}: back to the player's camera`).toBe(0);
+    > 229 |       expect(yawErrDeg, `${label}: view yaw shotReturnSec + 0.2 s off the belt vs before the frame`).toBeLessThanOrEqual(10);
+          |                                                                                                      ^
+      230 |       expect(ctlErrDeg, `${label}: «forward» up the slope again`).toBeLessThanOrEqual(10);
+      231 |       // Up the slope: higher than where he left the belt, and still climbing unless the next closed gate stops him.
+      232 |       expect(atReturn.z - leftZ, `${label}: the hero went up the slope`).toBeGreaterThan(2);
+        at beltExit (/tmp/claude-0/-home-user-obby-avalanche/9e1d3af0-36cf-5078-a836-79afdcc60a5f/scratchpad/clean/e2e/belt-exit.ts:229:102)
+        at /tmp/claude-0/-home-user-obby-avalanche/9e1d3af0-36cf-5078-a836-79afdcc60a5f/scratchpad/clean/e2e/touch-belt-shot.spec.ts:19:20
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/touch-belt-shot-touch-belt-f158f--by-the-stick-as-on-PC-full-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/touch-belt-shot-touch-belt-f158f--by-the-stick-as-on-PC-full-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/touch-belt-shot-touch-belt-f158f--by-the-stick-as-on-PC-full-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/touch-belt-shot-touch-belt-f158f--by-the-stick-as-on-PC-full-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [mobile] › e2e/touch-belt-shot.spec.ts:10:3 › touch belt frame (fast): with the stick and a resting thumb the wide frame comes on the belt in 5 caves of 5; exits by the stick as on PC @full 
+
+    Error: fast touch cave 6: view yaw shotReturnSec + 0.2 s off the belt vs before the frame
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 10
+    Received:    70.45937956301148
+
+       at belt-exit.ts:229
+
+      227 |       await mover.release();
+      228 |       expect(atReturn.fixed, `${label}: back to the player's camera`).toBe(0);
+    > 229 |       expect(yawErrDeg, `${label}: view yaw shotReturnSec + 0.2 s off the belt vs before the frame`).toBeLessThanOrEqual(10);
+          |                                                                                                      ^
+      230 |       expect(ctlErrDeg, `${label}: «forward» up the slope again`).toBeLessThanOrEqual(10);
+      231 |       // Up the slope: higher than where he left the belt, and still climbing unless the next closed gate stops him.
+      232 |       expect(atReturn.z - leftZ, `${label}: the hero went up the slope`).toBeGreaterThan(2);
+        at beltExit (/tmp/claude-0/-home-user-obby-avalanche/9e1d3af0-36cf-5078-a836-79afdcc60a5f/scratchpad/clean/e2e/belt-exit.ts:229:102)
+        at /tmp/claude-0/-home-user-obby-avalanche/9e1d3af0-36cf-5078-a836-79afdcc60a5f/scratchpad/clean/e2e/touch-belt-shot.spec.ts:19:20
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/touch-belt-shot-touch-belt-508a1--by-the-stick-as-on-PC-full-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/touch-belt-shot-touch-belt-508a1--by-the-stick-as-on-PC-full-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/touch-belt-shot-touch-belt-508a1--by-the-stick-as-on-PC-full-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/touch-belt-shot-touch-belt-508a1--by-the-stick-as-on-PC-full-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: [desktop] › e2e/sp-giant.spec.ts (7.0m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  5 failed
+    [desktop] › e2e/belt-exit.spec.ts:12:3 › belt exit (classic): 3 exits in a row by W — the view back to the yaw before the frame, never at the hero, forward up the slope; also after an avalanche @full 
+    [desktop] › e2e/belt-exit.spec.ts:12:3 › belt exit (fast): 10 exits in a row by W — the view back to the yaw before the frame, never at the hero, forward up the slope; also after an avalanche @full 
+    [desktop] › e2e/m5-perf.spec.ts:93:1 › M5-06 @full: time to ready() ≤ 4 s and ≤ 1.2 MB before it — median of 3 loads at 10 Mbit/s, RTT 100 ms, CPU ×4 
+    [mobile] › e2e/touch-belt-shot.spec.ts:10:3 › touch belt frame (classic): with the stick and a resting thumb the wide frame comes on the belt in 5 caves of 5; exits by the stick as on PC @full 
+    [mobile] › e2e/touch-belt-shot.spec.ts:10:3 › touch belt frame (fast): with the stick and a resting thumb the wide frame comes on the belt in 5 caves of 5; exits by the stick as on PC @full 
+  21 passed (14.0m)
+-- tail: e2e:full exit 1, 841 s
+DONE
+
+== rerun of the red ones, one at a time, no other load (main clone, build:e2e of the same commit)
+rerun.txt:  ✓  1 [desktop] › e2e/gold.spec.ts:24:1 › 2nd normal wave: a golden gift, carried into the cave → gold_take, gold_saved; caught with it → gold_lost; screenshot gold_carry (2.8m)
+rerun.txt:  ✘  2 [desktop] › e2e/m5-perf.spec.ts:12:1 › M5-06: draw calls, triangles, textures at 3 points of each of the 10 mountains; a switch ≤ 1 s at CPU ×4, memory flat (3.4m)
+rerun.txt:  ✓  3 [desktop] › e2e/rg-chasm.spec.ts:56:1 › mountain 2: over the chasm from the middle trampoline with the gifts in the air; screenshot (38.4s)
+rerun.txt:  ✓  4 [desktop] › e2e/rg-chasm.spec.ts:76:1 › mountain 2: by the walk at the edge down into the chasm, its gift, out up the ramp; the toast once; the siren from the bottom (56.8s)
+rerun.txt:    Received:    1367.5
+rerun-full.txt:  ✘  1 [desktop] › e2e/belt-exit.spec.ts:12:3 › belt exit (classic): 3 exits in a row by W — the view back to the yaw before the frame, never at the hero, forward up the slope; also after an avalanche @full (14.5s)
+rerun-full.txt:  ✘  2 [desktop] › e2e/belt-exit.spec.ts:12:3 › belt exit (fast): 10 exits in a row by W — the view back to the yaw before the frame, never at the hero, forward up the slope; also after an avalanche @full (14.5s)
+rerun-full.txt:  ✘  3 [desktop] › e2e/m5-perf.spec.ts:93:1 › M5-06 @full: time to ready() ≤ 4 s and ≤ 1.2 MB before it — median of 3 loads at 10 Mbit/s, RTT 100 ms, CPU ×4 (30.6s)
+rerun-full.txt:  ✘  4 [mobile] › e2e/touch-belt-shot.spec.ts:10:3 › touch belt frame (classic): with the stick and a resting thumb the wide frame comes on the belt in 5 caves of 5; exits by the stick as on PC @full (15.1s)
+rerun-full.txt:  ✘  5 [mobile] › e2e/touch-belt-shot.spec.ts:10:3 › touch belt frame (fast): with the stick and a resting thumb the wide frame comes on the belt in 5 caves of 5; exits by the stick as on PC @full (14.5s)
+rerun-full.txt:    Received:    70.15325813904403
+rerun-full.txt:    Received:    69.87002370260342
+rerun-full.txt:    Received:    7052
+rerun-full.txt:    Received:    70.10281679988515
+rerun-full.txt:    Received:    69.23267627524869
