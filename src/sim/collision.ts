@@ -26,9 +26,9 @@ export interface CollisionWorld {
 /** Expands the Octree bounds so no triangle lies exactly on a split boundary (floating point drops it). */
 const OCTREE_PADDINGS = [0.0137, 0.0731, 0.2371];
 
-/** M5-06: triangles a leaf holds before it splits (three's default 8): the long strips of a slope (up to 900 units) went
- * into thousands of tiny leaves 16 levels deep — the build of mountain 10 took 1.4 s, with 32 it takes 0.08 s. */
-const LEAF_TRIANGLES = 32;
+/** M5-06: triangles a leaf holds before it splits — three's 8. With 32 the build of mountain 10 took 0.08 s instead of
+ * 1.4 s, but the order of the triangles in a query changed and with it the camera at a rock (sp-wave-camera): kept 8. */
+const LEAF_TRIANGLES = 8;
 /** M5-06 (docs/02-tech.md 9.5: a switch of mountains ≤ 1 s at CPU ×4): the bounds of each triangle, made once per build. */
 const triBounds = new WeakMap<Triangle, Float64Array>();
 function boundsOf(t: Triangle): Float64Array {

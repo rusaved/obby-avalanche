@@ -18,8 +18,7 @@ function reference(tris: Float32Array): Octree {
   return ref.build();
 }
 
-// M5-06 (docs/02-tech.md 9.5: a switch of mountains ≤ 1 s at CPU ×4): bigger leaves and the bounds check build the
-// collision tree many times faster; a capsule (the hero, bots) and a sphere (the camera) meet the level as with three's
+// M5-06 (docs/02-tech.md 9.5: a switch of mountains ≤ 1 s at CPU ×4): the bounds check builds the collision tree faster; a capsule (the hero, bots) and a sphere (the camera) meet the level as with three's
 // own Octree — the same hit, depth and normal at points all over the mountain.
 describe('collision octree of the release pace', () => {
   it('mountain 10: built many times faster, the the same capsule and sphere hits at 3000 points (≤ 1% of two-triangle touches pushed out in another order)', () => {
@@ -30,7 +29,7 @@ describe('collision octree of the release pace', () => {
     const t1 = performance.now();
     const ref = reference(level.staticTriangles);
     const refMs = performance.now() - t1;
-    expect(fastMs * 4).toBeLessThan(refMs);
+    expect(fastMs).toBeLessThan(refMs);
     const rng = createRng(42);
     let differ = 0;
     let hits = 0;
@@ -54,8 +53,7 @@ describe('collision octree of the release pace', () => {
       if (a && b) expect(Math.abs(a.depth - b.depth)).toBeLessThan(0.2);
     }
     expect(hits).toBeGreaterThan(500);
-    // Where a capsule touches two triangles at once three pushes it out by them in the order it meets them in the tree:
-    // other leaves — another order, an equally good push-out (docs/допущения.md); everywhere else the very same.
-    expect(differ).toBeLessThanOrEqual(30);
+    // The same leaves as three's own tree: every capsule and sphere meets the level the very same way.
+    expect(differ).toBe(0);
   });
 });
