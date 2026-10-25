@@ -104,11 +104,18 @@ test('mountain 2: by the walk at the edge down into the chasm, its gift, out up 
   const downs = (await page.evaluate(() => window.__TEST__!.simEvents.filter((e) => e.name === 'chasmDown').length)) as number;
   expect(downs).toBe(2);
   // The siren with the hero on the bottom: he runs to the lit shelter and is in it before the front.
+  // A wave of the timer still fading out (gone) takes no trigger: wait it out first (verify SD: a race, not a bug), and
+  // only then down to the bottom with the timer held — a timer wave that came while he waited there caught him and its
+  // rollback put the triggered one to «gone» (verify M6, under load).
+  await page.evaluate(() => window.__TEST__!.setTimeScale(4));
+  await page.waitForFunction(() => (window.__TEST__!.state().wave?.phase ?? 'idle') === 'idle', undefined, { timeout: 60_000 });
+  await page.evaluate(() => window.__TEST__!.setTimeScale(1));
+  await page.evaluate(() => window.__TEST__!.holdWave(60));
   await page.evaluate(([z, x]) => window.__TEST__!.teleport(z!, x!), [c1 - 4, WALK]);
   await waitTicks(page, 20);
-  expect((await testState(page)).hero!.y).toBeLessThan(chasm.y! - 1);
-  // A wave of the timer still fading out (gone) takes no trigger: wait it out first (verify SD: a race, not a bug).
-  await page.waitForFunction(() => (window.__TEST__!.state().wave?.phase ?? 'idle') === 'idle', undefined, { timeout: 60_000 });
+  s = await testState(page);
+  expect(s.hero!.y).toBeLessThan(chasm.y! - 1);
+  expect(s.caught, 'not rolled back').toBeNull();
   await page.evaluate(() => window.__TEST__!.triggerWave());
   await waitTicks(page, 2);
   s = await testState(page);

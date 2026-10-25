@@ -151,6 +151,10 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
   /** The player's yaw when the grotto frame cut in and the way out of its mouth (±X, across the slope): leaving the frame
    * not by running out of the mouth (a teleport, along a wall, the avalanche shot) the view goes back to that yaw. */
   let tightYaw0 = 0;
+  /** The grotto frame cut in on the way back after a fixed frame (PR-13): out of it the view and the movement frame both
+   * come back to the yaw from before the fixed frame (classic and fast), the movement frame from where it is. */
+  let tightBack = false;
+  let ctlFrom: number | null = null;
   const tightOut = { x: 0, z: 0 };
   /** Q-066: the turn by hand in the grotto frame (rad, round the hero from the frame point) and the yaw the frame set last. */
   let tightOrbit = 0;
@@ -320,6 +324,7 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
         if (backYaw === null) backYaw = frame.viewYaw;
         retK = 1;
       } else if (!rig.fixed && wasFixed) {
+        ctlFrom = null;
         if (backYaw !== null && rig.sinceManual >= MANUAL_RECENT_SEC) {
           retFrom = frame.viewYaw;
           retK = 0;
@@ -354,16 +359,19 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
           backYaw = null;
           retK = 1;
           runBack = false;
+          ctlFrom = null;
         } else if (dt > 0) {
           // Where he runs; stopped on the way back — up the slope (producer 14.10: out of a grotto, W leads up the slope).
           if (runBack) backYaw = runYaw(target.vel);
           const follow = retFollow && Math.abs(angleDiff(frame.controlYaw, frame.viewYaw)) < 1e-4;
           retK = Math.min(1, retK + dt / Math.max(1e-3, tuning.avalanche.shotReturnSec));
           frame.viewYaw = wrapAngle(retFrom + angleDiff(retFrom, backYaw) * smooth01(retK));
-          if (follow) frame.controlYaw = frame.viewYaw;
+          if (ctlFrom !== null) frame.controlYaw = wrapAngle(ctlFrom + angleDiff(ctlFrom, backYaw) * smooth01(retK));
+          else if (follow) frame.controlYaw = frame.viewYaw;
           if (retK >= 1) {
             backYaw = null;
             runBack = false;
+            ctlFrom = null;
           }
         }
       }
@@ -470,6 +478,8 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
         tight = true;
         tightK = 1;
         tightYaw0 = backYaw ?? frame.viewYaw;
+        tightBack = backYaw !== null && retFollow && !runBack;
+        ctlFrom = null;
         tightOrbit = 0;
         backYaw = null;
         runBack = false;
@@ -492,6 +502,12 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
           retK = 0;
           retFollow = false;
           runBack = true;
+        } else if (!input.manualCamera && tightBack) {
+          backYaw = tightYaw0;
+          retFrom = frame.viewYaw;
+          retK = 0;
+          retFollow = true;
+          ctlFrom = Math.abs(angleDiff(frame.controlYaw, tightYaw0)) < 1e-4 ? null : frame.controlYaw;
         } else if (!input.manualCamera) {
           backYaw = out ? Math.atan2(target.vel.x, target.vel.z) : tightYaw0;
           retFrom = frame.viewYaw;

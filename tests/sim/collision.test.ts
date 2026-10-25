@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Vector3 } from 'three';
-import { boxTriangles, createCollisionWorld, octreeFromTriangles } from '../../src/sim/collision.ts';
+import { FlatOctree, boxTriangles, createCollisionWorld, octreeFromTriangles } from '../../src/sim/collision.ts';
 import { heroCapsule } from '../../src/sim/controller.ts';
 
 describe('collision world', () => {
@@ -18,15 +18,9 @@ describe('collision world', () => {
   it('keeps every triangle after build', () => {
     const tris: number[] = [];
     for (let i = 0; i < 40; i++) boxTriangles({ min: [i * 3, 0, 0], max: [i * 3 + 2, 1 + (i % 4), 2] }, tris);
-    const tree = octreeFromTriangles(tris);
-    const seen = new Set<unknown>();
-    const walk = (t: unknown): void => {
-      const n = t as { triangles: unknown[]; subTrees: unknown[] };
-      n.triangles.forEach((x) => seen.add(x));
-      n.subTrees.forEach(walk);
-    };
-    walk(tree);
-    expect(seen.size).toBe(tris.length / 9);
+    // M6 polish: the tree is flat (FlatOctree) — the leaves' triangle indices.
+    const tree = octreeFromTriangles(tris) as FlatOctree;
+    expect(new Set(tree.refs).size).toBe(tris.length / 9);
   });
 
   it('dynamic boxes (gates) collide and can be removed', () => {

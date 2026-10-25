@@ -95,7 +95,7 @@ import type { TestApi } from './test-api/index.ts';
 import type { DebugPanel } from './debug/index.ts';
 import { baseBelts, baseTreadMult, buildBase, type BasePortal } from './level/base-layout.ts';
 import { nextPlace, ownWorld, type FlowEvent, type FlowState, type Place } from './meta/base-flow.ts';
-import { basePortalEntered } from './sim/base-portals.ts';
+import { basePortalEntered, nearestPassedPortal } from './sim/base-portals.ts';
 import { createBaseView, type BaseView } from './render/base-view.ts';
 import { createStandsView, type StandsView } from './app/stands-view.ts';
 import { createRecordsView, type RecordsView } from './app/records-view.ts';
@@ -143,6 +143,8 @@ let survivedShow: (() => void) | null = null;
 async function boot(): Promise<void> {
   const { game } = content;
   const params = new URLSearchParams(location.search);
+  // The test API (e2e builds only) is fetched from the start, alongside the boot, not after it.
+  const testApiLoad = __TEST_API__ ? import('./test-api/index.ts') : null;
   // Address parameters exist only in dev, playtest, e2e and pages builds (docs/02-tech.md 9.3).
   const debugParams = __DEBUG_TOOLS__ ? params : new URLSearchParams();
   configureAnalytics({ counterId: game.metrikaCounterId, echoToConsole: __DEBUG_TOOLS__ });
@@ -166,6 +168,8 @@ async function boot(): Promise<void> {
   const paymentsOn = (game.payments?.enabled ?? false) || debugParams.get('payments') === '1';
   const platformOpts: PlatformOptions = { packId: game.id, leaderboardName: debugParams.get('leaderboard') ?? game.leaderboard?.name ?? '', track, payments: paymentsOn };
   const platform = await createPlatform(platformOpts);
+  // M6 polish (ready() ≤ 4 s): the dictionary comes over the network while the flags are asked, not after them.
+  const dictLoad = loadDictionary(i18nUrls[platform.lang]);
   // The remote flag `pace` (docs/06 8.1–8.2) picks the pace before the save is read; each pace keeps its own progress
   // (docs/01-gdd.md 16.1): classic in the old place, other paces in their slot.
   // M4-11 (docs/02-tech.md 11.11): every flag of game.json in the one getFlags call, its defaults from the pack.
@@ -188,7 +192,7 @@ async function boot(): Promise<void> {
   platform.onResume(() => pause.remove('sdk'));
   track('sdk_ready', { platform: platform.kind, lang: platform.lang, device: platform.device });
 
-  const dict = await loadDictionary(i18nUrls[platform.lang]);
+  const dict = await dictLoad;
   setDictionary(platform.lang, dict);
   setNumberLocale(platform.lang);
   // MU-01 (docs/07-mobile-ui.md «Токены»): the colours of the phone layout from theme.json as CSS variables.
@@ -277,14 +281,16 @@ async function boot(): Promise<void> {
   const levelOf = (w: World): ReturnType<typeof buildLevel> => buildLevel(w, { wallHeight: tuning.bounds?.wallHeight, cameraThrough: tuning.camera.seeThrough, grottoThrough: tuning.camera.grottoFrame === false });
   let level = levelOf(world);
   // M6 (docs/02-tech.md 9.5: a switch of mountains ≤ 1 s at CPU ×4): on the base the collision trees of the own mountain
-  // are built ahead, a slice a frame; its portal then takes them (src/sim/collision.ts). 0 — none asked yet.
-  let prebuiltFor = 0;
-  const prebuildWorld = (index: number): void => {
+  // are built ahead, a slice a frame; its portal then takes them (src/sim/collision.ts). 0 — none asked yet. M6 polish:
+  // slot 1 — a switch not by the own portal: the passed portal nearest to the hero on the base (a run again), and with no
+  // base the next mountain once the hero is half way up (its summit portal leads straight there).
+  let prebuiltFor = [0, 0];
+  const prebuildWorld = (index: number, slot = 0): void => {
     const w = content.worlds.worlds.find((x) => x.index === index);
-    if (!w || prebuiltFor === index) return;
-    prebuiltFor = index;
+    if (!w || prebuiltFor[slot] === index) return;
+    prebuiltFor[slot] = index;
     const l = levelOf(w);
-    prebuildCollision(l.staticTriangles, l.boundsTriangles);
+    prebuildCollision(l.staticTriangles, l.boundsTriangles, slot);
   };
   // Feel values (base and ceiling) come from tuning.json sliders; the curve shape from balance.json.
   // M5-09 (docs/01a-content.md 14): what the stat drives — the run (moveSpeed) or the jump (jumpPower, a flat run).
@@ -1041,6 +1047,7 @@ async function boot(): Promise<void> {
     onBase = false;
     replay = how.replay === true;
     basePortals = [];
+    prebuiltFor = [0, 0];
     baseView?.clear();
     hud?.setMountainShown(true);
     level = levelOf(world);
@@ -1105,7 +1112,7 @@ async function boot(): Promise<void> {
     const tier = reset?.tier ?? sim.tier;
     onBase = true;
     replay = false;
-    prebuiltFor = 0;
+    prebuiltFor = [0, 0];
     basePortals = b.portals;
     world = b.world;
     level = b.level;
@@ -1591,7 +1598,11 @@ async function boot(): Promise<void> {
       if (!openSummit(next)) go(flow({ kind: 'summit', world: next - 1, replay: false }));
     }
     // A portal of the base walked into (docs/01-gdd.md 19.4): the own mountain, or one passed — run again.
-    if (onBase) prebuildWorld(ownWorld(flowState()));
+    if (onBase) {
+      prebuildWorld(ownWorld(flowState()));
+      const near = nearestPassedPortal(basePortals, sim.hero.pos.x, sim.hero.pos.z);
+      if (near !== null) prebuildWorld(near, 1);
+    } else if (sim.hero.pos.z > level.length / 2 && !flowState().base && world) prebuildWorld(world.index + 1, 1);
     prebuildStep(performance.now() + PREBUILD_SLICE_MS);
     if (onBase && pendingPlace === null) {
       const w = basePortalEntered(basePortals, prevPos.x, prevPos.z, sim.hero.pos.x, sim.hero.pos.z);
@@ -1818,7 +1829,7 @@ async function boot(): Promise<void> {
 
   let testApi: TestApi | null = null;
   if (__TEST_API__) {
-    const mod = await import('./test-api/index.ts');
+    const mod = (await testApiLoad)!;
     testApi = mod.installTestApi(g);
     const sync = mod.mockClockSync;
     const base = loop.tick.bind(loop);
