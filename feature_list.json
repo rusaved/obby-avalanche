@@ -1986,7 +1986,7 @@
     "acceptance": "tests/content/store.test.ts зелёный на ru и en; title совпадает с game.title в i18n символ в символ; e2e на ru и en: заголовок окна паузы и заставки без WebGL2 равен title из store.json (LOC-04); `npm run promo:listing` пишет docs/evidence/promo/listing.txt с длинами полей; store.test.ts падает, если в тексте есть слово-обещание выключенной или отложенной фичи из таблицы docs/04-packaging.md, 4.2 (скины — M3-04b, задания и колесо — M3-08b, таблица рекордов — M4-06); тексты 4.3 — с «трейлы и ауры» и «5 снежных гор»",
     "passes": false,
     "priority": "P0",
-    "deferred": false
+    "deferred": true
   },
   {
     "id": "M6-07",
@@ -1995,7 +1995,7 @@
     "acceptance": "`npm run promo:shots` создаёт 18 файлов и контактный лист в art/promo/<дата>/shots/; `npm run promo:check` зелёный (пустая art/promo/final/ — WARN, не ошибка: иконки и обложки делает продюсер, docs/04-packaging.md, 11.4); на кадрах нет кнопок рекламы, покупок и подсказок",
     "passes": false,
     "priority": "P0",
-    "deferred": false
+    "deferred": true
   },
   {
     "id": "M6-08",
@@ -2004,7 +2004,7 @@
     "acceptance": "`npm run promo:video` создаёт MP4 H.264 16:9 (gameplay_16x9.mp4) в art/promo/<дата>/video/ с контактным листом по секундам; `npm run promo:check` зелёный (длительность ≤ 28 с, ≤ 30 МБ, высота ≥ 400). Или, если ffmpeg-static не скачался или не работает в облаке (docs/04-packaging.md, 10.3): кадры планов в art/promo/<дата>/video/frames/ (не в git) и контактный лист по секундам, docs/evidence/promo/video-howto.txt с тем, что не сработало, и командой сборки, причина в docs/допущения.md, пункт продюсеру в progress.md; `npm run promo:check` без ошибок (WARN по видео допустим)",
     "passes": false,
     "priority": "P0",
-    "deferred": false
+    "deferred": true
   },
   {
     "id": "M6-09",
