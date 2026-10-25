@@ -72,7 +72,11 @@ test('«Stand on the gold pad» only near the pad, with an arrow; the label from
   for (const [m, name] of [[34, 'pad-34m'], [25, 'pad-25m'], [17, 'pad-18m'], [8, 'pad-8m']] as const) {
     // On the pad's line, `m` short of it, facing it.
     await page.evaluate(([x, z, y]) => window.__TEST__!.teleport(z, x, y + 0.5), [pad.x * 0.9, pad.z - Math.sqrt(m * m - (pad.x * 0.1) ** 2), s3.y] as const);
-    await waitTicks(page, 40);
+    await waitTicks(page, 2);
+    // M6: entering an avalanche stage cuts the hold to its first delay (sim/threat.ts, SD-06) — hold again once inside,
+    // or its wave («Run to the finish!») takes the slot by the 8 m frame.
+    await page.evaluate(() => window.__TEST__!.holdWave(900));
+    await waitTicks(page, 38);
     await page.waitForTimeout(700);
     const s = await slot(page);
     const cover = await padCover(page, pad);
