@@ -33,8 +33,11 @@ test('mountain 1 → «Mountain 1 cleared!» → «Next» → the base (base_fir
   await page.setViewportSize({ width: 1280, height: 720 });
   // No avalanche on the base: the wave stays idle.
   expect(s.wave?.phase ?? 'idle').toBe('idle');
+  // M6: the base builds the collision trees of mountain 2 ahead, a slice a frame; its portal takes them.
+  await expect.poll(async () => page.evaluate(() => window.__TEST__!.prebuildReady()), { timeout: 60_000, intervals: [250] }).toBe(true);
 
   const sec = await intoPortal(page, 2);
+  expect(await page.evaluate(() => window.__TEST__!.prebuildReady()), 'the portal took the trees').toBe(false);
   console.log(`base → portal 2: ${sec.toFixed(1)} s of game time`);
   expect(sec).toBeLessThanOrEqual(10);
   s = await testState(page);

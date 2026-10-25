@@ -44,27 +44,36 @@ test('M5-06: draw calls, triangles, textures at 3 points of each of the 10 mount
   await page.evaluate(() => window.__TEST__!.gotoWorld(1));
   await waitTicks(page, 20);
   const before = (await page.evaluate(() => window.__TEST__!.renderInfo()))!;
+  const switchTo = (i: number): Promise<number> =>
+    page.evaluate((n) => {
+      const t0 = performance.now();
+      window.__TEST__!.gotoWorld(n);
+      window.__TEST__!.stepFrames(1);
+      return performance.now() - t0;
+    }, i);
+  // M6: the player switches from the base, where the own mountain's collision trees are built ahead a slice a frame
+  // (src/sim/collision.ts) — here built at full speed (a slice a frame at CPU ×4 takes minutes of test time), the switch
+  // itself at CPU ×4. For the record, one switch without the prebuild.
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
+  const cold = await switchTo(6);
+  await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+  await waitTicks(page, 20);
   const switches: number[] = [];
   for (const n of [2, 5, 8, 10, 1]) {
-    switches.push(
-      await page.evaluate((i) => {
-        const t0 = performance.now();
-        window.__TEST__!.gotoWorld(i);
-        window.__TEST__!.stepFrames(1);
-        return performance.now() - t0;
-      }, n),
-    );
+    await page.evaluate((i) => window.__TEST__!.prebuildWorld(i), n);
+    await expect.poll(async () => page.evaluate(() => window.__TEST__!.prebuildReady()), { timeout: 60_000, intervals: [200] }).toBe(true);
+    await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
+    switches.push(await switchTo(n));
+    await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
     await waitTicks(page, 20);
   }
-  await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
   const after = (await page.evaluate(() => window.__TEST__!.renderInfo()))!;
   writeFileSync(
     `${DIR}/budgets-render.txt`,
     [
       `M5-06 · budgets of rendering (docs/02-tech.md 9.5), pace stages, quality high, 960×540, build:e2e, SwiftShader, ${new Date().toISOString()}`,
       `worst: draw calls ${worst.calls} / ${LIMIT.calls}, triangles ${worst.triangles} / ${LIMIT.triangles}, textures ${worst.textures} / ${LIMIT.textures}`,
-      `switch of mountains at CPU x4: ${switches.map((x) => x.toFixed(0)).join(', ')} ms (max ${Math.max(...switches).toFixed(0)} / ${LIMIT.switchMs})`,
+      `switch of mountains at CPU x4, the trees built ahead (as from the base): ${switches.map((x) => x.toFixed(0)).join(', ')} ms (max ${Math.max(...switches).toFixed(0)} / ${LIMIT.switchMs}); without the prebuild: ${cold.toFixed(0)} ms`,
       `memory, mountain 1 before and after 5 switches: geometries ${before.geometries} -> ${after.geometries}, textures ${before.textures} -> ${after.textures}`,
       '',
       '| mountain | point | draw calls | triangles | textures |',

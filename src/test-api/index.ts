@@ -305,6 +305,10 @@ export interface TestApi {
   resetGiants(): void;
   /** To the camp of mountain `index` (1…5) as through a portal (M3-05: every mountain loads without errors). */
   gotoWorld(index: number): void;
+  /** M6: builds the collision trees of mountain `index` ahead, a slice a frame (as the base for the own mountain). */
+  prebuildWorld(index: number): void;
+  /** The trees of prebuildWorld are ready. */
+  prebuildReady(): boolean;
   /** Summits done on this tier, as after walking the portals of mountains 1…n (M3-06: the rebirth opens at the last). */
   setSummits(n: number): void;
   /** M4-04: a flag of the save, as the game would set it (noAds — as after the purchase). */
@@ -994,6 +998,8 @@ export function installTestApi(g: GameHandles): TestApi {
       }
     },
     gotoWorld: (index) => g.gotoWorld(index),
+    prebuildWorld: (index) => g.prebuildWorld(index),
+    prebuildReady: () => g.prebuildReady(),
     fmt: (n) => formatNumber(n, (k) => t(`num.${k}`)),
     setFlag(name, on) {
       (g.save.flags ??= {})[name] = on;

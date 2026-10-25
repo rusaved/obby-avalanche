@@ -93,6 +93,10 @@ export interface GameHandles {
   teleport(x: number, y: number, z: number): void;
   /** To the camp of mountain `index` as through a portal: the stat, coins and tier carry over (M3-05). */
   gotoWorld(index: number): void;
+  /** M6: the collision trees of mountain `index` built ahead a slice a frame, as the base does for the own mountain. */
+  prebuildWorld(index: number): void;
+  /** The trees asked by prebuildWorld are ready (a portal to that mountain takes them). */
+  prebuildReady(): boolean;
   /** Runs the rebirth now when it is open (the «Rebirth» button of the window, M3-06). */
   rebirth(): void;
   /** The rebirth button and windows (M3-06). */

@@ -77,6 +77,7 @@ import { createDecor, type Decor } from './render/decor.ts';
 import { buildLevel } from './level/builder.ts';
 import { eggSpotIn } from './sim/gift-egg.ts';
 import { createSim, controllerParams, type Sim } from './sim/world.ts';
+import { prebuildCollision, prebuildReady, prebuildStep } from './sim/collision.ts';
 import { HERO_HEIGHT } from './sim/controller.ts';
 import { setFullNumbersBelow, formatNumber, formatTimer, setNumberLocale, shownTier } from './ui/format.ts';
 import { moveSpeed } from './sim/effects/moveSpeed.ts';
@@ -107,6 +108,8 @@ const DEG = Math.PI / 180;
 const GAIN_POP_MIN_SEC = 0.25;
 /** MU-05 (docs/07-mobile-ui.md, rule 11): the level toast holds the slot this long. */
 const LEVEL_TOAST_SEC = 1.2;
+/** M6: the share of a frame the base gives to building the next mountain's collision trees ahead (ms). */
+const PREBUILD_SLICE_MS = 6;
 /** MU-01: numbers in full below this (above — «1,23M»). */
 const FULL_NUMBERS_BELOW = 1_000_000;
 /** MU-05: «+N» right of the hero's head — at this share of the hero's height, this many px to the right. */
@@ -271,7 +274,18 @@ async function boot(): Promise<void> {
   // Back after F5 or another day (docs/01-gdd.md 6.6): the mountain of the save, the hero at its farthest flag.
   let world = content.worlds.worlds.find((w) => w.index === save.world) ?? content.worlds.worlds[0];
   if (!world) throw new Error('worlds.json has no worlds');
-  let level = buildLevel(world, { wallHeight: tuning.bounds?.wallHeight, cameraThrough: tuning.camera.seeThrough, grottoThrough: tuning.camera.grottoFrame === false });
+  const levelOf = (w: World): ReturnType<typeof buildLevel> => buildLevel(w, { wallHeight: tuning.bounds?.wallHeight, cameraThrough: tuning.camera.seeThrough, grottoThrough: tuning.camera.grottoFrame === false });
+  let level = levelOf(world);
+  // M6 (docs/02-tech.md 9.5: a switch of mountains ≤ 1 s at CPU ×4): on the base the collision trees of the own mountain
+  // are built ahead, a slice a frame; its portal then takes them (src/sim/collision.ts). 0 — none asked yet.
+  let prebuiltFor = 0;
+  const prebuildWorld = (index: number): void => {
+    const w = content.worlds.worlds.find((x) => x.index === index);
+    if (!w || prebuiltFor === index) return;
+    prebuiltFor = index;
+    const l = levelOf(w);
+    prebuildCollision(l.staticTriangles, l.boundsTriangles);
+  };
   // Feel values (base and ceiling) come from tuning.json sliders; the curve shape from balance.json.
   // M5-09 (docs/01a-content.md 14): what the stat drives — the run (moveSpeed) or the jump (jumpPower, a flat run).
   const curves = () => statCurves(game.stat.effect, { ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed }, balance.jumpCurve);
@@ -850,6 +864,10 @@ async function boot(): Promise<void> {
     gotoWorld(index) {
       enterWorld(index);
     },
+    prebuildWorld(index) {
+      prebuildWorld(index);
+    },
+    prebuildReady: () => prebuildReady(),
     rebirth() {
       rebirth();
     },
@@ -1025,7 +1043,7 @@ async function boot(): Promise<void> {
     basePortals = [];
     baseView?.clear();
     hud?.setMountainShown(true);
-    level = buildLevel(world, { wallHeight: tuning.bounds?.wallHeight, cameraThrough: tuning.camera.seeThrough, grottoThrough: tuning.camera.grottoFrame === false });
+    level = levelOf(world);
     // A new entry (a portal, the rebirth): all its gifts back (RL-08); a run again from the base keeps the save's own.
     if (!replay) freshGifts(save, index);
     // From the base portal of the own mountain begun (docs/01-gdd.md 19.4): at the flag of its farthest ridge, as 6.6.
@@ -1087,6 +1105,7 @@ async function boot(): Promise<void> {
     const tier = reset?.tier ?? sim.tier;
     onBase = true;
     replay = false;
+    prebuiltFor = 0;
     basePortals = b.portals;
     world = b.world;
     level = b.level;
@@ -1572,6 +1591,8 @@ async function boot(): Promise<void> {
       if (!openSummit(next)) go(flow({ kind: 'summit', world: next - 1, replay: false }));
     }
     // A portal of the base walked into (docs/01-gdd.md 19.4): the own mountain, or one passed — run again.
+    if (onBase) prebuildWorld(ownWorld(flowState()));
+    prebuildStep(performance.now() + PREBUILD_SLICE_MS);
     if (onBase && pendingPlace === null) {
       const w = basePortalEntered(basePortals, prevPos.x, prevPos.z, sim.hero.pos.x, sim.hero.pos.z);
       if (w !== null) {

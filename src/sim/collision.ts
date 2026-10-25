@@ -68,9 +68,17 @@ class BoundsOctree extends Octree {
   }
 
   override split(level: number): this {
+    const todo: Array<[BoundsOctree, number]> = [[this, level]];
+    let next: [BoundsOctree, number] | undefined;
+    while ((next = todo.pop())) next[0].splitOnce(next[1], todo);
+    return this;
+  }
+
+  /** M6: one node of the split; its children to split go to `todo` (any order of nodes gives the same tree). */
+  splitOnce(level: number, todo: Array<[BoundsOctree, number]>): void {
     const self = this as unknown as OctreeInner;
     const box = self.box;
-    if (!box) return this;
+    if (!box) return;
     const half = new Vector3().copy(box.max).sub(box.min).multiplyScalar(0.5);
     const subs: BoundsOctree[] = [];
     const v = new Vector3();
@@ -96,10 +104,9 @@ class BoundsOctree extends Octree {
     }
     for (const sub of subs) {
       const len = (sub as unknown as OctreeInner).triangles.length;
-      if (len > self.trianglesPerLeaf && level < self.maxLevel) sub.split(level + 1);
+      if (len > self.trianglesPerLeaf && level < self.maxLevel) todo.push([sub, level + 1]);
       if (len !== 0) self.subTrees.push(sub);
     }
-    return this;
   }
 }
 
@@ -110,7 +117,14 @@ function countLeafTriangles(tree: Octree, seen = new Set<Triangle>()): number {
   return seen.size;
 }
 
-export function octreeFromTriangles(tris: Float32Array | number[]): Octree {
+/** M6: a build of the tree cut into slices between frames — the same split, so the same tree as octreeFromTriangles. */
+export interface OctreeJob {
+  /** Works until `deadline` (performance.now()); true once the tree is ready. */
+  step(deadline: number): boolean;
+  readonly tree: Octree | null;
+}
+
+export function octreeJob(tris: Float32Array | number[]): OctreeJob {
   const triangles: Triangle[] = [];
   for (let i = 0; i + 8 < tris.length; i += 9) {
     triangles.push(
@@ -121,15 +135,92 @@ export function octreeFromTriangles(tris: Float32Array | number[]): Octree {
       ),
     );
   }
-  let tree: Octree = new BoundsOctree();
-  for (const pad of OCTREE_PADDINGS) {
-    tree = new BoundsOctree();
-    for (const t of triangles) tree.addTriangle(t);
-    if (triangles.length > 0) (tree as unknown as { bounds: { expandByScalar(s: number): void } }).bounds.expandByScalar(pad);
-    tree.build();
-    if (countLeafTriangles(tree) === triangles.length) return tree;
-  }
-  throw new Error('octreeFromTriangles: triangles lost on split boundaries');
+  let pad = 0;
+  let tree: BoundsOctree | null = null;
+  let todo: Array<[BoundsOctree, number]> = [];
+  let done: Octree | null = null;
+  return {
+    get tree() {
+      return done;
+    },
+    step(deadline) {
+      while (!done) {
+        if (!tree) {
+          if (pad >= OCTREE_PADDINGS.length) throw new Error('octreeFromTriangles: triangles lost on split boundaries');
+          // As Octree.build: the bounds, then calcBox, then the split from level 0.
+          tree = new BoundsOctree();
+          for (const t of triangles) tree.addTriangle(t);
+          if (triangles.length > 0) (tree as unknown as { bounds: { expandByScalar(s: number): void } }).bounds.expandByScalar(OCTREE_PADDINGS[pad]!);
+          tree.calcBox();
+          todo = [[tree, 0]];
+        }
+        let next: [BoundsOctree, number] | undefined;
+        while ((next = todo.pop())) {
+          next[0].splitOnce(next[1], todo);
+          if (todo.length > 0 && performance.now() >= deadline) return false;
+        }
+        if (countLeafTriangles(tree) === triangles.length) done = tree;
+        else {
+          tree = null;
+          pad++;
+        }
+      }
+      return true;
+    },
+  };
+}
+
+export function octreeFromTriangles(tris: Float32Array | number[]): Octree {
+  const job = octreeJob(tris);
+  job.step(Infinity);
+  return job.tree!;
+}
+
+/** The triangles of a level as a key: equal arrays give equal trees (the build is deterministic). */
+function trianglesKey(tris: Float32Array | number[] | undefined): string {
+  if (!tris || tris.length === 0) return '0';
+  const f = tris instanceof Float32Array ? tris : Float32Array.from(tris);
+  const u = new Uint32Array(f.buffer, f.byteOffset, f.length);
+  let h = 2166136261;
+  for (let i = 0; i < u.length; i++) h = Math.imul(h ^ u[i]!, 16777619);
+  return `${f.length}:${(h >>> 0).toString(36)}`;
+}
+
+/**
+ * M6 (docs/02-tech.md 9.5: a switch of mountains ≤ 1 s at CPU ×4): the trees of the next mountain built ahead, in slices
+ * (the base calls step each frame). One at a time: a new prebuild drops the old, createCollisionWorld takes it once
+ * (finishing it there if it is not done) and lets it go — never two mountains' trees held for long.
+ */
+interface Prebuild {
+  key: string;
+  jobs: [OctreeJob, OctreeJob | null];
+}
+let prebuild: Prebuild | null = null;
+
+export function prebuildCollision(staticTriangles: Float32Array | number[], boundsTriangles?: Float32Array | number[]): void {
+  const key = `${trianglesKey(staticTriangles)}|${trianglesKey(boundsTriangles)}`;
+  if (prebuild?.key === key) return;
+  prebuild = { key, jobs: [octreeJob(staticTriangles), boundsTriangles && boundsTriangles.length > 0 ? octreeJob(boundsTriangles) : null] };
+}
+
+/** One slice of the prebuild until `deadline`; true when there is none or it is ready. */
+export function prebuildStep(deadline: number): boolean {
+  if (!prebuild) return true;
+  for (const j of prebuild.jobs) if (j && !j.step(deadline)) return false;
+  return true;
+}
+
+export function prebuildReady(): boolean {
+  return !!prebuild && prebuild.jobs.every((j) => !j || j.tree !== null);
+}
+
+function takePrebuilt(staticTriangles: Float32Array | number[], boundsTriangles?: Float32Array | number[]): { s: Octree; b: Octree | null } | null {
+  const p = prebuild;
+  if (!p) return null;
+  prebuild = null;
+  if (p.key !== `${trianglesKey(staticTriangles)}|${trianglesKey(boundsTriangles)}`) return null;
+  for (const j of p.jobs) j?.step(Infinity);
+  return { s: p.jobs[0].tree!, b: p.jobs[1]?.tree ?? null };
 }
 
 export function boxTriangles(b: Aabb, out: number[] = []): number[] {
@@ -148,8 +239,9 @@ export function boxTriangles(b: Aabb, out: number[] = []): number[] {
 }
 
 export function createCollisionWorld(staticTriangles: Float32Array | number[], boundsTriangles?: Float32Array | number[]): CollisionWorld {
-  const staticTree = octreeFromTriangles(staticTriangles);
-  const boundsTree = boundsTriangles && boundsTriangles.length > 0 ? octreeFromTriangles(boundsTriangles) : null;
+  const pre = takePrebuilt(staticTriangles, boundsTriangles);
+  const staticTree = pre ? pre.s : octreeFromTriangles(staticTriangles);
+  const boundsTree = pre ? pre.b : boundsTriangles && boundsTriangles.length > 0 ? octreeFromTriangles(boundsTriangles) : null;
   const world: CollisionWorld = {
     static: staticTree,
     dynamic: null,
