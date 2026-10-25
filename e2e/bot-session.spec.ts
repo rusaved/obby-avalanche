@@ -15,6 +15,7 @@ import type { WorldStage } from '../src/content/types.ts';
 const SCALE = 20;
 const GAME_SEC = 600;
 const PAUSE_EVERY = 150;
+const WAVE_WAIT = 90;
 const REPORT = 'docs/evidence/M6/bot-session.txt';
 type Seg = { type: string; z: number; [k: string]: unknown };
 
@@ -51,7 +52,8 @@ const pathOf = (world: number, st: WorldStage): Array<[number, number]> =>
         : [[0, st.end + 6]];
 
 const log: string[] = [];
-const counts = { stages: 0, boosts: 0, rollBacks: 0, skips: 0, pauses: 0, rewarded: 0, windows: 0 };
+let idleSec = 0;
+const counts = { stages: 0, own: 0, teleports: 0, wavesCalled: 0, boosts: 0, rollBacks: 0, skips: 0, pauses: 0, rewarded: 0, windows: 0 };
 const gameSec = async (page: Page): Promise<number> => (await testState(page)).ticks / 60;
 
 /** The game runs on and the hero moves: ticks go, no pause reason, the hero ahead by the bot (no frozen state). */
@@ -82,8 +84,11 @@ async function pauseAndBack(page: Page): Promise<void> {
 async function pass(page: Page, world: number, st: WorldStage): Promise<void> {
   const f = flagOf(world, st);
   const s0 = await testState(page);
-  if (Math.abs(s0.hero!.z - f.z) > 12) await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.5), [f.z, f.y] as const);
-  if (s0.stat < threshold(st.level)) {
+  const tele = Math.abs(s0.hero!.z - f.z) > 12;
+  if (tele) counts.teleports++;
+  if (tele) await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.5), [f.z, f.y] as const);
+  const boost = s0.stat < threshold(st.level);
+  if (boost) {
     counts.boosts++;
     await page.evaluate((s) => window.__TEST__!.setStat(s), threshold(st.level) * 1.01);
   }
@@ -93,10 +98,15 @@ async function pass(page: Page, world: number, st: WorldStage): Promise<void> {
   await page.evaluate((p) => window.__TEST__!.botPath(p), pathOf(world, st));
   let sh: { mouth: [number, number]; inside: [number, number] } | null = null;
   if (st.type === 'avalanche') {
-    // The wave of the stage comes on entering it; if the bot's run already let it go by, the next one is called.
-    const warned = await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'warn', undefined, { timeout: 30_000 }).then(() => true, () => false);
-    if (!warned) {
-      log.push(`${(await gameSec(page)).toFixed(0)} s: no wave on the avalanche stage in 30 s of real time — called (triggerWave)`);
+    // The wave of the stage comes on entering it. Waited for up to WAVE_WAIT game seconds (M6 review: 491 s of idle were
+    // counted as play), then called and counted — that time is not play time; «the wave did not come» is in the report.
+    const t0 = (await testState(page)).ticks;
+    await page.waitForFunction((t) => window.__TEST__!.state().wave?.phase === 'warn' || window.__TEST__!.state().ticks >= t, t0 + WAVE_WAIT * 60, { timeout: 120_000 });
+    const s1 = await testState(page);
+    if (s1.wave?.phase !== 'warn') {
+      counts.wavesCalled++;
+      idleSec += (s1.ticks - t0) / 60;
+      log.push(`${(s1.ticks / 60).toFixed(0)} s: no wave on the avalanche stage in ${WAVE_WAIT} game seconds — called (triggerWave)`);
       await page.evaluate(() => window.__TEST__!.triggerWave());
       await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'warn', undefined, { timeout: 30_000 });
     }
@@ -122,6 +132,7 @@ async function pass(page: Page, world: number, st: WorldStage): Promise<void> {
   const s = await testState(page);
   const how = s.caught ? 'caught' : s.rollFrom !== roll0 ? 'rolled back' : 'passed';
   if (how !== 'passed') counts.rollBacks++;
+  else if (!tele && !boost) counts.own++;
   counts.stages++;
   log.push(`${(s.ticks / 60).toFixed(0)} s: mountain ${world} stage ${st.n} (${st.type}) ${how}`);
   await page.evaluate(() => window.__TEST__!.botPath(null));
@@ -146,14 +157,14 @@ test('@full M6-03 bot session: 10 minutes of game time, seed 7, release pace —
   let nextPause = PAUSE_EVERY;
   const maybePause = async (): Promise<void> => {
     if ((await gameSec(page)) >= nextPause) {
-      nextPause += PAUSE_EVERY;
+      nextPause = (await gameSec(page)) + PAUSE_EVERY;
       await pauseAndBack(page);
     }
   };
   let summitSec = 0;
   // Mountain by mountain: every stage, the portal of the summit (the window, «▶ Ad: ×2 chest», «Next»), the base and
   // its portal to the next one — until 10 minutes of game time.
-  for (let wi = 1; wi <= STAGES.length && (await gameSec(page)) < GAME_SEC; wi++) {
+  for (let wi = 1; wi <= STAGES.length && (await gameSec(page)) - idleSec < GAME_SEC; wi++) {
     const W = STAGES[wi - 1]!;
     for (const st of W.stages) {
       await pass(page, wi, st);
@@ -192,7 +203,8 @@ test('@full M6-03 bot session: 10 minutes of game time, seed 7, release pace —
     REPORT,
     [
       `M6-03 · bot session, seed 7, pace stages, setTimeScale(${SCALE}), build:e2e, ${new Date().toISOString()}`,
-      `game time ${(s.ticks / 60).toFixed(0)} s (goal ${GAME_SEC}); the summit of mountain 1 at ${summitSec.toFixed(0)} s`,
+      `game time ${(s.ticks / 60).toFixed(0)} s, of them waiting for a wave that did not come ${idleSec.toFixed(0)} s — play ${(s.ticks / 60 - idleSec).toFixed(0)} s (goal ${GAME_SEC}); the summit of mountain 1 at ${summitSec.toFixed(0)} s`,
+      `on its own (no teleport to the flag, no Speed given, not caught): ${counts.own} of ${counts.stages} stages; teleports to a flag ${counts.teleports}; waves called after ${WAVE_WAIT} s of waiting ${counts.wavesCalled}; the giant is gone round by x = 40 (not the calibrated route)`,
       `stages ${counts.stages}, caught or rolled back ${counts.rollBacks} (then put past the stage ${counts.skips}), Speed given as from a treadmill ${counts.boosts} times; pauses ${counts.pauses}, windows ${counts.windows}, rewarded pressed ${counts.rewarded}`,
       `SDK mock: violations ${mock.violations}, fullscreen ads ${mock.fullscreen}, rewarded ${mock.rewarded}; console errors and page errors — the fixture (0, or the test fails)`,
       '',
@@ -201,6 +213,6 @@ test('@full M6-03 bot session: 10 minutes of game time, seed 7, release pace —
     ].join('\n'),
   );
   expect(mock.violations).toBe(0);
-  expect(s.ticks / 60).toBeGreaterThanOrEqual(GAME_SEC);
+  expect(s.ticks / 60 - idleSec).toBeGreaterThanOrEqual(GAME_SEC);
   await runsOn(page, 'at the end');
 });
