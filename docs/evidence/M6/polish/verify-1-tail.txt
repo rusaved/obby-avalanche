@@ -1,0 +1,384 @@
+tail of verify:full after the e2e stage, 56f81cc, start 2026-10-25T21:29:03Z
+== tail: e2e:sample
+vite v8.3.2 building client environment for e2e...
+transforming...
+<script src="/sdk.js"> in "/index.html" can't be bundled without type="module" attribute
+✓ 190 modules transformed.
+rendering chunks...
+computing gzip size...
+dist-e2e-sample/index.html                                         1.72 kB │ gzip:   0.93 kB
+dist-e2e-sample/assets/rubik-cyrillic-800-normal-wonQiwhm.woff2    7.85 kB
+dist-e2e-sample/assets/rubik-cyrillic-600-normal-AdySaCq0.woff2    7.90 kB
+dist-e2e-sample/assets/rubik-cyrillic-700-normal-DFnztZBh.woff2    7.90 kB
+dist-e2e-sample/assets/rubik-cyrillic-500-normal-Didq2w9O.woff2    7.92 kB
+dist-e2e-sample/assets/en-BqYy_QXL.json                            8.31 kB │ gzip:   2.81 kB
+dist-e2e-sample/assets/rubik-cyrillic-800-normal-DocVmW4N.woff     9.85 kB
+dist-e2e-sample/assets/rubik-cyrillic-700-normal-C_jxLOfU.woff     9.87 kB
+dist-e2e-sample/assets/rubik-cyrillic-600-normal-CtS_KWzi.woff     9.89 kB
+dist-e2e-sample/assets/rubik-cyrillic-500-normal-BH_pkKR0.woff     9.92 kB
+dist-e2e-sample/assets/ru-COq2nqTD.json                           10.94 kB │ gzip:   3.64 kB
+dist-e2e-sample/assets/1-BN7IT56u.mp3                             17.17 kB
+dist-e2e-sample/assets/1-BVny-jN9.mp3                             17.17 kB
+dist-e2e-sample/assets/1-CP3C_qXY.mp3                             17.17 kB
+dist-e2e-sample/assets/1-DQLOuCnM.mp3                             17.17 kB
+dist-e2e-sample/assets/1-DUTY0SV5.mp3                             17.17 kB
+dist-e2e-sample/assets/1-gSaViLAo.mp3                             17.17 kB
+dist-e2e-sample/assets/2-83wtGG6r.mp3                             17.17 kB
+dist-e2e-sample/assets/2-BzuV1erg.mp3                             17.17 kB
+dist-e2e-sample/assets/2-CK6gaR7E.mp3                             17.17 kB
+dist-e2e-sample/assets/2-CzofyL7K.mp3                             17.17 kB
+dist-e2e-sample/assets/2-D-PP5Pz4.mp3                             17.17 kB
+dist-e2e-sample/assets/2-vl6dV_Xq.mp3                             17.17 kB
+dist-e2e-sample/assets/3-C8SPF8Q5.mp3                             17.17 kB
+dist-e2e-sample/assets/3-CaWfxQbg.mp3                             17.17 kB
+dist-e2e-sample/assets/3-Cvtbo-7Q.mp3                             17.17 kB
+dist-e2e-sample/assets/3-D8pGxtPh.mp3                             17.17 kB
+dist-e2e-sample/assets/3-EDy5jjBy.mp3                             17.17 kB
+dist-e2e-sample/assets/4-BvGHYDEo.mp3                             17.17 kB
+dist-e2e-sample/assets/4-C-jIC94z.mp3                             17.17 kB
+dist-e2e-sample/assets/4-CHs3j__0.mp3                             17.17 kB
+dist-e2e-sample/assets/4-CJ7_h6Iw.mp3                             17.17 kB
+dist-e2e-sample/assets/4-CjOsbRXB.mp3                             17.17 kB
+dist-e2e-sample/assets/rubik-latin-500-normal-1os41rQk.woff2      19.03 kB
+dist-e2e-sample/assets/rubik-latin-600-normal-7iWW07_k.woff2      19.06 kB
+dist-e2e-sample/assets/rubik-latin-800-normal-BtaGuVpR.woff2      19.06 kB
+dist-e2e-sample/assets/rubik-latin-700-normal-D-tMm-eS.woff2      19.11 kB
+dist-e2e-sample/assets/rubik-latin-800-normal-Dq1miTTj.woff       24.17 kB
+dist-e2e-sample/assets/rubik-latin-500-normal-LZYVHeqz.woff       24.21 kB
+dist-e2e-sample/assets/rubik-latin-600-normal-Bd1rsTk4.woff       24.21 kB
+dist-e2e-sample/assets/rubik-latin-700-normal-KHOtubUA.woff       24.28 kB
+dist-e2e-sample/assets/level-up-CA_B7FUa.mp3                      33.06 kB
+dist-e2e-sample/assets/reward-coins-Cb3RXhlr.mp3                  33.06 kB
+dist-e2e-sample/assets/reward-trophy-CEJUg0DD.mp3                 33.06 kB
+dist-e2e-sample/assets/index-DlJJ55FI.css                         77.90 kB │ gzip:  14.88 kB
+dist-e2e-sample/assets/ZzFX-C1HKDoVW.js                            2.00 kB │ gzip:   1.17 kB
+dist-e2e-sample/assets/test-api-_H2Y0RsY.js                       20.27 kB │ gzip:   8.04 kB
+dist-e2e-sample/assets/debug-CViUbybK.js                          47.26 kB │ gzip:  15.10 kB
+dist-e2e-sample/assets/index-DseyLscg.js                         985.26 kB │ gzip: 287.87 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 900 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.13s
+
+Running 2 tests using 2 workers
+
+  ✓  2 [desktop] › e2e/sample.spec.ts:4:1 › sample pack boots, renders and calls ready() once (4.2s)
+  ✓  1 [desktop] › e2e/sample.spec.ts:19:1 › sample pack: the jump grows with the stat, the run does not; the frame (10.8s)
+
+  2 passed (13.1s)
+-- tail: e2e:sample exit 0, 16 s
+== tail: build
+vite v8.3.2 building client environment for production...
+transforming...
+<script src="/sdk.js"> in "/index.html" can't be bundled without type="module" attribute
+✓ 197 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                           1.73 kB │ gzip:   0.93 kB
+dist/assets/rubik-cyrillic-800-normal-wonQiwhm.woff2      7.85 kB
+dist/assets/rubik-cyrillic-600-normal-AdySaCq0.woff2      7.90 kB
+dist/assets/rubik-cyrillic-700-normal-DFnztZBh.woff2      7.90 kB
+dist/assets/rubik-cyrillic-500-normal-Didq2w9O.woff2      7.92 kB
+dist/assets/rubik-cyrillic-800-normal-DocVmW4N.woff       9.85 kB
+dist/assets/rubik-cyrillic-700-normal-C_jxLOfU.woff       9.87 kB
+dist/assets/rubik-cyrillic-600-normal-CtS_KWzi.woff       9.89 kB
+dist/assets/rubik-cyrillic-500-normal-BH_pkKR0.woff       9.92 kB
+dist/assets/1-BN7IT56u.mp3                               17.17 kB
+dist/assets/1-BVny-jN9.mp3                               17.17 kB
+dist/assets/1-CP3C_qXY.mp3                               17.17 kB
+dist/assets/1-DQLOuCnM.mp3                               17.17 kB
+dist/assets/1-DUTY0SV5.mp3                               17.17 kB
+dist/assets/1-gSaViLAo.mp3                               17.17 kB
+dist/assets/2-83wtGG6r.mp3                               17.17 kB
+dist/assets/2-BzuV1erg.mp3                               17.17 kB
+dist/assets/2-CK6gaR7E.mp3                               17.17 kB
+dist/assets/2-CzofyL7K.mp3                               17.17 kB
+dist/assets/2-D-PP5Pz4.mp3                               17.17 kB
+dist/assets/2-vl6dV_Xq.mp3                               17.17 kB
+dist/assets/3-C8SPF8Q5.mp3                               17.17 kB
+dist/assets/3-CaWfxQbg.mp3                               17.17 kB
+dist/assets/3-Cvtbo-7Q.mp3                               17.17 kB
+dist/assets/3-D8pGxtPh.mp3                               17.17 kB
+dist/assets/3-EDy5jjBy.mp3                               17.17 kB
+dist/assets/4-BvGHYDEo.mp3                               17.17 kB
+dist/assets/4-C-jIC94z.mp3                               17.17 kB
+dist/assets/4-CHs3j__0.mp3                               17.17 kB
+dist/assets/4-CJ7_h6Iw.mp3                               17.17 kB
+dist/assets/4-CjOsbRXB.mp3                               17.17 kB
+dist/assets/rubik-latin-500-normal-1os41rQk.woff2        19.03 kB
+dist/assets/rubik-latin-600-normal-7iWW07_k.woff2        19.06 kB
+dist/assets/rubik-latin-800-normal-BtaGuVpR.woff2        19.06 kB
+dist/assets/rubik-latin-700-normal-D-tMm-eS.woff2        19.11 kB
+dist/assets/en-CKyhPl7c.json                             19.27 kB │ gzip:   6.13 kB
+dist/assets/rubik-latin-800-normal-Dq1miTTj.woff         24.17 kB
+dist/assets/rubik-latin-500-normal-LZYVHeqz.woff         24.21 kB
+dist/assets/rubik-latin-600-normal-Bd1rsTk4.woff         24.21 kB
+dist/assets/rubik-latin-700-normal-KHOtubUA.woff         24.28 kB
+dist/assets/ru-CW_8Q702.json                             25.26 kB │ gzip:   7.72 kB
+dist/assets/level-up-CA_B7FUa.mp3                        33.06 kB
+dist/assets/reward-coins-Cb3RXhlr.mp3                    33.06 kB
+dist/assets/reward-trophy-CEJUg0DD.mp3                   33.06 kB
+dist/assets/index-DlJJ55FI.css                           77.90 kB │ gzip:  14.88 kB
+dist/assets/ZzFX-C1HKDoVW.js                              2.00 kB │ gzip:   1.17 kB
+dist/assets/index-Di_rEfBk.js                         1,823.72 kB │ gzip: 407.36 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 900 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.75s
+-- tail: build exit 0, 2 s
+== tail: size
+size: dist
+  assets/1-BN7IT56u.mp3                               16.8 KB 
+  assets/1-BVny-jN9.mp3                               16.8 KB 
+  assets/1-CP3C_qXY.mp3                               16.8 KB 
+  assets/1-DQLOuCnM.mp3                               16.8 KB 
+  assets/1-DUTY0SV5.mp3                               16.8 KB 
+  assets/1-gSaViLAo.mp3                               16.8 KB 
+  assets/2-83wtGG6r.mp3                               16.8 KB 
+  assets/2-BzuV1erg.mp3                               16.8 KB 
+  assets/2-CK6gaR7E.mp3                               16.8 KB 
+  assets/2-CzofyL7K.mp3                               16.8 KB 
+  assets/2-D-PP5Pz4.mp3                               16.8 KB 
+  assets/2-vl6dV_Xq.mp3                               16.8 KB 
+  assets/3-C8SPF8Q5.mp3                               16.8 KB 
+  assets/3-CaWfxQbg.mp3                               16.8 KB 
+  assets/3-Cvtbo-7Q.mp3                               16.8 KB 
+  assets/3-D8pGxtPh.mp3                               16.8 KB 
+  assets/3-EDy5jjBy.mp3                               16.8 KB 
+  assets/4-BvGHYDEo.mp3                               16.8 KB 
+  assets/4-C-jIC94z.mp3                               16.8 KB 
+  assets/4-CHs3j__0.mp3                               16.8 KB 
+  assets/4-CJ7_h6Iw.mp3                               16.8 KB 
+  assets/4-CjOsbRXB.mp3                               16.8 KB 
+  assets/en-CKyhPl7c.json                             18.8 KB 
+  assets/index-Di_rEfBk.js                          1781.0 KB gzip 390.8 KB
+  assets/index-DlJJ55FI.css                           76.1 KB 
+  assets/level-up-CA_B7FUa.mp3                        32.3 KB 
+  assets/reward-coins-Cb3RXhlr.mp3                    32.3 KB 
+  assets/reward-trophy-CEJUg0DD.mp3                   32.3 KB 
+  assets/ru-CW_8Q702.json                             24.7 KB 
+  assets/rubik-cyrillic-500-normal-BH_pkKR0.woff       9.7 KB 
+  assets/rubik-cyrillic-500-normal-Didq2w9O.woff2      7.7 KB 
+  assets/rubik-cyrillic-600-normal-AdySaCq0.woff2      7.7 KB 
+  assets/rubik-cyrillic-600-normal-CtS_KWzi.woff       9.7 KB 
+  assets/rubik-cyrillic-700-normal-C_jxLOfU.woff       9.6 KB 
+  assets/rubik-cyrillic-700-normal-DFnztZBh.woff2      7.7 KB 
+  assets/rubik-cyrillic-800-normal-DocVmW4N.woff       9.6 KB 
+  assets/rubik-cyrillic-800-normal-wonQiwhm.woff2      7.7 KB 
+  assets/rubik-latin-500-normal-1os41rQk.woff2        18.6 KB 
+  assets/rubik-latin-500-normal-LZYVHeqz.woff         23.6 KB 
+  assets/rubik-latin-600-normal-7iWW07_k.woff2        18.6 KB 
+  assets/rubik-latin-600-normal-Bd1rsTk4.woff         23.6 KB 
+  assets/rubik-latin-700-normal-D-tMm-eS.woff2        18.7 KB 
+  assets/rubik-latin-700-normal-KHOtubUA.woff         23.7 KB 
+  assets/rubik-latin-800-normal-BtaGuVpR.woff2        18.6 KB 
+  assets/rubik-latin-800-normal-Dq1miTTj.woff         23.6 KB 
+  assets/ZzFX-C1HKDoVW.js                              2.0 KB gzip 1.1 KB
+  index.html                                           1.7 KB 
+  total 2608.7 KB (target 4096.0 KB, limit 10240.0 KB)
+  js 1782.9 KB → gzip 391.9 KB (target 500.0 KB, limit 800.0 KB)
+-- tail: size exit 0, 0 s
+== tail: pack
+pack: 47 files, 2608.7 KB → release/avalanche-0.1.0.zip 1133.7 KB
+-- tail: pack exit 0, 1 s
+== tail: check-release
+check-release: release/avalanche-0.1.0.zip
+date: 2026-10-25T21:29:22.761Z
+files: 47
+  assets/1-BN7IT56u.mp3  16.8 KB
+  assets/1-BVny-jN9.mp3  16.8 KB
+  assets/1-CP3C_qXY.mp3  16.8 KB
+  assets/1-DQLOuCnM.mp3  16.8 KB
+  assets/1-DUTY0SV5.mp3  16.8 KB
+  assets/1-gSaViLAo.mp3  16.8 KB
+  assets/2-83wtGG6r.mp3  16.8 KB
+  assets/2-BzuV1erg.mp3  16.8 KB
+  assets/2-CK6gaR7E.mp3  16.8 KB
+  assets/2-CzofyL7K.mp3  16.8 KB
+  assets/2-D-PP5Pz4.mp3  16.8 KB
+  assets/2-vl6dV_Xq.mp3  16.8 KB
+  assets/3-C8SPF8Q5.mp3  16.8 KB
+  assets/3-CaWfxQbg.mp3  16.8 KB
+  assets/3-Cvtbo-7Q.mp3  16.8 KB
+  assets/3-D8pGxtPh.mp3  16.8 KB
+  assets/3-EDy5jjBy.mp3  16.8 KB
+  assets/4-BvGHYDEo.mp3  16.8 KB
+  assets/4-C-jIC94z.mp3  16.8 KB
+  assets/4-CHs3j__0.mp3  16.8 KB
+  assets/4-CJ7_h6Iw.mp3  16.8 KB
+  assets/4-CjOsbRXB.mp3  16.8 KB
+  assets/ZzFX-C1HKDoVW.js  2.0 KB
+  assets/en-CKyhPl7c.json  18.8 KB
+  assets/index-Di_rEfBk.js  1781.0 KB
+  assets/index-DlJJ55FI.css  76.1 KB
+  assets/level-up-CA_B7FUa.mp3  32.3 KB
+  assets/reward-coins-Cb3RXhlr.mp3  32.3 KB
+  assets/reward-trophy-CEJUg0DD.mp3  32.3 KB
+  assets/ru-CW_8Q702.json  24.7 KB
+  assets/rubik-cyrillic-500-normal-BH_pkKR0.woff  9.7 KB
+  assets/rubik-cyrillic-500-normal-Didq2w9O.woff2  7.7 KB
+  assets/rubik-cyrillic-600-normal-AdySaCq0.woff2  7.7 KB
+  assets/rubik-cyrillic-600-normal-CtS_KWzi.woff  9.7 KB
+  assets/rubik-cyrillic-700-normal-C_jxLOfU.woff  9.6 KB
+  assets/rubik-cyrillic-700-normal-DFnztZBh.woff2  7.7 KB
+  assets/rubik-cyrillic-800-normal-DocVmW4N.woff  9.6 KB
+  assets/rubik-cyrillic-800-normal-wonQiwhm.woff2  7.7 KB
+  assets/rubik-latin-500-normal-1os41rQk.woff2  18.6 KB
+  assets/rubik-latin-500-normal-LZYVHeqz.woff  23.6 KB
+  assets/rubik-latin-600-normal-7iWW07_k.woff2  18.6 KB
+  assets/rubik-latin-600-normal-Bd1rsTk4.woff  23.6 KB
+  assets/rubik-latin-700-normal-D-tMm-eS.woff2  18.7 KB
+  assets/rubik-latin-700-normal-KHOtubUA.woff  23.7 KB
+  assets/rubik-latin-800-normal-BtaGuVpR.woff2  18.6 KB
+  assets/rubik-latin-800-normal-Dq1miTTj.woff  23.6 KB
+  index.html  1.7 KB
+
+PASS  1. index.html at the root, paths only [A-Za-z0-9._/-]
+PASS  2. unpacked ≤ 10 MB and JS gzip ≤ 800 KB
+        zip 1133.7 KB, unpacked 2608.7 KB, js gzip 391.9 KB
+PASS  3. no external addresses except /sdk.js and mc.yandex.ru (namespaces allowed)
+PASS  4. <script src="/sdk.js"> exactly once
+        found 1
+PASS  5. no <audio>, <video>, new Audio(
+PASS  6. no lil-gui, __TEST__, __STUDIO__, __YA_MOCK__, yasdk-mock, localhost, debugger, sourceMappingURL, ?pace=, debugcheck
+PASS  7. no development or stop-list words in shipped texts
+
+WARN  other absolute addresses in strings (not loaded): https://t.me/sunhearth_games, https://vk.ru/sunhearth_yandex
+RESULT: PASS
+
+-- tail: check-release exit 0, 0 s
+== tail: e2e:release
+e2e:release: unpacked <clone>/clean/release/avalanche-0.1.0.zip (47 entries) to <clone>/clean/.cache/release-unpacked
+
+Running 2 tests using 1 worker
+
+  ✓  1 e2e/smoke-release.spec.ts:6:1 › release build: ready() exactly once, first frame drawn, zero console errors (4.7s)
+  ✓  2 e2e/smoke-release.spec.ts:25:1 › release build ignores ?pace=classic: the save lands in the slot of the game.json pace (3.2s)
+
+  2 passed (9.3s)
+-- tail: e2e:release exit 0, 11 s
+== tail: e2e:full
+
+Running 26 tests using 2 workers
+
+belt exits (classic): 3: yaw 0.0°, min 5.45, dz 24.2, frames 26; 4*: yaw 0.0°, min 5.21, dz 25.6, frames 21; 5*: yaw 0.0°, min 4.99, dz 28.7, frames 26
+  ✓   1 [desktop] › e2e/belt-exit.spec.ts:12:3 › belt exit (classic): 3 exits in a row by W — the view back to the yaw before the frame, never at the hero, forward up the slope; also after an avalanche @full (56.3s)
+  ✘   3 [desktop] › e2e/bot-session.spec.ts:149:1 › @full M6-03 bot session: 10 minutes of game time, seed 7, release pace — no errors, SDK limits kept, nothing frozen, the summit of mountain 1 (1.2m)
+belt exits (fast): 6: yaw 0.0°, min 5.58, dz 24.3, frames 27; 7*: yaw 0.0°, min 4.43, dz 32.8, frames 24; 8: yaw 0.0°, min 4.51, dz 40.1, frames 24; 9: yaw 0.0°, min 4.98, dz 26.9, frames 24; 10*: yaw 0.0°, min 4.67, dz 28.1, frames 26; 11: yaw 0.0°, min 4.96, dz 45.4, frames 27; 12: yaw 0.0°, min 4.89, dz 30.2, frames 26; 13*: yaw 0.0°, min 4.80, dz 28.9, frames 27; 14: yaw 0.0°, min 5.09, dz 28.7, frames 27; 15: yaw 0.0°, min 4.87, dz 29.8, frames 25
+  ✓   2 [desktop] › e2e/belt-exit.spec.ts:12:3 › belt exit (fast): 10 exits in a row by W — the view back to the yaw before the frame, never at the hero, forward up the slope; also after an avalanche @full (2.9m)
+  ✓   4 [desktop] › e2e/cave-shot.spec.ts:131:5 › cave frame on the avalanche (classic, 1920x1080): scripted and normal wave, hero on the belt @full (1.3m)
+  ✓   5 [desktop] › e2e/cave-shot.spec.ts:131:5 › cave frame on the avalanche (classic, 1280x720): scripted and normal wave, hero on the belt @full (44.0s)
+  ✓   7 [desktop] › e2e/cave-shot.spec.ts:131:5 › cave frame on the avalanche (fast, 1280x720): scripted and normal wave, hero on the belt @full (44.6s)
+  ✓   6 [desktop] › e2e/cave-shot.spec.ts:131:5 › cave frame on the avalanche (fast, 1920x1080): scripted and normal wave, hero on the belt @full (1.3m)
+  ✘   8 [desktop] › e2e/m5-perf.spec.ts:93:1 › M5-06 @full: time to ready() ≤ 4 s and ≤ 1.2 MB before it — median of 3 loads at 10 Mbit/s, RTT 100 ms, CPU ×4 (31.9s)
+  ✓   9 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 1: start, its own trial, the last finish (8.3s)
+  ✓  10 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 2: start, its own trial, the last finish (10.8s)
+  ✓  11 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 3: start, its own trial, the last finish (8.6s)
+  ✓  12 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 4: start, its own trial, the last finish (9.2s)
+  ✓  13 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 5: start, its own trial, the last finish (14.8s)
+  ✓  14 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 6: start, its own trial, the last finish (9.1s)
+  ✓  15 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 7: start, its own trial, the last finish (9.4s)
+  ✓  16 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 8: start, its own trial, the last finish (9.2s)
+  ✓  17 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 9: start, its own trial, the last finish (8.8s)
+  ✓  18 [desktop] › e2e/mt-evidence.spec.ts:11:5 › 880 × 405 @full › mountain 10: start, its own trial, the last finish (15.4s)
+setData calls: 103, max in 5 minutes: 25, last mountain: slope
+  ✓  19 [desktop] › e2e/save.spec.ts:142:1 › @full bot plays 15 minutes of game time: no 5-minute window of the mock log has more than 100 setData (≤ 86) (34.5s)
+  ✓  21 [desktop] › e2e/treadmill-shot.spec.ts:87:3 › belt frame (classic): 20 s on the belt of a cave at a closed gate — wide frame, never in the hero; a mouse turn gives the camera back @full (1.6m)
+gate sign (classic): frames 104, sign hidden in 39 of 77 polls
+  ✓  22 [desktop] › e2e/treadmill-shot.spec.ts:150:3 › open gate (classic): walking through it the gate sign is in no frame between the camera and the hero @full (15.6s)
+  ✓  23 [desktop] › e2e/treadmill-shot.spec.ts:87:3 › belt frame (fast): 20 s on the belt of a cave at a closed gate — wide frame, never in the hero; a mouse turn gives the camera back @full (1.8m)
+gate sign (fast): frames 93, sign hidden in 29 of 75 polls
+  ✓  24 [desktop] › e2e/treadmill-shot.spec.ts:150:3 › open gate (fast): walking through it the gate sign is in no frame between the camera and the hero @full (14.7s)
+touch belt exits (classic): 3: wide true, yaw 0.0°, min 5.51; 4*: wide true, yaw 0.0°, min 5.37; 5: wide true, yaw 0.0°, min 4.99; 6*: wide true, yaw 0.0°, min 4.86; 7: wide true, yaw 0.0°, min 4.84
+  ✓  25 [mobile] › e2e/touch-belt-shot.spec.ts:10:3 › touch belt frame (classic): with the stick and a resting thumb the wide frame comes on the belt in 5 caves of 5; exits by the stick as on PC @full (1.4m)
+advice: passed passed passed passed passed passed passed passed passed passed
+0.85: passed passed passed passed passed passed passed passed passed passed
+0.7: caught caught caught caught caught caught caught caught caught caught
+  ✓  20 [desktop] › e2e/sp-giant.spec.ts:229:1 › mountain 1: 10 runs a policy — the advice straight ≥ 9 pass, 0.85 behind a rock ≥ 7 pass, 0.7 ≥ 9 caught; the giant in view; the hint once; cover in the events @full (7.0m)
+touch belt exits (fast): 6: wide true, yaw 0.0°, min 5.44; 7*: wide true, yaw 0.0°, min 4.89; 8: wide true, yaw 0.0°, min 5.04; 9*: wide true, yaw 0.0°, min 5.12; 10: wide true, yaw 0.0°, min 5.41
+  ✓  26 [mobile] › e2e/touch-belt-shot.spec.ts:10:3 › touch belt frame (fast): with the stick and a resting thumb the wide frame comes on the belt in 5 caves of 5; exits by the stick as on PC @full (1.4m)
+
+
+  1) [desktop] › e2e/bot-session.spec.ts:149:1 › @full M6-03 bot session: 10 minutes of game time, seed 7, release pace — no errors, SDK limits kept, nothing frozen, the summit of mountain 1 
+
+    Error: after «caught» on stage 2: the hero moves
+
+    after «caught» on stage 2: the hero moves
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+    Call Log:
+    - Timeout 30000ms exceeded while waiting on the predicate
+
+      65 |     const s = await testState(page);
+      66 |     return s.ticks > s0.ticks + 10 && Math.hypot(s.hero!.x - s0.hero!.x, s.hero!.z - s0.hero!.z) > 0.5;
+    > 67 |   }, { message: `${what}: the hero moves`, timeout: 30_000 }).toBe(true);
+         |                                                               ^
+      68 |   await page.evaluate(() => window.__TEST__!.botPath(null));
+      69 | }
+      70 |
+        at runsOn (<clone>/clean/e2e/bot-session.spec.ts:67:63)
+        at pass (<clone>/clean/e2e/bot-session.spec.ts:143:5)
+        at <clone>/clean/e2e/bot-session.spec.ts:170:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/bot-session--full-M6-03-bo-bf160-en-the-summit-of-mountain-1-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/bot-session--full-M6-03-bo-bf160-en-the-summit-of-mountain-1-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/bot-session--full-M6-03-bo-bf160-en-the-summit-of-mountain-1-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/bot-session--full-M6-03-bo-bf160-en-the-summit-of-mountain-1-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › e2e/m5-perf.spec.ts:93:1 › M5-06 @full: time to ready() ≤ 4 s and ≤ 1.2 MB before it — median of 3 loads at 10 Mbit/s, RTT 100 ms, CPU ×4 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 4000
+    Received:    6954
+
+      127 |     ].join('\n'),
+      128 |   );
+    > 129 |   expect(ms).toBeLessThanOrEqual(LIMIT.readyMs);
+          |              ^
+      130 |   expect(mb).toBeLessThanOrEqual(LIMIT.readyBytes);
+      131 | });
+      132 |
+        at <clone>/clean/e2e/m5-perf.spec.ts:129:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/m5-perf-M5-06-full-time-to-9df63-10-Mbit-s-RTT-100-ms-CPU-×4-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/m5-perf-M5-06-full-time-to-9df63-10-Mbit-s-RTT-100-ms-CPU-×4-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/m5-perf-M5-06-full-time-to-9df63-10-Mbit-s-RTT-100-ms-CPU-×4-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/m5-perf-M5-06-full-time-to-9df63-10-Mbit-s-RTT-100-ms-CPU-×4-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: [desktop] › e2e/sp-giant.spec.ts (7.0m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  2 failed
+    [desktop] › e2e/bot-session.spec.ts:149:1 › @full M6-03 bot session: 10 minutes of game time, seed 7, release pace — no errors, SDK limits kept, nothing frozen, the summit of mountain 1 
+    [desktop] › e2e/m5-perf.spec.ts:93:1 › M5-06 @full: time to ready() ≤ 4 s and ≤ 1.2 MB before it — median of 3 loads at 10 Mbit/s, RTT 100 ms, CPU ×4 
+  24 passed (13.0m)
+-- tail: e2e:full exit 1, 782 s
+DONE
