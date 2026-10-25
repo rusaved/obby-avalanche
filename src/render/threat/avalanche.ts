@@ -207,9 +207,9 @@ export function createAvalancheVisual(initial: LevelData, theme: ThemeJson, tuni
   body.name = 'avalanche-body';
 
   // Snow clumps rolling off the front (docs/02-tech.md 8.3): low-poly balls, one InstancedMesh.
-  const clumpGeo = new IcosahedronGeometry(1, 1);
+  const clumpGeo = new IcosahedronGeometry(1, 0);
   // Lit from within a little: in the shade of the slope a clump stays snow, not a grey stone.
-  const clumpMat = new MeshLambertMaterial({ color: new Color(look.clump), emissive: new Color(look.clump), emissiveIntensity: av.clumpGlow ?? CLUMP_GLOW, flatShading: true, fog: false });
+  const clumpMat = new MeshLambertMaterial({ color: new Color(look.clump), emissive: new Color(look.clump), emissiveIntensity: av.clumpGlow ?? CLUMP_GLOW, fog: false });
   const clumps = new InstancedMesh(clumpGeo, clumpMat, CLUMP_MAX);
   clumps.name = 'avalanche-clumps';
   const clumpSeed = new Float32Array(CLUMP_MAX * 4);
