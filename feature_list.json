@@ -1849,7 +1849,7 @@
     "milestone": "M5",
     "description": "Темы 5 гор из theme.json: палитра, небо, туман, свет, процедурные текстуры, декор (ёлки, снеговики, флажки, пещеры со светящимся входом)",
     "acceptance": "Все цвета и параметры в theme.json, в src их нет; скриншоты 3 точек каждой горы в docs/evidence/M5/; draw calls в этих точках ≤ 60",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
