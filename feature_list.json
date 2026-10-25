@@ -1957,7 +1957,7 @@
     "milestone": "M6",
     "description": "Бот-сессия на 10 минут игрового времени (`setTimeScale(20)`) с сидом на релиз-кандидате (docs/03-yandex-compliance.md, 7.1.7)",
     "acceptance": "bot-session.spec.ts: ноль console.error и pageerror, лимиты SDK не нарушены (журнал мока), нет замёрзших состояний (герой двигается после каждого окна и рекламы), бот доходит до вершины горы 1",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

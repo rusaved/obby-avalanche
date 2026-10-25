@@ -91,6 +91,7 @@ async function pass(page: Page, world: number, st: WorldStage): Promise<void> {
   const roll0 = (await testState(page)).rollFrom;
   await page.evaluate((on) => window.__TEST__!.botJump(on), st.type !== 'catapult');
   await page.evaluate((p) => window.__TEST__!.botPath(p), pathOf(world, st));
+  let sh: { mouth: [number, number]; inside: [number, number] } | null = null;
   if (st.type === 'avalanche') {
     // The wave of the stage comes on entering it; if the bot's run already let it go by, the next one is called.
     const warned = await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'warn', undefined, { timeout: 30_000 }).then(() => true, () => false);
@@ -99,7 +100,10 @@ async function pass(page: Page, world: number, st: WorldStage): Promise<void> {
       await page.evaluate(() => window.__TEST__!.triggerWave());
       await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'warn', undefined, { timeout: 30_000 });
     }
-    const sh = await page.evaluate(() => window.__TEST__!.shelters()[window.__TEST__!.state().wave!.shelter]!);
+    // No grotto within reach of the warning (SD-10): the game says «Run to the finish!» — the bot runs on.
+    sh = await page.evaluate(() => window.__TEST__!.shelters()[window.__TEST__!.state().wave!.shelter] ?? null);
+  }
+  if (sh) {
     await page.evaluate((p) => window.__TEST__!.botPath(p), [[sh.mouth[0], sh.mouth[1]], [sh.inside[0], sh.inside[1]]] as Array<[number, number]>);
     await page.waitForFunction(() => ['gone', 'idle'].includes(window.__TEST__!.state().wave?.phase ?? 'idle'), undefined, { timeout: 90_000 });
     const [ox, oz] = [sh.mouth[0] - sh.inside[0], sh.mouth[1] - sh.inside[1]];
@@ -146,45 +150,41 @@ test('@full M6-03 bot session: 10 minutes of game time, seed 7, release pace —
       await pauseAndBack(page);
     }
   };
-  // Mountain 1, every stage.
-  const W1 = STAGES[0]!;
-  for (const st of W1.stages) {
-    await pass(page, 1, st);
-    await maybePause();
-  }
-  // Up to the portal of the summit: the window, «▶ Ad: ×2 chest», «Next» — the base.
-  const portal = W1.segments.find((x) => x.type === 'portal')!;
-  await page.evaluate((z) => window.__TEST__!.botPath([[0, z + 2]]), portal.z);
-  await page.waitForFunction(() => window.__TEST__!.state().window === 'summit', undefined, { timeout: 120_000 });
-  const summitSec = await gameSec(page);
-  log.push(`${summitSec.toFixed(0)} s: the summit of mountain 1`);
-  counts.windows++;
-  const ad = page.locator('[data-hud="summit-ad"]');
-  if (await ad.isVisible()) {
-    await ad.click();
-    counts.rewarded++;
-    await page.waitForTimeout(1500);
-  }
-  await page.locator('[data-hud="win-next"]').click();
-  await page.waitForFunction(() => window.__TEST__!.state().onBase || window.__TEST__!.state().world !== 'base', undefined, { timeout: 60_000 });
-  // The first base says «This is your base»; any window on the way — closed.
-  for (let i = 0; i < 3 && (await testState(page)).window; i++) {
+  let summitSec = 0;
+  // Mountain by mountain: every stage, the portal of the summit (the window, «▶ Ad: ×2 chest», «Next»), the base and
+  // its portal to the next one — until 10 minutes of game time.
+  for (let wi = 1; wi <= STAGES.length && (await gameSec(page)) < GAME_SEC; wi++) {
+    const W = STAGES[wi - 1]!;
+    for (const st of W.stages) {
+      await pass(page, wi, st);
+      await maybePause();
+    }
+    const portal = W.segments.find((x) => x.type === 'portal')!;
+    await page.evaluate((z) => window.__TEST__!.botPath([[0, z + 2]]), portal.z);
+    await page.waitForFunction(() => window.__TEST__!.state().window === 'summit', undefined, { timeout: 120_000 });
+    if (wi === 1) summitSec = await gameSec(page);
+    log.push(`${(await gameSec(page)).toFixed(0)} s: the summit of mountain ${wi}`);
     counts.windows++;
-    await page.locator('[data-hud="win-close"]').click({ timeout: 5000 }).catch(() => undefined);
-    await waitTicks(page, 5);
-  }
-  await runsOn(page, 'after the summit');
-  if ((await testState(page)).onBase) {
-    log.push(`${(await gameSec(page)).toFixed(0)} s: the base`);
-    await intoPortal(page, 2);
-  }
-  await waitTicks(page, 20);
-  // Mountain 2 until 10 minutes of game time.
-  const W2 = STAGES[1]!;
-  for (const st of W2.stages) {
-    if ((await gameSec(page)) >= GAME_SEC) break;
-    await pass(page, 2, st);
-    await maybePause();
+    const ad = page.locator('[data-hud="summit-ad"]');
+    if (await ad.isVisible()) {
+      await ad.click();
+      counts.rewarded++;
+      await page.waitForTimeout(1500);
+    }
+    await page.locator('[data-hud="win-next"]').click();
+    await page.waitForFunction(() => window.__TEST__!.state().window !== 'summit', undefined, { timeout: 60_000 });
+    // The first base says «This is your base»; any window on the way — closed.
+    for (let i = 0; i < 3 && (await testState(page)).window; i++) {
+      counts.windows++;
+      await page.locator('[data-hud="win-close"]').click({ timeout: 5000 }).catch(() => undefined);
+      await waitTicks(page, 5);
+    }
+    await runsOn(page, `after the summit of mountain ${wi}`);
+    if ((await testState(page)).onBase) {
+      log.push(`${(await gameSec(page)).toFixed(0)} s: the base`);
+      await intoPortal(page, wi + 1);
+    }
+    await waitTicks(page, 20);
   }
   const s = await testState(page);
   const mock = await page.evaluate(() => ({ violations: window.__YA_MOCK__!.violations.length, fullscreen: window.__YA_MOCK__!.calls.filter((c) => c.name === 'adv.showFullscreenAdv').length, rewarded: window.__YA_MOCK__!.calls.filter((c) => c.name === 'adv.showRewardedVideo').length }));
