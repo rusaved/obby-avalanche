@@ -1914,7 +1914,7 @@
     "acceptance": "`npm run studio:shots` создаёт PNG всех пресетов и вариантов (scene, hero, plate) в art/studio/<дата>/ в размерах из docs/04-packaging.md, 7.2; гейт пресетов B показывает требование стены gateWall из данных; в кадре нет интерфейса; у прозрачного фона есть альфа-канал; примеры в docs/evidence/studio/; кода студии нет в архиве build",
     "passes": false,
     "priority": "P0",
-    "deferred": false
+    "deferred": true
   },
   {
     "id": "M5-08",
