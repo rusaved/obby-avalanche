@@ -1948,7 +1948,7 @@
     "milestone": "M6",
     "description": "Матрица размеров docs/03-yandex-compliance.md, 7.1.4: ПК, ужатое окно, стики-баннер, телефон альбомный, планшет",
     "acceptance": "layout.spec.ts проходит все размеры матрицы (SCR-01, SCR-02, SCR-03, ADS-07): элементы HUD и окон внутри области, нет перекрытий и прокрутки; скриншоты в docs/evidence/compliance/layout/",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
@@ -1966,7 +1966,7 @@
     "milestone": "M6",
     "description": "Неофициальный чекер Яндекса debugcheck.js на playtest-сборке (docs/03-yandex-compliance.md, 7.1.3)",
     "acceptance": "Отчёт docs/evidence/compliance/checker.md: каждая проверка со статусом, ни одного FAIL без объяснения и исправления; в релизном архиве файла чекера нет (check-release). Если чекер не запускается в облаке — причина в отчёте и пункт продюсеру в progress.md",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
@@ -1975,7 +1975,7 @@
     "milestone": "M6",
     "description": "Отчёт соответствия по всем пунктам docs/03-yandex-compliance.md, раздел 1",
     "acceptance": "docs/evidence/compliance/report.md: у каждого ID статус PASS-auto (с именем теста), PASS-manual (со ссылкой на скриншот или лог), PRODUCER или N/A с причиной; ни одного TODO",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

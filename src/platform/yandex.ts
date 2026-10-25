@@ -114,16 +114,6 @@ export class YandexPlatform implements Platform {
     }
   }
 
-  private async initWithRetry(ya: { init(): Promise<SDK> }): Promise<SDK> {
-    try {
-      return await ya.init();
-    } catch (first) {
-      log.warn('YaGames.init failed, retrying once', first);
-      await new Promise((r) => setTimeout(r, INIT_RETRY_MS));
-      return await ya.init();
-    }
-  }
-
   ready(): void {
     if (this.readyDone) return;
     this.readyDone = true;
@@ -478,6 +468,18 @@ export class YandexPlatform implements Platform {
     } catch (err) {
       log.warn('getFlags failed, defaults used', err);
       return { ...defaults };
+    }
+  }
+
+  private async initWithRetry(ya: { init(): Promise<SDK> }): Promise<SDK> {
+    // M6-04: the global called by its own name (not through a variable) — checkers read the bundle for «YaGames.init(».
+    const call = (): Promise<SDK> => (this.deps.yaGames || typeof YaGames === 'undefined' ? ya.init() : (YaGames.init() as Promise<SDK>));
+    try {
+      return await call();
+    } catch (first) {
+      log.warn('YaGames.init failed, retrying once', first);
+      await new Promise((r) => setTimeout(r, INIT_RETRY_MS));
+      return await call();
     }
   }
 }

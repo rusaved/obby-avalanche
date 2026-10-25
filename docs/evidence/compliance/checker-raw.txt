@@ -1,0 +1,144 @@
+YG DEBUG CHECKER REPORT
+Date: 10/25/2026, 1:18:51 PM
+URL: http://127.0.0.1:4190/
+Scanned source: 1856 KB
+================================
+
+📦 SDK Integration
+  [PASS][REQ 1.1] SDK script tag
+  [PASS][REQ 1.19.1] YaGames.init()
+
+🔄 Lifecycle API
+  [PASS][REQ 1.19.2] LoadingAPI.ready()
+
+🔊 Sound Management
+  [PASS][HEURISTIC] visibilitychange
+  [PASS][HEURISTIC] AudioContext suspend/resume
+
+📺 Ads — Interstitial
+  [PASS][HEURISTIC] showFullscreenAdv
+  [PASS][HEURISTIC] onOpen callback
+  [PASS][HEURISTIC] onClose callback
+  [PASS][HEURISTIC] onError callback
+
+🎬 Ads — Rewarded
+  [PASS][HEURISTIC] showRewardedVideo
+  [PASS][HEURISTIC] onRewarded callback
+  [PASS][HEURISTIC] onOpen callback
+  [PASS][HEURISTIC] onClose callback
+
+💾 Cloud Saves
+  [PASS][HEURISTIC] player.setData()
+  [PASS][HEURISTIC] player.getData()
+
+💰 In-App Purchases
+  [PASS][HEURISTIC] getPayments()
+  [WARN][HEURISTIC] consumePurchase() — Detected risk — review this item
+  [PASS][HEURISTIC] getPurchases()
+  [PASS][REQ 1.13.2] getCatalog() called (REQ-1.13.2)
+  [WARN][REQ 1.13.2] No hardcoded ₽/$/€ near numbers (REQ-1.13.2) — Hardcoded currency near number: 1,$ (line 4147)
+
+🌐 Localization (I18N)
+  [PASS][REQ 2.14] environment.i18n.lang — Runtime confirmed: environment.i18n.lang read → ru at +3ms
+  [NOT VERIFIED][HEURISTIC] Yandex lang fallback — No explicit fallback resolver could be proven from source. This is not evidence of a defect.
+
+📱 UX & Mobile
+  [PASS][REQ 1.6.2.7] Context menu disabled
+  [PASS][REQ 1.6.2.7] Text selection disabled
+  [PASS][HEURISTIC] touch-action configured
+  [PASS][HEURISTIC] Viewport meta tag
+  [PASS][REQ 1.10.2] Overflow hidden on body/html
+  [PASS][REQ 1.10.2] overscroll-behavior
+  [PASS][HEURISTIC] -webkit-touch-callout: none
+
+🚨 Common Rejections
+  [PASS][REQ 1.10.2] Scroll prevention (п.1.10.2)
+  [PASS][REQ 1.10.2] Swipe-to-refresh blocked (iOS/Android)
+  [PASS][REQ 1.19] GameReady timing (п.1.19)
+  [PASS][REQ 2.14] I18N auto-detection (п.2.14)
+  [WARN][REQ 4.7] Sound paused during ads (п.4.7) — Ad callbacks must suspend AudioContext / mute sound in onOpen!
+  [WARN][REQ 4.7] Game paused during ads (п.4.7) — Game must pause during fullscreen ad — set paused state in onOpen callback
+  [PASS][REQ 1.6.2.7] Selection/callout in game area (п.1.6.2.7)
+
+⚠️ Dangerous Patterns
+  [PASS][HEURISTIC] No alert()
+  [PASS][HEURISTIC] No confirm()
+  [PASS][HEURISTIC] No prompt()
+  [PASS][HEURISTIC] No document.write()
+  [PASS][HEURISTIC] No eval()
+
+📦 Archive
+  [PASS][REQ 1.7] No Yandex S3 URLs
+
+⭐ Quality
+  [WARN][REQ 1.6.1.7] No WebGL notice (п.1.6.1.7) — Detected risk — review this item
+  [PASS][REQ 1.6.1.6] Video has no system controls (п.1.6.1.6/1.6.2.5)
+  [PASS][REQ 1.6.1.6] Music via Web Audio, not <audio>/new Audio (п.1.6.1.6/1.6.2.5)
+  [PASS][REQ 2.14] SDK language before URL fallback
+  [PASS][REQ 2.14] Language detected before the game is interactive (п.2.14/1.19)
+  [PASS][REQ 1.6.1.2] Keyboard auto-shows on input (п.1.6.1.2)
+  [PASS][REQ 1.18] No URL-based gating (п.1.18)
+  [PASS][REQ 1.6.1.1] Fullscreen on mobile (п.1.6.1.1)
+  [PASS][REQ 1.6.2.2] Desktop field aspect ≤ 2:1 (п.1.6.2.2)
+  [PASS][REQ 1.15] Нет debug-инструментов в UI (п.1.15)
+  [PASS][REQ 1.19] Ввод закрыт до ready() (REQ-1.19)
+  [PASS][HEURISTIC] Keyboard via e.code, not e.key (ru-раскладка)
+  [PASS][REQ 1.6.2.6] No OS-shortcut key handlers (п.1.6.2.6)
+  [PASS][HEURISTIC] No flat-black letterbox void (десктоп, 1.6.2.1)
+  [PASS][REQ 1.15] Game looks finished, not WIP (п.1.15)
+  [PASS][REQ 1.16] No imitation ad blocks (п.1.16)
+  [PASS][REQ 3.9] No YouTube/external video player (п.3.9)
+  [PASS][REQ 4.3] Ad orientation matches game (п.4.3)
+  [PASS][REC] Sound toggle present (реком. 6.2)
+  [PASS][REC] Pause available (реком. 6.3)
+  [PASS][REC] Title without the word "игра/game" (реком. 6.5)
+  [PASS][REC] No useless exit button (реком. 6.7)
+  [PASS][REQ 8.2.4] No profanity in UI text (п.8.2.4)
+  [PASS][REQ 1.6.1.3] Canvas resizes on orientation change (п.1.6.1.3/1.10.1)
+  [PASS][HEURISTIC] ready() not tuned to pass the checker (integrity)
+  [PASS][REQ 4.2] Progress saved before ad (п.4.2)
+  [PASS][REQ 4.1] No external ad networks
+
+🏆 Leaderboard
+  [PASS][HEURISTIC] Leaderboard API (current)
+  [PASS][HEURISTIC] setScore() call
+  [PASS][HEURISTIC] getEntries() call
+  [NOT VERIFIED][HEURISTIC] Leaderboard name [a-zA-Z0-9] — setScore found but leaderboard name is dynamic; cannot validate the name statically
+
+⏱️ Timing Verification
+  [PASS][REQ 1.19] GameReady after fonts
+  [PASS][REQ 1.19] GameReady after first paint
+  [PASS][REQ 1.19.2] GameReady not too late
+  [PASS][REQ 2.14] UI not interactive before SDK
+  [PASS][REQ 2.14] Language detected before UI
+
+📐 Visual Overflow (п.1.10.1)
+  [PASS][REQ 1.10.1] No elements overflow viewport
+  [PASS][REQ 1.6.2.1] Canvas fills screen
+  [PASS][REQ 1.8] Touch targets >= 44px
+
+🌍 Language Check (Runtime)
+  [PASS][REQ 2.14] SDK language read before Game Ready — Runtime order confirmed: lang +3ms → ready +4080ms
+  [PASS][REQ 8.2.3] No untranslated Cyrillic on non-RU
+  [NOT VERIFIED][HEURISTIC] Canvas text reminder — Canvas text is not visible to DOM scanning; verify rendered text for declared languages
+
+📜 Scroll/Refresh (Runtime)
+  [PASS][REQ 1.10.2] No body scroll
+  [PASS][HEURISTIC] Document not scrollable
+  [PASS][HEURISTIC] touch-action blocks iOS refresh
+  [PASS][HEURISTIC] contextmenu actually blocked
+
+📺 Ad Context (Runtime) — N/A (not used)
+
+🎮 Runtime Detection
+  [PASS][HEURISTIC] SDK loaded
+  [PASS][HEURISTIC] SDK initialized
+  [PASS][REC 1.14] No console errors
+
+================================
+TOTAL: 83 pass, 0 fail, 5 warn, 3 not verified (94% score; 97% automated coverage)
+NO HARD FAILURES DETECTED — WARN = detected risk; NOT VERIFIED = insufficient automatic evidence
+
+
+console errors and page errors: 0
+

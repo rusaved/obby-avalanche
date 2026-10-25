@@ -1,6 +1,6 @@
 // `npm run build:pages` (docs/05, section 2): playtest build on the SDK mock for GitHub Pages in dist-pages/:
 // debug tools and studio on, test API off, mock as a file next to index.html, relative sdk.js, milestone label.
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
@@ -24,4 +24,31 @@ if (!existsSync(resolve(out, 'sdk.js'))) {
   console.error('build:pages: sdk.js missing');
   process.exit(1);
 }
-console.log('build:pages: dist-pages ready (sdk.js relative, mock copied)');
+// M6-09 (docs/05, section 2): the release archive and the playtest one for the producer in dist-pages/downloads/ with
+// a page listing them; the release is the one to load into the Console draft (check-release passes it, rejects playtest).
+const run = (cmd, args) => {
+  const r = spawnSync(cmd, args, { cwd: root, stdio: 'inherit', env: process.env });
+  if (r.status !== 0) process.exit(r.status ?? 1);
+};
+const downloads = resolve(out, 'downloads');
+mkdirSync(downloads, { recursive: true });
+const game = JSON.parse(readFileSync(resolve(root, 'content/avalanche/game.json'), 'utf8'));
+const version = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')).version;
+const base = `${game.id.replace(/^_/, '')}-${version}`;
+run('npx', ['vite', 'build', '--outDir', 'dist', '--emptyOutDir']);
+run('node', ['scripts/pack.mjs', '--out', `dist-pages/downloads/${base}.zip`]);
+run('npx', ['vite', 'build', '--mode', 'playtest', '--outDir', 'dist-playtest', '--emptyOutDir']);
+run('node', ['scripts/pack.mjs', '--dir', 'dist-playtest', '--suffix', 'playtest', '--out', `dist-pages/downloads/${base}-playtest.zip`]);
+const sha = (process.env.BUILD_SHA || '').slice(0, 7);
+const rows = readdirSync(downloads)
+  .filter((f) => f.endsWith('.zip'))
+  .sort()
+  .map((f) => {
+    const what = f.includes('-playtest') ? 'playtest: with ?debug=1, for checks — not for the Console' : 'release: load this one into the Console draft';
+    return `<li><a href="${f}">${f}</a> · ${(statSync(resolve(downloads, f)).size / 1024 / 1024).toFixed(2)} MB · ${what}</li>`;
+  });
+writeFileSync(
+  resolve(downloads, 'index.html'),
+  `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>downloads</title><body style="font:16px/1.5 sans-serif;margin:16px"><h1>${base}</h1><p>${sha ? `commit ${sha}` : ''}</p><ul>${rows.join('')}</ul></body>\n`,
+);
+console.log(`build:pages: dist-pages ready (sdk.js relative, mock copied), downloads: ${rows.length} archives`);

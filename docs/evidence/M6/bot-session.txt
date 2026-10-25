@@ -1,0 +1,28 @@
+M6-03 · bot session, seed 7, pace stages, setTimeScale(20), build:e2e, 2026-10-25T13:27:51.618Z
+game time 253 s (goal 600); the summit of mountain 1 at 123 s
+stages 20, caught or rolled back 3 (then put past the stage 3), Speed given as from a treadmill 16 times; pauses 1, windows 1, rewarded pressed 1
+SDK mock: violations 0, fullscreen ads 0, rewarded 1; console errors and page errors — the fixture (0, or the test fails)
+
+23 s: mountain 1 stage 1 (intro) passed
+32 s: mountain 1 stage 2 (giant) caught
+49 s: mountain 1 stage 3 (plates) passed
+69 s: mountain 1 stage 4 (avalanche) passed
+78 s: mountain 1 stage 5 (dips) passed
+84 s: mountain 1 stage 6 (ice) passed
+94 s: mountain 1 stage 7 (cracks) passed
+105 s: mountain 1 stage 8 (throat) passed
+115 s: mountain 1 stage 9 (maze) passed
+121 s: mountain 1 stage 10 (chute) passed
+123 s: the summit of mountain 1
+129 s: the base
+142 s: mountain 2 stage 1 (stairs) caught
+155 s: mountain 2 stage 2 (catapult) passed
+155 s: pause, fullscreen ads 0
+169 s: mountain 2 stage 3 (plates) passed
+180 s: mountain 2 stage 4 (cracks) passed
+186 s: mountain 2 stage 5 (giant) caught
+216 s: mountain 2 stage 6 (avalanche) passed
+224 s: mountain 2 stage 7 (dips) passed
+234 s: mountain 2 stage 8 (maze) passed
+245 s: mountain 2 stage 9 (blizzard) passed
+253 s: mountain 2 stage 10 (chute) passed

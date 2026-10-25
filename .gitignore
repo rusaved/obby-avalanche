@@ -22,3 +22,4 @@ dist-pages/
 art/studio/*/
 .claude/worktrees/
 .claude/producer-rules.md
+test-results-bot/

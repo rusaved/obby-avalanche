@@ -132,8 +132,10 @@ const ALLOWED_URL = (u) => u === '/sdk.js' || /^(https?:)?\/\/mc\.yandex\.ru(\/|
 }
 // 6. No development leftovers.
 {
-  const needles = ['lil-gui', '__TEST__', '__STUDIO__', '__YA_MOCK__', 'yasdk-mock', 'localhost', 'sourceMappingURL'];
+  // M6-04: the checker debugcheck.js (docs/03 7.1.3) never ships: neither the file nor its global.
+  const needles = ['lil-gui', '__TEST__', '__STUDIO__', '__YA_MOCK__', 'yasdk-mock', 'localhost', 'sourceMappingURL', 'YGDebugChecker'];
   const problems = [];
+  for (const [name] of files) if (/debugcheck/i.test(name)) problems.push(`${name}: the checker file`);
   for (const [name, data] of files) {
     if (!['.html', '.js', '.css', '.json'].includes(extname(name))) continue;
     const src = text(data);
@@ -142,7 +144,7 @@ const ALLOWED_URL = (u) => u === '/sdk.js' || /^(https?:)?\/\/mc\.yandex\.ru(\/|
     // The release plays game.json `pace` only (docs/01-gdd.md 16.1, PS-02): no reading of ?pace= from the address.
     if (extname(name) === '.js' && /\.get\(\s*["'`]pace["'`]\s*\)/.test(src)) problems.push(`${name}: reads ?pace=`);
   }
-  check(6, 'no lil-gui, __TEST__, __STUDIO__, __YA_MOCK__, yasdk-mock, localhost, debugger, sourceMappingURL, ?pace=', problems.length === 0, problems);
+  check(6, 'no lil-gui, __TEST__, __STUDIO__, __YA_MOCK__, yasdk-mock, localhost, debugger, sourceMappingURL, ?pace=, debugcheck', problems.length === 0, problems);
 }
 // 7. Dev-trace words and stop-list words in shipped texts (i18n json files).
 {
