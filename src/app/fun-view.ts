@@ -1,4 +1,4 @@
-// What: Sound, snow puffs and confetti for trampolines, ice slides, gifts and passed gates, including the coin fountain and the rising chime streaks; the wind lines past a fast run.
+// What: Sound, snow puffs and confetti for trampolines, ice slides, gifts and passed gates, including the coin fountain and the rising chime streaks; the wind lines and the wind sound past a fast run; snow off the feet, shards of a melting wall, sparkles of «Phew».
 // Called by: main.ts (createFunView); app/handles.ts (type).
 // Keep: Reads the sim, never changes it: gate coins are paid once by the sim (gatePass), this only shows them; streak windows come from tuning (fun, gateReward).
 
@@ -39,6 +39,15 @@ const STEP_SPARK_GAP = 0.3;
 const CAUGHT_PUFF = 40;
 const OUT_PUFF = 30;
 const SUMMIT_CONFETTI = 90;
+/** M5-03 (docs/01-gdd.md 10.3): snow from under the feet at most this often (s), this many flakes; ice shards of a wall
+ * as it melts; snow sparkles round the hero at «Phew, made it!». */
+const FOOT_SNOW_GAP = 0.18;
+const FOOT_SNOW = 3;
+const MELT_SHARDS = 36;
+const PHEW_SPARKS = 28;
+/** The wind sound (10.3: louder as he runs faster), its level at the top of the run. */
+const WIND_SFX = 'wind';
+const WIND_LEVEL = 0.35;
 /** MU-04: coins of a stage finish in the fountain, out of this height over the pad. */
 const PAD_COINS = 14;
 const PAD_COINS_AT = 1.5;
@@ -93,8 +102,9 @@ export interface FunViewState {
   puffAlive: number;
   giftNote: number;
   slides: number;
-  /** FX-05: bursts of the world events so far — a step of growth, snowed in, out of the ball, the summit portal. */
-  world: { step: number; caught: number; out: number; summit: number };
+  /** FX-05: bursts of the world events so far — a step of growth, snowed in, out of the ball, the summit portal; M5-03:
+   * snow off the feet, shards of a melting wall, sparkles of «Phew». */
+  world: { step: number; caught: number; out: number; summit: number; feet: number; melt: number; phew: number };
 }
 
 export interface FunView {
@@ -106,7 +116,8 @@ export interface FunView {
 export function createFunView(d: FunViewDeps): FunView {
   const fountain: CoinFountain = createCoinFountain(d.hud.root, () => d.hud.coinTarget(), d.theme.ui.coins);
   const st = { fountains: 0, chimes: 0, gateNote: 0, puffs: 0, giftNote: 0, slides: 0 };
-  const world = { step: 0, caught: 0, out: 0, summit: 0 };
+  const world = { step: 0, caught: 0, out: 0, summit: 0, feet: 0, melt: 0, phew: 0 };
+  let footSnowAt = -Infinity;
   let gateStreak: Streak = { step: 0, at: -Infinity };
   let giftStreak: Streak = { step: 0, at: -Infinity };
   let now = 0;
@@ -140,7 +151,16 @@ export function createFunView(d: FunViewDeps): FunView {
       // avalanche covers the hero and when he rolls out of the ball, confetti of the portal colours at the summit.
       s.events.on('step', () => {
         // On a belt the steps stream by themselves (the treadmill ×N): no sparks there — the belt's own whirl speaks.
-        if (s.onBelt || now - stepSparkAt < STEP_SPARK_GAP) return;
+        if (s.onBelt) return;
+        // M5-03: a little snow kicked up behind the feet on the ground.
+        const hero = s.hero;
+        if (hero.onGround && now - footSnowAt >= FOOT_SNOW_GAP) {
+          footSnowAt = now;
+          world.feet++;
+          const v = Math.max(1, Math.hypot(hero.vel.x, hero.vel.z));
+          d.fx.burst('puff', hero.pos.x - (hero.vel.x / v) * 0.4, hero.pos.y + 0.1, hero.pos.z - (hero.vel.z / v) * 0.4, [color('snowPuff', '#ffffff')], FOOT_SNOW, 2, 0.4);
+        }
+        if (now - stepSparkAt < STEP_SPARK_GAP) return;
         stepSparkAt = now;
         world.step++;
         const h = s.hero.pos;
@@ -149,6 +169,18 @@ export function createFunView(d: FunViewDeps): FunView {
       s.events.on('waveCaught', ({ x, y, z }) => {
         world.caught++;
         d.fx.burst('puff', x, y + 0.8, z, [color('snowPuff', '#ffffff')], CAUGHT_PUFF, 9, 2.2);
+      });
+      // M5-03: the wall melts — ice shards burst off it; «Phew, made it!» — snow sparkles round the hero in the cave.
+      s.events.on('gateOpen', ({ index }) => {
+        const g = s.level.gates[index];
+        if (!g) return;
+        world.melt++;
+        d.fx.burst('spark', 0, g.y + g.height * 0.5, g.z, [color('ice', '#ffffff'), '#ffffff'], MELT_SHARDS, 7, 5);
+      });
+      s.events.on('waveSurvived', () => {
+        world.phew++;
+        const h = s.hero.pos;
+        d.fx.burst('spark', h.x, h.y + 1.6, h.z, ['#ffffff', d.theme.ui.coins, color('snowPuff', '#ffffff')], PHEW_SPARKS, 4, 1.2);
       });
       s.events.on('caughtEnd', ({ x, y, z }) => {
         world.out++;
@@ -223,6 +255,8 @@ export function createFunView(d: FunViewDeps): FunView {
         windAcc -= n;
         if (n > 0) d.fx.wind(heroRender.x + (h.vel.x / v) * WIND_AHEAD, heroRender.y + WIND_HIGH, heroRender.z + (h.vel.z / v) * WIND_AHEAD, -h.vel.x, -h.vel.z, v * WIND_SPEED, n, WIND_SPREAD);
       } else windAcc = 0;
+      // M5-03: the wind is heard with the lines, louder the faster he runs.
+      d.audio()?.hum(WIND_SFX, h && k > 0 && v > 2 ? Math.min(1, k) * WIND_LEVEL : 0);
       d.meshes()?.update(timeSec);
       d.fx.update(gameDt);
     },

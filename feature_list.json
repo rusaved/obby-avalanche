@@ -1858,7 +1858,7 @@
     "milestone": "M5",
     "description": "Лавина визуально по docs/01-gdd.md, 4.8 и docs/02-tech.md, 8.3: пушистая белая волна с комьями и пылью, не больше 4 draw calls, мягкий гул, тряска до 0,3, отдельный кадр камеры над пещерой; экран не темнеет и не краснеет",
     "acceptance": "e2e: renderer.info показывает прирост ≤ 4 draw calls при активной лавине; амплитуда тряски из tuning.json ≤ 0,3; скриншоты warn, run и shelter в docs/evidence/M5/; скриншоты warn на low и на горе 4 в docs/evidence/M5/ (точка появления лавины видна, docs/02-tech.md, 8.3)",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

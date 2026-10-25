@@ -97,7 +97,22 @@
     "edge": "#FFFFFF",
     "body": "#EAF6FF",
     "dust": "#FFFFFF",
-    "height": 16
+    "height": 16,
+    "clump": "#F4FAFF",
+    "shadow": "#7F9CC0",
+    "clumps": 150,
+    "rumble": 0,
+    "worlds": {
+      "pines": { "front": ["#FFFFFF", "#C9E8E0"], "clump": "#F2FAF7", "shadow": "#6F8F88", "clumps": 170, "rumble": -1 },
+      "pass": { "front": ["#FFFFFF", "#D3D6F5"], "clump": "#F4F4FC", "shadow": "#7C82B8", "clumps": 180, "rumble": -2 },
+      "falls": { "front": ["#FFFFFF", "#BDE4F7"], "clump": "#EEF8FD", "shadow": "#6A9CBF", "clumps": 190, "rumble": -2 },
+      "canyon": { "front": ["#FFFFFF", "#F6DCCB"], "clump": "#FFF4EC", "shadow": "#B08A78", "clumps": 200, "rumble": -3, "body": "#FFF3EA" },
+      "crystal": { "front": ["#FFFFFF", "#B5EEF0"], "clump": "#EAFBFB", "shadow": "#5FA3A8", "clumps": 210, "rumble": -3 },
+      "blizzard": { "front": ["#FFFFFF", "#C9D6E3"], "clump": "#EEF2F6", "shadow": "#7D8FA3", "clumps": 240, "rumble": -4 },
+      "clouds": { "front": ["#FFFFFF", "#EBD3E0"], "clump": "#FBF2F7", "shadow": "#A3889A", "clumps": 220, "rumble": -4 },
+      "aurora": { "front": ["#FFFFFF", "#CFCBF2"], "clump": "#F1F0FC", "shadow": "#7671B8", "clumps": 250, "rumble": -5, "body": "#F0EEFC" },
+      "stars": { "front": ["#FFFFFF", "#BFC6EE"], "clump": "#ECEEFA", "shadow": "#5A639F", "clumps": 280, "rumble": -6 }
+    }
   },
   "bonus": { "color": "#FFD34D" },
   "boss": {

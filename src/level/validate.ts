@@ -62,6 +62,8 @@ const id = v.pipe(v.string(), v.regex(/^[a-z_][a-z0-9_]*$/, 'expected latin id')
 const name = v.pipe(v.string(), v.regex(/^[A-Za-z_][A-Za-z0-9_]*$/, 'expected latin name'));
 const nonNeg = v.pipe(v.number(), v.minValue(0));
 const positive = v.pipe(v.number(), v.minValue(1e-9, 'expected > 0'));
+/** M5-02: the avalanche look of the theme and of a mountain (clumps up to 300, docs/02-tech.md 8.3). */
+const threatLook = v.object({ clump: v.optional(hex), shadow: v.optional(hex), clumps: v.optional(v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(300))), rumble: v.optional(v.pipe(v.number(), v.minValue(-24), v.maxValue(24))) });
 const curve = v.object({ base: positive, k: nonNeg, max: positive });
 
 export const STAT_EFFECTS = ['moveSpeed', 'jumpPower', 'gateOnly'] as const;
@@ -206,7 +208,15 @@ const themeSchema = v.object({
     // MU-01 (docs/07-mobile-ui.md, tokens): the colours of the phone layout, a hex or an rgba() each.
     mu: v.optional(v.record(name, v.pipe(v.string(), v.regex(/^(#[0-9a-fA-F]{6}|rgba\(\d{1,3}, \d{1,3}, \d{1,3}, (0|1|0?\.\d+)\))$/)))),
   }),
-  threat: v.object({ front: v.tuple([hex, hex]), edge: hex, body: hex, dust: hex, height: positive }),
+  threat: v.object({
+    front: v.tuple([hex, hex]),
+    edge: hex,
+    body: hex,
+    dust: hex,
+    height: positive,
+    ...threatLook.entries,
+    worlds: v.optional(v.record(v.string(), v.object({ front: v.optional(v.tuple([hex, hex])), edge: v.optional(hex), body: v.optional(hex), dust: v.optional(hex), ...threatLook.entries }))),
+  }),
   bonus: v.optional(v.object({ color: hex })),
   boss: v.optional(
     v.object({
@@ -743,9 +753,29 @@ const footstepsSchema = v.pipe(
   v.check((f) => f.sets.some((x) => x.unlock === 'free'), 'expected at least one free set'),
   v.check((f) => new Set(f.sets.map((x) => x.id)).size === f.sets.length, 'duplicate set id'),
 );
+/** M5-03 (docs/01-gdd.md 10.3): a cue — a sound of sfx.json as notes `gap` s apart, `delay` s later; `when` — fields the
+ * event must carry; `perSec` — a ceiling a second. */
+const cueSchema = v.object({
+  sfx: name,
+  notes: v.optional(v.pipe(v.array(v.pipe(v.number(), v.minValue(-24), v.maxValue(24))), v.minLength(1), v.maxLength(8))),
+  gap: v.optional(nonNeg),
+  delay: v.optional(nonNeg),
+  when: v.optional(v.record(v.string(), v.union([v.boolean(), v.number(), v.string()]))),
+  perSec: v.optional(positive),
+});
 const sfxSchema = v.pipe(
-  v.objectWithRest({ footsteps: v.optional(footstepsSchema), files: v.optional(v.record(name, audioFile)) }, zzfx),
+  v.objectWithRest(
+    {
+      footsteps: v.optional(footstepsSchema),
+      files: v.optional(v.record(name, audioFile)),
+      cues: v.optional(v.record(name, cueSchema)),
+      events: v.optional(v.record(name, v.pipe(v.array(name), v.minLength(1)))),
+    },
+    zzfx,
+  ),
   v.check((o) => Object.keys(o).every((k) => v.is(name, k)), 'expected latin sound names'),
+  v.check((o) => Object.values(o.cues ?? {}).every((c) => Array.isArray((o as Record<string, unknown>)[c.sfx]) || !!o.files?.[c.sfx]), 'a cue plays a sound that sfx.json does not have'),
+  v.check((o) => Object.values(o.events ?? {}).every((list) => list.every((c) => !!o.cues?.[c])), 'an event names a cue that sfx.json does not have'),
 );
 
 const range = v.pipe(

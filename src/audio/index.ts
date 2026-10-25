@@ -107,6 +107,11 @@ export interface GameAudio {
   setVolume(v: number): void;
   /** The context runs (after the first gesture and while nothing pauses the game). */
   readonly running: boolean;
+  /** M5-02 (docs/01-gdd.md 4.8): a looped sound `name` at `level` (0–1 of the effects, eased), `semitones` higher; 0 — it
+   * fades out and stops. One loop per name (the avalanche rumble). */
+  hum(name: string, level: number, semitones?: number): void;
+  /** The level each loop is heading to now (e2e). */
+  readonly hums: Record<string, number>;
   /** Names of the sounds actually started (e2e). */
   readonly played: string[];
   /** SD-14: audio files decoded so far (e2e waits for them before a preview). */
@@ -226,7 +231,48 @@ export function createAudio(opts: {
     return true;
   };
 
+  /** M5-02: the looped sounds by name — their source, gain and the level they head to. */
+  const loops = new Map<string, { src: AudioBufferSourceNode; gain: GainNode }>();
+  const hums: Record<string, number> = {};
+  const HUM_EASE_SEC = 0.25;
+  const HUM_FADE_SEC = 1;
+
   return {
+    hums,
+    hum(name, level, semitones = 0) {
+      const want = enabled ? Math.max(0, Math.min(1, level)) : 0;
+      hums[name] = want;
+      const c = ctx;
+      if (!c || !sfxGain) return;
+      let loop = loops.get(name);
+      if (!loop && want > 0) {
+        const buf = buffers.get(name);
+        if (!buf) return;
+        const src = c.createBufferSource();
+        src.buffer = buf;
+        src.loop = true;
+        const gain = c.createGain();
+        gain.gain.value = 0;
+        src.connect(gain).connect(sfxGain);
+        src.start();
+        loop = { src, gain };
+        loops.set(name, loop);
+      }
+      if (!loop) return;
+      loop.src.playbackRate.value = Math.pow(2, semitones / 12);
+      const g = loop.gain.gain;
+      // Up quickly, down over HUM_FADE_SEC (docs/01-gdd.md 4.8: the rumble dies away over 1 s).
+      g.setTargetAtTime(want, c.currentTime, (want >= g.value ? HUM_EASE_SEC : HUM_FADE_SEC) / 3);
+      if (want <= 0 && g.value < 0.01) {
+        try {
+          loop.src.stop();
+        } catch {
+          // Already stopped.
+        }
+        loop.src.disconnect();
+        loops.delete(name);
+      }
+    },
     get running() {
       return ctx?.state === 'running';
     },

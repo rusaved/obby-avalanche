@@ -41,10 +41,12 @@ describe('avalanche visual (docs/02-tech.md 8.3)', () => {
             expect(p.frustumCulled, `${at} ${p.name}`).toBe(false);
             expect(p.parent, `${at} ${p.name}`).toBe(visual.group);
           }
-          const crack = visual.parts.find((p) => p.name === 'avalanche-crack')!;
+          // M5-02: on warn the body lies flat across the slope at the spawn point as the crack.
+          const crack = visual.parts.find((p) => p.name === 'avalanche-body')!;
           const dust = visual.parts.find((p) => p.name === 'avalanche-dust')!;
           expect(crack.visible && dust.visible, at).toBe(true);
-          expect(crack.position.z, at).toBe(spawnZ);
+          expect(Math.abs(crack.position.z + crack.scale.z / 2 - spawnZ), at).toBeLessThan(1e-6);
+          expect(crack.scale.y, at).toBeLessThan(0.5);
           expect(dust.geometry.drawRange.count, at).toBeGreaterThan(0);
         }
       }
@@ -68,5 +70,45 @@ describe('avalanche visual (docs/02-tech.md 8.3)', () => {
     // A cave at the track edge is never inside the body.
     const cave = level.niches.find((n) => Math.abs(n.z - 520) < 200)!;
     expect(visual.insideBody(new Vector3(cave.box.min[0], cave.y + 3, 520))).toBe(false);
+  });
+
+  it('M5-02: at most 4 parts drawn in any phase; clumps roll at the front, half on low; each mountain its own look', async () => {
+    const { threatLook } = await import('../../src/render/threat/avalanche.ts');
+    const th = theme as unknown as ThemeJson;
+    for (const world of worlds.worlds) {
+      const level = buildLevel(world);
+      const visual = createAvalancheVisual(level, th, tun, () => 0.5);
+      const far = new Vector3(0, 10, -100);
+      for (const phase of ['idle', 'warn', 'run', 'gone'] as const) {
+        visual.update({ phase, spawnZ: 600, frontZ: 500, shelter: -1 }, 1, far);
+        expect(visual.parts.filter((p) => p.visible).length, `${world.id} ${phase}`).toBeLessThanOrEqual(4);
+      }
+      visual.update({ phase: 'run', spawnZ: 600, frontZ: 500, shelter: -1 }, 1, far);
+      const clumps = visual.parts.find((p) => p.name === 'avalanche-clumps')! as unknown as { visible: boolean; count: number };
+      const look = threatLook(th, world.id);
+      expect(clumps.visible).toBe(true);
+      expect(clumps.count).toBe(look.clumps);
+      expect(look.clumps).toBeGreaterThanOrEqual(150);
+      expect(look.clumps).toBeLessThanOrEqual(300);
+      visual.setParticles(0.5);
+      expect(clumps.count).toBe(Math.round(look.clumps * 0.5));
+      visual.dispose();
+    }
+    // Later mountains: more clumps and a lower rumble than the first (theme.json threat.worlds).
+    const first = threatLook(th, worlds.worlds[0]!.id);
+    const last = threatLook(th, worlds.worlds[worlds.worlds.length - 1]!.id);
+    expect(last.clumps).toBeGreaterThan(first.clumps);
+    expect(last.rumble).toBeLessThan(first.rumble);
+    expect(last.front[1]).not.toBe(first.front[1]);
+  });
+
+  it('M5-02: setLevel takes the look of the new mountain', async () => {
+    const { threatLook } = await import('../../src/render/threat/avalanche.ts');
+    const th = theme as unknown as ThemeJson;
+    const visual = createAvalancheVisual(buildLevel(worlds.worlds[0]!), th, tun, () => 0.5);
+    const next = worlds.worlds[worlds.worlds.length - 1]!;
+    visual.setLevel(buildLevel(next));
+    expect(visual.look).toEqual(threatLook(th, next.id));
+    visual.dispose();
   });
 });

@@ -16,6 +16,7 @@ import type { CharacterInstance } from '../render/characters.ts';
 import type { AvalancheVisual } from '../render/threat/avalanche.ts';
 import type { CavePart } from '../render/level-mesh.ts';
 import type { Hud } from '../ui/hud.ts';
+import type { GameAudio } from '../audio/index.ts';
 import type { ControlFrame } from '../input/control-frame.ts';
 import { t } from '../ui/i18n.ts';
 import { NICHE_WALL } from '../level/builder.ts';
@@ -33,6 +34,11 @@ const ON_SCREEN = 0.85;
 const WALL_CLEARANCE = 0.2;
 /** The hero covers his head while the front is this close (docs/02-tech.md 8.3). */
 const COVER_DIST = 10;
+/** M5-02 (docs/01-gdd.md 4.8): the rumble — 20% on warn and while the front is far, 60% at nearDist, 80% at the hero; the
+ * front farther than RUMBLE_FAR — the far level. */
+const RUMBLE: [number, number, number] = [0.2, 0.6, 0.8];
+const RUMBLE_FAR = 160;
+const RUMBLE_SFX = 'avalancheRumble';
 
 export interface WaveViewDeps {
   tuning: TuningJson;
@@ -47,6 +53,8 @@ export interface WaveViewDeps {
   manualCamera(): boolean;
   /** These parts of this cave are not drawn while the frame looks through them (−1 — all drawn; PR-07). */
   hideCaveParts(niche: number, parts: readonly CavePart[]): void;
+  /** The sound layer (the rumble), null — no sound yet. */
+  audio?(): GameAudio | null;
 }
 
 export interface WaveView {
@@ -101,6 +109,7 @@ export function createWaveView(d: WaveViewDeps): WaveView {
         d.hud.setFrost(0);
         d.hud.setCaveArrow(null);
         d.hud.setVeil(false);
+        d.audio?.()?.hum(RUMBLE_SFX, 0);
         if (shotCave >= 0) d.camera.fixed = null;
         shotCave = -1;
         d.camera.shelter = null;
@@ -135,6 +144,15 @@ export function createWaveView(d: WaveViewDeps): WaveView {
         shake = near && strongSec <= STRONG_SHAKE_MAX_SEC ? 1 - Math.abs(dz) / av.nearDist : FAR_SHAKE_SHARE;
       } else strongSec = 0;
       d.hud.setFrost(frost);
+      // The rumble by the distance to the front, in the pitch of this mountain's avalanche (theme.json threat.worlds).
+      let rumble = 0;
+      if (ts.phase === 'warn' && !safeAbove) rumble = RUMBLE[0];
+      else if (running) {
+        const a = Math.abs(dz);
+        rumble =
+          a >= RUMBLE_FAR ? RUMBLE[0] : a >= av.nearDist ? RUMBLE[1] + ((RUMBLE[0] - RUMBLE[1]) * (a - av.nearDist)) / (RUMBLE_FAR - av.nearDist) : RUMBLE[2] + ((RUMBLE[1] - RUMBLE[2]) * a) / av.nearDist;
+      }
+      d.audio?.()?.hum(RUMBLE_SFX, rumble * av.rumble, d.visual.look.rumble);
       if (shake > 0) d.camera.shakeAmount = Math.max(d.camera.shakeAmount, Math.max(FAR_SHAKE_SHARE, shake) * av.shakeStrength);
 
       // Arrow to the lit cave from the first second of the warning until the hero is in it, steady (playtest M2: it

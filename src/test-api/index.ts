@@ -175,6 +175,8 @@ export interface TestState {
   /** Round numbers of Speed (M2-13): the plaque has its flash class; sounds started so far; the audio context runs. */
   statFlash: boolean;
   sfx: string[];
+  /** M5-02, M5-03: the level each looped sound heads to (the avalanche rumble, the wind). */
+  hums: Record<string, number>;
   audioRunning: boolean;
   /** Footsteps (LV-09): steps and previews heard, the surface of the last one, the set on, its volume (0–1), the sets
    * opened by an ad, the set whose ad runs; null — the pack has no footsteps. */
@@ -734,6 +736,7 @@ export function installTestApi(g: GameHandles): TestApi {
         wheelFree: g.save.wheel?.day !== g.save.daily?.dayStart,
         statFlash: document.querySelector('[data-role="stat"]')?.classList.contains('flash') ?? false,
         sfx: [...(g.audio?.played ?? [])],
+        hums: { ...(g.audio?.hums ?? {}) },
         audioRunning: g.audio?.running ?? false,
         footsteps: g.footsteps
           ? { count: g.footsteps.count, surface: g.footsteps.surface, ...g.footsteps.state(), busy: g.footsteps.busy, loaded: g.audio?.loaded ?? 0, last: g.footsteps.last }

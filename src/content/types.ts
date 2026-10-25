@@ -89,6 +89,18 @@ export interface ThemeTint {
   track: string;
 }
 
+/** M5-02: how the avalanche looks and sounds on a mountain (theme.json threat, threat.worlds). */
+export interface ThreatLook {
+  front?: [string, string];
+  edge?: string;
+  body?: string;
+  dust?: string;
+  clump?: string;
+  shadow?: string;
+  clumps?: number;
+  rumble?: number;
+}
+
 export interface ThemeJson {
   fx: {
     caught: string;
@@ -130,7 +142,9 @@ export interface ThemeJson {
     /** FM-04: «+N» `scale` times its old size, in the Speed plaque colour with a dark `outline` (px). */
     gainText?: { scale: number; outline: number };
   };
-  threat: { front: [string, string]; edge: string; body: string; dust: string; height: number };
+  /** M5-02: `clump` — colour of the snow clumps, `shadow` — of the shadow ahead of the front, `clumps` — how many,
+   * `rumble` — semitones of the rumble; `worlds` — a mountain's own look over these, by its id. */
+  threat: ThreatLook & { front: [string, string]; edge: string; body: string; dust: string; height: number; worlds?: Record<string, ThreatLook> };
   bonus?: { color: string };
   /** The giant (docs/01a-content.md 16.4): height, colours of the parts and the hat, the face, the horizon silhouette. */
   /** `helper` (docs/01a-content.md 17.4): the giant's helpers — their height, the colour of their snowball. */
@@ -1012,7 +1026,21 @@ export interface SfxJson {
   footsteps?: FootstepsJson;
   /** SD-14: sound events played from audio files under assets/audio/ (instead of ZzFX of the same name). */
   files?: Record<string, string>;
-  [name: string]: number[] | FootstepsJson | Record<string, string> | undefined;
+  /** M5-03 (docs/01-gdd.md 10.3): named cues — a sound as notes; `events` — the cues of each sim event. */
+  cues?: Record<string, SfxCue>;
+  events?: Record<string, string[]>;
+  [name: string]: number[] | FootstepsJson | Record<string, string> | Record<string, SfxCue> | Record<string, string[]> | undefined;
+}
+
+/** M5-03: a sound `sfx` of sfx.json as `notes` (semitones) `gap` s apart, `delay` s later; `when` — only for an event with
+ * these fields; `perSec` — not more often a second. */
+export interface SfxCue {
+  sfx: string;
+  notes?: number[];
+  gap?: number;
+  delay?: number;
+  when?: Record<string, boolean | number | string>;
+  perSec?: number;
 }
 
 /**

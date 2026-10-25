@@ -34,6 +34,7 @@ import { createBonusVisual, type BonusVisual } from './render/threat/bonus.ts';
 import { BONUS_HEIGHT } from './sim/bonus.ts';
 import { createCameraRig, type CameraRig } from './render/camera.ts';
 import { createAvalancheVisual, type AvalancheVisual } from './render/threat/avalanche.ts';
+import { createSfxEvents } from './app/sfx-events.ts';
 import { createWaveView, type WaveView } from './app/wave-view.ts';
 import { createFtueVisual } from './render/ftue.ts';
 import { createFtueView, type FtueView } from './app/ftue-view.ts';
@@ -452,6 +453,8 @@ async function boot(): Promise<void> {
   let stageView: StageView | null = null;
   let campView: CampView | null = null;
   let audio: GameAudio | null = null;
+  // M5-03, M5-04 (docs/01-gdd.md 10.3): the cues of sfx.json on the sim events and by name.
+  const sfxEvents = createSfxEvents(sfx, () => audio);
   let rewardFly: RewardFly | null = null;
   /** Footsteps (LV-09): a sound at every step, the «Footsteps» window; null — the pack has no footsteps. */
   let footstepsView: FootstepsView | null = null;
@@ -470,6 +473,7 @@ async function boot(): Promise<void> {
   // Gates melt into an arch over GATE_MELT_SEC; funnel events gate_N for mountain 1 on tier 0 (docs/06, steps 5–15).
   const melting = new Map<number, number>();
   const wireSim = (s: Sim): void => {
+    sfxEvents.wire(s.events);
     const recorded = ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'gatePass', 'portal', 'giftTake', 'giftsRespawn', 'eggTouch', 'eggHatch', 'statMilestone'] as const;
     const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'caughtEnd', 'waveDusted', 'waveGone', 'waveEnd', 'bonusSpawn', 'bonusTake', 'bonusSaved', 'bonusLost', 'bossEnter', 'bossPassed', 'bossCaught', 'bossBotCaught', 'helperThrow', 'helperHit', 'recordUp', 'chasmDown', 'tunnelEnter', 'eventStart', 'eventEnd', 'snowballHit', 'snowballBotHit'] as const;
     for (const name of [...recorded, ...waves]) {
@@ -587,9 +591,11 @@ async function boot(): Promise<void> {
     });
     s.events.on('gateOpen', ({ index, wall }) => {
       melting.set(index, playSec);
+      const kind = s.level.gates[index]?.kind;
+      // A ridge melts all its passages at once: its own fanfare (docs/01-gdd.md 10.3).
+      if (kind === 'ridge') sfxEvents.cue('ridge');
       if (s.level.worldIndex !== 1 || s.tier !== 0) return;
       // The open slope counts its ridges (docs/06 8.2: ridge_1…ridge_3), the other paces their walls.
-      const kind = s.level.gates[index]?.kind;
       if (kind === 'ridge') trackOnce(`ridge_${wall}`);
       else if (kind !== 'boss' && GATE_FUNNEL_WALLS.includes(wall)) trackOnce(`gate_${wall}`);
     });
@@ -1455,6 +1461,7 @@ async function boot(): Promise<void> {
     const r = applyRebirth(save, balance, skins);
     // With the base the rebirth leads there (docs/01-gdd.md 19.4): portal 1 lit, the rest iced.
     go(flow({ kind: 'rebirth' }), { stat: r.stat, coins: r.coins, tier: r.tier });
+    sfxEvents.cue('rebirth');
     meta?.resetShoes();
     cosmeticsView?.syncHero();
     hud?.setCoins(formatNumber(r.coins, numSuffix));
@@ -1866,7 +1873,9 @@ async function boot(): Promise<void> {
     onPadLabel: () => campView?.open(),
     threatColor: theme.threat.front[1],
     bonusColor: theme.bonus?.color,
-    onShoes: () => void meta?.buyShoes(),
+    onShoes: () => {
+      if (meta?.buyShoes()) sfxEvents.cue('shoes');
+    },
     onShoesShort: () => meta?.shoesShort(),
     onAd: (id) => adsView?.press(id),
     onEgg: () => void petsView?.buyEgg(),
@@ -1928,6 +1937,7 @@ async function boot(): Promise<void> {
     field: () => field,
     manualCamera: () => turnedByHand || (cameraRig?.sinceManual ?? 99) < 0.5,
     hideCaveParts: (niche, parts) => levelMeshes?.setCaveCut(niche, parts),
+    audio: () => audio,
   });
   wayView = createWayView({ balance, getSim: () => sim, hud, camera: cameraRig, field: () => field });
   // Rewarded ads by the common rules of docs/01-gdd.md 9.1 (stat_now in a grotto with a belt; continue_here, 17.11).
@@ -2097,7 +2107,7 @@ async function boot(): Promise<void> {
         balance: () => formatNumber(meta?.shoeFunds() ?? sim.coins, numSuffix),
         trophies: () => meta?.shoesInTrophies ?? false,
         buy: () => {
-          meta?.buyShoes();
+          if (meta?.buyShoes()) sfxEvents.cue('shoes');
           windows?.refresh();
         },
       },
