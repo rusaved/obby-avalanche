@@ -458,6 +458,10 @@ const tuningSchema = v.object({
     caughtPopSec: nonNeg,
     ballBounce: nonNeg,
     arrowScale: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(4))),
+    // M5-02: the look of the snow — the ridge on warn (× the clump size), the inner glow of the clumps, the dust size.
+    warnRidgeScale: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(8))),
+    clumpGlow: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
+    dustSize: v.optional(v.pipe(v.number(), v.minValue(0.2), v.maxValue(6))),
   }),
   fun: v.object({ padSpeed: positive, padForward: nonNeg, slideMult: v.pipe(v.number(), v.minValue(1)), slideSec: nonNeg, giftStreakSec: nonNeg, slideSway: v.optional(nonNeg), slideSwayHz: v.optional(nonNeg) }),
   // Pace open (docs/01a-content.md 16.7): the ridge view, the giant-zone shot, the giant's stomp, draw distance.

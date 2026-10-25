@@ -57,6 +57,7 @@
   "hint.gold": "Bring the golden gift to a cave!",
   "hint.stuck": "Build speed on the treadmill",
   "hint.portal": "Into the portal!",
+  "toast.newPetNamed": "New pet: {name}! +{n}% per step",
   "toast.newPet": "New pet! +{n}% per step",
   "toast.newShoes": "{name}: +{m} per step",
   "gate.needLevel": "LEVEL NEEDED",

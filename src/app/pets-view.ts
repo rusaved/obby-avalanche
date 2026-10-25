@@ -35,6 +35,9 @@ const STAND_SPEED = 1.5;
 /** The button floats this high over the stand foot (units). */
 const BUTTON_ABOVE = 4.2;
 
+/** Rarities a hatch celebrates with the golden toast and a fanfare. */
+const RARE = ['epic', 'legendary', 'mythic'];
+
 export interface PetsViewDeps {
   balance: BalanceJson;
   pets: PetsJson;
@@ -55,6 +58,8 @@ export interface PetsViewDeps {
   onChange(): void;
   /** An egg hatched (the quest «Open an egg», M3-08b). */
   onHatch?(): void;
+  /** A pet of epic rarity or rarer hatched (review M5: the rarity heard and seen). */
+  onRare?(): void;
   /** Mountain of each egg (worlds.json `egg`) and the highest mountain open on this tier: the shop tab «Eggs». */
   eggWorlds?: Record<string, number>;
   /** M4-03: «▶ Ad: {egg}» on the card of the egg of the mountain the hero is on — offered now, or null. */
@@ -259,7 +264,11 @@ export function createPetsView(d: PetsViewDeps): PetsView {
       // Under the toast: «Snow Egg: 2 of 5» — kinds of this egg's pets the player has (M3-13).
       const pool = egg?.pool.map((x) => x.pet) ?? [];
       const count = egg ? t('toast.hatchCount', { egg: t(`egg.${egg.id}`), k: collected(d.save.pets, pool), n: pool.length }) : undefined;
-      if (!quiet) d.hud.toast(t('toast.newPet', { n: pct(petDef(pet)?.bonus ?? 0) }), count ? 3 : 2, false, count);
+      // M5 review: its name in the toast; epic and rarer — the golden toast and its own fanfare.
+      const def = petDef(pet);
+      const rare = RARE.includes(def?.rarity ?? '');
+      if (!quiet) d.hud.toast(t('toast.newPetNamed', { name: t(`pet.${pet}`), n: pct(def?.bonus ?? 0) }), count ? 3 : 2, rare, count);
+      if (!quiet && rare) d.onRare?.();
       d.trackOnce('egg_1');
       d.persist(true);
       d.windows.refresh();

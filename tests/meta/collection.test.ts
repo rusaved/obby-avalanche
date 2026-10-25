@@ -81,10 +81,10 @@ describe('collection counter (M3-13)', () => {
     const snow = eggs.eggs[0]!;
     const { v, toasts } = view(pets, eggs);
     v.hatched('bunny', null, true); // «Mountain Gift» of the teaching: no counter line
-    expect(toasts.at(-1)).toEqual({ text: 'Новый питомец! +20% к шагу', sub: undefined });
+    expect(toasts.at(-1)).toEqual({ text: 'Новый питомец: Зайка! +20% к шагу', sub: undefined });
     expect(v.menuItem()?.badge).toBe('1/27');
     v.hatched('penguin', null, false, snow);
-    expect(toasts.at(-1)).toEqual({ text: 'Новый питомец! +10% к шагу', sub: 'Снежное яйцо: 2 из 5' });
+    expect(toasts.at(-1)).toEqual({ text: 'Новый питомец: Пингвинчик! +10% к шагу', sub: 'Снежное яйцо: 2 из 5' });
     expect(v.menuItem()?.badge).toBe('2/27');
     v.hatched('penguin', null, false, snow);
     expect(toasts.at(-1)?.sub).toBe('Снежное яйцо: 2 из 5');

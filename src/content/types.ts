@@ -441,6 +441,10 @@ export interface TuningJson {
     jumpButtonFrac: number;
   };
   avalanche: {
+    /** M5-02: the ridge of clumps on warn (× clump size), the inner glow of the clumps (0–1), the dust size. */
+    warnRidgeScale?: number;
+    clumpGlow?: number;
+    dustSize?: number;
     shakeStrength: number;
     rumble: number;
     /** Phase `gone`: seconds the snow takes to melt at the camp (the pause intervalSec counts from its start). */

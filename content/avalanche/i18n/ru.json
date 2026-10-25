@@ -57,6 +57,7 @@
   "hint.gold": "Принеси золотой подарок в пещеру!",
   "hint.stuck": "Копи скорость на дорожке",
   "hint.portal": "В портал!",
+  "toast.newPetNamed": "Новый питомец: {name}! +{n}% к шагу",
   "toast.newPet": "Новый питомец! +{n}% к шагу",
   "toast.newShoes": "{name}: +{m} за шаг",
   "gate.needLevel": "НУЖЕН УРОВЕНЬ",

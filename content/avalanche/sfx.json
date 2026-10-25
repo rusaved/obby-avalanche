@@ -65,7 +65,8 @@
     "newHeight": { "sfx": "recordUp" },
     "wallMelt": { "sfx": "wallMelt" },
     "belt": { "sfx": "belt", "when": { "belt": true }, "perSec": 4 },
-    "shoes": { "sfx": "shoesBuy" }
+    "shoes": { "sfx": "shoesBuy" },
+    "petRare": { "sfx": "fanfare", "notes": [0, 4, 7, 12], "gap": 0.12 }
   },
   "events": {
     "waveWarn": ["waveWarn"],

@@ -47,7 +47,8 @@ for (const [w, h] of [[880, 405], [815, 290]] as const)
         t.setTutor(9);
         for (const id of ids) t.givePet(id);
       }, [pets, STAGES[0]!.stages[2]!.start + 4] as const);
-      await waitTicks(page, 20);
+      // The last pet hatches out of its ball first (1 s of game time and its pop).
+      await waitTicks(page, 240);
       const frames: Array<[string, Buffer]> = [];
       const shot = async (name: string): Promise<void> => {
         const buf = await page.screenshot({ path: `${DIR}/${w}x${h}/${name}.png` });

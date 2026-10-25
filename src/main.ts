@@ -901,7 +901,7 @@ async function boot(): Promise<void> {
         characters.setWings(c, wings[i] ?? null);
         c.position.set(base.x - ((LINEUP - 1) * 2.6) / 2 + i * 2.6, base.y, base.z + 5);
         // Wings are on the back: those figures turn their side to the camera.
-        c.yaw = wings[i] ? Math.PI * 0.45 : Math.PI * 0.85;
+        c.yaw = wings[i] ? Math.PI * 0.45 : Math.PI * 0.75;
         c.pose = 'idle';
       }
       if (heroChar) heroChar.visible = ids.length === 0;
@@ -2071,6 +2071,7 @@ async function boot(): Promise<void> {
     trackOnce,
     onChange: () => meta?.apply(),
     onHatch: () => questsView?.hatched(),
+    onRare: () => sfxEvents.cue('petRare'),
     // The shop tab «Eggs» (M3-09): eggs of the mountains open on this tier (docs/01-gdd.md 7.2).
     // An egg opens on the first mountain that has it (the fast pace has one egg per two mountains, docs/01-gdd.md 16.3).
     eggWorlds: Object.fromEntries([...content.worlds.worlds].reverse().filter((w) => w.egg).map((w) => [w.egg!, w.index])),

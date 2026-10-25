@@ -59,12 +59,13 @@ const SHADOW_LIFT = 0.12;
 const SHADOW_ROWS = 3;
 /** Snow clumps: the most instances of any mountain (docs/02-tech.md 8.3: 150–300), their sizes and how far ahead they roll. */
 const CLUMP_MAX = 300;
-const CLUMP_SIZE: [number, number] = [0.5, 1.9];
+const CLUMP_SIZE: [number, number] = [0.5, 1.5];
 const CLUMP_ROLL = 7;
-/** Share of their own colour the clumps glow with (shade never turns them grey). */
-const CLUMP_GLOW = 0.45;
-/** On warn the clumps churn along the crack: a snow ridge seen from 160 units (docs/02-tech.md 8.3), this much bigger. */
-const CLUMP_WARN_SCALE = 3;
+/** Defaults of tuning avalanche: the inner glow of the clumps (shade never turns them grey), the ridge on warn (× clump
+ * size: a snow ridge seen from 160 units, docs/02-tech.md 8.3), the dust size. */
+const CLUMP_GLOW = 0.75;
+const CLUMP_WARN_SCALE = 5;
+const DUST_SIZE = 2.4;
 /** Clumps by default, when a mountain does not say (theme.json threat.clumps). */
 const CLUMPS_DEFAULT = 160;
 
@@ -206,9 +207,9 @@ export function createAvalancheVisual(initial: LevelData, theme: ThemeJson, tuni
   body.name = 'avalanche-body';
 
   // Snow clumps rolling off the front (docs/02-tech.md 8.3): low-poly balls, one InstancedMesh.
-  const clumpGeo = new IcosahedronGeometry(1, 0);
+  const clumpGeo = new IcosahedronGeometry(1, 1);
   // Lit from within a little: in the shade of the slope a clump stays snow, not a grey stone.
-  const clumpMat = new MeshLambertMaterial({ color: new Color(look.clump), emissive: new Color(look.clump), emissiveIntensity: CLUMP_GLOW, flatShading: true, fog: false });
+  const clumpMat = new MeshLambertMaterial({ color: new Color(look.clump), emissive: new Color(look.clump), emissiveIntensity: av.clumpGlow ?? CLUMP_GLOW, flatShading: true, fog: false });
   const clumps = new InstancedMesh(clumpGeo, clumpMat, CLUMP_MAX);
   clumps.name = 'avalanche-clumps';
   const clumpSeed = new Float32Array(CLUMP_MAX * 4);
@@ -220,7 +221,7 @@ export function createAvalancheVisual(initial: LevelData, theme: ThemeJson, tuni
   for (let i = 0; i < dustSeed.length; i++) dustSeed[i] = rngNext();
   const dustGeo = new BufferGeometry();
   dustGeo.setAttribute('position', new BufferAttribute(dustPos, 3));
-  const dustMat = new PointsMaterial({ color: new Color(look.dust), size: 1.6, fog: false, transparent: true, opacity: 0.85, depthWrite: false });
+  const dustMat = new PointsMaterial({ color: new Color(look.dust), size: av.dustSize ?? DUST_SIZE, fog: false, transparent: true, opacity: 0.85, depthWrite: false });
   const dust = new Points(dustGeo, dustMat);
   dust.name = 'avalanche-dust';
 
@@ -257,7 +258,8 @@ export function createAvalancheVisual(initial: LevelData, theme: ThemeJson, tuni
     frontMat.uniforms['uEdge']!.value.set(look.edge);
     frontMat.uniforms['uShadow']!.value.set(look.shadow);
     bodyColor.set(look.body);
-    crackColor.set(look.front[1]);
+    // The crack and the ridge on warn: the shadow colour of the mountain reads on pale snow and fog (art review M5).
+    crackColor.set(look.shadow);
     clumpColor.set(look.clump);
     dustMat.color.set(look.dust);
   };
@@ -315,7 +317,7 @@ export function createAvalancheVisual(initial: LevelData, theme: ThemeJson, tuni
         body.scale.set(level.width, CRACK_HEIGHT, CRACK_DEPTH);
       }
       clumps.visible = (run || warn) && clumps.count > 0;
-      // On warn the ridge takes the blue of the front's foot: white on white snow is lost at 160 units.
+      // On warn the ridge takes the shadow colour of the mountain: white on white snow is lost at 160 units.
       clumpMat.color.copy(warn ? crackColor : clumpColor);
       clumpMat.emissive.copy(warn ? crackColor : clumpColor);
       if (clumps.visible) {
@@ -327,7 +329,7 @@ export function createAvalancheVisual(initial: LevelData, theme: ThemeJson, tuni
           const sr = clumpSeed[i * 4 + 3]!;
           if (warn) {
             // The snow breaks loose along the crack: clumps heave up and settle, a white ridge where the wave will start.
-            const size = (CLUMP_SIZE[0] + (CLUMP_SIZE[1] - CLUMP_SIZE[0]) * sy) * CLUMP_WARN_SCALE;
+            const size = (CLUMP_SIZE[0] + (CLUMP_SIZE[1] - CLUMP_SIZE[0]) * sy) * (av.warnRidgeScale ?? CLUMP_WARN_SCALE);
             const z = view.spawnZ + (sz - 0.5) * 4;
             dummy.position.set((sx * 2 - 1) * half, level.floorYAt(z) + size * 0.4 + Math.abs(Math.sin(timeSec * (1.5 + sr * 2) + sr * 6)) * 3 * sy, z);
             dummy.rotation.set(sr * 6 + timeSec * 0.5, sx * 6, sz * 6);
