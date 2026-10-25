@@ -103,10 +103,13 @@ export interface Characters {
   dispose(): void;
 }
 
-/** One face of the atlas on the head colour as a small picture (the hero mark on the HUD mountain bar). */
-export function faceDataUrl(headColor: string, face: string, size = 48): string {
-  const atlas = document.createElement('canvas');
-  drawFaceAtlas(atlas);
+/** One face of the atlas on the head colour as a small picture (the hero mark on the HUD mountain bar). `atlas` — the one
+ * already drawn (M5-06: drawing the whole atlas again cost 0.3 s of the boot at CPU ×4). */
+export function faceDataUrl(headColor: string, face: string, size = 48, atlas?: HTMLCanvasElement): string {
+  if (!atlas) {
+    atlas = document.createElement('canvas');
+    drawFaceAtlas(atlas);
+  }
   const out = document.createElement('canvas');
   out.width = size;
   out.height = size;

@@ -26,6 +26,83 @@ export interface CollisionWorld {
 /** Expands the Octree bounds so no triangle lies exactly on a split boundary (floating point drops it). */
 const OCTREE_PADDINGS = [0.0137, 0.0731, 0.2371];
 
+/** M5-06: triangles a leaf holds before it splits (three's default 8): the long strips of a slope (up to 900 units) went
+ * into thousands of tiny leaves 16 levels deep — the build of mountain 10 took 1.4 s, with 32 it takes 0.08 s. */
+const LEAF_TRIANGLES = 32;
+/** M5-06 (docs/02-tech.md 9.5: a switch of mountains ≤ 1 s at CPU ×4): the bounds of each triangle, made once per build. */
+const triBounds = new WeakMap<Triangle, Float64Array>();
+function boundsOf(t: Triangle): Float64Array {
+  let b = triBounds.get(t);
+  if (!b) {
+    const { a, b: q, c } = t;
+    b = new Float64Array([Math.min(a.x, q.x, c.x), Math.min(a.y, q.y, c.y), Math.min(a.z, q.z, c.z), Math.max(a.x, q.x, c.x), Math.max(a.y, q.y, c.y), Math.max(a.z, q.z, c.z)]);
+    triBounds.set(t, b);
+  }
+  return b;
+}
+
+interface OctreeBox {
+  min: Vector3;
+  max: Vector3;
+  clone(): OctreeBox;
+  intersectsTriangle(t: Triangle): boolean;
+}
+
+interface OctreeInner {
+  box: OctreeBox | null;
+  triangles: Triangle[];
+  subTrees: Octree[];
+  trianglesPerLeaf: number;
+  maxLevel: number;
+}
+
+/**
+ * The Octree of three with the same split, but a triangle is first checked by its bounds against the child box: apart —
+ * not in it, inside — in it; only the rest goes to the exact box–triangle test (which the bounds checks never contradict),
+ * so every leaf holds the same triangles as before, without most of the exact tests (they were 95% of a switch).
+ */
+class BoundsOctree extends Octree {
+  constructor(box?: never) {
+    super(box);
+    (this as unknown as OctreeInner).trianglesPerLeaf = LEAF_TRIANGLES;
+  }
+
+  override split(level: number): this {
+    const self = this as unknown as OctreeInner;
+    const box = self.box;
+    if (!box) return this;
+    const half = new Vector3().copy(box.max).sub(box.min).multiplyScalar(0.5);
+    const subs: BoundsOctree[] = [];
+    const v = new Vector3();
+    for (let x = 0; x < 2; x++)
+      for (let y = 0; y < 2; y++)
+        for (let z = 0; z < 2; z++) {
+          const b = box.clone();
+          b.min.copy(box.min).add(v.set(x, y, z).multiply(half));
+          b.max.copy(b.min).add(half);
+          subs.push(new BoundsOctree(b as never));
+        }
+    let tri: Triangle | undefined;
+    while ((tri = self.triangles.pop())) {
+      const t = boundsOf(tri);
+      for (const sub of subs) {
+        const sb = (sub as unknown as OctreeInner).box!;
+        const mn = sb.min;
+        const mx = sb.max;
+        if (t[3]! < mn.x || t[0]! > mx.x || t[4]! < mn.y || t[1]! > mx.y || t[5]! < mn.z || t[2]! > mx.z) continue;
+        const inside = t[0]! >= mn.x && t[3]! <= mx.x && t[1]! >= mn.y && t[4]! <= mx.y && t[2]! >= mn.z && t[5]! <= mx.z;
+        if (inside || sb.intersectsTriangle(tri)) (sub as unknown as OctreeInner).triangles.push(tri);
+      }
+    }
+    for (const sub of subs) {
+      const len = (sub as unknown as OctreeInner).triangles.length;
+      if (len > self.trianglesPerLeaf && level < self.maxLevel) sub.split(level + 1);
+      if (len !== 0) self.subTrees.push(sub);
+    }
+    return this;
+  }
+}
+
 function countLeafTriangles(tree: Octree, seen = new Set<Triangle>()): number {
   const t = tree as unknown as { triangles: Triangle[]; subTrees: Octree[] };
   for (const tri of t.triangles) seen.add(tri);
@@ -44,9 +121,9 @@ export function octreeFromTriangles(tris: Float32Array | number[]): Octree {
       ),
     );
   }
-  let tree = new Octree();
+  let tree: Octree = new BoundsOctree();
   for (const pad of OCTREE_PADDINGS) {
-    tree = new Octree();
+    tree = new BoundsOctree();
     for (const t of triangles) tree.addTriangle(t);
     if (triangles.length > 0) (tree as unknown as { bounds: { expandByScalar(s: number): void } }).bounds.expandByScalar(pad);
     tree.build();

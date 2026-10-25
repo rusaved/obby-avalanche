@@ -1930,7 +1930,7 @@
     "milestone": "M5",
     "description": "Игра 2 — замена данных: пакет _sample с другим статом (эффект jumpPower), другой угрозой-визуалом, своей палитрой, 1 горой и 3 стенами",
     "acceptance": "`VITE_CONTENT=_sample npm run build:e2e` и sample.spec.ts зелёные; для _sample код менялся только в src/sim/effects/ и каталоге сегментов (git diff по вехе); скриншот docs/evidence/M5/sample.png; content/README.md описывает контракт пакета: файлы, поля, перечисления, версия схемы (docs/02-tech.md, 5.2)",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },

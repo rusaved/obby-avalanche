@@ -3,7 +3,7 @@
   "schema": 1,
   "stat": {
     "key": "jump",
-    "effect": "moveSpeed"
+    "effect": "jumpPower"
   },
   "threat": {
     "kind": "wave",

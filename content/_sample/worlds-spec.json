@@ -41,7 +41,8 @@
         },
         {
           "requires": 100,
-          "treadmill": 2
+          "treadmill": 2,
+          "ledge": 9
         }
       ]
     }

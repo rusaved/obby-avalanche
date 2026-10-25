@@ -766,7 +766,8 @@ export interface WorldsSpecJson {
     speed: number;
     egg: string;
     gifts: number[];
-    walls: Array<{ requires: number; treadmill: number }>;
+    /** `ledge` — the height of the ledge of the stretch's third gift (M5-09, docs/01a-content.md 14.3); absent — 2.5. */
+    walls: Array<{ requires: number; treadmill: number; ledge?: number }>;
     campTreadmill?: number;
   }>;
 }

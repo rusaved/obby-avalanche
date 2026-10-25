@@ -13,6 +13,8 @@ import { summitTrophies } from '../sim/economy.ts';
 import { LEADERBOARD_SCORES } from '../meta/trophies.ts';
 import { floatingErrors, seamErrors, surfaceLineErrors, validateStageWorlds } from './validate-stages.ts';
 import { moveSpeed } from '../sim/effects/moveSpeed.ts';
+import { jumpPower } from '../sim/effects/jumpPower.ts';
+import { statCurves } from '../sim/effects/index.ts';
 import { buildLevel, GATE_THICKNESS } from './builder.ts';
 import { PAD_SIZE, TICK, apexOf, padArc, padGiftBand } from './pad-arc.ts';
 import { GIFT_HALF, GIFT_HEIGHT, touchesGift } from '../sim/gifts.ts';
@@ -559,7 +561,7 @@ const specSchema = v.object({
         speed: positive,
         egg: id,
         gifts: v.pipe(v.array(positive), v.minLength(1)),
-        walls: v.pipe(v.array(v.object({ requires: positive, treadmill: positive })), v.minLength(1)),
+        walls: v.pipe(v.array(v.object({ requires: positive, treadmill: positive, ledge: v.optional(positive) })), v.minLength(1)),
         campTreadmill: v.optional(positive),
       }),
     ),
@@ -1047,7 +1049,10 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
   const speedAt = (stat: number): number => (game.stat.effect === 'moveSpeed' ? moveSpeed(stat, curve) : tuning.controller.baseSpeed);
   // The stages pace (docs/01-gdd.md 22): its trials are checked by validate-stages.ts, not by the open slope's lanes.
   const stagesPace = (files['worlds-spec.json'] as { layout?: string }).layout === 'stageSlope';
-  if (errors.length === 0 && !stagesPace) errors.push(...(open ? validateOpenGround(worlds, tuning, speedAt) : validateReachability(worlds, tuning)));
+  // M5-09 (docs/01a-content.md 14.3): with `jumpPower` a ledge is reached by the jump of the stat past the wall below it.
+  const jumpCurve = statCurves(game.stat.effect, curve, (balance as { jumpCurve?: Curve }).jumpCurve).jump;
+  const jumpAt = jumpCurve ? (stat: number): number => jumpPower(stat, jumpCurve) : undefined;
+  if (errors.length === 0 && !stagesPace) errors.push(...(open ? validateOpenGround(worlds, tuning, speedAt) : validateReachability(worlds, tuning, jumpAt)));
   if (errors.length === 0 && !stagesPace) {
     errors.push(...(open ? validateOpenFairness(worlds, speedAt) : validateFairness(worlds, speedAt)));
     if (open) {
@@ -1310,9 +1315,8 @@ export const REACH_MARGIN = 0.8;
  * walkable (normal.y ≥ 0.6), every step fits the step-up, every gap is shorter than 60% of the jump at the base
  * speed (the minimum speed of any stretch), and the cave floors sit at the track height.
  */
-export function validateReachability(worlds: WorldsJson, tuning: TuningJson): string[] {
+export function validateReachability(worlds: WorldsJson, tuning: TuningJson, jumpAt?: (stat: number) => number): string[] {
   const errors: string[] = [];
-  const hJump = jumpHeight(tuning) * REACH_MARGIN;
   const dJump = jumpDistance(tuning, tuning.controller.baseSpeed) * 0.6;
   const stepUp = tuning.controller.stepUp;
   for (const [wi, w] of worlds.worlds.entries()) {
@@ -1333,7 +1337,11 @@ export function validateReachability(worlds: WorldsJson, tuning: TuningJson): st
     for (const b of level.boxes) {
       if (b.kind !== 'ledge') continue;
       const h = b.max[1] - b.min[1];
-      if (h > hJump) errors.push(`${at}: ledge at z=${b.min[2] + 2} — height ${h} above ${hJump.toFixed(2)} (80% of the jump)`);
+      // The stat here is at least the requirement of the last wall below (M5-09: jumpPower — the jump grows with it).
+      const below = level.gates.filter((g) => g.z <= b.min[2]).reduce((m, g) => Math.max(m, g.requires), 0);
+      const v0 = jumpAt ? jumpAt(below) : tuning.controller.jumpSpeed;
+      const reach = ((v0 * v0) / (2 * tuning.controller.gravity)) * REACH_MARGIN;
+      if (h > reach) errors.push(`${at}: ledge at z=${b.min[2] + 2} — height ${h} above ${reach.toFixed(2)} (80% of the jump${jumpAt ? ` at ${below}` : ''})`);
     }
     for (const s of w.segments) {
       if (s.type === 'steps') {

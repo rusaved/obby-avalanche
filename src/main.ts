@@ -35,6 +35,7 @@ import { BONUS_HEIGHT } from './sim/bonus.ts';
 import { createCameraRig, type CameraRig } from './render/camera.ts';
 import { createAvalancheVisual, type AvalancheVisual } from './render/threat/avalanche.ts';
 import { createSfxEvents } from './app/sfx-events.ts';
+import { statCurves } from './sim/effects/index.ts';
 import { createWaveView, type WaveView } from './app/wave-view.ts';
 import { createFtueVisual } from './render/ftue.ts';
 import { createFtueView, type FtueView } from './app/ftue-view.ts';
@@ -272,7 +273,9 @@ async function boot(): Promise<void> {
   if (!world) throw new Error('worlds.json has no worlds');
   let level = buildLevel(world, { wallHeight: tuning.bounds?.wallHeight, cameraThrough: tuning.camera.seeThrough, grottoThrough: tuning.camera.grottoFrame === false });
   // Feel values (base and ceiling) come from tuning.json sliders; the curve shape from balance.json.
-  const speedCurve = () => ({ ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed });
+  // M5-09 (docs/01a-content.md 14): what the stat drives — the run (moveSpeed) or the jump (jumpPower, a flat run).
+  const curves = () => statCurves(game.stat.effect, { ...balance.speedCurve, base: tuning.controller.baseSpeed, max: tuning.controller.maxSpeed }, balance.jumpCurve);
+  const speedCurve = () => curves().speed;
   // The avalanche (docs/02-tech.md 8.1): live world threat (debug sliders change it), save counters.
   // ST-06: the stage pads of a mountain pay balance.stagePads.takes times a life (the count in the save).
   // ST-06: a stage pad behind the farthest stage reached on its mountain pays world.padBehindTakes times a life (the count in
@@ -325,6 +328,7 @@ async function boot(): Promise<void> {
   let sim: Sim = createSim(level, tuning, {
     balance,
     speedCurve: speedCurve(),
+    jumpCurve: curves().jump,
     stat: save.stat ?? 0,
     coins: save.coins ?? 0,
     tier: save.tier ?? 0,
@@ -457,6 +461,8 @@ async function boot(): Promise<void> {
   const sfxEvents = createSfxEvents(sfx, () => audio);
   /** M5-05: the figures of the contact sheet (test API showLineup), made once and reused. */
   const LINEUP = 6;
+  /** M5-06: the hero's face on the mountain bar, made after ready(). */
+  let heroFace = '';
   const lineup: CharacterInstance[] = [];
   let rewardFly: RewardFly | null = null;
   /** Footsteps (LV-09): a sound at every step, the «Footsteps» window; null — the pack has no footsteps. */
@@ -1024,7 +1030,7 @@ async function boot(): Promise<void> {
     if (!replay) freshGifts(save, index);
     // From the base portal of the own mountain begun (docs/01-gdd.md 19.4): at the flag of its farthest ridge, as 6.6.
     const resume = how.resume ? { frontierWall: save.frontierWall ?? 0 } : undefined;
-    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world), walls: wallsOf(world), record: replay ? undefined : world.layout === 'openSlope' ? recordOf(world) : undefined, boss: game.threat.boss, events: eventsOptions(world), resume, padPay: padPayOf(world) });
+    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), jumpCurve: curves().jump, stat, coins, tier, threat: threatOptions(world), giftEgg: giftEggOptions(world), bots: botOptions(world), bonus: bonusOptions(world), walls: wallsOf(world), record: replay ? undefined : world.layout === 'openSlope' ? recordOf(world) : undefined, boss: game.threat.boss, events: eventsOptions(world), resume, padPay: padPayOf(world) });
     avalanche?.setLevel(level);
     wireSim(sim);
     g.sim = sim;
@@ -1085,7 +1091,7 @@ async function boot(): Promise<void> {
     world = b.world;
     level = b.level;
     // Bots run on its belt (docs/01-gdd.md 19.2), nothing else of a mountain: no avalanche, giant or events.
-    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), stat, coins, tier, bots: { cfg: bots, count: baseCfg.bots.count, seed: (seed + 7919 * 97) >>> 0, belts: baseBelts(baseCfg) } });
+    sim = createSim(level, tuning, { balance, speedCurve: speedCurve(), jumpCurve: curves().jump, stat, coins, tier, bots: { cfg: bots, count: baseCfg.bots.count, seed: (seed + 7919 * 97) >>> 0, belts: baseBelts(baseCfg) } });
     avalanche?.setLevel(level);
     wireSim(sim);
     g.sim = sim;
@@ -2321,7 +2327,7 @@ async function boot(): Promise<void> {
     hud,
     getSim: () => sim,
     getWorld: () => g.world,
-    faceUrl: skin ? faceDataUrl(skin.colors.head, skin.face) : '',
+    faceUrl: () => heroFace,
     numSuffix,
     mu: muLayout,
     baseLabel: () => t('camp.label', { n: basePortals.find((p) => p.state === 'own')?.world ?? 1 }),
@@ -2504,6 +2510,11 @@ async function boot(): Promise<void> {
   bootState.controllable = true;
   platform.ready();
   bootState.readyAt = gr.info().frame;
+  // M5-06: the hero's face of the mountain bar after ready() (a canvas read back cost 0.3 s of the boot at CPU ×4).
+  setTimeout(() => {
+    heroFace = skin ? faceDataUrl(skin.colors.head, skin.face, 48, characters?.faceAtlas.image as HTMLCanvasElement | undefined) : '';
+    hud?.setHeroFace(heroFace);
+  }, 0);
   events.push('ready');
   // The pace of the run goes with gameReady: the reports split the open/fast comparison by it (docs/06 4, 8.2).
   track('game_ready', { pace, flags: flagsApplied });

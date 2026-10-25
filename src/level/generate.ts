@@ -124,7 +124,7 @@ function generateWorld(spec: WorldsSpecJson, balance: GenerateInput['balance'], 
   pushCamp(seg, spec, m, firstWall.treadmill);
 
   for (let i = 1; i <= n; i++) {
-    const wall = m.walls[i - 1] as { requires: number; treadmill: number };
+    const wall = m.walls[i - 1] as { requires: number; treadmill: number; ledge?: number };
     const z0 = camp + (i - 1) * d;
     const zone = zoneOf(i);
     if (i % 2 === 1) seg.push({ type: 'zoneArch', z: z0, y, zone: zone.k, rarity: zone.rarity });
@@ -145,7 +145,7 @@ function generateWorld(spec: WorldsSpecJson, balance: GenerateInput['balance'], 
       z: round3(z0 + LAYOUT.gift3 * d),
       x: -6,
       y: yTop,
-      height: LAYOUT.ledgeHeight,
+      height: wall.ledge ?? LAYOUT.ledgeHeight,
       zone: zone.k,
       rarity: zone.rarity,
       coins: zone.gift,

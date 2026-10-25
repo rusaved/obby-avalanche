@@ -197,6 +197,8 @@ export interface Hud {
   flashStat(): void;
   /** Mountain bar: built once per mountain. */
   setMountain(bar: MountainBar): void;
+  /** M5-06: the hero's face on the mountain bar, made after ready() (empty `faceUrl` of setMountain keeps it). */
+  setHeroFace(url: string): void;
   /** The mountain bar on or off (docs/01-gdd.md 19.4: hidden on the base). */
   setMountainShown(on: boolean): void;
   /** MU round 3: the stage strip slides in for a moment (the giant's zone; a new stage and a ridge show it by themselves). */
@@ -1387,7 +1389,10 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
         return n;
       });
       blinking = -1;
-      mountainHero.src = bar.faceUrl;
+      if (bar.faceUrl) mountainHero.src = bar.faceUrl;
+    },
+    setHeroFace(url) {
+      if (url) mountainHero.src = url;
     },
     peekStrip,
     setMountainShown(on) {

@@ -13,3 +13,32 @@ test('sample pack boots, renders and calls ready() once', async ({ page, openGam
   const title = await page.title();
   expect(title.length).toBeGreaterThan(0);
 });
+
+// M5-09 (docs/01a-content.md 14): game 2 — the stat «jump» lifts the jump (effect jumpPower), the run stays the same;
+// the frame of the pack with its lava palette — docs/evidence/M5/sample.png.
+test('sample pack: the jump grows with the stat, the run does not; the frame', async ({ page, openGame }) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await openGame();
+  const apex = async (stat: number): Promise<number> => {
+    await page.evaluate((s) => {
+      window.__TEST__!.setStat(s);
+      window.__TEST__!.teleport(30, -8);
+    }, stat);
+    await page.waitForFunction(() => window.__TEST__!.state().hero!.onGround === true, undefined, { timeout: 10_000 });
+    const y0 = (await page.evaluate(() => window.__TEST__!.state().hero!.y));
+    await page.evaluate(() => window.__TEST__!.jump());
+    let top = y0;
+    for (let i = 0; i < 80; i++) {
+      top = Math.max(top, await page.evaluate(() => window.__TEST__!.state().hero!.y));
+      await page.waitForTimeout(16);
+    }
+    return top - y0;
+  };
+  const low = await apex(0);
+  const high = await apex(30);
+  expect(low).toBeGreaterThan(3);
+  expect(high).toBeGreaterThan(low * 1.5);
+  await page.evaluate(() => window.__TEST__!.teleport(150));
+  await page.waitForTimeout(500);
+  await page.screenshot({ path: 'docs/evidence/M5/sample.png' });
+});

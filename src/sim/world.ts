@@ -13,6 +13,7 @@ import { createEmitter, type Emitter } from '../core/events.ts';
 import type { Aabb, LevelData, LevelGate } from '../level/types.ts';
 import type { BalanceJson, Curve, GameEvents, TuningJson } from '../content/types.ts';
 import { moveSpeed } from './effects/moveSpeed.ts';
+import { jumpPower } from './effects/jumpPower.ts';
 import { createStepTracker, type StepGain, type StepTracker } from './steps.ts';
 import { gateIsOpen, gateRequirement, type WallCount } from './gates.ts';
 import { levelNeeded, levelOf, levelThreshold } from './levels.ts';
@@ -186,6 +187,8 @@ export interface SimOptions {
   tier?: number;
   /** Stat → run speed (docs/02-tech.md 6.1): base and max from tuning, k from balance. */
   speedCurve: Curve;
+  /** M5-09 (docs/01a-content.md 14.2): stat → takeoff speed (effect `jumpPower`); absent — tuning's jumpSpeed. */
+  jumpCurve?: Curve | null;
   stat?: number;
   /** Step multiplier of the meta (shoes × pets, docs/01-gdd.md 8.1): set by the meta layer, 1 by default. */
   gainMult?: number;
@@ -450,6 +453,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         }
       }
       params.speed = runSpeed();
+      if (opts.jumpCurve) params.jumpSpeed = jumpPower(progress.stat, opts.jumpCurve);
       params.airSpeedMult = levelReach();
       stepHero(hero, funInput(sim.fun, tb ? NO_INPUT : input, params, tuning.fun), dt, collision, params, level.killY);
       // Trampolines and slides (docs/01-gdd.md 16.4): a launch leaves the ground, so this tick counts no steps.

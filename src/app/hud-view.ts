@@ -28,7 +28,8 @@ export interface HudViewDeps {
   hud: Hud;
   getSim(): Sim;
   getWorld(): World;
-  faceUrl: string;
+  /** The hero's face for the mountain bar ('' until it is made after ready()). */
+  faceUrl(): string;
   numSuffix(k: string): string;
   /** On the base (docs/01-gdd.md 19.4): the goal «To the portal: {mountain}» instead of the bar and the wall; null — off it. */
   baseGoal?: () => string | null;
@@ -93,7 +94,7 @@ export function createHudView(d: HudViewDeps): HudView {
         // The phone strip (MU-02): a tick at every border of the stages; the other layout — the walls.
         walls: d.mu && sim.level.stages ? sim.level.stages.slice(1).map((s) => s.z0 / len) : sim.level.gates.map((g) => g.z / len),
         caves: sim.level.niches.map((n) => n.z / len),
-        faceUrl: d.faceUrl,
+        faceUrl: d.faceUrl(),
       });
       sim.events.on('gateOpen', ({ index }) => {
         // The giant's check has its own toast «You slipped past the giant!» (docs/01-gdd.md 17.6).
