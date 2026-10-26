@@ -14,6 +14,8 @@ export interface SaveSettings {
   quality: 'auto' | 'low' | 'medium' | 'high';
   /** MU-07 (w3-pause): the volume of the sounds, 0–1. */
   volume: number;
+  /** G-09: the volume of the music, 0–1 (absent — 1). */
+  musicVolume?: number;
 }
 
 export interface SaveData {

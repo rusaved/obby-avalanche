@@ -99,7 +99,7 @@ index.html, vite.config.ts, tsconfig.json, vitest.config.ts, playwright.config.t
 | `build` | релизная сборка в `dist/`: без debug, studio, test-api и мока |
 | `build:playtest` | релиз + панель `?debug=1`, для черновика продюсера; на модерацию не идёт |
 | `build:e2e` | релиз + `window.__TEST__` |
-| `build:pages` | playtest-сборка на моке для ссылки продюсера в `dist-pages/`, с M4 плюс `downloads/` с архивами (`docs/05`, раздел 2) |
+| `build:pages` | playtest-сборка на моке для ссылки продюсера в `dist-pages/`, с M4 плюс `downloads/` с архивами (`docs/05`, раздел 2): релиз с покупками, релиз без покупок `-no-iap` (сборка с `VITE_NO_PAYMENTS=1`, G-10) и playtest |
 | `preview` | `vite preview` той сборки, что лежит в `dist/`, мок SDK на `/sdk.js` |
 | `typecheck` | `tsc --noEmit` |
 | `test` | Vitest: логика, симуляция, валидатор, контент, платформа на моке |

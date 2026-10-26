@@ -15,6 +15,7 @@ export default defineConfig({
     __BUILD_LABEL__: '""',
     __SDK_PATH__: '"/sdk.js"',
     __CONTENT_PACK__: '"avalanche"',
+    __NO_PAYMENTS__: 'false',
   },
   test: {
     include: ['tests/**/*.test.ts'],

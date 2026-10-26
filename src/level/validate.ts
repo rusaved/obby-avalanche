@@ -118,7 +118,7 @@ const gameSchema = v.object({
   community: v.optional(v.strictObject({ telegram: v.optional(communityUrl), vk: v.optional(communityUrl) })),
   communityGifts: v.optional(v.strictObject({ subscribe: v.optional(communityGift), review: v.optional(communityGift) })),
   // MU-08 (Q-MU-7): promo codes of the group, each once a player — latin capitals and digits.
-  promo: v.optional(v.object({ codes: v.record(v.pipe(v.string(), v.regex(/^[A-Z0-9]{3,16}$/)), communityGift) })),
+  promo: v.optional(v.object({ enabled: v.optional(v.boolean()), codes: v.record(v.pipe(v.string(), v.regex(/^[A-Z0-9]{3,16}$/)), communityGift) })),
   shortcut: v.optional(
     v.object({ enabled: v.boolean(), reward: v.object({ trophies: v.pipe(v.number(), v.integer(), v.minValue(0)) }), fromSummit: v.pipe(v.number(), v.integer(), v.minValue(1)), place: v.literal('base') }),
   ),
@@ -179,6 +179,17 @@ const themeSchema = v.object({
     portal: v.optional(v.object({ fill: v.boolean(), pillar: nonNeg, arrows: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(6)) })),
   }),
   sky: v.object({ top: hex, mid: v.optional(hex), bottom: hex }),
+  // G-08: the hero brighter than the world — his colours, a dark outline, the sparks of his steps and jumps.
+  hero: v.optional(
+    v.object({
+      saturation: v.pipe(v.number(), v.minValue(1), v.maxValue(2)),
+      outline: hex,
+      outlineWidth: v.pipe(v.number(), v.minValue(0), v.maxValue(0.2)),
+      stepSparks: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(12)),
+      jumpSparks: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(40)),
+      levelConfetti: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(160)),
+    }),
+  ),
   fog: v.object({ color: hex, near: nonNeg, far: positive }),
   tints: v.optional(v.record(v.string(), v.object({ sky: v.object({ top: hex, bottom: hex }), fog: hex, track: hex }))),
   light: v.object({
@@ -287,6 +298,7 @@ const balanceSchema = v.object({
     menuStepSec: nonNeg,
     statMilestones: v.array(v.number()),
     summitGroup: v.optional(v.record(v.picklist(['trophies', 'records', 'wardrobe', 'quests', 'rebirth', 'shortcut']), v.pipe(v.number(), v.integer(), v.minValue(1)))),
+    padStandSec: v.optional(positive),
   }),
   ads: v.object({
     rewardedMinPlaySec: nonNeg,
@@ -480,6 +492,8 @@ const tuningSchema = v.object({
       uiSoundPerSec: v.optional(v.pipe(v.number(), v.minValue(1), v.maxValue(30))),
       flyIcons: v.optional(v.pipe(v.number(), v.integer(), v.minValue(1), v.maxValue(12))),
       flyMs: v.optional(v.pipe(v.number(), v.minValue(100), v.maxValue(2000))),
+      // G-09: the share of the music volume left under an avalanche.
+      musicDuck: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
     }),
   ),
   bounds: v.optional(v.object({ wallHeight: positive })),

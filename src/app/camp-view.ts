@@ -184,7 +184,9 @@ export function createCampView(d: CampViewDeps): CampView {
       case 'shoes': {
         const pairs = d.save.shoes ?? 0;
         if (shoesAt < 0) shoesAt = pairs;
-        if (pairs > shoesAt) {
+        // G-03 (producer 26.10: «I did not get when to buy them, the hint was gone fast»): held till a pair is bought or
+        // the shop is opened.
+        if (pairs > shoesAt || d.windows.current === 'shop') {
           done('shoes');
           return none;
         }
@@ -233,9 +235,13 @@ export function createCampView(d: CampViewDeps): CampView {
       if (!stages && d.levels) {
         const step = TUTOR_STEPS[d.save.tutor ?? 0];
         const p = step === 'portal' && !d.windows.current ? d.basePortal?.(2) : null;
+        d.hud.pointShoes(false);
         return d.hud.setTutor(p ? t('tutor.portal') : null, false, p ? (d.aim?.(p.x, p.y + 2, p.z) ?? null) : null);
       }
-      if (!stages || !d.levels) return d.hud.setTutor(null);
+      if (!stages || !d.levels) {
+        d.hud.pointShoes(false);
+        return d.hud.setTutor(null);
+      }
       const h = sim.hero.pos;
       const n = stageAt(sim.level, h.z);
       if (n > best(w)) {
@@ -286,7 +292,9 @@ export function createCampView(d: CampViewDeps): CampView {
       if (d.windows.current) show = null;
       // ST-01 (usability review: the ridge plaque hid the steps): the level, the pad and on go before the ridge plaque; the
       // treadmill step leaves it the slot (its «Level up on a treadmill» points to the same belt).
-      const lead = show !== null && show === show0.text && (TUTOR_STEPS[d.save.tutor ?? 0] === 'level' || TUTOR_STEPS[d.save.tutor ?? 0] === 'pad' || TUTOR_STEPS[d.save.tutor ?? 0] === 'onward');
+      const lead = show !== null && show === show0.text && (TUTOR_STEPS[d.save.tutor ?? 0] === 'level' || TUTOR_STEPS[d.save.tutor ?? 0] === 'pad' || TUTOR_STEPS[d.save.tutor ?? 0] === 'shoes' || TUTOR_STEPS[d.save.tutor ?? 0] === 'onward');
+      // G-03: the arrow over the sneakers button while their step is up.
+      d.hud.pointShoes(!d.windows.current && show0.text === t('tutor.shoes'));
       d.hud.setTutor(show, show !== null && (show === t('tutor.jump') || wave || lead), show !== null && show === show0.text ? show0.arrow : null);
       // The teleport pad of the camp: stepping on it opens the window once a step-on.
       // SD-13 (producer 16.10: «it worked once, then broke»): on the next mountain the pad stood dead until its own

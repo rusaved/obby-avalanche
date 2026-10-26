@@ -10,13 +10,13 @@
     "boss": { "kind": "giant", "margin": 0.05, "catch": "roll", "reach": 4, "run": 0.5, "coverBonus": 0.15, "cover": { "hideSec": 1.5, "pad": 4 } }
   },
   "leaderboard": null,
-  "promo": { "codes": { "LAVINA": { "kind": "coins", "gifts": 10 } } },
+  "promo": { "enabled": false, "codes": { "LAVINA": { "kind": "coins", "gifts": 10 } } },
   "shortcut": { "enabled": true, "reward": { "trophies": 5 }, "fromSummit": 2, "place": "base" },
   "community": { "telegram": "https://t.me/sunhearth_games", "vk": "https://vk.ru/sunhearth_yandex" },
-  "communityGifts": { "subscribe": { "kind": "egg", "id": "best" }, "review": { "kind": "coins", "gifts": 10 } },
+  "communityGifts": { "review": { "kind": "coins", "gifts": 10 } },
   "metrikaCounterId": 0,
   "mobileOrientation": "landscape",
-  "payments": { "enabled": false },
+  "payments": { "enabled": true },
   "ads": {
     "interstitial": ["portal", "rebirth", "menu"],
     "rewarded": ["x2_stat", "stat_now", "skip_gate", "x2_chest", "egg", "daily_x2", "wheel", "continue_here", "footsteps"]
@@ -37,7 +37,8 @@
     "skipGateCooldownSec": { "path": "balance.ads.skipGate.cooldownSec", "min": 240, "max": 1800 },
     "goldGift_mult": { "path": "game.threat.bonus.mult", "min": 3, "max": 10 },
     "sneakers1_price": { "path": "balance.upgrade.tiers.1.price", "min": 10, "max": 60 },
-    "pace": { "path": "game.pace", "values": ["stages", "open", "fast"] }
+    "pace": { "path": "game.pace", "values": ["stages", "open", "fast"] },
+    "promo": { "path": "game.promo.enabled", "values": ["true", "false"] }
   },
   "events": {
     "minGapSec": 40,

@@ -113,6 +113,8 @@ export interface Sim {
   giantGraceSec: number;
   /** Stages pace (docs/01-gdd.md 22.9): the stage of the last roll-back (its «Continue from stage N»), 0 — none. */
   rollFrom: number;
+  /** G-02 (producer 26.10): standing on a paying trophy button — its stage, seconds stood, seconds it takes; null — off. */
+  padHold: { stage: number; t: number; sec: number } | null;
   /** Per stage of `level.stages`: its trophy button taken on this pass (docs/01-gdd.md 22.8). */
   readonly padTaken: boolean[];
   /** The flag of stage n (docs/01-gdd.md 22.9): where «Continue from stage N» puts the hero; the camp for stage 1. */
@@ -335,6 +337,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   };
   // Trophy buttons (docs/01-gdd.md 22.8): taken once a pass — free again once the hero is below the stage's start.
   const padTaken = (level.stages ?? []).map(() => false);
+  const padSpent = (level.stages ?? []).map(() => false);
+  const padStandSec = opts.balance.ui?.padStandSec;
   // SD-03 (docs/01-gdd.md 23.3): a button is taken once a run, then the camp; SD-11 (Q-088): it pays coins (trophies only
   // with upgrade.currency trophies, the SD-03 test of the stages wallet).
   const padsPayTrophies = opts.balance.upgrade?.currency === 'trophies';
@@ -360,6 +364,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     giantFreeCatches: 0,
     giantGraceSec: 0,
     rollFrom: 0,
+    padHold: null,
     padTaken,
     stageStart,
     portalEntered: false,
@@ -575,19 +580,34 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       }
       if (level.stages && !sim.caught) stageFar = Math.max(stageFar, stageAt(level, hero.pos.z));
       // Trophy buttons of the stage finishes (docs/01-gdd.md 22.8): stand on one — its trophies, once a pass.
+      let onPad = -1;
       if (level.stages) for (let k = 0; k < level.stages.length; k++) {
         const st = level.stages[k]!;
+        const on = st.trophies > 0 && hero.onGround && Math.abs(hero.pos.x - st.pad.x) <= PAD_REACH && Math.abs(hero.pos.z - st.pad.z) <= PAD_REACH && Math.abs(hero.pos.y - st.pad.y) < 2;
+        if (on && padTaken[k] && !padSpent[k]) onPad = k;
         if (hero.pos.z < st.z0) padTaken[k] = false;
-        else if (!padTaken[k] && st.trophies > 0 && hero.onGround && Math.abs(hero.pos.x - st.pad.x) <= PAD_REACH && Math.abs(hero.pos.z - st.pad.z) <= PAD_REACH && Math.abs(hero.pos.y - st.pad.y) < 2) {
+        else if (!padTaken[k] && on) {
           padTaken[k] = true;
-          // ST-06 (producer 22.10: the first stage farmed for ever): a pad taken its number of times pays nothing, the flight stays.
+          // ST-06 (producer 22.10: the first stage farmed for ever): a pad taken its number of times pays nothing.
           const spent = opts.padPay ? !opts.padPay(st.n) : false;
+          padSpent[k] = spent;
           const amount = spent ? 0 : scaled(st.trophies, tier, opts.balance.rebirth);
-          // The flight to the camp stays for a spent pad too (ST-06 criterion; Q-ST-2 — the review asked for none).
-          campIn = CAMP_RETURN_TICKS;
+          // G-02 (producer 26.10, Q-ST-2 «B with standing»): with `ui.padStandSec` the flight to the camp only after standing
+          // on a paying pad that long — a run over it keeps the hero on the slope; a spent pad never flies. Without — at once.
+          if (padStandSec === undefined) campIn = CAMP_RETURN_TICKS;
+          else if (!spent) onPad = k;
           campFrom = st.n;
           if (!padsPayTrophies) sim.coins += amount;
           events.emit('trophyTake', { tick: sim.tick, stage: st.n, amount, x: st.pad.x, y: st.pad.y, z: st.pad.z, total: sim.coins, trophies: padsPayTrophies, ...(spent ? { spent } : {}) });
+        }
+      }
+      if (padStandSec !== undefined) {
+        const k = onPad >= 0 && !sim.caught ? onPad : -1;
+        sim.padHold = k < 0 ? null : { stage: level.stages![k]!.n, t: (sim.padHold?.stage === level.stages![k]!.n ? sim.padHold.t : 0) + dt, sec: padStandSec };
+        if (sim.padHold && sim.padHold.t >= padStandSec && campIn === 0) {
+          campIn = 1;
+          campFrom = sim.padHold.stage;
+          sim.padHold = null;
         }
       }
       if (campIn > 0 && --campIn === 0 && !sim.caught) {

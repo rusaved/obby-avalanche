@@ -185,7 +185,6 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
         ['records', more('records')],
         ['quests', more('quests')],
         ['daily', more('daily')],
-        ['promo', async () => { await tap(page, 'pause'); await page.locator('[data-hud="promo"]').click(); }],
       ];
       for (const [id, open] of windows) {
         await open();

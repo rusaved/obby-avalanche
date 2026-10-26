@@ -9,6 +9,8 @@ test.use({ viewport: { width: 812, height: 375 } });
 test('the giant of mountain 1: forward is caught at the first and the second meeting', async ({ page, openGame }) => {
   test.setTimeout(180_000);
   await openGame('pace=stages');
+  // G-01: the first catch of a clean save lets the hero go — these meetings count the ones after it.
+  await page.evaluate(() => window.__TEST__!.setFlag('giantFree', true));
   const g = STAGES[0]!.stages.find((s) => s.type === 'giant')!;
   const f = flagOf(1, g);
   await page.evaluate(([st, z, y]) => {
@@ -40,6 +42,8 @@ test('the giant of mountain 1: forward is caught at the first and the second mee
 test('from a clean save on mountain 1: holding forward is caught at 10 meetings in a row', async ({ page, openGame }) => {
   test.setTimeout(420_000);
   await openGame('pace=stages');
+  // G-01: the first catch of a clean save lets the hero go — these meetings count the ones after it.
+  await page.evaluate(() => window.__TEST__!.setFlag('giantFree', true));
   await waitTicks(page, 10);
   // ST-02: the giant is the stage 3 now (its ridge asks for a level a clean save has not): the Speed of its level, at its flag.
   const gs = STAGES[0]!.stages.find((x) => x.type === 'giant')!;
@@ -91,9 +95,11 @@ test('from a clean save on mountain 1: holding forward is caught at 10 meetings 
   expect(m.caught, m.log.join('\n')).toBeGreaterThanOrEqual(10);
 });
 
-test('a dodge at the last moment gets past, and the hero stays on stage 3 (a crack there keeps its own start)', async ({ page, openGame }) => {
+test('a dodge at the last moment gets past, and the hero stays on stage 3 (G-01: the dips after him, the run goes on)', async ({ page, openGame }) => {
   test.setTimeout(300_000);
   await openGame('pace=stages');
+  // G-01: the first catch of a clean save lets the hero go — these meetings count the ones after it.
+  await page.evaluate(() => window.__TEST__!.setFlag('giantFree', true));
   const g = STAGES[0]!.stages.find((s) => s.type === 'giant')!;
   const next = STAGES[0]!.stages.find((s) => s.n === g.n + 1)!;
   const f = flagOf(1, g);
@@ -138,9 +144,8 @@ test('a dodge at the last moment gets past, and the hero stays on stage 3 (a cra
   // A few attempts may be caught (the dodge is a moment, not a sure thing): at most 5 tries for one pass.
   await page.waitForFunction(() => window.__TEST__!.simEvents.some((e) => e.name === 'bossPassed') || window.__TEST__!.simEvents.filter((e) => e.name === 'bossCaught').length >= 5, undefined, { timeout: 240_000 });
   expect(await page.evaluate(() => window.__TEST__!.simEvents.some((e) => e.name === 'bossPassed')), 'got past the giant').toBe(true);
-  // On into the first crack of stage 3: the roll keeps stage 3, never back before the giant.
-  await page.waitForFunction(() => window.__TEST__!.simEvents.some((e) => e.name === 'fall'), undefined, { timeout: 30_000 });
-  await page.waitForFunction(() => window.__TEST__!.state().caught === null, undefined, { timeout: 30_000 });
+  // On into stage 3 (G-01: the dips follow the giant now; a crack after him keeps its start — Vitest stage-bot, Q-MU-12).
+  await page.waitForFunction(() => window.__TEST__!.botLeft() === 0, undefined, { timeout: 60_000 });
   await page.evaluate(() => window.__TEST__!.botPath(null));
   await waitTicks(page, 60);
   const s = await testState(page);
@@ -153,6 +158,8 @@ test('a dodge at the last moment gets past, and the hero stays on stage 3 (a cra
 test('phone: a fall on the first bridge stage rolls to the stage before and the slot offers «Continue from stage N»', async ({ page, openGame }) => {
   test.setTimeout(180_000);
   await openGame('pace=stages&mock_ad=ok');
+  // G-01: the first catch of a clean save lets the hero go — these meetings count the ones after it.
+  await page.evaluate(() => window.__TEST__!.setFlag('giantFree', true));
   await waitTicks(page, 10);
   // ST-02: the bridge stage of mountain 1 after the maze (off it at x 30 — the pit; no wave where it rolls back to).
   const st = STAGES[0]!.stages.find((x) => x.n > 2 && x.width === 'bridge' && STAGES[0]!.stages[x.n - 2]!.type === 'maze')!;

@@ -115,6 +115,7 @@ export default defineConfig(({ mode }) => {
       __BUILD_LABEL__: JSON.stringify(label),
       __SDK_PATH__: JSON.stringify(mode === 'pages' ? 'sdk.js' : '/sdk.js'),
       __CONTENT_PACK__: JSON.stringify(pack),
+      __NO_PAYMENTS__: JSON.stringify(process.env.VITE_NO_PAYMENTS === '1'),
     },
     build: {
       target: 'es2022',

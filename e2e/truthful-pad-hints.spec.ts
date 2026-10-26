@@ -10,8 +10,8 @@ import { STAGES, threshold } from './lv-stage-data.ts';
 
 const W = STAGES[0]!;
 const s2 = W.stages[1]!;
-// ST-02: the dips of stage 5 (stage 2 is the giant's, stage 3 the plates, stage 4 the avalanche — its wave hides the labels).
-const s3 = W.stages[4]!;
+// ST-02: the dips (G-01: stage 3 now, after the giant; stage 4 is the avalanche — its wave hides the labels).
+const s3 = W.stages.find((x) => x.type === 'dips')!;
 const PAD_HALF = 3;
 const dirOf = (page: Page): string => {
   const { width, height } = page.viewportSize()!;

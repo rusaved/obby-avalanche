@@ -194,19 +194,9 @@ test('the base: the gift cards by the shop side without the pause (one tap — t
   const ids = Object.keys(game.community as Record<string, string>);
   await toFirstBase(page, openGame);
   expect((await testState(page)).onBase).toBe(true);
-  for (const id of ids) await expect(page.locator(`[data-hud="base-gift-sub-${id}"]`)).toBeVisible();
-  await expect(page.locator(`[data-hud="base-gift-sub-${ids[0]}"]`)).toContainText(ru['communityGift.subscribe']);
+  // G-05 (producer 26.10): no gift for a visit to the group on Yandex — no such cards on the base.
+  for (const id of ids) await expect(page.locator(`[data-hud="base-gift-sub-${id}"]`)).toHaveCount(0);
   await shot1080(page, `${EVIDENCE}/base_gifts_1920x1080_ru.png`, 1);
-  await page.locator(`[data-hud="base-gift-sub-${ids[0]}"]`).click();
-  await expect(page.locator('[data-role="window"] .win-body')).toHaveText(ru['communityGift.text']);
-  await page.keyboard.press('Escape');
-  await page.setViewportSize({ width: 640, height: 360 });
-  await waitTicks(page, 10);
-  for (const id of ids) {
-    const b = (await page.locator(`[data-hud="base-gift-sub-${id}"]`).boundingBox())!;
-    expect(b.x + b.width).toBeLessThanOrEqual(640);
-    expect(b.y + b.height).toBeLessThanOrEqual(360);
-  }
   await page.evaluate(() => window.__TEST__!.gotoWorld(2));
   await waitTicks(page, 20);
   for (const id of ids) await expect(page.locator(`[data-hud="base-gift-sub-${id}"]`)).toBeHidden();

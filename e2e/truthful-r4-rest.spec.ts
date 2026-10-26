@@ -84,12 +84,14 @@ test('«Rebirth»: «Spend the coins…» seen without a scroll', async ({ page,
   await page.screenshot({ path: `${dirOf(page)}/r4-rebirth.png` });
 });
 
-test('«Gifts»: Telegram and VK with their words, not cut', async ({ page, openGame }) => {
+// G-05 (producer 26.10): no gift for a visit — Telegram and VK live in the pause only.
+test('the pause: Telegram and VK with their words, not cut', async ({ page, openGame }) => {
   await start(page, openGame);
-  await tap(page, 'gift');
+  await tap(page, 'pause');
   await expect(page.locator('[data-role="window"].open')).toHaveCount(1);
   await page.waitForTimeout(300);
-  const btns = page.locator('[data-role="window"].open [data-hud^="gift-visit-"]');
+  await expect(page.locator('[data-role="window"].open [data-hud^="gift-visit-"]')).toHaveCount(0);
+  const btns = page.locator('[data-role="window"].open [data-hud^="community-"]');
   expect(await btns.count()).toBe(2);
   for (const b of await btns.all()) {
     const r = await b.evaluate((e) => ({ text: (e.textContent ?? '').trim(), fits: e.scrollWidth <= e.clientWidth + 1, h: e.getBoundingClientRect().height }));

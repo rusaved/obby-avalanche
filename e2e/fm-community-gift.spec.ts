@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { test, expect, testState, waitReady, waitTicks } from './fixtures.ts';
+import { test, expect, testState, waitTicks } from './fixtures.ts';
 import game from '../content/avalanche/game.json' with { type: 'json' };
 
 // FM-16 (producer 14.10, catalog practice; docs/01-gdd.md 19.10; 03 4.1, SDK-07): under the channels of the pause window
@@ -29,46 +29,24 @@ const awayAndBack = (page: Page): Promise<void> =>
 const events = async (page: Page, name: string): Promise<unknown[]> =>
   (await page.evaluate(() => window.__TEST__!.analytics())).filter((e) => e.name === name).map((e) => e.params);
 
-test('«Egg for subscribing»: the window, «Go» opens the channel, the egg once back in the game; gone after a reload', async ({ page, openGame }) => {
+test('G-05: no gift for a visit to the group — the Telegram and VK buttons stay, nothing given back in the game', async ({ page, openGame }) => {
   test.setTimeout(120_000);
   await catchOpen(page);
   await page.setViewportSize({ width: 1920, height: 1080 });
   await openGame('pace=open');
   const pets0 = (await testState(page)).pets.length;
   await page.locator('[data-hud="pause"]').click();
-  for (const id of IDS) await expect(page.locator(`[data-hud="gift-sub-${id}"]`)).toHaveText('Яйцо за визит');
-  // The plain channel button: a new tab, nothing given.
-  await page.locator(`[data-hud="community-${IDS[1]}"]`).click();
+  for (const id of IDS) {
+    await expect(page.locator(`[data-hud="gift-sub-${id}"]`)).toHaveCount(0);
+    await expect(page.locator(`[data-hud="community-${id}"]`)).toBeVisible();
+  }
+  await page.locator(`[data-hud="community-${IDS[0]}"]`).click();
+  expect((await opened(page)).at(-1)).toEqual([channels[IDS[0]!], '_blank', 'noopener,noreferrer']);
   await awayAndBack(page);
-  // The pause stands the game: real time, not ticks.
   await page.waitForTimeout(500);
   expect((await testState(page)).pets.length).toBe(pets0);
-  // The card of the first channel: its window and «Go».
-  await page.locator(`[data-hud="gift-sub-${IDS[0]}"]`).click();
-  await expect(page.locator('[data-role="window"] .win-body')).toHaveText('Загляни в группу игры и получи яйцо!');
-  await expect(page.locator('[data-hud="win-next"]')).toHaveText('Перейти');
-  await page.screenshot({ path: 'docs/evidence/sp/community_gift_window_1920x1080_ru.png' });
-  await page.locator('[data-hud="win-next"]').click();
-  expect((await opened(page)).at(-1)).toEqual([channels[IDS[0]!], '_blank', 'noopener,noreferrer']);
-  await waitTicks(page, 30);
-  expect((await testState(page)).pets.length, 'nothing before he is back').toBe(pets0);
-  await awayAndBack(page);
-  await expect.poll(async () => (await testState(page)).pets.length, { timeout: 20_000 }).toBe(pets0 + 1);
-  expect(await events(page, 'community_gift')).toEqual([{ to: IDS[0] }]);
-  // Away and back again: nothing more.
-  await awayAndBack(page);
-  await waitTicks(page, 30);
-  expect((await testState(page)).pets.length).toBe(pets0 + 1);
-  await page.locator('[data-hud="pause"]').click();
-  await expect(page.locator(`[data-hud="gift-sub-${IDS[0]}"]`)).toBeHidden();
-  await expect(page.locator(`[data-hud="gift-sub-${IDS[1]}"]`)).toBeVisible();
-  await page.screenshot({ path: 'docs/evidence/sp/community_gift_pause_1920x1080_ru.png' });
-  // The save keeps it: after a reload the card of that channel is still gone.
-  await page.reload();
-  await waitReady(page);
-  await page.locator('[data-hud="pause"]').click();
-  await expect(page.locator(`[data-hud="gift-sub-${IDS[1]}"]`)).toBeVisible();
-  await expect(page.locator(`[data-hud="gift-sub-${IDS[0]}"]`)).toBeHidden();
+  expect(await events(page, 'community_gift')).toEqual([]);
+  await page.screenshot({ path: 'docs/evidence/G/community_pause_1920x1080_ru.png' });
 });
 
 for (const mode of ['sent', 'closed', 'unavailable'] as const)
@@ -107,7 +85,7 @@ for (const lang of ['ru', 'en'])
     await page.setViewportSize({ width: 640, height: 360 });
     await openGame(`pace=open&mock_lang=${lang}`);
     await page.locator('[data-hud="pause"]').click();
-    for (const h of [...IDS.map((id) => `gift-sub-${id}`), 'gift-review']) {
+    for (const h of [...IDS.map((id) => `community-${id}`), 'gift-review']) {
       const b = page.locator(`[data-hud="${h}"]`);
       await b.scrollIntoViewIfNeeded();
       await expect(b).toBeVisible();

@@ -158,10 +158,26 @@ export function createStageView(d: StageViewDeps): StageView {
         const seen = corners.filter((c): c is { x: number; y: number } => c !== null);
         const pad = seen.length === 4 ? { x0: Math.min(...seen.map((c) => c.x)), y0: Math.min(...seen.map((c) => c.y)), x1: Math.max(...seen.map((c) => c.x)), y1: Math.max(...seen.map((c) => c.y)) } : undefined;
         const spent = d.padSpent?.(st.n) ?? false;
+        // G-02 (producer 26.10): standing on a paying pad — «+N · to camp» and the ring filling up to the flight.
+        const hold = !spent && sim.padHold?.stage === st.n ? sim.padHold : null;
         return d.hud.setPadLabel({
-          ...(pad ? { pad } : {}), text: spent ? t('stage.padTaken') : t('stage.padReward', { n: fmt(st.trophies) }), ...(sim.padTaken[best] || spent ? {} : { sub: t('stage.padPass') }), x: at.x, y: at.y, ...(hero ? { hero } : {}) });
+          ...(pad ? { pad } : {}),
+          text: spent ? t('stage.padTaken') : hold ? t('stage.padCamp', { n: fmt(st.trophies) }) : t('stage.padReward', { n: fmt(st.trophies) }),
+          ...(sim.padTaken[best] || spent ? {} : { sub: t('stage.padPass') }),
+          ...(hold ? { ring: Math.min(1, hold.t / hold.sec) } : {}),
+          x: at.x,
+          y: at.y,
+          ...(hero ? { hero } : {}),
+        });
       }
-      d.hud.setPadLabel(st && at ? { text: d.padSpent?.(st.n) ? t('stage.padTaken') : `+${fmt(st.trophies)}`, x: at.x, y: at.y } : tpAt ? { text: t('teleport.title'), x: tpAt.x, y: tpAt.y, tap: true } : null);
+      const hold = st && !d.padSpent?.(st.n) && sim.padHold?.stage === st.n ? sim.padHold : null;
+      d.hud.setPadLabel(
+        st && at
+          ? { text: d.padSpent?.(st.n) ? t('stage.padTaken') : hold ? t('stage.padCamp', { n: fmt(st.trophies) }) : `+${fmt(st.trophies)}`, x: at.x, y: at.y, ...(hold ? { ring: Math.min(1, hold.t / hold.sec) } : {}) }
+          : tpAt
+            ? { text: t('teleport.title'), x: tpAt.x, y: tpAt.y, tap: true }
+            : null,
+      );
     },
   };
 }

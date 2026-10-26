@@ -14,6 +14,7 @@
   /* Text on the scene: an ink outline 1.5 px up to 14 px, 2 px from 18 px. */
   --mu-o15: -1.5px 0 0 var(--ink), 1.5px 0 0 var(--ink), 0 -1.5px 0 var(--ink), 0 1.5px 0 var(--ink), -1px -1px 0 var(--ink), 1px 1px 0 var(--ink), -1px 1px 0 var(--ink), 1px -1px 0 var(--ink);
   --mu-o2: -2px 0 0 var(--ink), 2px 0 0 var(--ink), 0 -2px 0 var(--ink), 0 2px 0 var(--ink), -1.5px -1.5px 0 var(--ink), 1.5px 1.5px 0 var(--ink), -1.5px 1.5px 0 var(--ink), 1.5px -1.5px 0 var(--ink);
+  --mu-o3: -3px 0 0 var(--ink), 3px 0 0 var(--ink), 0 -3px 0 var(--ink), 0 3px 0 var(--ink), -2px -2px 0 var(--ink), 2px 2px 0 var(--ink), -2px 2px 0 var(--ink), 2px -2px 0 var(--ink), 0 4px 2px rgba(0, 0, 0, 0.35);
 }
 
 /* MU-01 marks (docs/07-mobile-ui.md «Знаки»): SVG only, 1.15 em of the text by them, 4 px apart. */
@@ -273,6 +274,8 @@ canvas.fallback {
 .hud-pad.tap .hud-pad-icon { display: none; }
 .hud-pad-icon { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; }
 .hud-pad-icon svg { width: 100%; height: 100%; }
+.hud-pad-ring { display: none; width: 20px; height: 20px; flex: none; border-radius: 50%; background: conic-gradient(currentColor calc(var(--ring, 0) * 1turn), rgba(0, 0, 0, 0.18) 0); -webkit-mask: radial-gradient(circle, transparent 5px, black 6px); mask: radial-gradient(circle, transparent 5px, black 6px); }
+.hud-pad.ring .hud-pad-ring { display: inline-block; }
 .hud-coin-icon svg { width: 100%; height: 100%; display: block; }
 /* One message near the hero at a time: the egg button steps aside while a toast is up (after a hatch). */
 .hud.toasting .hud-egg { visibility: hidden; }
@@ -551,12 +554,19 @@ canvas.fallback {
 /* «+N» by the hero: 18 px in the Speed colour with the ink outline, one number; hidden while a toast is up. */
 .hud.mu .hud-gain, .hud.mu.gain-outlined .hud-gain { font-size: 18px; font-weight: 800; color: var(--mu-stat); text-shadow: var(--mu-o2); transform: translate(0, -50%); }
 .hud.mu .hud-gain.show { animation: mu-gain 0.5s ease-out forwards; }
+/* G-08 (producer 26.10): «+N» and the golden toasts («LEVEL UP!») juicier — bigger, a thicker dark outline, a pop. */
+.hud.mu .hud-gain, .hud.mu.gain-outlined .hud-gain { font-size: 22px; text-shadow: var(--mu-o3); }
+.hud.mu .hud-toast, .hud.mu.plated .hud-toast { text-shadow: var(--mu-o3); }
+.hud.mu .hud-toast.gold.shown .hud-toast-main { animation: gold-pop 0.45s ease-out; }
+@keyframes gold-pop { 0% { transform: scale(0.6); } 55% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .hud.mu .hud-toast.gold.shown .hud-toast-main { animation: none; } }
 @keyframes mu-gain { 0% { opacity: 0; transform: translate(0, -30%); } 20% { opacity: 1; transform: translate(0, -50%); } 100% { opacity: 0; transform: translate(0, -120%); } }
 .hud.mu.toasting .hud-gain { visibility: hidden; }
 /* MU-04/MU-06: signs of the world on light plaques (white 90 %, ink text), not to be taken for the HUD plaques. */
 .hud-pad-sub { display: none; }
 .hud.mu .hud-pad, .hud.mu .hud-pad.tap { min-height: 0; padding: 6px 14px; flex-direction: column; gap: 0; border: 0; border-radius: 8px; background: rgba(255, 255, 255, 0.9); color: var(--ink); text-shadow: none; font: 600 14px/1.25 var(--font); box-shadow: 0 2px 0 rgba(27, 42, 58, 0.25); }
 .hud.mu .hud-pad .hud-pad-icon { display: none; }
+.hud.mu .hud-pad.ring { flex-direction: row; gap: 8px; }
 .hud.mu .hud-pad.two .hud-pad-sub { display: block; font-size: 12px; font-weight: 500; color: var(--ink); opacity: 0.75; }
 .hud.mu .hud-pad-text { display: flex; align-items: center; }
 .hud.mu .hud-pad.tap { min-height: 44px; justify-content: center; }
@@ -990,6 +1000,11 @@ canvas.fallback {
 .hud-shoes-cap { display: none; }
 .hud.mu .hud-shoes-cap { display: block; position: absolute; left: 50%; bottom: 100%; margin-bottom: 2px; transform: translateX(-50%); font: 600 12px/14px var(--font); color: #fff; white-space: nowrap; text-shadow: var(--mu-o15); pointer-events: none; }
 .hud.mu .hud-shoes-cap:empty { display: none; }
+/* G-03: the arrow over the sneakers button while the tutorial asks to buy them. */
+.hud-shoes.point { overflow: visible; box-shadow: 0 0 0 3px var(--ok), 0 0 14px var(--ok); }
+.hud-shoes.point::after { content: ''; position: absolute; left: 50%; bottom: calc(100% + 18px); width: 0; height: 0; margin-left: -11px; border: 11px solid transparent; border-top: 14px solid var(--ok); border-bottom: 0; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.35)); animation: shoes-point 0.8s ease-in-out infinite alternate; pointer-events: none; }
+@keyframes shoes-point { from { transform: translateY(-6px); } to { transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .hud-shoes.point::after { animation: none; } }
 .hud.mu .hud-shoes .mark-sneaker svg { color: #fff; }
 .hud:not(.mu) .hud-shoes-cap { display: inline; }
 @keyframes nudge { 0%, 100% { translate: 0 0; } 20% { translate: -6px 0; } 40% { translate: 5px 0; } 60% { translate: -3px 0; } 80% { translate: 2px 0; } }

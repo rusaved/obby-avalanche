@@ -1,6 +1,6 @@
-// What: Sound layer: one AudioContext started by the first gesture, ZzFX buffers built once from sfx.json, audio files of assets/audio (sfx.json files, footsteps) fetched after it, play() with pitch shift and delay, one voice of steps, pause suspends it.
+// What: Sound layer: one AudioContext started by the first gesture, ZzFX buffers built once from sfx.json, audio files of assets/audio (sfx.json files, footsteps) fetched after it, play() with pitch shift and delay, one voice of steps, the music loop (G-09), pause suspends it.
 // Called by: main.ts (createAudio); app/handles.ts, app/fun-view.ts and app/footsteps-view.ts (GameAudio type).
-// Keep: Sounds come only from content sfx.json; nothing plays or loads before a gesture (no bytes before ready()), nothing while paused; max 3 equal sounds per 100 ms; zzfx stays a lazy import.
+// Keep: Sounds come only from content sfx.json, the music only from assets/audio/music; nothing plays or loads before a gesture (no bytes before ready()), nothing while paused; max 3 equal sounds per 100 ms; zzfx stays a lazy import.
 
 /**
  * Sound (docs/02-tech.md 10), minimal for M2: one AudioContext started by the first gesture of the player
@@ -8,6 +8,7 @@
  * reason suspends the context at once; a sound can play some semitones higher and later (a rising note, a chime).
  * Music, separate volumes and the rest of the events — M5-04.
  */
+import { MUSIC_TRACKS, musicLevel } from './music.ts';
 import type { SfxJson } from '../content/types.ts';
 
 /** Not more than this many equal sounds inside SAME_WINDOW_MS (docs/02-tech.md 10). */
@@ -116,6 +117,12 @@ export interface GameAudio {
   readonly played: string[];
   /** SD-14: audio files decoded so far (e2e waits for them before a preview). */
   readonly loaded: number;
+  /** G-09: the background music — its switch, its own volume (0–1) and the duck under an avalanche. */
+  setMusic(on: boolean): void;
+  setMusicVolume(v: number): void;
+  duckMusic(on: boolean): void;
+  /** G-09 (e2e, Vitest): the loops in the build, the one decoded and playing, the level its gain heads to. */
+  readonly music: { tracks: number; playing: boolean; level: number };
 }
 
 export function createAudio(opts: {
@@ -126,6 +133,8 @@ export function createAudio(opts: {
   gestureTarget: EventTarget;
   /** FX-06 (tuning.json fx.uiSoundPerSec): the ceiling of the interface sounds a second; absent — none beyond SAME_MAX. */
   uiPerSec?: number | undefined;
+  /** G-09: the music switch and volume of the save; `duckK` — its share left under an avalanche (tuning). */
+  music?: { on: boolean; volume: number; duckK: number } | undefined;
 }): GameAudio {
   const uiCap = opts.uiPerSec ? createRateCap(opts.uiPerSec) : null;
   let ctx: AudioContext | null = null;
@@ -159,7 +168,38 @@ export function createAudio(opts: {
     }
   };
 
+  // G-09: one music loop on its own gain, after the gesture like every sound; the suspended context silences it too.
+  const music = { on: opts.music?.on ?? true, volume: opts.music?.volume ?? 1, duck: false, duckK: opts.music?.duckK ?? 0.5, level: 0 };
+  let musicGain: GainNode | null = null;
+  let musicPlaying = false;
+  const MUSIC_FADE_SEC = 0.4;
+  const musicApply = (): void => {
+    music.level = MUSIC_TRACKS.length > 0 ? musicLevel({ on: music.on && enabled, volume: music.volume, paused: opts.paused(), duck: music.duck, duckK: music.duckK }) : 0;
+    if (ctx && musicGain) musicGain.gain.setTargetAtTime(music.level, ctx.currentTime, MUSIC_FADE_SEC / 3);
+  };
+  const startMusic = (c: AudioContext): void => {
+    const url = MUSIC_TRACKS[0];
+    if (!url) return;
+    musicGain = c.createGain();
+    musicGain.gain.value = 0;
+    musicGain.connect(c.destination);
+    void fetch(url)
+      .then((r) => r.arrayBuffer())
+      .then((data) => c.decodeAudioData(data))
+      .then((buf) => {
+        const src = c.createBufferSource();
+        src.buffer = buf;
+        src.loop = true;
+        src.connect(musicGain!);
+        src.start();
+        musicPlaying = true;
+        musicApply();
+      })
+      .catch(() => undefined);
+  };
+
   const apply = (): void => {
+    musicApply();
     if (!ctx) return;
     const want = !opts.paused();
     if (want && ctx.state === 'suspended') void ctx.resume().catch(() => undefined);
@@ -190,6 +230,7 @@ export function createAudio(opts: {
       // SD-14: the files of the events and the ones asked for before the gesture, now.
       load(Object.values(opts.sfx.files ?? {}));
       for (const f of asked) fetchClip(c, f);
+      startMusic(c);
       apply();
     } catch {
       ctx = null;
@@ -279,6 +320,23 @@ export function createAudio(opts: {
     played,
     setEnabled(on) {
       enabled = on;
+      musicApply();
+    },
+    setMusic(on) {
+      music.on = on;
+      musicApply();
+    },
+    setMusicVolume(v) {
+      music.volume = Math.min(1, Math.max(0, v));
+      musicApply();
+    },
+    duckMusic(on) {
+      if (music.duck === on) return;
+      music.duck = on;
+      musicApply();
+    },
+    get music() {
+      return { tracks: MUSIC_TRACKS.length, playing: musicPlaying, level: music.level };
     },
     setVolume(v) {
       volume = Math.min(1, Math.max(0, v));

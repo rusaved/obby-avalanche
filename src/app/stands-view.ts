@@ -24,6 +24,8 @@ export interface StandBehaviour {
   /** A plaque over it while its button is not up (the gift: «!» or «in 14:20»); absent or null — none. */
   label?(): string | null;
   press(): void;
+  /** G-07: opens its window when the hero walks up to it (once an approach); absent — by its button only. */
+  approach?(): void;
 }
 
 export interface StandsViewDeps {
@@ -77,7 +79,10 @@ export function createStandsView(d: StandsViewDeps): StandsView {
         if (dist <= Number(q['radius'] ?? 0) && (!near || dist < Math.hypot(h.x - near.x, h.z - near.z))) near = q;
       }
       const kind = near ? String(near['kind']) : null;
-      if (kind !== at) stood = 0;
+      if (kind !== at) {
+        stood = 0;
+        if (kind && !busy) d.stands[kind]!.approach?.();
+      }
       at = kind;
       stood = near && sim.hero.speed < STAND_SPEED ? stood + dt : 0;
       const text = near && !busy && stood >= Number(near['standSec'] ?? 0) ? d.stands[kind!]!.text() : null;

@@ -37,6 +37,12 @@ const version = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8')).
 const base = `${game.id.replace(/^_/, '')}-${version}`;
 run('npx', ['vite', 'build', '--outDir', 'dist', '--emptyOutDir']);
 run('node', ['scripts/pack.mjs', '--out', `dist-pages/downloads/${base}.zip`]);
+// G-10 (producer 26.10): the release without purchases too — in case the contract for them is not ready by submission.
+{
+  const r = spawnSync('npx', ['vite', 'build', '--outDir', 'dist-noiap', '--emptyOutDir'], { cwd: root, stdio: 'inherit', env: { ...process.env, VITE_NO_PAYMENTS: '1' } });
+  if (r.status !== 0) process.exit(r.status ?? 1);
+}
+run('node', ['scripts/pack.mjs', '--dir', 'dist-noiap', '--out', `dist-pages/downloads/${base}-no-iap.zip`]);
 run('npx', ['vite', 'build', '--mode', 'playtest', '--outDir', 'dist-playtest', '--emptyOutDir']);
 run('node', ['scripts/pack.mjs', '--dir', 'dist-playtest', '--suffix', 'playtest', '--out', `dist-pages/downloads/${base}-playtest.zip`]);
 const sha = (process.env.BUILD_SHA || '').slice(0, 7);
@@ -44,7 +50,11 @@ const rows = readdirSync(downloads)
   .filter((f) => f.endsWith('.zip'))
   .sort()
   .map((f) => {
-    const what = f.includes('-playtest') ? 'playtest: with ?debug=1, for checks — not for the Console' : 'release: load this one into the Console draft';
+    const what = f.includes('-playtest')
+      ? 'playtest: with ?debug=1, for checks — not for the Console'
+      : f.includes('-no-iap')
+        ? 'release without purchases: for the Console draft if the contract for purchases is not ready'
+        : 'release with purchases (4 items): load this one into the Console draft';
     return `<li><a href="${f}">${f}</a> · ${(statSync(resolve(downloads, f)).size / 1024 / 1024).toFixed(2)} MB · ${what}</li>`;
   });
 writeFileSync(

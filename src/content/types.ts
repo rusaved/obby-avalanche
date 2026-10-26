@@ -33,7 +33,7 @@ export interface GameJson {
    * the game (once); absent — no card. */
   communityGifts?: { subscribe?: Extract<Reward, { kind: 'egg' | 'coins' }>; review?: Extract<Reward, { kind: 'egg' | 'coins' }> };
   /** MU-08 (docs/07-mobile-ui.md, w3-pause «Enter a code»): promo codes of the group and their gifts, each once. */
-  promo?: { codes: Record<string, Extract<Reward, { kind: 'egg' | 'coins' }>> };
+  promo?: { enabled?: boolean; codes: Record<string, Extract<Reward, { kind: 'egg' | 'coins' }>> };
   metrikaCounterId: number;
   mobileOrientation: 'landscape' | 'portrait';
   payments: { enabled: boolean };
@@ -115,6 +115,9 @@ export interface ThemeJson {
     portal?: { fill: boolean; pillar: number; arrows: number };
   };
   sky: { top: string; mid?: string; bottom: string };
+  /** G-08 (producer 26.10): the hero brighter than the world — his colours ×`saturation` (HSL), a dark `outline`
+   * `outlineWidth` units thick, sparks of his steps and his jumps, the confetti of «Level up!». */
+  hero?: { saturation: number; outline: string; outlineWidth: number; stepSparks: number; jumpSparks: number; levelConfetti: number };
   fog: { color: string; near: number; far: number };
   /** RL-04 (docs/01-gdd.md 21.4): a mountain's own sky, fog and snow by its id; absent — the colours above. */
   tints?: Record<string, ThemeTint>;
@@ -219,7 +222,7 @@ export interface BalanceJson {
   /** `statMilestones`: round numbers of the stat that flash the plaque once a load (docs/01-gdd.md 10.4, Q-023). */
   /** `summitGroup` (FM-08, docs/01a-content.md 18.4): an element of the summit group → the summit after whose window it
    * comes; absent — all after the first (6.4). */
-  ui: { unlockMenusSec: number; unlockTimeRewardsSec: number; menuStepSec: number; statMilestones: number[]; summitGroup?: Record<string, number> };
+  ui: { unlockMenusSec: number; unlockTimeRewardsSec: number; menuStepSec: number; statMilestones: number[]; summitGroup?: Record<string, number>; padStandSec?: number };
   ads: {
     rewardedMinPlaySec: number;
     standStillSec: number;
@@ -502,7 +505,7 @@ export interface TuningJson {
    * `uiSoundPerSec` a second; a reward flies `flyIcons` marks to its counter over `flyMs`. Absent — none of it.
    * SP-03 (docs/01-gdd.md 20.3): wind lines past the hero from `windFrom` of the run speed (camera.speedPow); absent — none.
    */
-  fx?: { windFrom?: number; toastMinSec?: number; toastGapMs?: number; tickMs?: number; windowMs?: number; uiSoundPerSec?: number; flyIcons?: number; flyMs?: number };
+  fx?: { windFrom?: number; toastMinSec?: number; toastGapMs?: number; tickMs?: number; windowMs?: number; uiSoundPerSec?: number; flyIcons?: number; flyMs?: number; musicDuck?: number };
   /** Pace open (docs/01a-content.md 16.7): the ridge view — up `rise`, back `back`, `sec` long (docs/01-gdd.md 17.9). */
   ridgeShot?: { rise: number; back: number; sec: number };
   /** The giant-zone shot: from the side `side` units, up `rise`, back `back`, `sec` long (docs/01-gdd.md 17.9). */

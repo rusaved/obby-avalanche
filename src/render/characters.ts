@@ -19,6 +19,8 @@ import {
   InstancedMesh,
   LinearFilter,
   Matrix4,
+  BackSide,
+  MeshBasicMaterial,
   MeshLambertMaterial,
   Object3D,
   SphereGeometry,
@@ -99,6 +101,8 @@ export interface Characters {
   /** Bots (docs/01-gdd.md 7.12): own colours per part, a hat accessory in its own colour, a face of the atlas. */
   paint(ch: CharacterInstance, look: { head: string; torso: string; arms: string; legs: string; hat: string | null; hatColor: string; face: string }): void;
   update(dt: number): void;
+  /** G-08: the hero — his colours more saturated and a dark outline round his body (theme.json hero); null — none. */
+  setHero(ch: CharacterInstance | null): void;
   faceAtlas: CanvasTexture;
   dispose(): void;
 }
@@ -259,7 +263,7 @@ function dither(shader: { vertexShader: string; fragmentShader: string }): void 
     .replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\nif (vFade < 0.999 && fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715)))) >= vFade) discard;');
 }
 
-export function createCharacters(skins: SkinsJson, accessories: AccessoriesJson, maxCharacters = 16): Characters {
+export function createCharacters(skins: SkinsJson, accessories: AccessoriesJson, maxCharacters = 16, heroLook?: { saturation: number; outline: string; outlineWidth: number }): Characters {
   const group = new Group();
   group.name = 'characters';
   const canvas = document.createElement('canvas');
@@ -345,6 +349,33 @@ if (vObjNormal.z > 0.6) {
   const skinById = new Map(skins.skins.map((s) => [s.id, s]));
 
   const instances: CharacterInstance[] = [];
+  // G-08 (producer 26.10: «the hero and his actions brighter and more colourful»): one more draw call — the six body parts
+  // of the hero as boxes a little bigger, their back faces in the outline colour.
+  let hero: CharacterInstance | null = null;
+  const OUTLINE_SLOTS = 6;
+  const outline = heroLook && heroLook.outlineWidth > 0 ? new InstancedMesh(new BoxGeometry(1, 1, 1), new MeshBasicMaterial({ color: heroLook.outline, side: BackSide }), OUTLINE_SLOTS) : null;
+  if (outline) {
+    outline.name = 'char-outline';
+    outline.instanceMatrix.setUsage(DynamicDrawUsage);
+    outline.frustumCulled = false;
+    for (let i = 0; i < OUTLINE_SLOTS; i++) outline.setMatrixAt(i, HIDDEN);
+    group.add(outline);
+  }
+  const _hsl = { h: 0, s: 0, l: 0 };
+  /** The colour of a part: the hero's more saturated. */
+  const tone = (ch: CharacterInstance, hex: string): Color => {
+    _color.set(hex);
+    if (ch !== hero || !heroLook) return _color;
+    _color.getHSL(_hsl);
+    return _color.setHSL(_hsl.h, Math.min(1, _hsl.s * heroLook.saturation), _hsl.l);
+  };
+  const _outline = new Matrix4();
+  const writeOutline = (slot: number, local: Matrix4, world: Matrix4, w: number, h: number, d: number): void => {
+    if (!outline || !heroLook) return;
+    const t = heroLook.outlineWidth * 2;
+    _mat.multiplyMatrices(world, local).multiply(_outline.makeScale(w + t, h + t, d + t));
+    outline.setMatrixAt(slot, _mat);
+  };
 
   const applySkin = (ch: CharacterInstance): void => {
     const skin = skinById.get(ch.skinId) ?? skinById.get(skins.default);
@@ -353,7 +384,7 @@ if (vObjNormal.z > 0.6) {
     const set = (part: string, slot: number, hex: string): void => {
       const mesh = meshes.get(part);
       if (!mesh) return;
-      mesh.setColorAt(slot, _color.set(hex));
+      mesh.setColorAt(slot, tone(ch, hex));
       if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
     };
     set('head', ch.index, colors.head);
@@ -369,7 +400,7 @@ if (vObjNormal.z > 0.6) {
       hat.parts.forEach((p, pi) => {
         const mesh = shapeMeshes.get(p.shape);
         if (!mesh) return;
-        mesh.setColorAt(ch.index * maxPartsPerShape + pi, _color.set(p.color));
+        mesh.setColorAt(ch.index * maxPartsPerShape + pi, tone(ch, p.color));
         if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
       });
     }
@@ -379,7 +410,7 @@ if (vObjNormal.z > 0.6) {
     wings?.parts.forEach((p, pi) => {
       const mesh = shapeMeshes.get(p.shape);
       if (!mesh) return;
-      mesh.setColorAt(ch.index * maxPartsPerShape + wingBase + pi, _color.set(p.color));
+      mesh.setColorAt(ch.index * maxPartsPerShape + wingBase + pi, tone(ch, p.color));
       if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
     });
   };
@@ -394,7 +425,19 @@ if (vObjNormal.z > 0.6) {
   const characters: Characters = {
     group,
     get drawCalls() {
-      return meshes.size + shapeMeshes.size;
+      return meshes.size + shapeMeshes.size + (outline ? 1 : 0);
+    },
+    setHero(ch) {
+      const was = hero;
+      hero = ch;
+      if (was) {
+        applySkin(was);
+        applyWings(was);
+      }
+      if (ch) {
+        applySkin(ch);
+        applyWings(ch);
+      }
     },
     faceAtlas,
     create(skinId) {
@@ -472,6 +515,8 @@ if (vObjNormal.z > 0.6) {
             attr.needsUpdate = true;
           }
         }
+        const lined = ch === hero && outline !== null && ch.visible && ch.fade >= 0.999;
+        if (ch === hero && outline && !lined) for (let i = 0; i < OUTLINE_SLOTS; i++) outline.setMatrixAt(i, HIDDEN);
         if (!ch.visible) {
           for (const spec of PARTS) {
             const mesh = meshes.get(spec.name);
@@ -543,12 +588,14 @@ if (vObjNormal.z > 0.6) {
         _dummy.scale.set(1, 1, 1);
         _dummy.updateMatrix();
         writePart('torso', ch.index, _dummy.matrix, world);
+        if (lined) writeOutline(0, _dummy.matrix, world, PART.torso.w, PART.torso.h, PART.torso.d);
         const torsoMatrix = _dummy.matrix.clone();
 
         _dummy.position.set(0, headBase + PART.head / 2 + breathe * 1.5, 0);
         _dummy.rotation.set(bodyRot * 0.5, 0, 0);
         _dummy.updateMatrix();
         writePart('head', ch.index, _dummy.matrix, world);
+        if (lined) writeOutline(1, _dummy.matrix, world, PART.head, PART.head, PART.head);
         const headMatrix = _dummy.matrix.clone();
 
         const armPivotY = headBase - 0.15;
@@ -565,6 +612,7 @@ if (vObjNormal.z > 0.6) {
           _dummy.updateMatrix();
           pivot.multiply(_dummy.matrix);
           writePart('arm', ch.index * 2 + k, pivot, world);
+          if (lined) writeOutline(2 + k, pivot, world, PART.arm.w, PART.arm.h, PART.arm.d);
         }
         for (const [k, rot, sx] of [
           [0, legL, -1],
@@ -579,6 +627,7 @@ if (vObjNormal.z > 0.6) {
           _dummy.updateMatrix();
           pivot.multiply(_dummy.matrix);
           writePart('leg', ch.index * 2 + k, pivot, world);
+          if (lined) writeOutline(4 + k, pivot, world, PART.leg.w, PART.leg.h, PART.leg.d);
         }
 
         // Hat parts follow the head.
@@ -625,6 +674,7 @@ if (vObjNormal.z > 0.6) {
       for (const mesh of shapeMeshes.values()) mesh.count = Math.max(1, instances.length * maxPartsPerShape);
       for (const mesh of meshes.values()) mesh.instanceMatrix.needsUpdate = true;
       for (const mesh of shapeMeshes.values()) mesh.instanceMatrix.needsUpdate = true;
+      if (outline) outline.instanceMatrix.needsUpdate = true;
     },
     dispose() {
       for (const mesh of meshes.values()) {
@@ -634,6 +684,10 @@ if (vObjNormal.z > 0.6) {
       for (const mesh of shapeMeshes.values()) {
         mesh.geometry.dispose();
         (mesh.material as MeshLambertMaterial).dispose();
+      }
+      if (outline) {
+        outline.geometry.dispose();
+        (outline.material as MeshBasicMaterial).dispose();
       }
       faceAtlas.dispose();
     },

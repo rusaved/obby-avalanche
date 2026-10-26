@@ -38,12 +38,12 @@ import { mergePatch } from '../../src/content/pace.ts';
 import { levelThreshold } from '../../src/sim/levels.ts';
 import type { BalanceJson, TuningJson, WorldsJson } from '../../src/content/types.ts';
 
-describe('ST-06 the sim: a spent pad pays nothing, says so, the flight to the camp stays', () => {
+describe('ST-06 the sim: a spent pad pays nothing, says so; G-02 — and never flies to the camp', () => {
   const read = (f: string): unknown => JSON.parse(readFileSync(resolve(__dirname, '../../content/avalanche', f), 'utf8'));
   const tuning = mergePatch(read('tuning.json'), read('pace/stages/tuning.json')) as unknown as TuningJson;
   const balance = mergePatch(read('balance.json'), read('pace/stages/balance.json')) as unknown as BalanceJson;
   const w = (read('pace/stages/worlds.json') as WorldsJson).worlds[0]!;
-  it('padPay false: amount 0 and spent; the camp after it', () => {
+  it('padPay false: amount 0 and spent; no camp after it (G-02, Q-ST-2 B)', () => {
     const st = w.stages!.find((s) => s.n === 3)!;
     const sim = createSim(buildLevel(w), tuning, { balance, speedCurve: balance.speedCurve, stat: levelThreshold(st.level, balance.levels!), padPay: () => false });
     const got: Array<{ amount: number; spent?: boolean }> = [];
@@ -56,6 +56,6 @@ describe('ST-06 the sim: a spent pad pays nothing, says so, the flight to the ca
     expect(got).toEqual([{ amount: 0, spent: true }]);
     expect(sim.coins).toBe(coins0);
     for (let i = 0; i < 120 && camp === 0; i++) sim.step(NO_INPUT, 1 / 60);
-    expect(camp).toBe(1);
+    expect(camp).toBe(0);
   });
 });

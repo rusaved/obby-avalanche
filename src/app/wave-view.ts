@@ -110,6 +110,7 @@ export function createWaveView(d: WaveViewDeps): WaveView {
         d.hud.setCaveArrow(null);
         d.hud.setVeil(false);
         d.audio?.()?.hum(RUMBLE_SFX, 0);
+        d.audio?.()?.duckMusic(false);
         if (shotCave >= 0) d.camera.fixed = null;
         shotCave = -1;
         d.camera.shelter = null;
@@ -153,6 +154,8 @@ export function createWaveView(d: WaveViewDeps): WaveView {
           a >= RUMBLE_FAR ? RUMBLE[0] : a >= av.nearDist ? RUMBLE[1] + ((RUMBLE[0] - RUMBLE[1]) * (a - av.nearDist)) / (RUMBLE_FAR - av.nearDist) : RUMBLE[2] + ((RUMBLE[1] - RUMBLE[2]) * a) / av.nearDist;
       }
       d.audio?.()?.hum(RUMBLE_SFX, rumble * av.rumble, d.visual.look.rumble);
+      // G-09: the music steps aside while the wave warns and runs.
+      d.audio?.()?.duckMusic(rumble > 0);
       if (shake > 0) d.camera.shakeAmount = Math.max(d.camera.shakeAmount, Math.max(FAR_SHAKE_SHARE, shake) * av.shakeStrength);
 
       // Arrow to the lit cave from the first second of the warning until the hero is in it, steady (playtest M2: it

@@ -447,7 +447,6 @@ test.describe('MU phone screens', () => {
       ['quests', async () => { await tap(page, 'menu-more'); await page.locator('[data-hud="more-quests"]').click(); }, 560],
       // MU round 4 (producer 20.10: 7 days in a row at any size): the calendar up to 760 wide.
       ['daily', async () => { await tap(page, 'menu-more'); await page.locator('[data-hud="more-daily"]').click(); }, 760],
-      ['promo', async () => { await tap(page, 'pause'); await page.locator('[data-hud="promo"]').click(); }, 480],
     ];
     for (const [id, how, width] of open) {
       await how();

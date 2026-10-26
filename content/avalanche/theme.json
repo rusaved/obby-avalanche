@@ -10,6 +10,7 @@
     "portal": { "fill": true, "pillar": 30, "arrows": 3 }
   },
   "sky": { "top": "#7EA6C8", "bottom": "#E2ECF4" },
+  "hero": { "saturation": 1.35, "outline": "#14202c", "outlineWidth": 0.07, "stepSparks": 4, "jumpSparks": 14, "levelConfetti": 80 },
   "fog": { "color": "#E2ECF4", "near": 60, "far": 220 },
   "tints": {
     "pines": { "sky": { "top": "#4F7A74", "bottom": "#B7CCC3" }, "fog": "#B7CCC3", "track": "#E3ECE7" },

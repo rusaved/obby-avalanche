@@ -16,6 +16,7 @@
     "giantFreeSec": 2.5
   },
   "ui": {
+    "padStandSec": 0.5,
     "summitGroup": {
       "trophies": 1,
       "records": 1,

@@ -149,6 +149,13 @@ export function createFunView(d: FunViewDeps): FunView {
       });
       // FX-05: the world answers its events — sparks of the Speed colour at every step of growth, a burst of snow when the
       // avalanche covers the hero and when he rolls out of the ball, confetti of the portal colours at the summit.
+      // G-08 (producer 26.10): a jump bursts in the Speed and coin colours off the feet.
+      s.events.on('jump', () => {
+        const n = d.theme.hero?.jumpSparks ?? 0;
+        if (n <= 0) return;
+        const h = s.hero.pos;
+        d.fx.burst('spark', h.x, h.y + 0.2, h.z, [d.theme.ui.stat, d.theme.ui.coins, '#ffffff'], n, 6, 0.8);
+      });
       s.events.on('step', () => {
         // On a belt the steps stream by themselves (the treadmill ×N): no sparks there — the belt's own whirl speaks.
         if (s.onBelt) return;
@@ -164,7 +171,8 @@ export function createFunView(d: FunViewDeps): FunView {
         stepSparkAt = now;
         world.step++;
         const h = s.hero.pos;
-        d.fx.burst('spark', h.x, h.y + 0.3, h.z, [d.theme.ui.stat, '#ffffff'], STEP_SPARKS, 4, 0.5);
+        // G-08: the steps sparkle brighter — more sparks, the gold of the coins among them (theme.json hero).
+        d.fx.burst('spark', h.x, h.y + 0.3, h.z, d.theme.hero ? [d.theme.ui.stat, d.theme.ui.coins, '#ffffff'] : [d.theme.ui.stat, '#ffffff'], d.theme.hero?.stepSparks ?? STEP_SPARKS, 4, 0.5);
       });
       s.events.on('waveCaught', ({ x, y, z }) => {
         world.caught++;

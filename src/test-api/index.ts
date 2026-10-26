@@ -988,6 +988,8 @@ export function installTestApi(g: GameHandles): TestApi {
     holdWave(sec) {
       const t = g.sim?.threat?.state;
       if (t && t.phase === 'idle') t.timer = Math.max(t.timer, sec);
+      // G-01: the scripted first wave falls back by play time (ftue.fallbackSec 35 on stages) — held as long.
+      if (t && t.phase === 'idle' && t.scriptedPending) t.playSec = Math.min(t.playSec, -sec);
     },
     resetGiants() {
       for (const z of g.sim?.boss?.zones ?? []) {
@@ -1003,6 +1005,8 @@ export function installTestApi(g: GameHandles): TestApi {
     fmt: (n) => formatNumber(n, (k) => t(`num.${k}`)),
     setFlag(name, on) {
       (g.save.flags ??= {})[name] = on;
+      // G-01: the free first giant catch is armed when the mountain starts — the flag reaches the running sim too.
+      if (name === 'giantFree' && g.sim) g.sim.giantFreeCatches = on ? 0 : g.sim.giantFreeCatches;
     },
     setSummits(n) {
       g.save.summits = n;

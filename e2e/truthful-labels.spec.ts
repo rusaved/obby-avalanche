@@ -61,8 +61,8 @@ test('a run to the pad of stage 5: «Stage reward» only within 31 m, no blinkin
   test.setTimeout(120_000);
   await openGame('pace=stages&mock_fullscreen=deny');
   const { width, height } = page.viewportSize()!;
-  // ST-02: the dips of stage 5 (stage 2 is the giant's, stage 3 the plates, stage 4 the avalanche — its wave hides the labels).
-  const st = W.stages[4]!;
+  // ST-02: the dips (G-01: stage 3 now, after the giant; stage 4 is the avalanche — its wave hides the labels).
+  const st = W.stages.find((x) => x.type === 'dips')!;
   await page.evaluate(([s]) => {
     window.__TEST__!.setPlaySec(400);
     window.__TEST__!.holdWave(900);

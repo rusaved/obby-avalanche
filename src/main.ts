@@ -67,6 +67,7 @@ import { levelNeeded } from './sim/levels.ts';
 import { createBotsView, type BotsView, type HudMode } from './app/bots-view.ts';
 import { faceDataUrl } from './render/characters.ts';
 import { createAudio, type GameAudio } from './audio/index.ts';
+import { MUSIC_TRACKS } from './audio/music.ts';
 import { createPressFeedback } from './ui/press-feedback.ts';
 import { createRewardFly, type RewardFly } from './ui/reward-fly.ts';
 import type { ThreatOptions } from './sim/threat.ts';
@@ -165,7 +166,8 @@ async function boot(): Promise<void> {
   };
   // `?leaderboard=` (debug builds): a leaderboard name for the e2e of the records (game.json has none yet, M4-06).
   // M4-07: purchases behind game.json payments.enabled (off in the game; `?payments=1` for the e2e of debug builds).
-  const paymentsOn = (game.payments?.enabled ?? false) || debugParams.get('payments') === '1';
+  // G-10 (producer 26.10, Q-M6-1): on in the release; the second release archive is built without them (VITE_NO_PAYMENTS).
+  const paymentsOn = !__NO_PAYMENTS__ && ((game.payments?.enabled ?? false) || debugParams.get('payments') === '1');
   const platformOpts: PlatformOptions = { packId: game.id, leaderboardName: debugParams.get('leaderboard') ?? game.leaderboard?.name ?? '', track, payments: paymentsOn };
   const platform = await createPlatform(platformOpts);
   // M6 polish (ready() ≤ 4 s): the dictionary comes over the network while the flags are asked, not after them.
@@ -1331,7 +1333,9 @@ async function boot(): Promise<void> {
           body,
           {
             tiles: questsView?.timeTiles(GIFT_TILES) ?? [],
-            groups: community.length > 0 ? { ids: community.map(([id]) => id), sub: visitGift ? t(visitGift.kind === 'egg' ? 'gifts.visit' : 'gifts.visitCoins') : '' } : null,
+            // G-04, G-05 (producer 26.10): no gift for a visit — no group card here (the channels stay in the pause), the
+            // rewards for the time get the room.
+            groups: community.length > 0 && visitGift ? { ids: community.map(([id]) => id), sub: t(visitGift.kind === 'egg' ? 'gifts.visit' : 'gifts.visitCoins') } : null,
             // MU round 3 (D19): the card only while the platform can ask for a review — «Rate» always a live button.
             review: communityGifts.review && !giftFlag('giftReview') && reviewCan === true ? { sub: t('gifts.reviewSub'), can: true } : null,
             ad: (() => {
@@ -1700,7 +1704,7 @@ async function boot(): Promise<void> {
     meta?.update();
     petsView?.update(gameDt, playSec, renderPos, hero.yaw, hero.speed > 1.5 || sim.onBelt);
     standsView?.update(gameDt);
-    if (onBase) baseView?.setGiftReady((dailyView?.canClaim ?? false) && hudDueNow().has('daily'));
+    if (onBase) baseView?.setGiftReady(dailyView?.canClaim ?? false);
     cosmeticsView?.update();
     if (cosmeticsVisual) {
       cosmeticsVisual.group.visible = heroChar?.visible ?? false;
@@ -1876,9 +1880,11 @@ async function boot(): Promise<void> {
   // Walls open from the save stand as arches at once (M3-07), no melt; gifts taken before F5 are gone (RL-08).
   sim.gatesOpen.forEach((open, i) => open && levelMeshes!.setGateOpen(i, 1));
   sim.gifts.forEach((g, i) => g.taken && levelMeshes!.setGiftShown(i, false));
-  characters = createCharacters(skins, accessories);
+  characters = createCharacters(skins, accessories, undefined, theme.hero);
   gr.scene.add(characters.group);
   heroChar = characters.create(skins.default);
+  // G-08: the hero brighter than the world (theme.json hero).
+  characters.setHero(heroChar);
   // The giant of the open slope and his silhouette (docs/01-gdd.md 17.6).
   bossView = createBossView({ theme, characters, scene: gr.scene, camera: () => cameraRig?.camera ?? null, numSuffix: (k) => t(`num.${k}`), skinId: skins.default, fadeAlpha: () => tuning.camera.fadeAlpha ?? 1 });
   bossView.wire(sim);
@@ -1971,7 +1977,27 @@ async function boot(): Promise<void> {
       audio?.setVolume(v);
       persist();
     },
-    onPromo: () => openPromo(),
+    // G-09: «Music» in the pause only with a loop in assets/audio/music.
+    ...(MUSIC_TRACKS.length > 0
+      ? {
+          music: {
+            on: save.settings.music,
+            volume: save.settings.musicVolume ?? 1,
+            onToggle: (on: boolean) => {
+              save.settings.music = on;
+              audio?.setMusic(on);
+              persist();
+            },
+            onVolume: (v: number) => {
+              save.settings.musicVolume = v;
+              audio?.setMusicVolume(v);
+              persist();
+            },
+          },
+        }
+      : {}),
+    // G-06 (producer 26.10, Q-M6-3 A): «Enter a code» only with `game.promo` on — off for the first submission.
+    ...(content.game.promo && content.game.promo.enabled !== false ? { onPromo: () => openPromo() } : {}),
     onSound: () => {
       save.settings.sound = !save.settings.sound;
       hud?.setSound(save.settings.sound);
@@ -1992,6 +2018,8 @@ async function boot(): Promise<void> {
     onPauseChange: (fn) => void pause.onReasons(fn),
     gestureTarget: window,
     uiPerSec: tuning.fx?.uiSoundPerSec,
+    // G-09: the music loop of assets/audio/music (none there — silent), its switch and volume of the save.
+    music: { on: save.settings.music, volume: save.settings.musicVolume ?? 1, duckK: tuning.fx?.musicDuck ?? 0.5 },
   });
   audio.setVolume(save.settings.volume);
   waveView = createWaveView({
@@ -2247,13 +2275,17 @@ async function boot(): Promise<void> {
       },
       // The gift of the day (P1): with «Calendar» of the HUD; «Claim» while the reward of the calendar waits, else the
       // timer of the «Calendar» button over the closed box.
+      // G-07 (producer 26.10: «a gold gift by the way out, I did not get what it is, cannot take it»): the stand of the
+      // gift calendar — always there on the base with its name over it; walking up opens the calendar window (19.3, 27.4).
       daily: {
-        due: () => hudDueNow().has('daily'),
-        text: () => (dailyView?.canClaim ? t('btn.claim') : null),
+        due: () => true,
+        text: () => null,
         // Lit with «!» instead of a hand (19.3).
         hand: () => false,
-        label: () => (dailyView ? (dailyView.canClaim ? '!' : t('daily.soon', { time: formatTimer(dailyView.nextSec) })) : null),
-        press: () => void dailyView?.claim('base'),
+        label: () => (dailyView ? `${t('btn.daily')} · ${dailyView.canClaim ? '!' : t('daily.soon', { time: formatTimer(dailyView.nextSec) })}` : null),
+        press: () => dailyView?.openWindow(),
+        // Opens by itself only while the reward waits (a run past it later does not stop the hero).
+        approach: () => void (dailyView?.canClaim && dailyView.openWindow()),
       },
       // The «My records» board (P1, Q-051): its numbers from the first base; «Records» by it with a leaderboard on.
       records: {
@@ -2387,7 +2419,7 @@ async function boot(): Promise<void> {
         else hud?.toast(t('level.up'));
       }
       const p = sim.hero.pos;
-      fx?.burst('confetti', p.x, p.y + 3, p.z, [theme.ui.coins, theme.ui.stat, '#ffffff'], 40, 9, 3);
+      fx?.burst('confetti', p.x, p.y + 3, p.z, [theme.ui.coins, theme.ui.stat, '#ffffff'], theme.hero?.levelConfetti ?? 40, 9, 3);
       audio?.play('levelUp');
       g.levelUps = (g.levelUps ?? 0) + 1;
     },

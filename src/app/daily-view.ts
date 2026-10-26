@@ -128,7 +128,8 @@ export function createDailyView(d: DailyViewDeps): DailyView {
     cardName(index, c) {
       const { alt, reward } = pick(index, c);
       // M4-R4: the coins of a day with their number.
-      const n = reward.kind === 'coins' ? formatNumber(d.rewards.coinsOf(reward.gifts), d.numSuffix) : undefined;
+      // G-04: the same sum on any stage of the mountain.
+      const n = reward.kind === 'coins' ? formatNumber(d.rewards.coinsOf(reward.gifts, true), d.numSuffix) : undefined;
       return t(alt ? `daily.r${index + 1}alt` : `daily.r${index + 1}`, n !== undefined ? { n } : undefined);
     },
     openWindow() {
@@ -145,7 +146,7 @@ export function createDailyView(d: DailyViewDeps): DailyView {
       clock = d.now();
       const got = claimDaily(d.save, clock, days);
       if (!got) return false;
-      d.rewards.give(pick(got.index, c).reward);
+      d.rewards.give(pick(got.index, c).reward, true);
       d.track('daily_claim', { day: got.day, from });
       // «Tomorrow: …» — the next card (docs/01-gdd.md 7.6: the reward of tomorrow is seen in the first session).
       const next = (got.index + 1) % days;

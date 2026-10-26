@@ -2,53 +2,47 @@ import { test, expect, shot1080, testState, waitReady, waitTicks } from './fixtu
 import { toFirstBase } from './base-route.ts';
 import base from '../content/avalanche/pace/open/base.json' with { type: 'json' };
 
-// FM-11 (docs/01-gdd.md 19.3; docs/01a-content.md 18.1, 18.8): the gift of the day by the spawn of the base — lit with
-// «!» while the reward of the calendar waits, «Claim» standing by it gives that reward once (daily_claim from: base);
-// closed — the timer of the «Calendar» button over it; back in the game with the gift waiting — «Your daily gift is
-// waiting!».
+// FM-11 (docs/01-gdd.md 19.3; docs/01a-content.md 18.1, 18.8), G-07 (producer 26.10, docs/01-gdd.md 27.4): the stand of the
+// gift calendar by the spawn of the base — «Gift calendar · !» over it while the reward waits (the box lit), walking up
+// opens the calendar window, «Claim» there gives it once; then the timer of the «Calendar» button over it; back in the
+// game with the gift waiting — «Your daily gift is waiting!».
 const H = 3_600_000;
 const gift = base.stands.daily;
 
-test('the gift of the day: «!», «Claim» once (daily_claim from: base), the calendar marks the day, the timer as on «Calendar»; next day F5 — welcomeGift; screenshot', async ({ page, openGame }) => {
+test('the gift calendar stand: its name and «!», walking up opens the calendar, «Claim» once, then the timer as on «Calendar»; next day F5 — welcomeGift; screenshot', async ({ page, openGame }) => {
   test.setTimeout(240_000);
   await toFirstBase(page, openGame);
   await page.evaluate(() => window.__TEST__!.setPlaySec(190));
   await waitTicks(page, 20);
   let s = await testState(page);
   expect(s.daily.canClaim).toBe(true);
-  expect(s.standLabel).toBe('!');
+  expect(s.standLabel).toBe('Календарь подарков · !');
   expect(s.giftReady).toBe(true);
-  // By the box, standing: «Claim».
+  await page.waitForFunction(() => !document.querySelector('.toasting'), undefined, { timeout: 10_000 });
+  await shot1080(page, 'docs/evidence/G/base_gift_stand_1920x1080_ru.png', 5);
+  // Up to the stand: the calendar opens by itself.
   await page.evaluate((p) => window.__TEST__!.botPath(p), [[gift.x - 0.5, gift.z + 2]] as Array<[number, number]>);
   await page.waitForFunction(() => window.__TEST__!.botLeft() === 0, undefined, { timeout: 30_000 });
   await page.evaluate(() => window.__TEST__!.botPath(null));
-  await page.waitForFunction(() => window.__TEST__!.state().standButton === 'daily', undefined, { timeout: 10_000 });
-  await expect(page.locator('[data-hud="stand"]')).toHaveText('Забрать');
-  // The button hides under a toast («This is your base»): the shot after it.
-  await page.waitForFunction(() => !document.querySelector('.toasting'), undefined, { timeout: 10_000 });
-  await shot1080(page, 'docs/evidence/fm/daily_gift_1920x1080_ru.png', 5);
-  await page.locator('[data-hud="stand"]').click();
+  await expect(page.locator('[data-hud="daily-claim"]')).toBeVisible({ timeout: 10_000 });
+  await page.locator('[data-hud="daily-claim"]').click();
   await waitTicks(page, 5);
   s = await testState(page);
   expect(s.daily.n).toBe(1);
   expect(s.daily.canClaim).toBe(false);
-  expect(s.toastSub).toMatch(/^Завтра: /);
   const claims = (await page.evaluate(() => window.__TEST__!.analytics())).filter((e) => e.name === 'daily_claim');
-  expect(claims.map((e) => e.params)).toEqual([{ day: 1, from: 'base' }]);
-  // Once: no button now, the timer over the box as on the «Calendar» button.
+  expect(claims.map((e) => e.params)).toEqual([{ day: 1, from: 'window' }]);
+  await expect(page.locator('[data-role="daily-card"]').nth(0)).toHaveAttribute('data-state', 'past');
+  await page.locator('[data-hud="win-close"]').click();
+  // Once: the timer over the box as on the «Calendar» button.
   await waitTicks(page, 30);
   s = await testState(page);
-  expect(s.standButton).toBeNull();
   expect(s.giftReady).toBe(false);
   const badge = await page.locator('[data-hud="menu-daily"] .hud-menu-badge').textContent();
-  expect(s.standLabel).toMatch(/^через \d+:\d\d:\d\d$/);
+  expect(s.standLabel).toMatch(/^Календарь подарков · через \d+:\d\d:\d\d$/);
   // The same clock: read a moment apart, the two may straddle a second (and with it 20:00:00 → 19:59:59).
   const secs = (x: string): number => x.match(/(\d+):(\d\d):(\d\d)$/)!.slice(1).reduce((a, d) => a * 60 + Number(d), 0);
   expect(Math.abs(secs(s.standLabel!) - secs(badge!))).toBeLessThanOrEqual(2);
-  // The calendar marks this day.
-  await page.locator('[data-hud="menu-daily"]').dispatchEvent('pointerdown');
-  await expect(page.locator('[data-role="daily-card"]').nth(0)).toHaveAttribute('data-state', 'past');
-  await page.locator('[data-hud="win-close"]').click();
 
   // A new game day: back in the game on the base with the gift waiting.
   await page.goto(`/?pace=open&quality=high&mock_time_offset=${20 * H + 5000}`);

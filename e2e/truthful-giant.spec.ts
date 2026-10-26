@@ -14,6 +14,8 @@ for (const series of [1, 2, 3]) {
   test(`series ${series} from a clean save: holding forward is caught at 10 meetings in a row, bots about`, async ({ page, openGame }) => {
     test.setTimeout(480_000);
     await openGame('pace=stages&mock_fullscreen=deny');
+    // G-01: the first catch of a clean save lets the hero go — these meetings count the ones after it.
+    await page.evaluate(() => window.__TEST__!.setFlag('giantFree', true));
     await waitTicks(page, 10);
     // ST-02: the giant is the stage 3 now (its ridge asks for a level a clean save has not): the Speed of its level, at its flag.
     const gf = flagOf(1, ZONE);

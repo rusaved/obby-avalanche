@@ -47,7 +47,7 @@ test('straight runs up through the finishes of stages 2–5, anywhere across the
   expect(runs).toBe(4 * 20);
 });
 
-test('on the pad: «Stage reward» without «you can run past» once taken', async ({ page, openGame }) => {
+test('on the pad: «+N · to camp» without «you can run past» once taken', async ({ page, openGame }) => {
   await openGame('pace=stages&mock_fullscreen=deny');
   const { width, height } = page.viewportSize()!;
   const st3 = W.stages[2]!;
@@ -61,11 +61,10 @@ test('on the pad: «Stage reward» without «you can run past» once taken', asy
   await page.evaluate(([z, x, y]) => window.__TEST__!.teleport(z, x, y), [st3.finish[0] + 1, st3.pad.x, st3.y + 1] as const);
   await waitTicks(page, 20);
   await expect(page.locator('[data-role="pad-label"] .hud-pad-sub')).toHaveText('можно бежать мимо');
+  // G-02 (producer 26.10): standing on it — «+N · to camp» with the ring, no «you can run past» (the flight in ~0.5 s).
   await page.evaluate((p) => window.__TEST__!.teleport(p.z, p.x, p.y + 1), st3.pad);
-  await expect(page.locator('[data-role="toast"].shown .hud-toast-main svg')).toHaveCount(1, { timeout: 10_000 });
-  await page.waitForTimeout(300);
   await expect(page.locator('[data-role="pad-label"].shown')).toBeVisible();
-  await expect(page.locator('[data-role="pad-label"]')).toContainText('Награда этапа');
+  await expect(page.locator('[data-role="pad-label"]')).toContainText('в лагерь');
   await expect(page.locator('[data-role="pad-label"] .hud-pad-sub')).toHaveText('');
   await page.screenshot({ path: `docs/evidence/MU/r4/${width}x${height}/l3-on-pad.png` });
 });

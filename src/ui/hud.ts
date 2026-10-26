@@ -84,6 +84,8 @@ export interface HudOptions {
   /** MU-07 (w3-pause): the «Sounds» slider moved (0–1) and its value at the start. */
   onVolume?: (v: number) => void;
   volume?: number;
+  /** G-09: the «Music» row of the pause (its switch and volume) — only with a music loop in the build. */
+  music?: { on: boolean; volume: number; onToggle(on: boolean): void; onVolume(v: number): void };
   /** MU-07: «Enter a code» of the pause window. */
   onPromo?: () => void;
 }
@@ -236,6 +238,8 @@ export interface Hud {
   /** The step of the stage tutorial under the goal (docs/01-gdd.md 22.12); null — none. MU round 5: `arrow` — a small
    * arrow at the start of the plaque turned to this screen angle (rad, 0 — right), the way to what it names. */
   setTutor(text: string | null, urgent?: boolean, arrow?: number | null): void;
+  /** G-03: a bouncing arrow over the sneakers button (their tutorial step is up). */
+  pointShoes(on: boolean): void;
   /** Round of fixes MU (l5-camp): the light plaques of the portals of the base — «where» over «level · open» or a lock
    * and its condition — hung by their bottom middle at (x, y), nearest first; one within 8 px of the HUD or of a plaque
    * placed before it is not drawn; nor one over the hero's box `hero` (rule 3). An empty list hides them all. */
@@ -244,7 +248,7 @@ export interface Hud {
    * (x, y) — the post top on screen; not drawn off the field or within 8 px of the HUD; null — hidden. */
   setGateSign(state: { text: string; x: number; y: number } | null): void;
   /** «+N» with a trophy over the trophy button of a stage (docs/01-gdd.md 22.8); null — hidden. */
-  setPadLabel(state: { text: string; x: number; y: number; tap?: boolean; sub?: string; hero?: { x0: number; y0: number; x1: number; y1: number }; pad?: { x0: number; y0: number; x1: number; y1: number } } | null): void;
+  setPadLabel(state: { text: string; x: number; y: number; tap?: boolean; sub?: string; ring?: number; hero?: { x0: number; y0: number; x1: number; y1: number }; pad?: { x0: number; y0: number; x1: number; y1: number } } | null): void;
   /** The portrait of a phone (the game is landscape, docs/03): «Turn your phone» over everything; false — hidden. */
   setRotate(on: boolean): void;
   /** M4-07: VIP bought — a gold star by the Speed, the «+N» of a step in gold. */
@@ -603,7 +607,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const padText = el('span', 'hud-pad-text');
   // MU-04: the second line of the stage finish plaque («you can run past»).
   const padSub = el('span', 'hud-pad-sub');
-  padLabel.append(padText, padIcon, padSub);
+  // G-02: the ring of standing on a paying pad (fills up to the flight to the camp).
+  const padRing = el('span', 'hud-pad-ring');
+  padLabel.append(padRing, padText, padIcon, padSub);
   root.appendChild(padLabel);
   const gateBoard = el('div', 'hud-gate-sign');
   gateBoard.dataset['role'] = 'gate-sign';
@@ -981,6 +987,33 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       opts.onVolume?.(Number(muVolume.value) / 100);
     });
     muRow(t('settings.sfx'), muVolume);
+    const music = opts.music;
+    if (music) {
+      const sw = el('button', 'mu-switch');
+      sw.dataset['hud'] = 'music';
+      sw.dataset['on'] = String(music.on);
+      sw.setAttribute('role', 'switch');
+      sw.setAttribute('aria-label', t('settings.music'));
+      sw.addEventListener('click', () => {
+        const v = sw.dataset['on'] !== 'true';
+        sw.dataset['on'] = String(v);
+        music.onToggle(v);
+      });
+      const vol = el('input', 'foot-slider mu-volume');
+      vol.type = 'range';
+      vol.min = '0';
+      vol.max = '100';
+      vol.step = '5';
+      vol.value = String(Math.round(music.volume * 100));
+      vol.style.setProperty('--fill', `${vol.value}%`);
+      vol.dataset['hud'] = 'music-volume';
+      vol.setAttribute('aria-label', t('settings.music'));
+      vol.addEventListener('input', () => {
+        vol.style.setProperty('--fill', `${vol.value}%`);
+        music.onVolume(Number(vol.value) / 100);
+      });
+      muRow(t('settings.music'), vol, sw);
+    }
     if (onFootsteps) {
       const b = el('button', 'card-btn quiet', t('footsteps.open'));
       b.dataset['hud'] = 'footsteps';
@@ -1633,6 +1666,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (!state) return;
       setRich(padText, state.text);
       padLabel.classList.toggle('two', !!state.sub);
+      padLabel.classList.toggle('ring', state.ring !== undefined);
+      if (state.ring !== undefined) padRing.style.setProperty('--ring', state.ring.toFixed(3));
       if (padSub.textContent !== (state.sub ?? '')) padSub.textContent = state.sub ?? '';
       // The phone places «Stage reward» (with or without its second line) by the rule below; the camp «Teleport» — here.
       if (!opts.mu || state.tap) {
@@ -1701,6 +1736,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       padGlide.pick = pick;
       const g = glideTo(padGlide, at.x, at.y, (x, y) => ok({ x, y }));
       padLabel.style.transform = `translate(${g.x}px, ${g.y}px)`;
+    },
+    pointShoes(on) {
+      if (shoes.classList.contains('point') !== on) shoes.classList.toggle('point', on);
     },
     setTutor(text, urgent = false, arrow = null) {
       if (tutor.classList.contains('shown') !== (text !== null) || tutor.classList.contains('urgent') !== urgent) {

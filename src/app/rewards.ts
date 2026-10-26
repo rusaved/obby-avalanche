@@ -40,19 +40,20 @@ export interface RewardsDeps {
 }
 
 export interface Rewards {
-  /** Coins of `gifts` gifts of the player's zone now. */
-  coinsOf(gifts: number): number;
+  /** Coins of `gifts` gifts of the player's zone now; `fixed` — of the first zone of the player's mountain, wherever the hero stands (G-04). */
+  coinsOf(gifts: number, fixed?: boolean): number;
   /** The egg a reward hatches (`best` resolved). */
   eggOf(id: string): Egg | undefined;
   /** Is a look of this reward already the player's (calendar `alt`). */
   owns(r: Reward): boolean;
-  give(r: Reward): void;
+  /** `fixed` — coins as coinsOf(…, true) (the calendar, G-04). */
+  give(r: Reward, fixed?: boolean): void;
 }
 
 export function createRewards(d: RewardsDeps): Rewards {
   const lookItems = (kind: 'skin' | 'wings') => (kind === 'skin' ? d.skins.skins : (d.skins.wings ?? []));
   const r: Rewards = {
-    coinsOf(gifts) {
+    coinsOf(gifts, fixed = false) {
       const sim = d.getSim();
       const zone = zoneAt(sim.level, sim.hero.pos.z);
       const gift = sim.gifts.find((g) => g.zone === zone) ?? sim.gifts[0];
@@ -62,7 +63,8 @@ export function createRewards(d: RewardsDeps): Rewards {
       const own = d.worlds.find((w) => w.index === (d.save.world ?? 1))?.zones[0]?.gift;
       // MT-07 (the calendar of day 1 paid 9 000 at an egg of 500): on the stages the zone value first — a gift on that
       // track is the golden snowflake (× its mult) or the coin trail of the first minute, not the worth of a gift.
-      const value = (sim.level.stages ? zg[zone] : undefined) ?? gift?.coins ?? zg[zone] ?? Object.values(zg)[0] ?? own ?? 0;
+      // G-04 (producer 26.10): the calendar pays the same on any stage — the first zone of the mountain.
+      const value = (fixed ? own : undefined) ?? (sim.level.stages ? zg[zone] : undefined) ?? gift?.coins ?? zg[zone] ?? Object.values(zg)[0] ?? own ?? 0;
       return scaled(gifts * value, sim.tier, d.balance.rebirth);
     },
     eggOf(id) {
@@ -80,12 +82,12 @@ export function createRewards(d: RewardsDeps): Rewards {
       if (rw.kind === 'pet' && rw.wings) return ownedLooks(d.save, 'wings', lookItems('wings')).includes(rw.wings);
       return false;
     },
-    give(rw) {
+    give(rw, fixed = false) {
       const sim = d.getSim();
       switch (rw.kind) {
         case 'coins': {
           const before = sim.coins;
-          sim.coins += r.coinsOf(rw.gifts);
+          sim.coins += r.coinsOf(rw.gifts, fixed);
           d.hud.setCoins(formatNumber(sim.coins, d.numSuffix));
           d.onGain?.('coins', before, sim.coins);
           break;
