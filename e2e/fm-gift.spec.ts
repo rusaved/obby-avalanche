@@ -21,12 +21,13 @@ test('the gift calendar stand: its name and «!», walking up opens the calendar
   await page.waitForFunction(() => !document.querySelector('.toasting'), undefined, { timeout: 10_000 });
   await shot1080(page, 'docs/evidence/G/base_gift_stand_1920x1080_ru.png', 5);
   // Up to the stand: the calendar opens by itself.
+  // The window stands the game as it opens: the bot stops short of its last point.
   await page.evaluate((p) => window.__TEST__!.botPath(p), [[gift.x - 0.5, gift.z + 2]] as Array<[number, number]>);
-  await page.waitForFunction(() => window.__TEST__!.botLeft() === 0, undefined, { timeout: 30_000 });
+  await expect(page.locator('[data-hud="daily-claim"]')).toBeVisible({ timeout: 30_000 });
   await page.evaluate(() => window.__TEST__!.botPath(null));
-  await expect(page.locator('[data-hud="daily-claim"]')).toBeVisible({ timeout: 10_000 });
   await page.locator('[data-hud="daily-claim"]').click();
-  await waitTicks(page, 5);
+  // The window stands the game: real time, not ticks.
+  await page.waitForTimeout(300);
   s = await testState(page);
   expect(s.daily.n).toBe(1);
   expect(s.daily.canClaim).toBe(false);

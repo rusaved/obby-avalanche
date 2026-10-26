@@ -36,7 +36,8 @@ export async function hudBoxes(page: Page): Promise<Box[]> {
   return page.evaluate(() => {
     const sel: Array<[string, string]> = [
       ['counters', '.hud-left'],
-      ['strip', '.hud-mountain'],
+      // M4-R4: squeezed (narrow) with the strip away only its label stays seen — the rest of the strip is see-through.
+      ['strip', document.querySelector('.hud.mu.narrow.strip-off') ? '.hud-mountain-label' : '.hud-mountain'],
       ['pause', '[data-hud="pause"]'],
       ['sound', '[data-hud="sound"]'],
       ['gift', '[data-hud="gift"]'],

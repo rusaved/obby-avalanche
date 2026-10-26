@@ -45,7 +45,8 @@ async function start(page: Page, openGame: (q?: string) => Promise<void>, stat: 
 
 test('the bar and the shoes on one line between the stick and the jump, «N Speed» 8 px over the bar; at −160 px too', async ({ page, openGame }) => {
   await start(page, openGame, threshold(3));
-  await page.evaluate((z) => window.__TEST__!.teleport(z), W.stages[3]!.start + 20); // ST-02: the field of the avalanche stage (stage 3 is plates over a pit)
+  // G-01: the field of the dips (stage 3 now; no pit, its avalanche comes after ~8 s — the avalanche stage's after 1 s).
+  await page.evaluate((z) => window.__TEST__!.teleport(z), W.stages.find((x) => x.type === 'dips')!.start + 20);
   await waitTicks(page, 20);
   const { width, height } = page.viewportSize()!;
   for (const w of [width, width - 160]) {
@@ -70,6 +71,8 @@ test('the bar and the shoes on one line between the stick and the jump, «N Spee
     expect(height - (shoes.y + shoes.h), `${w}: 16 px from the bottom`).toBeGreaterThanOrEqual(15.5);
     // Round 4: the stage strip measured at rest, not halfway through its slide.
     await page.waitForFunction(() => !(document.querySelector('.hud-mountain')?.getAnimations().some((a) => a.playState === 'running') ?? false));
+    // G-01: no wave over the dips — the hint takes the slot; measured once it stops moving with the strip.
+    await page.waitForFunction(() => !Array.from(document.querySelectorAll('[data-role="hint"], [data-role="tutor"], [data-role="need"]')).some((e) => e.getAnimations().some((a) => a.playState === 'running')));
     const boxes = await hudBoxes(page);
     for (const b of boxes) expect(b.x + b.w, `${w}: ${b.id} inside`).toBeLessThanOrEqual(w - 16 + 0.5);
     expect(tooClose(boxes, 8), `${w}`).toEqual([]);
@@ -81,7 +84,8 @@ test('the stage strip slides in on a new stage, at a ridge and at the giant for 
   test.setTimeout(120_000);
   await start(page, openGame, threshold(3));
   // A new stage: in sight now, gone in 3.5 s; the slot at the top then.
-  await page.evaluate((z) => window.__TEST__!.teleport(z), W.stages[3]!.start + 20); // ST-02: the field of the avalanche stage (stage 3 is plates over a pit)
+  // G-01: the field of the dips (stage 3 now; no pit, its avalanche comes after ~8 s — the avalanche stage's after 1 s).
+  await page.evaluate((z) => window.__TEST__!.teleport(z), W.stages.find((x) => x.type === 'dips')!.start + 20);
   await waitTicks(page, 5);
   await expect.poll(() => stripShown(page), { message: 'a new stage shows the strip', timeout: 2_000, intervals: [100] }).toBe(true);
   await page.screenshot({ path: `docs/evidence/MU/r4/${page.viewportSize()!.width}x${page.viewportSize()!.height}/strip-in.png` });
@@ -94,7 +98,7 @@ test('the stage strip slides in on a new stage, at a ridge and at the giant for 
   });
   if (slot !== null) expect(slot, 'the slot at the top while the strip hides').toBeLessThanOrEqual(10);
   // A ridge: the plaque «N more levels» brings the strip.
-  const st4 = W.stages[5]!; // ST-02: the ridge of stage 6 — past the flat avalanche stage (stage 3 is the giant's)
+  const st4 = W.stages[3]!; // G-01: the ridge of the avalanche stage — from the end of the dips (no pit there; the plates moved to 5)
   await page.evaluate(([s, z]) => {
     window.__TEST__!.setStat(s);
     window.__TEST__!.teleport(z);
