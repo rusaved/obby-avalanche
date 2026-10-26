@@ -8,7 +8,7 @@
  * physics (M1) and cave fairness against warnSec (M2-03).
  */
 import * as v from 'valibot';
-import type { AurasJson, BalanceJson, BotsJson, Curve, EggsJson, TrailsJson, GameJson, OpenSpecJson, Reward, Segment, SfxJson, SkinsJson, TuningJson, World, WorldsJson, WorldsSpecJson } from '../content/types.ts';
+import type { AccessoriesJson, AurasJson, BalanceJson, BotsJson, Curve, EggsJson, TrailsJson, GameJson, OpenSpecJson, Reward, Segment, SfxJson, SkinsJson, TuningJson, World, WorldsJson, WorldsSpecJson } from '../content/types.ts';
 import { summitTrophies } from '../sim/economy.ts';
 import { LEADERBOARD_SCORES } from '../meta/trophies.ts';
 import { floatingErrors, seamErrors, surfaceLineErrors, validateStageWorlds } from './validate-stages.ts';
@@ -179,6 +179,19 @@ const themeSchema = v.object({
     portal: v.optional(v.object({ fill: v.boolean(), pillar: nonNeg, arrows: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(6)) })),
   }),
   sky: v.object({ top: hex, mid: v.optional(hex), bottom: hex }),
+  dome: v.object({
+    sun: hex,
+    sunElev: v.number(),
+    sunAhead: v.number(),
+    sunSize: positive,
+    glow: positive,
+    snow: hex,
+    cloud: hex,
+    cloudShade: hex,
+    seed: v.number(),
+    peaks: v.pipe(v.array(v.object({ dist: positive, height: v.tuple([positive, positive]), count: positive, haze: v.number() })), v.minLength(1), v.maxLength(3)),
+    clouds: v.object({ count: v.number(), elev: v.tuple([v.number(), v.number()]), size: positive }),
+  }),
   // G-08: the hero brighter than the world — his colours, a dark outline, the sparks of his steps and jumps.
   hero: v.optional(
     v.object({
@@ -201,8 +214,9 @@ const themeSchema = v.object({
   }),
   materials: v.record(
     v.string(),
-    v.object({ color: hex, roughness: v.optional(v.number()), metalness: v.optional(v.number()), emissive: v.optional(hex) }),
+    v.object({ color: hex, roughness: v.optional(v.number()), metalness: v.optional(v.number()), emissive: v.optional(hex), tex: v.optional(v.picklist(['plain', 'snow', 'crust', 'ice', 'wood', 'rock', 'bricks', 'planks'])) }),
   ),
+  blockTex: v.optional(v.object({ scale: positive, ao: v.pipe(v.number(), v.minValue(0), v.maxValue(1)) })),
   rarity: v.record(id, hex),
   ui: v.object({
     stat: hex,
@@ -702,10 +716,14 @@ const skinsSchema = v.object({
         colors: v.object({ head: hex, torso: hex, armL: hex, armR: hex, legL: hex, legR: hex }),
         face: id,
         hat: v.nullable(id),
+        headShape: v.optional(v.picklist(['cylinder', 'cube'])),
+        outfit: v.optional(v.picklist(['tee', 'jacket'])),
+        hair: v.optional(v.object({ style: id, color: hex })),
       }),
     ),
     v.minLength(1),
   ),
+  outfit: v.optional(v.object({ shoe: hex, sole: hex, lace: hex, inner: hex })),
   // Wings (docs/01-gdd.md 7.4, M3-04b): looks only, an accessory of the same id on the back.
   wings: v.optional(v.array(v.object({ id: id, unlock: v.object({ kind: v.picklist(['default', 'trophies', 'daily', 'iap', 'tier']), value: v.optional(v.union([v.number(), v.string()])) }) }))),
 });
@@ -727,6 +745,18 @@ const accessoriesSchema = v.object({
         v.minLength(1),
       ),
     }),
+  ),
+  hair: v.optional(
+    v.array(
+      v.object({
+        id: id,
+        parts: v.pipe(
+          v.array(v.object({ size: v.tuple([positive, positive, positive]), pos: v.tuple([v.number(), v.number(), v.number()]), rot: v.optional(v.tuple([v.number(), v.number(), v.number()])) })),
+          v.minLength(6),
+          v.maxLength(12),
+        ),
+      }),
+    ),
   ),
 });
 
@@ -918,6 +948,9 @@ export function validatePack(files: PackFiles, opts: { paces?: readonly string[]
     if (skinIds.has(s.id)) errors.push(`skins.json: skins[${i}].id — duplicate "${s.id}"`);
     skinIds.add(s.id);
     if (s.hat && !accIds.has(s.hat)) errors.push(`skins.json: skins[${i}].hat — unknown accessory "${s.hat}"`);
+    const hairIds = new Set(((accessories as AccessoriesJson).hair ?? []).map((h) => h.id));
+    const hair = (s as SkinsJson['skins'][number]).hair;
+    if (hair && !hairIds.has(hair.style)) errors.push(`skins.json: skins[${i}].hair — unknown hairstyle "${hair.style}"`);
   }
   if (!skinIds.has(skins.default)) errors.push(`skins.json: default — unknown skin "${skins.default}"`);
   // Skins and wings (M3-04b): a price in trophies is a number, a tier or a calendar day too; wings are back accessories;

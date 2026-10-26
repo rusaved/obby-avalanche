@@ -23,8 +23,8 @@ const SITTER_SIZE = 0.8;
 const EDGE = 1;
 const CLEAR = 4;
 const TRIES = 12;
-const MAX_WALKERS = 32;
-const MAX_SITTERS = 32;
+const MAX_WALKERS = 64;
+const MAX_SITTERS = 64;
 /** A cliff gets a perch every PERCH_STEP along it; a ridge's border perch this far under it. */
 const PERCH_STEP = 8;
 const UNDER_RIDGE = 3;

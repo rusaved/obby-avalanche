@@ -112,7 +112,7 @@ export function createBotsView(d: BotsViewDeps): BotsView {
         const key = `${b.look.head}${b.look.jacket}${b.look.pants}${b.look.hat}${b.look.face}`;
         if (key !== s.painted) {
           s.painted = key;
-          d.characters.paint(s.ch, { head: b.look.head, torso: b.look.jacket, arms: b.look.jacket, legs: b.look.pants, hat: d.cfg.palette.hat, hatColor: b.look.hat, face: b.look.face });
+          d.characters.paint(s.ch, { head: b.look.head, torso: b.look.jacket, arms: b.look.jacket, legs: b.look.pants, hat: d.cfg.palette.hat, hatColor: b.look.hat, face: b.look.face, cut: 'jacket' });
         }
         // Interpolation between the last two ticks (docs/02-tech.md 4.2).
         if (newSim || s.tick < 0) {

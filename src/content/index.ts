@@ -24,7 +24,7 @@ import sfx from '@content/sfx.json';
 import bots from '@content/bots.json';
 import ruUrl from '@content/i18n/ru.json?url';
 import enUrl from '@content/i18n/en.json?url';
-import type { BaseJson, ContentPack } from './types.ts';
+import type { BaseJson, ContentPack, DecorJson, DecorModelsJson } from './types.ts';
 import { CLASSIC_PACE, choosePace, mergePatch, paceOfPath } from './pace.ts';
 
 const byPace = (files: Record<string, unknown>): Record<string, unknown> =>
@@ -35,6 +35,9 @@ const paceTuning = byPace(import.meta.glob('@content/pace/*/tuning.json', { eage
 const paceBots = byPace(import.meta.glob('@content/pace/*/bots.json', { eager: true, import: 'default' }));
 // The base between the mountains (docs/01-gdd.md 19): a file of the pace folder, none for classic.
 const paceBase = byPace(import.meta.glob('@content/pace/*/base.json', { eager: true, import: 'default' }));
+// Z-06: the winter decor of the pack, if it has one (the sample pack does not).
+const decorFiles = import.meta.glob(['@content/decor.json', '@content/decor-models.json'], { eager: true, import: 'default' });
+const decorOf = (name: string): unknown => Object.entries(decorFiles).find(([path]) => path.endsWith(`/${name}`))?.[1];
 
 /** Pace folders of the pack (classic is not one of them). */
 export const paces: readonly string[] = Object.keys(paceWorlds).sort();
@@ -62,6 +65,7 @@ function packOf(p: string): ContentPack {
     // The crowd of a pace (SP-04: lanes on the width of its sections): the same deep merge.
     bots: (classic ? bots : mergePatch(bots, paceBots[p])) as unknown as ContentPack['bots'],
     ...(classic || !paceBase[p] ? {} : { base: paceBase[p] as unknown as BaseJson }),
+    ...(decorOf('decor.json') && decorOf('decor-models.json') ? { decor: decorOf('decor.json') as DecorJson, decorModels: decorOf('decor-models.json') as DecorModelsJson } : {}),
   };
 }
 

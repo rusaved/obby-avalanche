@@ -1,0 +1,37 @@
+M5-06 · budgets of rendering (docs/02-tech.md 9.5), pace stages, quality high, 960×540, build:e2e, SwiftShader, 2026-10-26T17:46:18.703Z
+worst: draw calls 37 / 60, triangles 89436 / 150000, textures 6 / 16
+switch of mountains at CPU x4, the trees built ahead (as from the base): 462, 416, 506, 604, 564 ms (max 604 / 1000); without the prebuild: 2110 ms
+memory, mountain 1 before and after 5 switches: geometries 32 -> 32, textures 6 -> 6
+
+| mountain | point | draw calls | triangles | textures |
+|---|---|---|---|---|
+| 1 | start | 35 | 56348 | 6 |
+| 1 | trial | 36 | 57222 | 6 |
+| 1 | finish | 30 | 52426 | 6 |
+| 2 | start | 36 | 57114 | 6 |
+| 2 | trial | 34 | 57162 | 6 |
+| 2 | finish | 30 | 53002 | 6 |
+| 3 | start | 35 | 56932 | 6 |
+| 3 | trial | 35 | 57254 | 6 |
+| 3 | finish | 30 | 53286 | 6 |
+| 4 | start | 37 | 74752 | 6 |
+| 4 | trial | 35 | 75182 | 6 |
+| 4 | finish | 31 | 71646 | 6 |
+| 5 | start | 33 | 72708 | 6 |
+| 5 | trial | 34 | 75382 | 6 |
+| 5 | finish | 30 | 71042 | 6 |
+| 6 | start | 34 | 73932 | 6 |
+| 6 | trial | 36 | 75898 | 6 |
+| 6 | finish | 29 | 70862 | 6 |
+| 7 | start | 35 | 74432 | 6 |
+| 7 | trial | 33 | 75666 | 6 |
+| 7 | finish | 31 | 72322 | 6 |
+| 8 | start | 35 | 75896 | 6 |
+| 8 | trial | 34 | 75306 | 6 |
+| 8 | finish | 31 | 73246 | 6 |
+| 9 | start | 35 | 88972 | 6 |
+| 9 | trial | 36 | 89318 | 6 |
+| 9 | finish | 36 | 87402 | 6 |
+| 10 | start | 37 | 89436 | 6 |
+| 10 | trial | 35 | 88426 | 6 |
+| 10 | finish | 36 | 87842 | 6 |

@@ -8,6 +8,16 @@
     "shelterMesh": "cave",
     "treadmill": "snowWhirl"
   },
+  "dome": {
+    "sun": "#FFF6DC", "sunElev": 0.34, "sunAhead": 0.9, "sunSize": 16, "glow": 3.2,
+    "snow": "#F7FAFD", "cloud": "#FFFFFF", "cloudShade": "#C8D5E4", "seed": 19,
+    "peaks": [
+      { "dist": 0.97, "height": [70, 110], "count": 34, "haze": 0.82 },
+      { "dist": 0.92, "height": [48, 80], "count": 26, "haze": 0.62 },
+      { "dist": 0.86, "height": [26, 50], "count": 22, "haze": 0.42 }
+    ],
+    "clouds": { "count": 12, "elev": [0.12, 0.34], "size": 16 }
+  },
   "sky": {
     "top": "#3A1C0F",
     "bottom": "#FF7A00"

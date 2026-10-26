@@ -1,0 +1,289 @@
+{
+  "models": [
+    {
+      "id": "pineA",
+      "file": "assets/models/kenney-holiday-kit/tree-snow-a.glb"
+    },
+    {
+      "id": "pineB",
+      "file": "assets/models/kenney-holiday-kit/tree-snow-b.glb"
+    },
+    {
+      "id": "pineC",
+      "file": "assets/models/kenney-holiday-kit/tree-snow-c.glb"
+    },
+    {
+      "id": "rocksL",
+      "file": "assets/models/kenney-holiday-kit/rocks-large.glb"
+    },
+    {
+      "id": "rocksM",
+      "file": "assets/models/kenney-holiday-kit/rocks-medium.glb"
+    },
+    {
+      "id": "pile",
+      "file": "assets/models/kenney-holiday-kit/snow-pile.glb"
+    },
+    {
+      "id": "snowman",
+      "file": "assets/models/kenney-holiday-kit/snowman.glb"
+    },
+    {
+      "id": "lantern",
+      "file": "assets/models/kenney-holiday-kit/lantern.glb"
+    },
+    {
+      "id": "lights",
+      "file": "assets/models/kenney-holiday-kit/lights-colored.glb",
+      "recolor": {
+        "#b23a48": "#FFC94D",
+        "#cd4545": "#FFC94D",
+        "#e34e43": "#FFC94D",
+        "#be3f47": "#FFC94D",
+        "#dc4b44": "#FFC94D",
+        "#b73c48": "#FFC94D",
+        "#d54845": "#FFC94D",
+        "#248d6d": "#FFD978",
+        "#1f886b": "#FFD978",
+        "#359e75": "#FFD978",
+        "#48b27f": "#FFD978"
+      }
+    },
+    {
+      "id": "sled",
+      "file": "assets/models/kenney-holiday-kit/sled.glb"
+    },
+    {
+      "id": "bench",
+      "file": "assets/models/kenney-holiday-kit/bench.glb"
+    },
+    {
+      "id": "campfire",
+      "file": "assets/models/kenney-survival-kit/campfire-pit.glb"
+    },
+    {
+      "id": "tent",
+      "file": "assets/models/kenney-survival-kit/tent-canvas.glb"
+    },
+    {
+      "id": "crate",
+      "file": "assets/models/kenney-survival-kit/box-large.glb"
+    },
+    {
+      "id": "barrel",
+      "file": "assets/models/kenney-survival-kit/barrel.glb"
+    },
+    {
+      "id": "signpost",
+      "file": "assets/models/kenney-survival-kit/signpost.glb"
+    },
+    {
+      "id": "log",
+      "file": "assets/models/kenney-survival-kit/tree-log.glb"
+    }
+  ],
+  "scale": {
+    "pineA": 6.5,
+    "pineB": 6,
+    "pineC": 7,
+    "rocksL": 3.2,
+    "rocksM": 3.6,
+    "pile": 7,
+    "snowman": 4.2,
+    "lantern": 3,
+    "lights": 7.4,
+    "sled": 5,
+    "bench": 5,
+    "campfire": 14,
+    "tent": 14,
+    "crate": 9,
+    "barrel": 8,
+    "signpost": 9,
+    "log": 6
+  },
+  "glow": {
+    "lantern": [
+      [
+        0,
+        1.42,
+        0,
+        0.32
+      ]
+    ],
+    "lights": [
+      [
+        -0.36,
+        0.12,
+        0,
+        0.12
+      ],
+      [
+        -0.12,
+        0.12,
+        0,
+        0.12
+      ],
+      [
+        0.12,
+        0.12,
+        0,
+        0.12
+      ],
+      [
+        0.36,
+        0.12,
+        0,
+        0.12
+      ]
+    ],
+    "campfire": [
+      [
+        0,
+        0.12,
+        0,
+        0.22
+      ]
+    ]
+  },
+  "glowColor": "#FFC266",
+  "glowOpacity": 0.32,
+  "ao": 0.6,
+  "foot": 0.8,
+  "clear": {
+    "boxKinds": [
+      "nicheWall",
+      "nicheRoof",
+      "nicheFloor",
+      "islandWall",
+      "islandRoof",
+      "cover",
+      "campTeleport",
+      "trophyPad",
+      "iceRock",
+      "throatWall",
+      "beacon",
+      "cliff",
+      "mazeWall"
+    ],
+    "points": [
+      "treadmill",
+      "eggStand",
+      "gift",
+      "slide",
+      "summit",
+      "chest",
+      "portal",
+      "decor",
+      "jumpPad"
+    ],
+    "near": 3,
+    "step": 1.5
+  },
+  "edge": {
+    "every": 16,
+    "inset": [
+      4,
+      11
+    ],
+    "jitter": 6,
+    "clear": 6,
+    "pick": [
+      "pineA",
+      "pineB",
+      "pineC",
+      "pineC",
+      "pineA",
+      "rocksM",
+      "pile",
+      "pile",
+      "rocksL",
+      "log"
+    ],
+    "perStage": 22
+  },
+  "finish": {
+    "inset": 1.6,
+    "from": 1,
+    "span": 6.5,
+    "clear": 0,
+    "post": "lantern",
+    "garland": "lights",
+    "garlandLift": 3.9,
+    "props": [
+      "barrel",
+      "crate"
+    ]
+  },
+  "campClear": 1,
+  "camp": [
+    {
+      "id": "tent",
+      "x": -0.78,
+      "z": 10,
+      "yaw": 0.6
+    },
+    {
+      "id": "tent",
+      "x": -0.8,
+      "z": 24,
+      "yaw": -0.4
+    },
+    {
+      "id": "campfire",
+      "x": -0.55,
+      "z": 17
+    },
+    {
+      "id": "log",
+      "x": -0.45,
+      "z": 14,
+      "yaw": 0.2
+    },
+    {
+      "id": "bench",
+      "x": -0.62,
+      "z": 21,
+      "yaw": 1.4
+    },
+    {
+      "id": "sled",
+      "x": 0.7,
+      "z": 8,
+      "yaw": 2.6
+    },
+    {
+      "id": "crate",
+      "x": 0.82,
+      "z": 14
+    },
+    {
+      "id": "barrel",
+      "x": 0.86,
+      "z": 18
+    },
+    {
+      "id": "snowman",
+      "x": 0.68,
+      "z": 28,
+      "yaw": 3.4
+    },
+    {
+      "id": "lantern",
+      "x": -0.35,
+      "z": 36,
+      "yaw": 0
+    },
+    {
+      "id": "lantern",
+      "x": 0.35,
+      "z": 36,
+      "yaw": 0
+    },
+    {
+      "id": "signpost",
+      "x": 0.5,
+      "z": 34,
+      "yaw": 3.14
+    }
+  ]
+}

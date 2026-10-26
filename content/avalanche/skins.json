@@ -15,7 +15,12 @@
         "legR": "#3C3F46"
       },
       "face": "smile",
-      "hat": "hat_pompom_red"
+      "hat": "hat_pompom_red",
+      "outfit": "jacket",
+      "hair": {
+        "style": "hair_bob",
+        "color": "#5A3A22"
+      }
     },
     {
       "id": "skier",
@@ -32,7 +37,12 @@
         "legR": "#1E5BB8"
       },
       "face": "happy",
-      "hat": "hat_ski_goggles"
+      "hat": "hat_ski_goggles",
+      "outfit": "jacket",
+      "hair": {
+        "style": "hair_curls",
+        "color": "#2B211C"
+      }
     },
     {
       "id": "snowboarder",
@@ -49,7 +59,12 @@
         "legR": "#455A64"
       },
       "face": "determined",
-      "hat": "hat_board_mask"
+      "hat": "hat_board_mask",
+      "outfit": "tee",
+      "hair": {
+        "style": "hair_spiky",
+        "color": "#E3B04B"
+      }
     },
     {
       "id": "explorer",
@@ -66,7 +81,8 @@
         "legR": "#3E4A59"
       },
       "face": "happy",
-      "hat": "hat_fur_hood"
+      "hat": "hat_fur_hood",
+      "outfit": "jacket"
     },
     {
       "id": "penguin_suit",
@@ -83,7 +99,8 @@
         "legR": "#1F2430"
       },
       "face": "laugh",
-      "hat": "hat_penguin"
+      "hat": "hat_penguin",
+      "outfit": "tee"
     },
     {
       "id": "snowball",
@@ -100,7 +117,8 @@
         "legR": "#E8F1FF"
       },
       "face": "wink",
-      "hat": "hat_snowball"
+      "hat": "hat_snowball",
+      "outfit": "tee"
     },
     {
       "id": "ice_knight",
@@ -117,7 +135,8 @@
         "legR": "#4A90C8"
       },
       "face": "determined",
-      "hat": "hat_knight_helm"
+      "hat": "hat_knight_helm",
+      "outfit": "tee"
     },
     {
       "id": "aurora_skin",
@@ -134,7 +153,12 @@
         "legR": "#7B5CD6"
       },
       "face": "wow",
-      "hat": "hat_aurora"
+      "hat": "hat_aurora",
+      "outfit": "jacket",
+      "hair": {
+        "style": "hair_ponytail",
+        "color": "#C4622D"
+      }
     },
     {
       "id": "golden",
@@ -151,7 +175,12 @@
         "legR": "#FFFFFF"
       },
       "face": "happy",
-      "hat": "hat_pompom_white"
+      "hat": "hat_pompom_white",
+      "outfit": "jacket",
+      "hair": {
+        "style": "hair_bob",
+        "color": "#E3B04B"
+      }
     },
     {
       "id": "snow_ninja",
@@ -168,7 +197,12 @@
         "legR": "#E3EEF8"
       },
       "face": "determined",
-      "hat": "hat_headband"
+      "hat": "hat_headband",
+      "outfit": "tee",
+      "hair": {
+        "style": "hair_spiky",
+        "color": "#1F1B1A"
+      }
     },
     {
       "id": "ice_guard",
@@ -185,7 +219,8 @@
         "legR": "#5F7F9E"
       },
       "face": "neutral",
-      "hat": "hat_guard_crest"
+      "hat": "hat_guard_crest",
+      "outfit": "jacket"
     },
     {
       "id": "stargazer",
@@ -202,7 +237,12 @@
         "legR": "#151B4A"
       },
       "face": "wow",
-      "hat": "hat_star_cap"
+      "hat": "hat_star_cap",
+      "outfit": "jacket",
+      "hair": {
+        "style": "hair_messy",
+        "color": "#5A3A22"
+      }
     }
   ],
   "wings": [
@@ -262,5 +302,11 @@
         "value": 10
       }
     }
-  ]
+  ],
+  "outfit": {
+    "shoe": "#FFFFFF",
+    "sole": "#B8C2CC",
+    "lace": "#D5DBE2",
+    "inner": "#FFFFFF"
+  }
 }

@@ -101,7 +101,54 @@ export interface ThreatLook {
   rumble?: number;
 }
 
+/** Z-06: the winter decor (content/<pack>/decor.json; render/winter-decor.ts): the Kenney models picked (only they are
+ * converted by npm run gen:decor), their scale, warm glows (model units: x, y, z, radius), and where they stand. */
+export interface DecorJson {
+  models: Array<{ id: string; file: string; recolor?: Record<string, string> }>;
+  recolor?: Record<string, string>;
+  scale: Record<string, number>;
+  glow: Record<string, Array<[number, number, number, number]>>;
+  glowColor: string;
+  glowOpacity: number;
+  /** Light left at the foot of a model and the height of that foot (units). */
+  ao: number;
+  foot: number;
+  /** Kinds of boxes and types of points a model never stands on or near. */
+  /** `near` — how far past its clear a point keeps the edge decor; `step` — the most its foot may lean (units). */
+  clear: { boxKinds: string[]; points: string[]; near: number; step: number };
+  edge: { every: number; perStage: number; inset: [number, number]; jitter: number; clear: number; pick: string[] };
+  finish: { inset: number; from: number; span: number; clear: number; post: string; garland?: string; garlandLift: number; props: string[] };
+  campClear: number;
+  camp: Array<{ id: string; x: number; z: number; yaw?: number; lift?: number }>;
+}
+
+/** Z-06: decor-models.json — generated (npm run gen:decor): positions in hundredths of a unit, a palette index a vertex, triangles. */
+export interface DecorModelsJson {
+  palette: string[];
+  models: Record<string, { pos: number[]; col: number[]; idx: number[] }>;
+}
+
+/** Z-04: the procedural sky dome (render/sky.ts): the sun low ahead, rings of far peaks, puffy clouds. */
+export interface ThemeDome {
+  sun: string;
+  /** Elevation of the sun (rad) and how far it leans ahead of the run (added to |sunDir.z| for its azimuth). */
+  sunElev: number;
+  sunAhead: number;
+  /** Radius of the disc (units on the dome) and of its glow (× the disc). */
+  sunSize: number;
+  glow: number;
+  snow: string;
+  cloud: string;
+  cloudShade: string;
+  seed: number;
+  /** Rings of far peaks: distance (× the dome radius), heights of the high and low peaks, how many, haze 0–1 (the
+   * farther the paler). */
+  peaks: Array<{ dist: number; height: [number, number]; count: number; haze: number }>;
+  clouds: { count: number; elev: [number, number]; size: number };
+}
+
 export interface ThemeJson {
+  dome: ThemeDome;
   fx: {
     caught: string;
     gateOpen: string;
@@ -122,7 +169,10 @@ export interface ThemeJson {
   /** RL-04 (docs/01-gdd.md 21.4): a mountain's own sky, fog and snow by its id; absent — the colours above. */
   tints?: Record<string, ThemeTint>;
   light: { sun: string; sunIntensity: number; ambient: string; ambientIntensity: number; sunDir: [number, number, number] };
-  materials: Record<string, { color: string; roughness?: number; metalness?: number; emissive?: string }>;
+  /** Z-05: `tex` — the layer of the block texture (render/block-tex.ts BLOCK_LAYERS), absent — plain. */
+  materials: Record<string, { color: string; roughness?: number; metalness?: number; emissive?: string; tex?: string }>;
+  /** Z-05: the block texture — world units a tile and the light left at the foot of standing blocks (vertex AO). */
+  blockTex?: { scale: number; ao: number };
   rarity: Record<string, string>;
   /** `plaque`, `plaqueAlpha`, `plaqueText`: the dark see-through plaque under the avalanche banner and the small HUD
    * arrows («wrong way», the way to the belt) with its text colour (docs/01-gdd.md 16.7: contrast ≥ 4.5:1). */
@@ -926,7 +976,15 @@ export interface SkinsJson {
     colors: { head: string; torso: string; armL: string; armR: string; legL: string; legR: string };
     face: string;
     hat: string | null;
+    /** Z-03: the head — a rounded cylinder (default) or a cube (other platforms' canon). */
+    headShape?: 'cylinder' | 'cube';
+    /** Z-03: the cut of the clothes on the body: a T-shirt (default) or an open jacket. */
+    outfit?: 'tee' | 'jacket';
+    /** Z-03: a hairstyle of accessories.json `hair` and its colour; absent — none. */
+    hair?: { style: string; color: string };
   }>;
+  /** Z-03: what every outfit shares — the sneakers, their sole and laces, the shirt under an open jacket. */
+  outfit?: { shoe: string; sole: string; lace: string; inner: string };
   /** Wings (docs/01-gdd.md 7.4): looks only; the accessory of the same id (attach «back») is drawn on the hero. */
   wings?: Array<{ id: string; unlock: SkinsJson['skins'][number]['unlock'] }>;
 }
@@ -937,6 +995,8 @@ export interface AccessoriesJson {
     attach: 'head' | 'back' | 'feet' | 'hand';
     parts: Array<{ shape: 'box' | 'sphere' | 'cylinder' | 'cone'; size: [number, number, number]; pos: [number, number, number]; color: string }>;
   }>;
+  /** Z-03: hairstyles — 6–12 rounded boxes round the head centre (`rot` in radians), coloured by the skin. */
+  hair?: Array<{ id: string; parts: Array<{ size: [number, number, number]; pos: [number, number, number]; rot?: [number, number, number] }> }>;
 }
 
 /** pets.json (docs/01a-content.md 6): bonus is the step bonus (0.2 = +20%). */
@@ -1094,6 +1154,9 @@ export interface ContentPack {
   bots: BotsJson;
   /** The base of the pace (pace/<pace>/base.json); absent — none (classic, fast). */
   base?: BaseJson;
+  /** Z-06: the winter decor and its models (decor.json, decor-models.json); absent — none. */
+  decor?: DecorJson;
+  decorModels?: DecorModelsJson;
 }
 
 /** worlds-spec.json → stages (docs/01-gdd.md 22; docs/01a-content.md 20). */

@@ -185,6 +185,8 @@ async function boot(): Promise<void> {
   const flagsApplied = applyFlags(flagDefs, flagValues, flagDefaultsSent, flagRoot(), (m) => log.warn(m), ['pace']);
   platformOpts.saveSlot = runPace === CLASSIC_PACE ? undefined : runPace;
   const { theme, tuning, balance, skins, accessories, pets, eggs, trails, auras, sfx, bots } = content;
+  // Z-06: the winter decor of the pack (none in the sample pack).
+  const winterDecor = content.decor && content.decorModels ? { spec: content.decor, models: content.decorModels } : undefined;
   // RL-04 (docs/01-gdd.md 21.4): a mountain's own sky, fog and snow (theme.json tints by its id); the base — the theme's.
   const tintOf = (w: World | undefined): ThemeTint | null => (w ? theme.tints?.[w.id] : undefined) ?? null;
   // RL-09 (docs/01-gdd.md 21.9): tall walls in the way of the camera drawn at camera.fadeAlpha (1 — as before, solid).
@@ -1081,7 +1083,7 @@ async function boot(): Promise<void> {
       gr.scene.remove(levelMeshes.group);
       levelMeshes.dispose();
       gr.setTint(tintOf(world));
-      levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`), seeFade(), t('gate.needLevel'));
+      levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`), seeFade(), t('gate.needLevel'), winterDecor);
       gr.scene.add(levelMeshes.group);
       applyQualityNow();
     }
@@ -1878,7 +1880,7 @@ async function boot(): Promise<void> {
   if (muLayout) gr.setLift(tuning.camera.muLift ?? 0);
   bootState.glRenderer = gr.glRenderer;
   gr.setTint(tintOf(world));
-  levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`), seeFade(), t('gate.needLevel'));
+  levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`), seeFade(), t('gate.needLevel'), winterDecor);
   gr.scene.add(levelMeshes.group);
   // Walls open from the save stand as arches at once (M3-07), no melt; gifts taken before F5 are gone (RL-08).
   sim.gatesOpen.forEach((open, i) => open && levelMeshes!.setGateOpen(i, 1));

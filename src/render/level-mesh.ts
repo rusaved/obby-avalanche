@@ -1,4 +1,4 @@
-// What: Level meshes: boxes and ramps merged per 120-unit chunk (per section on the open slope) with baked vertex colours; gates, gifts, fun parts and cave walls as InstancedMeshes; gate signs.
+// What: Level meshes: boxes and ramps merged per 120-unit chunk (per section on the open slope) with baked vertex colours, a texture layer and ground AO per vertex; gates, gifts, fun parts and cave walls as InstancedMeshes; gate signs.
 // Called by: main.ts; app/banner-signs.ts, fun-view.ts, handles.ts, wave-view.ts.
 // Keep: Draw-call budget (chunks plus a few instanced meshes); colours only from theme.json; instance indices follow LevelData order (gates, points, fun.pads).
 
@@ -35,6 +35,11 @@ import { createDigitLabels, type DigitLabels } from './digits.ts';
 import { createWordLabels } from './word-label.ts';
 import { formatNumber } from '../ui/format.ts';
 import { GIFT_HALF, GIFT_HEIGHT } from '../sim/gifts.ts';
+import { createBlockTexture, layerOf, useBlockTexture } from './block-tex.ts';
+import { pieceGeometry, winterDecorPlan } from './winter-decor.ts';
+import type { DecorJson, DecorModelsJson } from '../content/types.ts';
+import { AdditiveBlending, IcosahedronGeometry, MeshBasicMaterial } from 'three';
+import type { DataArrayTexture } from 'three';
 
 export const CHUNK_LENGTH = 120;
 /** Gate sign: glyph size, plaque width at least and its margin around the text (world units). */
@@ -134,18 +139,27 @@ function materialColor(theme: ThemeJson, key: string): Color {
   return new Color(m ? m.color : '#cccccc');
 }
 
-function colorGeometry(geo: BufferGeometry, color: Color, shadeBottom = 0.78, shadeSide = 0.9): void {
+/** Z-05: `layer` — the texture layer of the block (block-tex.ts, 0 plain); `ao` — the share of light left at the foot of
+ * its sides (vertex AO: a dark seam at the ground, 1 — none), `foot` — the height of that foot. */
+function colorGeometry(geo: BufferGeometry, color: Color, shadeBottom = 0.78, shadeSide = 0.9, layer = 0, ao = 1, foot = -Infinity): void {
   const pos = geo.getAttribute('position');
   const nor = geo.getAttribute('normal');
   const colors = new Float32Array(pos.count * 3);
   for (let i = 0; i < pos.count; i++) {
     const ny = nor.getY(i);
-    const f = ny > 0.5 ? 1 : ny < -0.5 ? shadeBottom : shadeSide;
+    let f = ny > 0.5 ? 1 : ny < -0.5 ? shadeBottom : shadeSide;
+    if (ny <= 0.5 && ny >= -0.5 && pos.getY(i) <= foot + 1e-4) f *= ao;
     colors[i * 3] = color.r * f;
     colors[i * 3 + 1] = color.g * f;
     colors[i * 3 + 2] = color.b * f;
   }
   geo.setAttribute('color', new BufferAttribute(colors, 3));
+  geo.setAttribute('layer', new Float32BufferAttribute(new Float32Array(pos.count).fill(layer), 1));
+}
+
+/** The texture layer and ground AO of a theme material (Z-05). */
+function texOf(theme: ThemeJson, key: string): number {
+  return layerOf(theme.materials[key]?.tex);
 }
 
 function boxGeometry(b: LevelBox, theme: ThemeJson): BufferGeometry {
@@ -154,7 +168,9 @@ function boxGeometry(b: LevelBox, theme: ThemeJson): BufferGeometry {
   const d = b.max[2] - b.min[2];
   const geo = new BoxGeometry(w, h, d).toNonIndexed();
   geo.translate(b.min[0] + w / 2, b.min[1] + h / 2, b.min[2] + d / 2);
-  colorGeometry(geo, materialColor(theme, b.material));
+  // Z-05: walls, borders and decor stand on the ground — the foot of their sides darker (the floors' sides hang into pits).
+  const standing = h > 0.6 && b.kind !== 'floor' && b.kind !== 'pitFloor';
+  colorGeometry(geo, materialColor(theme, b.material), 0.78, 0.9, texOf(theme, b.material), standing ? (theme.blockTex?.ao ?? 1) : 1, b.min[1]);
   return geo;
 }
 
@@ -177,7 +193,7 @@ function rampGeometry(r: LevelRamp, theme: ThemeJson): BufferGeometry {
   geo.setAttribute('position', new Float32BufferAttribute(v, 3));
   geo.setAttribute('uv', new Float32BufferAttribute(new Array((v.length / 3) * 2).fill(0), 2));
   geo.computeVertexNormals();
-  colorGeometry(geo, materialColor(theme, r.material));
+  colorGeometry(geo, materialColor(theme, r.material), 0.78, 0.9, texOf(theme, r.material));
   return geo;
 }
 
@@ -189,8 +205,14 @@ function prismGeometry(p: LevelPrism, theme: ThemeJson): BufferGeometry {
   geo.setAttribute('position', new Float32BufferAttribute(v, 3));
   geo.setAttribute('uv', new Float32BufferAttribute(new Array((v.length / 3) * 2).fill(0), 2));
   geo.computeVertexNormals();
-  colorGeometry(geo, materialColor(theme, p.material));
+  colorGeometry(geo, materialColor(theme, p.material), 0.78, 0.9, texOf(theme, p.material));
   return geo;
+}
+
+/** The block texture is drawn once a load and shared by the meshes of every mountain (Z-05). */
+let sharedBlockTex: DataArrayTexture | null = null;
+function blockTexture(): DataArrayTexture {
+  return (sharedBlockTex ??= createBlockTexture());
 }
 
 const _m = new Matrix4();
@@ -198,10 +220,13 @@ const _p = new Vector3();
 const _q = new Quaternion();
 const _s = new Vector3();
 
-export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k: string) => string, fade = 1, levelWord?: string): LevelMeshes {
+export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k: string) => string, fade = 1, levelWord?: string, decor?: { spec: DecorJson; models: DecorModelsJson }): LevelMeshes {
   const group = new Group();
   group.name = `level-${level.worldId}`;
   const material = new MeshLambertMaterial({ vertexColors: true });
+  // Z-05: the chunks under the block texture (one program more, compiled before ready() with the scene).
+  const chunkMat = new MeshLambertMaterial({ vertexColors: true });
+  if (theme.blockTex) useBlockTexture(chunkMat, blockTexture(), theme.blockTex.scale);
 
   // Static geometry per chunk along Z: edges every CHUNK_LENGTH, or the edges of the sections of the open slope.
   const edges =
@@ -323,6 +348,23 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       bucketOf(p.z).push(boxGeometry(st, theme));
     }
   }
+  // Z-06: the winter decor merged into the chunks like the boxes; its warm glows as one additive InstancedMesh.
+  const plan = decor ? winterDecorPlan(level, decor.spec, decor.models) : null;
+  if (plan && decor)
+    for (const piece of plan.pieces) {
+      const g = pieceGeometry(piece, decor.models, decor.spec.ao, decor.spec.foot);
+      if (g) bucketOf(piece.z).push(g);
+    }
+  const glowGeo = new IcosahedronGeometry(1, 1);
+  const glowMat = new MeshBasicMaterial({ color: decor?.spec.glowColor ?? '#ffffff', transparent: true, opacity: decor?.spec.glowOpacity ?? 0, blending: AdditiveBlending, depthWrite: false });
+  const glowList = plan?.glows ?? [];
+  const glows = new InstancedMesh(glowGeo, glowMat, Math.max(1, glowList.length));
+  glows.count = glowList.length;
+  glows.name = 'decor-glows';
+  glowList.forEach(([x, y, z, r], i) => glows.setMatrixAt(i, _m.compose(_p.set(x, y, z), _q.identity(), _s.set(r, r, r))));
+  glows.computeBoundingSphere();
+  glows.visible = glowList.length > 0;
+  group.add(glows);
   const chunks: Mesh[] = [];
   buckets.forEach((list, i) => {
     if (list.length === 0) return;
@@ -330,7 +372,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     for (const g of list) g.dispose();
     if (!merged) return;
     merged.computeBoundingSphere();
-    const mesh = new Mesh(merged, material);
+    const mesh = new Mesh(merged, chunkMat);
     mesh.name = `chunk-${i}`;
     mesh.userData['z0'] = edges[i];
     mesh.userData['z1'] = edges[i + 1];
@@ -784,6 +826,9 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     dispose() {
       for (const c of chunks) c.geometry.dispose();
       material.dispose();
+      chunkMat.dispose();
+      glowGeo.dispose();
+      glowMat.dispose();
       seeMat.dispose();
       gateGeo.dispose();
       gateMat.dispose();

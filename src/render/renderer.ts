@@ -1,4 +1,4 @@
-// What: WebGL2 renderer, scene, fog, lights, sky colour and far ground built from theme.json; applyQuality(), follow(), resize(), info().
+// What: WebGL2 renderer, scene, fog, lights and the sky dome built from theme.json; applyQuality(), follow(), resize(), info().
 // Called by: main.ts; app/handles.ts; src/test-api/index.ts.
 // Keep: WebGL2 only (createWebGL2Context returns null otherwise); every colour from theme.json; shadows and fog change only via applyQuality().
 
@@ -8,10 +8,7 @@ import {
   DirectionalLight,
   Fog,
   HemisphereLight,
-  Mesh,
-  MeshLambertMaterial,
   PerspectiveCamera,
-  PlaneGeometry,
   Scene,
   WebGLRenderer,
   NeutralToneMapping,
@@ -21,6 +18,7 @@ import {
 } from 'three';
 import type { ThemeJson, ThemeTint } from '../content/types.ts';
 import type { QualityParams } from './quality.ts';
+import { createSky } from './sky.ts';
 
 export interface RenderInfo {
   calls: number;
@@ -86,7 +84,11 @@ export function createGameRenderer(canvas: HTMLCanvasElement, gl: WebGL2Renderin
 
   const scene = new Scene();
   scene.background = new Color(theme.sky.bottom);
-  scene.fog = new Fog(new Color(theme.fog.color), theme.fog.near, theme.fog.far);
+  // Z-04: linear fog in the colour of the horizon of the dome — the world fades into the sky (fog.far stays the quality's:
+  // the chunks are cut by it).
+  scene.fog = new Fog(new Color(theme.sky.bottom), theme.fog.near, theme.fog.far);
+  const sky = createSky(theme);
+  scene.add(sky.mesh);
 
   const camera = new PerspectiveCamera(60, 16 / 9, 0.1, 400);
   camera.position.set(0, 6, -12);
@@ -109,15 +111,8 @@ export function createGameRenderer(canvas: HTMLCanvasElement, gl: WebGL2Renderin
   scene.add(sun);
   scene.add(sun.target);
 
-  // Far ground below the track: horizon filler in the track colour.
-  const ground = new Mesh(
-    new PlaneGeometry(1200, 2400, 1, 1),
-    new MeshLambertMaterial({ color: new Color(theme.materials['border']?.color ?? '#ffffff') }),
-  );
-  ground.rotation.x = -Math.PI / 2;
-  ground.position.set(0, -6, 600);
-  ground.receiveShadow = false;
-  scene.add(ground);
+  // Z-04: no far ground plane — the lower half of the sky dome is the horizon colour the fogged ground fades to (one
+  // draw call back for the sky).
 
   const glRenderer = describeGl(gl);
   const sunDir = new Vector3(theme.light.sunDir[0], theme.light.sunDir[1], theme.light.sunDir[2]).normalize();
@@ -142,6 +137,7 @@ export function createGameRenderer(canvas: HTMLCanvasElement, gl: WebGL2Renderin
       lift = Math.max(0, share);
     },
     render() {
+      sky.follow(camera.position);
       renderer.render(scene, camera);
     },
     info() {
@@ -178,7 +174,8 @@ export function createGameRenderer(canvas: HTMLCanvasElement, gl: WebGL2Renderin
       const bottom = new Color(tint?.sky.bottom ?? theme.sky.bottom);
       renderer.setClearColor(bottom, 1);
       (scene.background as Color).copy(bottom);
-      (scene.fog as Fog).color.set(tint?.fog ?? theme.fog.color);
+      (scene.fog as Fog).color.copy(bottom);
+      sky.setTint(tint);
       hemi.color.set(tint?.sky.top ?? theme.sky.top);
       hemi.groundColor.set(tint?.track ?? theme.materials['track']?.color ?? '#ffffff');
     },
@@ -186,8 +183,6 @@ export function createGameRenderer(canvas: HTMLCanvasElement, gl: WebGL2Renderin
       sun.position.copy(target).addScaledVector(sunDir, 60);
       sun.target.position.copy(target);
       sun.target.updateMatrixWorld();
-      ground.position.z = target.z;
-      ground.position.x = target.x;
     },
     dispose() {
       renderer.dispose();

@@ -24,6 +24,7 @@
     "validate:content": "node scripts/validate-content.mjs",
     "verify:fast": "npm run typecheck && npm test && npm run validate:content",
     "gen:worlds": "node scripts/gen-worlds.mjs",
+    "gen:decor": "node scripts/gen-decor.mjs",
     "sim:balance": "node scripts/sim-balance.mjs",
     "studio": "vite --open /?studio=1",
     "studio:shots": "node scripts/studio-shots.mjs",
