@@ -28,7 +28,7 @@ test('the channels by the side of the pause window: each opens its address in a 
   await openGame('pace=open');
   const before = await testState(page);
   await page.locator('[data-hud="pause"]').click();
-  await expect(page.locator('[data-role="community"] .pause-side-cap')).toHaveText('Промокоды и бонусы в группе');
+  await expect(page.locator('[data-role="community"] .pause-side-cap')).toHaveText('Новости игры в группе');
   await expect(page.locator('[data-hud="community-telegram"]')).toHaveText('Telegram');
   await expect(page.locator('[data-hud="community-vk"]')).toHaveText('ВКонтакте');
   // Beside the settings on a wide screen: the block to the right of the column, not under it.
