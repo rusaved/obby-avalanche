@@ -47,6 +47,9 @@ const SNOW_SIZE = 0.35;
 const SNOW_MAX_MULT = 4;
 const GLOWS = 16;
 const GLOW_RISE = 5;
+/** Z-08: the light snow of every mountain on the same points, out of a blizzard: slower and with less wind. */
+const LIGHT_FALL = 0.45;
+const LIGHT_WIND = 0.3;
 
 export interface EventsViewDeps {
   theme: ThemeJson;
@@ -54,6 +57,8 @@ export interface EventsViewDeps {
   camera(): PerspectiveCamera | null;
   /** Snowflakes of the quality level at most (render/quality.ts; 0 on a weak phone). */
   snowflakes(): number;
+  /** Z-08: flakes of the light snow round the camera out of a blizzard (quality: high 400, medium 250, low 0). */
+  lightSnow?(): number;
 }
 
 export interface EventsView {
@@ -119,7 +124,10 @@ export function createEventsView(d: EventsViewDeps): EventsView {
     // The renderer set the fog anew (quality) or the blizzard has not touched it: that is the fog to give back.
     if (fog && (fog.near !== applied.near || fog.far !== applied.far)) base = { near: fog.near, far: fog.far, color: fog.color.clone() };
     info.k = k;
-    snow.visible = glows.visible = k > 0 && !!cfg;
+    const storm = k > 0 && !!cfg;
+    const light = Math.min(flakes, d.lightSnow?.() ?? 0);
+    glows.visible = storm;
+    snow.visible = storm || light > 0;
     if (fog && base) {
       const f = 1 - k * (1 - (cfg?.fogMult ?? 1));
       fog.near = base.near * f;
@@ -128,23 +136,30 @@ export function createEventsView(d: EventsViewDeps): EventsView {
       applied = { near: fog.near, far: fog.far };
       info.fogFar = fog.far;
     }
-    if (!snow.visible || !cfg) {
+    if (!snow.visible) {
       info.snow = info.glows = 0;
       return;
     }
-    const n = Math.round(Math.min(flakes, d.snowflakes(), SNOW_PER * cfg.snowMult) * k);
+    // The blizzard's snow grows over the light snow of the mountain (Z-08), the light one falls slower in less wind.
+    const n = Math.max(light, storm && cfg ? Math.round(Math.min(flakes, d.snowflakes(), SNOW_PER * cfg.snowMult) * k) : 0);
+    const fallK = storm ? 1 : LIGHT_FALL;
+    const windK = storm ? 1 : LIGHT_WIND;
     const cam = d.camera();
     const [cx, cy, cz] = cam ? [cam.position.x, cam.position.y, cam.position.z] : [sim.hero.pos.x, sim.hero.pos.y, sim.hero.pos.z];
     const [bx, by, bzz] = SNOW_BOX;
     for (let i = 0; i < n; i++) {
       const [sx, sy, sz] = [seeds[i * 3]!, seeds[i * 3 + 1]!, seeds[i * 3 + 2]!];
-      const fall = (sy * by + timeSec * SNOW_FALL * (0.7 + 0.6 * sx)) % by;
-      const wind = (sx * bx + timeSec * SNOW_WIND) % bx;
+      const fall = (sy * by + timeSec * SNOW_FALL * fallK * (0.7 + 0.6 * sx)) % by;
+      const wind = (sx * bx + timeSec * SNOW_WIND * windK) % bx;
       snowPos.set([cx - bx / 2 + ((wind - cx + bx * 1000) % bx), cy + by / 2 - fall, cz - bzz / 2 + ((sz * bzz - cz + bzz * 1000) % bzz)], i * 3);
     }
     snowGeo.setDrawRange(0, n);
     snowGeo.attributes['position']!.needsUpdate = true;
     info.snow = n;
+    if (!storm) {
+      info.glows = 0;
+      return;
+    }
     // The shelters of the blizzard's section: a warm gem over each mouth, pulsing.
     const b = sim.rare!.state.blizzard;
     let g = 0;

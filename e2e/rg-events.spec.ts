@@ -127,7 +127,9 @@ test('mountain 7: the blizzard — fog nearer, snow, «+2 per step», ≤ 42 dra
   await page.evaluate(() => window.__TEST__!.setTimeScale(1));
   const after = (await testState(page)).blizzard;
   expect(after.on).toBe(false);
-  expect(after.snow).toBe(0);
+  // Z-08: back to the light snow of the mountain (no more than the quality's), not to none.
+  expect(after.snow).toBeLessThan(s.snow);
+  expect(after.snow).toBeLessThanOrEqual(400);
   expect(after.fogFar).toBeCloseTo(before.fogFar, 3);
   expect(await per()).toBeCloseTo(step, 6);
   expect(toasts).toContain(ru['event.blizzard']);

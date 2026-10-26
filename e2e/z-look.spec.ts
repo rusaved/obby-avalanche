@@ -1,5 +1,5 @@
 import { mkdirSync } from 'node:fs';
-import { test, expect, waitTicks } from './fixtures.ts';
+import { test, expect, waitTicks, testState } from './fixtures.ts';
 import { STAGES, threshold } from './lv-stage-data.ts';
 
 // Z-04…Z-08 (producer 26.10, «Lavina 19 · Winter look»): frames of the camp, the slope and a stage finish of mountain 1
@@ -19,6 +19,9 @@ for (const vp of [{ width: 880, height: 405 }, { width: 815, height: 290 }]) {
         window.__TEST__!.setTutor(9);
         window.__TEST__!.holdWave(9000);
       });
+      // Z-08: the light snow round the camera — 250 flakes at medium quality.
+      await waitTicks(page, 5);
+      expect((await testState(page)).blizzard.snow).toBe(250);
       const st = STAGES[0]!.stages;
       const shots: Array<[string, number, number]> = [
         ['camp', 12, 0],
@@ -41,3 +44,13 @@ for (const vp of [{ width: 880, height: 405 }, { width: 815, height: 290 }]) {
     });
   });
 }
+
+test.describe('low quality', () => {
+  test.use({ viewport: { width: 880, height: 405 }, hasTouch: true, isMobile: true });
+  test('Z-08: no light snow at low quality', async ({ page, openGame }) => {
+    await openGame('pace=stages&mock_device=mobile&quality=low');
+    await page.evaluate(() => window.__TEST__!.setFlag('firstWaveDone', true));
+    await waitTicks(page, 10);
+    expect((await testState(page)).blizzard.snow).toBe(0);
+  });
+});

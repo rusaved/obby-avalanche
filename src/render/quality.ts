@@ -19,17 +19,19 @@ export interface QualityParams {
   particles: number;
   fogFar: number;
   snowflakes: number;
+  /** Z-08: the light snow of every mountain round the camera. */
+  lightSnow: number;
 }
 
 const DESKTOP: Record<QualityLevel, Omit<QualityParams, 'level'>> = {
-  high: { dprCap: 2, antialias: true, shadowMap: 1024, particles: 1, fogFar: 220, snowflakes: 1000 },
-  medium: { dprCap: 1.5, antialias: false, shadowMap: 512, particles: 0.7, fogFar: 190, snowflakes: 600 },
-  low: { dprCap: 1, antialias: false, shadowMap: 0, particles: 0.5, fogFar: 160, snowflakes: 300 },
+  high: { dprCap: 2, antialias: true, shadowMap: 1024, particles: 1, fogFar: 220, snowflakes: 1000, lightSnow: 400 },
+  medium: { dprCap: 1.5, antialias: false, shadowMap: 512, particles: 0.7, fogFar: 190, snowflakes: 600, lightSnow: 250 },
+  low: { dprCap: 1, antialias: false, shadowMap: 0, particles: 0.5, fogFar: 160, snowflakes: 300, lightSnow: 0 },
 };
 const MOBILE: Record<QualityLevel, Omit<QualityParams, 'level'>> = {
-  high: { dprCap: 1.25, antialias: false, shadowMap: 0, particles: 0.7, fogFar: 220, snowflakes: 400 },
-  medium: { dprCap: 1.0, antialias: false, shadowMap: 0, particles: 0.5, fogFar: 190, snowflakes: 250 },
-  low: { dprCap: 0.8, antialias: false, shadowMap: 0, particles: 0.35, fogFar: 160, snowflakes: 0 },
+  high: { dprCap: 1.25, antialias: false, shadowMap: 0, particles: 0.7, fogFar: 220, snowflakes: 400, lightSnow: 400 },
+  medium: { dprCap: 1.0, antialias: false, shadowMap: 0, particles: 0.5, fogFar: 190, snowflakes: 250, lightSnow: 250 },
+  low: { dprCap: 0.8, antialias: false, shadowMap: 0, particles: 0.35, fogFar: 160, snowflakes: 0, lightSnow: 0 },
 };
 
 export const SLOW_FRAME_MS = 28;

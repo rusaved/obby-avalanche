@@ -1897,7 +1897,7 @@ async function boot(): Promise<void> {
   gr.scene.add(baseView.group);
   decor = createDecor(gr.scene, theme, pets.pets, { top: BOSS_SIGN_TOP, half: BOSS_SIGN_HALF });
   decorWire(sim);
-  eventsView = createEventsView({ theme, scene: gr.scene, camera: () => cameraRig?.camera ?? null, snowflakes: () => quality.params.snowflakes });
+  eventsView = createEventsView({ theme, scene: gr.scene, camera: () => cameraRig?.camera ?? null, snowflakes: () => quality.params.snowflakes, lightSnow: () => quality.params.lightSnow });
   botsView = createBotsView({
     cadence: (v) => runCadence(tuning, v),
     cfg: bots,
