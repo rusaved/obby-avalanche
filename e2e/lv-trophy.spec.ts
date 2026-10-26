@@ -17,6 +17,8 @@ test(`stage ${st.n}: the reward button gives +${st.trophies} coins once a run, t
   const before = await testState(page);
   await page.evaluate(([x, z]) => window.__TEST__!.botPath([[x, z]]), [st.pad.x, st.pad.z] as const);
   await page.waitForFunction(() => window.__TEST__!.state().padsTaken >= 1, undefined, { timeout: 20_000 });
+  // G-02: the camp only after standing on it — on to its middle, then still.
+  await page.waitForFunction(() => window.__TEST__!.botLeft() === 0, undefined, { timeout: 20_000 });
   await page.evaluate(() => window.__TEST__!.botPath(null));
   await waitTicks(page, 5);
   let s = await testState(page);

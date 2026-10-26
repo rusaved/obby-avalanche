@@ -37,7 +37,8 @@ async function checkOpen(page: Page, id: string): Promise<void> {
 test('no window before 180 s of play; HUD buttons come by the schedule of 6.4 in game time, never earlier', async ({ page, openGame }) => {
   test.setTimeout(180_000);
   await page.setViewportSize({ width: 1920, height: 1080 });
-  await openGame();
+  // G-10: purchases are on in the release; here as the archive without them (their tab — e2e/iap.spec.ts).
+  await openGame('payments=0');
   let s = await testState(page);
   expect(s.menu).toEqual([]);
   // Game time up to 3:00: nothing opens by itself, the column stays empty.
@@ -111,7 +112,8 @@ test('no window before 180 s of play; HUD buttons come by the schedule of 6.4 in
 test('every window of 10.2 opens by its button, closes by the cross, Esc, the veil and «next»; the avalanche stands; screenshots', async ({ page, openGame }) => {
   test.setTimeout(240_000);
   await page.setViewportSize({ width: 1920, height: 1080 });
-  await openGame();
+  // G-10: purchases are on in the release; here as the archive without them (their tab — e2e/iap.spec.ts).
+  await openGame('payments=0');
   await page.evaluate(() => {
     window.__TEST__!.setPlaySec(400);
     window.__TEST__!.setTrophies(30);

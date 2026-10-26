@@ -29,6 +29,11 @@ for (const viewport of [{ width: 880, height: 405 }, { width: 815, height: 290 }
       await waitTicks(page, 10);
       await expect(tutor).toContainText(/Купи кроссовки|Buy sneakers/i);
       await expect(shoes).toHaveClass(/point/);
+      // The arrow is really drawn over the button (usability review G: a «can» rule hid it).
+      const arrow = await shoes.evaluate((e) => { const a = getComputedStyle(e, '::after'); return { display: a.display, top: a.borderTopWidth, bg: a.backgroundImage }; });
+      expect(arrow.display).toBe('block');
+      expect(arrow.top).toBe('14px');
+      expect(arrow.bg).toBe('none');
       // On the run for 10 s: still up.
       await page.evaluate(() => window.__TEST__!.stick(0, 1));
       for (let i = 0; i < 5; i++) {

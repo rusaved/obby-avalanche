@@ -103,6 +103,8 @@ export interface Characters {
   update(dt: number): void;
   /** G-08: the hero — his colours more saturated and a dark outline round his body (theme.json hero); null — none. */
   setHero(ch: CharacterInstance | null): void;
+  /** G-08: the outline drawn or not (the base keeps its 30 draw calls of SP-08 — no outline there). */
+  outlined: boolean;
   faceAtlas: CanvasTexture;
   dispose(): void;
 }
@@ -427,6 +429,7 @@ if (vObjNormal.z > 0.6) {
     get drawCalls() {
       return meshes.size + shapeMeshes.size + (outline ? 1 : 0);
     },
+    outlined: true,
     setHero(ch) {
       const was = hero;
       hero = ch;
@@ -515,7 +518,7 @@ if (vObjNormal.z > 0.6) {
             attr.needsUpdate = true;
           }
         }
-        const lined = ch === hero && outline !== null && ch.visible && ch.fade >= 0.999;
+        const lined = ch === hero && outline !== null && characters.outlined && ch.visible && ch.fade >= 0.999;
         if (ch === hero && outline && !lined) for (let i = 0; i < OUTLINE_SLOTS; i++) outline.setMatrixAt(i, HIDDEN);
         if (!ch.visible) {
           for (const spec of PARTS) {
@@ -674,7 +677,10 @@ if (vObjNormal.z > 0.6) {
       for (const mesh of shapeMeshes.values()) mesh.count = Math.max(1, instances.length * maxPartsPerShape);
       for (const mesh of meshes.values()) mesh.instanceMatrix.needsUpdate = true;
       for (const mesh of shapeMeshes.values()) mesh.instanceMatrix.needsUpdate = true;
-      if (outline) outline.instanceMatrix.needsUpdate = true;
+      if (outline) {
+        outline.instanceMatrix.needsUpdate = true;
+        outline.visible = characters.outlined;
+      }
     },
     dispose() {
       for (const mesh of meshes.values()) {

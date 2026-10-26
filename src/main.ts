@@ -1038,7 +1038,7 @@ async function boot(): Promise<void> {
     gr.camera.updateProjectionMatrix();
     gr.resize(field.width, field.height, quality.dpr);
     // Bodies cast the shadow, accessories do not: 4 draw calls fewer in the shadow pass (docs/02-tech.md 9.5; PS-09).
-    if (characters) characters.group.traverse((o) => void (o.castShadow = quality.params.shadowMap > 0 && o.name.startsWith('char-')));
+    if (characters) characters.group.traverse((o) => void (o.castShadow = quality.params.shadowMap > 0 && o.name.startsWith('char-') && o.name !== 'char-outline'));
     levelMeshes?.chunks.forEach((c) => void (c.receiveShadow = quality.params.shadowMap > 0));
     avalanche?.setParticles(quality.params.particles);
     fx?.setShare(quality.params.particles);
@@ -1677,6 +1677,8 @@ async function boot(): Promise<void> {
       heroChar.speedFactor = Math.min(1, hero.speed / Math.max(1, maxSpeed));
       // On a belt the hero runs in place by himself (docs/01-gdd.md 3.4).
       heroChar.pose = hero.onGround ? (hero.speed > 0.5 || sim.onBelt ? 'run' : 'idle') : hero.vel.y > 2 ? 'jump' : 'fall';
+      // G-08: the outline on the mountains; the base keeps its draw calls (SP-08, ≤ 30).
+      if (characters) characters.outlined = !onBase;
       if (sim.onBelt) heroChar.speedFactor = 1;
       heroChar.cadence = runCadence(tuning, hero.speed);
       heroChar.carry = (sim.bonus?.carried ?? false) && !sim.caught;

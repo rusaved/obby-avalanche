@@ -619,6 +619,8 @@ canvas.fallback {
 #ui.mu .win-body > .win-tabs { position: sticky; top: 0; z-index: 2; margin: 0; padding-bottom: 8px; background: var(--mu-panel); }
 #ui.mu .win-tab { min-height: 44px; border-radius: 12px; background: var(--mu-quiet); color: #fff; font: 600 14px var(--font); }
 #ui.mu .win-tab.on { background: #fff; color: var(--ink); }
+/* G-10: with purchases on, «Special» is the 6th tab of the shop — the tabs share the row instead of running under the rail. */
+#ui.mu .win-body > .win-tabs > .win-tab { flex: 1 1 auto; min-width: 0; padding: 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #ui.mu .win-row, #ui.mu .row { color: #fff; border-color: rgba(255, 255, 255, 0.08); }
 #ui.mu .row-label { font-size: 14px; font-weight: 600; }
 #ui.mu .panel-sub { color: var(--mu-muted); opacity: 1; }
@@ -1002,7 +1004,7 @@ canvas.fallback {
 .hud.mu .hud-shoes-cap:empty { display: none; }
 /* G-03: the arrow over the sneakers button while the tutorial asks to buy them. */
 .hud-shoes.point { overflow: visible; box-shadow: 0 0 0 3px var(--ok), 0 0 14px var(--ok); }
-.hud-shoes.point::after { content: ''; position: absolute; left: 50%; bottom: calc(100% + 18px); width: 0; height: 0; margin-left: -11px; border: 11px solid transparent; border-top: 14px solid var(--ok); border-bottom: 0; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.35)); animation: shoes-point 0.8s ease-in-out infinite alternate; pointer-events: none; }
+.hud-shoes.point::after, .hud.mu .hud-shoes.can.point::after { display: block; content: ''; position: absolute; top: auto; left: 50%; background: none; bottom: calc(100% + 18px); width: 0; height: 0; margin-left: -11px; border: 11px solid transparent; border-top: 14px solid var(--ok); border-bottom: 0; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.35)); animation: shoes-point 0.8s ease-in-out infinite alternate; pointer-events: none; }
 @keyframes shoes-point { from { transform: translateY(-6px); } to { transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) { .hud-shoes.point::after { animation: none; } }
 .hud.mu .hud-shoes .mark-sneaker svg { color: #fff; }

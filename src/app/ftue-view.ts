@@ -151,7 +151,8 @@ export function createFtueView(d: FtueViewDeps): FtueView {
         touch: d.touch(),
         nearLedge,
         // Round of fixes MU (review: the shoes hint hung in the camp, where the phone layout has no shoes button).
-        shoesOffered: shoes.shown && shoes.level === 0 && !d.hud.root.classList.contains('camp'),
+        // G-03: the tutorial plaque «Buy sneakers» holds the first pair; this timed hint only after it.
+        shoesOffered: shoes.shown && shoes.level === 0 && !d.hud.root.classList.contains('camp') && (!d.balance.levels || (d.save.flags?.['shoesHintDone'] ?? false)),
         shoesBought: shoes.level > 0,
         petsOffered: d.petsOffered?.() ?? false,
         waveWarnId: warn ? waveId : 0,
