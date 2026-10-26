@@ -107,7 +107,8 @@
           ]
         ],
         "zoneFirstSec": 1,
-        "zoneWarnSec": 4
+        "zoneWarnSec": 4,
+        "minGapSec": 45
       },
       "zones": [
         {

@@ -13,6 +13,7 @@
     "to": "prevStage",
     "giant": "stage",
     "pastGiant": "own",
+    "pastAvalanche": "own",
     "giantFreeSec": 2.5
   },
   "ui": {

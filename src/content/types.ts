@@ -210,8 +210,9 @@ export interface BalanceJson {
   /** `to` (RL-02, docs/01-gdd.md 21.2): «flag» — a fall, «Snowed in!» and the giant roll the hero to the flag of the ridge
    * below; absent or «caveBelow» — to the cave below (4.5). SD-15 (review: every slap of the giant sent the hero back to
    * the camp): `giant` «stage» — his slap rolls to the start of his own stage; absent — as `to`. MU (Q-MU-12): `pastGiant`
-   * «own» — a fall on the stage right after a giant passed in this attempt rolls to that stage's start, not back to him. */
-  caught: { rollSec: number; maxSec: number; to?: 'flag' | 'caveBelow' | 'prevStage'; giant?: 'stage'; pastGiant?: 'own'; giantFreeSec?: number };
+   * «own» — a fall on the stage right after a giant passed in this attempt rolls to that stage's start, not back to him.
+   * Z-01: `pastAvalanche` «own» — a fall on the stage right after an avalanche stage keeps its own start (never back under its wave). */
+  caught: { rollSec: number; maxSec: number; to?: 'flag' | 'caveBelow' | 'prevStage'; giant?: 'stage'; pastGiant?: 'own'; pastAvalanche?: 'own'; giantFreeSec?: number };
   /** Levels of the stat (docs/01-gdd.md 22.2, pace stages): level 2 from `first`, each next ×`growth`; absent — no levels. */
   levels?: { first: number; growth: number };
   /** The wallet of shoes, eggs and coin rewards (docs/01-gdd.md 22.8): `trophies` on the stages pace; absent — coins. */
@@ -590,6 +591,8 @@ export interface WorldThreat {
   zoneFirstSec?: number;
   /** The warning of a wave inside a zone (no newbie bonus: the stage is built for it). */
   zoneWarnSec?: number;
+  /** Z-01 (Q-G-2 «A»): no wave of any kind warns sooner than this after the last one ended or a roll-back (s); absent — no gap. */
+  minGapSec?: number;
 }
 
 export interface WorldZone {
@@ -1133,7 +1136,7 @@ export interface StageSpec {
   snowflake: { mult: number; stages: number };
   /** The avalanche stage: the first wave after entering, the pause between waves inside, grottos every `every` × v. */
   /** SD-06: `stageExtraSec` — the avalanche on every stage but the giant's, its first wave that long after a clean run. */
-  avalanche: { firstSec: number; warnSec: number; intervalSec: number; every: number; x: number; stageExtraSec?: number; through?: boolean };
+  avalanche: { firstSec: number; warnSec: number; intervalSec: number; every: number; x: number; stageExtraSec?: number; through?: boolean; minGapSec?: number[] };
   maze: { cell: number; wall: number; height: number; cols: number[]; rows: number[]; falseExits: [number, number] };
   /** The giant of a stage slower than v(N) by this share, by mountain (LV-12 review: on mountains 1–2 a gentler one for
    * the first runs); absent — the margin of the mountain's giant. */

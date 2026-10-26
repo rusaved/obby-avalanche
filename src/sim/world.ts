@@ -51,7 +51,8 @@ export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, BossEvent
   bonusLost: { tick: number; x: number; y: number; z: number };
   step: { tick: number };
   checkpoint: { index: number; z: number };
-  fall: { tick: number; z: number };
+  /** Z-01: `shelter` — he fell right out of the cave that saved him from this wave and is rolled back into it, no «back». */
+  fall: { tick: number; z: number; shelter?: boolean };
   respawn: { tick: number; z: number; checkpoint: number };
   jump: { tick: number };
   /** `z` — where he came down (e2e: the landing of a flight, independent of how often the test looks). */
@@ -320,7 +321,9 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       // MU (Q-MU-12, staff check 19.10: past the giant, the first crack of the next stage rolled him back before the
       // giant again): `pastGiant` «own» — the stage after a giant he passed in this attempt keeps its own start.
       const pastGiant = opts.balance.caught?.pastGiant === 'own' && level.stages?.find((x) => x.n === n - 1)?.type === 'giant' && (sim.boss?.zones.some((zs) => zs.hero === 'passed' && stageAt(level, zs.zone[0]) === n - 1) ?? false);
-      const back = n >= stageFar && level.stages?.find((x) => x.n === n)?.type !== 'maze' && !pastGiant;
+      // Z-01 (playtest G: a fall on the plates of stage 5 took him back under the wave of stage 4): `pastAvalanche` «own».
+      const pastAvalanche = opts.balance.caught?.pastAvalanche === 'own' && level.stages?.find((x) => x.n === n - 1)?.type === 'avalanche';
+      const back = n >= stageFar && level.stages?.find((x) => x.n === n)?.type !== 'maze' && !pastGiant && !pastAvalanche;
       stageFar = Math.max(stageFar, n);
       sim.rollFrom = n;
       return stageStart(back ? n - 1 : n);
@@ -329,6 +332,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     return c ? { x: c.x, y: c.y, z: c.z } : { x: level.spawn[0], y: level.spawn[1], z: level.spawn[2] };
   };
   let waveReset = false;
+  /** Z-01: the cave that saved him from the last wave, until he stands farther than graceDist out of it or the next wave warns (−1). */
+  let savedIn = -1;
   /** The flag of stage n (its first checkpoint), the camp for stage 1 and below (docs/01-gdd.md 22.9). */
   const stageStart = (n: number): { x: number; y: number; z: number } => {
     const st = level.stages?.find((x) => x.n === n);
@@ -619,16 +624,29 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       // MU round 5 (producer 21.10: «Oops! Back to the stage start» almost in a cave, the hero stayed): a hero in a cave by
       // the check the avalanche asks is never rolled back from it.
       if (hero.pos.y < level.killY || (inPit() && sim.shelterIndex() < 0)) {
+        // Z-01 (playtest G: «Phew, made it!», then out of the back of a through grotto right into the pit of the stage and
+        // «Oops! Back to the stage start»): a fall before he set foot out of the cave that saved him rolls him back into it.
+        const saved = toFlag && opts.balance.caught ? level.niches[savedIn] : undefined;
         if (toFlag && opts.balance.caught) {
-          sim.caught = createCaught(level, { x: hero.pos.x, y: hero.pos.y, z: hero.pos.z }, opts.balance.caught, tuning.avalanche, flagPoint());
+          const to = saved ? { x: (saved.box.min[0] + saved.box.max[0]) / 2, y: saved.y, z: (saved.box.min[2] + saved.box.max[2]) / 2 } : flagPoint();
+          sim.caught = createCaught(level, { x: hero.pos.x, y: hero.pos.y, z: hero.pos.z }, opts.balance.caught, tuning.avalanche, to);
           waveReset = true;
         } else sim.respawnTicksLeft = RESPAWN_FADE_TICKS;
-        events.emit('fall', { tick: sim.tick, z: hero.pos.z });
+        events.emit('fall', { tick: sim.tick, z: hero.pos.z, ...(saved ? { shelter: true } : {}) });
+      }
+      // On his feet farther than graceDist out of that cave — the next fall is an ordinary one (the strip of floor between a
+      // through grotto and the pit behind it, or the very edge the capsule stands on, is still «out of it, falling»).
+      const sv = level.niches[savedIn];
+      if (sv && !sim.caught && hero.onGround) {
+        const dx = Math.max(sv.box.min[0] - hero.pos.x, 0, hero.pos.x - sv.box.max[0]);
+        const dz = Math.max(sv.box.min[2] - hero.pos.z, 0, hero.pos.z - sv.box.max[2]);
+        if (Math.hypot(dx, dz) > graceDist) savedIn = -1;
       }
       events.emit('step', { tick: sim.tick });
     },
     teleport(x, y, z) {
       stageFar = 0;
+      savedIn = -1;
       sim.caught = null;
       sim.slow = null;
       sim.tumble = null;
@@ -725,8 +743,10 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   };
   const threat = opts.threat
     ? createThreat(level, opts.threat, (name, payload) => {
+        if (name === 'waveWarn') savedIn = -1;
         if (name === 'waveSurvived') {
           const p = payload as ThreatEvents['waveSurvived'];
+          savedIn = p.niche;
           const zone = level.niches[p.niche]?.zone ?? 0;
           let coins = scaled((opts.balance.coins?.waveSurvived ?? 0) * (zoneGift.get(zone) ?? 0), tier, opts.balance.rebirth);
           // The golden gift brought into the cave: one toast with both rewards (docs/01-gdd.md 4.9).

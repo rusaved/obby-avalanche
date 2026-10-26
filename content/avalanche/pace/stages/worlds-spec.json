@@ -1321,6 +1321,7 @@
       "every": 2,
       "x": 18,
       "stageExtraSec": 3,
+      "minGapSec": [45],
       "through": true
     },
     "maze": {

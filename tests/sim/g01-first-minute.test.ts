@@ -66,7 +66,8 @@ describe('G-01 · first minute of mountain 1', () => {
       sim.step(STAND, DT);
     }
     expect(warnAt).toBe(-1);
-    const top = zone[1] + 6;
+    // Z-01: out of it where a grotto is in reach (above it lies the safe finish under a closed ridge — the wave waits there).
+    const top = zone[0] - 40;
     sim.teleport(0, sim.level.floorAt(0, top) + 0.05, top);
     for (let k = 0; k < 2 / DT && warnAt < 0; k++) sim.step(STAND, DT);
     expect(warnAt).toBeGreaterThan(0);

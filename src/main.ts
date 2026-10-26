@@ -301,16 +301,14 @@ async function boot(): Promise<void> {
   const speedCurve = () => curves().speed;
   // The avalanche (docs/02-tech.md 8.1): live world threat (debug sliders change it), save counters.
   // ST-06: the stage pads of a mountain pay balance.stagePads.takes times a life (the count in the save).
-  // ST-06: a stage pad behind the farthest stage reached on its mountain pays world.padBehindTakes times a life (the count in
-  // the save); the farthest one — always.
-  const padBehind = (w: World, n: number): boolean => n < (save.stageBest?.[String(w.index)] ?? 0);
+  // ST-06: a stage pad pays world.padBehindTakes times a life (the count in the save). Z-01 (producer 26.10, Q-ST-2 «B»): every
+  // pad, the farthest one too — a stuck newbie does not farm his last stage for ever; a spent one never flies (G-02).
   const padPayOf = (w: World) => (n: number): boolean => {
-    if (!padBehind(w, n)) return true;
     const pays = padPays(save, w.index, n, w.padBehindTakes);
     persist();
     return pays;
   };
-  const padSpent = (w: World, n: number): boolean => w.padBehindTakes !== undefined && padBehind(w, n) && (save.padTakes?.[`${w.index}:${n}`] ?? 0) >= w.padBehindTakes;
+  const padSpent = (w: World, n: number): boolean => w.padBehindTakes !== undefined && (save.padTakes?.[`${w.index}:${n}`] ?? 0) >= w.padBehindTakes;
   const threatOptions = (w: World, firstSec?: number): ThreatOptions => ({
     firstSec,
     threat: w.threat,
@@ -560,7 +558,8 @@ async function boot(): Promise<void> {
     // Funnel (docs/06 8.2): the first giant — into his zone and past him once a player, every catch.
     const firstGiant = (): boolean => s.level.worldIndex === 1 && s.tier === 0;
     s.events.on('bossEnter', () => {
-      hud?.toast(t('boss.start'));
+      // Z-01 (playtest G: 0,7 s on screen, cut by «LEVEL UP!»): its whole 3 s, the toasts that come meanwhile wait after it.
+      hud?.toast(t('boss.start'), 3, false, undefined, undefined, true);
       hud?.peekStrip();
       if (firstGiant()) trackOnce('boss_enter');
       // Into the giant's zone (docs/01-gdd.md 17.9): a second from the side, the hero and the giant, then back behind.
@@ -708,10 +707,12 @@ async function boot(): Promise<void> {
       hud?.toast(t('wave.caught'));
     });
     // RL-02 (docs/01-gdd.md 21.2): a fall rolls him back to the flag of the ridge (caught.to «flag») — a short toast.
-    s.events.on('fall', () => {
+    s.events.on('fall', ({ shelter }) => {
       // SD-09: on the stages pace the roll-back goes to a stage start, not to a flag.
       // MU round 5: said only when he really goes back — a roll to where he stands is no «back».
+      // Z-01: back into the cave that has just saved him — no «back», and his «Phew» stays.
       const c = s.caught;
+      if (shelter) return;
       if (c) survivedShow = null;
       if (c && Math.hypot(c.to.x - c.from.x, c.to.z - c.from.z) > 1) hud?.toast(t(s.level.stages ? 'toast.fallBackStage' : 'toast.fallBack'), 2);
     });

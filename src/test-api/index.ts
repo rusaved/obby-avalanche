@@ -97,7 +97,7 @@ export interface TestState {
     normalWaves: number;
     normalWavesDone: number;
   } | null;
-  waveHud: { banner: string | null; arrow: boolean; shot: boolean; beltShot: boolean; veil: boolean; toast: string };
+  waveHud: { banner: string | null; sub: string | null; arrow: boolean; shot: boolean; beltShot: boolean; veil: boolean; toast: string };
   /** «Snowed in!» clip (M2-07): seconds since the catch, total length, target cave (−1 camp); null when not caught. */
   caught: { t: number; total: number; niche: number } | null;
   /** Bots out on the mountain (M2-10): name key, label as shown (text '' when hidden), mode, cave, position. */
@@ -266,6 +266,8 @@ export interface TestApi {
   cameraPos(): [number, number, number];
   /** RL-09: the tall walls drawn apart — their boxes and whether each is see-through now. */
   seeThrough(): Array<{ min: number[]; max: number[]; faded: boolean }>;
+  /** Z-01: the wall and roof boxes of the grotto the hero is in (empty out of one). */
+  shelterWalls(): Array<{ min: number[]; max: number[] }>;
   /** A world point in field px as the camera sees it now; `ahead` false — behind the camera (PR-06, PR-07). */
   project(x: number, y: number, z: number): { x: number; y: number; ahead: boolean };
   /** Gate sign plaque as a world box and whether it is hidden now (PR-08: never under the avalanche banner). */
@@ -663,6 +665,7 @@ export function installTestApi(g: GameHandles): TestApi {
         wave: g.sim?.threat ? { ...g.sim.threat.state } : null,
         waveHud: {
           banner: g.waveView?.banner ?? null,
+          sub: g.waveView?.sub ?? null,
           arrow: g.waveView?.arrow ?? false,
           shot: g.waveView?.shot ?? false,
           beltShot: g.waveView?.beltShot ?? false,
@@ -845,6 +848,14 @@ export function installTestApi(g: GameHandles): TestApi {
       const buf = new Uint8Array(4);
       gl.readPixels(Math.round(x * k), Math.round(canvas.height - y * k), 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, buf);
       return [buf[0]!, buf[1]!, buf[2]!];
+    },
+    shelterWalls() {
+      const sim = g.sim;
+      const n = sim ? sim.level.niches[sim.shelterIndex()] : undefined;
+      if (!sim || !n) return [];
+      const m = 0.6;
+      const near = (b: { min: readonly number[]; max: readonly number[] }): boolean => [0, 1, 2].every((k) => b.max[k]! >= n.box.min[k]! - m && b.min[k]! <= n.box.max[k]! + m);
+      return sim.level.boxes.filter((b) => /^(niche|island)(Wall|Roof)$/.test(b.kind) && near(b)).map((b) => ({ min: [...b.min], max: [...b.max] }));
     },
     seeThrough() {
       const m = g.levelMeshes;

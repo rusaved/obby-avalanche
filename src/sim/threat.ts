@@ -49,6 +49,9 @@ export interface ThreatState {
   normalWavesDone: number;
   /** Game seconds since this mountain started (scripted-wave fallback). */
   playSec: number;
+  /** Z-01: seconds since the last wave ended or the hero was rolled back (Infinity before either); no wave warns while it is
+   * under threat.minGapSec. */
+  quietSec: number;
 }
 
 export interface ThreatHero {
@@ -147,8 +150,28 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
     normalWaves: 0,
     normalWavesDone: opts.normalWavesDone,
     playSec: 0,
+    quietSec: Infinity,
   };
   let forced = false;
+  // Z-01 (Q-G-2 «A»): the least pause between the end of one wave (any: scripted, of a stage) and the next warning.
+  const quiet = (): boolean => forced || state.quietSec >= (threat.minGapSec ?? 0);
+  // Z-01: the first wave comes only where a shelter is in reach — in the camp (safe, the lesson of G-01), or with a cave
+  // reachable through open gates and not standing at a closed gate with the cave behind farther than that gate (playtest G:
+  // «Avalanche in 5…1» with no arrow at the closed wall of a level, then nothing).
+  // Stages pace only (its zones): the other paces have the cave of the lesson right under the wall.
+  const coverInReach = (hero: ThreatHero, gatesOpen: readonly boolean[]): boolean => {
+    if (!zones || hero.z < campTop) return true;
+    const near = nearestShelter(level, gatesOpen, hero.x, hero.z);
+    if (near < 0) return false;
+    let gate = -1;
+    level.gates.forEach((g, i) => {
+      if (g.z > hero.z && (gate < 0 || g.z < level.gates[gate]!.z)) gate = i;
+    });
+    const wall = level.gates[gate];
+    if (!wall || gatesOpen[gate]) return true;
+    if (level.niches.some((n) => n.kind !== 'ledge' && n.z >= hero.z && n.z < wall.z)) return true;
+    return distToEntrance(level, level.niches[near]!, hero.x, hero.z).dist <= wall.z - hero.z;
+  };
 
   const startWarn = (hero: ThreatHero, gatesOpen: readonly boolean[], tick: number): void => {
     state.phase = 'warn';
@@ -222,6 +245,8 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
     },
     reset(tick) {
       if (state.scripted && (state.phase === 'warn' || state.phase === 'run')) return;
+      // Z-01: a roll-back starts the least pause anew — but before any wave: the first lesson keeps its own clock (G-01).
+      if (!(state.scriptedPending && state.quietSec === Infinity)) state.quietSec = 0;
       if (state.phase === 'warn' || state.phase === 'run') {
         state.phase = 'gone';
         state.timer = avalanche.fadeSec;
@@ -232,6 +257,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
     },
     step(dt, hero, gatesOpen, tick) {
       state.playSec += dt;
+      if (state.phase === 'idle' || state.phase === 'gone') state.quietSec += dt;
       switch (state.phase) {
         case 'idle': {
           // Stages pace (docs/01-gdd.md 22.5): an avalanche stage has its waves whether the scripted one came or not.
@@ -241,7 +267,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
           if (state.scriptedPending && !forced && !inZone) {
             if (inGiant) return;
             const zoneReached = scriptedCave !== null && hero.z >= scriptedCave.z - balance.ftue.triggerDist && !inSafeZone(level, hero.z);
-            if (zoneReached || state.playSec >= balance.ftue.fallbackSec) startWarn(hero, gatesOpen, tick);
+            if ((zoneReached || state.playSec >= balance.ftue.fallbackSec) && quiet() && coverInReach(hero, gatesOpen)) startWarn(hero, gatesOpen, tick);
             return;
           }
           // Out of every avalanche stage the pause holds at its first delay: entering one starts it (22.5), however the
@@ -256,7 +282,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
           if (zones && inZone && !wasInZone) state.timer = own ?? Math.min(state.timer, threat.zoneFirstSec ?? state.timer);
           wasInZone = inZone;
           state.timer -= dt;
-          if (state.timer <= 0) {
+          if (state.timer <= 0 && quiet()) {
             forced = false;
             startWarn(hero, gatesOpen, tick);
           }
@@ -291,6 +317,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
             if (state.outcome === 'none' && inSafeZone(level, hero.z)) state.outcome = 'safe';
             state.phase = 'gone';
             state.timer = avalanche.fadeSec;
+            state.quietSec = 0;
             emit('waveGone', { tick });
             emit('waveEnd', { tick, scripted: state.scripted, outcome: state.outcome, normalWaves: state.normalWaves });
             if (state.scripted) state.scriptedPending = false;
