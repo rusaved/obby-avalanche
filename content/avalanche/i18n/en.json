@@ -389,6 +389,7 @@
   "boss.gap": "Giant {n} away",
   "boss.passed": "You slipped past the giant!",
   "boss.caught": "The giant caught you!",
+  "boss.free": "The giant let you go! Run round him",
   "toast.recordUp": "New height!",
   "toast.shelterGrotto": "Grottos keep you safe",
   "ad.egg": "{ad} Ad: {egg}",

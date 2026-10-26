@@ -236,7 +236,10 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
         case 'idle': {
           // Stages pace (docs/01-gdd.md 22.5): an avalanche stage has its waves whether the scripted one came or not.
           const inZone = zones ? zoneOf(hero.z) !== null : false;
+          // G-01: never inside a giant's zone — one trial at a time; the wave waits till he is out of it.
+          const inGiant = level.bosses.some((b) => hero.z >= b.zone[0] && hero.z <= b.zone[1]);
           if (state.scriptedPending && !forced && !inZone) {
+            if (inGiant) return;
             const zoneReached = scriptedCave !== null && hero.z >= scriptedCave.z - balance.ftue.triggerDist && !inSafeZone(level, hero.z);
             if (zoneReached || state.playSec >= balance.ftue.fallbackSec) startWarn(hero, gatesOpen, tick);
             return;

@@ -12,7 +12,8 @@
   "caught": {
     "to": "prevStage",
     "giant": "stage",
-    "pastGiant": "own"
+    "pastGiant": "own",
+    "giantFreeSec": 2.5
   },
   "ui": {
     "summitGroup": {
@@ -109,7 +110,8 @@
     ]
   },
   "ftue": {
-    "scriptedWaveWall": 2
+    "scriptedWaveWall": 2,
+    "fallbackSec": 35
   },
   "hints": {
     "stuckMax": 99,

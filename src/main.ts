@@ -503,6 +503,8 @@ async function boot(): Promise<void> {
   const melting = new Map<number, number>();
   const wireSim = (s: Sim): void => {
     sfxEvents.wire(s.events);
+    // G-01 (producer 26.10): the very first catch by a giant lets the hero go — no roll-back, once a player.
+    s.giantFreeCatches = balance.caught.giantFreeSec && !save.flags?.['giantFree'] ? 1 : 0;
     const recorded = ['checkpoint', 'fall', 'respawn', 'jump', 'land', 'gain', 'gateOpen', 'gatePass', 'portal', 'giftTake', 'giftsRespawn', 'eggTouch', 'eggHatch', 'statMilestone'] as const;
     const waves = ['waveWarn', 'waveStart', 'waveSurvived', 'waveCaught', 'caughtEnd', 'waveDusted', 'waveGone', 'waveEnd', 'bonusSpawn', 'bonusTake', 'bonusSaved', 'bonusLost', 'bossEnter', 'bossPassed', 'bossCaught', 'bossBotCaught', 'helperThrow', 'helperHit', 'recordUp', 'chasmDown', 'tunnelEnter', 'eventStart', 'eventEnd', 'snowballHit', 'snowballBotHit'] as const;
     for (const name of [...recorded, ...waves]) {
@@ -569,6 +571,13 @@ async function boot(): Promise<void> {
       if (firstGiant()) trackOnce('boss_passed', { cover });
     });
     s.events.on('bossCaught', ({ zone, cover }) => {
+      if (s.giantFreeCatches > 0) {
+        (save.flags ??= {})['giantFree'] = true;
+        persist();
+        hud?.toast(t('boss.free'), 3);
+        track('boss_caught', { world: s.level.worldIndex, cover });
+        return;
+      }
       // The first catch in a zone with rocks (docs/01-gdd.md 20.6): «Duck behind a rock!» instead, 3 s, once a player.
       const flags = (save.flags ??= {});
       if ((s.level.bosses[zone]?.covers?.length ?? 0) > 0 && !flags['hint.cover']) {

@@ -107,6 +107,10 @@ export interface Sim {
   checkpoint: number;
   /** -1 when not respawning; otherwise ticks left of the ≤0.5 s fade (docs/02-tech.md 6.1). */
   respawnTicksLeft: number;
+  /** G-01 (producer 26.10): giant catches left that let the hero go without a roll-back (main sets 1 until the first). */
+  giantFreeCatches: number;
+  /** G-01: seconds the giants still leave the hero alone after a free catch (`balance.caught.giantFreeSec`). */
+  giantGraceSec: number;
   /** Stages pace (docs/01-gdd.md 22.9): the stage of the last roll-back (its «Continue from stage N»), 0 — none. */
   rollFrom: number;
   /** Per stage of `level.stages`: its trophy button taken on this pass (docs/01-gdd.md 22.8). */
@@ -353,6 +357,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     tick: 0,
     checkpoint: -1,
     respawnTicksLeft: -1,
+    giantFreeCatches: 0,
+    giantGraceSec: 0,
     rollFrom: 0,
     padTaken,
     stageStart,
@@ -405,7 +411,8 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         const run = opts.boss?.run;
         bossHero.speed = run !== undefined && moving >= sim.params.speed * run ? Math.max(moving, sim.params.speed) : moving;
         bossHero.top = sim.params.speed;
-        boss.step(dt, bossHero, !sim.caught && sim.respawnTicksLeft < 0, sim.tick, bots ? bots.runners() : undefined);
+        if (sim.giantGraceSec > 0) sim.giantGraceSec -= dt;
+        boss.step(dt, bossHero, !sim.caught && sim.respawnTicksLeft < 0 && sim.giantGraceSec <= 0, sim.tick, bots ? bots.runners() : undefined);
       }
       if (bots) {
         botCtx.hero.x = hero.pos.x;
@@ -817,6 +824,12 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
             (events.emit as (n: string, p: unknown) => void)(name, payload);
             if (name === 'bossCaught') {
               const p = payload as BossEvents['bossCaught'];
+              // G-01: the first catch only stops the giant (he walks back), the hero stays where he is.
+              if (sim.giantFreeCatches > 0) {
+                sim.giantFreeCatches--;
+                sim.giantGraceSec = opts.balance.caught!.giantFreeSec ?? 0;
+                return;
+              }
               const a = level.bosses[p.zone]!.zone[0] - BOSS_BACK;
               if (sim.respawnTicksLeft >= 0) sim.respawnTicksLeft = -1;
               // SD-15: `caught.giant` «stage» — back to the start of the giant's own stage, not a stage below (the camp).

@@ -1357,7 +1357,7 @@
       ]
     },
     "giantMargin": [
-      0.05,
+      0.1,
       0.03
     ],
     "giantMarginRest": 0.02,
@@ -1389,9 +1389,9 @@
       [
         "intro",
         "giant",
-        "plates",
-        "avalanche",
         "dips",
+        "avalanche",
+        "plates",
         "ice",
         "cracks",
         "throat",

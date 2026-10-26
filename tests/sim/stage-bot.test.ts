@@ -229,8 +229,10 @@ describe('the giant is a trial of every run (SD-12, MU-11)', () => {
     const w = worlds.worlds[mi]!;
     const st = w.stages!.find((s) => s.type === 'giant')!;
     // Mountain 10 (v 117 on the same field): the closest found is 4 of 10 at N (lag, side, reach tried — MU-11 report).
-    const [lo, hi] = mi === 0 ? [3, 5] : mi === 9 ? [1, 4] : [1, 2];
-    it(`mountain ${mi + 1}: forward at N caught 9+ of 10; a step aside at N ${lo}–${hi} of 10, two levels above 6–8; forward 4 and 8 above caught 9+; a dodge 2 below at most 3`, () => {
+    // G-01 (producer 26.10): mountain 1's giant has a margin of 0.10 (was 0.05) — the step aside gets past more often.
+    const [lo, hi] = mi === 0 ? [4, 7] : mi === 9 ? [1, 4] : [1, 2];
+    const upHi = mi === 0 ? 9 : 8;
+    it(`mountain ${mi + 1}: forward at N caught 9+ of 10; a step aside at N ${lo}–${hi} of 10, two levels above 6–${upHi}; forward 4 and 8 above caught 9+; a dodge 2 below at most 3`, () => {
       const level = buildLevel(w);
       const pass = (below: number, dodge: boolean, aside = false): number => Array.from({ length: TRIES }, (_, i) => runGiant(w, st, 7000 + i, below, dodge, level, aside)).filter((x) => x === 'pass').length;
       expect.soft(TRIES - pass(0, false), 'forward at N: caught').toBeGreaterThanOrEqual(9);
@@ -239,7 +241,7 @@ describe('the giant is a trial of every run (SD-12, MU-11)', () => {
       expect.soft(aside, 'a step aside at N').toBeLessThanOrEqual(hi);
       const up = pass(-2, true, true);
       expect.soft(up, 'a step aside two levels above').toBeGreaterThanOrEqual(6);
-      expect.soft(up, 'a step aside two levels above').toBeLessThanOrEqual(8);
+      expect.soft(up, 'a step aside two levels above').toBeLessThanOrEqual(upHi);
       expect.soft(TRIES - pass(-4, false), 'forward four levels above: caught').toBeGreaterThanOrEqual(9);
       expect.soft(TRIES - pass(-8, false), 'forward eight levels above: caught').toBeGreaterThanOrEqual(9);
       expect.soft(pass(2, true), 'a dodge two levels below').toBeLessThanOrEqual(3);
@@ -340,7 +342,8 @@ describe('the ridge sign and the roll-back of the stages (LV-02, LV-08)', () => 
     expect(near(st.n), 'past the farthest stage: one back from it').toBeLessThanOrEqual(3);
   });
   it('past the giant (Q-MU-12, staff 19.10): a fall into the first crack of the stage after him keeps that stage, never back before him', () => {
-    const w = worlds.worlds[0]!;
+    // G-01: on mountain 1 the dips follow the giant now (no fall there) — the first mountain with cracks after him.
+    const w = worlds.worlds.find((x) => x.stages![x.stages!.findIndex((s) => s.type === 'giant') + 1]?.type === 'cracks')!;
     const level = buildLevel(w);
     const g = w.stages!.find((s) => s.type === 'giant')!;
     const next = w.stages!.find((s) => s.n === g.n + 1)!;

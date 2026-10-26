@@ -276,7 +276,7 @@ const balanceSchema = v.object({
   coins: v.object({ gatePass: positive, waveSurvived: positive, chest: positive }),
   pets: v.object({ slots: v.pipe(v.number(), v.integer()), inventory: v.pipe(v.number(), v.integer()) }),
   boost: v.object({ x2Sec: positive, x2Mult: positive, statNowSec: positive }),
-  caught: v.object({ rollSec: positive, maxSec: v.pipe(v.number(), v.maxValue(2)), to: v.optional(v.picklist(['flag', 'caveBelow', 'prevStage'])), giant: v.optional(v.literal('stage')), pastGiant: v.optional(v.literal('own')) }),
+  caught: v.object({ rollSec: positive, maxSec: v.pipe(v.number(), v.maxValue(2)), to: v.optional(v.picklist(['flag', 'caveBelow', 'prevStage'])), giant: v.optional(v.literal('stage')), pastGiant: v.optional(v.literal('own')), giantFreeSec: v.optional(positive) }),
   levels: v.optional(v.object({ first: positive, growth: v.pipe(v.number(), v.minValue(1.01)) })),
   currency: v.optional(v.picklist(['coins', 'trophies'])),
   threat: v.object({ newbieWaves: v.object({ count: v.pipe(v.number(), v.integer(), v.minValue(0)), warnBonusSec: nonNeg }), resumeSec: positive }),
