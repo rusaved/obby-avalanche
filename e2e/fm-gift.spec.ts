@@ -32,7 +32,7 @@ test('the gift calendar stand: its name and «!», walking up opens the calendar
   expect(s.daily.n).toBe(1);
   expect(s.daily.canClaim).toBe(false);
   const claims = (await page.evaluate(() => window.__TEST__!.analytics())).filter((e) => e.name === 'daily_claim');
-  expect(claims.map((e) => e.params)).toEqual([{ day: 1, from: 'window' }]);
+  expect(claims.map((e) => e.params)).toEqual([{ day: 1, from: 'base' }]);
   await expect(page.locator('[data-role="daily-card"]').nth(0)).toHaveAttribute('data-state', 'past');
   await page.locator('[data-hud="win-close"]').click();
   // Once: the timer over the box as on the «Calendar» button.

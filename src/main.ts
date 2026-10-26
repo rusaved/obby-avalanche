@@ -167,7 +167,8 @@ async function boot(): Promise<void> {
   // `?leaderboard=` (debug builds): a leaderboard name for the e2e of the records (game.json has none yet, M4-06).
   // M4-07: purchases behind game.json payments.enabled (off in the game; `?payments=1` for the e2e of debug builds).
   // G-10 (producer 26.10, Q-M6-1): on in the release; the second release archive is built without them (VITE_NO_PAYMENTS).
-  const paymentsOn = !__NO_PAYMENTS__ && ((game.payments?.enabled ?? false) || debugParams.get('payments') === '1');
+  // `?payments=0` of a debug build — as the archive without them (the e2e of «off»).
+  const paymentsOn = !__NO_PAYMENTS__ && debugParams.get('payments') !== '0' && ((game.payments?.enabled ?? false) || debugParams.get('payments') === '1');
   const platformOpts: PlatformOptions = { packId: game.id, leaderboardName: debugParams.get('leaderboard') ?? game.leaderboard?.name ?? '', track, payments: paymentsOn };
   const platform = await createPlatform(platformOpts);
   // M6 polish (ready() ≤ 4 s): the dictionary comes over the network while the flags are asked, not after them.
@@ -2283,9 +2284,10 @@ async function boot(): Promise<void> {
         // Lit with «!» instead of a hand (19.3).
         hand: () => false,
         label: () => (dailyView ? `${t('btn.daily')} · ${dailyView.canClaim ? '!' : t('daily.soon', { time: formatTimer(dailyView.nextSec) })}` : null),
-        press: () => dailyView?.openWindow(),
-        // Opens by itself only while the reward waits (a run past it later does not stop the hero).
-        approach: () => void (dailyView?.canClaim && dailyView.openWindow()),
+        press: () => dailyView?.openWindow('base'),
+        // Opens by itself only while the reward waits (a run past it later does not stop the hero); its «Claim» counts
+        // as the base's (daily_claim from: base, docs/06).
+        approach: () => void (dailyView?.canClaim && dailyView.openWindow('base')),
       },
       // The «My records» board (P1, Q-051): its numbers from the first base; «Records» by it with a leaderboard on.
       records: {

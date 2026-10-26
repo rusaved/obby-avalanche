@@ -40,7 +40,8 @@ export interface DailyView {
   readonly nextSec: number;
   /** Rolls the game day by server time: call every frame, it reads the clock about once a second (`force` — now). */
   tick(force?: boolean): void;
-  openWindow(): void;
+  /** `from` — where it opened, for daily_claim of its «Claim»: `window` (default) or `base` (the stand, G-07). */
+  openWindow(from?: string): void;
   /** `from` — where it was claimed, for daily_claim: `window` (the calendar, default) or `base` (the gift box, 19.3). */
   claim(from?: string): boolean;
   menuItem(): MenuItem | null;
@@ -92,8 +93,9 @@ export function createDailyView(d: DailyViewDeps): DailyView {
         claim: view.canClaim ? t('btn.claim') : null,
         next: view.canClaim ? null : t('daily.next', { time: formatTimer(view.nextSec) }),
       },
-      () => void view.claim(),
+      () => void view.claim(claimFrom),
     );
+  let claimFrom = 'window';
 
   let shownTimer = '';
   // Server time read about once a second, not every frame (the timers show whole seconds).
@@ -132,7 +134,8 @@ export function createDailyView(d: DailyViewDeps): DailyView {
       const n = reward.kind === 'coins' ? formatNumber(d.rewards.coinsOf(reward.gifts, true), d.numSuffix) : undefined;
       return t(alt ? `daily.r${index + 1}alt` : `daily.r${index + 1}`, n !== undefined ? { n } : undefined);
     },
-    openWindow() {
+    openWindow(from = 'window') {
+      claimFrom = from;
       d.windows.open('daily', t('daily.title'), render);
     },
     tomorrow() {

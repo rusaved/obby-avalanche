@@ -1,8 +1,8 @@
 # Отчёт соответствия требованиям Яндекс Игр (M6-05)
 
-Отчёт по каждому ID раздела 1 `docs/03-yandex-compliance.md` (66 пунктов: BLD, SDK, SND, SAV, ADS, IAP, SCR, GD, CNT, LOC) для релиз-кандидата, 2026-10-25. Статусы: PASS-auto — тест или скрипт из цепочки `npm run verify:full` (`e2e/*.spec.ts`, `tests/**/*.test.ts`, `scripts/*.mjs`); PASS-manual — проверка по файлу в `docs/evidence/`; PRODUCER — делает продюсер в черновике, Консоли или на телефоне; N/A — не применимо, с причиной. PASS-auto подтверждаются полным verify вехи M6, прогон: `docs/evidence/M6/verify.txt`. Тесты с меткой `@full` идут только в `verify:full`. Покупки в релизе выключены (`payments.enabled: false` в `content/avalanche/game.json`, бриф штаба 25.10, Q-M6-1): IAP проверены на стенде с `?payments=1`, флаг включается, когда продюсер заведёт 4 товара в Консоли.
+Отчёт по каждому ID раздела 1 `docs/03-yandex-compliance.md` (66 пунктов: BLD, SDK, SND, SAV, ADS, IAP, SCR, GD, CNT, LOC) для релиз-кандидата, 2026-10-25. Статусы: PASS-auto — тест или скрипт из цепочки `npm run verify:full` (`e2e/*.spec.ts`, `tests/**/*.test.ts`, `scripts/*.mjs`); PASS-manual — проверка по файлу в `docs/evidence/`; PRODUCER — делает продюсер в черновике, Консоли или на телефоне; N/A — не применимо, с причиной. PASS-auto подтверждаются полным verify вехи M6, прогон: `docs/evidence/M6/verify.txt`. Тесты с меткой `@full` идут только в `verify:full`. Обновлено 2026-10-26 (круг правок «Лавина 18», G-12): покупки в релизе включены (`payments.enabled: true`, решение продюсера 26.10 по Q-M6-1), в `downloads/` второй релизный архив `-no-iap` без покупок; окно «Промокод» выключено (CNT-04 → PASS-auto); награды за визит в группу нет. Полный verify этого круга — `docs/evidence/G/verify.txt`.
 
-Итого: PASS-auto 49, PASS-manual 2, PRODUCER 14, N/A 1.
+Итого: PASS-auto 50, PASS-manual 2, PRODUCER 13, N/A 1.
 
 ## 1.1 Сборка и архив (BLD)
 
@@ -64,8 +64,8 @@
 
 | ID | пункт правил | статус | доказательство |
 |---|---|---|---|
-| IAP-01 | 1.4, 1.13: `ysdk.payments`, `getPurchases()` при старте, цена из каталога | PASS-auto | на стенде `?payments=1`: `e2e/iap.spec.ts` «IAP-04 … IAP-01 the price and the currency picture of the catalog», «IAP-01 bought before (another device)…»; в релизе флаг выключен («IAP off (game.json)…») |
-| IAP-02 | 1.13.3: купленное доступно на другом устройстве | PRODUCER | завести 4 товара в Консоли, включить `payments.enabled`, купить тестовым логином и войти с другого устройства |
+| IAP-01 | 1.4, 1.13: `ysdk.payments`, `getPurchases()` при старте, цена из каталога | PASS-auto | G-10 (26.10): в релизе покупки включены (`game.json` → `payments.enabled: true`, `tests/content/g10-payments.test.ts`); `e2e/iap.spec.ts` «G-10: on by default…», «IAP-04 … IAP-01 the price and the currency picture of the catalog», «IAP-01 bought before (another device)…»; архив без покупок `-no-iap` — «IAP off (?payments=0, as the archive without purchases)…» |
+| IAP-02 | 1.13.3: купленное доступно на другом устройстве | PRODUCER | завести 4 товара в Консоли (`vip` 99, `autopilot` 79, `no_ads` 149, `starter` 49 ян; флаг уже включён, G-10), купить тестовым логином и войти с другого устройства |
 | IAP-03 | 4.4: «Без рекламы» — нет interstitial и баннера | PASS-auto | на стенде: `e2e/iap.spec.ts` «the show after a purchase: VIP, autopilot, starter, no ads…»; `e2e/ads-inter.spec.ts` «ADS-03 «No ads»…» |
 | IAP-04 | рекомендация: покупки не раньше 5 минут | PASS-auto | на стенде: `e2e/iap.spec.ts` «IAP-04 «Special» only from 300 s…» |
 
@@ -104,7 +104,7 @@
 | CNT-01 | 2.7: 6+, лавина без смерти | PASS-auto | `scripts/check-release.mjs` пункт 7 (словарь возраста); `e2e/caught.spec.ts`; кадр `docs/evidence/M2/caught_1920x1080_ru.png` |
 | CNT-02 | 3.4: нет политики, флагов, религии | PRODUCER | просмотр кадров `docs/evidence/M5/` и прохождение черновика |
 | CNT-03 | 3.5, 5.1.1.1: свои или CC0 ассеты, нет чужих брендов | PASS-auto | `tests/architecture.test.ts` «no stop-list words…»; `scripts/check-release.mjs` пункт 7; `assets/LICENSES.md` |
-| CNT-04 | 3.7: нет реальных призов, денег, промокодов | PRODUCER | в релизе окно «Промокод» (`game.json` → `promo`, Q-MU-9), а `docs/03` 4.6 его в первой версии не допускает — решение в Q-M6-3 (рекомендация: убрать `promo`) |
+| CNT-04 | 3.7: нет реальных призов, денег, промокодов | PASS-auto | G-06 (26.10, Q-M6-3 А): окно «Промокод» выключено (`game.json` → `promo.enabled: false`), `e2e/g-promo.spec.ts` «G-06: the pause has no «Enter a code»»; награды за визит в группу нет (G-05, `e2e/fm-community-gift.spec.ts` «G-05: no gift for a visit…») |
 | CNT-05 | 8.4: нет ссылок, кроме сообщества | PASS-auto | `tests/content/cnt05.test.ts`; `tests/architecture.test.ts` «window.open appears in src/** once…» |
 | CNT-06 | 8.2.1, 8.2.4: тексты без ошибок | PRODUCER | вычитать `content/avalanche/i18n/ru.json` и `en.json` или кадры `docs/evidence/M4/loc/` |
 | CNT-07 | 8.2.2: нет «онлайн», боты не выдаются за людей | PASS-auto | `scripts/check-release.mjs` пункт 7; `tests/content/validate.test.ts` «bots.json: names…»; `e2e/bots.spec.ts` |

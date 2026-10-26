@@ -33,12 +33,19 @@ async function buy(page: Page, id: string): Promise<number> {
   return Date.now();
 }
 
-test('IAP off (game.json): no «Special» tab, not a single call of ysdk.payments', async ({ page, openGame }) => {
-  await start(page, openGame, '');
+// G-10: on in the release now; off — the archive without purchases (VITE_NO_PAYMENTS), here ?payments=0 of the e2e build.
+test('IAP off (?payments=0, as the archive without purchases): no «Special» tab, not a single call of ysdk.payments', async ({ page, openGame }) => {
+  await start(page, openGame, '&payments=0');
   await page.locator('[data-hud="menu-shop"]').dispatchEvent('pointerdown');
   await expect(page.locator('[data-role="window"].open')).toHaveCount(1);
   await expect(page.locator('[data-hud="shop-tab-special"]')).toHaveCount(0);
   expect(await calls(page, 'getPayments')).toBe(0);
+});
+
+test('G-10: on by default (game.json payments.enabled) — «Special» in the shop', async ({ page, openGame }) => {
+  await start(page, openGame, '');
+  await openSpecial(page);
+  await expect(page.locator('[data-role="window"].open [data-item="vip"]')).toHaveCount(1);
 });
 
 test('IAP-04 «Special» only from 300 s; IAP-01 the price and the currency picture of the catalog', async ({ page, openGame }) => {

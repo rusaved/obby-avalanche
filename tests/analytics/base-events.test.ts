@@ -35,7 +35,8 @@ describe('events of the base (FM-14)', () => {
   it('daily_claim carries `from` — base or window (docs/06, 01 19.13); the protective metric of 8.2', () => {
     expect(doc).toMatch(/`daily_claim`, параметр `from`: `base` или `window`/);
     expect(daily).toMatch(/d\.track\('daily_claim', \{ day: got\.day, from \}\)/);
-    expect(main).toMatch(/dailyView\?\.claim\('base'\)/);
+    // G-07: the stand of the base opens the calendar, its «Claim» counts as the base's.
+    expect(main).toMatch(/dailyView\.openWindow\('base'\)/);
     expect(doc.slice(doc.indexOf('### 8.2'))).toMatch(/на базе не теряются/);
   });
 });
