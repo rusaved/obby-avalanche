@@ -1,0 +1,23 @@
+# Полный verify круга G (чистый клон, start 11:21 854fd06)
+-- verify: typecheck ok, 3.7 s
+ Test Files  111 passed (111)
+      Tests  625 passed (625)
+-- verify: test ok, 187.4 s
+-- verify: validate:content ok, 7.2 s
+-- verify: build:e2e ok, 2.2 s
+Running 603 tests using 2 workers
+e2e: остановлен лимитом фонового процесса 2 ч на 13:21 UTC — пройдено 462 из 603, красных 7:
+✘   55 [desktop] › e2e/fm-community.spec.ts:25:1 › the channels by the side of the pause window: each opens its address in a new tab once; nothing given; community_open (24.2s)
+✘  163 [desktop] › e2e/m6-switch.spec.ts:47:1 › no base: past half of mountain 1 the next one is built ahead — its summit portal straight to mountain 2 ≤ 1 s at CPU ×4 (22.4s)
+✘  161 [desktop] › e2e/m5-perf.spec.ts:12:1 › M5-06: draw calls, triangles, textures at 3 points of each of the 10 mountains; a switch ≤ 1 s at CPU ×4, memory flat (2.5m)
+✘  205 [desktop] › e2e/perf.spec.ts:14:1 › SP-02: a simulation step on mountain 10 at CPU ×4 with 6 bots at 120 units/s stays within 2 ms (25.6s)
+✘  362 [mobile] › e2e/touch-mu-r2.spec.ts:243:5 › MU round of fixes 2, 915 × 412 › (5) HUD: the stick level with the jump, «Level N» 8 px under «LEVEL UP!» by 96, opaque plaques, the gold «Take» ≥ 4.5:1, the bar in Speed blue, «5 474» (7.4s)
+✘  369 [mobile] › e2e/touch-mu-screens.spec.ts:205:3 › MU phone screens › round of fixes 4 (staff 19.10): «+N» with the coin, «LEVEL UP!» at 130 % text and the giant's words stand in the slot, 8 px under the stage strip (9.4s)
+✘  415 [truthful-880x405] › e2e/truthful-details.spec.ts:160:1 › A58: no stub of the ridge post under its plaque (18.6s)
+хвост цепочки (e2e:sample, build, size, pack, check-release, e2e:release) в этом прогоне не дошёл — повтор ниже
+
+## Повтор (без нагрузки, свежая сборка с правками)
+- красные прогона по одному: m6-switch:47, perf:14, touch-mu-r2:243 (×2), touch-mu-screens:205 — зелёные; fm-community:25 — зелёный после правки подписи группы; truthful-details:160 ×3 — зелёный после правки этапа (плиты переехали на этап 5); m5-perf — не повторён (замер при CPU ×4, в прошлых вехах краснел под нагрузкой)
+- хвост цепочки: e2e:sample 2 из 2, build, size (2616 КБ из 4096), pack, check-release PASS, e2e:release 2 из 2
+- архив без покупок (VITE_NO_PAYMENTS=1): pack 1135 КБ, check-release PASS
+- остаток e2e, не дошедший в прогоне (проекты truthful-915x412 и truthful-815x290): 139 из 139 зелёных, 21,6 мин; бот-сессия горы 1 (`bot-session`, @full): 1 из 1, вершина горы 1 на 125 с, нарушений SDK 0 — `docs/evidence/G/bot-session.txt`

@@ -159,7 +159,7 @@ test('D38: the tiles of «More» keep 8 px around their words at 130 %', async (
 
 test('A58: no stub of the ridge post under its plaque', async ({ page, openGame }) => {
   await start(page, openGame, 5);
-  const st4 = STAGES[0]!.stages[5]!; // ST-02: the ridge of stage 6 — past the flat avalanche stage (stage 3 is the giant's)
+  const st4 = STAGES[0]!.stages[3]!; // G-01: the ridge of the avalanche stage — from the end of the dips (no pit there; the plates moved to 5)
   await page.evaluate(([s, z]) => {
     window.__TEST__!.setStat(s);
     window.__TEST__!.teleport(z);

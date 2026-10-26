@@ -2137,7 +2137,7 @@
     "milestone": "G",
     "description": "Итог круга: архивы, check-release, отчёт соответствия обновлён (продюсер 26.10, круг правок «Лавина 18 · Гора 1 и подача», по расписанию штаба)",
     "acceptance": "check-release PASS для релизных архивов; docs/evidence/compliance/report.md без TODO; итог в progress.md и push в main",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   }

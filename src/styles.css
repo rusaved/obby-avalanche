@@ -554,11 +554,12 @@ canvas.fallback {
 /* «+N» by the hero: 18 px in the Speed colour with the ink outline, one number; hidden while a toast is up. */
 .hud.mu .hud-gain, .hud.mu.gain-outlined .hud-gain { font-size: 18px; font-weight: 800; color: var(--mu-stat); text-shadow: var(--mu-o2); transform: translate(0, -50%); }
 .hud.mu .hud-gain.show { animation: mu-gain 0.5s ease-out forwards; }
-/* G-08 (producer 26.10): «+N» and the golden toasts («LEVEL UP!») juicier — bigger, a thicker dark outline, a pop. */
+/* G-08 (producer 26.10): «+N» and the golden toasts («LEVEL UP!») juicier — bigger, a thicker dark outline, a flash (no
+   change of size: the slot keeps its place). */
 .hud.mu .hud-gain, .hud.mu.gain-outlined .hud-gain { font-size: 22px; text-shadow: var(--mu-o3); }
 .hud.mu .hud-toast, .hud.mu.plated .hud-toast { text-shadow: var(--mu-o3); }
 .hud.mu .hud-toast.gold.shown .hud-toast-main { animation: gold-pop 0.45s ease-out; }
-@keyframes gold-pop { 0% { transform: scale(0.6); } 55% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes gold-pop { 0% { filter: brightness(2.2) saturate(1.6); } 100% { filter: none; } }
 @media (prefers-reduced-motion: reduce) { .hud.mu .hud-toast.gold.shown .hud-toast-main { animation: none; } }
 @keyframes mu-gain { 0% { opacity: 0; transform: translate(0, -30%); } 20% { opacity: 1; transform: translate(0, -50%); } 100% { opacity: 0; transform: translate(0, -120%); } }
 .hud.mu.toasting .hud-gain { visibility: hidden; }

@@ -1,6 +1,6 @@
-check-release: dist-pages/downloads/avalanche-0.1.0-playtest.zip
-date: 2026-10-25T16:25:12.824Z
-files: 48
+check-release: release/avalanche-0.1.0.zip
+date: 2026-10-26T13:27:05.230Z
+files: 47
   assets/1-BN7IT56u.mp3  16.8 KB
   assets/1-BVny-jN9.mp3  16.8 KB
   assets/1-CP3C_qXY.mp3  16.8 KB
@@ -24,14 +24,13 @@ files: 48
   assets/4-CJ7_h6Iw.mp3  16.8 KB
   assets/4-CjOsbRXB.mp3  16.8 KB
   assets/ZzFX-C1HKDoVW.js  2.0 KB
-  assets/debug-DdM1vF4N.js  46.1 KB
-  assets/en-CKyhPl7c.json  18.8 KB
-  assets/index-D-FN65GQ.js  1778.1 KB
-  assets/index-DlJJ55FI.css  76.1 KB
+  assets/en-3k0jci2k.json  18.9 KB
+  assets/index-CEm1ZpE-.js  1786.7 KB
+  assets/index-CtyeDfxc.css  77.8 KB
   assets/level-up-CA_B7FUa.mp3  32.3 KB
   assets/reward-coins-Cb3RXhlr.mp3  32.3 KB
   assets/reward-trophy-CEJUg0DD.mp3  32.3 KB
-  assets/ru-CW_8Q702.json  24.7 KB
+  assets/ru-CfKij1hU.json  24.8 KB
   assets/rubik-cyrillic-500-normal-BH_pkKR0.woff  9.7 KB
   assets/rubik-cyrillic-500-normal-Didq2w9O.woff2  7.7 KB
   assets/rubik-cyrillic-600-normal-AdySaCq0.woff2  7.7 KB
@@ -52,15 +51,13 @@ files: 48
 
 PASS  1. index.html at the root, paths only [A-Za-z0-9._/-]
 PASS  2. unpacked ≤ 10 MB and JS gzip ≤ 800 KB
-        zip 1147.8 KB, unpacked 2651.9 KB, js gzip 405.5 KB
+        zip 1135.8 KB, unpacked 2616.2 KB, js gzip 393.7 KB
 PASS  3. no external addresses except /sdk.js and mc.yandex.ru (namespaces allowed)
 PASS  4. <script src="/sdk.js"> exactly once
         found 1
 PASS  5. no <audio>, <video>, new Audio(
-FAIL  6. no lil-gui, __TEST__, __STUDIO__, __YA_MOCK__, yasdk-mock, localhost, debugger, sourceMappingURL, ?pace=, debugcheck
-        assets/debug-DdM1vF4N.js: lil-gui
-        assets/index-D-FN65GQ.js: reads ?pace=
+PASS  6. no lil-gui, __TEST__, __STUDIO__, __YA_MOCK__, yasdk-mock, localhost, debugger, sourceMappingURL, ?pace=, debugcheck
 PASS  7. no development or stop-list words in shipped texts
 
 WARN  other absolute addresses in strings (not loaded): https://t.me/sunhearth_games, https://vk.ru/sunhearth_yandex
-RESULT: FAIL (1 check(s))
+RESULT: PASS

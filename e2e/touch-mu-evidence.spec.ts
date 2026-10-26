@@ -62,7 +62,7 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
       expect(feet.hud - feet.feet, 'running feet over the speed line').toBeGreaterThanOrEqual(8);
       await page.screenshot({ path: `${dir}/l1-run-hud.png` });
       await page.evaluate(() => window.__TEST__!.stick(0, 0));
-      const st4 = W.stages[5]!; // ST-02: the ridge of stage 6 — past the flat avalanche stage (stage 3 is the giant's)
+      const st4 = W.stages[3]!; // G-01: the ridge of the avalanche stage — from the end of the dips (the plates moved to 5)
       // MU round 5: not the first run of mountain 1 (there the plaque points to a treadmill — truthful-pad-hints).
       await page.evaluate(([s, z]) => {
         window.__TEST__!.setSummits(1);
