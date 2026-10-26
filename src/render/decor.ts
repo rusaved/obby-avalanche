@@ -267,6 +267,8 @@ export function createDecor(scene: Scene, theme: ThemeJson, pets: PetsJson['pets
         mesh.setMatrixAt(slot(1), m4.compose(pos.set(b.x, b.y + lift, b.z), q.setFromAxisAngle(up, b.yaw), one));
       });
       mesh.count = n;
+      // None near — no draw call for it.
+      mesh.visible = n > 0;
       mesh.instanceMatrix.needsUpdate = true;
       kindOf.needsUpdate = true;
       state.walkers = walkers.map((p) => ({ x: p.x, z: p.z, patch: p.patch }));

@@ -1,0 +1,78 @@
+Полный verify вехи Z «Лавина 19 · Зимний облик», 26.10, ветка claude/lavina-19-winter, облако (SwiftShader). Цепочка npm run verify по стадиям; e2e разделён по проектам (лимит фонового процесса 2 ч): desktop двумя частями (--shard 1/2, 2/2), затем mobile + truthful-*; хвост — build, size, pack, check-release, e2e:sample, e2e:release; один повтор упавших.
+
+== typecheck — start 19:47:56
+-- typecheck — exit 0 19:47:59
+== test — start 19:47:59
+ Test Files  112 passed (112)
+      Tests  637 passed (637)
+-- test — exit 0 19:50:47
+== validate — start 19:50:47
+validate:content: _sample — ok
+validate:content: avalanche — ok
+validate:content: avalanche/pace/fast — ok
+validate:content: avalanche/pace/open — ok
+validate:content: avalanche/pace/stages — ok
+-- validate — exit 0 19:50:53
+== build-e2e — start 19:50:53
+-- build-e2e — exit 0 19:50:55
+== e2e-desktop-1 — start 19:50:55
+  ✘  139 [desktop] › e2e/lv-steps.spec.ts:100:1 › the footsteps volume slider applies at once and survives F5 with the set bought in the shop (21.1s)
+  ✘  161 [desktop] › e2e/m5-perf.spec.ts:12:1 › M5-06: draw calls, triangles, textures at 3 points of each of the 10 mountains; a switch ≤ 1 s at CPU ×4, memory flat (1.7m)
+  2 failed
+  166 passed (32.8m)
+-- e2e-desktop-1 — exit 1 20:23:42
+PART1DONE
+== e2e-desktop-2 — start 20:23:58
+  ✘   49 [desktop] › e2e/rg-camera-grotto.spec.ts:83:1 › open: turned around by hand in a grotto the camera keeps off the hero, the head stays in frame; behind him outside (33.3s)
+  ✘   50 [desktop] › e2e/rg-camera-grotto.spec.ts:99:1 › fast: the same camera in a cave by a gate (31.9s)
+  ✘   53 [desktop] › e2e/rg-decor.spec.ts:23:1 › penguins of mountain 1 walk within their patch; a bird of mountain 3 turns to the hero; +2 draw calls; screenshot (11.1s)
+      58 |   // Pressed into a wall on the way round, the camera took the grotto frame (a roomy cave of fast never presses it).
+      58 |   // Pressed into a wall on the way round, the camera took the grotto frame (a roomy cave of fast never presses it).
+      34 |   // The hero beside the first patch, looking at it.
+  3 failed
+  164 passed (48.3m)
+-- e2e-desktop-2 — exit 1 21:12:19
+PART2DONE
+== e2e-mobile-truthful — start 21:12:33
+== build — start 21:12:41
+-- build — exit 0 21:12:45
+== size — start 21:12:45
+-- size — exit 0 21:12:45
+== pack — start 21:12:45
+-- pack — exit 0 21:12:46
+== check-release — start 21:12:46
+PASS  1. index.html at the root, paths only [A-Za-z0-9._/-]
+PASS  2. unpacked ≤ 10 MB and JS gzip ≤ 800 KB
+PASS  3. no external addresses except /sdk.js and mc.yandex.ru (namespaces allowed)
+PASS  4. <script src="/sdk.js"> exactly once
+PASS  5. no <audio>, <video>, new Audio(
+PASS  6. no lil-gui, __TEST__, __STUDIO__, __YA_MOCK__, yasdk-mock, localhost, debugger, sourceMappingURL, ?pace=, debugcheck
+PASS  7. no development or stop-list words in shipped texts
+RESULT: PASS
+-- check-release — exit 0 21:12:46
+TAILA
+  ✘   82 [truthful-880x405] › e2e/truthful-blizzard.spec.ts:20:1 › in the blizzard: «Blizzard! Jump, it's faster» in the slot, a jump not slowed (28.5s)
+  ✘  155 [truthful-915x412] › e2e/truthful-blizzard.spec.ts:20:1 › in the blizzard: «Blizzard! Jump, it's faster» in the slot, a jump not slowed (27.0s)
+  ✘  228 [truthful-815x290] › e2e/truthful-blizzard.spec.ts:20:1 › in the blizzard: «Blizzard! Jump, it's faster» in the slot, a jump not slowed (26.4s)
+  3 failed
+  7 skipped
+  273 passed (32.3m)
+-- e2e-mobile-truthful — exit 1 21:44:52
+PART3DONE
+== ПОВТОР (одна попытка): упавшие 9 тестов после правки тестов и сборки, затем e2e:sample и e2e:release — 21:46:27
+== repeat — start 21:46:27
+  ✘   4 [desktop] › e2e/m5-perf.spec.ts:12:1 › M5-06: draw calls, triangles, textures at 3 points of each of the 10 mountains; a switch ≤ 1 s at CPU ×4, memory flat (2.0m)
+  ✘   7 [desktop] › e2e/rg-decor.spec.ts:23:1 › penguins of mountain 1 walk within their patch; a bird of mountain 3 turns to the hero; +1 draw call; screenshot (36.4s)
+  2 failed
+  9 passed (2.9m)
+-- repeat — exit 1 21:49:23
+== после повтора: правка показа зверей (нет рядом — нет вызова) и теста rg-decor, отдельный прогон rg-decor + z-look: 5 из 5 — 21:50:36
+== e2e-sample — start 21:50:36
+  2 passed (12.0s)
+-- e2e-sample — exit 0 21:50:51
+== e2e-release — start 21:50:51
+  2 passed (9.0s)
+-- e2e-release — exit 0 21:51:01
+
+Итог: typecheck, Vitest 637 из 637, validate:content, build:e2e — зелёные; e2e 603 из 611 в основном прогоне (8 упали: 2 + 3 desktop, 3 truthful-blizzard; 7 skipped), повтор 9 из 11 тестов (8 упавших на всех вьюпортах) после правки тестов под новый облик (лимит громкости шагов, доля цвета лица, птицы на всех горах, текст скрытой плашки бурана); остались красными m5-perf (смена горы 1019 мс при пределе 1000) и rg-decor (вызов зверей — после правки показа отдельным прогоном зелёный). Хвост: size 2730 КБ из 4096 (JS gzip 430 КБ), pack 1173 КБ, check-release PASS, архив без покупок 1172 КБ — check-release PASS, e2e:sample 2 из 2, e2e:release 2 из 2.
+EXIT=1 (цепочка целиком не зелёная: m5-perf, смена горы 1019 мс из 1000)

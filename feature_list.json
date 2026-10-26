@@ -2236,7 +2236,7 @@
     "milestone": "Z",
     "description": "Ревизоры: художник (кадры до/после на 880×405 и 815×290), удобство (подсказки Z-01), геймдизайнер (первая минута); «2» чинить до итога; бот-сессия горы 1 (продюсер 26.10, веха «Лавина 19 · Зимний облик», по расписанию штаба)",
     "acceptance": "отчёты в docs/evidence/Z/, оценок 2 не осталось или причина в итоге; бот-сессия без ошибок",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
@@ -2245,7 +2245,7 @@
     "milestone": "Z",
     "description": "Итог вехи: архивы (с покупками и -no-iap), check-release, отчёт соответствия обновлён (продюсер 26.10, веха «Лавина 19 · Зимний облик», по расписанию штаба)",
     "acceptance": "check-release PASS для релизных архивов; docs/evidence/compliance/report.md без TODO; итог в progress.md и push в main",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   }

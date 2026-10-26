@@ -60,5 +60,11 @@ test('in the blizzard: «Blizzard! Jump, it\'s faster» in the slot, a jump not 
   await page.evaluate(() => window.__TEST__!.stick(0, 0));
   // His first jump there taught it: the hint is gone.
   await waitTicks(page, 30);
-  await expect(page.locator('[data-role="tutor"]')).not.toContainText(/Буран! Прыгай|Blizzard! Jump/);
+  // The plaque hides (its last text may stay in the hidden element when nothing takes the slot after it).
+  await expect
+    .poll(() => page.evaluate(() => {
+      const el = document.querySelector('[data-role="tutor"]')!;
+      return el.classList.contains('shown') && /Буран! Прыгай|Blizzard! Jump/.test(el.textContent ?? '');
+    }))
+    .toBe(false);
 });

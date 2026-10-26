@@ -1,0 +1,5 @@
+M5-06 · loading (docs/02-tech.md 9.5), build:e2e (with the test API and the SDK mock), phone (mock_device=mobile), 10 Mbit/s, RTT 100 ms, CPU x4, cache off, after one warm-up load, 2026-10-26T21:51:35.850Z
+load 1: ready() at 5509 ms, 581 KB before it
+load 2: ready() at 5597 ms, 581 KB before it
+load 3: ready() at 5729 ms, 581 KB before it
+median: 5597 ms / 4000; 581 KB / 1229 KB

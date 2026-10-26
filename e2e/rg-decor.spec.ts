@@ -20,7 +20,7 @@ const calls = async (page: Page): Promise<number> => {
   return (await page.evaluate(() => window.__TEST__!.renderInfo()))!.calls;
 };
 
-test('penguins of mountain 1 walk within their patch; a bird of mountain 3 turns to the hero; +2 draw calls; screenshot', async ({ page, openGame }) => {
+test('penguins of mountain 1 walk within their patch; a bird of mountain 3 turns to the hero; +1 draw call; screenshot', async ({ page, openGame }) => {
   test.setTimeout(180_000);
   mkdirSync(EVIDENCE, { recursive: true });
   await openGame('pace=open&quality=high&seed=3');
@@ -29,7 +29,8 @@ test('penguins of mountain 1 walk within their patch; a bird of mountain 3 turns
   let s = await testState(page);
   const w = s.decor!.walkers;
   expect(w.length).toBeGreaterThan(0);
-  expect(s.decor!.sitters).toEqual([]);
+  // Z-07: birds on every mountain now, mountain 1 too.
+  expect(s.decor!.sitters.length).toBeGreaterThan(0);
   const [x0, z0, x1, z1] = w[0]!.patch;
   // The hero beside the first patch, looking at it.
   await page.evaluate(([z, x]) => window.__TEST__!.teleport(z, x), [z0 - 12, (x0 + x1) / 2 > 0 ? x0 - 4 : x1 + 4] as const);
@@ -70,7 +71,7 @@ test('penguins of mountain 1 walk within their patch; a bird of mountain 3 turns
   const near = (await testState(page)).decor!.sitters[0]!.yaw;
   expect(Math.abs(Math.atan2(Math.sin(near - Math.PI), Math.cos(near - Math.PI))), 'the bird turned').toBeGreaterThan(0.3);
 
-  // Mountain 9 (aurora: both kinds): +2 draw calls against no decor.
+  // Mountain 9 (aurora: both kinds): +1 draw call against no decor (Z-07: penguins and birds in one InstancedMesh).
   await page.evaluate(() => window.__TEST__!.gotoWorld(9));
   await waitTicks(page, 20);
   await page.evaluate(() => window.__TEST__!.holdWave(300));
@@ -81,7 +82,9 @@ test('penguins of mountain 1 walk within their patch; a bird of mountain 3 turns
   await page.evaluate(() => window.__TEST__!.setDecor(false));
   const off = await calls(page);
   await page.evaluate(() => window.__TEST__!.setDecor(true));
-  expect(on - off).toBe(2);
+  // Z-07: one mesh for both kinds, drawn only with animals within 150 units of the hero — at most one call.
+  expect(on - off).toBeGreaterThanOrEqual(0);
+  expect(on - off).toBeLessThanOrEqual(1);
   // Through every mountain: no console error (the fixture).
   for (let i = 1; i <= 10; i++) {
     await page.evaluate((k) => window.__TEST__!.gotoWorld(k), i);

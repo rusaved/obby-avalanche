@@ -57,7 +57,8 @@ async function inGrottoTurn(page: Page, which: (s: Array<{ kind: string; side: s
   expect(st.inside, JSON.stringify(st.bad)).toBe(0);
   // Pressed into a wall on the way round, the camera took the grotto frame (a roomy cave of fast never presses it).
   if (tight) expect(st.tight).toBeGreaterThan(0);
-  expect(Math.min(...shares), shares.map((s) => s.toFixed(3)).join(' ')).toBeGreaterThanOrEqual(0.01);
+  // Z-03: hair and a hat cover the top of the round head — the skin colour is the face alone now (0.005–0.009 seen).
+  expect(Math.min(...shares), shares.map((s) => s.toFixed(3)).join(' ')).toBeGreaterThanOrEqual(0.004);
   // Straight out of the grotto onto the slope: within 1 s of leaving it the camera is behind the hero (on the side
   // away from where he runs).
   const far = -sign * (Math.abs(n.mouth[0]) - 2);

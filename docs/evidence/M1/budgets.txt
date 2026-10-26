@@ -1,4 +1,4 @@
-budgets (docs/02-tech.md 9.5), mountain 1, quality high, 2026-10-26T18:45:41.901Z
+budgets (docs/02-tech.md 9.5), mountain 1, quality high, 2026-10-26T20:33:40.402Z
 z=20: draw calls 27, triangles 53973, textures 6, geometries 28, character draw calls 8
 z=400: draw calls 31, triangles 54884, textures 6, geometries 32, character draw calls 8
 z=1150: draw calls 30, triangles 54284, textures 6, geometries 33, character draw calls 8
