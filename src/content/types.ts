@@ -555,7 +555,7 @@ export interface TuningJson {
    * `uiSoundPerSec` a second; a reward flies `flyIcons` marks to its counter over `flyMs`. Absent — none of it.
    * SP-03 (docs/01-gdd.md 20.3): wind lines past the hero from `windFrom` of the run speed (camera.speedPow); absent — none.
    */
-  fx?: { windFrom?: number; toastMinSec?: number; toastGapMs?: number; tickMs?: number; windowMs?: number; uiSoundPerSec?: number; flyIcons?: number; flyMs?: number; musicDuck?: number };
+  fx?: { windFrom?: number; toastMinSec?: number; toastGapMs?: number; tickMs?: number; windowMs?: number; uiSoundPerSec?: number; flyIcons?: number; flyMs?: number; musicDuck?: number; musicFanfare?: number };
   /** Pace open (docs/01a-content.md 16.7): the ridge view — up `rise`, back `back`, `sec` long (docs/01-gdd.md 17.9). */
   ridgeShot?: { rise: number; back: number; sec: number };
   /** The giant-zone shot: from the side `side` units, up `rise`, back `back`, `sec` long (docs/01-gdd.md 17.9). */

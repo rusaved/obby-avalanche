@@ -8,7 +8,7 @@
  * reason suspends the context at once; a sound can play some semitones higher and later (a rising note, a chime).
  * Music, separate volumes and the rest of the events — M5-04.
  */
-import { MUSIC_TRACKS, musicLevel } from './music.ts';
+import { MUSIC_TRACKS, musicLevel, musicTrack, type MusicRole } from './music.ts';
 import type { SfxJson } from '../content/types.ts';
 
 /** Not more than this many equal sounds inside SAME_WINDOW_MS (docs/02-tech.md 10). */
@@ -121,8 +121,13 @@ export interface GameAudio {
   setMusic(on: boolean): void;
   setMusicVolume(v: number): void;
   duckMusic(on: boolean): void;
-  /** G-09 (e2e, Vitest): the loops in the build, the one decoded and playing, the level its gain heads to. */
-  readonly music: { tracks: number; playing: boolean; level: number };
+  /** Z-09: the loop of a place — the slope or the base (its own file, or the single loop of G-09; none — silence). */
+  setMusicRole(role: Exclude<MusicRole, 'fanfare'>): void;
+  /** Z-09: the fanfare of a passed mountain, once, the loop stepping aside under it (no file — nothing). */
+  playFanfare(): void;
+  /** G-09 (e2e, Vitest): the loops in the build, the one decoded and playing, the level its gain heads to; Z-09: the role
+   * of the place and the fanfares asked for. */
+  readonly music: { tracks: number; playing: boolean; level: number; role: MusicRole; fanfares: number };
 }
 
 export function createAudio(opts: {
@@ -133,8 +138,9 @@ export function createAudio(opts: {
   gestureTarget: EventTarget;
   /** FX-06 (tuning.json fx.uiSoundPerSec): the ceiling of the interface sounds a second; absent — none beyond SAME_MAX. */
   uiPerSec?: number | undefined;
-  /** G-09: the music switch and volume of the save; `duckK` — its share left under an avalanche (tuning). */
-  music?: { on: boolean; volume: number; duckK: number } | undefined;
+  /** G-09: the music switch and volume of the save; `duckK` — its share left under an avalanche (tuning); Z-09:
+   * `fanfareK` — its share under a fanfare. */
+  music?: { on: boolean; volume: number; duckK: number; fanfareK?: number | undefined } | undefined;
 }): GameAudio {
   const uiCap = opts.uiPerSec ? createRateCap(opts.uiPerSec) : null;
   let ctx: AudioContext | null = null;
@@ -169,31 +175,88 @@ export function createAudio(opts: {
   };
 
   // G-09: one music loop on its own gain, after the gesture like every sound; the suspended context silences it too.
-  const music = { on: opts.music?.on ?? true, volume: opts.music?.volume ?? 1, duck: false, duckK: opts.music?.duckK ?? 0.5, level: 0 };
+  // Z-09: the loop of the place (slope or base) — a change fades the old one out and the new one in; the fanfare of a
+  // summit plays once on a gain of its own while the loop steps aside.
+  const music = { on: opts.music?.on ?? true, volume: opts.music?.volume ?? 1, duck: false, duckK: opts.music?.duckK ?? 0.5, fanfare: false, fanfareK: opts.music?.fanfareK ?? 0.25, level: 0, role: 'mountain' as MusicRole, fanfares: 0 };
   let musicGain: GainNode | null = null;
   let musicPlaying = false;
+  let musicSrc: AudioBufferSourceNode | null = null;
+  let musicUrl: string | null = null;
   const MUSIC_FADE_SEC = 0.4;
+  const decoded = new Map<string, Promise<AudioBuffer>>();
+  const decode = (c: AudioContext, url: string): Promise<AudioBuffer> => {
+    let p = decoded.get(url);
+    if (!p) {
+      p = fetch(url)
+        .then((r) => r.arrayBuffer())
+        .then((data) => c.decodeAudioData(data));
+      p.catch(() => decoded.delete(url));
+      decoded.set(url, p);
+    }
+    return p;
+  };
   const musicApply = (): void => {
-    music.level = MUSIC_TRACKS.length > 0 ? musicLevel({ on: music.on && enabled, volume: music.volume, paused: opts.paused(), duck: music.duck, duckK: music.duckK }) : 0;
+    music.level = MUSIC_TRACKS.length > 0 ? musicLevel({ on: music.on && enabled, volume: music.volume, paused: opts.paused(), duck: music.duck, duckK: music.duckK, fanfare: music.fanfare, fanfareK: music.fanfareK }) : 0;
     if (ctx && musicGain) musicGain.gain.setTargetAtTime(music.level, ctx.currentTime, MUSIC_FADE_SEC / 3);
   };
   const startMusic = (c: AudioContext): void => {
-    const url = MUSIC_TRACKS[0];
+    const url = musicTrack(music.role === 'fanfare' ? 'mountain' : music.role);
+    if (url === musicUrl) return;
+    musicUrl = url;
+    if (!musicGain) {
+      musicGain = c.createGain();
+      musicGain.gain.value = 0;
+      musicGain.connect(c.destination);
+    }
+    // The old loop fades out over MUSIC_FADE_SEC, the new one comes in after it.
+    const old = musicSrc;
+    musicSrc = null;
+    if (old) {
+      musicGain.gain.setTargetAtTime(0, c.currentTime, MUSIC_FADE_SEC / 3);
+      try {
+        old.stop(c.currentTime + MUSIC_FADE_SEC);
+      } catch {
+        // Already stopped.
+      }
+    }
+    musicPlaying = false;
     if (!url) return;
-    musicGain = c.createGain();
-    musicGain.gain.value = 0;
-    musicGain.connect(c.destination);
-    void fetch(url)
-      .then((r) => r.arrayBuffer())
-      .then((data) => c.decodeAudioData(data))
+    void decode(c, url)
       .then((buf) => {
+        if (musicUrl !== url || !musicGain) return;
         const src = c.createBufferSource();
         src.buffer = buf;
         src.loop = true;
-        src.connect(musicGain!);
-        src.start();
+        src.connect(musicGain);
+        src.start(old ? c.currentTime + MUSIC_FADE_SEC : c.currentTime);
+        musicSrc = src;
         musicPlaying = true;
         musicApply();
+      })
+      .catch(() => undefined);
+  };
+  const playFanfare = (c: AudioContext): void => {
+    const url = musicTrack('fanfare');
+    if (!url) return;
+    void decode(c, url)
+      .then((buf) => {
+        const level = MUSIC_TRACKS.length > 0 ? musicLevel({ on: music.on && enabled, volume: music.volume, paused: opts.paused(), duck: false, duckK: 1 }) : 0;
+        if (level <= 0) return;
+        const g = c.createGain();
+        g.gain.value = level;
+        g.connect(c.destination);
+        const src = c.createBufferSource();
+        src.buffer = buf;
+        src.connect(g);
+        music.fanfare = true;
+        musicApply();
+        src.onended = () => {
+          src.disconnect();
+          g.disconnect();
+          music.fanfare = false;
+          musicApply();
+        };
+        src.start();
       })
       .catch(() => undefined);
   };
@@ -335,8 +398,17 @@ export function createAudio(opts: {
       music.duck = on;
       musicApply();
     },
+    setMusicRole(role) {
+      if (music.role === role) return;
+      music.role = role;
+      if (ctx) startMusic(ctx);
+    },
+    playFanfare() {
+      music.fanfares++;
+      if (ctx) playFanfare(ctx);
+    },
     get music() {
-      return { tracks: MUSIC_TRACKS.length, playing: musicPlaying, level: music.level };
+      return { tracks: MUSIC_TRACKS.length, playing: musicPlaying, level: music.level, role: music.role, fanfares: music.fanfares };
     },
     setVolume(v) {
       volume = Math.min(1, Math.max(0, v));

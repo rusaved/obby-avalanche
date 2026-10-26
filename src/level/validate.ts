@@ -508,6 +508,7 @@ const tuningSchema = v.object({
       flyMs: v.optional(v.pipe(v.number(), v.minValue(100), v.maxValue(2000))),
       // G-09: the share of the music volume left under an avalanche.
       musicDuck: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
+      musicFanfare: v.optional(v.pipe(v.number(), v.minValue(0), v.maxValue(1))),
     }),
   ),
   bounds: v.optional(v.object({ wallHeight: positive })),

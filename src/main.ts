@@ -731,6 +731,8 @@ async function boot(): Promise<void> {
     });
     // The switch happens after the tick, not inside the emitter (docs/06 step 21: mountain 1 done on tier 0).
     s.events.on('portal', ({ from, next }) => {
+      // Z-09: the fanfare of a passed mountain, once, the loop stepping aside under it.
+      audio?.playFanfare();
       // A mountain passed on this tier, run again from the base (docs/01-gdd.md 19.4, Q-053): no window, chest or
       // trophies — «Top again!» and back to the base.
       if (replay && !(baseCfg?.replayRewards ?? false)) {
@@ -1059,6 +1061,8 @@ async function boot(): Promise<void> {
     const tier = reset?.tier ?? sim.tier;
     world = next;
     onBase = false;
+    // Z-09: the loop of the slope.
+    audio?.setMusicRole('mountain');
     replay = how.replay === true;
     basePortals = [];
     prebuiltFor = [0, 0];
@@ -1125,6 +1129,8 @@ async function boot(): Promise<void> {
     const coins = reset?.coins ?? sim.coins;
     const tier = reset?.tier ?? sim.tier;
     onBase = true;
+    // Z-09: the loop of the base.
+    audio?.setMusicRole('base');
     replay = false;
     prebuiltFor = [0, 0];
     basePortals = b.portals;
@@ -2024,8 +2030,10 @@ async function boot(): Promise<void> {
     gestureTarget: window,
     uiPerSec: tuning.fx?.uiSoundPerSec,
     // G-09: the music loop of assets/audio/music (none there — silent), its switch and volume of the save.
-    music: { on: save.settings.music, volume: save.settings.musicVolume ?? 1, duckK: tuning.fx?.musicDuck ?? 0.5 },
+    music: { on: save.settings.music, volume: save.settings.musicVolume ?? 1, duckK: tuning.fx?.musicDuck ?? 0.5, fanfareK: tuning.fx?.musicFanfare },
   });
+  // Z-09: the base of a load that starts on it plays its own loop.
+  if (onBase) audio.setMusicRole('base');
   audio.setVolume(save.settings.volume);
   waveView = createWaveView({
     tuning,

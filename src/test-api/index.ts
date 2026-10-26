@@ -178,6 +178,8 @@ export interface TestState {
   /** M5-02, M5-03: the level each looped sound heads to (the avalanche rumble, the wind). */
   hums: Record<string, number>;
   audioRunning: boolean;
+  /** Z-09: the music — its role (slope or base) and the fanfares asked for; null — no audio yet. */
+  music: { role: string; fanfares: number; tracks: number } | null;
   /** Footsteps (LV-09): steps and previews heard, the surface of the last one, the set on, its volume (0–1), the sets
    * opened by an ad, the set whose ad runs; null — the pack has no footsteps. */
   footsteps: { count: number; surface: string | null; set: string; volume: number; ads: string[]; bought: string[]; busy: string | null; loaded: number; last: string | null } | null;
@@ -743,6 +745,7 @@ export function installTestApi(g: GameHandles): TestApi {
         sfx: [...(g.audio?.played ?? [])],
         hums: { ...(g.audio?.hums ?? {}) },
         audioRunning: g.audio?.running ?? false,
+        music: g.audio ? { role: g.audio.music.role, fanfares: g.audio.music.fanfares, tracks: g.audio.music.tracks } : null,
         footsteps: g.footsteps
           ? { count: g.footsteps.count, surface: g.footsteps.surface, ...g.footsteps.state(), busy: g.footsteps.busy, loaded: g.audio?.loaded ?? 0, last: g.footsteps.last }
           : null,
