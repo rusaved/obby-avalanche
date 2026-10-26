@@ -19,8 +19,6 @@ import {
   InstancedMesh,
   LinearFilter,
   Matrix4,
-  BackSide,
-  MeshBasicMaterial,
   MeshLambertMaterial,
   Object3D,
   SphereGeometry,
@@ -332,6 +330,10 @@ if (vObjNormal.z > 0.6) {
     cone: () => new ConeGeometry(0.5, 1, 14),
   };
   const shapesUsed = new Set(accessories.accessories.flatMap((a) => a.parts.map((p) => p.shape)));
+  // G-08: the outline of the hero rides on the box mesh — no draw call of its own (all characters ≤ 8, docs/02 9.2).
+  const OUTLINE_SLOTS = 6;
+  const lineOn = !!heroLook && heroLook.outlineWidth > 0;
+  if (lineOn) shapesUsed.add('box');
   // Slots per character: the hat's parts first, the wings' parts after them (M3-04b).
   const partsOf = (back: boolean): number => Math.max(0, ...accessories.accessories.filter((a) => (a.attach === 'back') === back).map((a) => a.parts.length));
   const wingBase = Math.max(1, partsOf(false));
@@ -339,7 +341,7 @@ if (vObjNormal.z > 0.6) {
   for (const shape of shapesUsed) {
     const make = shapeGeo[shape];
     if (!make) continue;
-    const mesh = new InstancedMesh(make(), new MeshLambertMaterial({ color: 0xffffff }), maxCharacters * maxPartsPerShape);
+    const mesh = new InstancedMesh(make(), new MeshLambertMaterial({ color: 0xffffff }), maxCharacters * maxPartsPerShape + (lineOn && shape === 'box' ? OUTLINE_SLOTS : 0));
     mesh.instanceMatrix.setUsage(DynamicDrawUsage);
     mesh.frustumCulled = false;
     mesh.name = `acc-${shape}`;
@@ -351,18 +353,17 @@ if (vObjNormal.z > 0.6) {
   const skinById = new Map(skins.skins.map((s) => [s.id, s]));
 
   const instances: CharacterInstance[] = [];
-  // G-08 (producer 26.10: «the hero and his actions brighter and more colourful»): one more draw call — the six body parts
-  // of the hero as boxes a little bigger, their back faces in the outline colour.
+  // G-08 (producer 26.10: «the hero and his actions brighter and more colourful»): the six body parts of the hero as
+  // boxes a little bigger and turned inside out (a mirrored scale shows their back faces) in the outline colour, on the
+  // box mesh of the accessories after its pool.
   let hero: CharacterInstance | null = null;
-  const OUTLINE_SLOTS = 6;
-  const outline = heroLook && heroLook.outlineWidth > 0 ? new InstancedMesh(new BoxGeometry(1, 1, 1), new MeshBasicMaterial({ color: heroLook.outline, side: BackSide }), OUTLINE_SLOTS) : null;
-  if (outline) {
-    outline.name = 'char-outline';
-    outline.instanceMatrix.setUsage(DynamicDrawUsage);
-    outline.frustumCulled = false;
-    for (let i = 0; i < OUTLINE_SLOTS; i++) outline.setMatrixAt(i, HIDDEN);
-    group.add(outline);
+  const outline = lineOn ? (shapeMeshes.get('box') ?? null) : null;
+  const LINE0 = maxCharacters * maxPartsPerShape;
+  if (outline && heroLook) for (let i = 0; i < OUTLINE_SLOTS; i++) {
+    outline.setMatrixAt(LINE0 + i, HIDDEN);
+    outline.setColorAt(LINE0 + i, _color.set(heroLook.outline));
   }
+  if (outline?.instanceColor) outline.instanceColor.needsUpdate = true;
   const _hsl = { h: 0, s: 0, l: 0 };
   /** The colour of a part: the hero's more saturated. */
   const tone = (ch: CharacterInstance, hex: string): Color => {
@@ -375,8 +376,8 @@ if (vObjNormal.z > 0.6) {
   const writeOutline = (slot: number, local: Matrix4, world: Matrix4, w: number, h: number, d: number): void => {
     if (!outline || !heroLook) return;
     const t = heroLook.outlineWidth * 2;
-    _mat.multiplyMatrices(world, local).multiply(_outline.makeScale(w + t, h + t, d + t));
-    outline.setMatrixAt(slot, _mat);
+    _mat.multiplyMatrices(world, local).multiply(_outline.makeScale(-(w + t), h + t, d + t));
+    outline.setMatrixAt(LINE0 + slot, _mat);
   };
 
   const applySkin = (ch: CharacterInstance): void => {
@@ -427,7 +428,7 @@ if (vObjNormal.z > 0.6) {
   const characters: Characters = {
     group,
     get drawCalls() {
-      return meshes.size + shapeMeshes.size + (outline ? 1 : 0);
+      return meshes.size + shapeMeshes.size;
     },
     outlined: true,
     setHero(ch) {
@@ -519,7 +520,7 @@ if (vObjNormal.z > 0.6) {
           }
         }
         const lined = ch === hero && outline !== null && characters.outlined && ch.visible && ch.fade >= 0.999;
-        if (ch === hero && outline && !lined) for (let i = 0; i < OUTLINE_SLOTS; i++) outline.setMatrixAt(i, HIDDEN);
+        if (ch === hero && outline && !lined) for (let i = 0; i < OUTLINE_SLOTS; i++) outline.setMatrixAt(LINE0 + i, HIDDEN);
         if (!ch.visible) {
           for (const spec of PARTS) {
             const mesh = meshes.get(spec.name);
@@ -677,10 +678,7 @@ if (vObjNormal.z > 0.6) {
       for (const mesh of shapeMeshes.values()) mesh.count = Math.max(1, instances.length * maxPartsPerShape);
       for (const mesh of meshes.values()) mesh.instanceMatrix.needsUpdate = true;
       for (const mesh of shapeMeshes.values()) mesh.instanceMatrix.needsUpdate = true;
-      if (outline) {
-        outline.instanceMatrix.needsUpdate = true;
-        outline.visible = characters.outlined;
-      }
+      if (outline && hero && characters.outlined) outline.count = LINE0 + OUTLINE_SLOTS;
     },
     dispose() {
       for (const mesh of meshes.values()) {
@@ -690,10 +688,6 @@ if (vObjNormal.z > 0.6) {
       for (const mesh of shapeMeshes.values()) {
         mesh.geometry.dispose();
         (mesh.material as MeshLambertMaterial).dispose();
-      }
-      if (outline) {
-        outline.geometry.dispose();
-        (outline.material as MeshBasicMaterial).dispose();
       }
       faceAtlas.dispose();
     },

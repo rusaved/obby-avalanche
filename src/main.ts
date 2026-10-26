@@ -1038,7 +1038,7 @@ async function boot(): Promise<void> {
     gr.camera.updateProjectionMatrix();
     gr.resize(field.width, field.height, quality.dpr);
     // Bodies cast the shadow, accessories do not: 4 draw calls fewer in the shadow pass (docs/02-tech.md 9.5; PS-09).
-    if (characters) characters.group.traverse((o) => void (o.castShadow = quality.params.shadowMap > 0 && o.name.startsWith('char-') && o.name !== 'char-outline'));
+    if (characters) characters.group.traverse((o) => void (o.castShadow = quality.params.shadowMap > 0 && o.name.startsWith('char-')));
     levelMeshes?.chunks.forEach((c) => void (c.receiveShadow = quality.params.shadowMap > 0));
     avalanche?.setParticles(quality.params.particles);
     fx?.setShare(quality.params.particles);

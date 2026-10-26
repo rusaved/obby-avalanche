@@ -12,8 +12,8 @@ test('G-08: the hero outlined, a jump bursts; frames', async ({ page, openGame }
     window.__TEST__!.holdWave(9000);
   });
   await waitTicks(page, 10);
-  const draws = await page.evaluate(() => window.__TEST__!.drawList());
-  expect(draws.some(([n]) => n === 'char-outline'), 'the outline is drawn').toBe(true);
+  // The outline rides on the box mesh of the accessories: the characters stay within their 8 draw calls.
+  expect(await page.evaluate(() => window.__TEST__!.charactersDrawCalls())).toBeLessThanOrEqual(8);
   await page.evaluate(() => window.__TEST__!.stick(0, 1));
   await page.evaluate(() => window.__TEST__!.runSim(1.5));
   await page.screenshot({ path: 'docs/evidence/G/880x405/hero-run.png' });
