@@ -1,6 +1,6 @@
 // What: Decor of the open slope: pets of pets.json walking a patch at the slope edge (penguins) and birds sitting on cliffs, on the borders under a ridge and on the giant's sign; the birds turn to the hero and hop when he comes near.
 // Called by: main.ts (createDecor, wire on each new mountain, update every frame); test-api (state, enabled); tests/render/decor.test.ts (decorPlan).
-// Keep: Render only — nothing in the sim, no colliders; one InstancedMesh per kind (2 draw calls), colours baked from pets.json and theme petEye; deterministic by the seed; none below theme decor.minQuality.
+// Keep: Render only — nothing in the sim, no colliders; one InstancedMesh for both kinds (1 draw call, Z-07), colours baked from pets.json and theme petEye; deterministic by the seed; none below theme decor.minQuality.
 
 /**
  * Decor (docs/01-gdd.md 18.7; docs/01a-content.md 17.5). On the mountains whose look is in `walkers.on` a patch
@@ -9,7 +9,7 @@
  * (one look of `looks` a mountain) sit on the fork cliffs, on the borders right under a ridge and on the giant's sign,
  * facing down the slope; the hero nearer than lookAtDist — the bird turns to him, nearer than hopDist — it hops.
  */
-import { BoxGeometry, BufferGeometry, Color, Float32BufferAttribute, InstancedMesh, Matrix4, MeshLambertMaterial, Quaternion, Vector3, type Scene } from 'three';
+import { BoxGeometry, BufferGeometry, Color, Float32BufferAttribute, InstancedBufferAttribute, InstancedMesh, Matrix4, MeshLambertMaterial, Quaternion, Vector3, type Scene } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { PetsJson, ThemeJson } from '../content/types.ts';
 import type { LevelData } from '../level/types.ts';
@@ -35,6 +35,8 @@ const TURN = 6;
 const HOP_SEC = 0.5;
 const HOP_UP = 0.6;
 const HOP_REST = 1;
+/** Z-07: animals farther than this along the slope from the hero are not drawn (the fog hides them anyway). */
+const NEAR = 150;
 
 export interface DecorPlan {
   walkers: Array<{ x: number; z: number; patch: [number, number, number, number] }>;
@@ -153,18 +155,31 @@ export function createDecor(scene: Scene, theme: ThemeJson, pets: PetsJson['pets
     const p = pets.find((x) => x.id === id);
     return { color: new Color(p?.color ?? '#ffffff'), accent: new Color(p?.accent ?? '#ffffff') };
   };
+  // Z-07: penguins and birds in one InstancedMesh — both creatures in its geometry (vertex `kind` 0 / 1), an instance
+  // draws its own (instance `kindOf`), the other folds into a point: one draw call for every animal of the mountain.
   const mat = new MeshLambertMaterial({ vertexColors: true });
+  mat.onBeforeCompile = (shader) => {
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nattribute float kind;\nattribute float kindOf;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nif (abs(kind - kindOf) > 0.5) transformed = vec3(0.0);');
+  };
+  mat.customProgramCacheKey = () => 'decor-animals';
   const w = cfg ? lookOf(cfg.walkers.look) : null;
-  const walkMesh = new InstancedMesh(creature(WALKER_SIZE, w?.color ?? eye, w?.accent ?? eye, eye), mat, MAX_WALKERS);
-  const sitMesh = new InstancedMesh(new BufferGeometry(), mat, MAX_SITTERS);
-  walkMesh.name = 'decor-walkers';
-  sitMesh.name = 'decor-sitters';
-  for (const m of [walkMesh, sitMesh]) {
-    m.frustumCulled = false;
-    m.count = 0;
-    m.visible = false;
-    scene.add(m);
-  }
+  const kindOf = new InstancedBufferAttribute(new Float32Array(MAX_WALKERS + MAX_SITTERS), 1);
+  const both = (bird: BufferGeometry | null): BufferGeometry => {
+    const parts = [creature(WALKER_SIZE, w?.color ?? eye, w?.accent ?? eye, eye), bird ?? creature(SITTER_SIZE, eye, eye, eye)];
+    parts.forEach((g, k) => g.setAttribute('kind', new Float32BufferAttribute(new Float32Array(g.getAttribute('position').count).fill(k), 1)));
+    const g = mergeGeometries(parts, false)!;
+    for (const q of parts) q.dispose();
+    g.setAttribute('kindOf', kindOf);
+    return g;
+  };
+  const mesh = new InstancedMesh(both(null), mat, MAX_WALKERS + MAX_SITTERS);
+  mesh.name = 'decor-animals';
+  mesh.frustumCulled = false;
+  mesh.count = 0;
+  mesh.visible = false;
+  scene.add(mesh);
   let level: LevelData | null = null;
   let walkers: Array<{ x: number; z: number; patch: [number, number, number, number]; tx: number; tz: number; yaw: number; pause: number; rng: Rng }> = [];
   /** `hop` — seconds of the hop left, `rest` — of the rest after it, `home` — the yaw down the slope. */
@@ -183,7 +198,7 @@ export function createDecor(scene: Scene, theme: ThemeJson, pets: PetsJson['pets
   };
 
   const decor: Decor = {
-    meshes: [walkMesh, sitMesh],
+    meshes: [mesh],
     enabled: true,
     state,
     wire(next, look, seed) {
@@ -193,18 +208,26 @@ export function createDecor(scene: Scene, theme: ThemeJson, pets: PetsJson['pets
       sitters = plan.sitters.map((p) => ({ ...p, yaw: Math.PI, hop: 0, rest: 0, home: Math.PI }));
       if (plan.bird) {
         const b = lookOf(plan.bird);
-        sitMesh.geometry.dispose();
-        sitMesh.geometry = creature(SITTER_SIZE, b.color, b.accent, eye);
+        mesh.geometry.dispose();
+        mesh.geometry = both(creature(SITTER_SIZE, b.color, b.accent, eye));
       }
+
     },
     update(hero, dt, timeSec, allowed) {
       const on = allowed && decor.enabled && level !== null;
-      walkMesh.count = on ? walkers.length : 0;
-      sitMesh.count = on ? sitters.length : 0;
-      walkMesh.visible = walkMesh.count > 0;
-      sitMesh.visible = sitMesh.count > 0;
-      state.shown = walkMesh.visible || sitMesh.visible;
-      if (!on || !level || !cfg) return;
+      mesh.visible = on && walkers.length + sitters.length > 0;
+      state.shown = mesh.visible;
+      if (!on || !level || !cfg) {
+        mesh.count = 0;
+        return;
+      }
+      // Z-07: only the animals within NEAR of the hero take a slot (every stage has them now: the far ones cost
+      // triangles for nothing), each slot told its kind.
+      let n = 0;
+      const slot = (kind: number): number => {
+        kindOf.setX(n, kind);
+        return n++;
+      };
       walkers.forEach((p, i) => {
         let moving = false;
         if (p.pause > 0) p.pause -= dt;
@@ -225,12 +248,12 @@ export function createDecor(scene: Scene, theme: ThemeJson, pets: PetsJson['pets
             moving = true;
           }
         }
+        if (Math.abs(p.z - hero.z) > NEAR) return;
         q.setFromAxisAngle(up, p.yaw);
         if (moving) q.multiply(roll.setFromAxisAngle(fwd, WADDLE * Math.sin(timeSec * 9 + i)));
-        walkMesh.setMatrixAt(i, m4.compose(pos.set(p.x, level!.floorAt(p.x, p.z), p.z), q, one));
+        mesh.setMatrixAt(slot(0), m4.compose(pos.set(p.x, level!.floorAt(p.x, p.z), p.z), q, one));
       });
-      walkMesh.instanceMatrix.needsUpdate = true;
-      sitters.forEach((b, i) => {
+      sitters.forEach((b) => {
         const d = Math.hypot(hero.x - b.x, hero.z - b.z);
         b.yaw = turn(b.yaw, d < cfg.sitters.lookAtDist ? Math.atan2(hero.x - b.x, hero.z - b.z) : b.home, TURN * dt);
         // A hop on the spot, then a rest before the next one while he stays near.
@@ -240,9 +263,12 @@ export function createDecor(scene: Scene, theme: ThemeJson, pets: PetsJson['pets
         } else if (b.rest > 0) b.rest -= dt;
         else if (d < cfg.sitters.hopDist) b.hop = HOP_SEC;
         const lift = b.hop > 0 ? HOP_UP * Math.sin((Math.PI * (HOP_SEC - b.hop)) / HOP_SEC) : 0;
-        sitMesh.setMatrixAt(i, m4.compose(pos.set(b.x, b.y + lift, b.z), q.setFromAxisAngle(up, b.yaw), one));
+        if (Math.abs(b.z - hero.z) > NEAR) return;
+        mesh.setMatrixAt(slot(1), m4.compose(pos.set(b.x, b.y + lift, b.z), q.setFromAxisAngle(up, b.yaw), one));
       });
-      sitMesh.instanceMatrix.needsUpdate = true;
+      mesh.count = n;
+      mesh.instanceMatrix.needsUpdate = true;
+      kindOf.needsUpdate = true;
       state.walkers = walkers.map((p) => ({ x: p.x, z: p.z, patch: p.patch }));
       state.sitters = sitters.map((b) => ({ x: b.x, y: b.y, z: b.z, yaw: b.yaw, hop: b.hop }));
     },

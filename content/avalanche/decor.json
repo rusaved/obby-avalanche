@@ -196,10 +196,9 @@
       "rocksM",
       "pile",
       "pile",
-      "rocksL",
       "log"
     ],
-    "perStage": 22
+    "perStage": 8
   },
   "finish": {
     "inset": 1.6,

@@ -9,7 +9,7 @@
  * triangles and the colormap baked into a palette), so they merge into the chunks like boxes — +0 draw calls, +0
  * programs, +0 textures. No New Year: no decorated trees, presents or greetings (a December update may add them).
  */
-import { BufferGeometry, Color, Float32BufferAttribute, Matrix4 } from 'three';
+import { BufferGeometry, Color, Float32BufferAttribute, Matrix3, Matrix4, Vector3 } from 'three';
 import type { DecorJson, DecorModelsJson } from '../content/types.ts';
 import type { LevelData } from '../level/types.ts';
 import { createRng } from '../core/rng.ts';
@@ -43,13 +43,15 @@ export function winterDecorPlan(level: LevelData, spec: DecorJson, models: Decor
   };
   const solidKinds = new Set(spec.clear.boxKinds);
   const pads = new Set(spec.clear.points);
+  const solids = level.boxes.filter((b) => solidKinds.has(b.kind));
+  const padPoints = level.points.filter((p) => pads.has(p.type));
   /** Nothing of the game within `r` + clear of (x, z): grottos, gates, pads, walls; the ground under it whole. */
   const free = (x: number, z: number, r: number, clear: number, near: number): number | null => {
     const c = r + clear;
     if (level.niches.some((n) => x + c > n.box.min[0] && x - c < n.box.max[0] && z + c > n.box.min[2] && z - c < n.box.max[2])) return null;
     if (level.gates.some((g) => Math.abs(g.z - z) < c)) return null;
-    if (level.points.some((p) => pads.has(p.type) && Math.hypot(p.x - x, p.z - z) < c + near)) return null;
-    if (level.boxes.some((b) => solidKinds.has(b.kind) && x + r > b.min[0] && x - r < b.max[0] && z + r > b.min[2] && z - r < b.max[2])) return null;
+    if (padPoints.some((p) => Math.hypot(p.x - x, p.z - z) < c + near)) return null;
+    if (solids.some((b) => x + r > b.min[0] && x - r < b.max[0] && z + r > b.min[2] && z - r < b.max[2])) return null;
     if ((level.shapes ?? []).some((s) => s.z1 > z - c && s.z0 < z + c)) return null;
     // On ground under its whole foot: set at the lowest corner (sunk into a rise, never over a pit or off a step).
     let y = level.floorAt(x, z);
@@ -116,34 +118,67 @@ export function winterDecorPlan(level: LevelData, spec: DecorJson, models: Decor
 const _m = new Matrix4();
 const _r = new Matrix4();
 const _c = new Color();
-
-/** The geometry of a piece in world space: non-indexed, flat normals, palette colours with AO at its foot, an empty UV
- * and texture layer 0 (the attributes of the chunks). */
-export function pieceGeometry(piece: DecorPiece, models: DecorModelsJson, ao: number, foot: number): BufferGeometry | null {
-  const m = models.models[piece.id];
+const _v = new Vector3();
+const _n = new Vector3();
+const _nm = new Matrix3();
+const WHITE = new Color(1, 1, 1);
+const paletteCache = new WeakMap<DecorModelsJson, Color[]>();
+/** A model at its scale, once a load: positions, flat normals, palette colours with AO at its foot. */
+const baseCache = new WeakMap<DecorModelsJson, Map<string, { pos: Float32Array; nor: Float32Array; col: Float32Array }>>();
+function baseOf(id: string, scale: number, models: DecorModelsJson, ao: number, foot: number): { pos: Float32Array; nor: Float32Array; col: Float32Array } | null {
+  let cache = baseCache.get(models);
+  if (!cache) baseCache.set(models, (cache = new Map()));
+  const key = `${id}|${scale}|${ao}|${foot}`;
+  const hit = cache.get(key);
+  if (hit) return hit;
+  const m = models.models[id];
   if (!m) return null;
+  let pal = paletteCache.get(models);
+  if (!pal) paletteCache.set(models, (pal = models.palette.map((h) => new Color(h))));
   const n = m.idx.length;
   const pos = new Float32Array(n * 3);
   const col = new Float32Array(n * 3);
   for (let k = 0; k < n; k++) {
     const i = m.idx[k]!;
-    const y = m.pos[i * 3 + 1]! / 100;
-    pos[k * 3] = m.pos[i * 3]! / 100;
+    const y = (m.pos[i * 3 + 1]! / 100) * scale;
+    pos[k * 3] = (m.pos[i * 3]! / 100) * scale;
     pos[k * 3 + 1] = y;
-    pos[k * 3 + 2] = m.pos[i * 3 + 2]! / 100;
-    _c.set(models.palette[m.col[i]!] ?? '#ffffff');
-    const f = ao + (1 - ao) * Math.min(1, Math.max(0, (y * piece.scale) / foot));
+    pos[k * 3 + 2] = (m.pos[i * 3 + 2]! / 100) * scale;
+    _c.copy(pal[m.col[i]!] ?? WHITE);
+    const f = ao + (1 - ao) * Math.min(1, Math.max(0, y / foot));
     col[k * 3] = _c.r * f;
     col[k * 3 + 1] = _c.g * f;
     col[k * 3 + 2] = _c.b * f;
   }
   const g = new BufferGeometry();
   g.setAttribute('position', new Float32BufferAttribute(pos, 3));
-  g.setAttribute('color', new Float32BufferAttribute(col, 3));
+  g.computeVertexNormals();
+  const nor = (g.getAttribute('normal').array as Float32Array).slice();
+  g.dispose();
+  const base = { pos, nor, col };
+  cache.set(key, base);
+  return base;
+}
+
+/** The geometry of a piece in world space: non-indexed, flat normals, palette colours with AO at its foot, an empty UV
+ * and texture layer 0 (the attributes of the chunks). */
+export function pieceGeometry(piece: DecorPiece, models: DecorModelsJson, ao: number, foot: number): BufferGeometry | null {
+  const base = baseOf(piece.id, piece.scale, models, ao, foot);
+  if (!base) return null;
+  const n = base.pos.length / 3;
+  _m.makeTranslation(piece.x, piece.y, piece.z).multiply(_r.makeRotationY(piece.yaw));
+  _nm.getNormalMatrix(_m);
+  const pos = new Float32Array(n * 3);
+  const nor = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    _v.fromArray(base.pos, i * 3).applyMatrix4(_m).toArray(pos, i * 3);
+    _n.fromArray(base.nor, i * 3).applyMatrix3(_nm).toArray(nor, i * 3);
+  }
+  const g = new BufferGeometry();
+  g.setAttribute('position', new Float32BufferAttribute(pos, 3));
+  g.setAttribute('normal', new Float32BufferAttribute(nor, 3));
+  g.setAttribute('color', new Float32BufferAttribute(base.col.slice(), 3));
   g.setAttribute('uv', new Float32BufferAttribute(new Float32Array(n * 2), 2));
   g.setAttribute('layer', new Float32BufferAttribute(new Float32Array(n), 1));
-  _m.makeTranslation(piece.x, piece.y, piece.z).multiply(_r.makeRotationY(piece.yaw)).multiply(new Matrix4().makeScale(piece.scale, piece.scale, piece.scale));
-  g.applyMatrix4(_m);
-  g.computeVertexNormals();
   return g;
 }

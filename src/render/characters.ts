@@ -56,7 +56,7 @@ const FACE_CELL = 128;
 const CLOTH_CELL = 128;
 const CLOTH_COLS = 4;
 /** Lathe segments round the head (16–24, Z-03) and the rounding of its rims. */
-const HEAD_SEGMENTS = 20;
+const HEAD_SEGMENTS = 16;
 const HEAD_RIM = 0.2;
 /** Head shapes of a skin: 0 — the rounded cylinder, 1 — the cube (other platforms' canon). */
 const HEAD_SHAPES = ['cylinder', 'cube'] as const;
@@ -268,8 +268,8 @@ function headGeometry(): BufferGeometry {
   const rim = HEAD_RIM * K;
   const pts: Vector2[] = [new Vector2(0, -h)];
   const arc = (cy: number, from: number, to: number): void => {
-    for (let i = 0; i <= 4; i++) {
-      const a = from + ((to - from) * i) / 4;
+    for (let i = 0; i <= 3; i++) {
+      const a = from + ((to - from) * i) / 3;
       pts.push(new Vector2(r - rim + Math.cos(a) * rim, cy + Math.sin(a) * rim));
     }
   };
@@ -278,7 +278,7 @@ function headGeometry(): BufferGeometry {
   pts.push(new Vector2(0, h));
   // The seam of the lathe at the back of the head (its start is +z — the face side; π puts it behind).
   const lathe = new LatheGeometry(pts, HEAD_SEGMENTS, Math.PI);
-  const cube = new RoundedBoxGeometry(PART.head, PART.headH, PART.head, 2, 0.16);
+  const cube = new RoundedBoxGeometry(PART.head, PART.headH, PART.head, 1, 0.16);
   const parts = [lathe.toNonIndexed(), cube.toNonIndexed()];
   parts.forEach((g, i) => {
     g.deleteAttribute('uv');

@@ -355,7 +355,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       const g = pieceGeometry(piece, decor.models, decor.spec.ao, decor.spec.foot);
       if (g) bucketOf(piece.z).push(g);
     }
-  const glowGeo = new IcosahedronGeometry(1, 1);
+  const glowGeo = new IcosahedronGeometry(1, 0);
   const glowMat = new MeshBasicMaterial({ color: decor?.spec.glowColor ?? '#ffffff', transparent: true, opacity: decor?.spec.glowOpacity ?? 0, blending: AdditiveBlending, depthWrite: false });
   const glowList = plan?.glows ?? [];
   const glows = new InstancedMesh(glowGeo, glowMat, Math.max(1, glowList.length));

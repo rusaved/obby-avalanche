@@ -17,7 +17,7 @@
       { "dist": 0.92, "height": [48, 80], "count": 26, "haze": 0.62 },
       { "dist": 0.86, "height": [26, 50], "count": 22, "haze": 0.42 }
     ],
-    "clouds": { "count": 12, "elev": [0.12, 0.34], "size": 16 }
+    "clouds": { "count": 9, "elev": [0.12, 0.34], "size": 16 }
   },
   "sky": { "top": "#7EA6C8", "bottom": "#E2ECF4" },
   "hero": { "saturation": 1.35, "outline": "#14202c", "outlineWidth": 0.07, "stepSparks": 4, "jumpSparks": 14, "levelConfetti": 80 },
