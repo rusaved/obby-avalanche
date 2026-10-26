@@ -8,7 +8,9 @@ type Seg = { type: string; z: number; kind?: string; section?: number; length?: 
 type OpenWorld = { id: string; segments: Seg[]; bosses: Array<{ zone: [number, number] }> };
 const worlds = (openWorlds as unknown as { worlds: OpenWorld[] }).worlds;
 const EVIDENCE = 'docs/evidence/open';
-const CALLS = 40;
+// Z-04, Z-08: the open pace (a comparison flag, not the release) carries the sky dome and the light snow too: +2 over
+// its old target of 40; the release pace keeps ≤ 40 on mountains 1–8 (m5-perf).
+const CALLS = 42;
 const CALLS_LIMIT = 60;
 const TRIANGLES = 100_000;
 const TEXTURES = 12;

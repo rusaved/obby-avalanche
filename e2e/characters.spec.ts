@@ -7,7 +7,7 @@ test('faces.png: eight emotions in a row; nine characters still fit in 8 draw ca
   await page.evaluate(() => window.__TEST__!.showFaces());
   await waitTicks(page, 20);
   const calls = await page.evaluate(() => window.__TEST__!.charactersDrawCalls());
-  expect(calls).toBeLessThanOrEqual(8);
+  expect(calls).toBeLessThanOrEqual(9); // Z-03: +1 for the hair (the brief allows +2–4)
   const info = await page.evaluate(() => window.__TEST__!.renderInfo()!);
   expect(info.calls).toBeLessThanOrEqual(60);
   await page.screenshot({ path: 'docs/evidence/M1/faces.png' });

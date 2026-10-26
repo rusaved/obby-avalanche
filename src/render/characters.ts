@@ -663,7 +663,7 @@ if (vObjNormal.z > 0.3 && vObjPos.z > 0.0) {
   const characters: Characters = {
     group,
     get drawCalls() {
-      return meshes.size + shapeMeshes.size + (hairMesh ? 1 : 0);
+      return meshes.size + [...shapeMeshes.values()].filter((m) => m.visible).length + (hairMesh ? 1 : 0);
     },
     outlined: true,
     setHero(ch) {
@@ -947,6 +947,14 @@ if (vObjNormal.z > 0.3 && vObjPos.z > 0.0) {
         hairMesh.instanceMatrix.needsUpdate = true;
       }
       for (const mesh of shapeMeshes.values()) mesh.count = Math.max(1, instances.length * maxPartsPerShape);
+      // Z-03: a shape no visible character wears is not drawn (the hair took a draw call; the base keeps its 30).
+      const worn = new Set<string>();
+      for (const ch of instances) {
+        if (!ch.visible) continue;
+        for (const id of [ch.hatId, ch.wingsId]) for (const p of (id ? accessoryById.get(id)?.parts : undefined) ?? []) worn.add(p.shape);
+      }
+      if (headOutlined || (outline && hero && characters.outlined && hero.visible)) worn.add('box');
+      for (const [shape, mesh] of shapeMeshes) mesh.visible = worn.has(shape);
       for (const mesh of meshes.values()) mesh.instanceMatrix.needsUpdate = true;
       for (const mesh of shapeMeshes.values()) mesh.instanceMatrix.needsUpdate = true;
       if (outline && hero && characters.outlined) outline.count = LINE0 + OUTLINE_SLOTS;

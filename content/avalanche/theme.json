@@ -40,10 +40,10 @@
     "ambientIntensity": 1.1,
     "sunDir": [0.4, 1, 0.35]
   },
-  "blockTex": { "scale": 4, "ao": 0.62 },
+  "blockTex": { "scale": 4, "ao": 0.5 },
   "materials": {
     "track": { "color": "#F4F8FC", "roughness": 0.95, "tex": "snow" },
-    "border": { "color": "#DDE9F5", "roughness": 0.95, "tex": "crust" },
+    "border": { "color": "#C9D8E8", "roughness": 0.95, "tex": "rock" },
     "rock": { "color": "#6E7F94", "roughness": 0.9, "tex": "rock" },
     "throatWall": { "color": "#A9BCD2", "roughness": 0.9, "tex": "bricks" },
     "ice": { "color": "#9ED8FF", "roughness": 0.35, "tex": "ice" },

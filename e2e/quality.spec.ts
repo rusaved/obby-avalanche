@@ -15,7 +15,7 @@ test.describe('quality and budgets', () => {
       expect(info.calls, `draw calls at z=${z}`).toBeLessThanOrEqual(60);
       expect(info.triangles, `triangles at z=${z}`).toBeLessThanOrEqual(150_000);
       expect(info.textures, `textures at z=${z}`).toBeLessThanOrEqual(16);
-      expect(chars).toBeLessThanOrEqual(8);
+      expect(chars).toBeLessThanOrEqual(9); // Z-03: +1 for the hair
     }
     mkdirSync('docs/evidence/M1', { recursive: true });
     writeFileSync('docs/evidence/M1/budgets.txt', [`budgets (docs/02-tech.md 9.5), mountain 1, quality high, ${new Date().toISOString()}`, ...rows, ''].join('\n'));

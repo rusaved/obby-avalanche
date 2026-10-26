@@ -68,7 +68,8 @@ test('the first base ×2: portal 2 within 8 s; every arch and sign seen from the
     await waitTicks(page, 20);
     const info = (await page.evaluate(() => window.__TEST__!.renderInfo()))!;
     calls.push(`${name}: ${info.calls}`);
-    expect(info.calls, calls.join(', ')).toBeLessThanOrEqual(CALLS);
+    const list = info.calls > CALLS ? JSON.stringify(await page.evaluate(() => window.__TEST__!.drawList())) : '';
+    expect(info.calls, `${calls.join(', ')} ${list}`).toBeLessThanOrEqual(CALLS);
   }
   console.log(`base draw calls — ${calls.join(', ')}`);
   // From the spawn to the portal of mountain 2 (the bot runs at the hero's speed of mountain 1).
