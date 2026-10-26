@@ -214,7 +214,7 @@ canvas.fallback {
 .hud-wave { position: absolute; left: 50%; top: 25%; z-index: 5; transform: translateX(-50%); padding: 0.18em 0.7em; border-radius: 0.5em; background: var(--plaque); color: var(--plaque-text); border: 2px solid var(--threat); font-size: clamp(22px, 4.2vmin, 44px); font-weight: 800; white-space: nowrap; pointer-events: none; opacity: 0; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35); transition: opacity 0.2s; }
 .hud-wave.shown { opacity: 1; }
 /* Z-01: the one command under «Avalanche in N» («Duck behind a rock!»). */
-.hud-wave-sub { display: none; text-align: center; font-size: 0.55em; line-height: 1.2; }
+.hud-wave-sub { display: none; text-align: center; font-size: 0.8em; font-weight: 800; line-height: 1.2; }
 .hud-wave.sub .hud-wave-sub { display: block; }
 .hud-cave-arrow { position: absolute; left: 0; top: 0; font-size: calc(40px * var(--arrow-scale, 1)); line-height: 1; color: #ffffff; pointer-events: none; opacity: 0; text-shadow: 0 0 6px var(--threat), 0 0 2px var(--threat); }
 .hud-cave-arrow.shown { opacity: 1; }
@@ -503,7 +503,7 @@ canvas.fallback {
 .hud.mu[data-slot='hint'] .hud-hint.shown, .hud.mu[data-slot='need'] .hud-need.shown, .hud.mu[data-slot='tutor'] .hud-tutor.shown, .hud.mu[data-slot='wave'] .hud-wave.shown { display: flex; visibility: visible; }
 .hud.mu .hud-wave { border: 2px solid var(--threat); }
 .hud.mu .hud-wave.sub { flex-direction: column; gap: 0; }
-.hud.mu .hud-wave-sub { font-size: 12px; line-height: 16px; }
+.hud.mu .hud-wave-sub { font-size: 17px; line-height: 21px; }
 .hud.mu .hud-hint .hud-pict, .hud.mu .hud-hint-arrow { display: none !important; }
 .hud.mu .hud-need.ok { background: var(--mu-plaque-strong); }
 .hud.mu .hud-tutor { background: var(--mu-plaque-strong); color: #fff; }

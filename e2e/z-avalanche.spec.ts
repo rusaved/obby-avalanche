@@ -235,6 +235,28 @@ test.describe('Z-01 · avalanche of mountain 1 (stages)', () => {
     expect(levelOn.t).toBeGreaterThanOrEqual(bossOff.t);
   });
 
+  test('Z-11: into the giant\'s zone while «Avalanche in N» counts — the banner and its command stay, no giant toast over them', async ({ page, openGame }) => {
+    await openGame('pace=stages');
+    await page.evaluate((s) => {
+      window.__TEST__!.setFlag('firstWaveDone', true);
+      window.__TEST__!.setFlag('giantFree', true);
+      window.__TEST__!.setTutor(9);
+      window.__TEST__!.setStat(s);
+    }, threshold(4));
+    await waitTicks(page, 10);
+    const zone = await page.evaluate(() => window.__TEST__!.state().boss!.zones[0]!.zone);
+    await page.evaluate((z) => window.__TEST__!.teleport(z, 0), zone[0] - 30);
+    await waitTicks(page, 5);
+    await page.evaluate(() => window.__TEST__!.triggerWave());
+    await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'warn', undefined, { timeout: 10_000 });
+    await page.evaluate((z) => window.__TEST__!.teleport(z, 0), zone[0] + 2);
+    await waitTicks(page, 30);
+    const s = await page.evaluate(() => window.__TEST__!.state());
+    expect(s.wave!.phase).toBe('warn');
+    expect(s.waveHud.banner).not.toBeNull();
+    expect(s.waveHud.toast).not.toMatch(/великана/);
+  });
+
   test('Z-01: the camera turned round in a grotto of a stage never stands in its walls', async ({ page, openGame }) => {
     await openGame('pace=stages');
     await page.evaluate((s) => {

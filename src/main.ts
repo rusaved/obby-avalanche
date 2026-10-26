@@ -561,7 +561,10 @@ async function boot(): Promise<void> {
     const firstGiant = (): boolean => s.level.worldIndex === 1 && s.tier === 0;
     s.events.on('bossEnter', () => {
       // Z-01 (playtest G: 0,7 s on screen, cut by «LEVEL UP!»): its whole 3 s, the toasts that come meanwhile wait after it.
-      hud?.toast(t('boss.start'), 3, false, undefined, undefined, true);
+      // Z-11 (usability review): an avalanche warning or run keeps its banner — no giant toast over it then.
+      const ws = s.threat?.state;
+      const waveOn = !!ws && (ws.phase === 'warn' || (ws.phase === 'run' && ws.outcome === 'none'));
+      if (!waveOn) hud?.toast(t('boss.start'), 3, false, undefined, undefined, true);
       hud?.peekStrip();
       if (firstGiant()) trackOnce('boss_enter');
       // Into the giant's zone (docs/01-gdd.md 17.9): a second from the side, the hero and the giant, then back behind.

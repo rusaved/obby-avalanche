@@ -24,6 +24,8 @@ import { distToEntrance, entranceX } from '../sim/shelter.ts';
 
 /** Shake amplitude share while the front is far (0.05 of 0.3 units, docs/01-gdd.md 4.8) and the longest strong burst. */
 const FAR_SHAKE_SHARE = 0.17;
+/** Z-11: the command under the count holds at least this long before another replaces it. */
+const SUB_HOLD_SEC = 1.5;
 const STRONG_SHAKE_MAX_SEC = 0.3;
 /** Frost frame: on warn and while the front is far, and at full when it is near (10% → 25% of the edges). */
 const FROST_WARN = 0.4;
@@ -87,6 +89,8 @@ export function createWaveView(d: WaveViewDeps): WaveView {
   const cutOf = (shot: TuningJson['avalanche']['caveShot']): CavePart[] => [...(shot.pos[0] > 1 ? (['back'] as const) : []), ...(shot.pos[1] > 1 ? (['roof'] as const) : [])];
   let cutParts: CavePart[] = cutOf(av.caveShot);
   let strongSec = 0;
+  let shownSub: string | null = null;
+  let subAge = 0;
   /** The player turned the camera by hand on this stay on the belt: his camera until the hero leaves the belt (PR-11). */
   let beltManual = false;
   const keepAt = new Vector3();
@@ -150,6 +154,12 @@ export function createWaveView(d: WaveViewDeps): WaveView {
         const c = sim.level.niches[ts.shelter];
         sub = !c ? t('hint.toFinish') : c.kind === 'island' ? t('hint.cover') : t('wave.cave');
       }
+      // Z-11 (usability review: at a stage border it jumped 4 times in 3 s): a new command only after SUB_HOLD_SEC of
+      // the old one; none — at once.
+      subAge += frameDt;
+      if (sub !== null && shownSub !== null && sub !== shownSub && subAge < SUB_HOLD_SEC) sub = shownSub;
+      if (sub !== shownSub) subAge = 0;
+      shownSub = sub;
       view.sub = sub;
       d.hud.setWaveBanner(banner, sub);
 

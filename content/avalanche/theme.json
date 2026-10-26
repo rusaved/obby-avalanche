@@ -129,9 +129,9 @@
   "bonus": { "color": "#FFD34D" },
   "boss": {
     "height": 20,
-    "colors": { "head": "#F4FAFF", "torso": "#DDEFFF", "arms": "#C8E4FA", "legs": "#A9CDEB", "hat": "#8FD3FF" },
+    "colors": { "head": "#F4FAFF", "torso": "#3E6FB8", "arms": "#355F9E", "legs": "#2A4C80", "hat": "#E85A4F" },
     "face": "happy",
-    "silhouette": "#BAC5CC", "helper": { "height": 7, "snowball": "#FFFFFF" }
+    "silhouette": "#4A5A78", "helper": { "height": 7, "snowball": "#FFFFFF" }
   },
   "events": { "snowball": { "trail": "#7FC8F8", "ball": "#F4FAFF" }, "blizzard": { "fog": "#DCE8F2", "snow": "#FFFFFF", "glow": "#FFC94D" } },
   "decor": {
