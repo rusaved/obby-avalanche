@@ -15,6 +15,8 @@
 | `audio/ui/level-up.mp3` | «Уровень выше!» | сгенерирован для игры | собственный, без атрибуции | продюсер, 16.10 |
 | `audio/ui/reward-coins.mp3` | награда монетами | сгенерирован для игры | собственный, без атрибуции | продюсер, 16.10 |
 | `audio/ui/reward-trophy.mp3` | кубок вершины | сгенерирован для игры | собственный, без атрибуции | продюсер, 16.10 |
+| `models/kenney-holiday-kit/*.glb`, `Textures/colormap.png` | Holiday Kit 2.0: ели и камни под снегом, снеговики, фонари, гирлянды, сруб, сугробы (99 моделей GLB, одна палитра-текстура) | https://kenney.nl/assets/holiday-kit | CC0 1.0 (`License.txt` рядом) | продюсер, 26.10 (ветка assets/winter-kenney) |
+| `models/kenney-survival-kit/*.glb`, `Textures/colormap.png` | Survival Kit 2.0: указатели, заборы, костёр, палатка (80 моделей GLB, одна палитра-текстура) | https://kenney.nl/assets/survival-kit | CC0 1.0 (`License.txt` рядом) | продюсер, 26.10 (ветка assets/winter-kenney) |
 
 Звуки (SD-14): `assets/audio/steps/<набор>/` и `assets/audio/ui/`, какие где играют — `content/avalanche/sfx.json` (`footsteps`, `files`); грузятся после первого касания, не до `ready()`.
 
