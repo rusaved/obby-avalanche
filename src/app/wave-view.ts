@@ -39,6 +39,8 @@ const COVER_DIST = 10;
 const RUMBLE: [number, number, number] = [0.2, 0.6, 0.8];
 const RUMBLE_FAR = 160;
 const RUMBLE_SFX = 'avalancheRumble';
+/** Z-01: the parts of a grotto that stop the camera while the hero is in it (level/builder.ts kinds). */
+const GROTTO_WALLS: ReadonlySet<string> = new Set(['nicheWall', 'nicheRoof', 'islandWall', 'islandRoof']);
 
 export interface WaveViewDeps {
   tuning: TuningJson;
@@ -61,6 +63,8 @@ export interface WaveView {
   update(frameDt: number, timeSec: number): void;
   /** For __TEST__.state(): what the HUD shows now. */
   readonly banner: string | null;
+  /** Z-01: the command line under the banner (stages pace), null — none. */
+  readonly sub: string | null;
   readonly arrow: boolean;
   readonly shot: boolean;
   /** The same wide frame on the belt of a cave outside an avalanche (PR-11). */
@@ -86,8 +90,12 @@ export function createWaveView(d: WaveViewDeps): WaveView {
   /** The player turned the camera by hand on this stay on the belt: his camera until the hero leaves the belt (PR-11). */
   let beltManual = false;
   const keepAt = new Vector3();
-  const view: WaveView & { banner: string | null; arrow: boolean; shot: boolean; beltShot: boolean; veil: boolean; keep: Vector3 | null } = {
+  /** Z-01: the cave whose walls stop the camera now and those walls. */
+  let solidCave = -1;
+  let solidWalls: CameraRig['solid'] = null;
+  const view: WaveView & { banner: string | null; sub: string | null; arrow: boolean; shot: boolean; beltShot: boolean; veil: boolean; keep: Vector3 | null } = {
     banner: null,
+    sub: null,
     arrow: false,
     shot: false,
     beltShot: false,
@@ -100,6 +108,7 @@ export function createWaveView(d: WaveViewDeps): WaveView {
         // No avalanche here (the base, docs/01-gdd.md 19.2): nothing of the last wave stays on the screen.
         d.visual.group.visible = false;
         view.banner = null;
+        view.sub = null;
         view.arrow = false;
         view.shot = false;
         view.beltShot = false;
@@ -114,6 +123,8 @@ export function createWaveView(d: WaveViewDeps): WaveView {
         if (shotCave >= 0) d.camera.fixed = null;
         shotCave = -1;
         d.camera.shelter = null;
+        d.camera.solid = null;
+        solidCave = -1;
         return;
       }
       d.visual.group.visible = true;
@@ -132,7 +143,15 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       else if (ts.phase === 'warn') banner = t('wave.warn', { n: Math.max(1, Math.ceil(ts.timer)) });
       else if (running && ts.outcome === 'none' && dz > 0) banner = t('wave.run');
       view.banner = banner;
-      d.hud.setWaveBanner(banner);
+      // Z-01 (playtest G: «bring the golden gift», «duck behind a rock» and an arrow at once): on the stages pace one command
+      // under the count — behind the rock of the lit grotto (into a cave on the edge), or on to the safe finish with none.
+      let sub: string | null = null;
+      if (banner !== null && sim.level.stages && !sim.caught && sim.shelterIndex() < 0) {
+        const c = sim.level.niches[ts.shelter];
+        sub = !c ? t('hint.toFinish') : c.kind === 'island' ? t('hint.cover') : t('wave.cave');
+      }
+      view.sub = sub;
+      d.hud.setWaveBanner(banner, sub);
 
       // Frost frame and shake by distance (docs/01-gdd.md 4.8).
       let frost = 0;
@@ -224,6 +243,18 @@ export function createWaveView(d: WaveViewDeps): WaveView {
         }
         d.camera.shelter = f;
       } else d.camera.shelter = null;
+      // Z-01 (playtest G, pc-049s: the camera went into the walls of a grotto): with the grotto frame off the level lets the
+      // camera pass grotto walls (SD-01) — those of the grotto the hero is in stop it, so the view stays in the room with him.
+      const wallsOf = !frames && inCave >= 0 && !sim.caught ? inCave : -1;
+      if (wallsOf !== solidCave) {
+        solidCave = wallsOf;
+        const n = sim.level.niches[wallsOf];
+        const m = NICHE_WALL + 0.05;
+        solidWalls = n
+          ? sim.level.boxes.filter((b) => GROTTO_WALLS.has(b.kind) && b.max[0] >= n.box.min[0] - m && b.min[0] <= n.box.max[0] + m && b.max[2] >= n.box.min[2] - m && b.min[2] <= n.box.max[2] + m && b.max[1] >= n.box.min[1] - m && b.min[1] <= n.box.max[1] + m)
+          : null;
+      }
+      d.camera.solid = solidWalls;
       // Q-067: held until the whole snow body has passed him (shotUntilClear), not only its front.
       const holdPast = av.shotTriggerDist + (av.shotUntilClear ? av.bodyLength : 0);
       const waveShot = inCave >= 0 && !sim.caught && (ts.phase === 'warn' || (running && dz > -holdPast)) && (ts.scripted || !d.manualCamera());

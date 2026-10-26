@@ -300,8 +300,10 @@ describe('the ridge sign and the roll-back of the stages (LV-02, LV-08)', () => 
       for (let k = 0; k < 600 && !sim.caught; k++) sim.step({ moveX: 0, moveZ: 0, jump: false, jumpHeld: false }, DT);
       expect(sim.caught, `${st.type}: the snowball`).not.toBeNull();
       for (let k = 0; k < 600 && sim.caught; k++) sim.step({ moveX: 0, moveZ: 0, jump: false, jumpHeld: false }, DT);
-      const target = sim.stageStart(st.n - 1);
-      expect(Math.hypot(sim.hero.pos.x - target.x, sim.hero.pos.z - target.z), `${st.type}: at the flag of stage ${st.n - 1}`).toBeLessThanOrEqual(3);
+      // Z-01 (caught.pastAvalanche «own»): right after the avalanche stage — its own flag, never back under that wave.
+      const own = balance.caught?.pastAvalanche === 'own' && w.stages!.find((s) => s.n === st.n - 1)?.type === 'avalanche';
+      const target = sim.stageStart(own ? st.n : st.n - 1);
+      expect(Math.hypot(sim.hero.pos.x - target.x, sim.hero.pos.z - target.z), `${st.type}: at the flag of stage ${own ? st.n : st.n - 1}`).toBeLessThanOrEqual(3);
       expect(sim.rollFrom).toBe(st.n);
       expect(sim.progress.stat).toBeGreaterThanOrEqual(stat0);
     }
@@ -309,7 +311,8 @@ describe('the ridge sign and the roll-back of the stages (LV-02, LV-08)', () => 
   it('no cascade (Q-083): a fall on the stage the hero was rolled back to returns him to its own start; past the farthest stage — one back again', () => {
     const w = worlds.worlds[0]!;
     const level = buildLevel(w);
-    const st = w.stages!.find((s) => s.n === 4)!;
+    // Z-01: past the avalanche stage (4) a fall keeps its own start (caught.pastAvalanche) — the rule is seen from stage 6.
+    const st = w.stages!.find((s) => s.n === 6)!;
     const sim = createSim(level, tuning, { balance, speedCurve: balance.speedCurve, stat: levelThreshold(st.level, balance.levels!) });
     const still = { moveX: 0, moveZ: 0, jump: false, jumpHeld: false };
     /** Drop below killY at z, wait for the snowball to pop; the stage it popped on. */

@@ -567,6 +567,9 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     const oz = openZone(st.n);
     return { k: st.n, rarity: oz.rarity, gift: oz.gift, stepMult: oz.stepMult ?? 1, zStart: k === 0 ? spec.campLength : st.z0, zEnd: k === stages.length - 1 ? z : stages[k + 1]!.z0 };
   });
+  // Z-01 (Q-G-2 «A»): the least pause between two waves of this mountain, by mountain (absent past the list — none).
+  const minGap = cfg.avalanche.minGapSec?.[index - 1];
+  const gap = minGap !== undefined ? { minGapSec: minGap } : {};
   return {
     id: ow.id,
     index,
@@ -577,7 +580,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     stretch: Math.max(...stages.map((st) => round3(st.finish[1] - st.z0))),
     wallCount: wall,
     safeZones: safe,
-    threat: { ...ow.threat, spawnMaxZ: Math.max(...waveZones.map((w) => w[1]), spec.campLength), zones: waveZones, zoneFirstSec: cfg.avalanche.firstSec, zoneWarnSec: cfg.avalanche.warnSec, intervalSec: index === 1 ? ow.threat.intervalSec : cfg.avalanche.intervalSec },
+    threat: { ...ow.threat, spawnMaxZ: Math.max(...waveZones.map((w) => w[1]), spec.campLength), zones: waveZones, zoneFirstSec: cfg.avalanche.firstSec, zoneWarnSec: cfg.avalanche.warnSec, intervalSec: index === 1 ? ow.threat.intervalSec : cfg.avalanche.intervalSec, ...gap },
     zones,
     segments: seg,
     treadmillMult: ow.treadmillMult,

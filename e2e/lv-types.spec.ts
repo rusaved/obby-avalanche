@@ -46,10 +46,12 @@ async function pass(page: Page, world: number, st: WorldStage): Promise<void> {
   await page.evaluate((on) => window.__TEST__!.botJump(on), st.type !== 'catapult');
   await page.evaluate((p) => window.__TEST__!.botPath(p), path);
   if (st.type === 'avalanche') {
+    // Z-01: the stage before had its wave less than stages.avalanche.minGapSec ago — this one is started at once.
+    await page.evaluate(() => window.__TEST__!.triggerWave());
     // On the warning — into the grotto the game lights, out once the wave is gone.
     await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'warn', undefined, { timeout: 30_000 });
-    // The plaque says where to (LV-12 re-check: «Run up!» stood under the wave).
-    await expect(page.locator('[data-role=tutor]')).toContainText(/Спрячься за камень|Duck behind a rock/);
+    // The plaque says where to (LV-12 re-check: «Run up!» stood under the wave; Z-01: the line under the banner).
+    await expect(page.locator('[data-role=wave-sub]')).toContainText(/Спрячься за камень|Duck behind a rock/);
     const sh = await page.evaluate(() => {
       const i = window.__TEST__!.state().wave!.shelter;
       return window.__TEST__!.shelters()[i]!;

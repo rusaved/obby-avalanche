@@ -64,6 +64,9 @@ export interface CameraRig {
   shelter: { pos: Vector3; look: Vector3; fov: number } | null;
   /** The grotto frame is on now (tests). */
   readonly tight: boolean;
+  /** Z-01 (playtest G: the camera went into the walls of a grotto): boxes that stop the camera like level geometry though
+   * the level lets it pass them (the walls and roof of the grotto the hero is in, set by the app every frame); null — none. */
+  solid: ReadonlyArray<{ readonly min: readonly number[]; readonly max: readonly number[] }> | null;
   /** Extra pitch over a wall right behind the hero now, rad (tests: SP-01, none after the way back). */
   readonly raise: number;
   /** A point kept in the view (the giant ahead in his zone, docs/01-gdd.md 19.8): the view never turns from it by more
@@ -188,10 +191,18 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
     const y = Math.min(heroHead.y, Math.max(heroChest.y, p.y));
     return Math.hypot(p.x - heroChest.x, p.y - y, p.z - heroChest.z);
   };
+  /** The sphere (p, r) meets a box of rig.solid. */
+  const inSolid = (p: Vector3, r: number): boolean =>
+    rig.solid?.some((b) => {
+      const dx = p.x - Math.min(b.max[0]!, Math.max(b.min[0]!, p.x));
+      const dy = p.y - Math.min(b.max[1]!, Math.max(b.min[1]!, p.y));
+      const dz = p.z - Math.min(b.max[2]!, Math.max(b.min[2]!, p.z));
+      return dx * dx + dy * dy + dz * dz < r * r;
+    }) ?? false;
   const blocked = (p: Vector3, r: number, collision: CollisionWorld): boolean => {
     _probe.center.copy(p);
     _probe.radius = r;
-    return collision.sphereHit(_probe) !== null;
+    return collision.sphereHit(_probe) !== null || inSolid(p, r);
   };
   /** The straight way a → b crosses no face (a point deep inside a thick box touches none: the way, not the end). */
   const clearWay = (a: Vector3, b: Vector3, r: number, collision: CollisionWorld): boolean => {
@@ -237,6 +248,7 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       return viewK;
     },
     shelter: null,
+    solid: null,
     get tight() {
       return tight;
     },
@@ -261,9 +273,7 @@ export function createCameraRig(camera: PerspectiveCamera, frame: ControlFrame, 
       return _look.copy(camera.position).addScaledVector(_seg, k).distanceTo(_tmp) < c.occludeRadius;
     },
     insideGeometry(collision) {
-      _probe.center.copy(camera.position);
-      _probe.radius = c.collisionRadius;
-      return collision.sphereHit(_probe) !== null;
+      return blocked(camera.position, c.collisionRadius, collision);
     },
     update(dt, target, input, collision) {
       if (input.manualCamera) rig.sinceManual = 0;

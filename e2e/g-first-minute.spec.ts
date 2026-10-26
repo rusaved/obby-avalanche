@@ -28,10 +28,11 @@ test.describe('G-01 · first minute of mountain 1', () => {
       const z = await page.evaluate(() => window.__TEST__!.state().hero!.z);
       if (z >= zone[0] && z <= zone[1]) expect(await page.evaluate(() => window.__TEST__!.state().wave!.phase)).toBe('idle');
     }
+    // Z-01: out of it where a grotto is in reach (above it lies the safe finish under a closed ridge — the wave waits there).
     await page.evaluate((z) => {
       window.__TEST__!.teleport(z, 0);
       window.__TEST__!.runSim(1);
-    }, zone[1] + 8);
+    }, zone[0] - 40);
     expect(await page.evaluate(() => window.__TEST__!.state().wave!.phase)).not.toBe('idle');
   });
 

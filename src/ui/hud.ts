@@ -164,8 +164,9 @@ export interface Hud {
   popCoinGain(text: string): void;
   /** Centre of the coin icon in field px: where the coins of a gate fly (docs/01-gdd.md 16.5). */
   coinTarget(): { x: number; y: number };
-  /** «Avalanche in N» at the top centre on a dark plaque (docs/01-gdd.md 4.8, 16.7); null hides it. */
-  setWaveBanner(text: string | null): void;
+  /** «Avalanche in N» at the top centre on a dark plaque (docs/01-gdd.md 4.8, 16.7); null hides it. Z-01: `sub` — the one
+   * command under the count («Duck behind a rock!»); while it shows, the hint and tutorial plaques stay hidden. */
+  setWaveBanner(text: string | null, sub?: string | null): void;
   /** The banner box in field px while it shows, null otherwise (gate signs under it hide, docs/01-gdd.md 16.7). */
   waveBannerRect(): { x0: number; y0: number; x1: number; y1: number } | null;
   /** Round of fixes MU (docs/07-mobile-ui.md, rule 19; staff 19.10: names, «Stage reward» and the ridge sign showed
@@ -659,6 +660,12 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   veil.dataset['role'] = 'veil';
   const banner = el('div', 'hud-wave');
   banner.dataset['role'] = 'wave-banner';
+  const bannerMain = el('span', 'hud-wave-main');
+  const bannerSub = el('span', 'hud-wave-sub');
+  bannerSub.dataset['role'] = 'wave-sub';
+  banner.append(bannerMain, bannerSub);
+  /** Z-01: the banner carries its command now — the other plaques wait. */
+  let waveSub = false;
   const arrow = el('div', 'hud-cave-arrow');
   arrow.innerHTML = ARROW_SVG;
   arrow.dataset['role'] = 'cave-arrow';
@@ -1258,6 +1265,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       stickBase.style.marginTop = `${-r}px`;
     },
     setHint(h) {
+      if (waveSub) h = null;
       hint.classList.toggle('shown', h !== null);
       root.classList.toggle('urgent', h?.urgent === true);
       updateSlot();
@@ -1303,10 +1311,19 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       shoes.classList.toggle('can', state.can);
       shoesFill.style.transform = `scaleX(${state.can ? 1 : Math.max(0, Math.min(1, state.progress)).toFixed(3)})`;
     },
-    setWaveBanner(text) {
+    setWaveBanner(text, sub = null) {
       const was = banner.classList.contains('shown');
       banner.classList.toggle('shown', text !== null);
-      if (text !== null && banner.textContent !== text) banner.textContent = text;
+      if (text !== null && bannerMain.textContent !== text) bannerMain.textContent = text;
+      const line = text !== null ? (sub ?? '') : '';
+      if (bannerSub.textContent !== line) bannerSub.textContent = line;
+      banner.classList.toggle('sub', line !== '');
+      waveSub = line !== '';
+      if (waveSub && (hint.classList.contains('shown') || tutor.classList.contains('shown'))) {
+        hint.classList.remove('shown');
+        tutor.classList.remove('shown');
+        updateSlot();
+      }
       // A plain toast already up when the banner comes steps back into the queue, the banner speaks alone (MU round 5:
       // not a reward said `now` — the gift handed in in the cave is seen at once, over the avalanche plaque).
       if (text !== null && !was) toasts.hold();
@@ -1741,6 +1758,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (shoes.classList.contains('point') !== on) shoes.classList.toggle('point', on);
     },
     setTutor(text, urgent = false, arrow = null) {
+      if (waveSub) text = null;
       if (tutor.classList.contains('shown') !== (text !== null) || tutor.classList.contains('urgent') !== urgent) {
         tutor.classList.toggle('shown', text !== null);
         tutor.classList.toggle('urgent', urgent);
