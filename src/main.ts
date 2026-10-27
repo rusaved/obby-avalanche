@@ -21,6 +21,7 @@ import { createRng, seedFrom } from './core/rng.ts';
 import { loadDictionary, setDictionary, t } from './ui/i18n.ts';
 import { fitField, type FieldRect } from './ui/fit.ts';
 import { createHud, type Hud, type MenuItem } from './ui/hud.ts';
+import { TOAST_PRIO } from './ui/toast-queue.ts';
 import { drawNoGraphics } from './ui/fallback.ts';
 import { mountLabel } from './ui/label.ts';
 import { icon } from './ui/icons.ts';
@@ -112,7 +113,7 @@ const GAIN_POP_MIN_SEC = 0.25;
 const LEVEL_TOAST_SEC = 2.5;
 /** D-05: «LEVEL UP!» held at least this long (2 s on screen, with a margin for the timer); the giant and the avalanche toasts come before it. */
 const LEVEL_TOAST_MIN_SEC = 2.2;
-const THREAT_TOAST = { prio: 1 } as const;
+const THREAT_TOAST = { prio: TOAST_PRIO.threat } as const;
 /** M6: the share of a frame the base gives to building the next mountain's collision trees ahead (ms). */
 const PREBUILD_SLICE_MS = 6;
 /** D-02 (ready() ≤ 5.3 s at CPU ×4): the collision of the boot mountain — a near tree this far behind and ahead of the
@@ -688,7 +689,7 @@ async function boot(): Promise<void> {
         // 21.10: «+100» with no word, «Phew, made it! +», «Golden gift! +150» — a mess): on the phone «Phew, made it!»
         // carries no number of its own (the coins go to the counter), and with the golden gift handed in now its one
         // toast «Gift saved! +N» says it all (bonusSaved below).
-        if (gold <= 0 || !phone) hud?.toast(coins > 0 && !phone ? t('wave.survived', { n: formatNumber(coins, numSuffix) }) : t('wave.survivedPlain'), gold > 0 ? 3 : 2, gold > 0, undefined, scripted ? showEgg : undefined);
+        if (gold <= 0 || !phone) hud?.toast(coins > 0 && !phone ? t('wave.survived', { n: formatNumber(coins, numSuffix) }) : t('wave.survivedPlain'), gold > 0 ? 3 : 2, gold > 0, undefined, scripted ? showEgg : undefined, false, THREAT_TOAST);
         else if (scripted) showEgg();
         if (coins > 0) hud?.setCoins(formatNumber(total, numSuffix));
         // SD-14: a reward of coins — its sound from ui/.
@@ -2452,7 +2453,8 @@ async function boot(): Promise<void> {
       // The toast on every 5th level (LV-12 review: every 1–3 s it was noise); the confetti and the chime always.
       // MU-05 (l4-level-up): «LEVEL UP!» gold in the slot for 1.2 s with «Level N» under it.
       if (n % 5 === 0) {
-        if (muLayout) hud?.toast(t('level.up').toLocaleUpperCase(), LEVEL_TOAST_SEC, true, t('level.bar', { n }), undefined, false, { minSec: LEVEL_TOAST_MIN_SEC, key: 'levelUp' });
+        // K-01 (review D20): the level in the toast itself — «LEVEL UP! 7».
+        if (muLayout) hud?.toast(t('level.upN', { n }).toLocaleUpperCase(), LEVEL_TOAST_SEC, true, undefined, undefined, false, { minSec: LEVEL_TOAST_MIN_SEC, key: 'levelUp' });
         else hud?.toast(t('level.up'));
       }
       const p = sim.hero.pos;

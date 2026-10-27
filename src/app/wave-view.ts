@@ -152,7 +152,7 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       let sub: string | null = null;
       if (banner !== null && sim.level.stages && !sim.caught && sim.shelterIndex() < 0) {
         const c = sim.level.niches[ts.shelter];
-        sub = !c ? t('hint.toFinish') : c.kind === 'island' ? t('hint.cover') : t('wave.cave');
+        sub = !c ? t('hint.toFinish') : c.canopy ? t('hint.canopy') : c.kind === 'island' ? t('hint.cover') : t('wave.cave');
       }
       // Z-11 (usability review: at a stage border it jumped 4 times in 3 s): a new command only after SUB_HOLD_SEC of
       // the old one; none — at once.

@@ -40,6 +40,8 @@ const PASS_NEAR = 40;
  * (LV-12 re-check: at 14 units it came 0.4 s before the edge on a phone). */
 const JUMP_HINT_AHEAD = 14;
 const JUMP_HINT_SEC = 1;
+/** K-01 (Q-D20-2): once up, «Jump!» holds at least this many ticks (2 s; on the plates it went on and off every plate). */
+const JUMP_HOLD_TICKS = 120;
 /** The hook for tomorrow waits this long after a trophy toast (one toast at a time, LV-12 review). */
 const HOOK_QUIET_TICKS = 150;
 const HOOK_SEC = 6;
@@ -107,6 +109,7 @@ export function createCampView(d: CampViewDeps): CampView {
   };
   let beltSec = 0;
   let beltTick = -1;
+  let jumpTick = -1;
   let shoesAt = -1;
   let giftsAt = -1;
   /** The ridge ahead of the hero on this mountain (its gate index), −1 — none. */
@@ -275,6 +278,12 @@ export function createCampView(d: CampViewDeps): CampView {
         if (pit) show = t('tutor.jump');
       }
       if (!jumps && st && h.z > st.end && (st.type === 'cracks' || st.type === 'plates')) (d.save.flags ??= {})['jumpsTaught'] = true;
+      // K-01 (playtest D20: «Stand on the treadmill» over the water of the plates): over the pits of the plates and cracks
+      // «Jump!» instead of the treadmill (no belt there); once up, «Jump!» holds JUMP_HOLD_TICKS.
+      const overPits = !!st && (st.type === 'cracks' || st.type === 'plates') && h.z >= st.start - JUMP_HINT_AHEAD && h.z <= st.end;
+      if (overPits && show === t('tutor.belt')) show = t('tutor.jump');
+      if (show === t('tutor.jump')) jumpTick = sim.tick;
+      else if (jumpTick >= 0 && sim.tick >= jumpTick && sim.tick - jumpTick < JUMP_HOLD_TICKS && !sim.caught) show = t('tutor.jump');
       // MU round 5 (producer 21.10): in the first blizzard — «Blizzard! Jump, it's faster» while in it, until a jump there.
       const bz = sim.rare?.state.blizzard;
       if (bz && h.z >= bz.z0 && h.z < bz.z1 && !d.save.flags?.['blizzardTaught']) {
@@ -294,7 +303,7 @@ export function createCampView(d: CampViewDeps): CampView {
       const wave = !!ws && (ws.phase === 'warn' || (ws.phase === 'run' && ws.outcome === 'none')) && !sim.caught && stageAt(sim.level, ws.spawnZ) === n;
       // SD-06: the avalanche comes on almost every stage — the same plaque on any of them.
       // No grotto within reach of the warning (SD-10 review: «hide» pointed back past the finish) — run on to the finish.
-      if (st && st.type !== 'intro' && wave) show = sim.inShelter() ? null : ws!.shelter >= 0 ? t('hint.cover') : t('hint.toFinish');
+      if (st && st.type !== 'intro' && wave) show = sim.inShelter() ? null : ws!.shelter >= 0 ? (sim.level.niches[ws!.shelter]?.canopy ? t('hint.canopy') : t('hint.cover')) : t('hint.toFinish');
       // MU-02 (one message slot): a jump and the wave go before the gate plaque, the other steps after it.
       // ST-01: never over a window.
       if (d.windows.current) show = null;

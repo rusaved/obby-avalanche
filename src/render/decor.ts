@@ -115,11 +115,12 @@ function baked(geo: BufferGeometry, color: Color): BufferGeometry {
 }
 const part = (w: number, h: number, d: number, x: number, y: number, z: number, c: Color): BufferGeometry => baked(new BoxGeometry(w, h, d).translate(x, y, z), c);
 
-/** A block creature of `s` facing +z, feet at y = 0: body of `color`, belly, beak and feet of `accent`, eyes. */
-function creature(s: number, color: Color, accent: Color, eye: Color): BufferGeometry {
+/** A block creature of `s` facing +z, feet at y = 0: body of `color`, belly (of `belly`, else `accent`), beak and feet of
+ * `accent`, eyes. */
+function creature(s: number, color: Color, accent: Color, eye: Color, belly: Color = accent): BufferGeometry {
   const parts = [
     part(s, s, s * 0.8, 0, s / 2, 0, color),
-    part(s * 0.6, s * 0.55, 0.04, 0, s * 0.4, s * 0.41, accent),
+    part(s * 0.6, s * 0.55, 0.04, 0, s * 0.4, s * 0.41, belly),
     part(s * 0.22, s * 0.14, s * 0.22, 0, s * 0.62, s * 0.5, accent),
     part(s * 0.12, s * 0.14, 0.04, -s * 0.22, s * 0.78, s * 0.41, eye),
     part(s * 0.12, s * 0.14, 0.04, s * 0.22, s * 0.78, s * 0.41, eye),
@@ -134,6 +135,8 @@ function creature(s: number, color: Color, accent: Color, eye: Color): BufferGeo
 export interface DecorState {
   walkers: Array<{ x: number; z: number; patch: [number, number, number, number] }>;
   sitters: Array<{ x: number; y: number; z: number; yaw: number; hop: number }>;
+  /** K-01: the penguins drawn this frame — feet and height (for the size on screen in e2e). */
+  seen: Array<{ x: number; y: number; z: number; h: number }>;
   /** Drawn now (quality and enabled); `drawn` — how many of them (D-04). */
   shown: boolean;
   drawn: number;
@@ -169,7 +172,7 @@ export function createDecor(scene: Scene, theme: ThemeJson, pets: PetsJson['pets
   const w = cfg ? lookOf(cfg.walkers.look) : null;
   const kindOf = new InstancedBufferAttribute(new Float32Array(MAX_WALKERS + MAX_SITTERS), 1);
   const both = (bird: BufferGeometry | null): BufferGeometry => {
-    const parts = [creature(WALKER_SIZE, w?.color ?? eye, w?.accent ?? eye, eye), bird ?? creature(SITTER_SIZE, eye, eye, eye)];
+    const parts = [creature(WALKER_SIZE, w?.color ?? eye, w?.accent ?? eye, eye, cfg?.walkers.belly ? new Color(cfg.walkers.belly) : undefined), bird ?? creature(SITTER_SIZE, eye, eye, eye)];
     parts.forEach((g, k) => g.setAttribute('kind', new Float32BufferAttribute(new Float32Array(g.getAttribute('position').count).fill(k), 1)));
     const g = mergeGeometries(parts, false)!;
     for (const q of parts) q.dispose();
@@ -186,7 +189,8 @@ export function createDecor(scene: Scene, theme: ThemeJson, pets: PetsJson['pets
   let walkers: Array<{ x: number; z: number; patch: [number, number, number, number]; tx: number; tz: number; yaw: number; pause: number; rng: Rng }> = [];
   /** `hop` — seconds of the hop left, `rest` — of the rest after it, `home` — the yaw down the slope. */
   let sitters: Array<{ x: number; y: number; z: number; yaw: number; hop: number; rest: number; home: number }> = [];
-  const state: DecorState = { walkers: [], sitters: [], shown: false, drawn: 0 };
+  const state: DecorState = { walkers: [], sitters: [], seen: [], shown: false, drawn: 0 };
+  const big = new Vector3(1, 1, 1);
   const m4 = new Matrix4();
   const q = new Quaternion();
   const up = new Vector3(0, 1, 0);
@@ -222,6 +226,7 @@ export function createDecor(scene: Scene, theme: ThemeJson, pets: PetsJson['pets
       if (!on || !level || !cfg) {
         mesh.count = 0;
         state.drawn = 0;
+        state.seen = [];
         return;
       }
       // Z-07: only the animals within NEAR of the hero take a slot (every stage has them now: the far ones cost
@@ -231,6 +236,9 @@ export function createDecor(scene: Scene, theme: ThemeJson, pets: PetsJson['pets
       const few = low ? cfg.low : undefined;
       const near = few ? few.near : NEAR;
       const skip = (i: number): boolean => few !== undefined && i % few.every !== 0;
+      const size = few?.size ?? 1;
+      big.setScalar(size);
+      const seen: DecorState['seen'] = [];
       const slot = (kind: number): number => {
         kindOf.setX(n, kind);
         return n++;
@@ -258,7 +266,8 @@ export function createDecor(scene: Scene, theme: ThemeJson, pets: PetsJson['pets
         if (Math.abs(p.z - hero.z) > near || skip(i)) return;
         q.setFromAxisAngle(up, p.yaw);
         if (moving) q.multiply(roll.setFromAxisAngle(fwd, WADDLE * Math.sin(timeSec * 9 + i)));
-        mesh.setMatrixAt(slot(0), m4.compose(pos.set(p.x, level!.floorAt(p.x, p.z), p.z), q, one));
+        mesh.setMatrixAt(slot(0), m4.compose(pos.set(p.x, level!.floorAt(p.x, p.z), p.z), q, big));
+        seen.push({ x: pos.x, y: pos.y, z: pos.z, h: WALKER_SIZE * size });
       });
       sitters.forEach((b, i) => {
         const d = Math.hypot(hero.x - b.x, hero.z - b.z);
@@ -275,6 +284,7 @@ export function createDecor(scene: Scene, theme: ThemeJson, pets: PetsJson['pets
       });
       mesh.count = n;
       state.drawn = n;
+      state.seen = seen;
       // None near — no draw call for it.
       mesh.visible = n > 0;
       mesh.instanceMatrix.needsUpdate = true;

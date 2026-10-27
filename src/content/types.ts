@@ -215,8 +215,10 @@ export interface ThemeJson {
   decor?: {
     minQuality: 'low' | 'medium' | 'high';
     /** D-04: on the low quality — every `every`-th animal of the mountain, only within `near` of the hero. */
-    low?: { every: number; near: number };
-    walkers: { look: string; on: string[]; perSection: [number, number]; patch: number; speed: number };
+    /** K-01 (playtest D20: dark blots on the phone): `size` — the penguins that much bigger on low; absent — 1. */
+    low?: { every: number; near: number; size?: number };
+    /** K-01: `belly` — the colour of the penguin's belly (light, read on the snow); absent — the pet's accent. */
+    walkers: { look: string; on: string[]; perSection: [number, number]; patch: number; speed: number; belly?: string };
     sitters: { looks: string[]; on: string[]; perSection: [number, number]; lookAtDist: number; hopDist: number };
   };
 }
@@ -653,6 +655,9 @@ export interface WorldThreat {
   /** D-06: out of the zones (a closed ridge, a finish) a wave comes once this long passed since the last one, where a
    * shelter is in reach; absent — none out of the zones. */
   idleMaxSec?: number;
+  /** K-01: the canopy of the closed ridge above (a ridge grotto at its face) is a shelter in reach within this distance of
+   * its mouth; absent — only by the run to it, as any cave. */
+  canopyReach?: number;
 }
 
 export interface WorldZone {
@@ -803,6 +808,8 @@ export interface WorldStage {
   maze?: StageMaze;
   /** ST-02: the tier of the stage in the wave of its mountain (StageSpec.waves); absent — no wave on this mountain. */
   tier?: StageTier;
+  /** K-01 (Q-D20-2): plates or cracks where a run off the edge jumps by itself (StageSpec.autoJump); absent — the jump key only. */
+  autoJump?: boolean;
 }
 
 export type WorldLayout = 'classic' | 'gateSide' | 'openSlope';
@@ -1209,7 +1216,7 @@ export interface StageSpec {
   snowflake: { mult: number; stages: number };
   /** The avalanche stage: the first wave after entering, the pause between waves inside, grottos every `every` × v. */
   /** SD-06: `stageExtraSec` — the avalanche on every stage but the giant's, its first wave that long after a clean run. */
-  avalanche: { firstSec: number; warnSec: number; intervalSec: number; every: number; x: number; stageExtraSec?: number; through?: boolean; minGapSec?: number[]; idleMaxSec?: number[] };
+  avalanche: { firstSec: number; warnSec: number; intervalSec: number; every: number; x: number; stageExtraSec?: number; through?: boolean; minGapSec?: number[]; idleMaxSec?: number[]; canopyReach?: number[] };
   maze: { cell: number; wall: number; height: number; cols: number[]; rows: number[]; falseExits: [number, number] };
   /** The giant of a stage slower than v(N) by this share, by mountain (LV-12 review: on mountains 1–2 a gentler one for
    * the first runs); absent — the margin of the mountain's giant. */
@@ -1242,5 +1249,7 @@ export interface StageSpec {
   finishGrotto?: { stages: number[][]; length: number; width: number };
   /** D-01: by mountain and stage — gifts along the axis of the trial, `coins` each; absent — none. */
   stageGifts?: { coins: number; count: number[][] };
+  /** K-01 (Q-D20-2): the mountains whose plates and cracks jump by themselves at the edge (WorldStage.autoJump); absent — none. */
+  autoJump?: number[];
 }
 

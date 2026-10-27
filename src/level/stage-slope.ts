@@ -567,7 +567,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
       if (s === K) seg.push({ type: 'decor', z: round3(end + cfg.finish - 2), x: round3(-Math.sign(padX) * (half - 8)), y, kind: dec.landmark, size: dec.size, landmark: true });
     }
     safe.push([end, round3(end + cfg.finish)]);
-    stages.push({ n: s, type, z0: round3(z0), start, end, finish: [end, round3(end + cfg.finish)], y: yStart, level, speed: v, width, trophies: trophiesOf(s), pad, ...(cut ? { cut } : {}), ...(maze ? { maze } : {}), ...(tier ? { tier } : {}) });
+    stages.push({ n: s, type, z0: round3(z0), start, end, finish: [end, round3(end + cfg.finish)], y: yStart, level, speed: v, width, trophies: trophiesOf(s), pad, ...(cut ? { cut } : {}), ...(maze ? { maze } : {}), ...(tier ? { tier } : {}), ...((type === 'plates' || type === 'cracks') && cfg.autoJump?.includes(index) ? { autoJump: true } : {}) });
     z = round3(end + cfg.finish);
   }
 
@@ -587,7 +587,8 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
   // Z-01 (Q-G-2 «A»): the least pause between two waves of this mountain, by mountain (absent past the list — none).
   const minGap = cfg.avalanche.minGapSec?.[index - 1];
   const idle = cfg.avalanche.idleMaxSec?.[index - 1];
-  const gap = { ...(minGap !== undefined ? { minGapSec: minGap } : {}), ...(idle !== undefined ? { idleMaxSec: idle } : {}) };
+  const canopy = cfg.avalanche.canopyReach?.[index - 1];
+  const gap = { ...(minGap !== undefined ? { minGapSec: minGap } : {}), ...(idle !== undefined ? { idleMaxSec: idle } : {}), ...(canopy !== undefined ? { canopyReach: canopy } : {}) };
   return {
     id: ow.id,
     index,

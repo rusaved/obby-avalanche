@@ -24,6 +24,8 @@ const FONT_MAX = 14;
 const FONT_FROM_H = 360;
 const FONT_TO_H = 1080;
 const LABEL_OPACITY = 0.8;
+/** K-01: px kept clear between two bot names. */
+const LABEL_GAP = 2;
 
 export type HudMode = 'normal' | 'shots' | 'promo';
 
@@ -80,6 +82,7 @@ export function createBotsView(d: BotsViewDeps): BotsView {
   const head = new Vector3();
   let lastSim: Sim | null = null;
   let fontPx = 0;
+  const placed: Array<{ x0: number; y0: number; x1: number; y1: number }> = [];
 
   return {
     update(alpha, timeSec) {
@@ -95,6 +98,9 @@ export function createBotsView(d: BotsViewDeps): BotsView {
       }
       const newSim = sim !== lastSim;
       lastSim = sim;
+      // K-01 (review D20: names over a heap of bots ran into each other): a name that would cover one already placed this
+      // frame stays hidden (the one placed first keeps his).
+      placed.length = 0;
       slots.forEach((s, i) => {
         const b = list[i];
         const out = b !== undefined && b.mode !== 'away' && b.mode !== 'off';
@@ -142,6 +148,7 @@ export function createBotsView(d: BotsViewDeps): BotsView {
           s.width = 0;
         }
         let opacity = 0;
+        let box: { x0: number; y0: number; x1: number; y1: number } | null = null;
         if (namesOn && cam && !b.ball) {
           head.set(pos.x, pos.y + LABEL_LIFT, pos.z);
           const dist = head.distanceTo(cam.position);
@@ -151,14 +158,18 @@ export function createBotsView(d: BotsViewDeps): BotsView {
             head.project(cam);
             const x = (head.x * 0.5 + 0.5) * f.width;
             const y = (0.5 - head.y * 0.5) * f.height;
-            if (s.width === 0 && d.clear) s.width = s.label.offsetWidth;
+            if (s.width === 0) s.width = s.label.offsetWidth;
+            const r = { x0: x - s.width / 2, y0: y - fontPx, x1: x + s.width / 2, y1: y };
+            box = r;
             if (head.z >= 1 || Math.abs(head.x) > 1.1 || Math.abs(head.y) > 1.1) opacity = 0;
             // Round of fixes MU (staff 19.10: names showed through the tiles and the strip): not within 8 px of the HUD.
-            else if (d.clear && !d.clear({ x0: x - s.width / 2, y0: y - fontPx, x1: x + s.width / 2, y1: y })) opacity = 0;
+            else if (d.clear && !d.clear(r)) opacity = 0;
+            else if (placed.some((p) => r.x0 < p.x1 + LABEL_GAP && r.x1 > p.x0 - LABEL_GAP && r.y0 < p.y1 + LABEL_GAP && r.y1 > p.y0 - LABEL_GAP)) opacity = 0;
             else s.label.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) translate(-50%, -100%)`;
           }
         }
         const shown = opacity > 0;
+        if (shown && box) placed.push(box);
         if (shown || s.shown) s.label.style.opacity = shown ? (LABEL_OPACITY * opacity).toFixed(2) : '0';
         s.shown = shown;
       });

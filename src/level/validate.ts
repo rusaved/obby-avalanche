@@ -544,6 +544,7 @@ const worldSchema = v.object({
     spawnMaxZ: v.optional(nonNeg),
     minGapSec: v.optional(positive),
     idleMaxSec: v.optional(positive),
+    canopyReach: v.optional(positive),
   }),
   zones: v.pipe(v.array(v.object({ k: v.pipe(v.number(), v.integer()), rarity: id, gift: positive, zStart: nonNeg, zEnd: nonNeg, stepMult: v.optional(positive) })), v.minLength(1)),
   segments: v.pipe(v.array(segmentSchema), v.minLength(1)),

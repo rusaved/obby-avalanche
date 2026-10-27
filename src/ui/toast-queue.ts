@@ -2,6 +2,9 @@
 // Called by: ui/hud.ts (createToastQueue with its show/hide); tests/ui/toast-queue.test.ts with a fake clock.
 // Keep: Never two toasts at once and never a swap before minSec; an urgent toast (`now`) shows at once and only another urgent one cuts it; no DOM here.
 
+/** D-05, K-01: the importance of a toast (QueuedToast.prio) — the giant, the avalanche and «Phew, made it!» over «Level up!». */
+export const TOAST_PRIO = { plain: 0, threat: 1 } as const;
+
 /** A toast as the queue knows it: its text and sub (equal ones are one toast), how long it stays, urgent or not. */
 export interface QueuedToast {
   text: string;

@@ -79,6 +79,8 @@ export interface LevelNiche {
   kind?: string;
   /** On a fork: the lane the grotto serves (its side of the cliff). */
   lane?: 'calm' | 'bold';
+  /** K-01: the finish grotto of a ridge (D-01) — a roof open all round, under it from any side; absent — a cave or a rock. */
+  canopy?: boolean;
 }
 
 /**
