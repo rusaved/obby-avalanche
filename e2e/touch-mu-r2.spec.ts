@@ -279,31 +279,14 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
       expect(h.fill).toBe('rgb(92, 200, 255)');
       expect(h.coin).toBe('5\u00a0300');
       expect(h.spacing).toBeGreaterThanOrEqual(2);
-      // «LEVEL UP!» and «Level N»: 8 px between their letters, the slot ends by 96.
+      // «LEVEL UP! N» (K-01, «Лавина 21»: the level in the toast itself, no «Level N» line under it): the slot ends by 96.
       await page.evaluate((s) => window.__TEST__!.setStat(s), threshold(15) + 1);
-      await expect(page.locator('[data-role="toast"].shown .hud-toast-main')).toHaveText('УРОВЕНЬ ВЫШЕ!', { timeout: 10_000 });
+      await expect(page.locator('[data-role="toast"].shown .hud-toast-main')).toHaveText(/^УРОВЕНЬ ВЫШЕ! \d+$/, { timeout: 10_000 });
       // M4 (verify run 2: 5.2–5.4 px now and then, on c841b21 too): measured while the toast still grew from scale 0.9 —
       // the gap once it stands at scale 1.
       await page.waitForFunction(() => /^matrix\(1, 0, 0, 1,/.test(getComputedStyle(document.querySelector('[data-role="toast"]')!).transform), undefined, { timeout: 5_000 });
-      const t = await page.evaluate(async () => {
-        const ink = async (e: Element, edge: 'top' | 'bottom') => {
-          const cs = getComputedStyle(e);
-          const c = document.createElement('canvas').getContext('2d')!;
-          c.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
-          const m = c.measureText(e.textContent ?? '');
-          const range = document.createRange();
-          range.selectNodeContents(e);
-          const r = range.getClientRects()[0]!;
-          // The content box of a line: ascent over the baseline, descent under it.
-          const base = r.top + m.fontBoundingBoxAscent;
-          return edge === 'top' ? base - m.actualBoundingBoxAscent : base + m.actualBoundingBoxDescent;
-        };
-        const main = document.querySelector('[data-role="toast"] .hud-toast-main')!;
-        const sub = document.querySelector('[data-role="toast"] .hud-toast-sub')!;
-        return { gap: (await ink(sub, 'top')) - (await ink(main, 'bottom')), bottom: document.querySelector('[data-role="toast"]')!.getBoundingClientRect().bottom };
-      });
-      expect(t.gap, '«Level N» under «LEVEL UP!»').toBeGreaterThanOrEqual(7);
-      expect(t.gap).toBeLessThanOrEqual(11);
+      const t = await page.evaluate(() => ({ sub: document.querySelector('[data-role="toast"] .hud-toast-sub')?.textContent ?? '', bottom: document.querySelector('[data-role="toast"]')!.getBoundingClientRect().bottom }));
+      expect(t.sub, 'no «Level N» line under the toast').toBe('');
       expect(t.bottom, 'the slot ends by 96').toBeLessThanOrEqual(96 + 1);
     });
   });

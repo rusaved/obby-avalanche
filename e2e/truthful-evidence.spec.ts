@@ -72,7 +72,7 @@ for (const k of [1, 1.3]) {
     await page.waitForFunction(() => window.__TEST__!.state().stage <= 1, undefined, { timeout: 20_000 });
     await expect(page.locator('[data-role="toast"].shown')).toHaveCount(0, { timeout: 10_000 });
     await page.evaluate((s) => window.__TEST__!.setStat(s), threshold(15) + 1);
-    await expect(page.locator('[data-role="toast"].shown .hud-toast-main')).toHaveText('УРОВЕНЬ ВЫШЕ!', { timeout: 10_000 });
+    await expect(page.locator('[data-role="toast"].shown .hud-toast-main')).toHaveText(/^УРОВЕНЬ ВЫШЕ! \d+$/, { timeout: 10_000 });
     await page.waitForTimeout(250);
     await page.screenshot({ path: `${dir}/l4-level-up${tag}.png` });
   });

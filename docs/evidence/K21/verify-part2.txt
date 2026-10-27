@@ -1,0 +1,51 @@
+== verify (часть 2): e2e:sample
+  ✓  1 [desktop] › e2e/sample.spec.ts:4:1 › sample pack boots, renders and calls ready() once (5.8s)
+  ✓  2 [desktop] › e2e/sample.spec.ts:19:1 › sample pack: the jump grows with the stat, the run does not; the frame (18.2s)
+
+  2 passed (23.9s)
+-- e2e:sample exit 0, 29 s
+== verify (часть 2): build
+(!) Some chunks are larger than 900 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+-- build exit 0, 3 s
+== verify (часть 2): size
+  index.html                                           1.7 KB 
+  total 4508.7 KB (target 4096.0 KB, limit 10240.0 KB)
+  js 1914.6 KB → gzip 433.4 KB (target 500.0 KB, limit 800.0 KB)
+size: total above the target
+-- size exit 0, 1 s
+== verify (часть 2): pack
+pack: 50 files, 4508.7 KB → release/avalanche-0.1.0.zip 2936.1 KB
+-- pack exit 0, 1 s
+== verify (часть 2): check-release
+
+WARN  other absolute addresses in strings (not loaded): https://t.me/sunhearth_games, https://vk.ru/sunhearth_yandex
+RESULT: PASS
+
+-- check-release exit 0, 0 s
+== verify (часть 2): e2e:release
+  ✓  1 e2e/smoke-release.spec.ts:6:1 › release build: ready() exactly once, first frame drawn, zero console errors (8.8s)
+  ✓  2 e2e/smoke-release.spec.ts:25:1 › release build ignores ?pace=classic: the save lands in the slot of the game.json pace (6.4s)
+
+  2 passed (18.1s)
+-- e2e:release exit 0, 21 s
+== verify (часть 2): build:vk
+(!) Some chunks are larger than 900 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+-- build:vk exit 0, 3 s
+== verify (часть 2): check:vk
+  ⚠ к подаче: пусто в content/vk.json — appId, vkGroupId, okGroupId (нет кнопки «Вступить»)
+check:vk: 51 файлов, 4.40 МБ, код gzip 0.45 МБ
+check:vk: ok
+-- check:vk exit 0, 1 s
+== verify (часть 2): e2e:vk
+  ✓  16 e2e/vk-k21.spec.ts:208:5 › 880x405 › K-12: the check kit on ?mock=vk — ?coins, ?fresh=1, ?mountain, ?stage, ?playtime opens «Gifts», the build line in the pause @ 880x405 (28.6s)
+  ✓  17 e2e/vk-k21.spec.ts:232:1 › K-12: a signed VK launch ignores ?mock=vk and the kit (the real bridge, no presets) (11.6s)
+
+  17 passed (4.3m)
+-- e2e:vk exit 0, 259 s
+DONE

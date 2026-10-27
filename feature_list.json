@@ -2443,7 +2443,7 @@
     "milestone": "K21",
     "description": "Итог: архивы Яндекса без изменений (check-release зелёный), dist-vk собран и выложен, вес dist-vk; отчёт соответствия docs/vk-compliance.md по K-04…K-08 (штаб 27.10, веха «Лавина 21 · Выход на VK и ОК», по расписанию штаба)",
     "acceptance": "check-release PASS; docs/vk-compliance.md; итог в progress.md и push в main",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   }

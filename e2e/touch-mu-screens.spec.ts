@@ -166,8 +166,9 @@ test.describe('MU phone screens', () => {
     const log = await page.evaluate(() => (window as unknown as { __toast: Array<{ shown: boolean; main: string; sub: string; bottom: number; slot: string; gainVisible: boolean; heroY: number; at: number }> }).__toast);
     const up = log.find((x) => x.shown)!;
     const down = log.find((x) => !x.shown)!;
-    expect(up.main).toBe('УРОВЕНЬ ВЫШЕ!');
-    expect(up.sub).toBe('Уровень 5');
+    // K-01 («Лавина 21»): the level in the toast itself.
+    expect(up.main).toBe('УРОВЕНЬ ВЫШЕ! 5');
+    expect(up.sub).toBe('');
     expect(up.slot).toBe('toast');
     expect(up.bottom).toBeLessThanOrEqual(96 + 1);
     expect(up.heroY).toBeGreaterThan(up.bottom);
