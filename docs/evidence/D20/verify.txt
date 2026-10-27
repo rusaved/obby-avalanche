@@ -1,0 +1,59 @@
+Полный verify вехи D20 «Лавина 20 · Доводка», 27.10, ветка claude/lavina-20-polish, облако (SwiftShader). Цепочка npm run verify по стадиям; e2e разделён по проектам (лимит фонового процесса 2 ч): desktop двумя частями (--shard 1/2, 2/2), затем mobile + truthful-*; хвост — e2e:sample, build, size, pack, check-release, e2e:release.
+== typecheck — start 10:11:11
+-- typecheck — exit 0 10:11:19
+== test — start 10:11:19
+ Test Files  113 passed (113)
+      Tests  644 passed (644)
+-- test — exit 0 10:15:12
+== validate — start 10:15:12
+validate:content: _sample — ok
+validate:content: avalanche — ok
+validate:content: avalanche/pace/fast — ok
+validate:content: avalanche/pace/open — ok
+validate:content: avalanche/pace/stages — ok
+-- validate — exit 0 10:15:21
+== build-e2e — start 10:15:21
+-- build-e2e — exit 0 10:15:23
+== e2e-desktop-1 — start 10:15:23
+fast-mountain: {"sec":104.43333333333334,"walls":15,"passSec":[3.7,6.9,8.1,9.3,10.8,11.9,29.2,35,39.7,45.7,51.8,58.3,65.1,71.5,103.1],"maxDown":1.8073729285674744,"standOffBelt":0,"gateStandMax":0,"shoes":2,"waves":2,"caught":0,"portal":true,"standAt":[],"firstBelt":{"passed":1,"shelter":1,"playSec":5.599999999999985},"axisMax6":19.155273569716076,"axisAt":"(19.2,6.0,118.0) cave:1 t=5.9 wave idle fun {\"padFlight\":false,\"launches\":1,\"top\":12.81250000000001,\"onSlide\":-1,\"slideLeft\":0,\"runSpeed\":23.351098801802824}","arrive":[null,"47"]} — game seconds 104.4
+fast-gates: gates [3.6,5.8,7.1,8.5,10.9,12.1,29.9,58.9]; shoes_1 4.8 s, treadmill_first 13.6 s; first belt {"passed":6,"shelter":6,"playSec":13.583333333333588}; off the axis before gate 6 8.9 at (-8.9,15.0,257.2) cave:4 t=10.4 wave idle fun {"padFlight":false,"launches":2,"top":12.812500000000014,"onSlide":-1,"slideLeft":0,"runSpeed":25.055155480827914}; stat at the gates ["16","22","44","66","72 closed",null,"1168.4000000000005 closed","1218.8000000000015 closed"]
+  ✘   52 [desktop] › e2e/fm-camera.spec.ts:107:1 › mountain 3 through the throat: the head is behind something opaque in ≤ 2% of the frames (5.1m)
+  ✓  138 [desktop] › e2e/lv-maze.spec.ts:23:1 › maze of mountain 1 (stage 9): the real exit leads to the finish, a false one into the pit (56.4s)
+  ✓  147 [desktop] › e2e/lv-tutorial.spec.ts:9:1 › the camp teleport to a passed stage for its trophies (22.5s)
+  ✓  167 [desktop] › e2e/m6-switch.spec.ts:31:1 › the base: the passed portal nearest to the hero is built ahead — a run again of mountain 1 ≤ 1 s at CPU ×4 (26.4s)
+  ✘  168 [desktop] › e2e/m6-switch.spec.ts:47:1 › no base: past half of mountain 1 the next one is built ahead — its summit portal straight to mountain 2 ≤ 1 s at CPU ×4 (26.0s)
+    test-results/fm-camera-mountain-3-throu-014da-opaque-in-≤-2-of-the-frames-desktop/test-failed-1.png
+    test-results/m6-switch-no-base-past-hal-3504d--mountain-2-≤-1-s-at-CPU-×4-desktop/test-failed-1.png
+  2 failed
+  167 passed (51.2m)
+-- e2e-desktop-1 — exit 1 11:06:39
+== e2e-desktop-2 — start 11:06:39
+-- e2e-desktop-2 — остановлен лимитом фона 2 ч в 12:11 после 149 из 170 тестов: 148 passed, 1 failed (sd-review-fixes:10 — волна в лабиринте, починено коммитом D-06 «не в лабиринте»)
+== e2e-mobile-truthful — start 12:21 (сборка 12:20)
+  8 failed
+  268 passed 
+-- e2e-mobile-truthful — exit 1 13:05 (layout-matrix:126, touch-mu-hud:24, touch-mu-giant:98, truthful-pads:15 ×3, truthful-hud:83 ×2)
+== build — start 12:20:55
+-- build — exit 0 12:20:58
+== size — start 12:20:58
+  assets/ZzFX-C1HKDoVW.js                              2.0 KB gzip 1.1 KB
+  total 2738.1 KB (target 4096.0 KB, limit 10240.0 KB)
+  js 1910.1 KB → gzip 432.0 KB (target 500.0 KB, limit 800.0 KB)
+-- size — exit 0 12:20:58
+== pack — start 12:20:58
+pack: 47 files, 2738.1 KB → release/avalanche-0.1.0.zip 1175.5 KB
+-- pack — exit 0 12:20:58
+== check-release — start 12:20:59
+RESULT: PASS
+-- check-release — exit 0 12:20:59
+RESULT: PASS
+check-release avalanche-0.1.0-no-iap.zip: RESULT: PASS
+== повтор упавших (один) — 13:05, сборка с навесом без стен: остаток части 2 (16), fm-camera:107, m6-switch:47, sd-review-fixes:10 и упавшие mobile/truthful
+  ✘  24 [mobile] › e2e/layout-matrix.spec.ts:126:3 › M6-02 matrix of sizes › ADS-07: the sticky banner shrinks the game and it grows back on resize, nothing cut 
+  ✘  26 [mobile] › e2e/touch-mu-hud.spec.ts:24:3 › MU phone HUD › MU-01 marks: a coin and a cup by the balances, no font symbols or emoji on the HUD and in the windows 
+  ✘  27 [truthful-880x405] › e2e/truthful-hud.spec.ts:83:1 › the stage strip slides in on a new stage, at a ridge and at the giant for 2–3 s, then hides; the slot moves up 
+  ✘  29 [truthful-915x412] › e2e/truthful-hud.spec.ts:83:1 › the stage strip slides in on a new stage, at a ridge and at the giant for 2–3 s, then hides; the slot moves up 
+    Error: expect
+  4 failed
+  28 passed 
+EXIT=1
