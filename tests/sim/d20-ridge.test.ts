@@ -89,4 +89,23 @@ describe('D-01, D-06 · closed ridges of mountain 1', () => {
     expect(warns[0]!).toBeLessThanOrEqual(w1.threat.idleMaxSec!);
     expect(warns[1]! - warns[0]!).toBeLessThanOrEqual(w1.threat.idleMaxSec! + 20);
   });
+
+  it('D-08 (playtest D20): a fall off a plate of stage 5 rolls back onto the plate he stood on, not to the stage start', () => {
+    const st5 = w1.stages!.find((s) => s.n === 5)!;
+    expect(st5.type).toBe('plates');
+    const sim = sim1(1e6);
+    sim.giantFreeCatches = 99;
+    const plates = sim.level.boxes.filter((b) => b.kind === 'floor' && b.min[2] > st5.start && b.max[2] < st5.end).sort((a, b) => a.min[2] - b.min[2]);
+    expect(plates.length).toBeGreaterThanOrEqual(2);
+    const p2 = plates[1]!;
+    const x = (p2.min[0] + p2.max[0]) / 2;
+    sim.teleport(x, p2.max[1] + 0.05, p2.min[2] + 3);
+    for (let k = 0; k < 30; k++) sim.step(STAND, DT);
+    // Walk off its far end into the gap.
+    for (let k = 0; k < 20 / DT && !sim.caught; k++) sim.step(UP, DT);
+    expect(sim.caught).not.toBeNull();
+    for (let k = 0; k < 10 / DT && sim.caught; k++) sim.step(STAND, DT);
+    expect(sim.hero.pos.z).toBeGreaterThan(p2.min[2]);
+    expect(sim.hero.pos.z).toBeLessThan(p2.max[2]);
+  });
 });

@@ -725,14 +725,15 @@ async function boot(): Promise<void> {
       hud?.toast(t('wave.caught'), 2, false, undefined, undefined, false, THREAT_TOAST);
     });
     // RL-02 (docs/01-gdd.md 21.2): a fall rolls him back to the flag of the ridge (caught.to «flag») — a short toast.
-    s.events.on('fall', ({ shelter }) => {
+    s.events.on('fall', ({ shelter, plate }) => {
       // SD-09: on the stages pace the roll-back goes to a stage start, not to a flag.
       // MU round 5: said only when he really goes back — a roll to where he stands is no «back».
       // Z-01: back into the cave that has just saved him — no «back», and his «Phew» stays.
       const c = s.caught;
       if (shelter) return;
       if (c) survivedShow = null;
-      if (c && Math.hypot(c.to.x - c.from.x, c.to.z - c.from.z) > 1) hud?.toast(t(s.level.stages ? 'toast.fallBackStage' : 'toast.fallBack'), 2);
+      // D-08: back onto the plate he stood on — «try again», not «back to the stage start».
+      if (c && Math.hypot(c.to.x - c.from.x, c.to.z - c.from.z) > 1) hud?.toast(t(plate ? 'toast.fallBackPlate' : s.level.stages ? 'toast.fallBackStage' : 'toast.fallBack'), 2);
     });
     s.events.on('waveEnd', ({ scripted, outcome }) => {
       if (scripted) {

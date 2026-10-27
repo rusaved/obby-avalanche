@@ -38,6 +38,7 @@
   "wave.caught": "Накрыло снегом!",
   "toast.fallBack": "Опа! Назад к флажку",
   "toast.fallBackStage": "Опа! Назад к началу этапа",
+  "toast.fallBackPlate": "Опа! Прыгай с края плиты",
   "wave.goldSaved": "Золотой подарок! +{n}",
   "wave.giftSaved": "Сохранил подарок! +{n} {coin}",
   "wave.firstMiss": "В пещеру, когда идёт лавина!",

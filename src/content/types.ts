@@ -269,7 +269,7 @@ export interface BalanceJson {
    * the camp): `giant` «stage» — his slap rolls to the start of his own stage; absent — as `to`. MU (Q-MU-12): `pastGiant`
    * «own» — a fall on the stage right after a giant passed in this attempt rolls to that stage's start, not back to him.
    * Z-01: `pastAvalanche` «own» — a fall on the stage right after an avalanche stage keeps its own start (never back under its wave). */
-  caught: { rollSec: number; maxSec: number; to?: 'flag' | 'caveBelow' | 'prevStage'; giant?: 'stage'; pastGiant?: 'own'; pastAvalanche?: 'own'; giantFreeSec?: number };
+  caught: { rollSec: number; maxSec: number; to?: 'flag' | 'caveBelow' | 'prevStage'; giant?: 'stage'; pastGiant?: 'own'; pastAvalanche?: 'own'; giantFreeSec?: number; plates?: 'plate' };
   /** Levels of the stat (docs/01-gdd.md 22.2, pace stages): level 2 from `first`, each next ×`growth`; absent — no levels. */
   levels?: { first: number; growth: number };
   /** The wallet of shoes, eggs and coin rewards (docs/01-gdd.md 22.8): `trophies` on the stages pace; absent — coins. */

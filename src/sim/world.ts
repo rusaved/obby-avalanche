@@ -52,7 +52,7 @@ export interface SimEvents extends Omit<ThreatEvents, 'waveSurvived'>, BossEvent
   step: { tick: number };
   checkpoint: { index: number; z: number };
   /** Z-01: `shelter` — he fell right out of the cave that saved him from this wave and is rolled back into it, no «back». */
-  fall: { tick: number; z: number; shelter?: boolean };
+  fall: { tick: number; z: number; shelter?: boolean; plate?: boolean };
   respawn: { tick: number; z: number; checkpoint: number };
   jump: { tick: number };
   /** `z` — where he came down (e2e: the landing of a flight, independent of how often the test looks). */
@@ -318,7 +318,16 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   // No cascade (Q-083, producer 15.10; docs/01-gdd.md 4.5, 22.9): the stage back counts from the farthest stage of the
   // attempt — a fall on the stage the hero was rolled back to returns him to its own start. A teleport starts an attempt.
   let stageFar = 0;
+  /** D-08 (playtest D20: 63 falls on the plates, each back to the stage start): with caught.plates «plate» — the start of
+   * the plate he last stood on (its middle, 2 units in), null off the plates. */
+  let plateFoot: { x: number; y: number; z: number } | null = null;
+  let toPlate = false;
   const flagPoint = (): { x: number; y: number; z: number } => {
+    toPlate = false;
+    if (toPrev && plateFoot && level.stages?.find((x) => x.n === stageAt(level, hero.pos.z))?.type === 'plates') {
+      toPlate = true;
+      return { ...plateFoot };
+    }
     if (toPrev) {
       // A false exit of the maze rolls back to its own way in (LV-12 review: back over the whole stage before it the
       // maze was a lottery with a long walk); any other fall at the farthest stage — to the stage before (22.9).
@@ -589,6 +598,15 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
         }
       }
       if (level.stages && !sim.caught) stageFar = Math.max(stageFar, stageAt(level, hero.pos.z));
+      if (opts.balance.caught?.plates === 'plate' && level.stages && !sim.caught && hero.onGround) {
+        const st = level.stages.find((x) => x.n === stageAt(level, hero.pos.z));
+        if (st?.type !== 'plates') plateFoot = null;
+        else if (hero.pos.z > st.start) {
+          const p = hero.pos;
+          const b = level.boxes.find((q) => q.kind === 'floor' && p.x >= q.min[0] && p.x <= q.max[0] && p.z >= q.min[2] && p.z <= q.max[2] && Math.abs(q.max[1] - p.y) < 0.6);
+          if (b) plateFoot = { x: (b.min[0] + b.max[0]) / 2, y: b.max[1], z: Math.min(b.min[2] + 2, b.max[2] - 1) };
+        }
+      }
       // Trophy buttons of the stage finishes (docs/01-gdd.md 22.8): stand on one — its trophies, once a pass.
       let onPad = -1;
       if (level.stages) for (let k = 0; k < level.stages.length; k++) {
@@ -637,7 +655,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
           sim.caught = createCaught(level, { x: hero.pos.x, y: hero.pos.y, z: hero.pos.z }, opts.balance.caught, tuning.avalanche, to);
           waveReset = true;
         } else sim.respawnTicksLeft = RESPAWN_FADE_TICKS;
-        events.emit('fall', { tick: sim.tick, z: hero.pos.z, ...(saved ? { shelter: true } : {}) });
+        events.emit('fall', { tick: sim.tick, z: hero.pos.z, ...(saved ? { shelter: true } : {}), ...(toPlate && !saved ? { plate: true } : {}) });
       }
       // On his feet farther than graceDist out of that cave — the next fall is an ordinary one (the strip of floor between a
       // through grotto and the pit behind it, or the very edge the capsule stands on, is still «out of it, falling»).
@@ -651,6 +669,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
     },
     teleport(x, y, z) {
       stageFar = 0;
+      plateFoot = null;
       savedIn = -1;
       sim.caught = null;
       sim.slow = null;
