@@ -93,14 +93,14 @@ for (const view of [{ width: 812, height: 375 }, { width: 915, height: 412 }]) {
       await expect(page.locator('[data-role="toast"].shown')).toHaveCount(0, { timeout: 10_000 });
       // The toast comes on every 5th level.
       await page.evaluate((s) => window.__TEST__!.setStat(s), threshold(15) + 1);
-      await expect(page.locator('[data-role="toast"].shown .hud-toast-main')).toHaveText('УРОВЕНЬ ВЫШЕ!', { timeout: 10_000 });
+      await expect(page.locator('[data-role="toast"].shown .hud-toast-main')).toHaveText(/^УРОВЕНЬ ВЫШЕ! \d+$/, { timeout: 10_000 });
       await page.waitForTimeout(250);
       await page.screenshot({ path: `${dir}/l4-level-up.png` });
       // Round of fixes 2: the level toast at 130 % text too.
       await expect(page.locator('[data-role="toast"].shown')).toHaveCount(0, { timeout: 10_000 });
       await scaleText(page, 1.3);
       await page.evaluate((s) => window.__TEST__!.setStat(s), threshold(20) + 1);
-      await expect(page.locator('[data-role="toast"].shown .hud-toast-main')).toHaveText('УРОВЕНЬ ВЫШЕ!', { timeout: 10_000 });
+      await expect(page.locator('[data-role="toast"].shown .hud-toast-main')).toHaveText(/^УРОВЕНЬ ВЫШЕ! \d+$/, { timeout: 10_000 });
       await page.waitForTimeout(250);
       await page.screenshot({ path: `${dir}/l4-level-up-130.png` });
       await scaleText(page, 1);

@@ -102,7 +102,8 @@ test('the stage strip slides in on a new stage, at a ridge and at the giant for 
   await page.evaluate(([s, z]) => {
     window.__TEST__!.setStat(s);
     window.__TEST__!.teleport(z);
-  }, [threshold(st4.level - 3), st4.z0 - 30] as const);
+    // K-01 (red in D20): from out of the plaque's reach (hud-view NEED_NEAR 60) — the plaque comes on the way, not on the teleport.
+  }, [threshold(st4.level - 3), st4.z0 - 70] as const);
   await expect.poll(() => stripHidden(page), { timeout: 4_000, intervals: [250] }).toBe(true);
   await page.evaluate((z) => window.__TEST__!.botPath([[0, z]]), st4.z0 - 4);
   await expect(page.locator('[data-role="need"]')).toBeVisible({ timeout: 10_000 });

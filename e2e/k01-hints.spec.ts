@@ -62,7 +62,7 @@ test.describe('K-01 · plates, canopy, toasts, names (880 × 405)', () => {
     // The last «Jump!» runs out its hold past the stage.
     await page.waitForTimeout(2500);
     const s = await testState(page);
-    const falls = s.simEvents.filter((e) => e.name === 'fall' && e.tick > from).length;
+    const falls = await page.evaluate((a) => window.__TEST__!.simEvents.filter((e) => e.name === 'fall' && e.tick > a).length, from);
     const log = await logOf(page, '__tutor');
     console.log('K-01 plates', JSON.stringify({ falls, sec: (s.simTick - from) / TPS }), fmt(log));
     expect(falls, 'falls on the plates').toBeLessThanOrEqual(3);
@@ -94,23 +94,26 @@ test.describe('K-01 · plates, canopy, toasts, names (880 × 405)', () => {
     let warn = -1;
     for (let i = 0; i < 100 && warn < 0; i++) {
       await page.evaluate(() => window.__TEST__!.runSim(1));
-      warn = (await testState(page)).simEvents.find((e) => e.name === 'waveWarn' && e.tick > from)?.tick ?? -1;
+      warn = await page.evaluate((a) => window.__TEST__!.simEvents.find((e) => e.name === 'waveWarn' && e.tick > a)?.tick ?? -1, from);
     }
     expect(warn, 'a wave warned').toBeGreaterThan(0);
     console.log('K-01 wall 8: first warning after', (warn - from) / TPS, 's');
     expect((warn - from) / TPS).toBeLessThanOrEqual(90);
-    await waitTicks(page, 3);
+    // Slowed down while the plaque is read (the warning of the first wave is 5 s).
+    await page.evaluate(() => window.__TEST__!.setTimeScale(0.1));
     await expect(page.locator('[data-role="wave-sub"]')).toHaveText('Под навес!');
-    await expect(page.locator('[data-role="tutor"].shown')).not.toContainText('Спрячься за камень');
+    await expect(page.locator('[data-role="tutor"].shown', { hasText: 'Спрячься за камень' })).toHaveCount(0);
     // Into the canopy; a level grows under the banner — «Phew, made it!» comes first.
     await watch(page, '[data-role="toast"]', '__toasts');
+    const roof = W1.segments.find((q) => q.type === 'niche' && q['through'] === true && Math.abs(q.z - (ridge - 6)) < 9)!;
     await page.evaluate(
-      ([z, s]) => {
-        window.__TEST__!.teleport(z, 0);
+      ([z, s, y]) => {
+        window.__TEST__!.teleport(z, 0, y + 0.5);
         window.__TEST__!.setStat(s);
       },
-      [ridge - 6, threshold(5)] as const,
+      [ridge - 6, threshold(5), roof['y'] as number] as const,
     );
+    await page.evaluate(() => window.__TEST__!.setTimeScale(1));
     await page.waitForFunction(() => /уровень выше/i.test(document.querySelector('[data-role="toast"].shown')?.textContent ?? ''), undefined, { timeout: 60_000 });
     const log = await logOf(page, '__toasts');
     const phew = log.findIndex((x) => x.on && /Уф, успел/.test(x.text));

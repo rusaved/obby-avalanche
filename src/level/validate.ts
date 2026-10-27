@@ -258,8 +258,8 @@ const themeSchema = v.object({
   decor: v.optional(
     v.object({
       minQuality: v.picklist(['low', 'medium', 'high']),
-      low: v.optional(v.object({ every: v.pipe(v.number(), v.integer(), v.minValue(1)), near: positive })),
-      walkers: v.object({ look: id, on: v.array(id), perSection: v.tuple([nonNeg, nonNeg]), patch: positive, speed: positive }),
+      low: v.optional(v.object({ every: v.pipe(v.number(), v.integer(), v.minValue(1)), near: positive, size: v.optional(positive) })),
+      walkers: v.object({ look: id, on: v.array(id), perSection: v.tuple([nonNeg, nonNeg]), patch: positive, speed: positive, belly: v.optional(hex) }),
       sitters: v.object({ looks: v.pipe(v.array(id), v.minLength(1)), on: v.array(id), perSection: v.tuple([nonNeg, nonNeg]), lookAtDist: positive, hopDist: positive }),
     }),
   ),

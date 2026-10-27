@@ -1722,6 +1722,9 @@ async function boot(): Promise<void> {
     blob.update(renderPos, sim.collision);
     recordFlag.update(sim.record, renderPos.z);
     bonusVisual?.update(sim.bonus, renderPos, playSec);
+    // K-01: a «LEVEL UP!» grown under the wave waits for its «Phew, made it!» (more important, TOAST_PRIO.threat) — held
+    // before the banner goes, let go once it is shown.
+    hud?.holdToasts(survivedShow !== null);
     waveView?.update(frameDt, playSec);
     // Q-067: «Phew, made it!» of the last wave once its snow has passed the hero (or the wave is over).
     if (survivedShow) {
@@ -1732,6 +1735,7 @@ async function boot(): Promise<void> {
         show();
       }
     }
+    hud?.holdToasts(survivedShow !== null);
     const gameDt = (loop.ticks - lastRenderTicks) * loop.step;
     lastRenderTicks = loop.ticks;
     meta?.update();
