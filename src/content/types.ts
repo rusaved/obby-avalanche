@@ -120,6 +120,11 @@ export interface DecorJson {
   finish: { inset: number; from: number; span: number; clear: number; post: string; garland?: string; garlandLift: number; props: string[] };
   campClear: number;
   camp: Array<{ id: string; x: number; z: number; yaw?: number; lift?: number }>;
+  /** D-03: on the mountains of `worlds` — drifts and stones in the middle of the field, `axis`…half − `inset` off the run
+   * line, a pick every `every` units (at most `perStage` a stage), `scale` of a pick there over its own. */
+  mid?: { worlds: number[]; every: number; perStage: number; axis: number; inset: number; jitter: number; clear: number; pick: string[]; scale?: Record<string, number> };
+  /** D-03: the flags that mark the run line on the mountains of `worlds` — both sides of the axis at `x`, every `every`. */
+  marks?: { worlds: number[]; x: number; every: number; clear: number; trail?: number };
 }
 
 /** Z-06: decor-models.json — generated (npm run gen:decor): positions in hundredths of a unit, a palette index a vertex, triangles. */

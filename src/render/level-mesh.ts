@@ -43,6 +43,10 @@ import type { DataArrayTexture } from 'three';
 
 export const CHUNK_LENGTH = 120;
 /** Gate sign: glyph size, plaque width at least and its margin around the text (world units). */
+/** D-03: the run line's flag — its pole and cloth (units). */
+const MARK_POLE = 3;
+const MARK_CLOTH = 1.6;
+const TRAIL_HALF = 0.3;
 const SIGN_TEXT = 2.2;
 const SIGN_MIN_WIDTH = 6;
 const SIGN_PAD = 2;
@@ -355,6 +359,18 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       const g = pieceGeometry(piece, decor.models, decor.spec.ao, decor.spec.foot);
       if (g) bucketOf(piece.z).push(g);
     }
+  // D-03: the run line's flags — a thin pole and its cloth in theme markFlag.
+  for (const [x, y, z, side] of plan?.marks ?? []) {
+    const pole: LevelBox = { min: [x - 0.1, y, z - 0.1], max: [x + 0.1, y + MARK_POLE, z + 0.1], material: 'pole', kind: 'decor', solid: false };
+    // The cloth along the run, its face to the axis (seen from the run line); under 0.6 tall — no foot AO on it.
+    const cloth: LevelBox = { min: [x - 0.05, y + MARK_POLE - 0.6, z + 0.1], max: [x + 0.05, y + MARK_POLE - 0.05, z + 0.1 + MARK_CLOTH], material: 'markFlag', kind: 'decor', solid: false };
+    bucketOf(z).push(boxGeometry(pole, theme), boxGeometry(cloth, theme));
+  }
+  // D-03: the ski track up the axis between the flags — two strips a shade darker than the snow, where the ground is flat.
+  for (const [x, y, z0, z1] of plan?.trail ?? []) {
+    const strip: LevelBox = { min: [x - TRAIL_HALF, y + 0.01, z0], max: [x + TRAIL_HALF, y + 0.04, z1], material: 'trail', kind: 'decor', solid: false };
+    bucketOf(z0).push(boxGeometry(strip, theme));
+  }
   const glowGeo = new IcosahedronGeometry(1, 0);
   const glowMat = new MeshBasicMaterial({ color: decor?.spec.glowColor ?? '#ffffff', transparent: true, opacity: decor?.spec.glowOpacity ?? 0, blending: AdditiveBlending, depthWrite: false });
   const glowList = plan?.glows ?? [];

@@ -60,6 +60,8 @@
     "treadmill": { "color": "#3BA4FF", "roughness": 0.6 },
     "treadmillStripe": { "color": "#FFFFFF" },
     "flag": { "color": "#EEF3F8" },
+    "markFlag": { "color": "#FF7A45" },
+    "trail": { "color": "#C9D6E6" },
     "pole": { "color": "#6B4A2B", "tex": "wood" },
     "tent": { "color": "#FF7A00" },
     "tree": { "color": "#2E8B57", "tex": "crust" },

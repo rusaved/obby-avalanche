@@ -27,6 +27,10 @@ export interface WinterDecor {
   pieces: DecorPiece[];
   /** Warm glows (x, y, z, radius): lantern lamps, garland bulbs, the campfire. */
   glows: Array<[number, number, number, number]>;
+  /** D-03: the flags that mark the run line (x, y, z, side −1 / 1: the cloth to the outside). */
+  marks: Array<[number, number, number, number]>;
+  /** D-03: the strips of the ski track up the axis (x, y, z0, z1). */
+  trail: Array<[number, number, number, number]>;
 }
 
 /** Where the decor stands on `level`: pure, deterministic (seeded by the world index). */
@@ -34,6 +38,8 @@ export function winterDecorPlan(level: LevelData, spec: DecorJson, models: Decor
   const rng = createRng(0x5eed + level.worldIndex * 7919);
   const pieces: DecorPiece[] = [];
   const glows: WinterDecor['glows'] = [];
+  const marks: WinterDecor['marks'] = [];
+  const trail: WinterDecor['trail'] = [];
   const size = (id: string): number => {
     const m = models.models[id];
     if (!m) return 0;
@@ -63,12 +69,12 @@ export function winterDecorPlan(level: LevelData, spec: DecorJson, models: Decor
     }
     return y;
   };
-  const place = (id: string, x: number, z: number, yaw: number, clear: number, lift = 0, near = spec.clear.near): boolean => {
+  const place = (id: string, x: number, z: number, yaw: number, clear: number, lift = 0, near = spec.clear.near, k = 1): boolean => {
     if (!models.models[id]) return false;
-    const r = size(id);
+    const r = size(id) * k;
     const y = free(x, z, r, clear, near);
     if (y === null) return false;
-    const scale = spec.scale[id] ?? 1;
+    const scale = (spec.scale[id] ?? 1) * k;
     pieces.push({ id, x, y: y + lift, z, yaw, scale });
     for (const [gx, gy, gz, gr] of spec.glow[id] ?? []) {
       const c = Math.cos(yaw);
@@ -96,6 +102,36 @@ export function winterDecorPlan(level: LevelData, spec: DecorJson, models: Decor
         place(rng.pick(e.pick), x, zz, rng.next() * Math.PI * 2, e.clear);
       }
   }
+  // D-03 (headquarters 27.10: the middle of the slope was white on white): drifts and stones between the run line and
+  // the edge, and the flags of the run line — the way ahead read at a glance; merged into the chunks like the rest.
+  const mid = spec.mid;
+  if (mid?.worlds.includes(level.worldIndex))
+    for (const [a, b] of spans) {
+      const step = Math.max(mid.every, ((b - a) * 2) / mid.perStage);
+      for (let z = a + step / 2; z < b; z += step)
+        for (const side of [-1, 1]) {
+          const zz = z + (rng.next() - 0.5) * mid.jitter;
+          const far = level.halfAt(zz) - mid.inset;
+          if (far <= mid.axis) continue;
+          const id = rng.pick(mid.pick);
+          place(id, side * (mid.axis + rng.next() * (far - mid.axis)), zz, rng.next() * Math.PI * 2, mid.clear, 0, spec.clear.near, mid.scale?.[id] ?? 1);
+        }
+    }
+  const mk = spec.marks;
+  if (mk?.worlds.includes(level.worldIndex))
+    for (const [a, b] of spans)
+      for (let z = a + mk.every / 2; z < b; z += mk.every)
+        for (const side of [-1, 1]) {
+          const y = free(side * mk.x, z, 0.3, mk.clear, 0);
+          if (y !== null) marks.push([side * mk.x, y, z, side]);
+          // The track between this pair and the next where the ground runs flat (no dip, pit or step under it).
+          const tx = side * (mk.trail ?? 0);
+          if (!mk.trail || z + mk.every > b) continue;
+          const g0 = level.floorAt(tx, z);
+          let flat = Number.isFinite(g0) && !level.niches.some((n) => tx > n.box.min[0] - 1 && tx < n.box.max[0] + 1 && z + mk.every > n.box.min[2] && z < n.box.max[2]);
+          for (let t = 2; flat && t <= mk.every; t += 2) flat = Math.abs(level.floorAt(tx, z + t) - g0) < 0.05;
+          if (flat && !level.gates.some((g) => g.z > z - 1 && g.z < z + mk.every + 1)) trail.push([tx, g0, z, z + mk.every]);
+        }
   // Stage finishes: by the trophy pad's edge a lantern pair with a garland between before it, crates and a barrel past it
   // (the treadmill takes the other edge).
   for (const st of level.stages ?? []) {
@@ -112,7 +148,7 @@ export function winterDecorPlan(level: LevelData, spec: DecorJson, models: Decor
       const z = camp[0] + c.z;
       place(c.id, c.x * level.halfAt(z), z, c.yaw ?? rng.next() * Math.PI * 2, spec.campClear, c.lift ?? 0);
     }
-  return { pieces, glows };
+  return { pieces, glows, marks, trail };
 }
 
 const _m = new Matrix4();

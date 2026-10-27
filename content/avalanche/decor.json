@@ -284,5 +284,7 @@
       "z": 34,
       "yaw": 3.14
     }
-  ]
+  ],
+  "mid": { "worlds": [1], "every": 22, "perStage": 10, "axis": 12, "inset": 14, "jitter": 8, "clear": 3, "pick": ["rocksM", "pile", "rocksM"], "scale": { "pile": 0.55, "rocksM": 0.5 } },
+  "marks": { "worlds": [1], "x": 8, "every": 24, "clear": 1, "trail": 1.2 }
 }
