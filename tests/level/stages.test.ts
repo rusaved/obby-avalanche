@@ -60,8 +60,11 @@ describe('stages pace: the mountain of stages (LV-03…LV-07, docs/01-gdd.md 22.
       expect(ch).toBeGreaterThanOrEqual(2);
       expect(ch).toBeLessThanOrEqual(3);
       const intro = st[0]!.type === 'intro' ? st[0]!.end : 0;
-      const coins = w.segments.filter((s) => s.type === 'gift' && s.z >= intro && s['snowflake'] !== true);
+      // D-01 (Q-Z-2 «A»): but the gifts the spec puts on the axis of its stages (stageGifts), as many as it asks.
+      const sg = (read('pace/stages/worlds-spec.json') as { stages: { stageGifts?: { count: number[][] } } }).stages.stageGifts?.count[i] ?? [];
+      const coins = w.segments.filter((s) => s.type === 'gift' && s.z >= intro && s['snowflake'] !== true && !(sg[(s['zone'] as number) - 1] ?? 0));
       expect(coins, `mountain ${i + 1}`).toEqual([]);
+      for (const [k, n] of sg.entries()) expect(w.segments.filter((s) => s.type === 'gift' && s['zone'] === k + 1 && s.z >= intro && s['snowflake'] !== true).length).toBe(n);
       expect(w.segments.filter((s) => s['snowflake'] === true).length).toBeLessThanOrEqual(2);
       // SD-03 (23.3): the trophies grow stage by stage; their sum is the open coins over upgrade.trophyRate.
       const paid = st.filter((s) => s.trophies > 0);

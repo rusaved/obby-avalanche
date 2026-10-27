@@ -258,6 +258,7 @@ const themeSchema = v.object({
   decor: v.optional(
     v.object({
       minQuality: v.picklist(['low', 'medium', 'high']),
+      low: v.optional(v.object({ every: v.pipe(v.number(), v.integer(), v.minValue(1)), near: positive })),
       walkers: v.object({ look: id, on: v.array(id), perSection: v.tuple([nonNeg, nonNeg]), patch: positive, speed: positive }),
       sitters: v.object({ looks: v.pipe(v.array(id), v.minLength(1)), on: v.array(id), perSection: v.tuple([nonNeg, nonNeg]), lookAtDist: positive, hopDist: positive }),
     }),
@@ -542,6 +543,7 @@ const worldSchema = v.object({
     safeZoneZ: v.tuple([nonNeg, nonNeg]),
     spawnMaxZ: v.optional(nonNeg),
     minGapSec: v.optional(positive),
+    idleMaxSec: v.optional(positive),
   }),
   zones: v.pipe(v.array(v.object({ k: v.pipe(v.number(), v.integer()), rarity: id, gift: positive, zStart: nonNeg, zEnd: nonNeg, stepMult: v.optional(positive) })), v.minLength(1)),
   segments: v.pipe(v.array(segmentSchema), v.minLength(1)),

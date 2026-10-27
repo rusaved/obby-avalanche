@@ -539,6 +539,25 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     seg.push({ type: 'block', z: round3(pad.z - 3), z1: round3(pad.z + 3), x0: round3(pad.x - 3), x1: round3(pad.x + 3), y0: round3(y - 0.5), y1: round3(y + 0.25), material: 'trophyPad', kind: 'trophyPad' });
     // The treadmill of the finish (22.8; the belt of the ridge grotto of 17.4): Speed by the closed ridge, × the step of the stage.
     seg.push({ type: 'treadmill', z: pad.z, x: -padX, y, length: 12, width: 6, mult: zone.stepMult ?? 1 });
+    // D-01 (Q-Z-2 «A»): a belt in a grotto on the axis up to the middle passage of the ridge above, open at both ends —
+    // a run up the axis that meets the closed ridge stands on it and keeps growing; the hint at that ridge points at it.
+    const fg = cfg.finishGrotto;
+    if (fg && s < K && fg.stages[index - 1]?.includes(s)) {
+      const z0g = round3(end + cfg.finish - fg.length);
+      const z1g = round3(end + cfg.finish + 2); // past the face by the grotto wall (builder NICHE_WALL) and a unit: the belt reaches it
+      seg.push({ type: 'niche', z: round3((z0g + z1g) / 2), y, side: 'left', rock: 0, width: fg.width, length: round3(z1g - z0g), sides: true, through: true, kind: 'ridgeGrotto', treadmill: zone.stepMult ?? 1, zone: s, stretch: s, edge: half });
+    }
+    // D-01: gifts along the axis of the trial (on its floors at the height of the stage), `coins` each.
+    const ng = cfg.stageGifts?.count[index - 1]?.[s - 1] ?? 0;
+    if (ng > 0) {
+      const floors = seg.filter((f) => f.type === 'floor' && f['material'] !== 'pit' && f['solid'] !== false && f.z >= start - 1e-6 && f.z < end && Math.abs((f['y'] as number) - y) < 1e-3 && (f['x0'] as number) <= 0 && (f['x1'] as number) >= 0);
+      const total = floors.reduce((a, f) => a + (f['length'] as number), 0);
+      for (let k = 0, at = 0, fi = 0; k < ng && total > 0; k++) {
+        const want = ((k + 0.5) / ng) * total;
+        while (fi < floors.length - 1 && at + (floors[fi]!['length'] as number) < want) at += floors[fi++]!['length'] as number;
+        seg.push({ type: 'gift', z: round3(floors[fi]!.z + want - at), x: 0, y, height: 0, zone: s, rarity: zone.rarity, coins: cfg.stageGifts!.coins, n: k + 1, path: true });
+      }
+    }
     // ST-04: the decor of the mountain at the edges of the start pad (across from its grotto) and of the finish, off the pads.
     const dec = cfg.decor?.[index - 1];
     if (dec) {
@@ -569,7 +588,8 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
   });
   // Z-01 (Q-G-2 «A»): the least pause between two waves of this mountain, by mountain (absent past the list — none).
   const minGap = cfg.avalanche.minGapSec?.[index - 1];
-  const gap = minGap !== undefined ? { minGapSec: minGap } : {};
+  const idle = cfg.avalanche.idleMaxSec?.[index - 1];
+  const gap = { ...(minGap !== undefined ? { minGapSec: minGap } : {}), ...(idle !== undefined ? { idleMaxSec: idle } : {}) };
   return {
     id: ow.id,
     index,

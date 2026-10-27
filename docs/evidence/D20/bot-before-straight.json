@@ -1,0 +1,22 @@
+{
+ "mode": "straight",
+ "maxWallSec": 252.1,
+ "wallSec": 252,
+ "walls": [
+  {
+   "gate": 5,
+   "at": 48,
+   "sec": 252.1
+  }
+ ],
+ "coins180": 174,
+ "level180": 4,
+ "stage180": 5,
+ "shoes": 1,
+ "giant": 1,
+ "avalanche": 1,
+ "falls": 0,
+ "waves": 1,
+ "summitSec": null,
+ "stageBest": 5
+}

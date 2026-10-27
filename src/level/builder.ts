@@ -426,7 +426,8 @@ export function buildLevel(world: World, opts: BuildOptions = {}): LevelData {
       const x = num(n, 'rock');
       const y = num(n, 'y');
       const len = num(n, 'length');
-      const b = rock(x, y, num(n, 'width') / 2, n.z - len / 2, n.z + len / 2, false);
+      // D-01: `sides` — walls at both sides too, `through` — no back wall (the finish grotto of the stages on the axis).
+      const b = rock(x, y, num(n, 'width') / 2, n.z - len / 2, n.z + len / 2, n['sides'] === true, n['through'] !== true);
       niches.push({ stretch: num(n, 'stretch'), z: n.z, y, side: x < 0 ? 'left' : 'right', box: b, treadmill: num(n, 'treadmill', 1) * mountainTreadmill, zone: num(n, 'zone', 0), kind: 'island' });
       points.push({ type: 'treadmill', x, y, z: (b.min[2] + b.max[2]) / 2, mult: num(n, 'treadmill', 1) * mountainTreadmill, length: b.max[2] - b.min[2] - 1, width: NICHE_BELT_WIDTH, inNiche: true, niche: niches.length - 1 });
       continue;

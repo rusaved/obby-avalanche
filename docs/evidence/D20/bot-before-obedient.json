@@ -1,0 +1,22 @@
+{
+ "mode": "obedient",
+ "maxWallSec": 259.6,
+ "wallSec": 260,
+ "walls": [
+  {
+   "gate": 4,
+   "at": 41,
+   "sec": 259.6
+  }
+ ],
+ "coins180": 216,
+ "level180": 3,
+ "stage180": 4,
+ "shoes": 1,
+ "giant": 1,
+ "avalanche": 0,
+ "falls": 0,
+ "waves": 1,
+ "summitSec": null,
+ "stageBest": 4
+}

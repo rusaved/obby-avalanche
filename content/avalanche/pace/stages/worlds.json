@@ -108,7 +108,8 @@
         ],
         "zoneFirstSec": 1,
         "zoneWarnSec": 4,
-        "minGapSec": 45
+        "minGapSec": 45,
+        "idleMaxSec": 90
       },
       "zones": [
         {
@@ -700,6 +701,22 @@
           "mult": 1
         },
         {
+          "type": "niche",
+          "z": 513.135,
+          "y": 12,
+          "side": "left",
+          "rock": 0,
+          "width": 13,
+          "length": 16,
+          "sides": true,
+          "through": true,
+          "kind": "ridgeGrotto",
+          "treadmill": 1,
+          "zone": 2,
+          "stretch": 2,
+          "edge": 50
+        },
+        {
           "type": "decor",
           "z": 334,
           "x": 46,
@@ -1036,6 +1053,94 @@
           "mult": 1
         },
         {
+          "type": "niche",
+          "z": 721.135,
+          "y": 16,
+          "side": "left",
+          "rock": 0,
+          "width": 13,
+          "length": 16,
+          "sides": true,
+          "through": true,
+          "kind": "ridgeGrotto",
+          "treadmill": 1,
+          "zone": 3,
+          "stretch": 3,
+          "edge": 50
+        },
+        {
+          "type": "gift",
+          "z": 544.135,
+          "x": 0,
+          "y": 16,
+          "height": 0,
+          "zone": 3,
+          "rarity": "uncommon",
+          "coins": 12,
+          "n": 1,
+          "path": true
+        },
+        {
+          "type": "gift",
+          "z": 580.135,
+          "x": 0,
+          "y": 16,
+          "height": 0,
+          "zone": 3,
+          "rarity": "uncommon",
+          "coins": 12,
+          "n": 2,
+          "path": true
+        },
+        {
+          "type": "gift",
+          "z": 616.135,
+          "x": 0,
+          "y": 16,
+          "height": 0,
+          "zone": 3,
+          "rarity": "uncommon",
+          "coins": 12,
+          "n": 3,
+          "path": true
+        },
+        {
+          "type": "gift",
+          "z": 626.135,
+          "x": 0,
+          "y": 16,
+          "height": 0,
+          "zone": 3,
+          "rarity": "uncommon",
+          "coins": 12,
+          "n": 4,
+          "path": true
+        },
+        {
+          "type": "gift",
+          "z": 662.135,
+          "x": 0,
+          "y": 16,
+          "height": 0,
+          "zone": 3,
+          "rarity": "uncommon",
+          "coins": 12,
+          "n": 5,
+          "path": true
+        },
+        {
+          "type": "gift",
+          "z": 698.135,
+          "x": 0,
+          "y": 16,
+          "height": 0,
+          "zone": 3,
+          "rarity": "uncommon",
+          "coins": 12,
+          "n": 6,
+          "path": true
+        },
+        {
           "type": "decor",
           "z": 533.135,
           "x": -46,
@@ -1236,6 +1341,94 @@
           "mult": 1.2
         },
         {
+          "type": "niche",
+          "z": 1030.582,
+          "y": 20,
+          "side": "left",
+          "rock": 0,
+          "width": 13,
+          "length": 16,
+          "sides": true,
+          "through": true,
+          "kind": "ridgeGrotto",
+          "treadmill": 1.2,
+          "zone": 4,
+          "stretch": 4,
+          "edge": 50
+        },
+        {
+          "type": "gift",
+          "z": 769.256,
+          "x": 0,
+          "y": 20,
+          "height": 0,
+          "zone": 4,
+          "rarity": "rare",
+          "coins": 12,
+          "n": 1,
+          "path": true
+        },
+        {
+          "type": "gift",
+          "z": 813.497,
+          "x": 0,
+          "y": 20,
+          "height": 0,
+          "zone": 4,
+          "rarity": "rare",
+          "coins": 12,
+          "n": 2,
+          "path": true
+        },
+        {
+          "type": "gift",
+          "z": 857.738,
+          "x": 0,
+          "y": 20,
+          "height": 0,
+          "zone": 4,
+          "rarity": "rare",
+          "coins": 12,
+          "n": 3,
+          "path": true
+        },
+        {
+          "type": "gift",
+          "z": 901.979,
+          "x": 0,
+          "y": 20,
+          "height": 0,
+          "zone": 4,
+          "rarity": "rare",
+          "coins": 12,
+          "n": 4,
+          "path": true
+        },
+        {
+          "type": "gift",
+          "z": 946.22,
+          "x": 0,
+          "y": 20,
+          "height": 0,
+          "zone": 4,
+          "rarity": "rare",
+          "coins": 12,
+          "n": 5,
+          "path": true
+        },
+        {
+          "type": "gift",
+          "z": 990.461,
+          "x": 0,
+          "y": 20,
+          "height": 0,
+          "zone": 4,
+          "rarity": "rare",
+          "coins": 12,
+          "n": 6,
+          "path": true
+        },
+        {
           "type": "decor",
           "z": 741.135,
           "x": 46,
@@ -1411,6 +1604,22 @@
           "length": 12,
           "width": 6,
           "mult": 1.2
+        },
+        {
+          "type": "niche",
+          "z": 1244.412,
+          "y": 24,
+          "side": "left",
+          "rock": 0,
+          "width": 13,
+          "length": 16,
+          "sides": true,
+          "through": true,
+          "kind": "ridgeGrotto",
+          "treadmill": 1.2,
+          "zone": 5,
+          "stretch": 5,
+          "edge": 50
         },
         {
           "type": "decor",
@@ -1635,6 +1844,22 @@
           "length": 12,
           "width": 6,
           "mult": 1.5
+        },
+        {
+          "type": "niche",
+          "z": 1415.435,
+          "y": 28,
+          "side": "left",
+          "rock": 0,
+          "width": 13,
+          "length": 16,
+          "sides": true,
+          "through": true,
+          "kind": "ridgeGrotto",
+          "treadmill": 1.5,
+          "zone": 6,
+          "stretch": 6,
+          "edge": 50
         },
         {
           "type": "decor",
@@ -1996,6 +2221,22 @@
           "mult": 1.5
         },
         {
+          "type": "niche",
+          "z": 1748.578,
+          "y": 32,
+          "side": "left",
+          "rock": 0,
+          "width": 13,
+          "length": 16,
+          "sides": true,
+          "through": true,
+          "kind": "ridgeGrotto",
+          "treadmill": 1.5,
+          "zone": 7,
+          "stretch": 7,
+          "edge": 50
+        },
+        {
           "type": "decor",
           "z": 1435.435,
           "x": -46,
@@ -2219,6 +2460,22 @@
           "length": 12,
           "width": 6,
           "mult": 1.5
+        },
+        {
+          "type": "niche",
+          "z": 2061.793,
+          "y": 36,
+          "side": "left",
+          "rock": 0,
+          "width": 13,
+          "length": 16,
+          "sides": true,
+          "through": true,
+          "kind": "ridgeGrotto",
+          "treadmill": 1.5,
+          "zone": 8,
+          "stretch": 8,
+          "edge": 50
         },
         {
           "type": "decor",
@@ -2619,6 +2876,22 @@
           "length": 12,
           "width": 6,
           "mult": 2
+        },
+        {
+          "type": "niche",
+          "z": 2173.793,
+          "y": 40,
+          "side": "left",
+          "rock": 0,
+          "width": 13,
+          "length": 16,
+          "sides": true,
+          "through": true,
+          "kind": "ridgeGrotto",
+          "treadmill": 2,
+          "zone": 9,
+          "stretch": 9,
+          "edge": 50
         },
         {
           "type": "decor",

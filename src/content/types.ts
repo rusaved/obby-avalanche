@@ -209,6 +209,8 @@ export interface ThemeJson {
    * none below minQuality. */
   decor?: {
     minQuality: 'low' | 'medium' | 'high';
+    /** D-04: on the low quality — every `every`-th animal of the mountain, only within `near` of the hero. */
+    low?: { every: number; near: number };
     walkers: { look: string; on: string[]; perSection: [number, number]; patch: number; speed: number };
     sitters: { looks: string[]; on: string[]; perSection: [number, number]; lookAtDist: number; hopDist: number };
   };
@@ -643,6 +645,9 @@ export interface WorldThreat {
   zoneWarnSec?: number;
   /** Z-01 (Q-G-2 «A»): no wave of any kind warns sooner than this after the last one ended or a roll-back (s); absent — no gap. */
   minGapSec?: number;
+  /** D-06: out of the zones (a closed ridge, a finish) a wave comes once this long passed since the last one, where a
+   * shelter is in reach; absent — none out of the zones. */
+  idleMaxSec?: number;
 }
 
 export interface WorldZone {
@@ -1199,7 +1204,7 @@ export interface StageSpec {
   snowflake: { mult: number; stages: number };
   /** The avalanche stage: the first wave after entering, the pause between waves inside, grottos every `every` × v. */
   /** SD-06: `stageExtraSec` — the avalanche on every stage but the giant's, its first wave that long after a clean run. */
-  avalanche: { firstSec: number; warnSec: number; intervalSec: number; every: number; x: number; stageExtraSec?: number; through?: boolean; minGapSec?: number[] };
+  avalanche: { firstSec: number; warnSec: number; intervalSec: number; every: number; x: number; stageExtraSec?: number; through?: boolean; minGapSec?: number[]; idleMaxSec?: number[] };
   maze: { cell: number; wall: number; height: number; cols: number[]; rows: number[]; falseExits: [number, number] };
   /** The giant of a stage slower than v(N) by this share, by mountain (LV-12 review: on mountains 1–2 a gentler one for
    * the first runs); absent — the margin of the mountain's giant. */
@@ -1227,5 +1232,10 @@ export interface StageSpec {
   levelStep?: { from: number; max: number; easy?: number };
   /** ST-06: a stage pad behind the farthest stage reached pays this many times a life, then nothing (World.padBehindTakes). */
   padBehindTakes?: number;
+  /** D-01 (Q-Z-2 «A»): by mountain — the stages whose finish has a belt in a grotto on the axis up to the middle passage
+   * of the ridge above, open at both ends (`length` along the run, `width` across); absent — none. */
+  finishGrotto?: { stages: number[][]; length: number; width: number };
+  /** D-01: by mountain and stage — gifts along the axis of the trial, `coins` each; absent — none. */
+  stageGifts?: { coins: number; count: number[][] };
 }
 

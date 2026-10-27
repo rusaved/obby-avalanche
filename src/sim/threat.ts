@@ -88,13 +88,14 @@ export interface Threat {
 }
 
 /** Index of the cave nearest by run time (path along the track, through open gates only), −1 in a safe zone. */
-export function nearestShelter(level: LevelData, gatesOpen: readonly boolean[], x: number, z: number): number {
-  return sheltersByRunTime(level, gatesOpen, x, z)[0] ?? -1;
+export function nearestShelter(level: LevelData, gatesOpen: readonly boolean[], x: number, z: number, evenSafe = false): number {
+  return sheltersByRunTime(level, gatesOpen, x, z, evenSafe)[0] ?? -1;
 }
 
-/** Caves reachable through open gates only, nearest by run time first; empty in a safe zone (bots fill caves in this order). */
-export function sheltersByRunTime(level: LevelData, gatesOpen: readonly boolean[], x: number, z: number): number[] {
-  if (inSafeZone(level, z)) return [];
+/** Caves reachable through open gates only, nearest by run time first; empty in a safe zone (bots fill caves in this order)
+ * but with `evenSafe` (D-06: the wave at a closed ridge lights the grotto of its finish). */
+export function sheltersByRunTime(level: LevelData, gatesOpen: readonly boolean[], x: number, z: number, evenSafe = false): number[] {
+  if (!evenSafe && inSafeZone(level, z)) return [];
   const found: Array<{ i: number; d: number }> = [];
   level.niches.forEach((n, i) => {
     // A ledge is no place to run to on the warning: it is a shelter only for the one already on top (17.5).
@@ -159,9 +160,9 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
   // reachable through open gates and not standing at a closed gate with the cave behind farther than that gate (playtest G:
   // «Avalanche in 5…1» with no arrow at the closed wall of a level, then nothing).
   // Stages pace only (its zones): the other paces have the cave of the lesson right under the wall.
-  const coverInReach = (hero: ThreatHero, gatesOpen: readonly boolean[]): boolean => {
+  const coverInReach = (hero: ThreatHero, gatesOpen: readonly boolean[], evenSafe = false): boolean => {
     if (!zones || hero.z < campTop) return true;
-    const near = nearestShelter(level, gatesOpen, hero.x, hero.z);
+    const near = nearestShelter(level, gatesOpen, hero.x, hero.z, evenSafe);
     if (near < 0) return false;
     let gate = -1;
     level.gates.forEach((g, i) => {
@@ -173,7 +174,10 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
     return distToEntrance(level, level.niches[near]!, hero.x, hero.z).dist <= wall.z - hero.z;
   };
 
-  const startWarn = (hero: ThreatHero, gatesOpen: readonly boolean[], tick: number): void => {
+  /** D-06: this wave came at a closed ridge out of the zones (idleMaxSec): its shelter may be the grotto of a safe finish. */
+  let idleWave = false;
+  const startWarn = (hero: ThreatHero, gatesOpen: readonly boolean[], tick: number, idle = false): void => {
+    idleWave = idle;
     state.phase = 'warn';
     state.outcome = 'none';
     state.scripted = state.scriptedPending && !(zones && zoneOf(hero.z));
@@ -196,7 +200,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
       state.spawnZ = zone ? zone[1] : Math.min(lastGateZ, spawnMax, Math.max(campTop + avalanche.spawnMinFromCamp, hero.z + threat.spawnAhead));
       state.normalWaves++;
       state.normalWavesDone++;
-      state.shelter = nearestShelter(level, gatesOpen, hero.x, hero.z);
+      state.shelter = nearestShelter(level, gatesOpen, hero.x, hero.z, idleWave);
     }
     state.timer = state.warnSec;
     state.frontZ = state.spawnZ;
@@ -213,13 +217,14 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
 
   /** The front reached the hero: decide survived / caught / safe (docs/01-gdd.md 4.3–4.5). */
   const resolve = (hero: ThreatHero, tick: number): void => {
-    if (inSafeZone(level, hero.z) || hero.z >= spawnMax) {
-      state.outcome = 'safe';
-      return;
-    }
     // MU round 5: the one check of «in a cave» (shelterNow) — the same the roll-back of a fall asks (sim/world.ts).
     // Running into a cave and closer than graceMoving to its entrance: made it (docs/02-tech.md 8.2).
     const inside = shelterNow(level, balance.niche, hero);
+    // D-06: on the stages a cave of a safe finish counts as made it too (the wave at a closed ridge, «Phew!»).
+    if ((inSafeZone(level, hero.z) && !(zones && inside >= 0)) || hero.z >= spawnMax) {
+      state.outcome = 'safe';
+      return;
+    }
     if (inside >= 0) {
       state.outcome = 'survived';
       emit('waveSurvived', { tick, scripted: state.scripted, niche: inside, grace: shelterIndex(level, balance.niche.graceDist, hero.x, hero.y, hero.z) < 0 });
@@ -275,6 +280,8 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
           if (zones && !forced && !inZone) {
             state.timer = threat.zoneFirstSec ?? threat.firstIntervalSec;
             wasInZone = false;
+            // D-06: at a closed ridge (out of the zones) not longer than idleMaxSec without a wave, where a shelter is in reach.
+            if (threat.idleMaxSec !== undefined && Math.min(state.quietSec, state.playSec) >= threat.idleMaxSec && !inGiant && hero.z >= campTop && coverInReach(hero, gatesOpen, true)) startWarn(hero, gatesOpen, tick, true);
             return;
           }
           // SD-06 (docs/01-gdd.md 23.6): a zone of its own first delay (the stages but the avalanche's) — that one on entering.
@@ -289,7 +296,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
           return;
         }
         case 'warn': {
-          if (!state.scripted) state.shelter = nearestShelter(level, gatesOpen, hero.x, hero.z);
+          if (!state.scripted) state.shelter = nearestShelter(level, gatesOpen, hero.x, hero.z, idleWave);
           else if (scriptedRow.includes(state.shelter)) state.shelter = scriptedShelter(hero);
           state.timer -= dt;
           if (state.timer <= 0) {
