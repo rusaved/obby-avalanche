@@ -179,13 +179,15 @@ test('A58: no stub of the ridge post under its plaque', async ({ page, openGame 
   await expect(page.locator('[data-role="toast"].shown')).toHaveCount(0, { timeout: 10_000 });
   await expect(sign).toBeVisible();
   const r = (await sign.boundingBox())!;
-  // Under the plaque, a strip as wide as it and 12 px down: no pixel of the post colour (#7A5A3A, lit or shaded).
+  // Under the plaque, a strip as wide as it and 12 px down: no pixel of the post colour (theme stageSignPost #7A5A3A). V-00:
+  // the hue of the post as drawn (measured 27.10 with the post forced on: lit 74,49,9, shaded 45,31,4 — g/r 0.66–0.69,
+  // b/r 0.09–0.12), not any brown: the D-03 flag poles (60,36,2: g/r 0.60, b/r 0.03) and the decor are not the stub.
   const brown = await page.evaluate(([x0, x1, y0]) => {
     let n = 0;
     for (let x = Math.round(x0); x <= x1; x += 2)
       for (let y = Math.round(y0); y < y0 + 12; y += 2) {
         const [r0, g0, b0] = window.__TEST__!.pixelAt(x, y);
-        if (r0! > g0! + 15 && g0! > b0! + 10 && r0! < 200) n++;
+        if (r0! > 30 && r0! < 200 && g0! / r0! > 0.64 && g0! / r0! < 0.72 && b0! / r0! > 0.06 && b0! / r0! < 0.16) n++;
       }
     return n;
   }, [r.x, r.x + r.width, r.y + r.height + 1] as const);

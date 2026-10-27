@@ -812,6 +812,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
 
   // «▶ Ad: …» buttons (docs/01-gdd.md 9.1, 10.1): a row, no sound and no lure animation.
   const ads = el('div', 'hud-ads');
+  /** V-00: the ad row offers the free «Continue from stage N» (goes before the wave banner in the slot). */
+  let adsFree = false;
   ads.dataset['role'] = 'ads';
   ads.dataset['hud'] = 'ads';
   const adBtns: HTMLButtonElement[] = [];
@@ -1073,6 +1075,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
    */
   const slotOwner = (): string => {
     if (toastEl.classList.contains('shown') && toastEl.classList.contains('now')) return 'toast';
+    // V-00 (K21 touch-mu-giant: after a fall an idle wave took the slot for good): the free «Continue from stage N» is
+    // short-lived and a way out of that wave — it goes before the banner (the timer and the cave arrow stay up).
+    if (adsFree && ads.classList.contains('shown')) return 'ads';
     if (banner.classList.contains('shown')) return 'wave';
     if (toastEl.classList.contains('shown')) return 'toast';
     if (ads.classList.contains('shown')) return 'ads';
@@ -1532,6 +1537,11 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       }
     },
     setAdButtons(list) {
+      const free = list.some((b) => b.id === 'continue_free');
+      if (free !== adsFree) {
+        adsFree = free;
+        updateSlot();
+      }
       if (ads.classList.contains('shown') !== list.length > 0) {
         ads.classList.toggle('shown', list.length > 0);
         updateSlot();
