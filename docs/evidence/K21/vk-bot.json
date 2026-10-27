@@ -1,0 +1,34 @@
+{
+ "realSec": 240,
+ "samples": [
+  {
+   "world": 1,
+   "z": 1034.832,
+   "coins": 270,
+   "stageZ": null
+  },
+  {
+   "world": 1,
+   "z": 1764.3434357276785,
+   "coins": 42,
+   "stageZ": null
+  },
+  {
+   "world": 1,
+   "z": 1825.2692014394602,
+   "coins": 42,
+   "stageZ": null
+  },
+  {
+   "world": 1,
+   "z": 1461.7925246734173,
+   "coins": 42,
+   "stageZ": null
+  }
+ ],
+ "showNativeAds": 0,
+ "checkNativeAds": 1,
+ "storageSet": 18,
+ "errors": [],
+ "outside": []
+}
