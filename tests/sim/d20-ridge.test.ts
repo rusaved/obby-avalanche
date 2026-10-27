@@ -21,12 +21,12 @@ const STAND: HeroInput = { moveX: 0, moveZ: 0, jump: false, jumpHeld: false };
 const UP: HeroInput = { moveX: 0, moveZ: 1, jump: false, jumpHeld: false };
 const w1 = worlds.worlds.find((w) => w.index === 1)!;
 
-function sim1(stat: number): Sim {
+function sim1(stat: number, scripted = false): Sim {
   return createSim(buildLevel(w1), tuning, {
     balance,
     speedCurve: balance.speedCurve,
     stat,
-    threat: { threat: { ...w1.threat }, balance, avalanche: tuning.avalanche, scriptedPending: false, normalWavesDone: 1 },
+    threat: { threat: { ...w1.threat }, balance, avalanche: tuning.avalanche, scriptedPending: scripted, normalWavesDone: scripted ? 0 : 1 },
     ...(game.threat.boss ? { boss: game.threat.boss } : {}),
   });
 }
@@ -75,5 +75,18 @@ describe('D-01, D-06 · closed ridges of mountain 1', () => {
     sim.teleport(0, sim.level.floorAt(0, zi) + 0.05, zi);
     for (let k = 0; k < 30 / DT && !outcome; k++) sim.step(STAND, DT);
     expect(outcome).toBe('survived');
+  });
+
+  it('D-06 (review D20): a newbie standing by the closed ridge 1 meets the first wave within idleMaxSec, the next one too', () => {
+    const sim = sim1(0, true);
+    const warns: number[] = [];
+    sim.events.on('waveWarn', () => warns.push(sim.tick * DT));
+    const r1 = w1.stages!.find((s) => s.n === 2)!.z0;
+    const z = r1 - 6;
+    sim.teleport(25, sim.level.floorAt(25, z) + 0.05, z);
+    for (let k = 0; k < 200 / DT && warns.length < 2; k++) sim.step(STAND, DT);
+    expect(warns.length, JSON.stringify(warns)).toBeGreaterThanOrEqual(2);
+    expect(warns[0]!).toBeLessThanOrEqual(w1.threat.idleMaxSec!);
+    expect(warns[1]! - warns[0]!).toBeLessThanOrEqual(w1.threat.idleMaxSec! + 20);
   });
 });

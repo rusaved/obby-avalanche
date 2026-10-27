@@ -3,14 +3,14 @@
  "maxWallSec": 0,
  "wallSec": 0,
  "walls": [],
- "coins180": 18,
+ "coins180": 138,
  "level180": 9,
- "stage180": 7,
+ "stage180": 8,
  "shoes": 2,
  "giant": 1,
  "avalanche": 1,
- "falls": 23,
- "waves": 1,
+ "falls": 24,
+ "waves": 2,
  "summitSec": null,
  "stageBest": 8
 }

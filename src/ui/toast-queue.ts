@@ -108,6 +108,13 @@ export function createToastQueue<T extends QueuedToast>(o: {
         pending[k] = item;
         return;
       }
+      // D-05 (review D20: the giant cut «LEVEL UP!» after 0.5 s): an urgent one waits out the least hold of the one up.
+      const held = cur !== null && cur.item.minSec !== undefined && clock.now() - cur.at < cur.item.minSec * 1000;
+      if (item.now && cur && !cur.item.now && held) {
+        queue(item, true);
+        arm();
+        return;
+      }
       if (item.now && cur && !cur.item.now) {
         // An urgent toast (a reward handed in) is seen at once; the plain one comes back after it.
         const back = cur.item;

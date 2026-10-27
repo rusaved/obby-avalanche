@@ -176,6 +176,8 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
 
   /** D-06: this wave came at a closed ridge out of the zones (idleMaxSec): its shelter may be the grotto of a safe finish. */
   let idleWave = false;
+  /** D-06: game seconds since the last wave ended (a roll-back does not reset it, unlike quietSec). */
+  let sinceWave = 0;
   const startWarn = (hero: ThreatHero, gatesOpen: readonly boolean[], tick: number, idle = false): void => {
     idleWave = idle;
     state.phase = 'warn';
@@ -184,7 +186,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
     if (state.scripted) {
       // docs/01-gdd.md 4.6: at cave 4 when the hero walks in; on the fallback (or a forced start) — the nearest cave.
       const nearZone = scriptedCave !== null && hero.z >= scriptedCave.z - balance.ftue.triggerDist;
-      const near = nearestShelter(level, gatesOpen, hero.x, hero.z);
+      const near = nearestShelter(level, gatesOpen, hero.x, hero.z, idleWave);
       const idx = nearZone && scriptedCave ? scriptedShelter(hero) : near;
       const cave = level.niches[idx] ?? scriptedCave;
       state.shelter = idx;
@@ -253,6 +255,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
       // Z-01: a roll-back starts the least pause anew — but before any wave: the first lesson keeps its own clock (G-01).
       if (!(state.scriptedPending && state.quietSec === Infinity)) state.quietSec = 0;
       if (state.phase === 'warn' || state.phase === 'run') {
+        sinceWave = 0;
         state.phase = 'gone';
         state.timer = avalanche.fadeSec;
         state.shelter = -1;
@@ -262,7 +265,10 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
     },
     step(dt, hero, gatesOpen, tick) {
       state.playSec += dt;
-      if (state.phase === 'idle' || state.phase === 'gone') state.quietSec += dt;
+      if (state.phase === 'idle' || state.phase === 'gone') {
+        state.quietSec += dt;
+        sinceWave += dt;
+      }
       switch (state.phase) {
         case 'idle': {
           // Stages pace (docs/01-gdd.md 22.5): an avalanche stage has its waves whether the scripted one came or not.
@@ -272,7 +278,14 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
           if (state.scriptedPending && !forced && !inZone) {
             if (inGiant) return;
             const zoneReached = scriptedCave !== null && hero.z >= scriptedCave.z - balance.ftue.triggerDist && !inSafeZone(level, hero.z);
-            if ((zoneReached || state.playSec >= balance.ftue.fallbackSec) && quiet() && coverInReach(hero, gatesOpen)) startWarn(hero, gatesOpen, tick);
+            // D-06: at a closed ridge the cave of its safe finish counts as in reach (review D20: none came at ridge 1).
+            if ((zoneReached || state.playSec >= balance.ftue.fallbackSec) && quiet() && coverInReach(hero, gatesOpen, true)) startWarn(hero, gatesOpen, tick, true);
+            return;
+          }
+          // D-06: not longer than idleMaxSec without a wave anywhere but a giant's zone (review D20: the falls on the
+          // plates restarted the delay of their stage every time), where a shelter is in reach.
+          if (zones && !forced && threat.idleMaxSec !== undefined && Math.min(sinceWave, state.playSec) >= threat.idleMaxSec && quiet() && !inGiant && hero.z >= campTop && coverInReach(hero, gatesOpen, true)) {
+            startWarn(hero, gatesOpen, tick, true);
             return;
           }
           // Out of every avalanche stage the pause holds at its first delay: entering one starts it (22.5), however the
@@ -280,8 +293,6 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
           if (zones && !forced && !inZone) {
             state.timer = threat.zoneFirstSec ?? threat.firstIntervalSec;
             wasInZone = false;
-            // D-06: at a closed ridge (out of the zones) not longer than idleMaxSec without a wave, where a shelter is in reach.
-            if (threat.idleMaxSec !== undefined && Math.min(state.quietSec, state.playSec) >= threat.idleMaxSec && !inGiant && hero.z >= campTop && coverInReach(hero, gatesOpen, true)) startWarn(hero, gatesOpen, tick, true);
             return;
           }
           // SD-06 (docs/01-gdd.md 23.6): a zone of its own first delay (the stages but the avalanche's) — that one on entering.
@@ -325,6 +336,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
             state.phase = 'gone';
             state.timer = avalanche.fadeSec;
             state.quietSec = 0;
+            sinceWave = 0;
             emit('waveGone', { tick });
             emit('waveEnd', { tick, scripted: state.scripted, outcome: state.outcome, normalWaves: state.normalWaves });
             if (state.scripted) state.scriptedPending = false;

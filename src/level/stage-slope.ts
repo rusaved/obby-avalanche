@@ -256,6 +256,8 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
       else if (s.z === r1.z && (s.type === 'floor' || s.type === 'ramp') && s['length'] === PASS_LENGTH) seg.push(s);
     }
     seg.push({ ...r1, ...ridgeAsLevel(r1['requires'] as number, levels) });
+    // D-01 (review D20: «Level 2» held a newbie without the sneakers): the finish grotto under ridge 1 too.
+    if (cfg.finishGrotto?.stages[0]?.includes(1)) pushFinishGrotto(seg, cfg.finishGrotto, r1.z, r1['y'] as number, 1, half);
     wall = 1;
     y = round3((r1['y'] as number) + ((r1['rise'] as number | undefined) ?? 4));
     z = round3(r1.z + PASS_LENGTH);
@@ -542,11 +544,7 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     // D-01 (Q-Z-2 «A»): a belt in a grotto on the axis up to the middle passage of the ridge above, open at both ends —
     // a run up the axis that meets the closed ridge stands on it and keeps growing; the hint at that ridge points at it.
     const fg = cfg.finishGrotto;
-    if (fg && s < K && fg.stages[index - 1]?.includes(s)) {
-      const z0g = round3(end + cfg.finish - fg.length);
-      const z1g = round3(end + cfg.finish + 2); // past the face by the grotto wall (builder NICHE_WALL) and a unit: the belt reaches it
-      seg.push({ type: 'niche', z: round3((z0g + z1g) / 2), y, side: 'left', rock: 0, width: fg.width, length: round3(z1g - z0g), sides: true, through: true, kind: 'ridgeGrotto', treadmill: zone.stepMult ?? 1, zone: s, stretch: s, edge: half });
-    }
+    if (fg && s < K && fg.stages[index - 1]?.includes(s)) pushFinishGrotto(seg, fg, end + cfg.finish, y, s, half, zone.stepMult ?? 1);
     // D-01: gifts along the axis of the trial (on its floors at the height of the stage), `coins` each.
     const ng = cfg.stageGifts?.count[index - 1]?.[s - 1] ?? 0;
     if (ng > 0) {
@@ -612,6 +610,14 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
     campTeleport: { x: CAMP_TELEPORT[0], y: 0, z: CAMP_TELEPORT[1] },
     ...(cfg.padBehindTakes !== undefined ? { padBehindTakes: cfg.padBehindTakes } : {}),
   };
+}
+
+/** D-01: the belt in a grotto on the axis that ends past the ridge face at `face` (by the grotto wall, builder NICHE_WALL,
+ * and a unit: the belt reaches the face), open at both ends. */
+function pushFinishGrotto(seg: Segment[], fg: NonNullable<StageSpec['finishGrotto']>, face: number, y: number, s: number, half: number, mult = 1): void {
+  const z0g = round3(face - fg.length);
+  const z1g = round3(face + 2);
+  seg.push({ type: 'niche', z: round3((z0g + z1g) / 2), y, side: 'left', rock: 0, width: fg.width, length: round3(z1g - z0g), sides: true, through: true, kind: 'ridgeGrotto', treadmill: mult, zone: s, stretch: s, edge: half });
 }
 
 /** Walls of the maze (22.7): the outer wall with the way in and the exits, the inner walls where no passage is open. */

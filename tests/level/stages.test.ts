@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { levelThreshold } from '../../src/sim/levels.ts';
 
 const read = (p: string): unknown => JSON.parse(readFileSync(new URL(`../../content/avalanche/${p}`, import.meta.url), 'utf8'));
-type Seg = { type: string; z: number; kind?: string; requires?: number; level?: number };
+type Seg = { type: string; z: number; kind?: string; requires?: number; level?: number; rock?: number };
 type W = { id: string; segments: Seg[] };
 const stages = (read('pace/stages/worlds.json') as { worlds: W[] }).worlds;
 const open = (read('pace/open/worlds.json') as { worlds: W[] }).worlds;
@@ -48,7 +48,8 @@ describe('stages pace: the mountain of stages (LV-03…LV-07, docs/01-gdd.md 22.
   it('the first minute of mountain 1 is the open one byte for byte (up to ridge 1), plus the teleport pad of the camp', () => {
     const r1 = open[0]!.segments.find((s) => s.type === 'gate' && s.kind === 'ridge')!.z;
     // LV-11 (22.12): the camp of every mountain has the teleport pad — inert until a stage is passed.
-    const before = (w: W): string => JSON.stringify(w.segments.filter((s) => s.z < r1 && s.kind !== 'campTeleport'));
+    // D-01 (review D20): and the belt grotto of its finish on the axis under ridge 1 (stages.finishGrotto).
+    const before = (w: W): string => JSON.stringify(w.segments.filter((s) => s.z < r1 && s.kind !== 'campTeleport' && !(s.type === 'niche' && s.rock === 0)));
     expect(before(stages[0]!)).toBe(before(open[0]!));
   });
   it('10–15 stages a mountain, 2–3 changes of width, no coins on the track past the first minute, trophies growing (SD-03), ±20% of the open coins', () => {

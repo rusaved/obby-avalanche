@@ -147,23 +147,21 @@ test.describe('Z-01 · avalanche of mountain 1 (stages)', () => {
     expect(seen.some((x) => /Назад к началу/.test(x)), seen.join(' | ')).toBe(false);
   });
 
-  test('Z-01: the first wave waits at the closed wall (safe finish), comes where a grotto is in reach', async ({ page, openGame }) => {
+  test('Z-01, D-06: the first wave comes only where a grotto is in reach — at the closed wall the grotto of its finish (D-01)', async ({ page, openGame }) => {
     await openGame('pace=stages');
     expect(await page.evaluate(() => window.__TEST__!.state().wave!.scriptedPending)).toBe(true);
-    // The finish pad of stage 2 under its closed ridge: a safe place, no grotto in reach.
+    // The finish pad of stage 2 under its closed ridge: since D-01 its belt grotto on the axis is in reach — the lesson
+    // comes there by ftue.fallbackSec and lights that grotto.
     const st = ST(2);
-    await page.evaluate((z) => window.__TEST__!.teleport(z, 0), st.finish[0] + 8);
+    await page.evaluate((z) => window.__TEST__!.teleport(z, 20), st.finish[0] + 8);
     await page.evaluate(() => window.__TEST__!.runSim(45));
-    let s = await page.evaluate(() => window.__TEST__!.state());
-    expect(s.simTick / TPS, 'past ftue.fallbackSec').toBeGreaterThan(40);
-    expect(s.wave!.scriptedPending).toBe(true);
-    expect(s.wave!.phase, `hero z ${s.hero!.z.toFixed(1)}`).toBe('idle');
-    // Down on stage 1 among its grottos: the wave comes at once.
-    await page.evaluate((z) => window.__TEST__!.teleport(z, 0), ST(1).end - 40);
-    await page.evaluate(() => window.__TEST__!.runSim(0.5));
-    s = await page.evaluate(() => window.__TEST__!.state());
-    expect(s.wave!.phase).toBe('warn');
-    expect(s.wave!.shelter).toBeGreaterThanOrEqual(0);
+    const s = await page.evaluate(() => window.__TEST__!.state());
+    expect(s.wave!.scriptedPending === false || s.wave!.phase !== 'idle', `hero z ${s.hero!.z.toFixed(1)}`).toBe(true);
+    const sh = await page.evaluate(() => window.__TEST__!.shelters());
+    const lit = sh.findIndex((c) => Math.abs(c.inside[0]) < 1 && c.z > st.finish[0] && c.z < st.finish[1] + 2);
+    expect(lit).toBeGreaterThanOrEqual(0);
+    const warn = await page.evaluate(() => window.__TEST__!.simEvents.find((e) => e.name === 'waveWarn') as { shelter?: number } | undefined);
+    expect(warn?.shelter).toBe(lit);
   });
 
   test('Z-01: a fall on the plates of stage 5 keeps its own start, never back under the wave of stage 4', async ({ page, openGame }) => {

@@ -159,4 +159,12 @@ describe('toast queue (FX-01)', () => {
     expect(log).toEqual(['0 A', '1320 LEVEL']);
     expect(q.current).toBeNull();
   });
+  it('D-05: an urgent toast waits out the least hold of the one up, then shows', () => {
+    const { q, clock, log } = setup();
+    q.push({ text: 'LEVEL', sec: 2.5, minSec: 2 });
+    clock.tick(500);
+    q.push({ text: 'GIANT', sec: 3, now: true });
+    clock.tick(10000);
+    expect(log).toEqual(['0 LEVEL', '2120 GIANT']);
+  });
 });
