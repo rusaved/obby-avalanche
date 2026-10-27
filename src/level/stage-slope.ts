@@ -612,12 +612,12 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
   };
 }
 
-/** D-01: the belt in a grotto on the axis that ends past the ridge face at `face` (by the grotto wall, builder NICHE_WALL,
- * and a unit: the belt reaches the face), open at both ends. */
+/** D-01: the belt under a canopy on the axis (a roof, open all round: a run up at any x never meets a wall, truthful-pads)
+ * that ends past the ridge face at `face` (by the grotto wall, builder NICHE_WALL, and a unit: the belt reaches the face). */
 function pushFinishGrotto(seg: Segment[], fg: NonNullable<StageSpec['finishGrotto']>, face: number, y: number, s: number, half: number, mult = 1): void {
   const z0g = round3(face - fg.length);
   const z1g = round3(face + 2);
-  seg.push({ type: 'niche', z: round3((z0g + z1g) / 2), y, side: 'left', rock: 0, width: fg.width, length: round3(z1g - z0g), sides: true, through: true, kind: 'ridgeGrotto', treadmill: mult, zone: s, stretch: s, edge: half });
+  seg.push({ type: 'niche', z: round3((z0g + z1g) / 2), y, side: 'left', rock: 0, width: fg.width, length: round3(z1g - z0g), through: true, kind: 'ridgeGrotto', treadmill: mult, zone: s, stretch: s, edge: half });
 }
 
 /** Walls of the maze (22.7): the outer wall with the way in and the exits, the inner walls where no passage is open. */
