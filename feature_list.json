@@ -2308,7 +2308,7 @@
     "milestone": "D20",
     "description": "Музыка: если в main или ветке assets/music-r1 есть assets/audio/music/mountain.mp3, base.mp3, fanfare.mp3 — забрать, проверить громкость относительно звуков и бесшовность петли; нет — слот молчит без ошибок (штаб 27.10, веха «Лавина 20 · Доводка», по расписанию штаба)",
     "acceptance": "Файлы есть — в сборке, громкость и петля проверены; нет — z-music зелёный, ошибок консоли нет",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   },
