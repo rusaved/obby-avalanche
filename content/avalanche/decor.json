@@ -80,6 +80,10 @@
     {
       "id": "log",
       "file": "assets/models/kenney-survival-kit/tree-log.glb"
+    },
+    {
+      "id": "chest",
+      "file": "assets/models/kenney-survival-kit/chest.glb"
     }
   ],
   "scale": {
@@ -99,7 +103,8 @@
     "crate": 9,
     "barrel": 8,
     "signpost": 9,
-    "log": 6
+    "log": 6,
+    "chest": 3.2
   },
   "glow": {
     "lantern": [

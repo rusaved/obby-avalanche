@@ -451,9 +451,8 @@ function stageWorld(spec: OpenSpecJson, cfg: StageSpec, ow: World, index: number
         const real = shape.exits.find((e) => e.real)!;
         const cx = x0 + (real.col + 0.5) * mc.cell;
         floor(zb + rows * mc.cell, strip, y, cx - mc.cell / 2 + mc.wall, cx + mc.cell / 2 - mc.wall);
-        // A golden beacon over the real way out, above the walls (LV-12 review: without it the maze was a lottery).
-        const bz = zb + rows * mc.cell + strip + 3;
-        seg.push({ type: 'block', z: round3(bz - 1), z1: round3(bz + 1), x0: round3(cx - 1), x1: round3(cx + 1), y0: y, y1: round3(y + mc.height + 8), material: 'trophyPad', kind: 'beacon', solid: false });
+        // The real way out reads over the walls (LV-12 review: without it the maze was a lottery): V-01 — an arch on the
+        // wall ends at its sides with a flag and a lamp (render/track-props.ts, from the stage's maze), not a beam on the run.
         zb += L;
         break;
       }

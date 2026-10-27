@@ -903,16 +903,14 @@ export function passesOf(spec: Pick<Spec, 'passEvery' | 'passAxis'>, half: numbe
   return Array.from({ length: n }, (_, k) => round3((k - (n - 1) / 2) * step));
 }
 
-/** Camp of the open slope: as 5.2 — spawn, treadmill of section 1, egg stand, tents, a snowman, arrows up the slope. */
+/** Camp of the open slope: as 5.2 — spawn, treadmill of section 1, egg stand, a snowman, arrows up the slope (the tents —
+ * decor.json). */
 function pushOpenCamp(seg: Segment[], spec: Spec, m: Mountain): void {
   const camp = spec.campLength;
   seg.push({ type: 'floor', z: 0, length: camp, y: 0 });
   seg.push({ type: 'treadmill', z: spec.spawnZ - 10, x: -8, y: 0, length: 10, width: 6, mult: m.sections[0]?.stepMult ?? 1 });
   seg.push({ type: 'eggStand', z: 30, x: 8, y: 0, egg: m.egg });
-  seg.push({ type: 'decor', z: 6, x: -11, y: 0, kind: 'tent' });
-  seg.push({ type: 'decor', z: 12, x: 11, y: 0, kind: 'tent' });
-  seg.push({ type: 'decor', z: 34, x: -24, y: 0, kind: 'tree' });
-  seg.push({ type: 'decor', z: 36, x: 24, y: 0, kind: 'tree' });
+  // V-02: the tents and the pines of the camp are the Kenney models of decor.json (`camp`), no box stand-ins here.
   seg.push({ type: 'decor', z: 8, x: 4, y: 0, kind: 'snowman' });
   for (let a = 0; a < 3; a++) seg.push({ type: 'decor', z: 26 + a * 4, x: 0, y: 0, kind: 'arrow' });
 }

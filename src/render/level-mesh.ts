@@ -17,6 +17,7 @@ import {
   DynamicDrawUsage,
   Float32BufferAttribute,
   Group,
+  InstancedBufferAttribute,
   InstancedMesh,
   Matrix4,
   Mesh,
@@ -39,6 +40,7 @@ import { createBlockTexture, layerOf, useBlockTexture } from './block-tex.ts';
 import { pieceGeometry, winterDecorPlan, type WinterDecorBuilt } from './winter-decor.ts';
 import type { DecorJson, DecorModelsJson } from '../content/types.ts';
 import { AdditiveBlending, IcosahedronGeometry, MeshBasicMaterial } from 'three';
+import { buildTrackProps, drawsBox, drawsPoint } from './track-props.ts';
 import type { DataArrayTexture } from 'three';
 
 export const CHUNK_LENGTH = 120;
@@ -71,12 +73,6 @@ const STAGE_SIGN_K = 0.35;
 const STAGE_SIDE_GAP = 5.5;
 const STAGE_POST = 0.6;
 const STAGE_POST_W = 0.3;
-/** MT-05: the decor of mountains 3–10 in boxes (the spire with a snow cap) [x0, x1, y0, y1, z0, z1, material] at size 1 (the pine and the cairn are drawn below). */
-const DECOR_PARTS: Record<'spire' | 'crystal' | 'icefall', Array<[number, number, number, number, number, number, string]>> = {
-  spire: [[-1.3, 1.3, 0, 2.2, -1.3, 1.3, 'rock'], [-0.9, 0.8, 2.2, 4.6, -0.8, 0.9, 'throatWall'], [-0.5, 0.4, 4.6, 6.4, -0.4, 0.5, 'throatWall'], [-0.55, 0.45, 6.4, 6.9, -0.45, 0.55, 'border']],
-  crystal: [[-0.5, 0.5, 0, 4.2, -0.5, 0.5, 'ice'], [0.4, 1.1, 0, 2.6, -0.2, 0.5, 'ice'], [-1.2, -0.5, 0, 1.8, -0.6, 0.1, 'ice'], [-1.6, 1.6, 0, 0.3, -1.2, 1.2, 'rock']],
-  icefall: [[-2.2, 2.2, 0, 1.2, -1.2, 1.2, 'rock'], [-1.6, 1.6, 1.2, 5.5, -0.3, 0.3, 'ice'], [-1.1, 1.1, 5.5, 7.2, -0.25, 0.25, 'ice'], [-1.9, 1.9, 1.2, 1.9, -0.9, 0.9, 'ice']],
-};
 /** The glyph height of a gate's number: a ridge's own from the data (SP-04: larger on the field), else the defaults. */
 function signText(g: LevelData['gates'][number]): number {
   return g.kind === 'ridge' ? (g.digits ?? RIDGE_TEXT) : SIGN_TEXT;
@@ -87,8 +83,17 @@ const SLIDE_THICK = 0.1;
 const MARK_THICK = 0.04;
 const MARK_WIDTH = 0.22;
 const CHEVRONS = 4;
+const CHEVRON_ARM = 2;
+const CHEVRON_LANE = 16;
+const CHEVRON_ROW = 14;
 const PAD_SPRING_SEC = 0.45;
 const PAD_SPRING_LIFT = 0.9;
+/** V-09: a present turns this fast (rad/s) and bobs this high (units) once in GIFT_BOB_SEC. */
+const GIFT_TURN = 0.7;
+const GIFT_BOB = 0.12;
+const GIFT_BOB_SEC = 2.4;
+/** V-03: a belt stripe this long along the belt. */
+const STRIPE_DEPTH = 0.35;
 
 export interface LevelMeshes {
   group: Group;
@@ -118,6 +123,8 @@ export interface LevelMeshes {
   /** These parts of cave `niche` are not drawn (−1 or no parts — all drawn); the boxes of the hidden ones (test API). */
   setCaveCut(niche: number, parts: readonly CavePart[]): void;
   cutBoxes(): Array<{ min: readonly number[]; max: readonly number[] }>;
+  /** V-05: where the summit chest stands beside the portal (its coins flash there), null — none. */
+  chestAt: readonly [number, number, number] | null;
   /** Gifts of the mountain in `level.points` order (M2-04). */
   gifts: InstancedMesh;
   /** Trampolines and ice slides (docs/01-gdd.md 16.4): one InstancedMesh; a launched plate (`fun.pads` order) springs up. */
@@ -166,6 +173,14 @@ function texOf(theme: ThemeJson, key: string): number {
   return layerOf(theme.materials[key]?.tex);
 }
 
+/** V22: the render material of a box — the walls of a rock grotto in rock, of an edge cave in snow (theme `grottoRock`,
+ * `drift`; the colliders keep their kinds). */
+function lookOf(b: LevelBox, theme: ThemeJson): string {
+  if ((b.kind === 'islandWall' || b.kind === 'islandRoof') && theme.materials['grottoRock']) return 'grottoRock';
+  if ((b.kind === 'nicheWall' || b.kind === 'nicheRoof') && theme.materials['drift']) return 'drift';
+  return b.material;
+}
+
 function boxGeometry(b: LevelBox, theme: ThemeJson): BufferGeometry {
   const w = b.max[0] - b.min[0];
   const h = b.max[1] - b.min[1];
@@ -174,7 +189,8 @@ function boxGeometry(b: LevelBox, theme: ThemeJson): BufferGeometry {
   geo.translate(b.min[0] + w / 2, b.min[1] + h / 2, b.min[2] + d / 2);
   // Z-05: walls, borders and decor stand on the ground — the foot of their sides darker (the floors' sides hang into pits).
   const standing = h > 0.6 && b.kind !== 'floor' && b.kind !== 'pitFloor';
-  colorGeometry(geo, materialColor(theme, b.material), 0.78, 0.9, texOf(theme, b.material), standing ? (theme.blockTex?.ao ?? 1) : 1, b.min[1]);
+  const look = lookOf(b, theme);
+  colorGeometry(geo, materialColor(theme, look), 0.78, 0.9, texOf(theme, look), standing ? (theme.blockTex?.ao ?? 1) : 1, b.min[1]);
   return geo;
 }
 
@@ -212,6 +228,47 @@ function prismGeometry(p: LevelPrism, theme: ThemeJson): BufferGeometry {
   colorGeometry(geo, materialColor(theme, p.material), 0.78, 0.9, texOf(theme, p.material));
   return geo;
 }
+
+function giftBob(i: number, t: number): number {
+  return GIFT_BOB * (1 + Math.sin(((t + i * 0.37) / GIFT_BOB_SEC) * Math.PI * 2));
+}
+
+/** V-09: the present of a gift — the box (white: the instance colour paints it), two ribbons across its sides and top and
+ * a bow of two loops, the ribbon kept in `ribbon` (attribute `keep`). Its foot at y 0, as the old cube. */
+function giftGeometry(ribbon: Color): BufferGeometry {
+  const w = GIFT_HALF * 2;
+  const h = GIFT_HEIGHT * 0.86;
+  const parts: Array<{ g: BufferGeometry; keep: boolean }> = [];
+  const add = (g: BufferGeometry, x: number, y: number, z: number, keep: boolean, rz = 0, ry = 0): void => {
+    g.rotateZ(rz);
+    g.rotateY(ry);
+    g.translate(x, y, z);
+    parts.push({ g: g.toNonIndexed(), keep });
+  };
+  add(new BoxGeometry(w, h, w), 0, h / 2, 0, false);
+  add(new BoxGeometry(w * 1.04, h * 0.18, w * 1.04), 0, h * 0.86, 0, false);
+  add(new BoxGeometry(w * 0.2, h + 0.02, w * 1.05), 0, h / 2, 0, true);
+  add(new BoxGeometry(w * 1.05, h + 0.02, w * 0.2), 0, h / 2, 0, true);
+  for (const side of [-1, 1]) add(new BoxGeometry(w * 0.34, w * 0.2, w * 0.16), side * w * 0.17, h + w * 0.1, 0, true, side * 0.6, 0.5);
+  const merged = mergeGeometries(
+    parts.map(({ g, keep }) => {
+      const n = g.getAttribute('position').count;
+      const col = new Float32Array(n * 3);
+      const nor = g.getAttribute('normal');
+      for (let i = 0; i < n; i++) {
+        const f = nor.getY(i) > 0.5 ? 1 : nor.getY(i) < -0.5 ? 0.78 : 0.9;
+        const c = keep ? ribbon : WHITE;
+        col.set([c.r * f, c.g * f, c.b * f], i * 3);
+      }
+      g.setAttribute('color', new BufferAttribute(col, 3));
+      g.setAttribute('keep', new Float32BufferAttribute(new Float32Array(n).fill(keep ? 1 : 0), 1));
+      return g;
+    }),
+    false,
+  )!;
+  return merged;
+}
+const WHITE = new Color(1, 1, 1);
 
 /** The block texture is drawn once a load and shared by the meshes of every mountain (Z-05). */
 let sharedBlockTex: DataArrayTexture | null = null;
@@ -263,12 +320,15 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     );
     return niche >= 0 ? { niche, part: b.kind === 'nicheRoof' ? 'roof' : 'back' } : null;
   };
-  const cutParts: Array<{ niche: number; part: CavePart; box: LevelBox }> = [];
+  // V22: the finished pieces of the track over their colliders (render/track-props.ts).
+  const props = buildTrackProps(level, theme, decor?.models);
+  const cutParts: Array<{ niche: number; part: CavePart; box: LevelBox; tilt?: number }> = [];
   // RL-09: with `fade` < 1 the tall walls are drawn apart, solid or see-through (the camera passes them, builder cameraThrough).
   const throughKinds = level.cameraThrough ?? CAMERA_THROUGH;
   const seeThrough = fade < 1 ? level.boxes.filter((b) => throughKinds.has(b.kind)) : [];
   for (const b of level.boxes) {
     if (fade < 1 && throughKinds.has(b.kind)) continue;
+    if (drawsBox(b) || props.hidden.has(b)) continue;
     const cut = partOf(b);
     if (cut) cutParts.push({ ...cut, box: b });
     else bucketOf((b.min[2] + b.max[2]) / 2).push(boxGeometry(b, theme));
@@ -290,56 +350,12 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     bucketOf(c.z).push(g1, g2);
   }
   for (const p of level.points) {
-    if (p.type === 'decor' && p['kind'] === 'tree') {
-      const trunk: LevelBox = { min: [p.x - 0.4, p.y, p.z - 0.4], max: [p.x + 0.4, p.y + 2, p.z + 0.4], material: 'trunk', kind: 'decor', solid: false };
-      const crown: LevelBox = { min: [p.x - 1.8, p.y + 1.5, p.z - 1.8], max: [p.x + 1.8, p.y + 6, p.z + 1.8], material: 'tree', kind: 'decor', solid: false };
-      bucketOf(p.z).push(boxGeometry(trunk, theme), boxGeometry(crown, theme));
-    } else if (p.type === 'decor' && p['kind'] === 'pine') {
-      // ST-04 (mountain 2): a pine — a trunk and three tiers narrowing up; `size` — the landmark by the summit.
-      const k = typeof p['size'] === 'number' ? (p['size'] as number) : 1;
-      const parts: LevelBox[] = [{ min: [p.x - 0.35 * k, p.y, p.z - 0.35 * k], max: [p.x + 0.35 * k, p.y + 2.2 * k, p.z + 0.35 * k], material: 'trunk', kind: 'decor', solid: false }];
-      for (const [w, y0, y1] of [[1.5, 1.4, 3.4], [1.1, 3.1, 5.1], [0.65, 4.8, 6.8]] as const)
-        parts.push({ min: [p.x - w * k, p.y + y0 * k, p.z - w * k], max: [p.x + w * k, p.y + y1 * k, p.z + w * k], material: 'tree', kind: 'decor', solid: false });
-      bucketOf(p.z).push(...parts.map((b) => boxGeometry(b, theme)));
-    } else if (p.type === 'decor' && p['kind'] === 'cairn') {
-      // ST-04 (mountain 1): a cairn of stones with a small flag on top; `size` — the landmark by the summit.
-      const k = typeof p['size'] === 'number' ? (p['size'] as number) : 1;
-      const parts: LevelBox[] = [];
-      for (const [w, y0, y1] of [[1.1, 0, 0.8], [0.8, 0.8, 1.5], [0.5, 1.5, 2.1]] as const)
-        parts.push({ min: [p.x - w * k, p.y + y0 * k, p.z - w * k], max: [p.x + w * k, p.y + y1 * k, p.z + w * k], material: 'rock', kind: 'decor', solid: false });
-      parts.push({ min: [p.x - 0.08 * k, p.y + 2.1 * k, p.z - 0.08 * k], max: [p.x + 0.08 * k, p.y + 3.4 * k, p.z + 0.08 * k], material: 'pole', kind: 'decor', solid: false });
-      parts.push({ min: [p.x + 0.08 * k, p.y + 2.8 * k, p.z - 0.04 * k], max: [p.x + 0.9 * k, p.y + 3.35 * k, p.z + 0.04 * k], material: 'tent', kind: 'decor', solid: false });
-      bucketOf(p.z).push(...parts.map((b) => boxGeometry(b, theme)));
-    } else if (p.type === 'decor' && (p['kind'] === 'spire' || p['kind'] === 'crystal' || p['kind'] === 'icefall')) {
-      // MT-05 (mountains 3–10): a rock spire of three stacked blocks, an ice crystal of three columns or a frozen fall of
-      // stepped ice slabs; `size` — the landmark by the summit.
-      const k = typeof p['size'] === 'number' ? (p['size'] as number) : 1;
-      const parts = DECOR_PARTS[p['kind'] as 'spire' | 'crystal' | 'icefall'];
-      bucketOf(p.z).push(...parts.map(([x0, x1, y0, y1, z0, z1, material]) => boxGeometry({ min: [p.x + x0 * k, p.y + y0 * k, p.z + z0 * k], max: [p.x + x1 * k, p.y + y1 * k, p.z + z1 * k], material, kind: 'decor', solid: false }, theme)));
-    } else if (p.type === 'decor' && p['kind'] === 'tent') {
-      const tent: LevelBox = { min: [p.x - 2.5, p.y, p.z - 2.5], max: [p.x + 2.5, p.y + 3, p.z + 2.5], material: 'tent', kind: 'decor', solid: false };
-      bucketOf(p.z).push(boxGeometry(tent, theme));
-    } else if (p.type === 'decor' && p['kind'] === 'lantern') {
-      // SP-08 (docs/01a-content.md 19.6): a lantern of the base — a post with a lit box on top.
-      const post: LevelBox = { min: [p.x - 0.15, p.y, p.z - 0.15], max: [p.x + 0.15, p.y + 3.2, p.z + 0.15], material: 'pole', kind: 'decor', solid: false };
-      const lamp: LevelBox = { min: [p.x - 0.45, p.y + 3.2, p.z - 0.45], max: [p.x + 0.45, p.y + 4.1, p.z + 0.45], material: 'portalLight', kind: 'decor', solid: false };
-      bucketOf(p.z).push(boxGeometry(post, theme), boxGeometry(lamp, theme));
-    } else if (p.type === 'decor' && p['kind'] === 'flag') {
+    if (drawsPoint(p)) continue;
+    if (p.type === 'decor' && p['kind'] === 'flag') {
       // A flag of a base stand: a pole and its cloth in the colour of the tents.
       const pole: LevelBox = { min: [p.x - 0.12, p.y, p.z - 0.12], max: [p.x + 0.12, p.y + 4.5, p.z + 0.12], material: 'pole', kind: 'decor', solid: false };
       const cloth: LevelBox = { min: [p.x + 0.12, p.y + 3.3, p.z - 0.06], max: [p.x + 1.9, p.y + 4.4, p.z + 0.06], material: 'tent', kind: 'decor', solid: false };
       bucketOf(p.z).push(boxGeometry(pole, theme), boxGeometry(cloth, theme));
-    } else if (p.type === 'decor' && p['kind'] === 'arrow') {
-      const arrow: LevelBox = { min: [p.x - 0.6, p.y + 0.02, p.z - 1.5], max: [p.x + 0.6, p.y + 0.08, p.z + 1.5], material: 'arrow', kind: 'decor', solid: false };
-      bucketOf(p.z).push(boxGeometry(arrow, theme));
-    } else if (p.type === 'treadmill') {
-      const len = (p['length'] as number | undefined) ?? 10;
-      const wid = (p['width'] as number | undefined) ?? 6;
-      const tm: LevelBox = { min: [p.x - wid / 2, p.y + 0.02, p.z - len / 2], max: [p.x + wid / 2, p.y + 0.12, p.z + len / 2], material: 'treadmill', kind: 'treadmill', solid: false };
-      bucketOf(p.z).push(boxGeometry(tm, theme));
-    } else if (p.type === 'chest') {
-      const ch: LevelBox = { min: [p.x - 2, p.y, p.z - 1.5], max: [p.x + 2, p.y + 2.5, p.z + 1.5], material: 'chest', kind: 'chest', solid: false };
-      bucketOf(p.z).push(boxGeometry(ch, theme));
     } else if (p.type === 'portal') {
       // As wide as its data (docs/01-gdd.md 19.8), 1-unit pillars; the light inside it — render/way-marks.ts.
       const hw = (typeof p['width'] === 'number' ? (p['width'] as number) : PORTAL_WIDTH) / 2;
@@ -347,9 +363,6 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       const r: LevelBox = { min: [p.x + hw - 1, p.y, p.z - 0.5], max: [p.x + hw, p.y + PORTAL_HEIGHT, p.z + 0.5], material: 'portal', kind: 'portal', solid: false };
       const top: LevelBox = { min: [p.x - hw, p.y + PORTAL_HEIGHT - 1, p.z - 0.5], max: [p.x + hw, p.y + PORTAL_HEIGHT, p.z + 0.5], material: 'portal', kind: 'portal', solid: false };
       bucketOf(p.z).push(boxGeometry(l, theme), boxGeometry(r, theme), boxGeometry(top, theme));
-    } else if (p.type === 'eggStand') {
-      const st: LevelBox = { min: [p.x - 0.8, p.y, p.z - 0.8], max: [p.x + 0.8, p.y + 1.2, p.z + 0.8], material: 'eggStand', kind: 'eggStand', solid: false };
-      bucketOf(p.z).push(boxGeometry(st, theme));
     }
   }
   // Z-06: the winter decor merged into the chunks like the boxes; its warm glows as one additive InstancedMesh.
@@ -360,6 +373,8 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       const g = decor.built ? decor.built.geometries[i] ?? null : pieceGeometry(piece, decor.models, decor.spec.ao, decor.spec.foot);
       if (g) bucketOf(piece.z).push(g);
     });
+  for (const piece of props.pieces) bucketOf(piece.z).push(piece.geo);
+  for (const c of props.cut) cutParts.push(c);
   // D-03: the run line's flags — a thin pole and its cloth in theme markFlag.
   for (const [x, y, z, side] of plan?.marks ?? []) {
     const pole: LevelBox = { min: [x - 0.1, y, z - 0.1], max: [x + 0.1, y + MARK_POLE, z + 0.1], material: 'pole', kind: 'decor', solid: false };
@@ -376,7 +391,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   }
   const glowGeo = new IcosahedronGeometry(1, 0);
   const glowMat = new MeshBasicMaterial({ color: decor?.spec.glowColor ?? '#ffffff', transparent: true, opacity: decor?.spec.glowOpacity ?? 0, blending: AdditiveBlending, depthWrite: false });
-  const glowList = plan?.glows ?? [];
+  const glowList = [...(plan?.glows ?? []), ...props.glows];
   const glows = new InstancedMesh(glowGeo, glowMat, Math.max(1, glowList.length));
   glows.count = glowList.length;
   glows.name = 'decor-glows';
@@ -384,7 +399,33 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   glows.computeBoundingSphere();
   glows.visible = glowList.length > 0;
   group.add(glows);
-  const chunks: Mesh[] = [];
+  // V22: the cold light of the grottos and the camp teleport — one more additive InstancedMesh.
+  const coldMat = new MeshBasicMaterial({ color: materialColor(theme, theme.materials['coldGlow'] ? 'coldGlow' : 'ice'), transparent: true, opacity: decor?.spec.glowOpacity ?? 0.3, blending: AdditiveBlending, depthWrite: false });
+  const coldGlows = new InstancedMesh(glowGeo, coldMat, Math.max(1, props.coldGlows.length));
+  coldGlows.count = props.coldGlows.length;
+  coldGlows.name = 'cold-glows';
+  props.coldGlows.forEach(([x, y, z, r], i) => coldGlows.setMatrixAt(i, _m.compose(_p.set(x, y, z), _q.identity(), _s.set(r, r, r))));
+  coldGlows.computeBoundingSphere();
+  coldGlows.visible = props.coldGlows.length > 0 && !!decor;
+  group.add(coldGlows);
+  // V-03: the stripes of every belt of the mountain — one InstancedMesh, sliding down their belts (update()).
+  const stripeGeo = new BoxGeometry(1, 1, 1).toNonIndexed();
+  colorGeometry(stripeGeo, materialColor(theme, 'treadmillStripe'));
+  const stripes = new InstancedMesh(stripeGeo, material, Math.max(1, props.stripes.length));
+  stripes.count = props.stripes.length;
+  stripes.name = 'belt-stripes';
+  stripes.instanceMatrix.setUsage(DynamicDrawUsage);
+  const placeStripes = (t: number): void => {
+    props.stripes.forEach((st, i) => {
+      const off = (((st.phase - t * st.speed) % st.len) + st.len) % st.len;
+      stripes.setMatrixAt(i, _m.compose(_p.set(st.x, st.y, st.z0 + 1.6 + off), _q.identity(), _s.set(st.w, 0.03, STRIPE_DEPTH)));
+    });
+    stripes.instanceMatrix.needsUpdate = true;
+  };
+  placeStripes(0);
+  stripes.computeBoundingSphere();
+  stripes.visible = props.stripes.length > 0;
+  group.add(stripes);  const chunks: Mesh[] = [];
   buckets.forEach((list, i) => {
     if (list.length === 0) return;
     const merged = mergeGeometries(list, false);
@@ -411,6 +452,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     if (!w) return;
     const b = w.box;
     backDummy.position.set((b.min[0] + b.max[0]) / 2, (b.min[1] + b.max[1]) / 2, (b.min[2] + b.max[2]) / 2);
+    backDummy.rotation.set(0, 0, w.tilt ?? 0);
     backDummy.scale.set(b.max[0] - b.min[0], b.max[1] - b.min[1], b.max[2] - b.min[2]).multiplyScalar(shown ? 1 : 1e-4);
     backDummy.updateMatrix();
     backMesh.setMatrixAt(i, backDummy.matrix);
@@ -418,7 +460,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   };
   cutParts.forEach((w, i) => {
     placeBack(i, true);
-    backMesh.setColorAt(i, materialColor(theme, w.box.material));
+    backMesh.setColorAt(i, materialColor(theme, lookOf(w.box, theme)));
   });
   if (backMesh.instanceColor) backMesh.instanceColor.needsUpdate = true;
   backMesh.computeBoundingSphere();
@@ -427,8 +469,17 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
 
   // The tall walls (RL-09): two InstancedMeshes of unit boxes, solid and see-through; a wall is in one of them.
   const seeMat = new MeshLambertMaterial({ vertexColors: true, transparent: true, opacity: fade, depthWrite: false });
-  const seeSolid = new InstancedMesh(backGeo, material, Math.max(1, seeThrough.length));
-  const seeFadedMesh = new InstancedMesh(backGeo, seeMat, Math.max(1, seeThrough.length));
+  // V-12 (staff 27.10: the maze walls were smooth dark slabs from inside): the walls drawn apart keep the texture of their
+  // material (a layer per instance) — the snow bricks of the maze, the rock of a cliff.
+  const seeGeo = backGeo.clone();
+  seeGeo.setAttribute('layer', new InstancedBufferAttribute(new Float32Array(Math.max(1, seeThrough.length)).map((_, i) => (seeThrough[i] ? texOf(theme, lookOf(seeThrough[i]!, theme)) : 0)), 1));
+  const seeSolidMat = new MeshLambertMaterial({ vertexColors: true });
+  if (theme.blockTex) {
+    useBlockTexture(seeSolidMat, blockTexture(), theme.blockTex.scale);
+    useBlockTexture(seeMat, blockTexture(), theme.blockTex.scale);
+  }
+  const seeSolid = new InstancedMesh(seeGeo, seeSolidMat, Math.max(1, seeThrough.length));
+  const seeFadedMesh = new InstancedMesh(seeGeo, seeMat, Math.max(1, seeThrough.length));
   seeSolid.count = seeFadedMesh.count = seeThrough.length;
   seeSolid.name = 'see-through-solid';
   seeFadedMesh.name = 'see-through-faded';
@@ -445,8 +496,8 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   };
   seeThrough.forEach((b, i) => {
     placeSee(i);
-    seeSolid.setColorAt(i, materialColor(theme, b.material));
-    seeFadedMesh.setColorAt(i, materialColor(theme, b.material));
+    seeSolid.setColorAt(i, materialColor(theme, lookOf(b, theme)));
+    seeFadedMesh.setColorAt(i, materialColor(theme, lookOf(b, theme)));
   });
   for (const m of [seeSolid, seeFadedMesh]) {
     if (m.instanceColor) m.instanceColor.needsUpdate = true;
@@ -627,18 +678,26 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
 
   // Gifts (M2-04): one InstancedMesh in zone rarity colours; a taken gift scales to zero until the respawn.
   const giftPoints = level.points.filter((p) => p.type === 'gift');
-  const giftGeo = new BoxGeometry(GIFT_HALF * 2, GIFT_HEIGHT, GIFT_HALF * 2);
-  giftGeo.translate(0, GIFT_HEIGHT / 2, 0);
-  const giftMat = new MeshLambertMaterial({ color: 0xffffff });
+  // V-09 (staff 27.10: plain cubes): a present — the box in the rarity colour, a cross of ribbon and a bow on top in the
+  // ribbon colour of the theme (kept from the instance colour), turning slowly and bobbing (update()).
+  const giftGeo = giftGeometry(materialColor(theme, theme.materials['giftRibbon'] ? 'giftRibbon' : 'treadmillStripe'));
+  const giftMat = new MeshLambertMaterial({ color: 0xffffff, vertexColors: true });
+  giftMat.onBeforeCompile = (shader) => {
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nattribute float keep;')
+      .replace('#include <color_vertex>', '#include <color_vertex>\n#ifdef USE_INSTANCING_COLOR\nvColor.xyz = mix(vColor.xyz, color.xyz, keep);\n#endif');
+  };
+  giftMat.customProgramCacheKey = () => 'gift-ribbon';
   const gifts = new InstancedMesh(giftGeo, giftMat, Math.max(1, giftPoints.length));
   gifts.count = giftPoints.length;
   gifts.instanceMatrix.setUsage(DynamicDrawUsage);
   const giftColor = new Color();
+  let giftTime = 0;
   const placeGift = (i: number, shown: boolean): void => {
     const p = giftPoints[i];
     if (!p) return;
-    dummy.position.set(p.x, p.y, p.z);
-    dummy.rotation.set(0, 0, 0);
+    dummy.position.set(p.x, p.y + (shown ? giftBob(i, giftTime) : 0), p.z);
+    dummy.rotation.set(0, giftTime * GIFT_TURN + i * 1.7, 0);
     // The chest of a grotto (docs/01-gdd.md 17.7) is a bigger gift in the chest colour.
     dummy.scale.setScalar(shown ? (p['chest'] === true ? CHEST_GIFT_SCALE : 1) : 0.0001);
     dummy.updateMatrix();
@@ -687,12 +746,18 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     const w = (p['width'] as number | undefined) ?? 4;
     const len = (p['length'] as number | undefined) ?? 16;
     funParts.push({ x: p.x, y: p.y + SLIDE_THICK / 2, z: p.z, w, h: SLIDE_THICK, d: len, turn: 0, color: mat('slide'), pad: -1 });
-    // Chevrons «^» pointing up the track (+Z): two bars at ±45° meeting on the axis.
-    const arm = w * 0.32;
-    for (let k = 0; k < CHEVRONS; k++) {
-      const cz = p.z - len / 2 + ((k + 0.5) * len) / CHEVRONS;
-      for (const side of [-1, 1]) {
-        funParts.push({ x: p.x + (side * arm) / 2, y: p.y + SLIDE_THICK + MARK_THICK / 2, z: cz - arm / 2, w: MARK_WIDTH * 1.6, h: MARK_THICK, d: arm * Math.SQRT2, turn: (-side * Math.PI) / 4, color: mat('slideMark'), pad: -1 });
+    // Chevrons «^» pointing up the track (+Z): two bars at ±45° meeting on the axis. V-14 (staff 27.10: on a 96-wide field
+    // one chevron was 30 units of thin line): at most CHEVRON_ARM long, in lanes CHEVRON_LANE wide, rows CHEVRON_ROW apart.
+    const lanes = Math.max(1, Math.floor(w / CHEVRON_LANE));
+    const arm = Math.min(CHEVRON_ARM, (w / lanes) * 0.32);
+    const rows = Math.max(CHEVRONS, Math.round(len / CHEVRON_ROW));
+    for (let k = 0; k < rows; k++) {
+      const cz = p.z - len / 2 + ((k + 0.5) * len) / rows;
+      for (let l = 0; l < lanes; l++) {
+        const cx = p.x - w / 2 + ((l + 0.5) * w) / lanes;
+        for (const side of [-1, 1]) {
+          funParts.push({ x: cx + (side * arm) / 2, y: p.y + SLIDE_THICK + MARK_THICK / 2, z: cz - arm / 2, w: MARK_WIDTH * 1.6, h: MARK_THICK, d: arm * Math.SQRT2, turn: (-side * Math.PI) / 4, color: mat('slideMark'), pad: -1 });
+        }
       }
     }
   }
@@ -739,6 +804,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       applySign(index);
     },
     gifts,
+    chestAt: props.chest,
     setGiftShown(index, shown) {
       if (giftShown[index] === undefined || giftShown[index] === shown) return;
       giftShown[index] = shown;
@@ -750,6 +816,9 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       pressedAt.set(index, timeSec);
     },
     update(timeSec) {
+      if (props.stripes.length > 0) placeStripes(timeSec);
+      giftTime = timeSec;
+      giftShown.forEach((on, i) => on && placeGift(i, true));
       for (const [pad, at] of pressedAt) {
         // The plate springs up and settles (a damped half wave over PAD_SPRING_SEC).
         const k = Math.min(1, (timeSec - at) / PAD_SPRING_SEC);
@@ -848,7 +917,11 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       chunkMat.dispose();
       glowGeo.dispose();
       glowMat.dispose();
+      coldMat.dispose();
+      stripeGeo.dispose();
       seeMat.dispose();
+      seeSolidMat.dispose();
+      seeGeo.dispose();
       gateGeo.dispose();
       gateMat.dispose();
       crestMat.dispose();

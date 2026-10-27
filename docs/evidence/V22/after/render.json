@@ -1,0 +1,530 @@
+{
+ "V-01-w1-exit_high": {
+  "calls": 36,
+  "triangles": 67542,
+  "textures": 6,
+  "geometries": 39,
+  "programs": 39,
+  "frame": 54
+ },
+ "V-01-w1-exit_low": {
+  "calls": 35,
+  "triangles": 67206,
+  "textures": 6,
+  "geometries": 39,
+  "programs": 39,
+  "frame": 102
+ },
+ "V-01-w1-entry_high": {
+  "calls": 38,
+  "triangles": 73316,
+  "textures": 6,
+  "geometries": 41,
+  "programs": 39,
+  "frame": 150
+ },
+ "V-01-w1-entry_low": {
+  "calls": 37,
+  "triangles": 72980,
+  "textures": 6,
+  "geometries": 41,
+  "programs": 39,
+  "frame": 198
+ },
+ "V-02-camp-top_high": {
+  "calls": 36,
+  "triangles": 88737,
+  "textures": 6,
+  "geometries": 43,
+  "programs": 39,
+  "frame": 246
+ },
+ "V-02-camp-top_low": {
+  "calls": 34,
+  "triangles": 79571,
+  "textures": 6,
+  "geometries": 43,
+  "programs": 39,
+  "frame": 294
+ },
+ "V-02-w1-cover_high": {
+  "calls": 35,
+  "triangles": 98430,
+  "textures": 6,
+  "geometries": 45,
+  "programs": 39,
+  "frame": 342
+ },
+ "V-02-w1-cover_low": {
+  "calls": 32,
+  "triangles": 90452,
+  "textures": 6,
+  "geometries": 45,
+  "programs": 39,
+  "frame": 390
+ },
+ "V-02-w1-ice_high": {
+  "calls": 35,
+  "triangles": 81954,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 438
+ },
+ "V-02-w1-ice_low": {
+  "calls": 34,
+  "triangles": 81618,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 486
+ },
+ "V-03-w1-belt_high": {
+  "calls": 35,
+  "triangles": 97926,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 564
+ },
+ "V-03-w1-belt_low": {
+  "calls": 32,
+  "triangles": 91124,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 641
+ },
+ "V-04-w1-canopy-side_high": {
+  "calls": 35,
+  "triangles": 97926,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 689
+ },
+ "V-04-w1-canopy-side_low": {
+  "calls": 33,
+  "triangles": 92684,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 737
+ },
+ "V-04-w1-canopy-run_high": {
+  "calls": 35,
+  "triangles": 99574,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 785
+ },
+ "V-04-w1-canopy-run_low": {
+  "calls": 34,
+  "triangles": 99574,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 833
+ },
+ "V-05-w1-summit_high": {
+  "calls": 27,
+  "triangles": 58754,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 881
+ },
+ "V-05-w1-summit_low": {
+  "calls": 26,
+  "triangles": 58754,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 929
+ },
+ "V-06-w1-grotto-770_high": {
+  "calls": 35,
+  "triangles": 96506,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 977
+ },
+ "V-06-w1-grotto-770_low": {
+  "calls": 33,
+  "triangles": 89230,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 1025
+ },
+ "V-06-w1-grotto-520_high": {
+  "calls": 35,
+  "triangles": 97926,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 1073
+ },
+ "V-06-w1-grotto-520_low": {
+  "calls": 33,
+  "triangles": 92684,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 1121
+ },
+ "V-07-w1-birds_high": {
+  "calls": 34,
+  "triangles": 80215,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 1169
+ },
+ "V-07-w1-birds_low": {
+  "calls": 33,
+  "triangles": 79375,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 1217
+ },
+ "V-08-w1-start2_high": {
+  "calls": 35,
+  "triangles": 101132,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 1265
+ },
+ "V-08-w1-start2_low": {
+  "calls": 34,
+  "triangles": 101132,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 1313
+ },
+ "V-08-w1-finish2_high": {
+  "calls": 35,
+  "triangles": 97926,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 1361
+ },
+ "V-08-w1-finish2_low": {
+  "calls": 33,
+  "triangles": 92684,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 1409
+ },
+ "V-08-w1-summit_high": {
+  "calls": 28,
+  "triangles": 58862,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 1457
+ },
+ "V-08-w1-summit_low": {
+  "calls": 27,
+  "triangles": 58862,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 1505
+ },
+ "V-09-w1-gifts_high": {
+  "calls": 35,
+  "triangles": 97926,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 1581
+ },
+ "V-09-w1-gifts_low": {
+  "calls": 32,
+  "triangles": 91124,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 1662
+ },
+ "V-10-w1-pad_high": {
+  "calls": 34,
+  "triangles": 96366,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 1710
+ },
+ "V-10-w1-pad_low": {
+  "calls": 33,
+  "triangles": 92516,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 1758
+ },
+ "V-11-w1-cave_high": {
+  "calls": 35,
+  "triangles": 100126,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 1806
+ },
+ "V-11-w1-cave_low": {
+  "calls": 33,
+  "triangles": 83338,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 39,
+  "frame": 1854
+ },
+ "V-12-w1-maze_high": {
+  "calls": 38,
+  "triangles": 68514,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 40,
+  "frame": 1902
+ },
+ "V-12-w1-maze_low": {
+  "calls": 37,
+  "triangles": 68514,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 40,
+  "frame": 1950
+ },
+ "V-13-camp-side_high": {
+  "calls": 32,
+  "triangles": 69815,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 40,
+  "frame": 1998
+ },
+ "V-13-camp-side_low": {
+  "calls": 31,
+  "triangles": 69815,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 40,
+  "frame": 2047
+ },
+ "V-13-camp-back_high": {
+  "calls": 28,
+  "triangles": 69155,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 40,
+  "frame": 2096
+ },
+ "V-13-camp-back_low": {
+  "calls": 27,
+  "triangles": 69155,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 40,
+  "frame": 2145
+ },
+ "V-14-w1-ice_high": {
+  "calls": 35,
+  "triangles": 81954,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 40,
+  "frame": 2193
+ },
+ "V-14-w1-ice_low": {
+  "calls": 34,
+  "triangles": 81618,
+  "textures": 6,
+  "geometries": 47,
+  "programs": 40,
+  "frame": 2241
+ },
+ "V-02-w2-camp-top_high": {
+  "calls": 36,
+  "triangles": 74101,
+  "textures": 6,
+  "geometries": 37,
+  "programs": 37,
+  "frame": 2342
+ },
+ "V-02-w2-camp-top_low": {
+  "calls": 35,
+  "triangles": 74101,
+  "textures": 6,
+  "geometries": 37,
+  "programs": 37,
+  "frame": 2390
+ },
+ "V-07-w2-birds_high": {
+  "calls": 35,
+  "triangles": 69860,
+  "textures": 6,
+  "geometries": 40,
+  "programs": 37,
+  "frame": 2440
+ },
+ "V-07-w2-birds_low": {
+  "calls": 34,
+  "triangles": 69860,
+  "textures": 6,
+  "geometries": 40,
+  "programs": 37,
+  "frame": 2488
+ },
+ "V-08-w2-finish_high": {
+  "calls": 37,
+  "triangles": 70420,
+  "textures": 6,
+  "geometries": 40,
+  "programs": 37,
+  "frame": 2536
+ },
+ "V-08-w2-finish_low": {
+  "calls": 36,
+  "triangles": 69916,
+  "textures": 6,
+  "geometries": 40,
+  "programs": 37,
+  "frame": 2584
+ },
+ "V-05-w2-summit_high": {
+  "calls": 27,
+  "triangles": 56454,
+  "textures": 6,
+  "geometries": 43,
+  "programs": 39,
+  "frame": 2633
+ },
+ "V-05-w2-summit_low": {
+  "calls": 26,
+  "triangles": 56454,
+  "textures": 6,
+  "geometries": 43,
+  "programs": 39,
+  "frame": 2681
+ },
+ "V-01-w6-exit9_high": {
+  "calls": 34,
+  "triangles": 73726,
+  "textures": 6,
+  "geometries": 39,
+  "programs": 36,
+  "frame": 2783
+ },
+ "V-01-w6-exit9_low": {
+  "calls": 32,
+  "triangles": 69644,
+  "textures": 6,
+  "geometries": 39,
+  "programs": 36,
+  "frame": 2831
+ },
+ "V-01-w6-exit11_high": {
+  "calls": 36,
+  "triangles": 70448,
+  "textures": 6,
+  "geometries": 42,
+  "programs": 38,
+  "frame": 2879
+ },
+ "V-01-w6-exit11_low": {
+  "calls": 35,
+  "triangles": 70112,
+  "textures": 6,
+  "geometries": 42,
+  "programs": 38,
+  "frame": 2927
+ },
+ "V-02-w6-cover_high": {
+  "calls": 33,
+  "triangles": 79374,
+  "textures": 6,
+  "geometries": 44,
+  "programs": 38,
+  "frame": 2975
+ },
+ "V-02-w6-cover_low": {
+  "calls": 31,
+  "triangles": 74992,
+  "textures": 6,
+  "geometries": 44,
+  "programs": 38,
+  "frame": 3023
+ },
+ "V-02-w6-ice_high": {
+  "calls": 33,
+  "triangles": 78648,
+  "textures": 6,
+  "geometries": 45,
+  "programs": 38,
+  "frame": 3071
+ },
+ "V-02-w6-ice_low": {
+  "calls": 32,
+  "triangles": 78312,
+  "textures": 6,
+  "geometries": 45,
+  "programs": 38,
+  "frame": 3119
+ },
+ "V-08-w6-finish_high": {
+  "calls": 33,
+  "triangles": 78144,
+  "textures": 6,
+  "geometries": 45,
+  "programs": 38,
+  "frame": 3168
+ },
+ "V-08-w6-finish_low": {
+  "calls": 33,
+  "triangles": 78156,
+  "textures": 6,
+  "geometries": 45,
+  "programs": 38,
+  "frame": 3216
+ },
+ "V-05-w6-summit_high": {
+  "calls": 27,
+  "triangles": 63714,
+  "textures": 6,
+  "geometries": 45,
+  "programs": 38,
+  "frame": 3265
+ },
+ "V-05-w6-summit_low": {
+  "calls": 26,
+  "triangles": 63714,
+  "textures": 6,
+  "geometries": 45,
+  "programs": 38,
+  "frame": 3314
+ },
+ "V-03-w1-belt-close_high": {
+  "calls": 35,
+  "triangles": 101998,
+  "textures": 6,
+  "geometries": 42,
+  "programs": 37,
+  "frame": 3441
+ },
+ "V-03-w1-belt-close_low": {
+  "calls": 32,
+  "triangles": 95028,
+  "textures": 6,
+  "geometries": 42,
+  "programs": 37,
+  "frame": 3519
+ }
+}

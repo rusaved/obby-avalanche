@@ -221,34 +221,6 @@
         },
         {
           "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
           "z": 8,
           "x": 4,
           "y": 0,
@@ -2959,18 +2931,6 @@
           "x1": 10.5
         },
         {
-          "type": "block",
-          "z": 2157.793,
-          "z1": 2159.793,
-          "x0": 5,
-          "x1": 7,
-          "y0": 40,
-          "y1": 60,
-          "material": "trophyPad",
-          "kind": "beacon",
-          "solid": false
-        },
-        {
           "type": "floor",
           "z": 2155.793,
           "length": 24,
@@ -3994,34 +3954,6 @@
           "x": 8,
           "y": 0,
           "egg": "snow"
-        },
-        {
-          "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
         },
         {
           "type": "decor",
@@ -6035,18 +5967,6 @@
           "x1": 34.5
         },
         {
-          "type": "block",
-          "z": 2134.577,
-          "z1": 2136.577,
-          "x0": 29,
-          "x1": 31,
-          "y0": 29.6,
-          "y1": 49.6,
-          "material": "trophyPad",
-          "kind": "beacon",
-          "solid": false
-        },
-        {
           "type": "floor",
           "z": 2132.577,
           "length": 24,
@@ -7299,34 +7219,6 @@
           "x": 8,
           "y": 0,
           "egg": "frost"
-        },
-        {
-          "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
         },
         {
           "type": "decor",
@@ -9518,18 +9410,6 @@
           "x1": -1.5
         },
         {
-          "type": "block",
-          "z": 2520.294,
-          "z1": 2522.294,
-          "x0": -7,
-          "x1": -5,
-          "y0": 36,
-          "y1": 56,
-          "material": "trophyPad",
-          "kind": "beacon",
-          "solid": false
-        },
-        {
           "type": "floor",
           "z": 2518.294,
           "length": 24,
@@ -10831,34 +10711,6 @@
           "x": 8,
           "y": 0,
           "egg": "frost"
-        },
-        {
-          "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
         },
         {
           "type": "decor",
@@ -13057,18 +12909,6 @@
           "x1": 4.5
         },
         {
-          "type": "block",
-          "z": 3261.151,
-          "z1": 3263.151,
-          "x0": -1,
-          "x1": 1,
-          "y0": 32,
-          "y1": 52,
-          "material": "trophyPad",
-          "kind": "beacon",
-          "solid": false
-        },
-        {
           "type": "floor",
           "z": 3259.151,
           "length": 24,
@@ -14468,34 +14308,6 @@
           "x": 8,
           "y": 0,
           "egg": "ice"
-        },
-        {
-          "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
         },
         {
           "type": "decor",
@@ -17005,18 +16817,6 @@
           "x1": 4.5
         },
         {
-          "type": "block",
-          "z": 4474.768,
-          "z1": 4476.768,
-          "x0": -1,
-          "x1": 1,
-          "y0": 36,
-          "y1": 56,
-          "material": "trophyPad",
-          "kind": "beacon",
-          "solid": false
-        },
-        {
           "type": "floor",
           "z": 4472.768,
           "length": 24,
@@ -18418,34 +18218,6 @@
           "x": 8,
           "y": 0,
           "egg": "ice"
-        },
-        {
-          "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
         },
         {
           "type": "decor",
@@ -20594,18 +20366,6 @@
           "x1": 40.5
         },
         {
-          "type": "block",
-          "z": 2958.837,
-          "z1": 2960.837,
-          "x0": 35,
-          "x1": 37,
-          "y0": 33.6,
-          "y1": 53.6,
-          "material": "trophyPad",
-          "kind": "beacon",
-          "solid": false
-        },
-        {
           "type": "floor",
           "z": 2956.837,
           "length": 24,
@@ -21319,18 +21079,6 @@
           "y": 41.6,
           "x0": -40.5,
           "x1": -31.5
-        },
-        {
-          "type": "block",
-          "z": 3650.332,
-          "z1": 3652.332,
-          "x0": -37,
-          "x1": -35,
-          "y0": 41.6,
-          "y1": 61.6,
-          "material": "trophyPad",
-          "kind": "beacon",
-          "solid": false
         },
         {
           "type": "floor",
@@ -22806,34 +22554,6 @@
           "x": 8,
           "y": 0,
           "egg": "blizzard"
-        },
-        {
-          "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
         },
         {
           "type": "decor",
@@ -25348,18 +25068,6 @@
           "x1": 46.5
         },
         {
-          "type": "block",
-          "z": 4571.854,
-          "z1": 4573.854,
-          "x0": 41,
-          "x1": 43,
-          "y0": 40,
-          "y1": 60,
-          "material": "trophyPad",
-          "kind": "beacon",
-          "solid": false
-        },
-        {
           "type": "floor",
           "z": 4569.854,
           "length": 24,
@@ -27105,34 +26813,6 @@
           "x": 8,
           "y": 0,
           "egg": "blizzard"
-        },
-        {
-          "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
         },
         {
           "type": "decor",
@@ -29856,18 +29536,6 @@
           "x1": 46.5
         },
         {
-          "type": "block",
-          "z": 4585.77,
-          "z1": 4587.77,
-          "x0": 41,
-          "x1": 43,
-          "y0": 39.2,
-          "y1": 59.2,
-          "material": "trophyPad",
-          "kind": "beacon",
-          "solid": false
-        },
-        {
           "type": "floor",
           "z": 4583.77,
           "length": 24,
@@ -31624,34 +31292,6 @@
           "x": 8,
           "y": 0,
           "egg": "aurora"
-        },
-        {
-          "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
         },
         {
           "type": "decor",
@@ -34415,18 +34055,6 @@
           "x1": 10.5
         },
         {
-          "type": "block",
-          "z": 5060.239,
-          "z1": 5062.239,
-          "x0": 5,
-          "x1": 7,
-          "y0": 42.4,
-          "y1": 62.4,
-          "material": "trophyPad",
-          "kind": "beacon",
-          "solid": false
-        },
-        {
           "type": "floor",
           "z": 5058.239,
           "length": 24,
@@ -36272,34 +35900,6 @@
           "x": 8,
           "y": 0,
           "egg": "aurora"
-        },
-        {
-          "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
         },
         {
           "type": "decor",
@@ -39484,18 +39084,6 @@
           "y": 49.6,
           "x0": 25.5,
           "x1": 34.5
-        },
-        {
-          "type": "block",
-          "z": 6585.75,
-          "z1": 6587.75,
-          "x0": 29,
-          "x1": 31,
-          "y0": 49.6,
-          "y1": 69.6,
-          "material": "trophyPad",
-          "kind": "beacon",
-          "solid": false
         },
         {
           "type": "floor",

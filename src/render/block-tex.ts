@@ -164,7 +164,8 @@ export function useBlockTexture(material: MeshLambertMaterial, tex: DataArrayTex
     shader.uniforms['blockScale'] = { value: scale };
     shader.vertexShader = shader.vertexShader
       .replace('#include <common>', '#include <common>\nattribute float layer;\nvarying float vLayer;\nvarying vec3 vBlockPos;\nvarying vec3 vBlockNormal;')
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvLayer = layer;\nvBlockPos = (modelMatrix * vec4(transformed, 1.0)).xyz;\nvBlockNormal = normal;');
+      // V-12: an instanced unit box (the tall walls drawn apart, level-mesh) maps by its world place too.
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvLayer = layer;\n#ifdef USE_INSTANCING\nvBlockPos = (modelMatrix * instanceMatrix * vec4(transformed, 1.0)).xyz;\n#else\nvBlockPos = (modelMatrix * vec4(transformed, 1.0)).xyz;\n#endif\nvBlockNormal = normal;');
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <common>', `#include <common>\nuniform highp sampler2DArray blockTex;\nuniform float blockScale;\nvarying float vLayer;\nvarying vec3 vBlockPos;\nvarying vec3 vBlockNormal;`)
       .replace(

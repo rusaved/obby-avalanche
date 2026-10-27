@@ -305,6 +305,8 @@ export interface TestApi {
   triggerWave(): void;
   /** The next wave no sooner than `sec` from now when the avalanche is idle (tests that need no wave meanwhile). */
   holdWave(sec: number): void;
+  /** V22 (the look frames): the avalanche of this mountain stands still while on (the threat is not stepped). */
+  noWaves(on: boolean): void;
   /** The giants' zones as before the hero came (SP-06: runs of one zone in a row): out, patrol, on the axis. */
   resetGiants(): void;
   /** To the camp of mountain `index` (1…5) as through a portal (M3-05: every mountain loads without errors). */
@@ -1004,6 +1006,13 @@ export function installTestApi(g: GameHandles): TestApi {
       if (t && t.phase === 'idle') t.timer = Math.max(t.timer, sec);
       // G-01: the scripted first wave falls back by play time (ftue.fallbackSec 35 on stages) — held as long.
       if (t && t.phase === 'idle' && t.scriptedPending) t.playSec = Math.min(t.playSec, -sec);
+    },
+    noWaves(on) {
+      const th = g.sim?.threat as unknown as { step: (...a: unknown[]) => void; __step?: (...a: unknown[]) => void } | null;
+      if (!th) return;
+      th.__step ??= th.step;
+      th.step = on ? () => {} : th.__step;
+      if (on) Object.assign(g.sim!.threat!.state, { phase: 'idle', timer: Infinity });
     },
     resetGiants() {
       for (const z of g.sim?.boss?.zones ?? []) {

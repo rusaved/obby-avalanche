@@ -96,8 +96,11 @@ export function decorPlan(level: LevelData, look: string, cfg: DecorCfg, seed: n
           const y = borderTop(x, g.z - UNDER_RIDGE);
           if (y !== null) spots.push({ x, y, z: g.z - UNDER_RIDGE });
         }
+    // V-07 (staff 27.10: two dark birds hung in the air at the start of every giant's zone): the sign is drawn only with a
+    // gate of kind `boss` (app/boss-view.ts) — none on the stages pace, so no perch there.
+    const signed = level.gates.some((g) => g.kind === 'boss');
     for (const b of level.bosses)
-      if (b.zone[0] >= s.z0 && b.zone[0] < s.z1)
+      if (signed && b.zone[0] >= s.z0 && b.zone[0] < s.z1)
         for (const side of [-1, 1]) spots.push({ x: side * (sign.half - 2), y: level.floorAt(0, b.zone[0]) + sign.top, z: b.zone[0] - 1 });
     for (let i = count(cfg.sitters.perSection); i > 0 && spots.length > 0 && plan.sitters.length < MAX_SITTERS; i--) plan.sitters.push(spots.splice(rng.int(spots.length), 1)[0]!);
   }

@@ -4,7 +4,7 @@
 // usage: node scripts/look-shots.mjs --points docs/evidence/V22/points.json --tag before [--dir dist-e2e] [--only V-01]
 import { chromium } from '@playwright/test';
 import { spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
@@ -38,8 +38,19 @@ page.on('pageerror', (e) => errors.push(e.message));
 await page.route('**/mc.yandex.ru/**', (route) => route.fulfill({ status: 200, body: '' }));
 await page.goto(`http://127.0.0.1:${port}/?pace=stages&mock_device=mobile&mock_lang=ru&seed=42`);
 await page.waitForFunction(() => window.__TEST__?.ready === true, undefined, { timeout: 60000 });
+// A clean frame: the first wave and the tutorial done, no wave while shooting, the HUD hidden (--hud on keeps it).
+await page.evaluate(() => {
+  const T = window.__TEST__;
+  T.setPlaySec(400);
+  T.setFlag('firstWaveDone', true);
+  T.setTutor(9);
+  T.holdWave(99999);
+  T.noWaves(true);
+});
+if (opt('hud', 'off') === 'off') await page.addStyleTag({ content: '.hud { visibility: hidden !important; }' });
 const ticks = (n) => page.evaluate((k) => window.__TEST__.stepFrames(k), n);
 let world = 1;
+const info = {};
 try {
   for (const p of points) {
     if (only && !p.name.startsWith(only)) continue;
@@ -47,6 +58,7 @@ try {
       world = p.world ?? 1;
       await page.evaluate((k) => window.__TEST__.gotoWorld(k), world);
       await page.waitForTimeout(1500);
+      await page.evaluate(() => window.__TEST__.noWaves(true));
       await ticks(30);
     }
     for (const q of qualities) {
@@ -55,7 +67,8 @@ try {
           const T = window.__TEST__;
           T.setQuality(q);
           T.setStat(pt.stat ?? 1e12);
-          T.holdWave(9999);
+          T.holdWave(99999);
+          T.noWaves(true);
           T.teleport(pt.z, pt.x, pt.y);
           const dx = (pt.look?.[0] ?? pt.x) - pt.x;
           const dz = (pt.look?.[1] ?? pt.z + 10) - pt.z;
@@ -72,10 +85,12 @@ try {
         await ticks(15);
         await page.screenshot({ path: `${base}_b.jpg`, type: 'jpeg', quality: 80 });
       }
-      console.log(`${p.name}_${q}`);
+      info[`${p.name}_${q}`] = await page.evaluate(() => window.__TEST__.renderInfo());
+      console.log(`${p.name}_${q}`, JSON.stringify(info[`${p.name}_${q}`]));
     }
   }
 } finally {
+  writeFileSync(resolve(outDir, only ? `render-${only}.json` : 'render.json'), JSON.stringify(info, null, 1) + '\n');
   console.log(`errors=${errors.length}${errors.length ? ` → ${errors.slice(0, 5).join(' | ')}` : ''}`);
   await browser.close();
   server.kill();

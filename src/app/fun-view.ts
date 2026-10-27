@@ -39,6 +39,9 @@ const STEP_SPARK_GAP = 0.3;
 const CAUGHT_PUFF = 40;
 const OUT_PUFF = 30;
 const SUMMIT_CONFETTI = 90;
+/** V-05: the coins of the summit chest flash up when the hero comes this near (z) to it, this many of them. */
+const CHEST_NEAR = 32;
+const CHEST_COINS = 48;
 /** M5-03 (docs/01-gdd.md 10.3): snow from under the feet at most this often (s), this many flakes; ice shards of a wall
  * as it melts; snow sparkles round the hero at «Phew, made it!». */
 const FOOT_SNOW_GAP = 0.18;
@@ -137,9 +140,11 @@ export function createFunView(d: FunViewDeps): FunView {
     return { x: Math.min(f.width, Math.max(0, (p.x * 0.5 + 0.5) * f.width)), y: Math.min(f.height, Math.max(0, (0.5 - p.y * 0.5) * f.height)) };
   };
 
+  let chestFlashed = false;
   const view: FunView = {
     wire(s) {
       sim = s;
+      chestFlashed = false;
       fountain.clear();
       s.events.on('padLaunch', ({ index, x, y, z }) => {
         st.puffs++;
@@ -241,6 +246,12 @@ export function createFunView(d: FunViewDeps): FunView {
     update(gameDt, timeSec, heroRender) {
       now = timeSec;
       fountain.update(gameDt);
+      // V-05: on coming up to the summit the chest beside the portal throws up its coins once a mountain.
+      const chest = d.meshes()?.chestAt ?? null;
+      if (!chestFlashed && chest && sim && sim.hero.pos.z > chest[2] - CHEST_NEAR && Math.abs(sim.hero.pos.y - chest[1]) < 12) {
+        chestFlashed = true;
+        d.fx.burst('spark', chest[0], chest[1], chest[2], [d.theme.ui.coins, color('portalLight', '#ffffff'), '#ffffff'], CHEST_COINS, 7, 1.4);
+      }
       // The snow trail behind the hero while the slide boost runs on the ground.
       const h = sim?.hero;
       if (sim && h && h.onGround && h.speed > 2 && (sim.fun.onSlide >= 0 || sim.fun.slideLeft > 0)) {

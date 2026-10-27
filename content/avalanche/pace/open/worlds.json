@@ -96,34 +96,6 @@
         },
         {
           "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
           "z": 8,
           "x": 4,
           "y": 0,
@@ -2363,34 +2335,6 @@
           "x": 8,
           "y": 0,
           "egg": "snow"
-        },
-        {
-          "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
         },
         {
           "type": "decor",
@@ -6523,34 +6467,6 @@
           "x": 8,
           "y": 0,
           "egg": "frost"
-        },
-        {
-          "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
         },
         {
           "type": "decor",
@@ -10756,34 +10672,6 @@
           "x": 8,
           "y": 0,
           "egg": "frost"
-        },
-        {
-          "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
         },
         {
           "type": "decor",
@@ -15509,34 +15397,6 @@
         },
         {
           "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
           "z": 8,
           "x": 4,
           "y": 0,
@@ -19905,34 +19765,6 @@
         },
         {
           "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
           "z": 8,
           "x": 4,
           "y": 0,
@@ -24192,34 +24024,6 @@
           "x": 8,
           "y": 0,
           "egg": "blizzard"
-        },
-        {
-          "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
         },
         {
           "type": "decor",
@@ -28612,34 +28416,6 @@
           "x": 8,
           "y": 0,
           "egg": "blizzard"
-        },
-        {
-          "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
         },
         {
           "type": "decor",
@@ -33431,34 +33207,6 @@
         },
         {
           "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
           "z": 8,
           "x": 4,
           "y": 0,
@@ -38073,34 +37821,6 @@
           "x": 8,
           "y": 0,
           "egg": "aurora"
-        },
-        {
-          "type": "decor",
-          "z": 6,
-          "x": -11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 12,
-          "x": 11,
-          "y": 0,
-          "kind": "tent"
-        },
-        {
-          "type": "decor",
-          "z": 34,
-          "x": -24,
-          "y": 0,
-          "kind": "tree"
-        },
-        {
-          "type": "decor",
-          "z": 36,
-          "x": 24,
-          "y": 0,
-          "kind": "tree"
         },
         {
           "type": "decor",

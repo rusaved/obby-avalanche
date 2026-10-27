@@ -92,34 +92,6 @@
     },
     {
       "type": "decor",
-      "z": 6,
-      "x": -11,
-      "y": 0,
-      "kind": "tent"
-    },
-    {
-      "type": "decor",
-      "z": 12,
-      "x": 11,
-      "y": 0,
-      "kind": "tent"
-    },
-    {
-      "type": "decor",
-      "z": 34,
-      "x": -24,
-      "y": 0,
-      "kind": "tree"
-    },
-    {
-      "type": "decor",
-      "z": 36,
-      "x": 24,
-      "y": 0,
-      "kind": "tree"
-    },
-    {
-      "type": "decor",
       "z": 8,
       "x": 4,
       "y": 0,
