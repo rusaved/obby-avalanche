@@ -11,7 +11,7 @@
 import { BoxGeometry, BufferGeometry, Color, ConeGeometry, CylinderGeometry, Float32BufferAttribute, IcosahedronGeometry, LatheGeometry, Matrix4, Quaternion, Vector2, Vector3 } from 'three';
 import type { DecorModelsJson, ThemeJson } from '../content/types.ts';
 import type { LevelBox, LevelData, LevelNiche, LevelPoint } from '../level/types.ts';
-import { NICHE_HEIGHT, NICHE_WALL } from '../level/builder.ts';
+import { NICHE_HEIGHT, NICHE_WALL, PORTAL_WIDTH } from '../level/builder.ts';
 import { layerOf } from './block-tex.ts';
 
 /** Box kinds this module draws instead of level-mesh (their colliders stay). */
@@ -29,8 +29,8 @@ const STRIPE_STEP = 3;
 const STRIPE_SPEED = 1.2;
 const STRIPE_PER_DOUBLE = 0.5;
 const STRIPE_MAX = 6;
-/** The summit chest beside the portal (x off the axis, z before the portal) and its pedestal. */
-const CHEST_SIDE = 10;
+/** The summit chest beside the portal (x past its pillar, z before the portal) and its pedestal. */
+const CHEST_SIDE = 3;
 const CHEST_BEFORE = 6;
 const CHEST_SCALE = 11;
 
@@ -365,7 +365,8 @@ export function buildTrackProps(level: LevelData, theme: ThemeJson, models?: Dec
     } else if (p.type === 'chest') {
       // V-05: off the run line — beside the portal on a snow pedestal with a glow; the coins come with the summit.
       const portal = level.points.find((q) => q.type === 'portal');
-      const cx = (portal?.x ?? p.x) + CHEST_SIDE;
+      const pw = typeof portal?.['width'] === 'number' ? (portal['width'] as number) : PORTAL_WIDTH;
+      const cx = (portal?.x ?? p.x) + pw / 2 + CHEST_SIDE;
       const cz = (portal?.z ?? p.z) - CHEST_BEFORE;
       const cy = level.floorAt(cx, cz);
       const y = Number.isFinite(cy) ? cy : p.y;
@@ -488,8 +489,8 @@ function grotto(k: Kit, level: LevelData, n: LevelNiche, i: number, cut: PropCut
   cold.push([(ma + mb) / 2, y + 3, (n.box.min[2] + n.box.max[2]) / 2, 3.2]);
 }
 
-/** V-11: a cave of the field edge — a snow drift over its roof, an ice trim over the mouth with icicles (the mouth faces
- * the field); its walls and roof in snow (`drift`, level-mesh). */
+/** V-11: a cave of the field edge in a snow drift — mounds at its ends and back, a snow cap, an ice trim over the mouth
+ * with icicles (the mouth faces the field); its walls and roof in snow (`drift`, level-mesh). */
 function drift(k: Kit, level: LevelData, n: LevelNiche, i: number, cut: PropCut[]): void {
   const lo = n.box.min[0];
   const hi = n.box.max[0];
@@ -498,15 +499,15 @@ function drift(k: Kit, level: LevelData, n: LevelNiche, i: number, cut: PropCut[
   const y = n.y;
   const top = y + NICHE_HEIGHT;
   const w = NICHE_WALL;
-  // Snow over the roof in two steps (the cave becomes a drift); inside it is dark.
-  cut.push({ niche: i, part: 'roof', box: box(lo - 0.6, top + 1, zA - w - 0.6, hi + 0.6, top + 1.9, zB + w + 0.6, 'track') });
-  cut.push({ niche: i, part: 'roof', box: box(lo + 0.4, top + 1.9, zA - w + 0.4, hi - 0.4, top + 2.6, zB + w - 0.4, 'track') });
-  const back = n.side === 'left' ? lo : hi;
-  cut.push({ niche: i, part: 'back', box: box(n.side === 'left' ? back : back - 0.12, y, zA, n.side === 'left' ? back + 0.12 : back, top - 0.2, zB, 'caveInside') });
-  // The drift heaped on the near end (the side the run comes from; one: the triangles of the mountain, D-02).
-  k.boulder(lo - 0.4, y - 0.6, zA - w - 3.6, hi + 0.4, top + 1.4, zA - w + 0.4, zA, 'drift', 'track');
-  // The ice trim over the mouth (at the field edge) with icicles under it; inside it is dark by the light of the cave.
+  // The cave is a drift: snow heaped against both ends and the back up to its roof (low-poly mounds, a little under the
+  // roof top — the wide avalanche frame looks in over the back wall), a snow cap over the roof.
+  cut.push({ niche: i, part: 'roof', box: box(lo - 0.6, top + 1, zA - w - 0.6, hi + 0.6, top + 2, zB + w + 0.6, 'track') });
   const left = n.side === 'left';
+  const outer = left ? lo : hi;
+  k.boulder(lo - 0.6, y - 0.8, zA - w - 4, hi + 0.6, top + 1.2, zA + 1.2, zA, 'drift', 'track');
+  k.boulder(lo - 0.6, y - 0.8, zB - 1.2, hi + 0.6, top + 1.2, zB + w + 4, zB, 'drift', 'track');
+  k.boulder(left ? outer - 4 : outer - 1.2, y - 0.8, zA - 0.5, left ? outer + 1.2 : outer + 4, top + 0.6, zB + 0.5, zA + zB, 'drift', 'track');
+  // The ice trim over the mouth (at the field edge) with icicles under it.
   const mouth = left ? hi : lo;
   const xa = left ? mouth - 0.5 : mouth;
   const xb = left ? mouth : mouth + 0.5;

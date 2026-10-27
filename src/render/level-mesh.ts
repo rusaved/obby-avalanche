@@ -94,7 +94,7 @@ const PAD_SPRING_LIFT = 0.9;
 const GIFT_TURN = 0.7;
 const GIFT_BOB = 0.12;
 const GIFT_BOB_SEC = 2.4;
-const GIFT_NEAR = 260;
+const GIFT_NEAR = 200;
 /** V-03: a belt stripe this long along the belt. */
 const STRIPE_DEPTH = 0.35;
 
