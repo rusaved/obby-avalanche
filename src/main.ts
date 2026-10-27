@@ -2767,7 +2767,7 @@ async function boot(): Promise<void> {
     const line = document.createElement('div');
     line.className = 'kit-build';
     // Styled here, not in styles.css: no trace of the kit in a Yandex archive (check-release, check 6).
-    line.style.cssText = 'margin-top:8px;text-align:center;color:#8a97a6;font:500 12px/1.2 var(--font)';
+    line.style.cssText = 'margin-top:8px;text-align:center;color:var(--ink);opacity:.5;font:500 12px/1.2 var(--font)';
     line.dataset['role'] = 'kit-build';
     line.textContent = t('kit.build', { sha: __BUILD_SHA__ });
     hud.pausePanel.appendChild(line);
