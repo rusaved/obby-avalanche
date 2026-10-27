@@ -3,7 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { test, expect, shot1080, testState, waitTicks } from './fixtures.ts';
 
 // RG-12: decor of the open slope (docs/01-gdd.md 18.7): penguins of mountain 1 walk within their patch, a bird of
-// mountain 3 turns to the hero coming near; +2 draw calls against no decor (mountain 9, both kinds), +0 on low; no
+// mountain 3 turns to the hero coming near; +2 draw calls against no decor (mountain 9, both kinds), ≤ +1 on low (D-04); no
 // console error across the 10 mountains (the fixture checks it); screenshot.
 const EVIDENCE = 'docs/evidence/rg';
 
@@ -92,15 +92,16 @@ test('penguins of mountain 1 walk within their patch; a bird of mountain 3 turns
   }
 });
 
-test('quality low: no decor, +0 draw calls', async ({ page, openGame }) => {
+// D-04 (headquarters 27.10): on low the same animals, fewer and nearer (theme decor.low) — one draw call at most.
+test('quality low: the animals shown, fewer, ≤ +1 draw call', async ({ page, openGame }) => {
   test.setTimeout(120_000);
   await openGame('pace=open&quality=low&seed=3');
   await start(page);
   await page.evaluate(() => window.__TEST__!.gotoWorld(9));
   await waitTicks(page, 20);
   await page.evaluate(() => window.__TEST__!.holdWave(300));
-  expect((await testState(page)).decor!.shown).toBe(false);
+  expect((await testState(page)).decor!.shown).toBe(true);
   const on = await calls(page);
   await page.evaluate(() => window.__TEST__!.setDecor(false));
-  expect(on - (await calls(page))).toBe(0);
+  expect(on - (await calls(page))).toBeLessThanOrEqual(1);
 });

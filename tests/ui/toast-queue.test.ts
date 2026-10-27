@@ -132,4 +132,31 @@ describe('toast queue (FX-01)', () => {
     clock.tick(10000);
     expect(log.map((l) => l.split(' ')[1])).toEqual(['B', 'C', 'D']);
   });
+  // D-05 (headquarters 27.10): «LEVEL UP!» held 2 s, the giant and the avalanche first, a newer level over a stale one.
+  it('D-05: a toast with its own minSec is held that long though one waits', () => {
+    const { q, clock, log } = setup();
+    q.push({ text: 'LEVEL', sec: 2.5, minSec: 2 });
+    clock.tick(100);
+    q.push({ text: 'B', sec: 2 });
+    clock.tick(5000);
+    expect(log).toEqual(['0 LEVEL', '2120 B']);
+  });
+  it('D-05: the more important waiting toast goes first; an important one up does not yield to a lesser one', () => {
+    const { q, clock, log } = setup();
+    q.push({ text: 'GIANT', sec: 3, prio: 1 });
+    clock.tick(100);
+    q.push({ text: 'LEVEL', sec: 2.5, minSec: 2 });
+    q.push({ text: 'WAVE', sec: 2, prio: 1 });
+    clock.tick(10000);
+    expect(log).toEqual(['0 GIANT', '1320 WAVE', '3440 LEVEL']);
+  });
+  it('D-05: a newer toast of the same key takes the place of the waiting one', () => {
+    const { q, clock, log } = setup();
+    q.push({ text: 'A', sec: 3 });
+    q.push({ text: 'LEVEL', sub: '5', sec: 2, key: 'level' });
+    q.push({ text: 'LEVEL', sub: '7', sec: 2, key: 'level' });
+    clock.tick(10000);
+    expect(log).toEqual(['0 A', '1320 LEVEL']);
+    expect(q.current).toBeNull();
+  });
 });

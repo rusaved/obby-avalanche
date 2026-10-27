@@ -108,7 +108,10 @@ const DEG = Math.PI / 180;
 /** «+N» above the hero at most 4 times a second (docs/01-gdd.md 10.3). */
 const GAIN_POP_MIN_SEC = 0.25;
 /** MU-05 (docs/07-mobile-ui.md, rule 11): the level toast holds the slot this long. */
-const LEVEL_TOAST_SEC = 1.2;
+const LEVEL_TOAST_SEC = 2.5;
+/** D-05: «LEVEL UP!» held at least this long (2 s on screen, with a margin for the timer); the giant and the avalanche toasts come before it. */
+const LEVEL_TOAST_MIN_SEC = 2.2;
+const THREAT_TOAST = { prio: 1 } as const;
 /** M6: the share of a frame the base gives to building the next mountain's collision trees ahead (ms). */
 const PREBUILD_SLICE_MS = 6;
 /** MU-01: numbers in full below this (above — «1,23M»). */
@@ -573,7 +576,7 @@ async function boot(): Promise<void> {
     });
     // SP-06 (docs/01-gdd.md 20.13): `cover` — past him behind a rock or straight.
     s.events.on('bossPassed', ({ cover }) => {
-      hud?.toast(t('boss.passed'), 3);
+      hud?.toast(t('boss.passed'), 3, false, undefined, undefined, false, THREAT_TOAST);
       audio?.play('gate');
       if (firstGiant()) trackOnce('boss_passed', { cover });
     });
@@ -581,7 +584,7 @@ async function boot(): Promise<void> {
       if (s.giantFreeCatches > 0) {
         (save.flags ??= {})['giantFree'] = true;
         persist();
-        hud?.toast(t('boss.free'), 3);
+        hud?.toast(t('boss.free'), 3, false, undefined, undefined, false, THREAT_TOAST);
         track('boss_caught', { world: s.level.worldIndex, cover });
         return;
       }
@@ -589,9 +592,9 @@ async function boot(): Promise<void> {
       const flags = (save.flags ??= {});
       if ((s.level.bosses[zone]?.covers?.length ?? 0) > 0 && !flags['hint.cover']) {
         flags['hint.cover'] = true;
-        hud?.toast(t('hint.cover'), 3);
+        hud?.toast(t('hint.cover'), 3, false, undefined, undefined, false, THREAT_TOAST);
         persist();
-      } else hud?.toast(t('boss.caught'));
+      } else hud?.toast(t('boss.caught'), 2, false, undefined, undefined, false, THREAT_TOAST);
       track('boss_caught', { world: s.level.worldIndex, cover });
     });
     // The giant slapped a bot (docs/01-gdd.md 18.5): nothing on screen but the slap; the funnel counts it (docs/06).
@@ -703,13 +706,13 @@ async function boot(): Promise<void> {
     });
     s.events.on('waveDusted', () => {
       trackOnce('first_wave_survived', { inShelter: false });
-      hud?.toast(t('wave.firstMiss'), 3);
+      hud?.toast(t('wave.firstMiss'), 3, false, undefined, undefined, false, THREAT_TOAST);
     });
     // «Snowed in!» (M2-07, docs/01-gdd.md 4.5): toast; the ball and the pose follow sim.caught in renderFrame.
     // M4-R2 (producer 22.10): one outcome per wave — snowed in or rolled back drops a «Phew» still waiting for the snow.
     s.events.on('waveCaught', () => {
       survivedShow = null;
-      hud?.toast(t('wave.caught'));
+      hud?.toast(t('wave.caught'), 2, false, undefined, undefined, false, THREAT_TOAST);
     });
     // RL-02 (docs/01-gdd.md 21.2): a fall rolls him back to the flag of the ridge (caught.to «flag») — a short toast.
     s.events.on('fall', ({ shelter }) => {
@@ -1697,7 +1700,7 @@ async function boot(): Promise<void> {
       // The tumble of the rolling snowball (docs/01-gdd.md 18.4): the same ball round the hero, on the spot.
       const tb = sim.tumble;
       snowball.update(sim.caught ?? (tb ? tumbleClip(tb.t, tb.sec, renderPos) : null), renderPos, heroChar, playSec);
-      decor?.update(renderPos, frameDt, playSec, QUALITY_LEVELS.indexOf(quality.level) >= QUALITY_LEVELS.indexOf(theme.decor?.minQuality ?? 'medium'));
+      decor?.update(renderPos, frameDt, playSec, QUALITY_LEVELS.indexOf(quality.level) >= QUALITY_LEVELS.indexOf(theme.decor?.minQuality ?? 'medium'), quality.level === 'low');
       if (hero.landedThisTick) heroChar.squash = 0.1;
       heroChar.visible = !(cameraRig?.heroHidden ?? false) && sim.respawnTicksLeft < 0;
     }
@@ -2433,7 +2436,7 @@ async function boot(): Promise<void> {
       // The toast on every 5th level (LV-12 review: every 1–3 s it was noise); the confetti and the chime always.
       // MU-05 (l4-level-up): «LEVEL UP!» gold in the slot for 1.2 s with «Level N» under it.
       if (n % 5 === 0) {
-        if (muLayout) hud?.toast(t('level.up').toLocaleUpperCase(), LEVEL_TOAST_SEC, true, t('level.bar', { n }));
+        if (muLayout) hud?.toast(t('level.up').toLocaleUpperCase(), LEVEL_TOAST_SEC, true, t('level.bar', { n }), undefined, false, { minSec: LEVEL_TOAST_MIN_SEC, key: 'levelUp' });
         else hud?.toast(t('level.up'));
       }
       const p = sim.hero.pos;

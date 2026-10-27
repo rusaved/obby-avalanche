@@ -1,6 +1,6 @@
 // What: Decor of the open slope: pets of pets.json walking a patch at the slope edge (penguins) and birds sitting on cliffs, on the borders under a ridge and on the giant's sign; the birds turn to the hero and hop when he comes near.
 // Called by: main.ts (createDecor, wire on each new mountain, update every frame); test-api (state, enabled); tests/render/decor.test.ts (decorPlan).
-// Keep: Render only — nothing in the sim, no colliders; one InstancedMesh for both kinds (1 draw call, Z-07), colours baked from pets.json and theme petEye; deterministic by the seed; none below theme decor.minQuality.
+// Keep: Render only — nothing in the sim, no colliders; one InstancedMesh for both kinds (1 draw call, Z-07), colours baked from pets.json and theme petEye; deterministic by the seed; none below theme decor.minQuality, fewer on low (decor.low, D-04).
 
 /**
  * Decor (docs/01-gdd.md 18.7; docs/01a-content.md 17.5). On the mountains whose look is in `walkers.on` a patch
@@ -134,8 +134,9 @@ function creature(s: number, color: Color, accent: Color, eye: Color): BufferGeo
 export interface DecorState {
   walkers: Array<{ x: number; z: number; patch: [number, number, number, number] }>;
   sitters: Array<{ x: number; y: number; z: number; yaw: number; hop: number }>;
-  /** Drawn now (quality and enabled). */
+  /** Drawn now (quality and enabled); `drawn` — how many of them (D-04). */
   shown: boolean;
+  drawn: number;
 }
 
 export interface Decor {
@@ -144,8 +145,9 @@ export interface Decor {
   enabled: boolean;
   readonly state: DecorState;
   wire(level: LevelData, look: string | undefined, seed: number): void;
-  /** Per frame: the hero's render position; `allowed` — the quality level is at least decor.minQuality. */
-  update(hero: { x: number; y: number; z: number }, dt: number, timeSec: number, allowed: boolean): void;
+  /** Per frame: the hero's render position; `allowed` — the quality level is at least decor.minQuality; `low` — the low
+   * quality (D-04: fewer of them, nearer, decor.low). */
+  update(hero: { x: number; y: number; z: number }, dt: number, timeSec: number, allowed: boolean, low?: boolean): void;
 }
 
 export function createDecor(scene: Scene, theme: ThemeJson, pets: PetsJson['pets'], sign: SignSize): Decor {
@@ -184,7 +186,7 @@ export function createDecor(scene: Scene, theme: ThemeJson, pets: PetsJson['pets
   let walkers: Array<{ x: number; z: number; patch: [number, number, number, number]; tx: number; tz: number; yaw: number; pause: number; rng: Rng }> = [];
   /** `hop` — seconds of the hop left, `rest` — of the rest after it, `home` — the yaw down the slope. */
   let sitters: Array<{ x: number; y: number; z: number; yaw: number; hop: number; rest: number; home: number }> = [];
-  const state: DecorState = { walkers: [], sitters: [], shown: false };
+  const state: DecorState = { walkers: [], sitters: [], shown: false, drawn: 0 };
   const m4 = new Matrix4();
   const q = new Quaternion();
   const up = new Vector3(0, 1, 0);
@@ -213,17 +215,22 @@ export function createDecor(scene: Scene, theme: ThemeJson, pets: PetsJson['pets
       }
 
     },
-    update(hero, dt, timeSec, allowed) {
+    update(hero, dt, timeSec, allowed, low = false) {
       const on = allowed && decor.enabled && level !== null;
       mesh.visible = on && walkers.length + sitters.length > 0;
       state.shown = mesh.visible;
       if (!on || !level || !cfg) {
         mesh.count = 0;
+        state.drawn = 0;
         return;
       }
       // Z-07: only the animals within NEAR of the hero take a slot (every stage has them now: the far ones cost
       // triangles for nothing), each slot told its kind.
       let n = 0;
+      // D-04: on the phone (low) the same animals, every `every`-th one and nearer — the same single draw call.
+      const few = low ? cfg.low : undefined;
+      const near = few ? few.near : NEAR;
+      const skip = (i: number): boolean => few !== undefined && i % few.every !== 0;
       const slot = (kind: number): number => {
         kindOf.setX(n, kind);
         return n++;
@@ -248,12 +255,12 @@ export function createDecor(scene: Scene, theme: ThemeJson, pets: PetsJson['pets
             moving = true;
           }
         }
-        if (Math.abs(p.z - hero.z) > NEAR) return;
+        if (Math.abs(p.z - hero.z) > near || skip(i)) return;
         q.setFromAxisAngle(up, p.yaw);
         if (moving) q.multiply(roll.setFromAxisAngle(fwd, WADDLE * Math.sin(timeSec * 9 + i)));
         mesh.setMatrixAt(slot(0), m4.compose(pos.set(p.x, level!.floorAt(p.x, p.z), p.z), q, one));
       });
-      sitters.forEach((b) => {
+      sitters.forEach((b, i) => {
         const d = Math.hypot(hero.x - b.x, hero.z - b.z);
         b.yaw = turn(b.yaw, d < cfg.sitters.lookAtDist ? Math.atan2(hero.x - b.x, hero.z - b.z) : b.home, TURN * dt);
         // A hop on the spot, then a rest before the next one while he stays near.
@@ -263,10 +270,11 @@ export function createDecor(scene: Scene, theme: ThemeJson, pets: PetsJson['pets
         } else if (b.rest > 0) b.rest -= dt;
         else if (d < cfg.sitters.hopDist) b.hop = HOP_SEC;
         const lift = b.hop > 0 ? HOP_UP * Math.sin((Math.PI * (HOP_SEC - b.hop)) / HOP_SEC) : 0;
-        if (Math.abs(b.z - hero.z) > NEAR) return;
+        if (Math.abs(b.z - hero.z) > near || skip(i)) return;
         mesh.setMatrixAt(slot(1), m4.compose(pos.set(b.x, b.y + lift, b.z), q.setFromAxisAngle(up, b.yaw), one));
       });
       mesh.count = n;
+      state.drawn = n;
       // None near — no draw call for it.
       mesh.visible = n > 0;
       mesh.instanceMatrix.needsUpdate = true;

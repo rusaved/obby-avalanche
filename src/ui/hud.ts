@@ -183,8 +183,8 @@ export interface Hud {
    * `sub` — a smaller second line (the collection counter of a hatch, M3-13); `onShow` — called when it is on screen
    * (it may wait for the avalanche banner: the egg of the first wave comes after «Phew, made it!», docs/01-gdd.md 16.6). */
   /** MU round 5: `now` — shown at once over the avalanche plaque (the golden gift handed in, an ad's reward), not queued
-   * after it; the toasts that come while it shows wait for it. */
-  toast(text: string, sec?: number, gold?: boolean, sub?: string, onShow?: () => void, now?: boolean): void;
+   * after it; the toasts that come while it shows wait for it. D-05: `order` — its importance, least hold and key (toast-queue.ts). */
+  toast(text: string, sec?: number, gold?: boolean, sub?: string, onShow?: () => void, now?: boolean, order?: ToastOrder): void;
   /** Soft white veil when the camera is inside the snow body (docs/02-tech.md 7). */
   setVeil(on: boolean): void;
   /** Speed plaque: the number and «+N per step» under it (docs/01-gdd.md 10.1). */
@@ -337,6 +337,9 @@ const TAP_CLICK_MS = 800;
 const STAT_FLASH_MS = 1200;
 /** Toasts waiting for the avalanche banner to go (playtest M2), the oldest dropped past this. */
 const TOAST_QUEUE_MAX = 5;
+/** D-05: the place of a toast in the queue — importance, least hold, key of the one it replaces (toast-queue.ts). */
+export type ToastOrder = { prio?: number; minSec?: number; key?: string };
+
 /** FX-01: a toast that tells a gain («+15», «×2») is a reward, the rest are events (their mark, toast-queue.ts). */
 const REWARD_RE = /[+\u00d7]\s?\d/;
 
@@ -727,7 +730,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     levelBox.style.left = `${x0}px`;
     shoes.style.left = `${x0 + bw + ROW_GAP}px`;
   };
-  type Toast = { text: string; sec: number; gold: boolean; sub: string | undefined; onShow?: (() => void) | undefined; now?: boolean };
+  type Toast = { text: string; sec: number; gold: boolean; sub: string | undefined; onShow?: (() => void) | undefined; now?: boolean } & ToastOrder;
   // Round of fixes MU (staff 19.10: «+150» and «LEVEL UP!» at 130 % text lay on the stage strip): the phone toast's
   // letters start 8 px under the strip as it is now (it grows with the text) — its line box is tighter than the letters.
   const placeMuToast = (): void => {
@@ -1351,11 +1354,11 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       arrow.classList.toggle('shown', a !== null);
       if (a) arrow.style.transform = `translate(${Math.round(a.x)}px, ${Math.round(a.y)}px) translate(-50%, -50%) rotate(${a.angle.toFixed(3)}rad)`;
     },
-    toast(text, sec = 2, gold = false, sub, onShow, now = false) {
+    toast(text, sec = 2, gold = false, sub, onShow, now = false, order = {}) {
       // Never over the avalanche banner (playtest M2): it waits until the banner goes, the latest few in order. MU round 5:
       // nor over a reward said `now` (the gift handed in, an ad's reward) — «LEVEL UP!» of that Speed comes after it.
       // FX-01: one at a time, each held `fx.toastMinSec` before the next (toast-queue.ts).
-      toasts.push({ text, sec, gold, sub, onShow, now });
+      toasts.push({ text, sec, gold, sub, onShow, now, ...order });
     },
     setVeil(on) {
       veil.classList.toggle('shown', on);

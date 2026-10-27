@@ -8,6 +8,12 @@ export interface QueuedToast {
   sub?: string | undefined;
   sec: number;
   now?: boolean;
+  /** D-05: the more important first (the giant, the avalanche over «Level up!»); a plain toast yields only to one as important. */
+  prio?: number | undefined;
+  /** D-05: held at least this long, the queue's minSec aside. */
+  minSec?: number | undefined;
+  /** D-05: a newer toast of the same key takes the place of the waiting one («Level 7» over a stale «Level 5»). */
+  key?: string | undefined;
 }
 
 export interface ToastClock {
@@ -52,8 +58,9 @@ export function createToastQueue<T extends QueuedToast>(o: {
     if (!cur) return;
     const end = cur.at + cur.item.sec * 1000;
     // A plain toast yields to a waiting one after minSec; an urgent one keeps its whole time but for another urgent one.
-    const waits = cur.item.now ? pending.some((p) => p.now) : pending.length > 0;
-    const yieldAt = waits ? Math.min(end, cur.at + o.minSec * 1000) : end;
+    const c = cur.item;
+    const waits = c.now ? pending.some((p) => p.now) : pending.some((p) => p.now || (p.prio ?? 0) >= (c.prio ?? 0));
+    const yieldAt = waits ? Math.min(end, cur.at + Math.max(o.minSec, c.minSec ?? 0) * 1000) : end;
     timer = clock.set(leave, Math.max(0, yieldAt - clock.now()));
   };
   const show = (item: T): void => {
@@ -65,7 +72,9 @@ export function createToastQueue<T extends QueuedToast>(o: {
     if (cur || gap) return;
     // Urgent ones first (a reward handed in), then the rest in order — not while the banner is up.
     const u = pending.findIndex((p) => p.now);
-    const i = u >= 0 || o.blocked() ? u : 0;
+    // D-05: then the most important, the first of equal ones.
+    const top = pending.reduce((b, p, k) => ((p.prio ?? 0) > (pending[b]!.prio ?? 0) ? k : b), 0);
+    const i = u >= 0 || o.blocked() ? u : pending.length > 0 ? top : 0;
     const item = i >= 0 ? pending.splice(i, 1)[0] : undefined;
     if (item) show(item);
   };
@@ -94,6 +103,11 @@ export function createToastQueue<T extends QueuedToast>(o: {
   return {
     push(item) {
       if ((cur && same(cur.item, item)) || pending.some((p) => same(p, item))) return;
+      const k = item.key !== undefined ? pending.findIndex((p) => p.key === item.key) : -1;
+      if (k >= 0) {
+        pending[k] = item;
+        return;
+      }
       if (item.now && cur && !cur.item.now) {
         // An urgent toast (a reward handed in) is seen at once; the plain one comes back after it.
         const back = cur.item;

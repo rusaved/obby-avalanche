@@ -135,7 +135,7 @@
   },
   "events": { "snowball": { "trail": "#7FC8F8", "ball": "#F4FAFF" }, "blizzard": { "fog": "#DCE8F2", "snow": "#FFFFFF", "glow": "#FFC94D" } },
   "decor": {
-    "minQuality": "medium",
+    "minQuality": "low", "low": { "every": 2, "near": 90 },
     "walkers": { "look": "penguin", "on": ["slope", "pass", "canyon", "blizzard", "aurora"], "perSection": [3, 5], "patch": 10, "speed": 1 },
     "sitters": { "looks": ["bullfinch", "owl", "petrel"], "on": ["slope", "pass", "canyon", "blizzard", "aurora"], "perSection": [3, 4], "lookAtDist": 8, "hopDist": 4 }
   }
