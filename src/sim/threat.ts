@@ -275,8 +275,10 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
           const inZone = zones ? zoneOf(hero.z) !== null : false;
           // G-01: never inside a giant's zone — one trial at a time; the wave waits till he is out of it.
           const inGiant = level.bosses.some((b) => hero.z >= b.zone[0] && hero.z <= b.zone[1]);
+          // D-06: nor in a stage built without a wave (the maze, the balls: SD-09, MT-02).
+          const noWave = level.stages?.some((st) => (st.type === 'maze' || st.type === 'ball') && hero.z >= st.start && hero.z <= st.end) ?? false;
           if (state.scriptedPending && !forced && !inZone) {
-            if (inGiant) return;
+            if (inGiant || noWave) return;
             const zoneReached = scriptedCave !== null && hero.z >= scriptedCave.z - balance.ftue.triggerDist && !inSafeZone(level, hero.z);
             // D-06: at a closed ridge the cave of its safe finish counts as in reach (review D20: none came at ridge 1).
             if ((zoneReached || state.playSec >= balance.ftue.fallbackSec) && quiet() && coverInReach(hero, gatesOpen, true)) startWarn(hero, gatesOpen, tick, true);
@@ -284,7 +286,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
           }
           // D-06: not longer than idleMaxSec without a wave anywhere but a giant's zone (review D20: the falls on the
           // plates restarted the delay of their stage every time), where a shelter is in reach.
-          if (zones && !forced && threat.idleMaxSec !== undefined && Math.min(sinceWave, state.playSec) >= threat.idleMaxSec && quiet() && !inGiant && hero.z >= campTop && coverInReach(hero, gatesOpen, true)) {
+          if (zones && !forced && threat.idleMaxSec !== undefined && Math.min(sinceWave, state.playSec) >= threat.idleMaxSec && quiet() && !inGiant && !noWave && hero.z >= campTop && coverInReach(hero, gatesOpen, true)) {
             startWarn(hero, gatesOpen, tick, true);
             return;
           }
