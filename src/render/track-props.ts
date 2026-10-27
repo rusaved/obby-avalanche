@@ -68,6 +68,8 @@ export interface TrackProps {
   stripes: PropStripe[];
   /** Roofs of the canopies drawn as a gable here: their flat collider boxes are not drawn. */
   hidden: Set<LevelBox>;
+  /** V-04: the space under and in the gable of each canopy — the camera there hides that roof (level-mesh cameraAt). */
+  canopies: Array<{ niche: number; min: [number, number, number]; max: [number, number, number] }>;
   /** Where the summit chest stands (the coin burst of the summit), null — none. */
   chest: [number, number, number] | null;
 }
@@ -259,6 +261,7 @@ export function buildTrackProps(level: LevelData, theme: ThemeJson, models?: Dec
   const coldGlows: TrackProps['coldGlows'] = [];
   const stripes: PropStripe[] = [];
   const hidden = new Set<LevelBox>();
+  const canopies: TrackProps['canopies'] = [];
   let chest: TrackProps['chest'] = null;
 
   // V-01: the arch over the real way out of a maze (LV-12: read over the walls from the way in) — two ice pillars with
@@ -273,17 +276,17 @@ export function buildTrackProps(level: LevelData, theme: ThemeJson, models?: Dec
     const walls = level.boxes.filter((b) => b.kind === 'throatWall' && b.min[2] >= mz.z0 - 2 && b.max[2] <= z + 2);
     const y = st.y;
     const top = walls.reduce((h, b) => Math.max(h, b.max[1]), y + 8);
-    const H = Math.max(top + 2, y + 14);
+    const H = Math.max(top + 3, y + 14);
     // The pillars wrap the wall ends from the ground (over the walls' colliders), log bands on them.
     for (const side of [-1, 1]) {
       const px = cx + (side * mz.cell) / 2;
       k.box(px - 0.9, y, z - 0.9, px + 0.9, H, z + 0.9, 'ice', 1.05);
-      for (const by of [y + 2.6, top - 0.4, H - 0.9]) k.box(px - 1.05, by, z - 1.05, px + 1.05, by + 0.45, z + 1.05, 'pole');
+      for (const by of [top - 0.4, H - 0.9]) k.box(px - 1, by, z - 1, px + 1, by + 0.45, z + 1, 'pole');
       k.box(px - 1.1, H, z - 1.1, px + 1.1, H + 0.35, z + 1.1, 'track');
     }
     const x0 = cx - mz.cell / 2 - 1.2;
     const x1 = cx + mz.cell / 2 + 1.2;
-    k.beamX(x0, x1, H + 0.9, z, 0.55, 7, 'pole');
+    k.beamX(x0, x1, H + 0.9, z, 0.75, 7, 'pole');
     k.box(x0 + 0.2, H + 1.35, z - 0.55, x1 - 0.2, H + 1.75, z + 0.55, 'track');
     // The flag on a pole over the middle of the beam, its cloth across the run (seen from the way in).
     k.post(cx, H + 1.4, z, 0.1, 0.1, 4.2, 5, 'pole');
@@ -293,30 +296,6 @@ export function buildTrackProps(level: LevelData, theme: ThemeJson, models?: Dec
     // The lamp under the beam and the soft light over the arch.
     k.post(cx, H - 0.2, z, 0.35, 0.45, 0.8, 6, 'portalLight', 1.1);
     glows.push([cx, H + 0.2, z, 1.4], [cx, H + 3.5, z, 4.5]);
-  }
-
-  // V-12: the maze walls from inside — a snow cap along their tops, a dark plinth at the foot, a few stones jutting out
-  // (render only; the walls, their height and the passages stay).
-  for (const st of level.stages ?? []) {
-    const mz = st.maze;
-    if (!mz) continue;
-    const xa = mz.x0 - 1;
-    const xb = mz.x0 + mz.cols * mz.cell + 1;
-    const za = mz.z0 - 1;
-    const zb = mz.z0 + mz.rows * mz.cell + 1;
-    let n = 0;
-    for (const w of level.boxes) {
-      if (w.kind !== 'throatWall' || w.min[0] < xa || w.max[0] > xb || w.min[2] < za || w.max[2] > zb) continue;
-      k.box(w.min[0] - 0.25, w.max[1], w.min[2] - 0.25, w.max[0] + 0.25, w.max[1] + 0.5, w.max[2] + 0.25, 'track');
-      k.box(w.min[0] - 0.14, st.y, w.min[2] - 0.14, w.max[0] + 0.14, st.y + 0.9, w.max[2] + 0.14, 'grottoRock', 0.62, 'rock');
-      const along = w.max[2] - w.min[2] > w.max[0] - w.min[0];
-      const L = along ? w.max[2] - w.min[2] : w.max[0] - w.min[0];
-      for (let t = 4 + (n++ % 3) * 2; t < L - 3; t += 9) {
-        const hy = st.y + 3 + ((t * 7 + n * 3) % 5);
-        if (along) k.box(w.min[0] - 0.35, hy, w.min[2] + t - 0.8, w.max[0] + 0.35, hy + 1.1, w.min[2] + t + 0.8, 'throatWall', 0.9);
-        else k.box(w.min[0] + t - 0.8, hy, w.min[2] - 0.35, w.min[0] + t + 0.8, hy + 1.1, w.max[2] + 0.35, 'throatWall', 0.9);
-      }
-    }
   }
 
   // V-02: the rocks of the giant's zone — a Kenney rock over the collider box; the ice rocks of the ice stage — the same
@@ -334,23 +313,24 @@ export function buildTrackProps(level: LevelData, theme: ThemeJson, models?: Dec
       k.box(b.min[0], b.min[1], b.min[2], b.max[0], b.max[1], b.max[2], b.kind === 'cover' ? 'rock' : 'ice');
       continue;
     }
-    // A snow cap on the stone rock (the ice one is all ice).
-    if (b.kind === 'cover') k.lathe(cx, b.max[1] - 0.15, cz, [[0, 0], [w * 0.42, 0], [w * 0.38, 0.45], [w * 0.2, 0.75], [0, 0.8]], 7, 'track');
   }
 
-  // V-10: the trophy pad — a low octagon pedestal over its collider (it covers the 6 × 6 box), a gold trim, a cup over it
-  // and a light ring.
+  // V-10: the trophy pad — an octagon pedestal over its collider (it covers the 6 × 6 box) with a stepped skirt into the
+  // snow, a raised gold rim round its top and a light ring inside it; the cup on a short stand at its far (uphill) edge,
+  // off the middle the hero steps on.
   for (const b of level.boxes) {
     if (b.kind !== 'trophyPad') continue;
     const cx = (b.min[0] + b.max[0]) / 2;
     const cz = (b.min[2] + b.max[2]) / 2;
     const r = ((b.max[0] - b.min[0]) / 2) * 1.42;
-    k.lathe(cx, b.min[1], cz, [[0, 0], [r, 0], [r, b.max[1] - b.min[1] - 0.12], [r - 0.35, b.max[1] - b.min[1]], [0, b.max[1] - b.min[1]]], 8, 'rock', 1.15, 'border');
-    k.lathe(cx, b.max[1] - 0.5, cz, [[r + 0.05, 0], [r + 0.12, 0.25], [r - 0.3, 0.5], [r - 0.4, 0.5]], 8, 'trophyPad');
-    k.lathe(cx, b.max[1], cz, [[r * 0.62, 0], [r * 0.7, 0], [r * 0.7, 0.04], [r * 0.62, 0.04]], 8, 'portalLight', 1.15);
-    // The cup over the middle (above the hero's head, he steps on the pad under it).
-    k.lathe(cx, b.max[1] + 3.2, cz, [[0, 0], [0.55, 0], [0.5, 0.15], [0.14, 0.3], [0.12, 0.7], [0.5, 0.95], [0.75, 1.5], [0.7, 1.55], [0, 1.2]], 8, 'trophyPad', 1.1);
-    glows.push([cx, b.max[1] + 4, cz, 1.6]);
+    const t = b.max[1];
+    k.lathe(cx, b.min[1], cz, [[0, 0], [r + 0.9, 0], [r + 0.9, 0.35], [r + 0.3, 0.42], [r + 0.3, t - b.min[1] - 0.05], [0, t - b.min[1] - 0.05]], 8, 'rock', 1.15, 'border');
+    k.lathe(cx, t - 0.08, cz, [[r + 0.32, 0], [r + 0.32, 0.42], [r - 0.25, 0.42], [r - 0.25, 0.1], [0, 0.1]], 8, 'trophyPad');
+    k.lathe(cx, t + 0.04, cz, [[r * 0.55, 0], [r * 0.66, 0], [r * 0.66, 0.04], [r * 0.55, 0.04]], 8, 'portalLight', 1.15);
+    const sz = b.max[2] - 0.9;
+    k.lathe(cx, t, sz, [[0, 0], [0.55, 0], [0.5, 0.2], [0.18, 0.3], [0.18, 1.1], [0.42, 1.25], [0, 1.3]], 8, 'trophyPad', 0.9);
+    k.lathe(cx, t + 1.25, sz, [[0, 0], [0.4, 0], [0.12, 0.2], [0.1, 0.55], [0.45, 0.75], [0.62, 1.25], [0.56, 1.3], [0, 1]], 8, 'trophyPad', 1.1);
+    glows.push([cx, t + 2.1, sz, 1]);
   }
 
   // V-13: the camp teleport — a round ice platform with a ring of runes and a cold light over it.
@@ -371,7 +351,7 @@ export function buildTrackProps(level: LevelData, theme: ThemeJson, models?: Dec
 
   // Niches: V-04 the canopies, V-06 the rock grottos, V-11 the caves in the edge drifts.
   level.niches.forEach((n, i) => {
-    if (n.kind === 'island' && n.canopy) canopy(k, level, n, i, cut, hidden, glows);
+    if (n.kind === 'island' && n.canopy) canopy(k, level, n, i, cut, hidden, glows, canopies);
     else if (n.kind === 'island') grotto(k, level, n, i, cut, coldGlows);
     else if (n.kind !== 'ledge') drift(k, level, n, i, cut);
   });
@@ -406,7 +386,7 @@ export function buildTrackProps(level: LevelData, theme: ThemeJson, models?: Dec
     for (const [x, id] of [[-half + 4, 'pineA'], [half - 4, 'pineC'], [-half + 9, 'pineB'], [half - 10, 'pineA']] as const) k.model(id, x, 0, z - 2.5, x, 6, 6.5, 6);
   }
 
-  return { pieces: k.pieces, cut, glows, coldGlows, stripes, hidden, chest };
+  return { pieces: k.pieces, cut, glows, coldGlows, stripes, hidden, canopies, chest };
 }
 
 /** V-03: a treadmill — dark rubber between two rails, rollers at the ends, chevrons up the slope on the top plate; the
@@ -427,7 +407,7 @@ function belt(k: Kit, p: LevelPoint, stripes: PropStripe[]): void {
   const arm = Math.min(1.2, wid * 0.22);
   if (p['inNiche'] !== true) for (const z of [z0 - 0.05, z1 + 0.05]) k.beamX(x0, x1, y + ROLLER_R * 0.5, z, ROLLER_R, 6, 'treadmillFrame', 1.2);
   if (p['inNiche'] !== true)
-    for (const side of [-1, 1]) k.turned(p.x + (side * arm) / 2.6, y + BELT_TOP + 0.01, z1 - 1.4, 0.22, 0.03, arm, 0, (side * Math.PI) / 4, 0, 'wayArrow', 1.1, 'treadmill');
+    for (const side of [-1, 1]) k.turned(p.x + side * arm * 0.354, y + BELT_TOP + 0.01, z1 - 1.2 - arm * 0.354, 0.22, 0.03, arm, 0, (-side * Math.PI) / 4, 0, 'wayArrow', 1.1, 'treadmill');
   const speed = Math.min(STRIPE_MAX, STRIPE_SPEED + STRIPE_PER_DOUBLE * Math.log2(Math.max(1, mult)));
   const usable = len - 3.2;
   for (let s = 0; s * STRIPE_STEP < usable; s++) stripes.push({ x: p.x, y: y + BELT_TOP + 0.015, z0, len: usable, w: wid - 0.15, phase: s * STRIPE_STEP, speed });
@@ -435,7 +415,7 @@ function belt(k: Kit, p: LevelPoint, stripes: PropStripe[]): void {
 
 /** V-04: a canopy of a finish belt — four log posts to the snow, beams along under a gable roof of boards with a snow cap
  * and an overhang, icicles along the eaves; the flat collider of the roof stays, not drawn. */
-function canopy(k: Kit, level: LevelData, n: LevelNiche, i: number, cut: PropCut[], hidden: Set<LevelBox>, glows: TrackProps['glows']): void {
+function canopy(k: Kit, level: LevelData, n: LevelNiche, i: number, cut: PropCut[], hidden: Set<LevelBox>, glows: TrackProps['glows'], canopies: TrackProps['canopies']): void {
   const roof = level.boxes.find((b) => b.kind === 'islandRoof' && b.min[1] >= n.box.max[1] - 0.01 && b.min[0] <= n.box.min[0] + 1e-6 && b.max[0] >= n.box.max[0] - 1e-6 && b.min[2] < n.box.max[2] && b.max[2] > n.box.min[2]);
   if (!roof) return;
   hidden.add(roof);
@@ -469,10 +449,12 @@ function canopy(k: Kit, level: LevelData, n: LevelNiche, i: number, cut: PropCut
     // Icicles under the eaves.
     for (let z = z0 - over + 0.8; z < z1 + over - 0.5; z += 1.7) k.icicle(cx + sx * (run - 0.3), top + 0.2, z, 0.18, 0.7 + ((z * 13) % 1) * 0.6);
   }
-  // A ridge beam and the lamp at the front.
+  // A ridge beam; the lamp on the front left post (off the run line: on the axis it hid the hero's head).
   cut.push({ niche: i, part: 'roof', box: box(cx - 0.35, top + rise + 0.2, z0 - over, cx + 0.35, top + rise + 0.75, z1 + over, 'pole') });
-  k.post(cx, top - 1.4, z0 + inset, 0.25, 0.3, 0.7, 6, 'portalLight', 1.1);
-  glows.push([cx, top - 1, z0 + inset, 0.9]);
+  const lx = cx + (a - inset);
+  k.post(lx, top - 1.6, z0 + inset - 0.6, 0.25, 0.3, 0.7, 6, 'portalLight', 1.1);
+  glows.push([lx, top - 1.2, z0 + inset - 0.6, 0.9]);
+  canopies.push({ niche: i, min: [cx - run - 0.5, top - 1.2, z0 - over - 0.5], max: [cx + run + 0.5, top + rise + 1.5, z1 + over + 0.5] });
 }
 
 /** V-06: a grotto in a rock — rock blocks of different heights round its walls, a snow cap over the roof, a stepped arch
@@ -516,8 +498,13 @@ function drift(k: Kit, level: LevelData, n: LevelNiche, i: number, cut: PropCut[
   const y = n.y;
   const top = y + NICHE_HEIGHT;
   const w = NICHE_WALL;
-  // Snow over the roof, a drift wider than the cave (the cave becomes a drift).
-  cut.push({ niche: i, part: 'roof', box: box(lo - 0.6, top + 1, zA - w - 0.6, hi + 0.6, top + 2.2, zB + w + 0.6, 'track') });
+  // Snow over the roof in two steps (the cave becomes a drift); inside it is dark.
+  cut.push({ niche: i, part: 'roof', box: box(lo - 0.6, top + 1, zA - w - 0.6, hi + 0.6, top + 1.9, zB + w + 0.6, 'track') });
+  cut.push({ niche: i, part: 'roof', box: box(lo + 0.4, top + 1.9, zA - w + 0.4, hi - 0.4, top + 2.6, zB + w - 0.4, 'track') });
+  const back = n.side === 'left' ? lo : hi;
+  cut.push({ niche: i, part: 'back', box: box(n.side === 'left' ? back : back - 0.12, y, zA, n.side === 'left' ? back + 0.12 : back, top - 0.2, zB, 'caveInside') });
+  // The drift heaped on the near end (the side the run comes from; one: the triangles of the mountain, D-02).
+  k.boulder(lo - 0.4, y - 0.6, zA - w - 3.6, hi + 0.4, top + 1.4, zA - w + 0.4, zA, 'drift', 'track');
   // The ice trim over the mouth (at the field edge) with icicles under it; inside it is dark by the light of the cave.
   const left = n.side === 'left';
   const mouth = left ? hi : lo;
@@ -544,10 +531,12 @@ function decorPiece(k: Kit, level: LevelData, p: LevelPoint, glows: TrackProps['
       break;
     }
     case 'cairn': {
-      // Stones of Kenney with a small flag on top.
+      // Three stones narrowing up, snow on their tops, a small flag on the top one.
       const s = size;
-      k.model('rocksM', p.x, p.y, p.z, yaw, 2.6 * s, 2.2 * s, 2.6 * s) || k.box(p.x - s, p.y, p.z - s, p.x + s, p.y + 1.6 * s, p.z + s, 'rock');
-      k.post(p.x, p.y + 1.4 * s, p.z, 0.08 * s, 0.08 * s, 2 * s, 5, 'pole');
+      k.boulder(p.x - 1.3 * s, p.y - 0.2 * s, p.z - 1.2 * s, p.x + 1.3 * s, p.y + 1 * s, p.z + 1.2 * s, p.z, 'rock');
+      k.boulder(p.x - 0.95 * s, p.y + 0.8 * s, p.z - 0.85 * s, p.x + 0.85 * s, p.y + 1.75 * s, p.z + 0.9 * s, p.z + 1, 'rock');
+      k.boulder(p.x - 0.55 * s, p.y + 1.6 * s, p.z - 0.5 * s, p.x + 0.6 * s, p.y + 2.3 * s, p.z + 0.55 * s, p.z + 2, 'rock');
+      k.post(p.x, p.y + 2.1 * s, p.z, 0.08 * s, 0.08 * s, 1.4 * s, 5, 'pole');
       k.box(p.x + 0.08 * s, p.y + 2.6 * s, p.z - 0.04 * s, p.x + 0.95 * s, p.y + 3.3 * s, p.z + 0.04 * s, 'markFlag', 1, 'tent');
       break;
     }
@@ -589,7 +578,7 @@ function decorPiece(k: Kit, level: LevelData, p: LevelPoint, glows: TrackProps['
       break;
     case 'arrow': {
       // A chevron «^» up the slope in the way-mark colour.
-      for (const side of [-1, 1]) k.turned(p.x + side * 0.55, p.y + 0.04, p.z, 0.4, 0.05, 1.7, 0, (side * Math.PI) / 4, 0, 'wayArrow', 1, 'arrow');
+      for (const side of [-1, 1]) k.turned(p.x + side * 0.6, p.y + 0.04, p.z - 0.6, 0.4, 0.05, 1.7, 0, (-side * Math.PI) / 4, 0, 'wayArrow', 1, 'arrow');
       break;
     }
   }

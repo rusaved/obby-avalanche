@@ -126,6 +126,8 @@ export interface LevelMeshes {
   /** These parts of cave `niche` are not drawn (−1 or no parts — all drawn); the boxes of the hidden ones (test API). */
   setCaveCut(niche: number, parts: readonly CavePart[]): void;
   cutBoxes(): Array<{ min: readonly number[]; max: readonly number[] }>;
+  /** V-04: the camera at (x, y, z) every frame — a canopy roof it is under or in is not drawn (the boards filled the frame). */
+  cameraAt(x: number, y: number, z: number): void;
   /** V-05: where the summit chest stands beside the portal (its coins flash there), null — none. */
   chestAt: readonly [number, number, number] | null;
   /** Gifts of the mountain in `level.points` order (M2-04). */
@@ -458,38 +460,57 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   backMesh.computeBoundingSphere();
   group.add(backMesh);
   const cutHidden = cutParts.map(() => false);
+  const camHidden = cutParts.map(() => false);
+  const canopyParts = props.canopies.map((c) => cutParts.flatMap((w, i) => (w.niche === c.niche && w.part === 'roof' && w.box.kind === 'prop' ? [i] : [])));
 
   // The tall walls (RL-09): two InstancedMeshes of unit boxes, solid and see-through; a wall is in one of them.
   const seeMat = new MeshLambertMaterial({ vertexColors: true, transparent: true, opacity: fade, depthWrite: false });
   // V-12 (staff 27.10: the maze walls were smooth dark slabs from inside): the walls drawn apart keep the texture of their
   // material (a layer per instance) — the snow bricks of the maze, the rock of a cliff.
+  // V-12: a maze wall carries a snow cap on its top and a dark plinth at its foot — parts of the same instance set, faded
+  // with their wall (in the chunks they stood as blocks in the air when the wall faded for the camera).
+  type SeePart = { owner: number; box: LevelBox; color: Color; layer: number };
+  const seeParts: SeePart[] = seeThrough.map((b, i) => ({ owner: i, box: b, color: materialColor(theme, lookOf(b, theme)), layer: texOf(theme, lookOf(b, theme)) }));
+  const mazes = (level.stages ?? []).flatMap((st) => (st.maze ? [{ y: st.y, x0: st.maze.x0 - 1, x1: st.maze.x0 + st.maze.cols * st.maze.cell + 1, z0: st.maze.z0 - 1, z1: st.maze.z0 + st.maze.rows * st.maze.cell + 1 }] : []));
+  const plinth = materialColor(theme, theme.materials['grottoRock'] ? 'grottoRock' : 'rock').multiplyScalar(0.62);
+  seeThrough.forEach((w, i) => {
+    const mz = w.kind === 'throatWall' ? mazes.find((m) => w.min[0] >= m.x0 && w.max[0] <= m.x1 && w.min[2] >= m.z0 && w.max[2] <= m.z1) : undefined;
+    if (!mz) return;
+    seeParts.push({ owner: i, box: { min: [w.min[0] - 0.25, w.max[1], w.min[2] - 0.25], max: [w.max[0] + 0.25, w.max[1] + 0.5, w.max[2] + 0.25], material: 'track', kind: 'prop', solid: false }, color: materialColor(theme, 'track'), layer: texOf(theme, 'track') });
+    seeParts.push({ owner: i, box: { min: [w.min[0] - 0.14, mz.y, w.min[2] - 0.14], max: [w.max[0] + 0.14, mz.y + 0.9, w.max[2] + 0.14], material: 'grottoRock', kind: 'prop', solid: false }, color: plinth, layer: texOf(theme, 'rock') });
+  });
+  const partsOf = seeThrough.map(() => [] as number[]);
+  seeParts.forEach((p, k) => partsOf[p.owner]!.push(k));
   const seeGeo = backGeo.clone();
-  seeGeo.setAttribute('layer', new InstancedBufferAttribute(new Float32Array(Math.max(1, seeThrough.length)).map((_, i) => (seeThrough[i] ? texOf(theme, lookOf(seeThrough[i]!, theme)) : 0)), 1));
+  seeGeo.setAttribute('layer', new InstancedBufferAttribute(new Float32Array(Math.max(1, seeParts.length)).map((_, k) => seeParts[k]?.layer ?? 0), 1));
   const seeSolidMat = new MeshLambertMaterial({ vertexColors: true });
   if (theme.blockTex) {
     useBlockTexture(seeSolidMat, blockTexture(), theme.blockTex.scale);
     useBlockTexture(seeMat, blockTexture(), theme.blockTex.scale);
   }
-  const seeSolid = new InstancedMesh(seeGeo, seeSolidMat, Math.max(1, seeThrough.length));
-  const seeFadedMesh = new InstancedMesh(seeGeo, seeMat, Math.max(1, seeThrough.length));
-  seeSolid.count = seeFadedMesh.count = seeThrough.length;
+  const seeSolid = new InstancedMesh(seeGeo, seeSolidMat, Math.max(1, seeParts.length));
+  const seeFadedMesh = new InstancedMesh(seeGeo, seeMat, Math.max(1, seeParts.length));
+  seeSolid.count = seeFadedMesh.count = seeParts.length;
   seeSolid.name = 'see-through-solid';
   seeFadedMesh.name = 'see-through-faded';
   const faded = seeThrough.map(() => false);
   const placeSee = (i: number): void => {
-    const b = seeThrough[i]!;
-    backDummy.position.set((b.min[0] + b.max[0]) / 2, (b.min[1] + b.max[1]) / 2, (b.min[2] + b.max[2]) / 2);
-    for (const [mesh, on] of [[seeSolid, !faded[i]], [seeFadedMesh, faded[i]]] as const) {
-      backDummy.scale.set(b.max[0] - b.min[0], b.max[1] - b.min[1], b.max[2] - b.min[2]).multiplyScalar(on ? 1 : 1e-4);
-      backDummy.updateMatrix();
-      mesh.setMatrixAt(i, backDummy.matrix);
-      mesh.instanceMatrix.needsUpdate = true;
+    for (const k of partsOf[i] ?? []) {
+      const b = seeParts[k]!.box;
+      backDummy.rotation.set(0, 0, 0);
+      backDummy.position.set((b.min[0] + b.max[0]) / 2, (b.min[1] + b.max[1]) / 2, (b.min[2] + b.max[2]) / 2);
+      for (const [mesh, on] of [[seeSolid, !faded[i]], [seeFadedMesh, faded[i]]] as const) {
+        backDummy.scale.set(b.max[0] - b.min[0], b.max[1] - b.min[1], b.max[2] - b.min[2]).multiplyScalar(on ? 1 : 1e-4);
+        backDummy.updateMatrix();
+        mesh.setMatrixAt(k, backDummy.matrix);
+        mesh.instanceMatrix.needsUpdate = true;
+      }
     }
   };
-  seeThrough.forEach((b, i) => {
-    placeSee(i);
-    seeSolid.setColorAt(i, materialColor(theme, lookOf(b, theme)));
-    seeFadedMesh.setColorAt(i, materialColor(theme, lookOf(b, theme)));
+  seeThrough.forEach((_, i) => placeSee(i));
+  seeParts.forEach((p, k) => {
+    seeSolid.setColorAt(k, p.color);
+    seeFadedMesh.setColorAt(k, p.color);
   });
   for (const m of [seeSolid, seeFadedMesh]) {
     if (m.instanceColor) m.instanceColor.needsUpdate = true;
@@ -880,7 +901,17 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
         const hide = w.niche === niche && parts.includes(w.part);
         if (hide === cutHidden[i]) return;
         cutHidden[i] = hide;
-        placeBack(i, !hide);
+        placeBack(i, !hide && !camHidden[i]);
+      });
+    },
+    cameraAt(x, y, z) {
+      props.canopies.forEach((c, n) => {
+        const inside = x > c.min[0] && x < c.max[0] && y > c.min[1] && y < c.max[1] && z > c.min[2] && z < c.max[2];
+        for (const i of canopyParts[n]!) {
+          if (camHidden[i] === inside) continue;
+          camHidden[i] = inside;
+          placeBack(i, !inside && !cutHidden[i]);
+        }
       });
     },
     cutBoxes: () => cutParts.filter((_, i) => cutHidden[i]).map((w) => ({ min: w.box.min, max: w.box.max })),

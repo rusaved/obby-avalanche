@@ -1901,6 +1901,8 @@ async function boot(): Promise<void> {
     if (cameraRig && baseView?.drawn) guardBaseArches(baseView, cameraRig.camera, renderPos, tuning.camera.archHide ?? 0);
     if (muLayout && hud && cameraRig && baseView?.drawn) guardBaseSigns(hud, baseView, cameraRig.camera, field);
     if (cameraRig && levelMeshes) guardSeeThrough(levelMeshes, cameraRig.camera, renderPos);
+    // V-04: a canopy roof the camera is under or in is not drawn.
+    if (cameraRig) levelMeshes?.cameraAt(cameraRig.camera.position.x, cameraRig.camera.position.y, cameraRig.camera.position.z);
     // Test hooks see the frame as it is drawn: camera, hero and the signs hidden for it (PR-11).
     g.onFrame?.();
     gr.follow(renderPos);
