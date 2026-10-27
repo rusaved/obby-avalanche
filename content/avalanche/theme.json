@@ -60,7 +60,7 @@
     "treadmill": { "color": "#3BA4FF", "roughness": 0.6 },
     "treadmillStripe": { "color": "#FFFFFF" },
     "flag": { "color": "#EEF3F8" },
-    "markFlag": { "color": "#FF7A45" },
+    "markFlag": { "color": "#FF5A1F" },
     "trail": { "color": "#C9D6E6" },
     "pole": { "color": "#6B4A2B", "tex": "wood" },
     "tent": { "color": "#FF7A00" },
@@ -137,8 +137,8 @@
   },
   "events": { "snowball": { "trail": "#7FC8F8", "ball": "#F4FAFF" }, "blizzard": { "fog": "#DCE8F2", "snow": "#FFFFFF", "glow": "#FFC94D" } },
   "decor": {
-    "minQuality": "low", "low": { "every": 2, "near": 90 },
-    "walkers": { "look": "penguin", "on": ["slope", "pass", "canyon", "blizzard", "aurora"], "perSection": [3, 5], "patch": 10, "speed": 1 },
+    "minQuality": "low", "low": { "every": 1, "near": 80 },
+    "walkers": { "look": "penguin", "on": ["slope", "pass", "canyon", "blizzard", "aurora"], "perSection": [3, 5], "patch": 22, "speed": 1 },
     "sitters": { "looks": ["bullfinch", "owl", "petrel"], "on": ["slope", "pass", "canyon", "blizzard", "aurora"], "perSection": [3, 4], "lookAtDist": 8, "hopDist": 4 }
   }
 }

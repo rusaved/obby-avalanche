@@ -363,8 +363,10 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   // D-03: the run line's flags — a thin pole and its cloth in theme markFlag.
   for (const [x, y, z, side] of plan?.marks ?? []) {
     const pole: LevelBox = { min: [x - 0.1, y, z - 0.1], max: [x + 0.1, y + MARK_POLE, z + 0.1], material: 'pole', kind: 'decor', solid: false };
-    // The cloth along the run, its face to the axis (seen from the run line); under 0.6 tall — no foot AO on it.
-    const cloth: LevelBox = { min: [x - 0.05, y + MARK_POLE - 0.6, z + 0.1], max: [x + 0.05, y + MARK_POLE - 0.05, z + 0.1 + MARK_CLOTH], material: 'markFlag', kind: 'decor', solid: false };
+    // The cloth across the run to the outside, its face to the camera (artist D20: edge-on it read as a stick); under 0.6
+    // tall — no foot AO on it.
+    const c0 = side > 0 ? x + 0.1 : x - 0.1 - MARK_CLOTH;
+    const cloth: LevelBox = { min: [c0, y + MARK_POLE - 0.6, z - 0.05], max: [c0 + MARK_CLOTH, y + MARK_POLE - 0.05, z + 0.05], material: 'markFlag', kind: 'decor', solid: false };
     bucketOf(z).push(boxGeometry(pole, theme), boxGeometry(cloth, theme));
   }
   // D-03: the ski track up the axis between the flags — two strips a shade darker than the snow, where the ground is flat.
