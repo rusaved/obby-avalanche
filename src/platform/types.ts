@@ -1,12 +1,14 @@
 // What: The Platform facade interface (init, ready, gameplay, ads, save, leaderboard, review and the review for a gift, desktop shortcut, flags), PlatformOptions and language mapping.
-// Called by: platform/{index,null,yandex}.ts, app/handles.ts; tests/platform/yandex.test.ts.
-// Keep: Contract shared by Yandex and Null platforms (docs/02-tech.md 11.1): change both implementations together; types plus mapLang only, no SDK calls.
+// Called by: platform/{index,null,yandex,vk}.ts, app/handles.ts; tests/platform/yandex.test.ts, tests/platform/vk.test.ts.
+// Keep: Contract shared by Yandex, VK and Null platforms (docs/02-tech.md 11.1): change all implementations together; types plus mapLang only, no SDK calls.
 
 import type { EventName } from '../analytics/catalog.ts';
 import type { SaveData } from '../meta/save.ts';
 
 export type Lang = 'ru' | 'en';
 export type DeviceType = 'desktop' | 'mobile' | 'tablet' | 'tv';
+/** K-02: one VK build for both sites — VK or OK by the launch parameters. */
+export type VkSite = 'vk' | 'ok';
 
 export interface LeaderEntry {
   rank: number;
@@ -17,7 +19,13 @@ export interface LeaderEntry {
 
 /** Platform facade (docs/02-tech.md 11.1). YandexPlatform wraps ysdk; NullPlatform runs outside Yandex. */
 export interface Platform {
-  readonly kind: 'yandex' | 'null';
+  readonly kind: 'yandex' | 'null' | 'vk';
+  /** K-02: the site of the VK build (OK by the launch parameters); absent elsewhere. */
+  readonly site?: VkSite;
+  /** K-05: a rewarded ad is loaded now (VKWebAppCheckNativeAds came back true) — its buttons show only then; absent — always. */
+  rewardedReady?(): boolean;
+  /** K-08: the platform's own «join the community» window; true only on result: true. Absent — no community id (no button). */
+  readonly joinGroup?: (() => Promise<boolean>) | undefined;
   init(): Promise<void>;
   readonly lang: Lang;
   readonly device: DeviceType;

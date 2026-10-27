@@ -1,6 +1,6 @@
 // What: track() buffers the last 500 events and sends them to Yandex Metrika via ym() when a counter is set, else echoes to the console in dev builds.
 // Called by: main.ts (configureAnalytics, track); debug/index.ts and test-api/index.ts (read buffer, onTrack); tests/analytics/gold-params.test.ts.
-// Keep: sim/level/meta/core must not import this (architecture test); gold_* go as visit params, not goals; no ym call at counterId 0; index.html seeds __T0 and the buffer.
+// Keep: sim/level/meta/core must not import this (architecture test); gold_* go as visit params, not goals; no ym call at counterId 0 or in the VK build (K-04); index.html seeds __T0 and the buffer.
 
 import type { EventName } from './catalog.ts';
 
@@ -55,7 +55,7 @@ export function track(name: EventName, params?: Record<string, unknown>): void {
   buffer.push(ev);
   listener?.(ev);
   if (buffer.length > 500) buffer.splice(0, buffer.length - 500);
-  if (counterId > 0 && typeof window !== 'undefined' && typeof window.ym === 'function') {
+  if (__PLATFORM__ !== 'vk' && counterId > 0 && typeof window !== 'undefined' && typeof window.ym === 'function') {
     try {
       const asParam = PARAM_EVENTS[name];
       if (asParam) window.ym(counterId, 'params', asParam);

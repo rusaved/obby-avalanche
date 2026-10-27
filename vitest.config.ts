@@ -5,6 +5,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@content': resolve(import.meta.dirname, 'content/avalanche'),
+      '@vk': resolve(import.meta.dirname, 'content/vk.json'),
       '@': resolve(import.meta.dirname, 'src'),
     },
   },
@@ -16,6 +17,9 @@ export default defineConfig({
     __SDK_PATH__: '"/sdk.js"',
     __CONTENT_PACK__: '"avalanche"',
     __NO_PAYMENTS__: 'false',
+    __PLATFORM__: '"yandex"',
+    __KIT__: 'false',
+    __BUILD_SHA__: '""',
   },
   test: {
     include: ['tests/**/*.test.ts'],

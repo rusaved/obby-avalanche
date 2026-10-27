@@ -25,7 +25,7 @@ export type { BootState as TestBootState } from '../app/handles.ts';
 import { stageAt } from '../sim/world.ts';
 
 export interface TestState {
-  platform: 'yandex' | 'null';
+  platform: 'yandex' | 'null' | 'vk';
   lang: string;
   pack: string;
   /** Pace of this run (docs/01-gdd.md 16.1): classic or a folder of content/<pack>/pace/. */

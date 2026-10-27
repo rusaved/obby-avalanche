@@ -1,0 +1,65 @@
+{
+  "_note": "K-03 (Lavina 21): the VK and OK build (npm run build:vk). appId, vkGroupId, okGroupId are filled by the studio before submission; empty group id — no join button.",
+  "appId": 0,
+  "vkGroupId": 0,
+  "okGroupId": 0,
+  "bridge": {
+    "timeoutSec": 6,
+    "rewardedRecheckSec": 30
+  },
+  "save": {
+    "gapSec": 45,
+    "hideGapSec": 5,
+    "chunkChars": 4000,
+    "writesPerHour": 600
+  },
+  "ads": {
+    "interstitial": ["portal", "rebirth"],
+    "interstitialMinSec": 180,
+    "interstitialCooldownSec": 180
+  },
+  "join": {
+    "reward": { "kind": "coins", "gifts": 10 },
+    "retryDays": 30
+  },
+  "game": {
+    "drop": ["community", "metrikaCounterId", "leaderboard", "shortcut", "promo"],
+    "dropGifts": ["review"]
+  },
+  "i18n": {
+    "community.caption": null,
+    "community.telegram": null,
+    "community.vk": null
+  },
+  "texts": {
+    "common": {
+      "boot.loading": "Загрузка {n}%",
+      "menu.play": "Играть",
+      "menu.soundOn": "Звук: вкл",
+      "menu.soundOff": "Звук: выкл",
+      "menu.help": "Помощь",
+      "menu.settings": "Настройки",
+      "menu.open": "Меню",
+      "help.title": "Как играть",
+      "help.how1": "Беги вверх по горе: каждый шаг прибавляет Скорость",
+      "help.how2": "Скорость поднимает уровень, а стена «Нужен уровень N» тает, когда он не меньше N",
+      "help.how3": "«Лавина через N» — успей под навес или в пещеру",
+      "help.how4": "Кроссовки и питомцы помогают расти быстрее",
+      "help.back": "Назад",
+      "join.toast": "Спасибо! Подарок: +{n} монет",
+      "join.title": "Подарок за вступление"
+    },
+    "vk": {
+      "help.support": "Вопрос или идея? Пиши нам в сообщество игры",
+      "join.button": "Вступить в сообщество",
+      "join.done": "Ты в сообществе",
+      "join.sub": "монеты за вступление"
+    },
+    "ok": {
+      "help.support": "Вопрос или идея? Пиши нам в группу игры",
+      "join.button": "Вступить в группу",
+      "join.done": "Ты в группе",
+      "join.sub": "монеты за вступление"
+    }
+  }
+}

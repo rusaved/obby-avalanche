@@ -1129,3 +1129,19 @@ button.press, [role='button'].press { scale: 0.93; }
 #ui.mu .gf-cards.four .gf-btns { flex-direction: column; gap: 6px; }
 /* ST (truthful-hud at 655 px, squeezed by a banner: the slot over a tile by 9 px): the slot keeps off the columns of tiles. */
 .hud.mu .hud-hint, .hud.mu .hud-need, .hud.mu .hud-tutor, .hud.mu .hud-wave { max-width: min(54%, calc(100% - 336px)); }
+
+/* K-04 (VK build): the start menu «Play · Sound · Help» in the window frame; «Help» — how to play beside the support line. */
+.vk-menu { display: flex; flex-direction: column; gap: 10px; }
+.vk-menu .vk-play, .vk-menu .vk-back { width: 100%; min-height: 44px; }
+.vk-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.vk-row .vk-btn { flex: 1 1 0; min-height: 44px; white-space: nowrap; }
+.vk-help { flex-direction: row; gap: 14px; align-items: flex-start; }
+.vk-how { margin: 0; padding-left: 18px; flex: 3 1 0; font: 500 14px/1.35 var(--font); }
+.vk-how li + li { margin-top: 4px; }
+.vk-side { flex: 2 1 0; display: flex; flex-direction: column; gap: 8px; }
+.vk-support { margin: 0; font: 500 14px/1.35 var(--font); }
+.vk-side .vk-btn { min-height: 44px; }
+.vk-btn.off { opacity: .6; }
+@media (max-height: 340px) { .vk-how, .vk-support { font-size: 13px; line-height: 1.25; } .vk-how li + li { margin-top: 2px; } }
+@media (max-width: 560px) { .vk-help { flex-direction: column; } }
+.win-menu { margin-right: 8px; }

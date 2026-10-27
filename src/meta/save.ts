@@ -89,6 +89,8 @@ export interface SaveData {
    * the stage tutorial done (0–3). */
   stageBest?: Record<string, number>;
   tutor?: number;
+  /** K-08 (VK build): when the player last declined joining the community (platform ms); the offer waits join.retryDays after it. */
+  joinNoAt?: number;
   /** ST-06: the times each stage pad paid in this life (key `world:stage`; meta/trophies.ts padPays), cleared by a rebirth. */
   padTakes?: Record<string, number>;
 }
@@ -126,7 +128,7 @@ export function migrate(raw: Record<string, unknown>): Record<string, unknown> |
   return s;
 }
 
-const NUMBER_KEYS = ['sessions', 'wavesNormal', 'totalPlaySec', 'shoes', 'trophies', 'trophiesTotal', 'tier', 'summits', 'stat', 'bestStat', 'coins', 'world', 'frontierWall', 'boostSec', 'adEgg', 'baseTread', 'tutor'] as const;
+const NUMBER_KEYS = ['sessions', 'wavesNormal', 'totalPlaySec', 'shoes', 'trophies', 'trophiesTotal', 'tier', 'summits', 'stat', 'bestStat', 'coins', 'world', 'frontierWall', 'boostSec', 'adEgg', 'baseTread', 'tutor', 'joinNoAt'] as const;
 const ARRAY_KEYS = ['pets', 'petsOn', 'trails', 'auras', 'skins', 'wings'] as const;
 const OBJECT_KEYS = ['flags', 'hints', 'daily', 'quests', 'timeRw', 'wheel', 'record', 'gifts', 'footsteps', 'stageBest', 'padTakes', 'adEggDay'] as const;
 const isObj = (x: unknown): x is Record<string, unknown> => !!x && typeof x === 'object' && !Array.isArray(x);

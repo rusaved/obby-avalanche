@@ -76,6 +76,25 @@ const report = (name, run) => {
   return false;
 };
 
+export function validateVk(vk) {
+  const errors = [];
+  for (const k of ['appId', 'vkGroupId', 'okGroupId']) if (typeof vk[k] !== 'number' || vk[k] < 0) errors.push(`${k}: a number ≥ 0`);
+  const t = vk.texts ?? {};
+  const keys = (o) => Object.keys(o ?? {}).sort().join(',');
+  if (keys(t.vk) !== keys(t.ok)) errors.push('texts.vk and texts.ok: different keys');
+  const all = (site) => [...Object.values(t.common ?? {}), ...Object.values(t[site] ?? {})].join(' ');
+  if (/вконтакт/i.test(all('ok'))) errors.push('texts.ok names VK');
+  if (/одноклассник/i.test(all('vk'))) errors.push('texts.vk names OK');
+  if (/https?:|www\.|яндекс|yandex|telegram/i.test(all('vk') + all('ok'))) errors.push('texts: a link or another platform');
+  const ru = JSON.parse(readFileSync(resolve(contentDir, 'avalanche/i18n/ru.json'), 'utf8'));
+  for (const k of Object.keys(vk.i18n ?? {})) if (!(k in ru)) errors.push(`i18n.${k}: no such key in ru.json`);
+  if (!Array.isArray(vk.ads?.interstitial) || vk.ads.interstitial.includes('menu')) errors.push('ads.interstitial: transitions only (no menu)');
+  if (!(vk.ads?.interstitialCooldownSec >= 30)) errors.push('ads.interstitialCooldownSec: at least 30');
+  if (!(vk.save?.chunkChars > 0 && vk.save.chunkChars <= 4096)) errors.push('save.chunkChars: 1…4096');
+  if (!(vk.save?.gapSec >= 30 && vk.save.gapSec <= 60)) errors.push('save.gapSec: 30…60');
+  return { ok: errors.length === 0, errors };
+}
+
 // Run as a script (gen-worlds imports paceNames and pacePack): every pack, then every pace of it.
 if (process.argv[1] && resolve(process.argv[1]) === resolve(import.meta.filename)) {
   let failed = 0;
@@ -93,5 +112,9 @@ if (process.argv[1] && resolve(process.argv[1]) === resolve(import.meta.filename
     console.error('validate:content: no packs found in content/');
     process.exit(1);
   }
+  // K-03 («Лавина 21»): the VK and OK build's config — ids are numbers, both sites have the same text keys, a text of one
+  // site never names the other, the dictionary keys it overrides exist.
+  const vkFile = resolve(contentDir, 'vk.json');
+  if (existsSync(vkFile) && !report('vk.json', () => validateVk(JSON.parse(readFileSync(vkFile, 'utf8'))))) failed++;
   process.exit(failed ? 1 : 0);
 }

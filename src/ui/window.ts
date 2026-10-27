@@ -48,6 +48,8 @@ export interface WindowFrameOptions {
   onChange(id: string | null): void;
   /** FX-04 (tuning.json fx.windowMs, ≤ 150): the window opens and goes over this long, a tab changes softly; absent — at once. */
   animMs?: number | undefined;
+  /** K-04 (VK build): a menu button beside the cross of every window but `id` itself — back to the start menu from any screen. */
+  menu?: { id: string; label: string; open: () => void };
 }
 
 /** MU-08: the width of the windows of the second wave (docs/07-mobile-ui.md, rule 13): cards 640, summaries 480. */
@@ -132,7 +134,18 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
   close.dataset['hud'] = 'win-close';
   close.setAttribute('aria-label', opts.closeLabel);
   close.innerHTML = icon('close');
-  top.append(heading, head, close);
+  top.append(heading, head);
+  const menuBtn = opts.menu ? document.createElement('button') : null;
+  if (menuBtn && opts.menu) {
+    const m = opts.menu;
+    menuBtn.className = 'win-close win-menu';
+    menuBtn.dataset['hud'] = 'win-menu';
+    menuBtn.setAttribute('aria-label', m.label);
+    menuBtn.innerHTML = icon('menu');
+    menuBtn.addEventListener('click', () => m.open());
+    top.appendChild(menuBtn);
+  }
+  top.appendChild(close);
   const body = document.createElement('div');
   body.className = 'win-body';
   // MU-13: the middle scrolls under a finger (the input manager lets a touch move there).
@@ -359,6 +372,7 @@ export function createWindowFrame(host: HTMLElement, opts: WindowFrameOptions): 
       title.classList.toggle('fit', !!o.fitTitle);
       sub.textContent = o.sub ?? '';
       close.hidden = o.closable === false;
+      if (menuBtn) menuBtn.hidden = id === opts.menu?.id;
       foot.hidden = o.next === false || (!!opts.mu && o.next === undefined);
       next.textContent = typeof o.next === 'string' ? o.next : opts.okLabel;
       if (closing) clearTimeout(closing);

@@ -1,4 +1,4 @@
-// `npm run build:pages` (docs/05, section 2): playtest build on the SDK mock for GitHub Pages in dist-pages/:
+// `npm run build:pages` (docs/05, section 2): playtest build on the SDK mock for GitHub Pages in dist-pages/ (and the VK build in dist-pages/vk/, K-09):
 // debug tools and studio on, test API off, mock as a file next to index.html, relative sdk.js, milestone label.
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -23,6 +23,14 @@ if (!html.includes('<script src="sdk.js"></script>') || html.includes('src="/sdk
 if (!existsSync(resolve(out, 'sdk.js'))) {
   console.error('build:pages: sdk.js missing');
   process.exit(1);
+}
+// K-09 («Лавина 21»): the VK and OK build next to it — https://rusaved.github.io/obby-avalanche/vk/ (?mock=vk — the bridge
+// stand-in in a plain tab); check:vk passes it (no Yandex, no link outside, VKWebAppInit in).
+{
+  const vk = spawnSync('npx', ['vite', 'build', '--mode', 'vk', '--outDir', 'dist-pages/vk', '--emptyOutDir'], { cwd: root, stdio: 'inherit', env: process.env });
+  if (vk.status !== 0) process.exit(vk.status ?? 1);
+  const chk = spawnSync('node', ['scripts/check-vk.mjs', 'dist-pages/vk'], { cwd: root, stdio: 'inherit', env: process.env });
+  if (chk.status !== 0) process.exit(chk.status ?? 1);
 }
 // M6-09 (docs/05, section 2): the release archive and the playtest one for the producer in dist-pages/downloads/ with
 // a page listing them; the release is the one to load into the Console draft (check-release passes it, rejects playtest).

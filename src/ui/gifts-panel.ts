@@ -25,6 +25,8 @@ export interface GiftsPanelModel {
   groups: { ids: string[]; sub: string } | null;
   /** «Chest for a review»: null — no card. */
   review: { sub: string; can: boolean } | null;
+  /** K-08 (VK build): «Join the community (group)» — the gift for joining; absent or null — no card. */
+  join?: { name: string; sub: string; button: string } | null;
   /** «+N Speed» for an ad: null — no card. */
   /** `wait` — M4 review (game designer): the pause between these ads, «in 3:20» under the title, the button off. */
   ad: { title: string; busy: boolean; wait?: string } | null;
@@ -37,6 +39,7 @@ export interface GiftsPanelActions {
   claim(index: number): void;
   visit(id: string): void;
   review(): void;
+  join?(): void;
   ad(): void;
   boostAd?(): void;
 }
@@ -86,6 +89,14 @@ export function renderGiftsPanel(body: HTMLElement, m: GiftsPanelModel, a: Gifts
       row.appendChild(b);
     }
     c.appendChild(row);
+    cards.appendChild(c);
+  }
+  if (m.join) {
+    const c = el('div', 'card gf-card gf-join');
+    c.append(el('span', 'card-name', m.join.name), el('span', 'card-sub', m.join.sub));
+    const b = iconBtn('card-btn quiet', 'gift', m.join.button, () => a.join?.());
+    b.dataset['hud'] = 'gift-join';
+    c.appendChild(b);
     cards.appendChild(c);
   }
   if (m.review) {

@@ -104,6 +104,10 @@ import { createRecordsView, type RecordsView } from './app/records-view.ts';
 import { nextShoes, shoesPrice } from './meta/shoes.ts';
 import { eggPrice, type Egg } from './meta/pets.ts';
 import { shortcutWanted } from './meta/shortcut.ts';
+import { bootProgress, createVkMenu, VK_MENU, type VkMenu } from './ui/vk-menu.ts';
+import { vkConfig, vkText } from './content/vk.ts';
+import { launchedByPlatform } from './platform/vk.ts';
+import { addPlayToday } from './meta/quests.ts';
 
 const DEG = Math.PI / 180;
 /** «+N» above the hero at most 4 times a second (docs/01-gdd.md 10.3). */
@@ -157,6 +161,14 @@ async function boot(): Promise<void> {
   const testApiLoad = __TEST_API__ ? import('./test-api/index.ts') : null;
   // Address parameters exist only in dev, playtest, e2e and pages builds (docs/02-tech.md 9.3).
   const debugParams = __DEBUG_TOOLS__ ? params : new URLSearchParams();
+  // K-12: the producer's check kit — on the Pages link and on ?mock=vk of the VK build in a plain tab only; every Yandex
+  // archive and a signed VK/OK launch ignore it (__KIT__ false there, check-release and check:vk see to it).
+  const kitParams =
+    __KIT__ && (__PLATFORM__ !== 'vk' || (params.get('mock') === 'vk' && !launchedByPlatform(location.search))) ? params : new URLSearchParams();
+  const kitNum = (k: string): number | null => {
+    const v = Number(kitParams.get(k));
+    return kitParams.has(k) && Number.isFinite(v) && v >= 0 ? Math.floor(v) : null;
+  };
   configureAnalytics({ counterId: game.metrikaCounterId, echoToConsole: __DEBUG_TOOLS__ });
 
   const pause = new PauseManager();
@@ -168,6 +180,8 @@ async function boot(): Promise<void> {
   const community = debugParams.get('community') === 'none' ? [] : Object.entries(game.community ?? {}).filter(([, url]) => !!url) as Array<[string, string]>;
   /** A channel by the player's press (P1, Q-054): the only window.open of the code, in a new tab; FM-16 goes through it too. */
   const openCommunity = (id: string): void => {
+    // K-10 (VK build): no way out of the game's own address (VK 4.2.3, OK 5.1) — the channels are not in its data either.
+    if (__PLATFORM__ === 'vk') return;
     const url = community.find(([k]) => k === id)?.[1];
     if (!url) return;
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -180,6 +194,12 @@ async function boot(): Promise<void> {
   const paymentsOn = !__NO_PAYMENTS__ && debugParams.get('payments') !== '0' && ((game.payments?.enabled ?? false) || debugParams.get('payments') === '1');
   const platformOpts: PlatformOptions = { packId: game.id, leaderboardName: debugParams.get('leaderboard') ?? game.leaderboard?.name ?? '', track, payments: paymentsOn };
   const platform = await createPlatform(platformOpts);
+  // K-02, K-07 (VK build): the site of the launch (VK or OK) and «Loading N%» as the boot goes.
+  const vkSite = __PLATFORM__ === 'vk' ? (platform.site ?? 'vk') : null;
+  const bootStep = (n: number): void => {
+    if (vkSite) bootProgress(vkSite, n);
+  };
+  bootStep(15);
   // M6 polish (ready() ≤ 4 s): the dictionary comes over the network while the flags are asked, not after them.
   const dictLoad = loadDictionary(i18nUrls[platform.lang]);
   // The remote flag `pace` (docs/06 8.1–8.2) picks the pace before the save is read; each pace keeps its own progress
@@ -208,6 +228,7 @@ async function boot(): Promise<void> {
 
   const dict = await dictLoad;
   setDictionary(platform.lang, dict);
+  bootStep(30);
   setNumberLocale(platform.lang);
   // MU-01 (docs/07-mobile-ui.md «Токены»): the colours of the phone layout from theme.json as CSS variables.
   for (const [k, v] of Object.entries(content.theme.ui.mu ?? {})) document.documentElement.style.setProperty(k === 'ink' ? '--ink' : `--mu-${k.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}`, v);
@@ -225,7 +246,17 @@ async function boot(): Promise<void> {
   // Save and settings (docs/02-tech.md 4.4): settings live in SaveData and survive F5.
   const store = createStorage(game.id);
   const loaded = await platform.loadSave();
+  bootStep(45);
   let save: SaveData = loaded ?? createSave(platform.serverTime());
+  // K-12 ?fresh=1: a new save without a private window — it outranks the old one (rev), the address loses the flag so a
+  // reload goes on with the new save.
+  if (kitParams.get('fresh') === '1') {
+    save = createSave(platform.serverTime());
+    save.rev = (loaded?.rev ?? 0) + 1;
+    const clean = new URLSearchParams(location.search);
+    clean.delete('fresh');
+    history.replaceState(null, '', `${location.pathname}${clean.size ? `?${clean}` : ''}${location.hash}`);
+  }
   save.sessions += 1;
   // SD-03 (docs/01-gdd.md 23.3): a save from before the stage trophies gets the trophies of the stages it passed, once.
   if (balance.upgrade.currency === 'trophies') migrateStageTrophies(save, content.worlds);
@@ -489,6 +520,7 @@ async function boot(): Promise<void> {
   let dailyView: DailyView | null = null;
   let questsView: QuestsView | null = null;
   let windows: WindowFrame | null = null;
+  let vkMenu: VkMenu | null = null;
   let hudView: HudView | null = null;
   let stageView: StageView | null = null;
   let campView: CampView | null = null;
@@ -1233,7 +1265,7 @@ async function boot(): Promise<void> {
             ...model,
             mu: {
               nextName: model.next,
-              ad: adsView && info.chest > 0 && !doubled
+              ad: adsView && info.chest > 0 && !doubled && (adsView.ready() || adsView.busy === 'x2_chest')
                 ? { text: t('summit.ad'), busy: adsView.busy === 'x2_chest', press: () => adsView?.chestAd(info.chest, (granted) => {
                     // ST-07 (producer: «×2» went away after a failed load): gone only once the coins are given.
                     if (granted && windows?.current === 'summit') doubled = true;
@@ -1315,6 +1347,36 @@ async function boot(): Promise<void> {
   let subAway: { id: string; away: boolean } | null = null;
   const giftFlag = (k: string): boolean => save.flags?.[k] ?? false;
   const giftReady = (r: { kind: string; gifts?: number } | undefined): boolean => !!r && (r.kind !== 'coins' || rewards.coinsOf(1) > 0);
+  /**
+   * K-08 (VK build): «Join the community» (VK) or «the group» (OK) through VKWebAppJoinGroup, by the player's press only
+   * (the «Gifts» card and «Help» of the menu, never a window at launch); the gift of content/vk.json once, only on result:
+   * true; a refusal hides the card for join.retryDays. No community id filled — no join anywhere.
+   */
+  const joinGroup = platform.joinGroup;
+  const vkJoin =
+    vkSite && joinGroup
+      ? {
+          done: () => giftFlag('vkJoined'),
+          offered: () => !giftFlag('vkJoined') && platform.serverTime() - (save.joinNoAt ?? -Infinity) >= vkConfig.join.retryDays * 86_400_000,
+          press: async (): Promise<void> => {
+            if (giftFlag('vkJoined')) return;
+            const ok = await joinGroup();
+            if (!ok) {
+              save.joinNoAt = platform.serverTime();
+              persist(true);
+              windows?.refresh();
+              return;
+            }
+            save.flags = { ...(save.flags ?? {}), vkJoined: true };
+            const gift = vkConfig.join.reward;
+            const n = gift.kind === 'coins' ? rewards.coinsOf(gift.gifts) : 0;
+            rewards.give(gift);
+            hud?.toast(vkText(vkSite, 'join.toast', { n: formatNumber(n, numSuffix) }), 3, true);
+            persist(true);
+            windows?.refresh();
+          },
+        }
+      : null;
   const syncGiftCards = (): void => {
     hud?.setCommunityGifts({
       subscribe: giftReady(communityGifts.subscribe) ? community.map(([id]) => id).filter((id) => !giftFlag(`giftSub_${id}`)) : [],
@@ -1368,6 +1430,7 @@ async function boot(): Promise<void> {
             groups: community.length > 0 && visitGift ? { ids: community.map(([id]) => id), sub: t(visitGift.kind === 'egg' ? 'gifts.visit' : 'gifts.visitCoins') } : null,
             // MU round 3 (D19): the card only while the platform can ask for a review — «Rate» always a live button.
             review: communityGifts.review && !giftFlag('giftReview') && reviewCan === true ? { sub: t('gifts.reviewSub'), can: true } : null,
+            join: vkSite && vkJoin?.offered() && giftReady(vkConfig.join.reward) ? { name: vkText(vkSite, 'join.title'), sub: vkText(vkSite, 'join.sub'), button: vkText(vkSite, 'join.button') } : null,
             ad: (() => {
               const offer = adsView?.giftOffer();
               if (!adsView || !offer) return null;
@@ -1395,6 +1458,7 @@ async function boot(): Promise<void> {
               openCommunity(id);
             },
             review: () => reviewGift(),
+            join: () => void vkJoin?.press(),
             ad: () => adsView?.giftAd(() => windows?.refresh()),
             boostAd: () => adsView?.boostAd(() => windows?.refresh()),
           },
@@ -1692,6 +1756,7 @@ async function boot(): Promise<void> {
     // Esc closes the open window first (docs/01-gdd.md 10.2), otherwise it toggles the pause.
     if (input.consumePause()) {
       if (windows?.current) windows.close();
+      else if (vkMenu) vkMenu.open();
       else g.toggleMenu();
     }
     // The footsteps window plays its previews while only `menu` holds the game: a new reason (ad, sdk, hidden) stops it.
@@ -1961,7 +2026,7 @@ async function boot(): Promise<void> {
   hud = createHud(ui, {
     jumpButtonFrac: tuning.input.jumpButtonFrac,
     onJumpDown: () => input.jumpButtonDown(),
-    onPause: () => g.toggleMenu(true),
+    onPause: () => (vkMenu ? vkMenu.open() : g.toggleMenu(true)),
     onContinue: () => g.toggleMenu(false),
     // The channels of the game (P1, Q-054): the only window.open of the code, by the player's press, no reward.
     ...(community.length > 0
@@ -2090,6 +2155,8 @@ async function boot(): Promise<void> {
     interstitialPoints: game.ads?.interstitial ?? [],
     sessionSec: () => playSec,
     noAds: () => !!save.flags?.['noAds'],
+    // K-05 (VK build): an «Ad» button only while a rewarded ad is loaded (VKWebAppCheckNativeAds).
+    ...(platform.rewardedReady ? { adReady: () => platform.rewardedReady?.() ?? false } : {}),
   });
   // Fun between the gates and the reward of every gate (docs/01-gdd.md 16.4, 16.5): sounds, particles, the fountain.
   fx = createFx();
@@ -2107,6 +2174,8 @@ async function boot(): Promise<void> {
     closeLabel: t('btn.close'),
     okLabel: t('btn.ok'),
     animMs: tuning.fx?.windowMs,
+    // K-04 (VK build): the menu button beside the cross of every window — back to the start menu from any screen.
+    ...(vkSite ? { menu: { id: VK_MENU, label: vkText(vkSite, 'menu.open'), open: () => vkMenu?.open() } } : {}),
     onChange: (id) => {
       pause.set_('menu', id !== null);
       // MU-07 (rule 13): the HUD under an open window is hidden whole.
@@ -2116,6 +2185,28 @@ async function boot(): Promise<void> {
       press?.hideWhy();
     },
   });
+  // K-04 (VK build): the start menu «Play · Sound · Help» (and the settings) — at launch and from any screen; the pause
+  // button of the HUD is its button (three lines).
+  const pauseHud = ui.querySelector<HTMLElement>('[data-hud="pause"]');
+  if (vkSite && pauseHud) {
+    pauseHud.innerHTML = icon('menu');
+    pauseHud.setAttribute('aria-label', vkText(vkSite, 'menu.open'));
+  }
+  if (vkSite)
+    vkMenu = createVkMenu({
+      site: vkSite,
+      windows,
+      title: t('game.title'),
+      sound: () => save.settings.sound,
+      setSound: (on) => {
+        save.settings.sound = on;
+        hud?.setSound(on);
+        audio?.setEnabled(on);
+        persist(true);
+      },
+      openSettings: () => g.toggleMenu(true),
+      join: vkJoin,
+    });
   // FX-02: every press of the HUD and of the windows squeezes and taps; what cannot act now shakes and tells why.
   const press = createPressFeedback(ui, { sound: (n) => audio?.play(n) });
   // FX-03: the rewards fly to their counter and it ticks (calendar, quests, «Gifts», the stage pad).
@@ -2152,7 +2243,7 @@ async function boot(): Promise<void> {
       },
       toShop: () => cosmeticsView?.openShop('steps'),
       // ST-07: the sets for an ad through the common logic of the ads (app/ads-view.ts).
-      ...(adsView ? { rewarded: adsView.rewarded, adBusy: () => adsView?.busy ?? null } : {}),
+      ...(adsView ? { rewarded: adsView.rewarded, adBusy: () => adsView?.busy ?? null, adReady: () => adsView?.ready() ?? false } : {}),
     });
   const petsVisual = createPetsVisual(theme);
   gr.scene.add(petsVisual.group);
@@ -2607,6 +2698,7 @@ async function boot(): Promise<void> {
     enterBase();
     dailyView.tick(true);
   }
+  bootStep(85);
   // First frame drawn and controls live, then ready() (11.2, steps 6–7).
   gr.render();
   // Back in the game with the gift of the day waiting (docs/01-gdd.md 19.2): it says so, by the box at the spawn — after the
@@ -2616,6 +2708,7 @@ async function boot(): Promise<void> {
   events.push('firstFrame');
   loop.paused = pause.paused;
   loop.start();
+  bootStep(100);
   preloader.classList.add('hidden');
   bootState.controllable = true;
   platform.ready();
@@ -2646,6 +2739,38 @@ async function boot(): Promise<void> {
   if (!pause.paused) platform.gameplayStart();
   // M4-07: the catalog and the purchases made before (IAP-01), granted with their show.
   void iapView?.start();
+  // K-12: the presets of the check kit — a mountain, a stage, coins, play time today (it opens «Gifts»), each step of the
+  // producer's list with a ready link.
+  const kitMountain = kitNum('mountain');
+  if (kitMountain !== null && kitMountain >= 1 && kitMountain <= content.worlds.worlds.length && kitMountain !== sim.level.worldIndex) g.gotoWorld(kitMountain);
+  const kitStage = kitNum('stage');
+  if (kitStage !== null && kitStage >= 1 && sim.level.stages) {
+    const at = sim.stageStart(kitStage);
+    g.teleport(at.x, at.y, at.z);
+  }
+  const kitCoins = kitNum('coins');
+  if (kitCoins !== null) {
+    sim.coins = kitCoins;
+    hud.setCoins(formatNumber(kitCoins, numSuffix));
+  }
+  const kitPlay = kitNum('playtime');
+  if (kitPlay !== null) {
+    addPlayToday(save, kitPlay);
+    save.totalPlaySec = (save.totalPlaySec ?? 0) + kitPlay;
+  }
+  if (kitParams.size > 0) persist(true);
+  if (__KIT__ && __BUILD_SHA__ && (kitParams === params || __PLATFORM__ !== 'vk')) {
+    const line = document.createElement('div');
+    line.className = 'kit-build';
+    // Styled here, not in styles.css: no trace of the kit in a Yandex archive (check-release, check 6).
+    line.style.cssText = 'margin-top:8px;text-align:center;color:#8a97a6;font:500 12px/1.2 var(--font)';
+    line.dataset['role'] = 'kit-build';
+    line.textContent = t('kit.build', { sha: __BUILD_SHA__ });
+    hud.pausePanel.appendChild(line);
+  }
+  // K-04 (VK build): the start menu over the first frame — the game stands («menu») until «Play».
+  if (kitPlay !== null) openGifts();
+  else vkMenu?.open();
 
   // SD-08 (docs/01-gdd.md 23.8): the build label of the producer link only with ?debug=1 — the game itself is clean.
   if (__BUILD_LABEL__ && params.get('debug') === '1') mountLabel(__BUILD_LABEL__, ui);

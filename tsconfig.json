@@ -19,6 +19,7 @@
     "types": ["vite/client", "ysdk"],
     "paths": {
       "@content/*": ["./content/avalanche/*"],
+      "@vk": ["./content/vk.json"],
       "@/*": ["./src/*"]
     }
   },

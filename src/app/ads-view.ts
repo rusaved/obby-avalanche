@@ -53,6 +53,8 @@ export interface AdsViewDeps {
   sessionSec?(): number;
   /** M4-04: «No ads» bought (IAP-03) — no fullscreen ads. */
   noAds?(): boolean;
+  /** K-05 (VK build): a rewarded ad is loaded now — no «Ad» button while it is not (absent — always). */
+  adReady?(): boolean;
 }
 
 /** M4-04 (docs/01-gdd.md 9.2): where a fullscreen ad may follow a press of the player. */
@@ -90,6 +92,8 @@ export interface AdsView {
   eggOffer(): { busy: boolean } | null;
   /** M4-03: that ad; `give` on `rewarded` (the egg hatches) returns the toast, `done` after any outcome. */
   eggAd(give: () => string, done: () => void): void;
+  /** K-05 (VK build): a rewarded ad is loaded now (always true elsewhere). */
+  ready(): boolean;
 }
 
 export function createAdsView(d: AdsViewDeps): AdsView {
@@ -119,6 +123,7 @@ export function createAdsView(d: AdsViewDeps): AdsView {
   let now = 0;
   const ads = d.balance.ads;
   const fmt = (n: number): string => formatNumber(n, d.numSuffix);
+  const adOk = (): boolean => d.adReady?.() ?? true;
 
   /** «Speed now» of the grotto the hero stands in: its belt's steps over statNowSec at run speed; 0 — no belt here. On
    * the base (level index 0, docs/01-gdd.md 19.3) — standing on its treadmill. */
@@ -183,7 +188,7 @@ export function createAdsView(d: AdsViewDeps): AdsView {
     },
     giftOffer() {
       const common = now >= ads.rewardedMinPlaySec && (d.save.flags?.['firstWaveDone'] ?? false);
-      if (!common) return null;
+      if (!common || !adOk()) return null;
       return { wait: Math.max(0, ads.statNowCooldownSec - (now - (lastAt.get('stat_now') ?? -Infinity))) };
     },
     rewarded: (place, give, done) => rewardAd(place, give, done),
@@ -269,7 +274,7 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       if (!(d.rewardedPlaces ?? []).includes('egg')) return null;
       if (busy === 'egg') return { busy: true };
       const common = now >= ads.rewardedMinPlaySec && (d.save.flags?.['firstWaveDone'] ?? false);
-      if (!(common && !busy && cooled('egg', ads.eggPauseSec))) return null;
+      if (!(common && !busy && adOk() && cooled('egg', ads.eggPauseSec))) return null;
       // ST-07: no more than ads.eggPerDay eggs for an ad a day.
       if (eggsToday() >= (ads.eggPerDay ?? Infinity)) return null;
       seen('egg');
@@ -281,6 +286,7 @@ export function createAdsView(d: AdsViewDeps): AdsView {
         return give();
       }, done);
     },
+    ready: adOk,
     get shown() {
       return shown;
     },
@@ -312,7 +318,7 @@ export function createAdsView(d: AdsViewDeps): AdsView {
         (sim.boss?.zoneOf(sim.hero.pos.z) ?? -1) < 0 &&
         !d.windowOpen();
       const calm = phase === 'idle' || phase === 'gone';
-      const ok = common && standSec >= ads.standStillSec && calm;
+      const ok = common && standSec >= ads.standStillSec && calm && adOk();
       const list: Array<{ id: string; text: string; busy: boolean }> = [];
       // M4-03 (docs/01-gdd.md 9.1, x2_stat): «▶ Ad: ×2 per step for 3 min» while no boost runs (then its badge).
       if ((ok || busy === 'x2_stat') && !d.mu && (d.rewardedPlaces ?? []).includes('x2_stat') && ((d.save.boostSec ?? 0) <= 0 || busy === 'x2_stat'))
@@ -323,7 +329,7 @@ export function createAdsView(d: AdsViewDeps): AdsView {
       }
       // The avalanche that caught the hero is over for him once its front is below him.
       const passed = calm || (phase === 'run' && sim.threat?.state.outcome !== 'none');
-      const offer = common && passed && playSec < continueUntil && !sim.caught && cooled('continue_here', ads.continueCooldownSec ?? Infinity);
+      const offer = common && adOk() && passed && playSec < continueUntil && !sim.caught && cooled('continue_here', ads.continueCooldownSec ?? Infinity);
       if ((offer && !d.mu) || (busy === 'continue_here' && !stageOffer)) list.push({ id: 'continue_here', text: t('ad.continueHere'), busy: busy === 'continue_here' });
       if (stageOffer && !sim.caught && !d.windowOpen()) {
         // Free while an ad may not be offered yet (the first 60 s, the first wave; LV-12 review: no button at all then).
@@ -331,7 +337,7 @@ export function createAdsView(d: AdsViewDeps): AdsView {
         // The first of a mountain is free (no ad, no word «Ad»); then the rewarded ad by the common rules (9.1).
         if (free) list.push({ id: 'continue_free', text: t('stage.continueFree', { n: stageOffer.stage }), busy: false });
         // ST-07 (producer): not on «Avalanche in N» and not while it runs — the button would cover the wave's plaque.
-        else if ((common && calm) || busy === 'continue_here') {
+        else if ((common && calm && adOk()) || busy === 'continue_here') {
           // MU-06: «Ad: from stage N · 0:54» — how long the offer stands.
           const text = t('stage.continueAd', { n: stageOffer.stage });
           list.push({ id: 'continue_here', text: d.mu ? `${text} · ${formatTimer(Math.max(0, stageOffer.until - playSec))}` : text, busy: busy === 'continue_here' });

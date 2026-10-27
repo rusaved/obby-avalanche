@@ -56,6 +56,8 @@ export interface FootstepsViewDeps {
    * the platform directly (tests of the window alone). */
   rewarded?(place: string, give: () => string, done: (granted: boolean) => void): boolean;
   adBusy?(): string | null;
+  /** K-05 (VK build): a rewarded ad is loaded now — the «Ad» set shows its button only then (absent — always). */
+  adReady?(): boolean;
 }
 
 export interface FootstepsView {
@@ -178,7 +180,7 @@ export function createFootstepsView(d: FootstepsViewDeps): FootstepsView {
     const cards: FootstepCard[] = m.sets.map((s) => ({
       id: s.id,
       ...(s.color ? { color: s.color } : {}),
-      state: s.id === st.set ? 'on' : owned(st, s) ? 'open' : s.unlock === 'ad' ? (busy === s.id ? 'busy' : 'ad') : 'locked',
+      state: s.id === st.set ? 'on' : owned(st, s) ? 'open' : s.unlock === 'ad' ? (busy === s.id ? 'busy' : (d.adReady?.() ?? true) ? 'ad' : 'locked') : 'locked',
       ...(s.unlock === 'shop' && s.price !== undefined ? { price: priceOf(s) } : s.unlock === 'daily' ? { lock: t('footsteps.daily', { n: s.day ?? 0 }) } : {}),
     }));
     renderFootstepsPanel(body, { volume: st.volume, cards }, {
@@ -219,7 +221,7 @@ export function createFootstepsView(d: FootstepsViewDeps): FootstepsView {
           state: s.id === st.set ? 'on' : mine ? 'owned' : s.unlock === 'shop' ? (have >= price ? 'buy' : 'short') : 'locked',
           need: t('shop.need', { n: fmt(Math.max(0, price - have)) }),
           // ST-07: a set for an ad — «▶ Ad: open» on its card.
-          ...(s.unlock === 'ad' && !mine ? { ad: { text: t('footsteps.ad'), busy: busy === s.id } } : {}),
+          ...(s.unlock === 'ad' && !mine && (busy === s.id || (d.adReady?.() ?? true)) ? { ad: { text: t('footsteps.ad'), busy: busy === s.id } } : {}),
           ...(s.unlock === 'daily' ? { lock: t('footsteps.daily', { n: s.day ?? 0 }) } : {}),
         };
       });

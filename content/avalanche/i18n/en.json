@@ -506,6 +506,7 @@
   "gifts.visit": "for a visit — an egg",
   "gifts.visitCoins": "for a visit — coins",
   "gifts.reviewSub": "rate the game",
+  "kit.build": "build {sha}",
   "gifts.rate": "Rate",
   "gifts.ad": "{ad} Ad",
   "gifts.forAd": "for a video",
