@@ -1,8 +1,8 @@
-// V-15 (staff 27.10, «Lavina 22 · Track look»): a «forward only» bot up mountain 1 with a frame every 6 game seconds, for the
+// V-15 (staff 27.10, «Lavina 22 · Track look»): a «forward only» bot up mountain 1 with a frame every few game seconds, for the
 // look review — no bare cube where a thing stands, nothing in the air, nothing on the run line the hero runs through.
-// The bot holds up the axis and jumps at edges, its Speed past every ridge, no avalanche; stuck 12 s (the maze) — a hop
-// 20 units ahead (written in the report). A build with the test API (dist-e2e) served statically, 880 × 405.
-// usage: node scripts/look-bot.mjs [--dir dist-e2e] [--every 6] [--max 420] [--quality high]
+// The bot holds up the axis and jumps at edges, its Speed past every ridge, no avalanche; it starts at the start, the
+// middle and the finish of every stage (a forward-only bot is rolled back off the trials) and runs `every` s to a frame. A build with the test API (dist-e2e) served statically, 880 × 405.
+// usage: node scripts/look-bot.mjs [--dir dist-e2e] [--every 2] [--max 600] [--quality high]
 import { chromium } from '@playwright/test';
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -15,8 +15,8 @@ const opt = (name, def) => {
   return i >= 0 ? args[i + 1] : def;
 };
 const dir = opt('dir', 'dist-e2e');
-const every = Number(opt('every', '6'));
-const maxSec = Number(opt('max', '420'));
+const every = Number(opt('every', '2'));
+const maxSec = Number(opt('max', '600'));
 const quality = opt('quality', 'high');
 const port = Number(opt('port', '4193'));
 const outDir = resolve(root, 'docs/evidence/V22/bot');
@@ -43,7 +43,7 @@ const far = await page.evaluate(() => {
   T.setFlag('firstWaveDone', true);
   T.setTutor(9);
   T.noWaves(true);
-  T.setStat(1e12);
+  T.setStat(1e9);
   T.botJump(true);
   const st = T.stages();
   const far = st[st.length - 1].finish[1] + 80;
@@ -51,30 +51,31 @@ const far = await page.evaluate(() => {
   return far;
 });
 const report = [];
-let lastZ = -1;
-let stuck = 0;
 let hops = 0;
 try {
-  for (let n = 0; n * every <= maxSec; n++) {
+  // Every stage of the mountain: the bot is put at its start, its middle and its finish (a hop — the run itself rolls
+  // a «forward only» bot back off the trials) and runs forward `every` game seconds; a frame then.
+  const spots = await page.evaluate(() =>
+    window.__TEST__.stages().flatMap((st) => [st.start + 2, (st.start + st.end) / 2, st.finish[0] + 2].map((z) => ({ z, y: st.y, stage: st.n }))),
+  );
+  for (const [n, spot] of spots.entries()) {
+    if (n * every > maxSec) break;
+    hops++;
+    await page.evaluate(([z, y, far]) => {
+      window.__TEST__.teleport(z, 0, y + 0.05);
+      window.__TEST__.botPath([[0, far]]);
+    }, [spot.z, spot.y, far]);
     const t0 = await page.evaluate(() => window.__TEST__.state().simTick);
-    await page.waitForFunction((t) => window.__TEST__.state().simTick >= t, t0 + every * 60, { timeout: every * 1000 * 20 });
+    // A window that stops the game (a summit, a gift) leaves the frame as it is.
+    await page.waitForFunction((t) => window.__TEST__.state().simTick >= t, t0 + every * 60, { timeout: every * 1000 * 20 }).catch(() => {});
     const s = await page.evaluate(() => {
       const st = window.__TEST__.state();
-      return { x: st.hero.x, y: st.hero.y, z: st.hero.z, stage: st.stage, info: window.__TEST__.renderInfo() };
+      return { x: st.hero.x, z: st.hero.z, stage: st.stage, info: window.__TEST__.renderInfo() };
     });
     const name = `bot-${String(n).padStart(3, '0')}.jpg`;
     await page.screenshot({ path: resolve(outDir, name), type: 'jpeg', quality: 70 });
-    report.push({ frame: name, sec: (n + 1) * every, x: Math.round(s.x), z: Math.round(s.z), stage: s.stage, calls: s.info?.calls, triangles: s.info?.triangles });
-    console.log(name, Math.round(s.x), Math.round(s.z), s.stage);
-    if (s.z >= far - 60) break;
-    stuck = Math.abs(s.z - lastZ) < 5 ? stuck + every : 0;
-    lastZ = s.z;
-    if (stuck >= 12) {
-      hops++;
-      stuck = 0;
-      await page.evaluate((z) => window.__TEST__.teleport(z + 20, 0), s.z);
-      report[report.length - 1].hop = true;
-    }
+    report.push({ frame: name, from: Math.round(spot.z), x: Math.round(s.x), z: Math.round(s.z), stage: s.stage, calls: s.info?.calls, triangles: s.info?.triangles });
+    console.log(name, Math.round(spot.z), '→', Math.round(s.z), s.stage);
   }
 } finally {
   writeFileSync(resolve(outDir, 'report.json'), JSON.stringify({ hops, errors: errors.length, frames: report }, null, 1) + '\n');

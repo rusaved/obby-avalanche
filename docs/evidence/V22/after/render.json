@@ -1,530 +1,530 @@
 {
  "V-01-w1-exit_high": {
-  "calls": 36,
-  "triangles": 67542,
+  "calls": 34,
+  "triangles": 62046,
   "textures": 6,
-  "geometries": 39,
-  "programs": 39,
+  "geometries": 38,
+  "programs": 40,
   "frame": 54
  },
  "V-01-w1-exit_low": {
-  "calls": 35,
-  "triangles": 67206,
+  "calls": 33,
+  "triangles": 61710,
   "textures": 6,
-  "geometries": 39,
-  "programs": 39,
-  "frame": 102
+  "geometries": 38,
+  "programs": 40,
+  "frame": 100
  },
  "V-01-w1-entry_high": {
-  "calls": 38,
-  "triangles": 73316,
+  "calls": 36,
+  "triangles": 65272,
   "textures": 6,
-  "geometries": 41,
-  "programs": 39,
-  "frame": 150
+  "geometries": 40,
+  "programs": 40,
+  "frame": 148
  },
  "V-01-w1-entry_low": {
-  "calls": 37,
-  "triangles": 72980,
+  "calls": 35,
+  "triangles": 64936,
   "textures": 6,
-  "geometries": 41,
-  "programs": 39,
-  "frame": 198
+  "geometries": 40,
+  "programs": 40,
+  "frame": 196
  },
  "V-02-camp-top_high": {
-  "calls": 36,
-  "triangles": 88737,
+  "calls": 35,
+  "triangles": 80421,
   "textures": 6,
-  "geometries": 43,
-  "programs": 39,
-  "frame": 246
+  "geometries": 42,
+  "programs": 40,
+  "frame": 244
  },
  "V-02-camp-top_low": {
-  "calls": 34,
-  "triangles": 79571,
+  "calls": 33,
+  "triangles": 73803,
   "textures": 6,
-  "geometries": 43,
-  "programs": 39,
-  "frame": 294
+  "geometries": 42,
+  "programs": 40,
+  "frame": 292
  },
  "V-02-w1-cover_high": {
-  "calls": 35,
-  "triangles": 98430,
+  "calls": 33,
+  "triangles": 81592,
   "textures": 6,
-  "geometries": 45,
-  "programs": 39,
-  "frame": 342
+  "geometries": 44,
+  "programs": 40,
+  "frame": 340
  },
  "V-02-w1-cover_low": {
-  "calls": 32,
-  "triangles": 90452,
+  "calls": 31,
+  "triangles": 77722,
   "textures": 6,
-  "geometries": 45,
-  "programs": 39,
+  "geometries": 44,
+  "programs": 40,
   "frame": 390
  },
  "V-02-w1-ice_high": {
-  "calls": 35,
-  "triangles": 81954,
+  "calls": 33,
+  "triangles": 69558,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 438
+  "geometries": 46,
+  "programs": 40,
+  "frame": 439
  },
  "V-02-w1-ice_low": {
-  "calls": 34,
-  "triangles": 81618,
+  "calls": 32,
+  "triangles": 69222,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 486
+  "geometries": 46,
+  "programs": 40,
+  "frame": 487
  },
  "V-03-w1-belt_high": {
-  "calls": 35,
-  "triangles": 97926,
+  "calls": 33,
+  "triangles": 81028,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 564
+  "geometries": 46,
+  "programs": 40,
+  "frame": 560
  },
  "V-03-w1-belt_low": {
-  "calls": 32,
-  "triangles": 91124,
+  "calls": 31,
+  "triangles": 78334,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 641
+  "geometries": 46,
+  "programs": 40,
+  "frame": 636
  },
  "V-04-w1-canopy-side_high": {
-  "calls": 35,
-  "triangles": 97926,
+  "calls": 33,
+  "triangles": 81028,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 689
+  "geometries": 46,
+  "programs": 40,
+  "frame": 684
  },
  "V-04-w1-canopy-side_low": {
-  "calls": 33,
-  "triangles": 92684,
+  "calls": 31,
+  "triangles": 78334,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 737
+  "geometries": 46,
+  "programs": 40,
+  "frame": 733
  },
  "V-04-w1-canopy-run_high": {
-  "calls": 35,
-  "triangles": 99574,
+  "calls": 34,
+  "triangles": 84896,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 785
+  "geometries": 46,
+  "programs": 40,
+  "frame": 781
  },
  "V-04-w1-canopy-run_low": {
-  "calls": 34,
-  "triangles": 99574,
+  "calls": 33,
+  "triangles": 84896,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 833
+  "geometries": 46,
+  "programs": 40,
+  "frame": 829
  },
  "V-05-w1-summit_high": {
-  "calls": 27,
-  "triangles": 58754,
+  "calls": 26,
+  "triangles": 54178,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 881
+  "geometries": 46,
+  "programs": 40,
+  "frame": 877
  },
  "V-05-w1-summit_low": {
-  "calls": 26,
-  "triangles": 58754,
+  "calls": 25,
+  "triangles": 54178,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
+  "geometries": 46,
+  "programs": 40,
   "frame": 929
  },
  "V-06-w1-grotto-770_high": {
-  "calls": 35,
-  "triangles": 96506,
+  "calls": 32,
+  "triangles": 73862,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 977
+  "geometries": 46,
+  "programs": 40,
+  "frame": 976
  },
  "V-06-w1-grotto-770_low": {
-  "calls": 33,
-  "triangles": 89230,
+  "calls": 32,
+  "triangles": 73202,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 1025
+  "geometries": 46,
+  "programs": 40,
+  "frame": 1024
  },
  "V-06-w1-grotto-520_high": {
-  "calls": 35,
-  "triangles": 97926,
+  "calls": 33,
+  "triangles": 81028,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 1073
+  "geometries": 46,
+  "programs": 40,
+  "frame": 1072
  },
  "V-06-w1-grotto-520_low": {
-  "calls": 33,
-  "triangles": 92684,
+  "calls": 31,
+  "triangles": 78334,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 1121
+  "geometries": 46,
+  "programs": 40,
+  "frame": 1122
  },
  "V-07-w1-birds_high": {
-  "calls": 34,
-  "triangles": 80215,
+  "calls": 33,
+  "triangles": 74507,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 1169
+  "geometries": 46,
+  "programs": 40,
+  "frame": 1170
  },
  "V-07-w1-birds_low": {
-  "calls": 33,
-  "triangles": 79375,
+  "calls": 32,
+  "triangles": 73667,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 1217
+  "geometries": 46,
+  "programs": 40,
+  "frame": 1219
  },
  "V-08-w1-start2_high": {
-  "calls": 35,
-  "triangles": 101132,
+  "calls": 33,
+  "triangles": 84894,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 1265
+  "geometries": 46,
+  "programs": 40,
+  "frame": 1267
  },
  "V-08-w1-start2_low": {
-  "calls": 34,
-  "triangles": 101132,
+  "calls": 32,
+  "triangles": 84894,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 1313
+  "geometries": 46,
+  "programs": 40,
+  "frame": 1316
  },
  "V-08-w1-finish2_high": {
-  "calls": 35,
-  "triangles": 97926,
+  "calls": 33,
+  "triangles": 81028,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 1361
+  "geometries": 46,
+  "programs": 40,
+  "frame": 1366
  },
  "V-08-w1-finish2_low": {
-  "calls": 33,
-  "triangles": 92684,
+  "calls": 31,
+  "triangles": 78334,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 1409
+  "geometries": 46,
+  "programs": 40,
+  "frame": 1414
  },
  "V-08-w1-summit_high": {
-  "calls": 28,
-  "triangles": 58862,
+  "calls": 27,
+  "triangles": 54286,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 1457
+  "geometries": 46,
+  "programs": 40,
+  "frame": 1460
  },
  "V-08-w1-summit_low": {
-  "calls": 27,
-  "triangles": 58862,
+  "calls": 26,
+  "triangles": 54286,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 1505
+  "geometries": 46,
+  "programs": 40,
+  "frame": 1508
  },
  "V-09-w1-gifts_high": {
-  "calls": 35,
-  "triangles": 97926,
+  "calls": 33,
+  "triangles": 80998,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
+  "geometries": 46,
+  "programs": 40,
   "frame": 1581
  },
  "V-09-w1-gifts_low": {
-  "calls": 32,
-  "triangles": 91124,
+  "calls": 31,
+  "triangles": 78304,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 1662
+  "geometries": 46,
+  "programs": 40,
+  "frame": 1656
  },
  "V-10-w1-pad_high": {
-  "calls": 34,
-  "triangles": 96366,
+  "calls": 33,
+  "triangles": 81028,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 1710
+  "geometries": 46,
+  "programs": 40,
+  "frame": 1704
  },
  "V-10-w1-pad_low": {
-  "calls": 33,
-  "triangles": 92516,
+  "calls": 31,
+  "triangles": 78166,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 1758
+  "geometries": 46,
+  "programs": 40,
+  "frame": 1753
  },
  "V-11-w1-cave_high": {
-  "calls": 35,
-  "triangles": 100126,
+  "calls": 33,
+  "triangles": 83828,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 1806
+  "geometries": 46,
+  "programs": 40,
+  "frame": 1802
  },
  "V-11-w1-cave_low": {
-  "calls": 33,
-  "triangles": 83338,
+  "calls": 32,
+  "triangles": 75092,
   "textures": 6,
-  "geometries": 47,
-  "programs": 39,
-  "frame": 1854
+  "geometries": 46,
+  "programs": 40,
+  "frame": 1851
  },
  "V-12-w1-maze_high": {
-  "calls": 38,
-  "triangles": 68514,
+  "calls": 36,
+  "triangles": 63018,
   "textures": 6,
-  "geometries": 47,
-  "programs": 40,
-  "frame": 1902
+  "geometries": 46,
+  "programs": 41,
+  "frame": 1899
  },
  "V-12-w1-maze_low": {
-  "calls": 37,
-  "triangles": 68514,
+  "calls": 35,
+  "triangles": 63018,
   "textures": 6,
-  "geometries": 47,
-  "programs": 40,
-  "frame": 1950
+  "geometries": 46,
+  "programs": 41,
+  "frame": 1947
  },
  "V-13-camp-side_high": {
-  "calls": 32,
-  "triangles": 69815,
+  "calls": 31,
+  "triangles": 64785,
   "textures": 6,
-  "geometries": 47,
-  "programs": 40,
-  "frame": 1998
+  "geometries": 46,
+  "programs": 41,
+  "frame": 1995
  },
  "V-13-camp-side_low": {
-  "calls": 31,
-  "triangles": 69815,
+  "calls": 30,
+  "triangles": 64785,
   "textures": 6,
-  "geometries": 47,
-  "programs": 40,
-  "frame": 2047
+  "geometries": 46,
+  "programs": 41,
+  "frame": 2044
  },
  "V-13-camp-back_high": {
-  "calls": 28,
-  "triangles": 69155,
+  "calls": 26,
+  "triangles": 64113,
   "textures": 6,
-  "geometries": 47,
-  "programs": 40,
-  "frame": 2096
+  "geometries": 46,
+  "programs": 41,
+  "frame": 2091
  },
  "V-13-camp-back_low": {
-  "calls": 27,
-  "triangles": 69155,
+  "calls": 26,
+  "triangles": 64125,
   "textures": 6,
-  "geometries": 47,
-  "programs": 40,
-  "frame": 2145
+  "geometries": 46,
+  "programs": 41,
+  "frame": 2139
  },
  "V-14-w1-ice_high": {
-  "calls": 35,
-  "triangles": 81954,
+  "calls": 33,
+  "triangles": 69558,
   "textures": 6,
-  "geometries": 47,
-  "programs": 40,
-  "frame": 2193
+  "geometries": 46,
+  "programs": 41,
+  "frame": 2188
  },
  "V-14-w1-ice_low": {
-  "calls": 34,
-  "triangles": 81618,
+  "calls": 32,
+  "triangles": 69222,
   "textures": 6,
-  "geometries": 47,
-  "programs": 40,
-  "frame": 2241
+  "geometries": 46,
+  "programs": 41,
+  "frame": 2238
  },
  "V-02-w2-camp-top_high": {
-  "calls": 36,
-  "triangles": 74101,
+  "calls": 33,
+  "triangles": 66969,
   "textures": 6,
-  "geometries": 37,
-  "programs": 37,
-  "frame": 2342
+  "geometries": 36,
+  "programs": 38,
+  "frame": 2333
  },
  "V-02-w2-camp-top_low": {
-  "calls": 35,
-  "triangles": 74101,
+  "calls": 32,
+  "triangles": 66969,
   "textures": 6,
-  "geometries": 37,
-  "programs": 37,
-  "frame": 2390
+  "geometries": 36,
+  "programs": 38,
+  "frame": 2382
  },
  "V-07-w2-birds_high": {
-  "calls": 35,
-  "triangles": 69860,
+  "calls": 33,
+  "triangles": 64770,
   "textures": 6,
-  "geometries": 40,
-  "programs": 37,
-  "frame": 2440
+  "geometries": 39,
+  "programs": 38,
+  "frame": 2429
  },
  "V-07-w2-birds_low": {
-  "calls": 34,
-  "triangles": 69860,
+  "calls": 32,
+  "triangles": 64770,
   "textures": 6,
-  "geometries": 40,
-  "programs": 37,
-  "frame": 2488
+  "geometries": 39,
+  "programs": 38,
+  "frame": 2477
  },
  "V-08-w2-finish_high": {
-  "calls": 37,
-  "triangles": 70420,
+  "calls": 35,
+  "triangles": 63358,
   "textures": 6,
-  "geometries": 40,
-  "programs": 37,
-  "frame": 2536
+  "geometries": 39,
+  "programs": 38,
+  "frame": 2525
  },
  "V-08-w2-finish_low": {
-  "calls": 36,
-  "triangles": 69916,
+  "calls": 34,
+  "triangles": 62854,
   "textures": 6,
-  "geometries": 40,
-  "programs": 37,
-  "frame": 2584
+  "geometries": 39,
+  "programs": 38,
+  "frame": 2574
  },
  "V-05-w2-summit_high": {
-  "calls": 27,
-  "triangles": 56454,
+  "calls": 26,
+  "triangles": 53870,
   "textures": 6,
-  "geometries": 43,
-  "programs": 39,
-  "frame": 2633
+  "geometries": 42,
+  "programs": 40,
+  "frame": 2622
  },
  "V-05-w2-summit_low": {
-  "calls": 26,
-  "triangles": 56454,
+  "calls": 25,
+  "triangles": 53870,
   "textures": 6,
-  "geometries": 43,
-  "programs": 39,
-  "frame": 2681
+  "geometries": 42,
+  "programs": 40,
+  "frame": 2672
  },
  "V-01-w6-exit9_high": {
-  "calls": 34,
-  "triangles": 73726,
+  "calls": 33,
+  "triangles": 67104,
   "textures": 6,
   "geometries": 39,
-  "programs": 36,
-  "frame": 2783
+  "programs": 38,
+  "frame": 2770
  },
  "V-01-w6-exit9_low": {
-  "calls": 32,
-  "triangles": 69644,
+  "calls": 31,
+  "triangles": 63486,
   "textures": 6,
   "geometries": 39,
-  "programs": 36,
-  "frame": 2831
+  "programs": 38,
+  "frame": 2818
  },
  "V-01-w6-exit11_high": {
-  "calls": 36,
-  "triangles": 70448,
+  "calls": 34,
+  "triangles": 64220,
   "textures": 6,
   "geometries": 42,
-  "programs": 38,
-  "frame": 2879
+  "programs": 40,
+  "frame": 2867
  },
  "V-01-w6-exit11_low": {
-  "calls": 35,
-  "triangles": 70112,
+  "calls": 33,
+  "triangles": 63884,
   "textures": 6,
   "geometries": 42,
-  "programs": 38,
-  "frame": 2927
+  "programs": 40,
+  "frame": 2915
  },
  "V-02-w6-cover_high": {
-  "calls": 33,
-  "triangles": 79374,
+  "calls": 31,
+  "triangles": 70750,
   "textures": 6,
   "geometries": 44,
-  "programs": 38,
-  "frame": 2975
+  "programs": 40,
+  "frame": 2963
  },
  "V-02-w6-cover_low": {
-  "calls": 31,
-  "triangles": 74992,
+  "calls": 29,
+  "triangles": 68804,
   "textures": 6,
   "geometries": 44,
-  "programs": 38,
-  "frame": 3023
+  "programs": 40,
+  "frame": 3011
  },
  "V-02-w6-ice_high": {
-  "calls": 33,
-  "triangles": 78648,
+  "calls": 31,
+  "triangles": 68052,
   "textures": 6,
   "geometries": 45,
-  "programs": 38,
-  "frame": 3071
+  "programs": 40,
+  "frame": 3059
  },
  "V-02-w6-ice_low": {
-  "calls": 32,
-  "triangles": 78312,
+  "calls": 30,
+  "triangles": 67716,
   "textures": 6,
   "geometries": 45,
-  "programs": 38,
-  "frame": 3119
+  "programs": 40,
+  "frame": 3108
  },
  "V-08-w6-finish_high": {
-  "calls": 33,
-  "triangles": 78144,
+  "calls": 31,
+  "triangles": 67548,
   "textures": 6,
   "geometries": 45,
-  "programs": 38,
-  "frame": 3168
+  "programs": 40,
+  "frame": 3157
  },
  "V-08-w6-finish_low": {
-  "calls": 33,
-  "triangles": 78156,
+  "calls": 31,
+  "triangles": 67560,
   "textures": 6,
   "geometries": 45,
-  "programs": 38,
-  "frame": 3216
+  "programs": 40,
+  "frame": 3206
  },
  "V-05-w6-summit_high": {
-  "calls": 27,
-  "triangles": 63714,
+  "calls": 26,
+  "triangles": 58190,
   "textures": 6,
   "geometries": 45,
-  "programs": 38,
-  "frame": 3265
+  "programs": 40,
+  "frame": 3254
  },
  "V-05-w6-summit_low": {
-  "calls": 26,
-  "triangles": 63714,
+  "calls": 25,
+  "triangles": 58190,
   "textures": 6,
   "geometries": 45,
-  "programs": 38,
-  "frame": 3314
+  "programs": 40,
+  "frame": 3303
  },
  "V-03-w1-belt-close_high": {
-  "calls": 35,
-  "triangles": 101998,
+  "calls": 33,
+  "triangles": 85130,
   "textures": 6,
-  "geometries": 42,
-  "programs": 37,
-  "frame": 3441
+  "geometries": 41,
+  "programs": 38,
+  "frame": 3429
  },
  "V-03-w1-belt-close_low": {
-  "calls": 32,
-  "triangles": 95028,
+  "calls": 31,
+  "triangles": 82268,
   "textures": 6,
-  "geometries": 42,
-  "programs": 37,
-  "frame": 3519
+  "geometries": 41,
+  "programs": 38,
+  "frame": 3505
  }
 }
