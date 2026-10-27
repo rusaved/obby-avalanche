@@ -9,16 +9,16 @@
    "z": 228,
    "stage": 1,
    "calls": 35,
-   "triangles": 76514
+   "triangles": 76648
   },
   {
    "frame": "bot-001.jpg",
    "from": 180,
    "x": 0,
-   "z": 364,
+   "z": 367,
    "stage": 2,
-   "calls": 34,
-   "triangles": 69648
+   "calls": 33,
+   "triangles": 69660
   },
   {
    "frame": "bot-002.jpg",
@@ -27,7 +27,7 @@
    "z": 20,
    "stage": 1,
    "calls": 35,
-   "triangles": 72369
+   "triangles": 72661
   },
   {
    "frame": "bot-003.jpg",
@@ -36,16 +36,16 @@
    "z": 528,
    "stage": 3,
    "calls": 34,
-   "triangles": 73360
+   "triangles": 73216
   },
   {
    "frame": "bot-004.jpg",
    "from": 418,
    "x": 0,
-   "z": 604,
+   "z": 610,
    "stage": 3,
    "calls": 34,
-   "triangles": 72800
+   "triangles": 72768
   },
   {
    "frame": "bot-005.jpg",
@@ -54,61 +54,61 @@
    "z": 690,
    "stage": 3,
    "calls": 34,
-   "triangles": 72464
+   "triangles": 72432
   },
   {
    "frame": "bot-006.jpg",
    "from": 541,
    "x": 0,
-   "z": 732,
+   "z": 731,
    "stage": 4,
    "calls": 35,
-   "triangles": 73382
+   "triangles": 73806
   },
   {
    "frame": "bot-007.jpg",
    "from": 621,
    "x": 0,
-   "z": 807,
+   "z": 809,
    "stage": 4,
    "calls": 35,
-   "triangles": 70022
+   "triangles": 69990
   },
   {
    "frame": "bot-008.jpg",
    "from": 705,
    "x": 0,
-   "z": 890,
+   "z": 893,
    "stage": 4,
    "calls": 35,
-   "triangles": 69884
+   "triangles": 69852
   },
   {
    "frame": "bot-009.jpg",
    "from": 749,
    "x": 0,
-   "z": 940,
+   "z": 935,
    "stage": 4,
    "calls": 35,
-   "triangles": 69884
+   "triangles": 69852
   },
   {
    "frame": "bot-010.jpg",
    "from": 880,
    "x": 0,
-   "z": 1072,
+   "z": 1074,
    "stage": 5,
    "calls": 33,
-   "triangles": 61086
+   "triangles": 61212
   },
   {
    "frame": "bot-011.jpg",
    "from": 1015,
    "x": 0,
-   "z": 1237,
+   "z": 1238,
    "stage": 5,
    "calls": 35,
-   "triangles": 64416
+   "triangles": 64384
   },
   {
    "frame": "bot-012.jpg",
@@ -117,43 +117,43 @@
    "z": 1049,
    "stage": 5,
    "calls": 36,
-   "triangles": 70170
+   "triangles": 70138
   },
   {
    "frame": "bot-013.jpg",
    "from": 1141,
    "x": 0,
-   "z": 1391,
+   "z": 1394,
    "stage": 6,
    "calls": 34,
-   "triangles": 61998
+   "triangles": 62124
   },
   {
    "frame": "bot-014.jpg",
    "from": 1228,
    "x": 0,
-   "z": 1513,
+   "z": 1509,
    "stage": 7,
    "calls": 34,
-   "triangles": 57724
+   "triangles": 56866
   },
   {
    "frame": "bot-015.jpg",
    "from": 1272,
    "x": 0,
-   "z": 1594,
+   "z": 1597,
    "stage": 7,
    "calls": 34,
-   "triangles": 60200
+   "triangles": 58914
   },
   {
    "frame": "bot-016.jpg",
    "from": 1334,
    "x": 0,
-   "z": 1681,
+   "z": 1676,
    "stage": 7,
    "calls": 36,
-   "triangles": 60536
+   "triangles": 59250
   },
   {
    "frame": "bot-017.jpg",
@@ -162,25 +162,25 @@
    "z": 1615,
    "stage": 7,
    "calls": 34,
-   "triangles": 60516
+   "triangles": 59230
   },
   {
    "frame": "bot-018.jpg",
    "from": 1443,
    "x": 0,
-   "z": 1675,
+   "z": 1673,
    "stage": 7,
    "calls": 36,
-   "triangles": 60536
+   "triangles": 59250
   },
   {
    "frame": "bot-019.jpg",
    "from": 1586,
    "x": 0,
-   "z": 1790,
+   "z": 1794,
    "stage": 8,
    "calls": 37,
-   "triangles": 57166
+   "triangles": 56038
   },
   {
    "frame": "bot-020.jpg",
@@ -189,16 +189,16 @@
    "z": 1916,
    "stage": 8,
    "calls": 37,
-   "triangles": 57498
+   "triangles": 56370
   },
   {
    "frame": "bot-021.jpg",
    "from": 1777,
    "x": 0,
-   "z": 1760,
-   "stage": 8,
-   "calls": 40,
-   "triangles": 62546
+   "z": 1737,
+   "stage": 7,
+   "calls": 39,
+   "triangles": 60312
   },
   {
    "frame": "bot-022.jpg",
@@ -207,7 +207,7 @@
    "z": 1433,
    "stage": 7,
    "calls": 36,
-   "triangles": 66798
+   "triangles": 65782
   },
   {
    "frame": "bot-023.jpg",
@@ -216,7 +216,7 @@
    "z": 2086,
    "stage": 9,
    "calls": 35,
-   "triangles": 57472
+   "triangles": 56344
   },
   {
    "frame": "bot-024.jpg",
@@ -225,7 +225,7 @@
    "z": 2098,
    "stage": 9,
    "calls": 35,
-   "triangles": 55218
+   "triangles": 54704
   },
   {
    "frame": "bot-025.jpg",
@@ -234,7 +234,7 @@
    "z": 2122,
    "stage": 9,
    "calls": 35,
-   "triangles": 55218
+   "triangles": 54704
   },
   {
    "frame": "bot-026.jpg",
@@ -252,7 +252,7 @@
    "z": 2202,
    "stage": 10,
    "calls": 36,
-   "triangles": 54294
+   "triangles": 53324
   },
   {
    "frame": "bot-028.jpg",
@@ -261,7 +261,7 @@
    "z": 2268,
    "stage": 10,
    "calls": 30,
-   "triangles": 46870
+   "triangles": 46442
   },
   {
    "frame": "bot-029.jpg",
@@ -270,7 +270,7 @@
    "z": 2338,
    "stage": 10,
    "calls": 27,
-   "triangles": 46402
+   "triangles": 45974
   }
  ]
 }

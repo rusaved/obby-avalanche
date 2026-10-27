@@ -407,7 +407,7 @@ function belt(k: Kit, p: LevelPoint, stripes: PropStripe[]): void {
   const arm = Math.min(1.2, wid * 0.22);
   if (p['inNiche'] !== true) for (const z of [z0 - 0.05, z1 + 0.05]) k.beamX(x0, x1, y + ROLLER_R * 0.5, z, ROLLER_R, 6, 'treadmillFrame', 1.2);
   if (p['inNiche'] !== true)
-    for (const side of [-1, 1]) k.turned(p.x + side * arm * 0.354, y + BELT_TOP + 0.01, z1 - 1.2 - arm * 0.354, 0.22, 0.03, arm, 0, (-side * Math.PI) / 4, 0, 'wayArrow', 1.1, 'treadmill');
+    for (const side of [-1, 1]) k.turned(p.x + side * arm * 0.354, y + BELT_TOP + 0.01, z1 - 1.2 - arm * 0.354, 0.22, 0.03, arm, 0, (side * Math.PI) / 4, 0, 'wayArrow', 1.1, 'treadmill');
   const speed = Math.min(STRIPE_MAX, STRIPE_SPEED + STRIPE_PER_DOUBLE * Math.log2(Math.max(1, mult)));
   const usable = len - 3.2;
   for (let s = 0; s * STRIPE_STEP < usable; s++) stripes.push({ x: p.x, y: y + BELT_TOP + 0.015, z0, len: usable, w: wid - 0.15, phase: s * STRIPE_STEP, speed });
@@ -578,7 +578,7 @@ function decorPiece(k: Kit, level: LevelData, p: LevelPoint, glows: TrackProps['
       break;
     case 'arrow': {
       // A chevron «^» up the slope in the way-mark colour.
-      for (const side of [-1, 1]) k.turned(p.x + side * 0.6, p.y + 0.04, p.z - 0.6, 0.4, 0.05, 1.7, 0, (-side * Math.PI) / 4, 0, 'wayArrow', 1, 'arrow');
+      for (const side of [-1, 1]) k.turned(p.x + side * 0.6, p.y + 0.04, p.z - 0.6, 0.4, 0.05, 1.7, 0, (side * Math.PI) / 4, 0, 'wayArrow', 1, 'arrow');
       break;
     }
   }
