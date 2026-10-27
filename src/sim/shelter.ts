@@ -83,6 +83,13 @@ export function distToEntrance(level: LevelData, n: LevelNiche, x: number, z: nu
     const hi = { dist: groundPath(level, x, z, mx, n.box.max[2]), tx: mx, tz: n.box.max[2] };
     return lo.dist <= hi.dist ? lo : hi;
   }
+  if (n.canopy) {
+    // K-01: a canopy has no walls (D-01) — under it from any side: inside — 0, else to the nearest point of its roof.
+    const tx = Math.min(n.box.max[0] - 1, Math.max(n.box.min[0] + 1, x));
+    const tz = Math.min(n.box.max[2], Math.max(n.box.min[2], z));
+    if (x >= n.box.min[0] && x <= n.box.max[0] && z >= n.box.min[2] && z <= n.box.max[2]) return { dist: 0, tx: x, tz: z };
+    return { dist: groundPath(level, x, z, tx, tz), tx, tz };
+  }
   if (n.kind === 'island') {
     // Its mouth faces the camp: inside — 0, else to the nearest point of the mouth by the ground.
     if (x >= n.box.min[0] && x <= n.box.max[0] && z >= n.box.min[2] && z <= n.box.max[2]) return { dist: 0, tx: x, tz: z };

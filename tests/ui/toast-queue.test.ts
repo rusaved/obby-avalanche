@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createToastQueue, type QueuedToast, type ToastClock } from '../../src/ui/toast-queue.ts';
+import { createToastQueue, TOAST_PRIO, type QueuedToast, type ToastClock } from '../../src/ui/toast-queue.ts';
 
 // FX-01: one toast at a time, each held toastMinSec before the next, equal ones once, an urgent one at once and whole.
 function fake(): ToastClock & { tick(ms: number): void } {
@@ -166,5 +166,17 @@ describe('toast queue (FX-01)', () => {
     q.push({ text: 'GIANT', sec: 3, now: true });
     clock.tick(10000);
     expect(log).toEqual(['0 LEVEL', '2120 GIANT']);
+  });
+  // K-01 (review D20: «Phew, made it!» came after «LEVEL UP! 7» that grew on the canopy belt under the banner).
+  it('K-01: «Phew, made it!» (threat importance) goes before a «LEVEL UP!» that waited under the banner', () => {
+    let banner = true;
+    const { q, clock, log } = setup(() => banner);
+    q.push({ text: 'LEVEL 7', sec: 2.5, minSec: 2.2, key: 'levelUp' });
+    q.push({ text: 'PHEW', sec: 2, prio: TOAST_PRIO.threat });
+    clock.tick(500);
+    banner = false;
+    q.release();
+    clock.tick(10000);
+    expect(log.map((x) => x.split(' ').slice(1).join(' '))).toEqual(['PHEW', 'LEVEL 7']);
   });
 });

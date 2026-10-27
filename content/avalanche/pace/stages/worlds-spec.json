@@ -1309,6 +1309,7 @@
     "bridge": 10,
     "trophyGrowth": 2.5,
     "gapK": 0.79,
+    "autoJump": [1],
     "catapultK": 0.83,
     "snowflake": {
       "mult": 2,
@@ -1323,6 +1324,7 @@
       "stageExtraSec": 3,
       "minGapSec": [45],
       "idleMaxSec": [90],
+      "canopyReach": [20],
       "through": true
     },
     "maze": {

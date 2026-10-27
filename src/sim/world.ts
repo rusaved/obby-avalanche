@@ -318,6 +318,17 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
   // No cascade (Q-083, producer 15.10; docs/01-gdd.md 4.5, 22.9): the stage back counts from the farthest stage of the
   // attempt — a fall on the stage the hero was rolled back to returns him to its own start. A teleport starts an attempt.
   let stageFar = 0;
+  /** K-01 (Q-D20-2): on a stage with `autoJump` a run forward off the edge of the ground into a pit jumps by itself — at
+   * the last tick on the ground, so the reach is the level's own (two levels below still short of the gap). */
+  const autoJumpOn = level.stages?.some((st) => st.autoJump) ?? false;
+  const autoJump = (input: HeroInput, dt: number): HeroInput => {
+    if (!autoJumpOn || input.jump || !hero.onGround || input.moveZ <= 0 || hero.vel.z <= 0) return input;
+    const st = level.stages!.find((x) => x.n === stageAt(level, hero.pos.z));
+    if (!st?.autoJump || hero.pos.z < st.start - 1 || hero.pos.z > st.end) return input;
+    const p = hero.pos;
+    if (level.floorAt(p.x + hero.vel.x * dt, p.z + hero.vel.z * dt) >= p.y - 1) return input;
+    return { ...input, jump: true, jumpHeld: true };
+  };
   /** D-08 (playtest D20: 63 falls on the plates, each back to the stage start): with caught.plates «plate» — the start of
    * the plate he last stood on (its middle, 2 units in), null off the plates. */
   let plateFoot: { x: number; y: number; z: number } | null = null;
@@ -486,7 +497,7 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       params.speed = runSpeed();
       if (opts.jumpCurve) params.jumpSpeed = jumpPower(progress.stat, opts.jumpCurve);
       params.airSpeedMult = levelReach();
-      stepHero(hero, funInput(sim.fun, tb ? NO_INPUT : input, params, tuning.fun), dt, collision, params, level.killY);
+      stepHero(hero, funInput(sim.fun, tb ? NO_INPUT : autoJump(input, dt), params, tuning.fun), dt, collision, params, level.killY);
       // Trampolines and slides (docs/01-gdd.md 16.4): a launch leaves the ground, so this tick counts no steps.
       const fun = stepFun(sim.fun, hero, tuning.fun, dt);
       // SD-04 (docs/01-gdd.md 23.4): a trampoline throws as far as the level reaches, as a jump does.

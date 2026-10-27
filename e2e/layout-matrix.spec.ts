@@ -131,7 +131,13 @@ test.describe('M6-02 matrix of sizes', () => {
       await openGame(`pace=stages&mock_device=${device}`);
       for (const [w, h] of [banner, full, banner]) {
         await page.setViewportSize({ width: w, height: h });
-        await page.waitForTimeout(300);
+        // K-01 (red in D20): the field is measured anew on the next frames — waited for, not a fixed 300 ms.
+        await expect
+          .poll(async () => {
+            const g = (await testState(page)).field;
+            return g.left + g.width <= w + 1 && g.top + g.height <= h + 1 && (g.width === w || g.height === h);
+          }, { timeout: 15_000 })
+          .toBe(true);
         const f = (await testState(page)).field;
         expect(f.left + f.width, `${device} ${w}x${h}`).toBeLessThanOrEqual(w + 1);
         expect(f.top + f.height, `${device} ${w}x${h}`).toBeLessThanOrEqual(h + 1);

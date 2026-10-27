@@ -167,6 +167,8 @@ export interface Hud {
   /** «Avalanche in N» at the top centre on a dark plaque (docs/01-gdd.md 4.8, 16.7); null hides it. Z-01: `sub` — the one
    * command under the count («Duck behind a rock!»); while it shows, the hint and tutorial plaques stay hidden. */
   setWaveBanner(text: string | null, sub?: string | null): void;
+  /** K-01 (review D20: «LEVEL UP!» before «Phew, made it!»): plain toasts wait (as under the banner) while on. */
+  holdToasts(on: boolean): void;
   /** The banner box in field px while it shows, null otherwise (gate signs under it hide, docs/01-gdd.md 16.7). */
   waveBannerRect(): { x0: number; y0: number; x1: number; y1: number } | null;
   /** Round of fixes MU (docs/07-mobile-ui.md, rule 19; staff 19.10: names, «Stage reward» and the ridge sign showed
@@ -768,11 +770,13 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     root.classList.add('toasting');
     updateSlot();
   };
+  // K-01: plain toasts also wait while a «Phew, made it!» waits for the snow to pass (holdToasts).
+  let toastsHeld = false;
   const toasts = createToastQueue<Toast>({
     minSec: opts.toastMinSec ?? 0,
     gapMs: opts.toastGapMs ?? 0,
     max: TOAST_QUEUE_MAX,
-    blocked: () => banner.classList.contains('shown'),
+    blocked: () => banner.classList.contains('shown') || toastsHeld,
     show: showToast,
     hide: () => {
       toastEl.classList.remove('shown', 'now');
@@ -1334,6 +1338,11 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       if (text !== null && !was) toasts.hold();
       if (was && text === null) toasts.release();
       if (was !== (text !== null)) updateSlot();
+    },
+    holdToasts(on) {
+      if (on === toastsHeld) return;
+      toastsHeld = on;
+      if (!on && !banner.classList.contains('shown')) toasts.release();
     },
     clearOfHud(r) {
       return !hudRects().some((b) => r.x0 < b.x1 + LABEL_GAP && b.x0 < r.x1 + LABEL_GAP && r.y0 < b.y1 + LABEL_GAP && b.y0 < r.y1 + LABEL_GAP);

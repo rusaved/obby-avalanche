@@ -13,6 +13,9 @@ import type { BalanceJson, TuningJson, WorldThreat } from '../content/types.ts';
 import type { LevelData } from '../level/types.ts';
 import { distToEntrance, firstShelter, inSafeZone, shelterIndex, shelterNow } from './shelter.ts';
 
+/** K-01: a ridge grotto this close below the face of a ridge (or reaching past it) is the canopy of that ridge. */
+const CANOPY_FACE = 3;
+
 export type WavePhase = 'idle' | 'warn' | 'run' | 'gone';
 /** How the current wave ended for the hero: in a cave, caught, in the camp or on the summit, or dusted (scripted miss). */
 export type WaveOutcome = 'none' | 'survived' | 'caught' | 'safe' | 'dusted';
@@ -160,6 +163,39 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
   // reachable through open gates and not standing at a closed gate with the cave behind farther than that gate (playtest G:
   // «Avalanche in 5…1» with no arrow at the closed wall of a level, then nothing).
   // Stages pace only (its zones): the other paces have the cave of the lesson right under the wall.
+  /** K-01 (review D20: 0 waves in 243 s 3 units under the wall «8»): the canopy of the closed ridge just above the hero (a
+   * ridge grotto that reaches its face, the finish grotto of D-01) with its mouth within threat.canopyReach; −1 — none. */
+  const ownCanopy = (hero: ThreatHero, gatesOpen: readonly boolean[]): number => {
+    const reach = threat.canopyReach;
+    if (reach === undefined) return -1;
+    let gate = -1;
+    level.gates.forEach((g, i) => {
+      if (g.z > hero.z && (gate < 0 || g.z < level.gates[gate]!.z)) gate = i;
+    });
+    const wall = level.gates[gate];
+    if (!wall || gatesOpen[gate]) return -1;
+    let best = -1;
+    let bestD = Infinity;
+    level.niches.forEach((n, i) => {
+      if (!(n.canopy || n.kind === 'ridgeGrotto') || n.box.max[2] < wall.z - CANOPY_FACE || n.box.min[2] > wall.z) return;
+      const d = distToEntrance(level, n, hero.x, hero.z).dist;
+      if (d <= reach && d < bestD) {
+        bestD = d;
+        best = i;
+      }
+    });
+    return best;
+  };
+  /** K-01: the shelter of a wave at a closed ridge and of the first wave past its lesson row — the one the hero stands in,
+   * the canopy of his ridge, the nearest ahead (not one far behind), else the nearest. */
+  const shelterAhead = (hero: ThreatHero, gatesOpen: readonly boolean[]): number => {
+    const inside = shelterIndex(level, balance.niche.graceDist, hero.x, hero.y, hero.z);
+    if (inside >= 0 && level.niches[inside]!.kind !== 'ledge') return inside;
+    const canopy = ownCanopy(hero, gatesOpen);
+    if (canopy >= 0) return canopy;
+    const list = sheltersByRunTime(level, gatesOpen, hero.x, hero.z, true);
+    return list.find((i) => level.niches[i]!.box.max[2] >= hero.z) ?? list[0] ?? -1;
+  };
   const coverInReach = (hero: ThreatHero, gatesOpen: readonly boolean[], evenSafe = false): boolean => {
     if (!zones || hero.z < campTop) return true;
     const near = nearestShelter(level, gatesOpen, hero.x, hero.z, evenSafe);
@@ -171,6 +207,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
     const wall = level.gates[gate];
     if (!wall || gatesOpen[gate]) return true;
     if (level.niches.some((n) => n.kind !== 'ledge' && n.z >= hero.z && n.z < wall.z)) return true;
+    if (ownCanopy(hero, gatesOpen) >= 0) return true;
     return distToEntrance(level, level.niches[near]!, hero.x, hero.z).dist <= wall.z - hero.z;
   };
 
@@ -186,8 +223,10 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
     if (state.scripted) {
       // docs/01-gdd.md 4.6: at cave 4 when the hero walks in; on the fallback (or a forced start) — the nearest cave.
       const nearZone = scriptedCave !== null && hero.z >= scriptedCave.z - balance.ftue.triggerDist;
-      const near = nearestShelter(level, gatesOpen, hero.x, hero.z, idleWave);
-      const idx = nearZone && scriptedCave ? scriptedShelter(hero) : near;
+      // K-01: past the lesson row (by a ridge above it) — where he stands or ahead, not back down to that row.
+      const pastRow = scriptedCave !== null && hero.z > scriptedCave.box.max[2] + balance.ftue.triggerDist;
+      const near = pastRow || zones !== undefined ? shelterAhead(hero, gatesOpen) : nearestShelter(level, gatesOpen, hero.x, hero.z, idleWave);
+      const idx = nearZone && scriptedCave && !pastRow ? scriptedShelter(hero) : near;
       const cave = level.niches[idx] ?? scriptedCave;
       state.shelter = idx;
       state.warnSec = balance.ftue.warnSec;
@@ -202,7 +241,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
       state.spawnZ = zone ? zone[1] : Math.min(lastGateZ, spawnMax, Math.max(campTop + avalanche.spawnMinFromCamp, hero.z + threat.spawnAhead));
       state.normalWaves++;
       state.normalWavesDone++;
-      state.shelter = nearestShelter(level, gatesOpen, hero.x, hero.z, idleWave);
+      state.shelter = idleWave ? shelterAhead(hero, gatesOpen) : nearestShelter(level, gatesOpen, hero.x, hero.z, idleWave);
     }
     state.timer = state.warnSec;
     state.frontZ = state.spawnZ;
@@ -286,7 +325,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
           }
           // D-06: not longer than idleMaxSec without a wave anywhere but a giant's zone (review D20: the falls on the
           // plates restarted the delay of their stage every time), where a shelter is in reach.
-          if (zones && !forced && threat.idleMaxSec !== undefined && Math.min(sinceWave, state.playSec) >= threat.idleMaxSec && quiet() && !inGiant && !noWave && hero.z >= campTop && coverInReach(hero, gatesOpen, true)) {
+          if (zones && !forced && threat.idleMaxSec !== undefined && Math.min(sinceWave, state.playSec) >= threat.idleMaxSec - dt / 2 && quiet() && !inGiant && !noWave && hero.z >= campTop && coverInReach(hero, gatesOpen, true)) {
             startWarn(hero, gatesOpen, tick, true);
             return;
           }
@@ -309,7 +348,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
           return;
         }
         case 'warn': {
-          if (!state.scripted) state.shelter = nearestShelter(level, gatesOpen, hero.x, hero.z, idleWave);
+          if (!state.scripted) state.shelter = idleWave ? shelterAhead(hero, gatesOpen) : nearestShelter(level, gatesOpen, hero.x, hero.z, idleWave);
           else if (scriptedRow.includes(state.shelter)) state.shelter = scriptedShelter(hero);
           state.timer -= dt;
           if (state.timer <= 0) {
@@ -326,7 +365,7 @@ export function createThreat(level: LevelData, opts: ThreatOptions, emit: <K ext
           return;
         }
         case 'run': {
-          if (!state.scripted && state.outcome === 'none') state.shelter = nearestShelter(level, gatesOpen, hero.x, hero.z);
+          if (!state.scripted && state.outcome === 'none') state.shelter = idleWave ? shelterAhead(hero, gatesOpen) : nearestShelter(level, gatesOpen, hero.x, hero.z);
           else if (state.outcome === 'none' && scriptedRow.includes(state.shelter)) state.shelter = scriptedShelter(hero);
           state.frontZ -= threat.speed * dt;
           if (state.outcome === 'none' && state.frontZ <= hero.z) resolve(hero, tick);

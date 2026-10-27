@@ -13,7 +13,8 @@ async function onRun(page: import('@playwright/test').Page): Promise<void> {
     t.setTrophies(3);
     t.setStat(900);
     t.holdWave(600);
-    t.teleport(z);
+    // K-01 (red in D20): off the axis — the gifts of stage 3 (D-01 stageGifts) lie on it and would add to the 5 300.
+    t.teleport(z, 20);
   }, STAGES[0]!.stages[2]!.start + 4);
   // A tap makes the HUD a touch HUD (the stick rests at its place).
   await page.touchscreen.tap(400, 200);

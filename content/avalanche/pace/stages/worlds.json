@@ -109,7 +109,8 @@
         "zoneFirstSec": 1,
         "zoneWarnSec": 4,
         "minGapSec": 45,
-        "idleMaxSec": 90
+        "idleMaxSec": 90,
+        "canopyReach": 20
       },
       "zones": [
         {
@@ -3440,7 +3441,8 @@
             "z": 1238.412,
             "y": 24
           },
-          "tier": "easy"
+          "tier": "easy",
+          "autoJump": true
         },
         {
           "n": 6,
@@ -3489,7 +3491,8 @@
             "x": -44,
             "z": 1698.485
           },
-          "tier": "veryHard"
+          "tier": "veryHard",
+          "autoJump": true
         },
         {
           "n": 8,
