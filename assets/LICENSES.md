@@ -17,6 +17,9 @@
 | `audio/ui/reward-trophy.mp3` | кубок вершины | сгенерирован для игры | собственный, без атрибуции | продюсер, 16.10 |
 | `models/kenney-holiday-kit/*.glb`, `Textures/colormap.png` | Holiday Kit 2.0: ели и камни под снегом, снеговики, фонари, гирлянды, сруб, сугробы (99 моделей GLB, одна палитра-текстура) | https://kenney.nl/assets/holiday-kit | CC0 1.0 (`License.txt` рядом) | продюсер, 26.10 (ветка assets/winter-kenney) |
 | `models/kenney-survival-kit/*.glb`, `Textures/colormap.png` | Survival Kit 2.0: указатели, заборы, костёр, палатка (80 моделей GLB, одна палитра-текстура) | https://kenney.nl/assets/survival-kit | CC0 1.0 (`License.txt` рядом) | продюсер, 26.10 (ветка assets/winter-kenney) |
+| `audio/music/mountain.mp3` | музыка гор: пиццикато, маримба, колокольчики, петля 62 с, −16 LUFS | сгенерирована для игры в Magnific (Google Lyria 3 Pro), коммерческая лицензия платного плана | собственная, без атрибуции | штаб, 27.10 (ветка assets/music-r1) |
+| `audio/music/base.mp3` | музыка лагеря: музыкальная шкатулка и струнные, петля 64 с, −16 LUFS | сгенерирована для игры в Magnific (Google Lyria 3 Pro), коммерческая лицензия платного плана | собственная, без атрибуции | штаб, 27.10 |
+| `audio/music/fanfare.mp3` | гора пройдена: короткая фанфара 3 с | сгенерирована для игры в Magnific (Google Lyria 3 Pro), коммерческая лицензия платного плана | собственная, без атрибуции | штаб, 27.10 |
 
 Звуки (SD-14): `assets/audio/steps/<набор>/` и `assets/audio/ui/`, какие где играют — `content/avalanche/sfx.json` (`footsteps`, `files`); грузятся после первого касания, не до `ready()`.
 
