@@ -1,6 +1,7 @@
 // `npm run e2e:release` (mode release): unpack the newest release/*.zip and run e2e/smoke-release.spec.ts on it.
 // `node scripts/e2e-static.mjs pages`: run e2e/pages.spec.ts over dist-pages (M0-10).
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+// `npm run e2e:vk` (mode vk, K-09): e2e/vk-k21.spec.ts over the VK build at vk/.
+import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { unzipSync } from 'fflate';
@@ -48,6 +49,23 @@ if (mode === 'release') {
   }
   spec = 'pages.spec.ts';
   port = 4181;
+} else if (mode === 'vk') {
+  // K-09 («Лавина 21»): the VK build at vk/ as on the Pages link — dist-pages if build:pages made it, else dist-vk copied
+  // into .cache/vk-site/vk (npm run build:vk).
+  if (existsSync(join(root, 'dist-pages/vk/index.html')) && !process.argv.includes('--dist-vk')) dir = resolve(root, 'dist-pages');
+  else {
+    if (!existsSync(join(root, 'dist-vk/index.html'))) {
+      console.error('e2e:vk: dist-vk/index.html missing — run npm run build:vk first');
+      process.exit(1);
+    }
+    dir = resolve(root, '.cache/vk-site');
+    rmSync(dir, { recursive: true, force: true });
+    cpSync(resolve(root, 'dist-vk'), join(dir, 'vk'), { recursive: true });
+    // The server is up once the root answers.
+    writeFileSync(join(dir, 'index.html'), '<!doctype html><meta charset="utf-8"><title>vk-site</title>\n');
+  }
+  spec = 'vk-k21.spec.ts';
+  port = 4182;
 } else {
   console.error(`e2e-static: unknown mode ${mode}`);
   process.exit(2);

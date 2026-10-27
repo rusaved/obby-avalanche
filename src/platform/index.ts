@@ -43,7 +43,8 @@ async function createVk(opts: PlatformOptions): Promise<Platform> {
   const search = location.search;
   const q = new URLSearchParams(search);
   let bridge: VkBridgeLike;
-  if (q.get('mock') === 'vk' && !launchedByPlatform(search)) {
+  const mocked = q.get('mock') === 'vk' && !launchedByPlatform(search);
+  if (mocked) {
     const { createVkMock } = await import('./vk-mock.ts');
     const mock = createVkMock({
       dom: true,
@@ -58,7 +59,8 @@ async function createVk(opts: PlatformOptions): Promise<Platform> {
   const platform = new VkPlatform(opts, {
     bridge,
     search,
-    rules: { ...vkConfig.bridge, ...vkConfig.save, groupId: vkGroupId(site) },
+    // ?mock_group=N (the stand-in only): a community id for the join check while content/vk.json has none yet.
+    rules: { ...vkConfig.bridge, ...vkConfig.save, groupId: (mocked && Number(q.get('mock_group'))) || vkGroupId(site) },
   });
   await platform.init();
   return platform;

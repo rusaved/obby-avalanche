@@ -23,6 +23,7 @@
     "e2e:full": "playwright test --grep @full",
     "e2e:release": "node scripts/e2e-static.mjs release",
     "e2e:sample": "node scripts/e2e-sample.mjs",
+    "e2e:vk": "node scripts/e2e-static.mjs vk --dist-vk",
     "validate:content": "node scripts/validate-content.mjs",
     "verify:fast": "npm run typecheck && npm test && npm run validate:content",
     "gen:worlds": "node scripts/gen-worlds.mjs",

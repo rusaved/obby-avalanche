@@ -17,6 +17,10 @@ const stages = [
   'pack',
   'check-release',
   'e2e:release',
+  // K-13 («Лавина 21»): the VK and OK build — files by check:vk, the published structure by e2e:vk.
+  'build:vk',
+  'check:vk',
+  'e2e:vk',
 ];
 if (full) stages.push('e2e:full');
 const started = Date.now();

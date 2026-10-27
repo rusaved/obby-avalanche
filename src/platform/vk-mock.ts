@@ -32,7 +32,15 @@ export function createVkMock(o: VkMockOptions = {}): VkMock {
   const subs: Array<(e: { detail?: { type?: string; data?: unknown } }) => void> = [];
   const calls: VkMockCall[] = [];
   const mem = new Map<string, string>();
-  const store = o.storage === undefined ? (typeof localStorage !== 'undefined' ? localStorage : null) : o.storage;
+  // A third-party frame may have its storage blocked: reading `localStorage` then throws — keep the stand-in in memory.
+  let store: Storage | null = o.storage ?? null;
+  if (o.storage === undefined) {
+    try {
+      store = typeof localStorage !== 'undefined' ? localStorage : null;
+    } catch {
+      store = null;
+    }
+  }
   const get = (k: string): string => {
     try {
       return store ? (store.getItem(STORE_PREFIX + k) ?? '') : (mem.get(k) ?? '');

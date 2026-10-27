@@ -2758,7 +2758,11 @@ async function boot(): Promise<void> {
     addPlayToday(save, kitPlay);
     save.totalPlaySec = (save.totalPlaySec ?? 0) + kitPlay;
   }
-  if (kitParams.size > 0) persist(true);
+  if (kitParams.size > 0) {
+    persist(true);
+    // The state the presets lead to, for the e2e of the kit (no test API on Pages and in the VK build).
+    (window as unknown as { __KIT_STATE__?: () => unknown }).__KIT_STATE__ = () => ({ world: sim.level.worldIndex, z: sim.hero.pos.z, coins: sim.coins, stageZ: kitStage !== null && sim.level.stages ? sim.stageStart(kitStage).z : null });
+  }
   if (__KIT__ && __BUILD_SHA__ && (kitParams === params || __PLATFORM__ !== 'vk')) {
     const line = document.createElement('div');
     line.className = 'kit-build';

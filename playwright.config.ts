@@ -6,7 +6,7 @@ import { resolve } from 'node:path';
 const dist = process.env.E2E_DIST || 'dist-e2e';
 // e2e:sample points E2E_DIST at the _sample build and runs only sample.spec.ts; static-server specs have their own config.
 const sampleMode = dist.includes('sample');
-const STATIC_SPECS = /(smoke-release|pages)\.spec\.ts$/;
+const STATIC_SPECS = /(smoke-release|pages|vk-k21)\.spec\.ts$/;
 const MOBILE_SPECS = /(touch|layout|ftue)[^/]*\.spec\.ts$/;
 // MU round 3 (producer 19.10): the truthful profile — a phone in full screen (915 × 412) and the same phone in Yandex
 // Browser under its panels (815 × 290); every check of the round runs on each. Round 4 (20.10): the producer's phone
