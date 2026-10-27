@@ -42,10 +42,10 @@ import { createBlockTexture, layerOf, useBlockTexture } from './block-tex.ts';
 import { pieceGeometry, winterDecorPlan, type WinterDecorBuilt } from './winter-decor.ts';
 import type { DecorJson, DecorModelsJson } from '../content/types.ts';
 import { AdditiveBlending, IcosahedronGeometry, MeshBasicMaterial } from 'three';
-import { buildTrackProps, drawsBox, drawsPoint } from './track-props.ts';
+import { buildTrackProps, CHUNK_LENGTH, chunkEdges, drawsBox, drawsPoint } from './track-props.ts';
 import type { DataArrayTexture } from 'three';
 
-export const CHUNK_LENGTH = 120;
+export { CHUNK_LENGTH };
 /** Gate sign: glyph size, plaque width at least and its margin around the text (world units). */
 /** D-03: the run line's flag — its pole and cloth (units). */
 const MARK_POLE = 3;
@@ -302,10 +302,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   if (theme.blockTex) useBlockTexture(chunkMat, blockTexture(), theme.blockTex.scale);
 
   // Static geometry per chunk along Z: edges every CHUNK_LENGTH, or the edges of the sections of the open slope.
-  const edges =
-    level.sections.length > 0
-      ? [...new Set([0, ...level.sections.flatMap((s) => [s.z0, s.z1]), level.length])].sort((a, b) => a - b)
-      : Array.from({ length: Math.ceil(level.length / CHUNK_LENGTH) + 1 }, (_, i) => Math.min(level.length, i * CHUNK_LENGTH));
+  const edges = chunkEdges(level);
   const chunkCount = edges.length - 1;
   const buckets: BufferGeometry[][] = Array.from({ length: chunkCount }, () => []);
   const bucketOf = (z: number): BufferGeometry[] => {

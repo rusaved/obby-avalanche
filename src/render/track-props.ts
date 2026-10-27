@@ -13,6 +13,7 @@ import type { DecorModelsJson, ThemeJson } from '../content/types.ts';
 import type { LevelBox, LevelData, LevelNiche, LevelPoint } from '../level/types.ts';
 import { NICHE_HEIGHT, NICHE_WALL, PORTAL_WIDTH } from '../level/builder.ts';
 import { layerOf } from './block-tex.ts';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 /** Box kinds this module draws instead of level-mesh (their colliders stay). */
 const OWN_BOXES = new Set(['cover', 'iceRock', 'trophyPad', 'campTeleport', 'beacon']);
@@ -72,6 +73,15 @@ export interface TrackProps {
   canopies: Array<{ niche: number; min: [number, number, number]; max: [number, number, number] }>;
   /** Where the summit chest stands (the coin burst of the summit), null — none. */
   chest: [number, number, number] | null;
+}
+
+/** The level is drawn in chunks along Z (render/level-mesh.ts): every CHUNK_LENGTH, or at the edges of the sections of the
+ * open slope. */
+export const CHUNK_LENGTH = 120;
+export function chunkEdges(level: LevelData): number[] {
+  return level.sections.length > 0
+    ? [...new Set([0, ...level.sections.flatMap((s) => [s.z0, s.z1]), level.length])].sort((a, b) => a - b)
+    : Array.from({ length: Math.ceil(level.length / CHUNK_LENGTH) + 1 }, (_, i) => Math.min(level.length, i * CHUNK_LENGTH));
 }
 
 export function drawsBox(b: LevelBox): boolean {
@@ -387,7 +397,21 @@ export function buildTrackProps(level: LevelData, theme: ThemeJson, models?: Dec
     for (const [x, id] of [[-half + 4, 'pineA'], [half - 4, 'pineC'], [-half + 9, 'pineB'], [half - 10, 'pineA']] as const) k.model(id, x, 0, z - 2.5, x, 6, 6.5, 6);
   }
 
-  return { pieces: k.pieces, cut, glows, coldGlows, stripes, hidden, canopies, chest };
+  // D-02 (a switch ≤ 1 s at CPU ×4): the pieces merged ahead a chunk of level-mesh each, so the switch merges a few.
+  const edges = chunkEdges(level);
+  const groups = new Map<number, BufferGeometry[]>();
+  for (const p of k.pieces) {
+    let i = 0;
+    while (i < edges.length - 2 && p.z >= edges[i + 1]!) i++;
+    (groups.get(i) ?? groups.set(i, []).get(i)!).push(p.geo);
+  }
+  const pieces: PropPiece[] = [];
+  for (const [i, list] of groups) {
+    const g = list.length === 1 ? list[0]! : mergeGeometries(list, false);
+    if (list.length > 1) for (const q of list) q.dispose();
+    if (g) pieces.push({ z: (edges[i]! + edges[i + 1]!) / 2, geo: g });
+  }
+  return { pieces, cut, glows, coldGlows, stripes, hidden, canopies, chest };
 }
 
 /** V-03: a treadmill — dark rubber between two rails, rollers at the ends, chevrons up the slope on the top plate; the

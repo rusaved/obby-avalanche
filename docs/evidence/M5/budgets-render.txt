@@ -1,37 +1,37 @@
-M5-06 · budgets of rendering (docs/02-tech.md 9.5), pace stages, quality high, 960×540, build:e2e, SwiftShader, 2026-10-26T20:23:38.126Z
-worst: draw calls 39 / 60, triangles 102167 / 150000, textures 8 / 16
-switch of mountains at CPU x4, the trees built ahead (as from the base): 1005, 901, 443, 441, 503 ms (max 1005 / 1000); without the prebuild: 2220 ms
-memory, mountain 1 before and after 5 switches: geometries 34 -> 34, textures 8 -> 8
+M5-06 · budgets of rendering (docs/02-tech.md 9.5), pace stages, quality high, 960×540, build:e2e, SwiftShader, 2026-10-27T23:06:27.610Z
+worst: draw calls 39 / 60, triangles 111163 / 150000, textures 8 / 16
+switch of mountains at CPU x4, the trees built ahead (as from the base): 649, 722, 432, 448, 624 ms (max 722 / 1000); without the prebuild: 2450 ms
+memory, mountain 1 before and after 5 switches: geometries 38 -> 38, textures 8 -> 8
 
 | mountain | point | draw calls | triangles | textures |
 |---|---|---|---|---|
-| 1 | start | 36 | 72655 | 8 |
-| 1 | trial | 38 | 68530 | 8 |
-| 1 | finish | 31 | 58288 | 8 |
-| 2 | start | 38 | 70227 | 8 |
-| 2 | trial | 36 | 71252 | 8 |
-| 2 | finish | 31 | 58612 | 8 |
-| 3 | start | 37 | 70545 | 8 |
-| 3 | trial | 37 | 70958 | 8 |
-| 3 | finish | 31 | 58392 | 8 |
-| 4 | start | 39 | 86993 | 8 |
-| 4 | trial | 37 | 87950 | 8 |
-| 4 | finish | 32 | 76656 | 8 |
-| 5 | start | 34 | 84113 | 8 |
-| 5 | trial | 36 | 88204 | 8 |
-| 5 | finish | 31 | 76300 | 8 |
-| 6 | start | 36 | 89625 | 8 |
-| 6 | trial | 38 | 89768 | 8 |
-| 6 | finish | 30 | 76540 | 8 |
-| 7 | start | 37 | 85807 | 8 |
-| 7 | trial | 35 | 88048 | 8 |
-| 7 | finish | 32 | 77076 | 8 |
-| 8 | start | 37 | 87949 | 8 |
-| 8 | trial | 36 | 84018 | 8 |
-| 8 | finish | 32 | 78000 | 8 |
-| 9 | start | 36 | 100599 | 8 |
-| 9 | trial | 37 | 96176 | 8 |
-| 9 | finish | 36 | 90408 | 8 |
-| 10 | start | 38 | 102167 | 8 |
-| 10 | trial | 36 | 94632 | 8 |
-| 10 | finish | 36 | 90680 | 8 |
+| 1 | start | 39 | 97633 | 8 |
+| 1 | trial | 39 | 83146 | 8 |
+| 1 | finish | 31 | 61646 | 8 |
+| 2 | start | 38 | 79695 | 8 |
+| 2 | trial | 37 | 82370 | 8 |
+| 2 | finish | 31 | 61878 | 8 |
+| 3 | start | 38 | 79549 | 8 |
+| 3 | trial | 38 | 77870 | 8 |
+| 3 | finish | 31 | 61382 | 8 |
+| 4 | start | 38 | 94159 | 8 |
+| 4 | trial | 38 | 94354 | 8 |
+| 4 | finish | 32 | 79082 | 8 |
+| 5 | start | 37 | 91929 | 8 |
+| 5 | trial | 37 | 94076 | 8 |
+| 5 | finish | 31 | 78914 | 8 |
+| 6 | start | 37 | 100549 | 8 |
+| 6 | trial | 38 | 96446 | 8 |
+| 6 | finish | 30 | 79922 | 8 |
+| 7 | start | 37 | 93865 | 8 |
+| 7 | trial | 37 | 95136 | 8 |
+| 7 | finish | 33 | 81206 | 8 |
+| 8 | start | 37 | 95977 | 8 |
+| 8 | trial | 36 | 88814 | 8 |
+| 8 | finish | 33 | 81722 | 8 |
+| 9 | start | 38 | 110461 | 8 |
+| 9 | trial | 37 | 104298 | 8 |
+| 9 | finish | 37 | 95194 | 8 |
+| 10 | start | 39 | 111163 | 8 |
+| 10 | trial | 36 | 100084 | 8 |
+| 10 | finish | 37 | 95402 | 8 |
