@@ -1035,7 +1035,9 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     go.dataset['hud'] = 'continue';
     go.dataset['next'] = '1';
     go.addEventListener('click', () => opts.onContinue());
-    pausePanel.append(go, el('div', 'mu-caption', t('community.caption')));
+    pausePanel.append(go);
+    // K-04 (VK build): no channels and no codes — no caption over an empty row.
+    if ((opts.community?.ids.length ?? 0) > 0 || opts.onPromo) pausePanel.append(el('div', 'mu-caption', t('community.caption')));
     const links = el('div', 'mu-links');
     links.dataset['role'] = 'community';
     for (const id of opts.community?.ids ?? []) {

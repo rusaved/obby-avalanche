@@ -1430,7 +1430,7 @@ async function boot(): Promise<void> {
             groups: community.length > 0 && visitGift ? { ids: community.map(([id]) => id), sub: t(visitGift.kind === 'egg' ? 'gifts.visit' : 'gifts.visitCoins') } : null,
             // MU round 3 (D19): the card only while the platform can ask for a review — «Rate» always a live button.
             review: communityGifts.review && !giftFlag('giftReview') && reviewCan === true ? { sub: t('gifts.reviewSub'), can: true } : null,
-            join: vkSite && vkJoin?.offered() && giftReady(vkConfig.join.reward) ? { name: vkText(vkSite, 'join.title'), sub: vkText(vkSite, 'join.sub'), button: vkText(vkSite, 'join.button') } : null,
+            join: vkSite && vkJoin?.offered() && giftReady(vkConfig.join.reward) ? { name: vkText(vkSite, 'join.title'), sub: vkText(vkSite, 'join.sub', { n: formatNumber(vkConfig.join.reward.kind === 'coins' ? rewards.coinsOf(vkConfig.join.reward.gifts) : 0, numSuffix) }), button: vkText(vkSite, 'join.button') } : null,
             ad: (() => {
               const offer = adsView?.giftOffer();
               if (!adsView || !offer) return null;

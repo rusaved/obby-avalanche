@@ -1144,4 +1144,6 @@ button.press, [role='button'].press { scale: 0.93; }
 .vk-btn.off { opacity: .6; }
 @media (max-height: 340px) { .vk-how, .vk-support { font-size: 13px; line-height: 1.25; } .vk-how li + li { margin-top: 2px; } }
 @media (max-width: 560px) { .vk-help { flex-direction: column; } }
+/* The menu button reads apart from the cross: blue, as the primary buttons. */
 .win-menu { margin-right: 8px; }
+#ui .win-menu { background: var(--mu-blue); color: #fff; }
