@@ -36,7 +36,7 @@ import { createWordLabels } from './word-label.ts';
 import { formatNumber } from '../ui/format.ts';
 import { GIFT_HALF, GIFT_HEIGHT } from '../sim/gifts.ts';
 import { createBlockTexture, layerOf, useBlockTexture } from './block-tex.ts';
-import { pieceGeometry, winterDecorPlan } from './winter-decor.ts';
+import { pieceGeometry, winterDecorPlan, type WinterDecorBuilt } from './winter-decor.ts';
 import type { DecorJson, DecorModelsJson } from '../content/types.ts';
 import { AdditiveBlending, IcosahedronGeometry, MeshBasicMaterial } from 'three';
 import type { DataArrayTexture } from 'three';
@@ -224,7 +224,7 @@ const _p = new Vector3();
 const _q = new Quaternion();
 const _s = new Vector3();
 
-export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k: string) => string, fade = 1, levelWord?: string, decor?: { spec: DecorJson; models: DecorModelsJson }): LevelMeshes {
+export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k: string) => string, fade = 1, levelWord?: string, decor?: { spec: DecorJson; models: DecorModelsJson; built?: WinterDecorBuilt | undefined }): LevelMeshes {
   const group = new Group();
   group.name = `level-${level.worldId}`;
   const material = new MeshLambertMaterial({ vertexColors: true });
@@ -353,12 +353,13 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     }
   }
   // Z-06: the winter decor merged into the chunks like the boxes; its warm glows as one additive InstancedMesh.
-  const plan = decor ? winterDecorPlan(level, decor.spec, decor.models) : null;
+  // D-02: the plan and the pieces made ahead with the prebuild of the mountain, when it gives them.
+  const plan = decor ? (decor.built?.plan ?? winterDecorPlan(level, decor.spec, decor.models)) : null;
   if (plan && decor)
-    for (const piece of plan.pieces) {
-      const g = pieceGeometry(piece, decor.models, decor.spec.ao, decor.spec.foot);
+    plan.pieces.forEach((piece, i) => {
+      const g = decor.built ? decor.built.geometries[i] ?? null : pieceGeometry(piece, decor.models, decor.spec.ao, decor.spec.foot);
       if (g) bucketOf(piece.z).push(g);
-    }
+    });
   // D-03: the run line's flags — a thin pole and its cloth in theme markFlag.
   for (const [x, y, z, side] of plan?.marks ?? []) {
     const pole: LevelBox = { min: [x - 0.1, y, z - 0.1], max: [x + 0.1, y + MARK_POLE, z + 0.1], material: 'pole', kind: 'decor', solid: false };

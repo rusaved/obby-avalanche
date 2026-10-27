@@ -75,6 +75,7 @@ import type { ThemeJson, ThemeTint, World } from './content/types.ts';
 import { freshGifts, keepGift, keptGifts } from './meta/kept-gifts.ts';
 import { createQuality, qualityParams, QUALITY_LEVELS, type QualityLevel } from './render/quality.ts';
 import { createDecor, type Decor } from './render/decor.ts';
+import { buildWinterDecor, type WinterDecorBuilt } from './render/winter-decor.ts';
 import { buildLevel } from './level/builder.ts';
 import { eggSpotIn } from './sim/gift-egg.ts';
 import { createSim, controllerParams, type Sim } from './sim/world.ts';
@@ -114,6 +115,11 @@ const LEVEL_TOAST_MIN_SEC = 2.2;
 const THREAT_TOAST = { prio: 1 } as const;
 /** M6: the share of a frame the base gives to building the next mountain's collision trees ahead (ms). */
 const PREBUILD_SLICE_MS = 6;
+/** D-02 (ready() ≤ 5.3 s at CPU ×4): the collision of the boot mountain — a near tree this far behind and ahead of the
+ * start serves until the full trees, built after ready() in the prebuild slices, take over. */
+const BOOT_NEAR: [number, number] = [40, 110];
+/** D-02: the work held back from the boot starts this long after ready() — the first frames of play come first. */
+const POST_READY_MS = 600;
 /** MU-01: numbers in full below this (above — «1,23M»). */
 const FULL_NUMBERS_BELOW = 1_000_000;
 /** MU-05: «+N» right of the hero's head — at this share of the hero's height, this many px to the right. */
@@ -293,12 +299,15 @@ async function boot(): Promise<void> {
   // slot 1 — a switch not by the own portal: the passed portal nearest to the hero on the base (a run again), and with no
   // base the next mountain once the hero is half way up (its summit portal leads straight there).
   let prebuiltFor = [0, 0];
+  /** D-02 (a switch ≤ 1 s at CPU ×4): the level and the winter decor of a prebuilt mountain, taken by its enterWorld. */
+  let prebuilt: Array<{ index: number; level: ReturnType<typeof buildLevel>; decor: WinterDecorBuilt | null } | null> = [null, null];
   const prebuildWorld = (index: number, slot = 0): void => {
     const w = content.worlds.worlds.find((x) => x.index === index);
     if (!w || prebuiltFor[slot] === index) return;
     prebuiltFor[slot] = index;
     const l = levelOf(w);
     prebuildCollision(l.staticTriangles, l.boundsTriangles, slot);
+    prebuilt[slot] = { index, level: l, decor: winterDecor ? buildWinterDecor(l, winterDecor.spec, winterDecor.models) : null };
   };
   // Feel values (base and ceiling) come from tuning.json sliders; the curve shape from balance.json.
   // M5-09 (docs/01a-content.md 14): what the stat drives — the run (moveSpeed) or the jump (jumpPower, a flat run).
@@ -368,6 +377,7 @@ async function boot(): Promise<void> {
     boss: game.threat.boss,
     walls: wallsOf(world),
     events: eventsOptions(world),
+    nearCollision: BOOT_NEAR,
   });
   // RL-08 (docs/01-gdd.md 21.8): with gifts.respawn «never» the gifts taken on this mountain stay taken after F5.
   const keepTaken = (balance.gifts?.respawn ?? 'onWaveGone') === 'never';
@@ -1072,10 +1082,12 @@ async function boot(): Promise<void> {
     audio?.setMusicRole('mountain');
     replay = how.replay === true;
     basePortals = [];
+    const pre = prebuilt.find((p) => p?.index === index) ?? null;
+    prebuilt = [null, null];
     prebuiltFor = [0, 0];
     baseView?.clear();
     hud?.setMountainShown(true);
-    level = levelOf(world);
+    level = pre?.level ?? levelOf(world);
     // A new entry (a portal, the rebirth): all its gifts back (RL-08); a run again from the base keeps the save's own.
     if (!replay) freshGifts(save, index);
     // From the base portal of the own mountain begun (docs/01-gdd.md 19.4): at the flag of its farthest ridge, as 6.6.
@@ -1094,7 +1106,7 @@ async function boot(): Promise<void> {
       gr.scene.remove(levelMeshes.group);
       levelMeshes.dispose();
       gr.setTint(tintOf(world));
-      levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`), seeFade(), t('gate.needLevel'), winterDecor);
+      levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`), seeFade(), t('gate.needLevel'), winterDecor && { ...winterDecor, built: pre?.decor ?? undefined });
       gr.scene.add(levelMeshes.group);
       applyQualityNow();
     }
@@ -1140,6 +1152,7 @@ async function boot(): Promise<void> {
     audio?.setMusicRole('base');
     replay = false;
     prebuiltFor = [0, 0];
+    prebuilt = [null, null];
     basePortals = b.portals;
     world = b.world;
     level = b.level;
@@ -1893,7 +1906,9 @@ async function boot(): Promise<void> {
   if (muLayout) gr.setLift(tuning.camera.muLift ?? 0);
   bootState.glRenderer = gr.glRenderer;
   gr.setTint(tintOf(world));
-  levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`), seeFade(), t('gate.needLevel'), winterDecor);
+  // D-02 (ready() ≤ 5.3 s at CPU ×4): the boot mountain without its winter decor; merged into the chunks after ready().
+  levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`), seeFade(), t('gate.needLevel'));
+  const bootMeshes = levelMeshes;
   gr.scene.add(levelMeshes.group);
   // Walls open from the save stand as arches at once (M3-07), no melt; gifts taken before F5 are gone (RL-08).
   sim.gatesOpen.forEach((open, i) => open && levelMeshes!.setGateOpen(i, 1));
@@ -2543,7 +2558,6 @@ async function boot(): Promise<void> {
   };
   window.addEventListener('pointerup', askWholeScreen, true);
   applyQualityNow();
-  await gr.compile();
 
   pause.onChange((paused) => {
     loop.paused = paused;
@@ -2605,6 +2619,20 @@ async function boot(): Promise<void> {
   bootState.controllable = true;
   platform.ready();
   bootState.readyAt = gr.info().frame;
+  // D-02 (ready() ≤ 5.3 s at CPU ×4): the first frame compiled only the shaders it draws; the rest of the scene (the
+  // avalanche, the giant, the base, the effects) soon after ready(), before the first of them is seen. Then the winter
+  // decor of the boot mountain into its chunks (unless a switch of mountains built them with it already).
+  setTimeout(() => {
+    void gr?.compile();
+    if (!gr || !winterDecor || levelMeshes !== bootMeshes || onBase) return;
+    gr.scene.remove(levelMeshes.group);
+    levelMeshes.dispose();
+    levelMeshes = createLevelMeshes(level, themeOf(tintOf(world)), (k) => t(`num.${k}`), seeFade(), t('gate.needLevel'), winterDecor);
+    gr.scene.add(levelMeshes.group);
+    sim.gatesOpen.forEach((open, i) => open && levelMeshes!.setGateOpen(i, 1));
+    sim.gifts.forEach((gift, i) => gift.taken && levelMeshes!.setGiftShown(i, false));
+    applyQualityNow();
+  }, POST_READY_MS);
   // M5-06: the hero's face of the mountain bar after ready() (a canvas read back cost 0.3 s of the boot at CPU ×4).
   setTimeout(() => {
     heroFace = skin ? faceDataUrl(skin.colors.head, skin.face, 48, characters?.faceAtlas.image as HTMLCanvasElement | undefined) : '';

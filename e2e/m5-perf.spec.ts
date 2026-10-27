@@ -7,7 +7,8 @@ import { STAGES, flagOf, threshold } from './lv-stage-data.ts';
 // mountains ≤ 1 s at CPU ×4 and no growth of geometries and textures over 5 switches. Loading (@full): time to ready()
 // ≤ 4 s and ≤ 1.2 MB before it, the median of 3 loads at 10 Mbit/s, RTT 100 ms, CPU ×4. docs/evidence/M5/budgets-*.txt.
 const DIR = 'docs/evidence/M5';
-const LIMIT = { calls: 60, triangles: 150_000, textures: 16, switchMs: 1000, readyMs: 4000, readyBytes: 1.2 * 1024 * 1024 };
+// D-02 (headquarters 27.10; Q-M6-6 «A» accepted 5.1 s): ready() ≤ 5.3 s on this emulation (the budget 4 s of 9.5 is the phone's).
+const LIMIT = { calls: 60, triangles: 150_000, textures: 16, switchMs: 1000, readyMs: 5300, readyBytes: 1.2 * 1024 * 1024 };
 
 test('M5-06: draw calls, triangles, textures at 3 points of each of the 10 mountains; a switch ≤ 1 s at CPU ×4, memory flat', async ({ page, openGame }) => {
   test.setTimeout(300_000);

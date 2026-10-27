@@ -484,17 +484,18 @@ if (vObjNormal.z > 0.3 && vObjPos.z > 0.0) {
       geo.setAttribute('cloth', cloth);
       const size = spec.name === 'torso' ? PART.torso : spec.name === 'arm' ? PART.arm : PART.leg;
       const region = spec.name === 'torso' ? 0 : spec.name === 'arm' ? 1 : 2;
-      // The three parts differ only by the numbers baked into the source: a key of their own, or they share one program.
-      mat.customProgramCacheKey = () => `char-cloth-${region}`;
+      // D-02 (ready() at CPU ×4: a program ~90 ms): the three parts share one program — the region and the size are uniforms.
+      mat.customProgramCacheKey = () => 'char-cloth';
       mat.onBeforeCompile = (shader) => {
         shader.uniforms['clothAtlas'] = { value: clothAtlas };
         shader.uniforms['clothGrid'] = { value: new Vector2(CLOTH_COLS, clothRows) };
         shader.uniforms['partSize'] = { value: new Vector3(size.w, size.h, size.d) };
+        shader.uniforms['clothRegion'] = { value: region };
         shader.vertexShader = shader.vertexShader
           .replace('#include <common>', '#include <common>\nattribute float cloth;\nvarying vec3 vObjPos;\nvarying vec3 vObjNormal;\nvarying float vCloth;')
           .replace('#include <begin_vertex>', '#include <begin_vertex>\nvObjPos = position;\nvObjNormal = normal;\nvCloth = cloth;');
         shader.fragmentShader = shader.fragmentShader
-          .replace('#include <common>', '#include <common>\nuniform sampler2D clothAtlas;\nuniform vec2 clothGrid;\nuniform vec3 partSize;\nvarying vec3 vObjPos;\nvarying vec3 vObjNormal;\nvarying float vCloth;')
+          .replace('#include <common>', '#include <common>\nuniform sampler2D clothAtlas;\nuniform vec2 clothGrid;\nuniform vec3 partSize;\nuniform float clothRegion;\nvarying vec3 vObjPos;\nvarying vec3 vObjNormal;\nvarying float vCloth;')
           .replace(
             '#include <color_fragment>',
             `#include <color_fragment>
@@ -504,9 +505,13 @@ if (vObjNormal.z > 0.3 && vObjPos.z > 0.0) {
   vec2 org = vec2(mod(cell, clothGrid.x), floor(cell / clothGrid.x + 0.01));
   vec2 lp = vec2(vObjPos.x / partSize.x + 0.5, vObjPos.y / partSize.y + 0.5);
   vec4 reg;
-  ${region === 0 ? `reg = vec4(0.0, 0.5, 0.5, 0.5);
-  if (vObjNormal.z < -0.5) { reg.x = 0.5; lp.x = 1.0 - lp.x; }` : `if (abs(vObjNormal.x) > 0.5) lp.x = vObjPos.z / partSize.z + 0.5;
-  reg = vec4(${region === 1 ? '0.0' : '0.25'} + side * 0.5, 0.0, 0.25, 0.5);`}
+  if (clothRegion < 0.5) {
+    reg = vec4(0.0, 0.5, 0.5, 0.5);
+    if (vObjNormal.z < -0.5) { reg.x = 0.5; lp.x = 1.0 - lp.x; }
+  } else {
+    if (abs(vObjNormal.x) > 0.5) lp.x = vObjPos.z / partSize.z + 0.5;
+    reg = vec4((clothRegion < 1.5 ? 0.0 : 0.25) + side * 0.5, 0.0, 0.25, 0.5);
+  }
   lp = clamp(lp, 0.03, 0.97);
   vec2 cuv = reg.xy + lp * reg.zw;
   diffuseColor.rgb *= texture2D(clothAtlas, vec2((org.x + cuv.x) / clothGrid.x, 1.0 - (org.y + 1.0 - cuv.y) / clothGrid.y)).rgb;

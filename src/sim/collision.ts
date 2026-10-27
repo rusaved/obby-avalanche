@@ -31,6 +31,8 @@ const OCTREE_PADDINGS = [0.0137, 0.0731, 0.2371];
 const LEAF_TRIANGLES = 8;
 /** three's Octree.maxLevel. */
 const MAX_LEVEL = 16;
+/** D-02: the near tree of the boot holds the triangles this far past its nearZ. */
+const NEAR_PAD = 30;
 const _box = new Box3();
 
 /** A growable typed array (the node count of a tree is known only once it is built). */
@@ -374,8 +376,13 @@ export function prebuildCollision(staticTriangles: Float32Array | number[], boun
   prebuilds[slot] = { key, jobs: [octreeJob(staticTriangles), boundsTriangles && boundsTriangles.length > 0 ? octreeJob(boundsTriangles) : null] };
 }
 
-/** One slice of the prebuilds (slot 0 first) until `deadline`; true when there is none or all are ready. */
+/** D-02: the full trees of the boot mountain, built after ready() in slices while a near tree serves the start. */
+let bootJobs: OctreeJob[] = [];
+
+/** One slice of the boot trees, then of the prebuilds (slot 0 first) until `deadline`; true when there is none or all are ready. */
 export function prebuildStep(deadline: number): boolean {
+  for (const j of bootJobs) if (!j.step(deadline)) return false;
+  bootJobs = [];
   for (const p of prebuilds) if (p) for (const j of p.jobs) if (j && !j.step(deadline)) return false;
   return true;
 }
@@ -408,15 +415,50 @@ export function boxTriangles(b: Aabb, out: number[] = []): number[] {
   return out;
 }
 
-export function createCollisionWorld(staticTriangles: Float32Array | number[], boundsTriangles?: Float32Array | number[]): CollisionWorld {
+/** The triangles that reach into z0…z1 (D-02: the near tree of the boot). */
+function trianglesWithin(tris: Float32Array | number[], z0: number, z1: number): number[] {
+  const out: number[] = [];
+  for (let i = 0; i + 8 < tris.length; i += 9)
+    if (Math.min(tris[i + 2]!, tris[i + 5]!, tris[i + 8]!) < z1 && Math.max(tris[i + 2]!, tris[i + 5]!, tris[i + 8]!) > z0) for (let k = 0; k < 9; k++) out.push(tris[i + k]!);
+  return out;
+}
+
+/** `near` (D-02, the boot only: ready() ≤ 5.3 s at CPU ×4): with no prebuild, a small tree of the triangles of that span
+ * of z (± NEAR_PAD) answers while the queries stay in it; the full trees build in prebuildStep's slices (after ready())
+ * and take over when done, or at once when a query comes from out of the span. */
+export function createCollisionWorld(staticTriangles: Float32Array | number[], boundsTriangles?: Float32Array | number[], near?: [number, number]): CollisionWorld {
   const pre = takePrebuilt(staticTriangles, boundsTriangles);
-  const staticTree = pre ? pre.s : octreeFromTriangles(staticTriangles);
-  const boundsTree = pre ? pre.b : boundsTriangles && boundsTriangles.length > 0 ? octreeFromTriangles(boundsTriangles) : null;
+  const hasBounds = !!boundsTriangles && boundsTriangles.length > 0;
+  const lazy = !pre && near !== undefined;
+  const jobs = lazy ? [octreeJob(staticTriangles), ...(hasBounds ? [octreeJob(boundsTriangles!)] : [])] : [];
+  if (lazy) bootJobs = jobs;
+  const [z0, z1] = near ?? [0, 0];
+  let staticTree = pre ? pre.s : lazy ? octreeFromTriangles(trianglesWithin(staticTriangles, z0 - NEAR_PAD, z1 + NEAR_PAD)) : octreeFromTriangles(staticTriangles);
+  let boundsTree = pre ? pre.b : !hasBounds ? null : lazy ? octreeFromTriangles(trianglesWithin(boundsTriangles!, z0 - NEAR_PAD, z1 + NEAR_PAD)) : octreeFromTriangles(boundsTriangles!);
+  let nearOnly = lazy;
+  /** The trees for a query reaching z0q…z1q: the full ones once built (or built now, from out of the span). */
+  const at = (z0q: number, z1q: number): void => {
+    if (!nearOnly) return;
+    if (z0q < z0 || z1q > z1 || jobs.every((j) => j.tree !== null)) {
+      for (const j of jobs) j.step(Infinity);
+      staticTree = jobs[0]!.tree!;
+      boundsTree = jobs[1]?.tree ?? null;
+      nearOnly = false;
+      if (bootJobs === jobs) bootJobs = [];
+    }
+  };
   const world: CollisionWorld = {
-    static: staticTree,
+    get static() {
+      at(z0, z1);
+      return staticTree;
+    },
     dynamic: null,
-    bounds: boundsTree,
+    get bounds() {
+      at(z0, z1);
+      return boundsTree;
+    },
     capsuleHit(capsule) {
+      at(Math.min(capsule.start.z, capsule.end.z) - capsule.radius, Math.max(capsule.start.z, capsule.end.z) + capsule.radius);
       const hits: Array<{ normal: Vector3; depth: number }> = [];
       for (const tree of [staticTree, world.dynamic, boundsTree]) {
         const h = tree ? tree.capsuleIntersect(capsule) : false;
@@ -430,6 +472,7 @@ export function createCollisionWorld(staticTriangles: Float32Array | number[], b
       return depth > 0 ? { normal: n.normalize(), depth } : null;
     },
     sphereHit(sphere) {
+      at(sphere.center.z - sphere.radius, sphere.center.z + sphere.radius);
       const a = staticTree.sphereIntersect(sphere);
       const b = world.dynamic ? world.dynamic.sphereIntersect(sphere) : false;
       const hit = a || b;

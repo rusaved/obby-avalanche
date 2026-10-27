@@ -211,6 +211,8 @@ export interface SimOptions {
    * every wall the stat reaches stands open from the start, the hero stands at the flag behind `frontierWall`.
    */
   resume?: { frontierWall: number } | undefined;
+  /** D-02 (the boot): the collision trees built after ready() — a near tree serves this span behind and ahead of the start. */
+  nearCollision?: [number, number] | undefined;
   /** Walls before this mountain and in all (worlds.json): the through number of lateEase; absent — 12 a mountain, 60. */
   walls?: WallCount | undefined;
   /** Record flag (open slope, docs/01-gdd.md 17.7): the one of the save on this mountain or null; absent — no record flag. */
@@ -274,7 +276,10 @@ export function controllerParams(tuning: TuningJson, speed: number): ControllerP
 }
 
 export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions): Sim {
-  const collision = createCollisionWorld(level.staticTriangles, level.boundsTriangles);
+  // D-02: the boot's near tree spans the start (the spawn or the flag of a resumed run).
+  const startZ = (opts.resume ? level.checkpoints.find((c) => c.wall === opts.resume!.frontierWall)?.z : undefined) ?? level.spawn[2];
+  const near = opts.nearCollision !== undefined ? ([startZ - opts.nearCollision[0], startZ + opts.nearCollision[1]] as [number, number]) : undefined;
+  const collision = createCollisionWorld(level.staticTriangles, level.boundsTriangles, near);
   const gatesOpen = level.gates.map(() => false);
   const tier = opts.tier ?? 0;
   // The giant's check (gate of kind boss, docs/01-gdd.md 17.6) is a line, never a collider.

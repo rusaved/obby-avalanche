@@ -196,6 +196,18 @@ function baseOf(id: string, scale: number, models: DecorModelsJson, ao: number, 
   return base;
 }
 
+/** D-02 (a switch of mountains ≤ 1 s at CPU ×4): the plan and the geometry of every piece made ahead (the prebuild of the
+ * next mountain), for createLevelMeshes to merge as is. */
+export interface WinterDecorBuilt {
+  plan: WinterDecor;
+  geometries: Array<BufferGeometry | null>;
+}
+
+export function buildWinterDecor(level: LevelData, spec: DecorJson, models: DecorModelsJson): WinterDecorBuilt {
+  const plan = winterDecorPlan(level, spec, models);
+  return { plan, geometries: plan.pieces.map((p) => pieceGeometry(p, models, spec.ao, spec.foot)) };
+}
+
 /** The geometry of a piece in world space: non-indexed, flat normals, palette colours with AO at its foot, an empty UV
  * and texture layer 0 (the attributes of the chunks). */
 export function pieceGeometry(piece: DecorPiece, models: DecorModelsJson, ao: number, foot: number): BufferGeometry | null {
