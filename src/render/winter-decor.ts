@@ -201,6 +201,8 @@ function baseOf(id: string, scale: number, models: DecorModelsJson, ao: number, 
 export interface WinterDecorBuilt {
   plan: WinterDecor;
   geometries: Array<BufferGeometry | null>;
+  /** V22: the finished pieces of the track (render/track-props.ts), made ahead with the rest. */
+  props?: import('./track-props.ts').TrackProps;
 }
 
 export function buildWinterDecor(level: LevelData, spec: DecorJson, models: DecorModelsJson): WinterDecorBuilt {

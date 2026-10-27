@@ -11,6 +11,8 @@
  */
 import {
   BoxGeometry,
+  ConeGeometry,
+  PlaneGeometry,
   BufferAttribute,
   BufferGeometry,
   Color,
@@ -84,14 +86,15 @@ const MARK_THICK = 0.04;
 const MARK_WIDTH = 0.22;
 const CHEVRONS = 4;
 const CHEVRON_ARM = 2;
-const CHEVRON_LANE = 16;
-const CHEVRON_ROW = 14;
+const CHEVRON_LANE = 24;
+const CHEVRON_ROW = 28;
 const PAD_SPRING_SEC = 0.45;
 const PAD_SPRING_LIFT = 0.9;
 /** V-09: a present turns this fast (rad/s) and bobs this high (units) once in GIFT_BOB_SEC. */
 const GIFT_TURN = 0.7;
 const GIFT_BOB = 0.12;
 const GIFT_BOB_SEC = 2.4;
+const GIFT_NEAR = 260;
 /** V-03: a belt stripe this long along the belt. */
 const STRIPE_DEPTH = 0.35;
 
@@ -246,10 +249,17 @@ function giftGeometry(ribbon: Color): BufferGeometry {
     parts.push({ g: g.toNonIndexed(), keep });
   };
   add(new BoxGeometry(w, h, w), 0, h / 2, 0, false);
-  add(new BoxGeometry(w * 1.04, h * 0.18, w * 1.04), 0, h * 0.86, 0, false);
-  add(new BoxGeometry(w * 0.2, h + 0.02, w * 1.05), 0, h / 2, 0, true);
-  add(new BoxGeometry(w * 1.05, h + 0.02, w * 0.2), 0, h / 2, 0, true);
-  for (const side of [-1, 1]) add(new BoxGeometry(w * 0.34, w * 0.2, w * 0.16), side * w * 0.17, h + w * 0.1, 0, true, side * 0.6, 0.5);
+  // The ribbon: a cross on the lid and a band down the middle of each side (quads just off the faces — the triangles of the
+  // mountain, D-02).
+  const rw = w * 0.2;
+  const off = 0.015;
+  for (const turn of [0, Math.PI / 2]) add(new PlaneGeometry(rw, w).rotateX(-Math.PI / 2), 0, h + off, 0, true, 0, turn);
+  for (let k = 0; k < 4; k++) {
+    const a = (k * Math.PI) / 2;
+    add(new PlaneGeometry(rw, h).translate(0, 0, w / 2 + off), 0, h / 2, 0, true, 0, a);
+  }
+  // The bow: a three-sided knot on the lid.
+  add(new ConeGeometry(w * 0.26, w * 0.3, 3), 0, h + w * 0.15, 0, true);
   const merged = mergeGeometries(
     parts.map(({ g, keep }) => {
       const n = g.getAttribute('position').count;
@@ -321,7 +331,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     return niche >= 0 ? { niche, part: b.kind === 'nicheRoof' ? 'roof' : 'back' } : null;
   };
   // V22: the finished pieces of the track over their colliders (render/track-props.ts).
-  const props = buildTrackProps(level, theme, decor?.models);
+  const props = decor?.built?.props ?? buildTrackProps(level, theme, decor?.models);
   const cutParts: Array<{ niche: number; part: CavePart; box: LevelBox; tilt?: number }> = [];
   // RL-09: with `fade` < 1 the tall walls are drawn apart, solid or see-through (the camera passes them, builder cameraThrough).
   const throughKinds = level.cameraThrough ?? CAMERA_THROUGH;
@@ -390,42 +400,24 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     bucketOf(z0).push(boxGeometry(strip, theme));
   }
   const glowGeo = new IcosahedronGeometry(1, 0);
-  const glowMat = new MeshBasicMaterial({ color: decor?.spec.glowColor ?? '#ffffff', transparent: true, opacity: decor?.spec.glowOpacity ?? 0, blending: AdditiveBlending, depthWrite: false });
-  const glowList = [...(plan?.glows ?? []), ...props.glows];
+  // V22: the cold light of the grottos and the camp teleport in the same mesh, its colour per instance (+0 draw calls).
+  const glowMat = new MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: decor?.spec.glowOpacity ?? 0, blending: AdditiveBlending, depthWrite: false });
+  const warmList = [...(plan?.glows ?? []), ...props.glows];
+  const glowList = [...warmList, ...props.coldGlows];
   const glows = new InstancedMesh(glowGeo, glowMat, Math.max(1, glowList.length));
   glows.count = glowList.length;
   glows.name = 'decor-glows';
-  glowList.forEach(([x, y, z, r], i) => glows.setMatrixAt(i, _m.compose(_p.set(x, y, z), _q.identity(), _s.set(r, r, r))));
+  const warm = new Color(decor?.spec.glowColor ?? '#ffffff');
+  const cold = materialColor(theme, theme.materials['coldGlow'] ? 'coldGlow' : 'ice');
+  glowList.forEach(([x, y, z, r], i) => {
+    glows.setMatrixAt(i, _m.compose(_p.set(x, y, z), _q.identity(), _s.set(r, r, r)));
+    glows.setColorAt(i, i < warmList.length ? warm : cold);
+  });
+  if (glows.instanceColor) glows.instanceColor.needsUpdate = true;
   glows.computeBoundingSphere();
   glows.visible = glowList.length > 0;
   group.add(glows);
-  // V22: the cold light of the grottos and the camp teleport — one more additive InstancedMesh.
-  const coldMat = new MeshBasicMaterial({ color: materialColor(theme, theme.materials['coldGlow'] ? 'coldGlow' : 'ice'), transparent: true, opacity: decor?.spec.glowOpacity ?? 0.3, blending: AdditiveBlending, depthWrite: false });
-  const coldGlows = new InstancedMesh(glowGeo, coldMat, Math.max(1, props.coldGlows.length));
-  coldGlows.count = props.coldGlows.length;
-  coldGlows.name = 'cold-glows';
-  props.coldGlows.forEach(([x, y, z, r], i) => coldGlows.setMatrixAt(i, _m.compose(_p.set(x, y, z), _q.identity(), _s.set(r, r, r))));
-  coldGlows.computeBoundingSphere();
-  coldGlows.visible = props.coldGlows.length > 0 && !!decor;
-  group.add(coldGlows);
-  // V-03: the stripes of every belt of the mountain — one InstancedMesh, sliding down their belts (update()).
-  const stripeGeo = new BoxGeometry(1, 1, 1).toNonIndexed();
-  colorGeometry(stripeGeo, materialColor(theme, 'treadmillStripe'));
-  const stripes = new InstancedMesh(stripeGeo, material, Math.max(1, props.stripes.length));
-  stripes.count = props.stripes.length;
-  stripes.name = 'belt-stripes';
-  stripes.instanceMatrix.setUsage(DynamicDrawUsage);
-  const placeStripes = (t: number): void => {
-    props.stripes.forEach((st, i) => {
-      const off = (((st.phase - t * st.speed) % st.len) + st.len) % st.len;
-      stripes.setMatrixAt(i, _m.compose(_p.set(st.x, st.y, st.z0 + 1.6 + off), _q.identity(), _s.set(st.w, 0.03, STRIPE_DEPTH)));
-    });
-    stripes.instanceMatrix.needsUpdate = true;
-  };
-  placeStripes(0);
-  stripes.computeBoundingSphere();
-  stripes.visible = props.stripes.length > 0;
-  group.add(stripes);  const chunks: Mesh[] = [];
+ const chunks: Mesh[] = [];
   buckets.forEach((list, i) => {
     if (list.length === 0) return;
     const merged = mergeGeometries(list, false);
@@ -691,28 +683,32 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   const gifts = new InstancedMesh(giftGeo, giftMat, Math.max(1, giftPoints.length));
   gifts.count = giftPoints.length;
   gifts.instanceMatrix.setUsage(DynamicDrawUsage);
-  const giftColor = new Color();
   let giftTime = 0;
-  const placeGift = (i: number, shown: boolean): void => {
-    const p = giftPoints[i];
-    if (!p) return;
-    dummy.position.set(p.x, p.y + (shown ? giftBob(i, giftTime) : 0), p.z);
-    dummy.rotation.set(0, giftTime * GIFT_TURN + i * 1.7, 0);
-    // The chest of a grotto (docs/01-gdd.md 17.7) is a bigger gift in the chest colour.
-    dummy.scale.setScalar(shown ? (p['chest'] === true ? CHEST_GIFT_SCALE : 1) : 0.0001);
-    dummy.updateMatrix();
-    gifts.setMatrixAt(i, dummy.matrix);
-    gifts.instanceMatrix.needsUpdate = true;
-  };
-  giftPoints.forEach((p, i) => {
-    placeGift(i, true);
-    const color = p['chest'] === true ? materialColor(theme, 'chest') : giftColor.set(theme.rarity[(p['rarity'] as string) ?? 'common'] ?? '#ffffff');
-    gifts.setColorAt(i, color);
-  });
-  if (gifts.instanceColor) gifts.instanceColor.needsUpdate = true;
-  gifts.computeBoundingSphere();
-  group.add(gifts);
+  /** V-09: the gifts drawn are those within GIFT_NEAR of the hero (cullByDistance), in the first slots of the mesh — a
+   * present has more triangles than the old cube (the budget of the mountain, D-02); before the first cull — all. */
+  let giftZ: number | null = null;
   const giftShown = giftPoints.map(() => true);
+  const giftColors = giftPoints.map((p) => (p['chest'] === true ? materialColor(theme, 'chest') : new Color(theme.rarity[(p['rarity'] as string) ?? 'common'] ?? '#ffffff')));
+  const placeGifts = (): void => {
+    let slot = 0;
+    giftPoints.forEach((p, i) => {
+      if (!giftShown[i] || (giftZ !== null && Math.abs(p.z - giftZ) > GIFT_NEAR)) return;
+      dummy.position.set(p.x, p.y + giftBob(i, giftTime), p.z);
+      dummy.rotation.set(0, giftTime * GIFT_TURN + i * 1.7, 0);
+      // The chest of a grotto (docs/01-gdd.md 17.7) is a bigger gift in the chest colour.
+      dummy.scale.setScalar(p['chest'] === true ? CHEST_GIFT_SCALE : 1);
+      dummy.updateMatrix();
+      gifts.setMatrixAt(slot, dummy.matrix);
+      gifts.setColorAt(slot, giftColors[i]!);
+      slot++;
+    });
+    gifts.count = slot;
+    gifts.instanceMatrix.needsUpdate = true;
+    if (gifts.instanceColor) gifts.instanceColor.needsUpdate = true;
+  };
+  placeGifts();
+  gifts.frustumCulled = false;
+  group.add(gifts);
 
   // Fun (docs/01-gdd.md 16.4): the trampoline — an ice plate with a spring pattern of two square rings and a dot; the
   // ice slide — a ribbon with chevrons up the track. Unit boxes with the face shading baked, colour and turn per instance.
@@ -763,8 +759,10 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   }
   const funGeo = new BoxGeometry(1, 1, 1).toNonIndexed();
   colorGeometry(funGeo, new Color(1, 1, 1));
-  const fun = new InstancedMesh(funGeo, material, Math.max(1, funParts.length));
-  fun.count = funParts.length;
+  // V-03: the stripes of every belt of the mountain ride in the same mesh past the fun parts (+0 draw calls), sliding down
+  // their belts (update()).
+  const fun = new InstancedMesh(funGeo, material, Math.max(1, funParts.length + props.stripes.length));
+  fun.count = funParts.length + props.stripes.length;
   fun.name = 'fun';
   const funColor = new Color();
   const placeFun = (i: number, lift: number): void => {
@@ -779,11 +777,21 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     placeFun(i, 0);
     fun.setColorAt(i, funColor.set(f.color));
   });
+  const stripeColor = materialColor(theme, 'treadmillStripe');
+  const placeStripes = (t: number): void => {
+    props.stripes.forEach((st, i) => {
+      const off = (((st.phase - t * st.speed) % st.len) + st.len) % st.len;
+      fun.setMatrixAt(funParts.length + i, _m.compose(_p.set(st.x, st.y, st.z0 + 1.6 + off), _q.identity(), _s.set(st.w, 0.03, STRIPE_DEPTH)));
+    });
+    fun.instanceMatrix.needsUpdate = true;
+  };
+  props.stripes.forEach((_, i) => fun.setColorAt(funParts.length + i, stripeColor));
+  placeStripes(0);
   fun.instanceMatrix.needsUpdate = true;
   if (fun.instanceColor) fun.instanceColor.needsUpdate = true;
   fun.computeBoundingSphere();
-  // A mountain without fun (classic) draws nothing for it.
-  fun.visible = funParts.length > 0;
+  // A mountain without fun (classic) and belts draws nothing for it.
+  fun.visible = fun.count > 0;
   group.add(fun);
   const pressedAt = new Map<number, number>();
   const wayMarks = createWayMarks(level, theme);
@@ -808,7 +816,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     setGiftShown(index, shown) {
       if (giftShown[index] === undefined || giftShown[index] === shown) return;
       giftShown[index] = shown;
-      placeGift(index, shown);
+      placeGifts();
     },
     giftShown: (index) => giftShown[index] ?? false,
     fun,
@@ -818,7 +826,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     update(timeSec) {
       if (props.stripes.length > 0) placeStripes(timeSec);
       giftTime = timeSec;
-      giftShown.forEach((on, i) => on && placeGift(i, true));
+      placeGifts();
       for (const [pad, at] of pressedAt) {
         // The plate springs up and settles (a damped half wave over PAD_SPRING_SEC).
         const k = Math.min(1, (timeSec - at) / PAD_SPRING_SEC);
@@ -898,6 +906,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       gates.instanceMatrix.needsUpdate = true;
     },
     cullByDistance(z, far) {
+      giftZ = z;
       // Half a chunk of margin each way (a 120-unit chunk shows while its centre is within far + 120).
       for (const c of chunks) c.visible = c.userData['z1'] > z - far - CHUNK_LENGTH / 2 && c.userData['z0'] < z + far + CHUNK_LENGTH / 2;
     },
@@ -917,8 +926,6 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       chunkMat.dispose();
       glowGeo.dispose();
       glowMat.dispose();
-      coldMat.dispose();
-      stripeGeo.dispose();
       seeMat.dispose();
       seeSolidMat.dispose();
       seeGeo.dispose();

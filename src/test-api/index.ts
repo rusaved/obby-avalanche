@@ -245,6 +245,8 @@ export interface TestApi {
   renderInfo(): RenderInfo | null;
   /** Objects drawn in a frame drawn right now (the shadow map pass apart), by name (the parent's when unnamed) with their count (PS-09: what the draw calls are). */
   drawList(): Array<[string, number]>;
+  /** V22: the triangles of every visible mesh by name (instanced × its count), largest first. */
+  meshTriangles(): Array<[string, number]>;
   /** Colour [r, g, b] of the canvas pixel at field px (x, y) of a frame drawn right now (PS-07: the giant seen from the camp). */
   pixelAt(x: number, y: number): [number, number, number];
   /** Share of pixels of the field rect [x0, x1) × [y0, y1) (px) of the colour under any light: each channel within `tol`
@@ -813,6 +815,19 @@ export function installTestApi(g: GameHandles): TestApi {
     simEvents: g.simEvents,
     analytics: () => analyticsEvents(),
     renderInfo: () => g.renderer()?.info() ?? null,
+    meshTriangles() {
+      const r = g.renderer();
+      if (!r) return [];
+      const out = new Map<string, number>();
+      r.scene.traverseVisible((o) => {
+        const m = o as Object3D & { geometry?: { index: { count: number } | null; getAttribute(n: string): { count: number } | undefined }; isInstancedMesh?: boolean; count?: number; isMesh?: boolean };
+        if (!m.isMesh || !m.geometry) return;
+        const n = (m.geometry.index ? m.geometry.index.count : (m.geometry.getAttribute('position')?.count ?? 0)) / 3;
+        const name = o.name || o.parent?.name || o.type;
+        out.set(name, (out.get(name) ?? 0) + n * (m.isInstancedMesh ? (m.count ?? 0) : 1));
+      });
+      return [...out].sort((a, b) => b[1] - a[1]);
+    },
     drawList() {
       const r = g.renderer();
       if (!r) return [];

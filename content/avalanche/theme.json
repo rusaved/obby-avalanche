@@ -65,7 +65,6 @@
     "roofPlank": { "color": "#8B5E3C", "tex": "planks" },
     "grottoRock": { "color": "#9DAEC2", "tex": "rock" },
     "drift": { "color": "#E6EFF8", "tex": "snow" },
-    "caveInside": { "color": "#1F3954" },
     "coldGlow": { "color": "#8FDFFF" },
     "flag": { "color": "#EEF3F8" },
     "markFlag": { "color": "#FF5A1F" },

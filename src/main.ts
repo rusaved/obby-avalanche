@@ -77,6 +77,7 @@ import { freshGifts, keepGift, keptGifts } from './meta/kept-gifts.ts';
 import { createQuality, qualityParams, QUALITY_LEVELS, type QualityLevel } from './render/quality.ts';
 import { createDecor, type Decor } from './render/decor.ts';
 import { buildWinterDecor, type WinterDecorBuilt } from './render/winter-decor.ts';
+import { buildTrackProps } from './render/track-props.ts';
 import { buildLevel } from './level/builder.ts';
 import { eggSpotIn } from './sim/gift-egg.ts';
 import { createSim, controllerParams, type Sim } from './sim/world.ts';
@@ -339,7 +340,8 @@ async function boot(): Promise<void> {
     prebuiltFor[slot] = index;
     const l = levelOf(w);
     prebuildCollision(l.staticTriangles, l.boundsTriangles, slot);
-    prebuilt[slot] = { index, level: l, decor: winterDecor ? buildWinterDecor(l, winterDecor.spec, winterDecor.models) : null };
+    // V22: the track pieces too (their colours from the mountain's tinted theme).
+    prebuilt[slot] = { index, level: l, decor: winterDecor ? { ...buildWinterDecor(l, winterDecor.spec, winterDecor.models), props: buildTrackProps(l, themeOf(tintOf(w)), winterDecor.models) } : null };
   };
   // Feel values (base and ceiling) come from tuning.json sliders; the curve shape from balance.json.
   // M5-09 (docs/01a-content.md 14): what the stat drives — the run (moveSpeed) or the jump (jumpPower, a flat run).
