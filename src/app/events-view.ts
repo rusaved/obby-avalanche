@@ -27,6 +27,7 @@ import {
   type PerspectiveCamera,
   type Scene,
 } from 'three';
+import { roundDot } from '../render/dot.ts';
 import type { ThemeJson } from '../content/types.ts';
 import type { Sim } from '../sim/world.ts';
 import type { SnowballState } from '../sim/events.ts';
@@ -100,7 +101,7 @@ export function createEventsView(d: EventsViewDeps): EventsView {
   const snowPos = new Float32Array(flakes * 3);
   const snowGeo = new BufferGeometry();
   snowGeo.setAttribute('position', new BufferAttribute(snowPos, 3));
-  const snow = new Points(snowGeo, new PointsMaterial({ color: new Color(bz?.snow ?? '#ffffff'), size: SNOW_SIZE, transparent: true, depthWrite: false, fog: false }));
+  const snow = new Points(snowGeo, new PointsMaterial({ color: new Color(bz?.snow ?? '#ffffff'), size: SNOW_SIZE, map: roundDot(), transparent: true, depthWrite: false, fog: false }));
   const glowMat = new MeshBasicMaterial({ color: new Color(bz?.glow ?? '#ffffff'), transparent: true, fog: false, depthWrite: false });
   const glows = new InstancedMesh(new OctahedronGeometry(1.2, 0), glowMat, GLOWS);
   for (const o of [snow, glows]) {

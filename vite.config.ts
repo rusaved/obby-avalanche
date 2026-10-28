@@ -138,7 +138,7 @@ function htmlPlugin(mode: string): Plugin {
         const line = (vk.texts.common['boot.loading'] ?? '').replace('{n}', '0');
         out = out
           .replace('<script src="/sdk.js"></script>', '')
-          .replace('<div class="spinner"></div></div>', `<div class="spinner"></div><p class="boot-progress" data-boot-progress="0">${line}</p></div>`)
+          .replace('<div class="spinner"></div>', `<div class="spinner"></div><p class="boot-progress" data-boot-progress="0">${line}</p>`)
           .replace('</style>', '#preloader{flex-direction:column;gap:14px}.boot-progress{margin:0;color:#fff;font:600 16px/1.2 sans-serif;text-shadow:0 1px 3px rgba(0,0,0,.35)}</style>');
       }
       return out;

@@ -8,6 +8,7 @@
  * colours: one draw call while any particle lives, none otherwise; the quality `particles` share thins them out.
  */
 import { BufferAttribute, BufferGeometry, Color, LineBasicMaterial, LineSegments, Points, PointsMaterial } from 'three';
+import { roundDot } from './dot.ts';
 
 const POOL = 480;
 const SIZE = 0.42;
@@ -56,7 +57,7 @@ export function createFx(): FxParticles {
   geo.setAttribute('position', posAttr);
   geo.setAttribute('color', colAttr);
   geo.setDrawRange(0, 0);
-  const mat = new PointsMaterial({ size: SIZE, vertexColors: true, depthWrite: false });
+  const mat = new PointsMaterial({ size: SIZE, vertexColors: true, map: roundDot(), transparent: true, depthWrite: false });
   const points = new Points(geo, mat);
   points.name = 'fx';
   points.frustumCulled = false;

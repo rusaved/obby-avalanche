@@ -48,6 +48,8 @@ export const EVENTS = [
   'shortcut_ok',
   'webgl_unavailable',
   'purchase',
+  'rotate_shown',
+  'rotate_done',
 ] as const;
 
 /** A name of the catalog, or a numbered step: gate_N, ridge_N, session_Ns (docs/06 section 2). */

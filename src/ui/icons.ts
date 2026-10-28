@@ -65,7 +65,8 @@ export const ICONS: Record<string, string> = {
   tick: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   padlock: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="10.5" width="13" height="10" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>',
   /** The groups of the game: a paper plane and a chat bubble (own marks, no logos). */
-  telegram: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 4 3 11.2l6.2 2.3L19 7l-7.6 8.1v4.4l3.3-3.3 4.2 3.1z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>',
+  // R-05 («Лавина 23»): no trace of that channel in the VK build (check:vk).
+  ...(__PLATFORM__ === 'vk' ? {} : { telegram: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 4 3 11.2l6.2 2.3L19 7l-7.6 8.1v4.4l3.3-3.3 4.2 3.1z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>' }),
   vk: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H11l-4.5 3.5V16H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 9.5l1.5 3 1.5-3M13 9.5v3M16 9.5l-2 1.5 2 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   key: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="7" cy="12" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10.5 12H21M17 12v3M20 12v2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
   star: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.5 2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/></svg>',

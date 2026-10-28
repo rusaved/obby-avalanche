@@ -34,6 +34,7 @@ import {
   type Material,
   type Vector3,
 } from 'three';
+import { roundDot } from '../dot.ts';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { ThemeJson, ThreatLook, TuningJson } from '../../content/types.ts';
 import type { LevelData } from '../../level/types.ts';
@@ -221,7 +222,7 @@ export function createAvalancheVisual(initial: LevelData, theme: ThemeJson, tuni
   for (let i = 0; i < dustSeed.length; i++) dustSeed[i] = rngNext();
   const dustGeo = new BufferGeometry();
   dustGeo.setAttribute('position', new BufferAttribute(dustPos, 3));
-  const dustMat = new PointsMaterial({ color: new Color(look.dust), size: av.dustSize ?? DUST_SIZE, fog: false, transparent: true, opacity: 0.85, depthWrite: false });
+  const dustMat = new PointsMaterial({ color: new Color(look.dust), size: av.dustSize ?? DUST_SIZE, map: roundDot(), fog: false, transparent: true, opacity: 0.85, depthWrite: false });
   const dust = new Points(dustGeo, dustMat);
   dust.name = 'avalanche-dust';
 

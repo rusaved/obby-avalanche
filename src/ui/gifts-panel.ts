@@ -84,7 +84,7 @@ export function renderGiftsPanel(body: HTMLElement, m: GiftsPanelModel, a: Gifts
     c.append(el('span', 'card-name', t('gifts.group')), el('span', 'card-sub', m.groups.sub));
     const row = el('div', 'gf-btns');
     for (const id of m.groups.ids) {
-      const b = iconBtn('card-btn quiet', id === 'telegram' ? 'telegram' : 'vk', t(`community.${id}`), () => a.visit(id));
+      const b = iconBtn('card-btn quiet', __PLATFORM__ !== 'vk' && id === 'telegram' ? 'telegram' : 'vk', t(`community.${id}`), () => a.visit(id));
       b.dataset['hud'] = `gift-visit-${id}`;
       row.appendChild(b);
     }

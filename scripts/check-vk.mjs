@@ -16,10 +16,12 @@ export const BANNED = [
   [/yandex/i, 'Yandex'],
   [/YaGames|ysdk/, 'Yandex SDK'],
   [/sdk\.js/, 'sdk.js Яндекса'],
-  [/Telegram|Телеграм|t\.me\//, 'Telegram'],
+  // R-05 («Лавина 23»): any case — the icon and code of that channel too, not only its name in the texts.
+  [/telegram|телеграм|t\.me\//i, 'Telegram'],
   [/вконтакт/i, 'название VK (сборка общая для VK и ОК)'],
   [/одноклассник/i, 'название ОК (сборка общая для VK и ОК)'],
   [/mc\.yandex|tag\.js|window\.ym\b|googletagmanager|google-analytics|gtag\(/i, 'сторонний счётчик'],
+  [/metrikaCounterId|reachGoal/, 'вызов счётчика (R-05)'],
   [/__TEST__|lil-gui|__STUDIO__|yasdk-mock|__YA_MOCK__/, 'тестовый API или отладка'],
   [/github\.io|github\.com/, 'ссылка на github (K-10)'],
   [/legal\/(terms|privacy)|terms\.html|privacy\.html/, 'своя страница документов (K-10)'],

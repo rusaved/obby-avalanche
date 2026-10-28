@@ -42,6 +42,8 @@
   "wave.goldSaved": "Золотой подарок! +{n}",
   "wave.giftSaved": "Сохранил подарок! +{n} {coin}",
   "wave.firstMiss": "В пещеру, когда идёт лавина!",
+  "wave.firstMissCanopy": "Под навес, когда идёт лавина!",
+  "wave.firstMissCover": "За камень, когда идёт лавина!",
   "zone.common": "Обычные подарки",
   "zone.uncommon": "Подарки тут ценнее!",
   "zone.rare": "Подарки тут ценнее!",

@@ -42,6 +42,8 @@
   "wave.goldSaved": "Golden gift! +{n}",
   "wave.giftSaved": "Gift saved! +{n} {coin}",
   "wave.firstMiss": "Hide in a cave when it comes!",
+  "wave.firstMissCanopy": "Under the roof when it comes!",
+  "wave.firstMissCover": "Behind a rock when it comes!",
   "zone.common": "Common gifts",
   "zone.uncommon": "Gifts are worth more here!",
   "zone.rare": "Gifts are worth more here!",

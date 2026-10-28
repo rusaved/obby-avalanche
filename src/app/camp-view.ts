@@ -312,7 +312,7 @@ export function createCampView(d: CampViewDeps): CampView {
       const lead = show !== null && show === show0.text && (TUTOR_STEPS[d.save.tutor ?? 0] === 'level' || TUTOR_STEPS[d.save.tutor ?? 0] === 'pad' || TUTOR_STEPS[d.save.tutor ?? 0] === 'shoes' || show === t('tutor.shoes') || TUTOR_STEPS[d.save.tutor ?? 0] === 'onward');
       // G-03: the arrow over the sneakers button while their step is up.
       d.hud.pointShoes(!d.windows.current && show0.text === t('tutor.shoes'));
-      d.hud.setTutor(show, show !== null && (show === t('tutor.jump') || wave || lead), show !== null && show === show0.text ? show0.arrow : null);
+      d.hud.setTutor(show, show !== null && (show === t('tutor.jump') || wave || lead), show !== null && show === show0.text ? show0.arrow : null, show === t('tutor.jump'));
       // The teleport pad of the camp: stepping on it opens the window once a step-on.
       // SD-13 (producer 16.10: «it worked once, then broke»): on the next mountain the pad stood dead until its own
       // stage 2 — now it answers once the player knows it (a stage 2 passed anywhere), the stages not passed locked.

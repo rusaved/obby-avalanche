@@ -54,10 +54,7 @@ export function createVkMenu(d: VkMenuDeps): VkMenu {
         d.windows.refresh();
       });
       const help = button('card-btn vk-btn', 'help', vt('menu.help'));
-      help.addEventListener('click', () => {
-        page = 'help';
-        d.windows.refresh();
-      });
+      help.addEventListener('click', () => show('help'));
       const settings = button('card-btn vk-btn', 'settings', vt('menu.settings'));
       settings.addEventListener('click', () => d.openSettings());
       row.append(sound, help, settings);
@@ -85,20 +82,20 @@ export function createVkMenu(d: VkMenuDeps): VkMenu {
       }
       const back = button('btn-primary vk-back', 'back', vt('help.back'));
       back.dataset['next'] = '1';
-      back.addEventListener('click', () => {
-        page = 'main';
-        d.windows.refresh();
-      });
+      back.addEventListener('click', () => show('main'));
       side.appendChild(back);
       box.append(how, side);
     }
     body.appendChild(box);
   };
+  // R-05 («Лавина 23»): «Help» has its own title «How to play»; the menu the game's.
+  const show = (p: 'main' | 'help'): void => {
+    page = p;
+    d.windows.open(VK_MENU, p === 'help' ? vt('help.title') : d.title, render, { next: false, size: 'summary' });
+  };
   return {
     open(p = 'main') {
-      page = p;
-      if (d.windows.current === VK_MENU) d.windows.refresh();
-      else d.windows.open(VK_MENU, d.title, render, { next: false, size: 'summary' });
+      show(p);
     },
   };
 }

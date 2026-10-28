@@ -9,6 +9,8 @@ import { mkdirSync } from 'node:fs';
 const VK = 'vk/?mock=vk';
 const SHOTS = 'docs/evidence/K21';
 mkdirSync(SHOTS, { recursive: true });
+const SHOTS23 = 'docs/evidence/L23';
+mkdirSync(SHOTS23, { recursive: true });
 type Mock = { __VK_MOCK__?: { calls: Array<{ method: string; params?: Record<string, unknown> }>; emit(type: string): void } };
 
 function watch(page: Page) {
@@ -109,11 +111,14 @@ for (const size of [
       // Help: how to play in 4 lines and the community as the support channel; no link.
       await page.locator('[data-vk="help"]').tap();
       await expect(page.locator('.vk-how li')).toHaveCount(4);
+      // R-05 («Лавина 23»): «Help» under its own title.
+      await expect(page.locator('.win-title')).toHaveText('Как играть');
       await expect(page.locator('.vk-support')).toContainText('сообщество');
       await whole(page, '[data-vk="back"]');
       await page.screenshot({ path: `${SHOTS}/help-${tag}.png` });
       await noWayOut(page);
       await page.locator('[data-vk="back"]').tap();
+      await expect(page.locator('.win-title')).not.toHaveText('Как играть');
       await page.locator('[data-vk="play"]').tap();
       await expect(menu(page)).toBeHidden();
       // From the game: the menu button of the HUD; from a window: its menu button beside the cross.
@@ -225,9 +230,97 @@ for (const size of [
       await page.locator('[data-hud="win-menu"]').tap();
       await page.locator('[data-vk="settings"]').tap();
       await expect(page.locator('[data-role="kit-build"]')).toHaveText(/^сборка [0-9a-f]{7}$/);
+      // R-02 («Лавина 23»): light on the dark window (was ≈ 1,05:1), whole on screen without a scroll.
+      const ratio = await page.locator('[data-role="kit-build"]').evaluate((el) => {
+        const rgb = (c: string) => (c.match(/[\d.]+/g) ?? []).map(Number);
+        const lum = ([r, g, b]: number[]) => {
+          const f = (v: number) => ((v /= 255) <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+          return 0.2126 * f(r!) + 0.7152 * f(g!) + 0.0722 * f(b!);
+        };
+        let bgEl: Element | null = el.parentElement;
+        while (bgEl && (rgb(getComputedStyle(bgEl).backgroundColor)[3] ?? 1) === 0) bgEl = bgEl.parentElement;
+        const bg = rgb(getComputedStyle(bgEl ?? document.body).backgroundColor);
+        const fg = rgb(getComputedStyle(el).color);
+        const a = Number(getComputedStyle(el).opacity) * (fg[3] ?? 1);
+        const mix = [0, 1, 2].map((i) => fg[i]! * a + bg[i]! * (1 - a));
+        const [l1, l2] = [lum(mix), lum(bg)].sort((x, y) => y - x);
+        return (l1! + 0.05) / (l2! + 0.05);
+      });
+      expect(ratio, 'build line contrast').toBeGreaterThanOrEqual(4.5);
+      await whole(page, '[data-role="kit-build"]');
+      await page.screenshot({ path: `${SHOTS23}/kit-build-${tag}.png` });
     });
   });
 }
+
+type Buf = { __ANALYTICS_BUFFER__?: Array<{ name: string; params?: Record<string, unknown> }> };
+const evs = (page: Page, name: string) =>
+  page.evaluate((n) => ((window as unknown as Buf).__ANALYTICS_BUFFER__ ?? []).filter((e) => e.name === n), name);
+const heroZ = (page: Page) => page.evaluate(() => (window as unknown as { __KIT_STATE__: () => { z: number } }).__KIT_STATE__().z);
+
+// R-01 («Лавина 23»): the VK app holds the phone upright — «Turn your phone» over the blurred game, the game and the sound
+// stand; turned — the game goes on from the same place, the menu is whole. The window decides, not isMobile.
+for (const size of [
+  { width: 405, height: 880 },
+  { width: 405, height: 720 },
+  { width: 375, height: 667 },
+]) {
+  const tag = `${size.width}x${size.height}`;
+  test.describe(`R-01 ${tag}`, () => {
+    test.use({ viewport: size, hasTouch: true });
+
+    test(`R-01: upright — the rotate screen, the game stands; turned — it runs on, the menu whole @ ${tag}`, async ({ page }) => {
+      const w = watch(page);
+      await page.goto(`/${VK}&vk_platform=mobile_android&fresh=1&coins=0`);
+      await expect(page.locator('#preloader')).toHaveClass(/hidden/, { timeout: 100_000 });
+      const rotate = page.locator('[data-role="rotate"]');
+      await expect(rotate).toHaveClass(/shown/);
+      await expect(rotate).toContainText('Поверни телефон');
+      expect(await rotate.evaluate((e) => getComputedStyle(e).backdropFilter)).toContain('blur');
+      await page.screenshot({ path: `${SHOTS23}/rotate-${tag}.png` });
+      expect((await evs(page, 'rotate_shown')).length).toBe(1);
+      // A tap on the screen plays nothing: the menu stays under it.
+      await page.mouse.click(size.width / 2, size.height / 2);
+      await expect(rotate).toHaveClass(/shown/);
+      // Turned: the screen goes, the menu is whole, Help opens; Play — the hero runs.
+      await page.setViewportSize({ width: size.height, height: size.width });
+      await expect(rotate).not.toHaveClass(/shown/);
+      const done = await evs(page, 'rotate_done');
+      expect(done.length).toBe(1);
+      expect(typeof done[0]!.params!['sec']).toBe('number');
+      for (const a of ['play', 'help']) await whole(page, `[data-vk="${a}"]`);
+      await page.screenshot({ path: `${SHOTS23}/rotate-done-${tag}.png` });
+      await page.locator('[data-vk="play"]').tap();
+      await expect(menu(page)).toBeHidden();
+      const z0 = await heroZ(page);
+      // Upright again mid-run: the hero stands where he was.
+      await page.setViewportSize(size);
+      await expect(rotate).toHaveClass(/shown/);
+      const zA = await heroZ(page);
+      await page.waitForTimeout(1500);
+      expect(Math.abs((await heroZ(page)) - zA)).toBeLessThan(0.01);
+      await page.setViewportSize({ width: size.height, height: size.width });
+      await expect(rotate).not.toHaveClass(/shown/);
+      await expect(page.locator('[data-hud="pause"]')).toBeVisible();
+      expect(zA).toBeGreaterThanOrEqual(z0 - 0.01);
+      expect(w.errors).toEqual([]);
+      expect(w.outside).toEqual([]);
+    });
+  });
+}
+
+test('R-01: a computer — an iframe 1000×600 and 630×600 never shows the rotate screen', async ({ page, baseURL }) => {
+  for (const size of [
+    { width: 1000, height: 600 },
+    { width: 630, height: 600 },
+  ]) {
+    await page.setViewportSize({ width: size.width + 40, height: size.height + 40 });
+    await page.setContent(`<body style="margin:0"><iframe id="g" src="${baseURL}${VK}" style="border:0;margin:20px;width:${size.width}px;height:${size.height}px"></iframe></body>`);
+    const frame = page.frameLocator('#g');
+    await expect(frame.locator('#preloader')).toHaveClass(/hidden/, { timeout: 100_000 });
+    await expect(frame.locator('[data-role="rotate"].shown')).toHaveCount(0);
+  }
+});
 
 test('K-12: a signed VK launch ignores ?mock=vk and the kit (the real bridge, no presets)', async ({ page }) => {
   await page.goto('/vk/?mock=vk&vk_app_id=1&sign=x&coins=999');

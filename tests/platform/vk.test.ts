@@ -170,6 +170,32 @@ describe('K-06 VK Storage', () => {
   });
 });
 
+describe('R-05 unsaved on hide', () => {
+  it('a hide 1 s after a write with something unsaved writes it at once, not after hideGapSec', async () => {
+    vi.useFakeTimers();
+    let now = 1_000_000;
+    const { bridge, platform } = make({ now: () => now });
+    await platform.init();
+    const save = createSave(now);
+    save.rev = 1;
+    platform.markDirty(save, { flush: true });
+    await vi.advanceTimersByTimeAsync(10);
+    const after1 = platform.writes;
+    expect(after1).toBeGreaterThan(0);
+    now += 1000;
+    platform.markDirty({ ...save, rev: 2 });
+    bridge.emit('VKWebAppViewHide');
+    await vi.advanceTimersByTimeAsync(10);
+    expect(platform.writes).toBeGreaterThan(after1);
+    // Nothing unsaved: a second hide writes nothing.
+    const after2 = platform.writes;
+    bridge.emit('VKWebAppViewHide');
+    await vi.advanceTimersByTimeAsync(10);
+    expect(platform.writes).toBe(after2);
+    vi.useRealTimers();
+  });
+});
+
 describe('K-07 hide and restore', () => {
   it('VKWebAppViewHide pauses the game, VKWebAppViewRestore resumes it', async () => {
     const { bridge, platform } = make();

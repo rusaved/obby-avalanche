@@ -271,9 +271,10 @@ export class VkPlatform implements Platform {
     await this.writing;
   }
 
-  /** On hide: write now, but not oftener than hideGapSec. */
+  /** On hide: write now, but not oftener than hideGapSec. R-05 («Лавина 23»): with something unsaved — at once whatever
+   * the gap (a hidden app may never run the timer); writesPerHour still holds in put(). */
   private flushSoon(): void {
-    if (this.latest !== null) this.schedule(true);
+    if (this.latest !== null) this.writeNow();
   }
 
   private schedule(flush: boolean): void {

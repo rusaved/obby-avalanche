@@ -171,7 +171,8 @@ async function boot(): Promise<void> {
     const v = Number(kitParams.get(k));
     return kitParams.has(k) && Number.isFinite(v) && v >= 0 ? Math.floor(v) : null;
   };
-  configureAnalytics({ counterId: game.metrikaCounterId, echoToConsole: __DEBUG_TOOLS__ });
+  // R-05 («Лавина 23»): no counter in the VK build — not even its id in the code (check:vk).
+  configureAnalytics({ counterId: __PLATFORM__ === 'vk' ? 0 : game.metrikaCounterId, echoToConsole: __DEBUG_TOOLS__ });
 
   const pause = new PauseManager();
   const events: string[] = [];
@@ -751,7 +752,10 @@ async function boot(): Promise<void> {
     });
     s.events.on('waveDusted', () => {
       trackOnce('first_wave_survived', { inShelter: false });
-      hud?.toast(t('wave.firstMiss'), 3, false, undefined, undefined, false, THREAT_TOAST);
+      // R-03, R-05 («Лавина 23»): the toast names the shelter the banner called to — the same word as «Under the roof!».
+      const n = s.level.niches[s.threat?.state.shelter ?? -1];
+      const miss = n?.canopy ? 'wave.firstMissCanopy' : n?.kind === 'island' ? 'wave.firstMissCover' : 'wave.firstMiss';
+      hud?.toast(t(miss), 3, false, undefined, undefined, false, THREAT_TOAST);
     });
     // «Snowed in!» (M2-07, docs/01-gdd.md 4.5): toast; the ball and the pose follow sim.caught in renderFrame.
     // M4-R2 (producer 22.10): one outcome per wave — snowed in or rolled back drops a «Phew» still waiting for the snow.
@@ -771,6 +775,10 @@ async function boot(): Promise<void> {
       if (c && Math.hypot(c.to.x - c.from.x, c.to.z - c.from.z) > 1) hud?.toast(t(plate ? 'toast.fallBackPlate' : s.level.stages ? 'toast.fallBackStage' : 'toast.fallBack'), 2);
     });
     s.events.on('waveEnd', ({ scripted, outcome }) => {
+      // R-03 («Лавина 23»): waited it out at the safe finish of a stage under its closed ridge (not the camp) — made it,
+      // said so; before, the wave passed in silence there.
+      const z = s.hero.pos.z;
+      if (outcome === 'safe' && s.level.stages && s.level.safeZones.slice(1).some(([a, b]) => z >= a && z <= b)) hud?.toast(t('wave.survivedPlain'), 2, false, undefined, undefined, false, THREAT_TOAST);
       if (scripted) {
         // Not in a cave (no «Phew»), or the toast was dropped from a full queue: the egg is there now anyway.
         showEgg();
@@ -2690,15 +2698,30 @@ async function boot(): Promise<void> {
   {
     // MU-09 (p1-rotate, MU-13: a phone upright played on without it): «Turn your phone» over everything while a touch
     // screen stands upright — the sign is the touch and the orientation of the window, not the kind of device.
+    // R-01 («Лавина 23»): VK and OK apps hold the phone upright and set no orientation — the window's own sizes back the
+    // media query (a webview may skip its change event), any coarse pointer or touch points count as a phone; a window
+    // wider than tall (a computer, the VK iframe) never shows it. rotate_shown / rotate_done (seconds) for docs/06.
     const portrait = window.matchMedia('(orientation: portrait)');
     const coarse = window.matchMedia('(pointer: coarse)');
+    const anyCoarse = window.matchMedia('(any-pointer: coarse)');
+    let rotateSince: number | null = null;
     const apply = (): void => {
-      const on = portrait.matches && (coarse.matches || mobile);
+      const upright = portrait.matches || window.innerHeight > window.innerWidth;
+      const on = upright && (coarse.matches || anyCoarse.matches || navigator.maxTouchPoints > 0 || mobile);
+      if (on && rotateSince === null) {
+        rotateSince = performance.now();
+        track('rotate_shown', { w: window.innerWidth, h: window.innerHeight });
+      } else if (!on && rotateSince !== null) {
+        track('rotate_done', { sec: Math.round((performance.now() - rotateSince) / 100) / 10 });
+        rotateSince = null;
+      }
       pause.set_('orientation', on);
       hud?.setRotate(on);
     };
     portrait.addEventListener('change', apply);
     coarse.addEventListener('change', apply);
+    window.addEventListener('resize', apply);
+    viewport?.addEventListener('resize', apply);
     apply();
   }
 
@@ -2771,16 +2794,18 @@ async function boot(): Promise<void> {
   if (kitParams.size > 0) {
     persist(true);
     // The state the presets lead to, for the e2e of the kit (no test API on Pages and in the VK build).
-    (window as unknown as { __KIT_STATE__?: () => unknown }).__KIT_STATE__ = () => ({ world: sim.level.worldIndex, z: sim.hero.pos.z, coins: sim.coins, stageZ: kitStage !== null && sim.level.stages ? sim.stageStart(kitStage).z : null });
+    (window as unknown as { __KIT_STATE__?: () => unknown }).__KIT_STATE__ = () => ({ world: sim.level.worldIndex, x: sim.hero.pos.x, z: sim.hero.pos.z, coins: sim.coins, stageZ: kitStage !== null && sim.level.stages ? sim.stageStart(kitStage).z : null });
   }
   if (__KIT__ && __BUILD_SHA__ && (kitParams === params || __PLATFORM__ !== 'vk')) {
     const line = document.createElement('div');
     line.className = 'kit-build';
     // Styled here, not in styles.css: no trace of the kit in a Yandex archive (check-release, check 6).
-    line.style.cssText = 'margin-top:8px;text-align:center;color:var(--ink);opacity:.5;font:500 12px/1.2 var(--font)';
+    // R-02 («Лавина 23»): the window's own text colour (light on the dark window) and first in the body — read without
+    // scrolling at 815×290.
+    line.style.cssText = 'flex:1 1 100%;text-align:center;color:inherit;opacity:.8;font:600 12px/1.2 var(--font)';
     line.dataset['role'] = 'kit-build';
     line.textContent = t('kit.build', { sha: __BUILD_SHA__ });
-    hud.pausePanel.appendChild(line);
+    hud.pausePanel.prepend(line);
   }
   // K-04 (VK build): the start menu over the first frame — the game stands («menu») until «Play».
   if (kitPlay !== null) openGifts();

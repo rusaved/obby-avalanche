@@ -240,7 +240,8 @@ export interface Hud {
   setNeed(state: { text: string; ok: boolean; arrow?: number | null } | null): void;
   /** The step of the stage tutorial under the goal (docs/01-gdd.md 22.12); null — none. MU round 5: `arrow` — a small
    * arrow at the start of the plaque turned to this screen angle (rad, 0 — right), the way to what it names. */
-  setTutor(text: string | null, urgent?: boolean, arrow?: number | null): void;
+  /** R-05: `hold` — the step keeps the slot TUTOR_HOLD_MS from its first frame there («Jump!»). */
+  setTutor(text: string | null, urgent?: boolean, arrow?: number | null, hold?: boolean): void;
   /** G-03: a bouncing arrow over the sneakers button (their tutorial step is up). */
   pointShoes(on: boolean): void;
   /** Round of fixes MU (l5-camp): the light plaques of the portals of the base — «where» over «level · open» or a lock
@@ -294,6 +295,8 @@ const RECTS_MS = 150;
 const LABEL_GLIDE = 10;
 const TOP_MID_H = 0.3;
 const LABEL_FLIP_SEC = 0.5;
+/** R-05: an urgent tutorial step («Jump!») holds the message slot of the phone at least this long. */
+const TUTOR_HOLD_MS = 2000;
 /** …and «Stage reward» keeps this far off the hero (px). */
 const HERO_GAP = 12;
 /** …and its places left of the pad's corner step this far further (px). */
@@ -1050,7 +1053,7 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
       const b = el('button', `card-btn quiet community ${id}`);
       b.dataset['hud'] = `community-${id}`;
       const i = el('span', 'mark');
-      i.innerHTML = icon(id === 'telegram' ? 'telegram' : 'vk');
+      i.innerHTML = icon(__PLATFORM__ !== 'vk' && id === 'telegram' ? 'telegram' : 'vk');
       b.append(i, t(`community.${id}`));
       b.addEventListener('click', () => opts.community?.open(id));
       links.appendChild(b);
@@ -1073,8 +1076,13 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
    * ad button of the camp, an urgent tutorial step (jump, the wave), the gate plaque, the other tutorial steps or a hint; the first of them that is up holds it, the rest
    * wait hidden.
    */
+  let urgentAt = -Infinity;
+  let holding = false;
   const slotOwner = (): string => {
     if (toastEl.classList.contains('shown') && toastEl.classList.contains('now')) return 'toast';
+    // R-05 («Лавина 23», pass 21: «Jump!» 0,1 s for a fast hero — the toasts of his Speed took the slot): an urgent step
+    // («Jump!», `hold`) keeps the slot for its first TUTOR_HOLD_MS over a plain toast and the wave banner.
+    if (holding && tutor.classList.contains('shown') && performance.now() - urgentAt < TUTOR_HOLD_MS) return 'tutor';
     // V-00 (K21 touch-mu-giant: after a fall an idle wave took the slot for good): the free «Continue from stage N» is
     // short-lived and a way out of that wave — it goes before the banner (the timer and the cave arrow stay up).
     if (adsFree && ads.classList.contains('shown')) return 'ads';
@@ -1091,6 +1099,8 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
   const updateSlot = (): void => {
     if (!opts.mu) return;
     const o = slotOwner();
+    // R-05: the hold of an urgent step counts from its first frame in the slot (a reward said `now` may go first).
+    if (o === 'tutor' && root.dataset['slot'] !== 'tutor' && holding) urgentAt = performance.now();
     if (root.dataset['slot'] !== o) root.dataset['slot'] = o;
   };
   /** Round of fixes MU (rule 19): a mark of the world hung at (x, y) by its bottom middle — not drawn within 8 px of the HUD. */
@@ -1781,13 +1791,20 @@ export function createHud(host: HTMLElement, opts: HudOptions): Hud {
     pointShoes(on) {
       if (shoes.classList.contains('point') !== on) shoes.classList.toggle('point', on);
     },
-    setTutor(text, urgent = false, arrow = null) {
+    setTutor(text, urgent = false, arrow = null, hold = false) {
       if (waveSub) text = null;
+      const urgentWas = tutor.classList.contains('shown') && tutor.classList.contains('urgent');
       if (tutor.classList.contains('shown') !== (text !== null) || tutor.classList.contains('urgent') !== urgent) {
         tutor.classList.toggle('shown', text !== null);
         tutor.classList.toggle('urgent', urgent);
         updateSlot();
       }
+      // The hold counts from the first frame of an urgent step or of a new urgent text.
+      holding = hold && text !== null;
+      if (holding && (!urgentWas || tutorText.textContent !== text)) {
+        urgentAt = performance.now();
+        updateSlot();
+      } else if (performance.now() - urgentAt < TUTOR_HOLD_MS + 200) updateSlot();
       if (text !== null && tutorText.textContent !== text) tutorText.textContent = text;
       turnArrow(tutorArrow, text !== null ? arrow : null);
     },
