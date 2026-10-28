@@ -1,0 +1,60 @@
+{
+ "minutes": 4,
+ "rotateShownUpright": true,
+ "rotateGoneTurned": true,
+ "rotate": [
+  {
+   "name": "rotate_shown",
+   "t": 727,
+   "params": {
+    "w": 405,
+    "h": 880
+   }
+  },
+  {
+   "name": "rotate_done",
+   "t": 6557,
+   "params": {
+    "sec": 5.8
+   }
+  }
+ ],
+ "samples": [
+  {
+   "minute": 1,
+   "world": 1,
+   "x": 0.4714735638208405,
+   "z": 541.6008497100556,
+   "coins": 168,
+   "stageZ": null
+  },
+  {
+   "minute": 2,
+   "world": 1,
+   "x": 0.4536415081488407,
+   "z": 1034.832,
+   "coins": 324,
+   "stageZ": null
+  },
+  {
+   "minute": 3,
+   "world": 1,
+   "x": 0.004865743751888026,
+   "z": 1248.662,
+   "coins": 384,
+   "stageZ": null
+  },
+  {
+   "minute": 4,
+   "world": 1,
+   "x": 0.010606919011468728,
+   "z": 1419.685,
+   "coins": 384,
+   "stageZ": null
+  }
+ ],
+ "showNativeAds": 0,
+ "storageSet": 8,
+ "errors": [],
+ "outside": []
+}

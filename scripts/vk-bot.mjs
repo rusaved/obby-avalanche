@@ -16,9 +16,10 @@ rmSync(site, { recursive: true, force: true });
 cpSync(resolve(root, 'dist-vk'), join(site, 'vk'), { recursive: true });
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.ogg': 'audio/ogg', '.mp3': 'audio/mpeg', '.glb': 'model/gltf-binary', '.svg': 'image/svg+xml' };
 const server = createServer(async (req, res) => {
-  const path = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+  const raw = decodeURIComponent(new URL(req.url, 'http://x').pathname);
+  const path = raw.endsWith('/') ? `${raw}index.html` : raw;
   try {
-    const body = await readFile(join(site, path.endsWith('/') ? `${path}index.html` : path));
+    const body = await readFile(join(site, path));
     res.writeHead(200, { 'content-type': TYPES[extname(path)] ?? 'application/octet-stream' });
     res.end(body);
   } catch {
