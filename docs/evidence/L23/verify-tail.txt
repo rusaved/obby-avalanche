@@ -1,0 +1,120 @@
+== verify: build
+dist/assets/reward-coins-Cb3RXhlr.mp3                    33.06 kB
+dist/assets/reward-trophy-CEJUg0DD.mp3                   33.06 kB
+dist/assets/fanfare-CIO-sTxH.mp3                         42.83 kB
+dist/assets/mountain-w9VNvXUx.mp3                       867.88 kB
+dist/assets/base-BZ3BqUsC.mp3                           896.77 kB
+dist/assets/index-B-hjfbdQ.css                           80.77 kB │ gzip:  15.54 kB
+dist/assets/ZzFX-C1HKDoVW.js                              2.00 kB │ gzip:   1.17 kB
+dist/assets/index-BQwW-VP_.js                         1,977.06 kB │ gzip: 457.66 kB
+
+✓ built in 2.74s
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 900 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+== build exit 0 4 s
+== verify: size
+  assets/rubik-cyrillic-800-normal-DocVmW4N.woff       9.6 KB 
+  assets/rubik-cyrillic-800-normal-wonQiwhm.woff2      7.7 KB 
+  assets/rubik-latin-500-normal-1os41rQk.woff2        18.6 KB 
+  assets/rubik-latin-500-normal-LZYVHeqz.woff         23.6 KB 
+  assets/rubik-latin-600-normal-7iWW07_k.woff2        18.6 KB 
+  assets/rubik-latin-600-normal-Bd1rsTk4.woff         23.6 KB 
+  assets/rubik-latin-700-normal-D-tMm-eS.woff2        18.7 KB 
+  assets/rubik-latin-700-normal-KHOtubUA.woff         23.7 KB 
+  assets/rubik-latin-800-normal-BtaGuVpR.woff2        18.6 KB 
+  assets/rubik-latin-800-normal-Dq1miTTj.woff         23.6 KB 
+  assets/ZzFX-C1HKDoVW.js                              2.0 KB gzip 1.1 KB
+  index.html                                           2.1 KB 
+  total 4527.5 KB (target 4096.0 KB, limit 10240.0 KB)
+  js 1932.7 KB → gzip 440.6 KB (target 500.0 KB, limit 800.0 KB)
+size: total above the target
+== size exit 0 0 s
+== verify: pack
+pack: 50 files, 4527.5 KB → release/avalanche-0.1.0.zip 2943.2 KB
+== pack exit 0 1 s
+== verify: check-release
+  index.html  2.1 KB
+
+PASS  1. index.html at the root, paths only [A-Za-z0-9._/-]
+PASS  2. unpacked ≤ 10 MB and JS gzip ≤ 800 KB
+        zip 2943.2 KB, unpacked 4527.5 KB, js gzip 440.6 KB
+PASS  3. no external addresses except /sdk.js and mc.yandex.ru (namespaces allowed)
+PASS  4. <script src="/sdk.js"> exactly once
+        found 1
+PASS  5. no <audio>, <video>, new Audio(
+PASS  6. no lil-gui, __TEST__, __STUDIO__, __YA_MOCK__, yasdk-mock, localhost, debugger, sourceMappingURL, ?pace=, debugcheck, kit-build, VKWebApp
+PASS  7. no development or stop-list words in shipped texts
+
+WARN  other absolute addresses in strings (not loaded): https://t.me/sunhearth_games, https://vk.ru/sunhearth_yandex
+RESULT: PASS
+
+== check-release exit 0 0 s
+== verify: e2e:release
+e2e:release: unpacked /home/user/obby-avalanche/release/avalanche-0.1.0.zip (50 entries) to /home/user/obby-avalanche/.cache/release-unpacked
+
+Running 2 tests using 1 worker
+
+  ✓  1 e2e/smoke-release.spec.ts:6:1 › release build: ready() exactly once, first frame drawn, zero console errors (8.3s)
+  ✓  2 e2e/smoke-release.spec.ts:25:1 › release build ignores ?pace=classic: the save lands in the slot of the game.json pace (6.4s)
+
+  2 passed (17.5s)
+== e2e:release exit 0 20 s
+== verify: build:vk
+dist-vk/assets/fanfare-CIO-sTxH.mp3                         42.83 kB
+dist-vk/assets/mountain-w9VNvXUx.mp3                       867.88 kB
+dist-vk/assets/base-BZ3BqUsC.mp3                           896.77 kB
+dist-vk/assets/index-B-hjfbdQ.css                           80.77 kB │ gzip:  15.54 kB
+dist-vk/assets/vk-mock-BJXnUgHH.js                           1.49 kB │ gzip:   0.86 kB
+dist-vk/assets/ZzFX-C1HKDoVW.js                              2.00 kB │ gzip:   1.17 kB
+dist-vk/assets/dist-DpkqGJ8q.js                              4.35 kB │ gzip:   1.81 kB
+dist-vk/assets/index-Cic3r032.js                         1,987.17 kB │ gzip: 463.21 kB
+
+✓ built in 2.95s
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 900 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+== build:vk exit 0 4 s
+== verify: check:vk
+  ⚠ к подаче: пусто в content/vk.json — appId, vkGroupId, okGroupId (нет кнопки «Вступить»)
+check:vk: 51 файлов, 4.42 МБ, код gzip 0.46 МБ
+check:vk: ok
+== check:vk exit 0 0 s
+== verify: e2e:vk
+  ✓  11 e2e/vk-k21.spec.ts:144:5 › 880x405 › K-05: no ad at the launch; rewarded checked ahead with use_waterfall: false; no ad loaded — no «Ad» button @ 880x405 (12.0s)
+  ✓  12 e2e/vk-k21.spec.ts:158:5 › 880x405 › K-06, K-07: VKWebAppViewHide writes the save to VK Storage at once, in parts of ≤ 4 096 @ 880x405 (17.4s)
+  ✓  13 e2e/vk-k21.spec.ts:172:5 › 880x405 › K-07: no network — the game still boots to the menu, no endless loading @ 880x405 (15.5s)
+  ✓  14 e2e/vk-k21.spec.ts:179:5 › 880x405 › K-08: «Join the community» — the gift once on result: true; no join button without a community id @ 880x405 (24.1s)
+  ✓  15 e2e/vk-k21.spec.ts:196:5 › 880x405 › K-08: a refusal is remembered — no «Join» card in «Gifts» for a month @ 880x405 (30.9s)
+  ✓  16 e2e/vk-k21.spec.ts:213:5 › 880x405 › K-12: the check kit on ?mock=vk — ?coins, ?fresh=1, ?mountain, ?stage, ?playtime opens «Gifts», the build line in the pause @ 880x405 (39.4s)
+  ✓  17 e2e/vk-k21.spec.ts:272:5 › R-01 405x880 › R-01: upright — the rotate screen, the game stands; turned — it runs on, the menu whole @ 405x880 (12.3s)
+  ✓  18 e2e/vk-k21.spec.ts:272:5 › R-01 405x720 › R-01: upright — the rotate screen, the game stands; turned — it runs on, the menu whole @ 405x720 (10.2s)
+  ✓  19 e2e/vk-k21.spec.ts:272:5 › R-01 375x667 › R-01: upright — the rotate screen, the game stands; turned — it runs on, the menu whole @ 375x667 (11.2s)
+  ✓  20 e2e/vk-k21.spec.ts:312:1 › R-01: a computer — an iframe 1000×600 and 630×600 never shows the rotate screen (11.5s)
+  ✓  21 e2e/vk-k21.spec.ts:325:1 › K-12: a signed VK launch ignores ?mock=vk and the kit (the real bridge, no presets) (11.7s)
+
+  Slow test file: e2e/vk-k21.spec.ts (6.2m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  21 passed (6.3m)
+== e2e:vk exit 0 380 s
+== verify: e2e:sample
+dist-e2e-sample/assets/index-B-7y86GW.js                         1,039.61 kB │ gzip: 307.47 kB
+
+✓ built in 1.67s
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 900 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+
+Running 2 tests using 2 workers
+
+  ✓  1 [desktop] › e2e/sample.spec.ts:4:1 › sample pack boots, renders and calls ready() once (8.4s)
+  ✓  2 [desktop] › e2e/sample.spec.ts:19:1 › sample pack: the jump grows with the stat, the run does not; the frame (15.7s)
+
+  2 passed (18.9s)
+== e2e:sample exit 0 24 s
