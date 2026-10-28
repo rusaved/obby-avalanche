@@ -1,0 +1,455 @@
+
+Running 159 tests using 3 workers, shard 1 of 4
+
+[1/159] [desktop] › e2e/ads-flags.spec.ts:59:1 › M4-04 ads.skipFirstPortal false (flag): the first «Next» of a new player brings the ad too
+[2/159] [desktop] › e2e/ads-flags.spec.ts:30:1 › M4-12 interstitialCooldownSec 120 from the flag: the second fullscreen ad after 120 s, not before; getFlags once; the flags in game_ready
+[3/159] [desktop] › e2e/ads-flags.spec.ts:48:1 › M4-11 a flag below its range is clamped (cooldown 60 → 120), getFlags failing keeps the defaults with no error
+[4/159] [desktop] › e2e/ads-inter.spec.ts:34:1 › ADS-03 menu: no fullscreen ad in the first 180 s, then within the press, then not before the cooldown
+[5/159] [desktop] › e2e/ads-inter.spec.ts:61:1 › ADS-03 portal: the first «Next» of a new player passes with no ad and sets firstPortalDone; the next one shows it
+[6/159] [desktop] › e2e/ads-inter.spec.ts:89:1 › ADS-03 «No ads»: no fullscreen ad at any point
+[7/159] [desktop] › e2e/ads-pause.spec.ts:35:1 › SND-02 SND-03 SND-04: blur, a hidden tab, game_api_pause and an open ad suspend the sound and the game; GameplayAPI only on transitions
+[8/159] [desktop] › e2e/ads-pause.spec.ts:72:1 › M4-02 the startup ad: the game stands while it plays and starts after it; startup_ad_start and startup_ad_end once
+[9/159] [desktop] › e2e/ads-rewarded.spec.ts:23:1 › ADS-04 HUD: after 1 s of standing; hidden within a frame on a move and on the warning; none while it runs
+  1) [desktop] › e2e/ads-pause.spec.ts:72:1 › M4-02 the startup ad: the game stands while it plays and starts after it; startup_ad_start and startup_ad_end once 
+
+    Error: no sound
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: true
+
+      82 |   expect(mid.tick, 'no step while the ad plays').toBe(during.tick);
+      83 |   expect(mid.wave, 'the avalanche stands').toBe(wave0);
+    > 84 |   expect(mid.audio, 'no sound').toBe(false);
+         |                                 ^
+      85 |   await expect.poll(() => reasons(page), { timeout: 10_000 }).not.toContain('sdk');
+      86 |   await expect.poll(() => page.evaluate(() => window.__TEST__!.state().simTick)).toBeGreaterThan(during.tick);
+      87 |   const names = await page.evaluate(() => window.__TEST__!.analytics().map((e) => e.name));
+        at /home/user/obby-avalanche/e2e/ads-pause.spec.ts:84:33
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/ads-pause-M4-02-the-startu-6904e-art-and-startup-ad-end-once-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/ads-pause-M4-02-the-startu-6904e-art-and-startup-ad-end-once-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/ads-pause-M4-02-the-startu-6904e-art-and-startup-ad-end-once-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/ads-pause-M4-02-the-startu-6904e-art-and-startup-ad-end-once-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[10/159] [desktop] › e2e/ads-rewarded.spec.ts:63:1 › ADS-04 egg: «▶ Ad: {egg}» on the egg of the mountain in «Shop → Eggs» — one view, the egg at once
+[11/159] [desktop] › e2e/ads-rewarded.spec.ts:47:1 › ADS-04 no callback for 10 s: the button locked, then the game goes on with a toast, no reward
+[12/159] [desktop] › e2e/ads-rewarded.spec.ts:95:1 › ADS-04 x2_stat: «▶ Ad: ×2 per step for 3 min» while no boost runs; the boost of 180 s after the ad
+[13/159] [desktop] › e2e/analytics.spec.ts:6:1 › M4-09 the funnel: game_ready → first_input once; session_60s, 180s, 300s, 600s once each in game time; no Metrika
+[14/159] [desktop] › e2e/avalanche.spec.ts:21:1 › avalanche: scripted wave in cave 1, then a normal wave — warn and shelter screenshots, camera in the cave, gifts back after gone
+[15/159] [desktop] › e2e/bot-world1.spec.ts:116:1 › bot on game time plays mountain 1 to the portal with shoe purchases, no console errors
+[16/159] [desktop] › e2e/bots.spec.ts:8:1 › 6 bots with character names, unique on the mountain; no names in shots, promo or with showNames: false
+[17/159] [desktop] › e2e/bots.spec.ts:47:1 › photo studio: bots without names
+[desktop] › e2e/bot-world1.spec.ts:116:1 › bot on game time plays mountain 1 to the portal with shoe purchases, no console errors
+bot-world1: {"sec":386.06666666666666,"shoes":3,"walls":12,"caught":0,"waves":5,"portal":true} — game minutes 6.43
+
+[18/159] [desktop] › e2e/bots.spec.ts:55:1 › quality low: 3 bots
+[19/159] [desktop] › e2e/bots.spec.ts:61:1 › 5 minutes of play: on warn ≥ 90% of the bots run to caves; no bot ever above a wall closed for the hero
+[20/159] [desktop] › e2e/camera.spec.ts:6:3 › camera › at three points near walls the camera is never inside the geometry
+[21/159] [desktop] › e2e/camera.spec.ts:32:3 › camera › with camera.autoTurn = true the auto-turn pulls the view towards +Z and changes only viewYaw
+[22/159] [desktop] › e2e/camera.spec.ts:52:3 › camera › FOV at full speed exceeds the resting FOV by fovSpeedAdd from tuning.json
+[23/159] [desktop] › e2e/camera.spec.ts:70:1 › walk of mountain 1 by botPath: the camera is never inside a collider and never loses the hero
+  2) [desktop] › e2e/avalanche.spec.ts:21:1 › avalanche: scripted wave in cave 1, then a normal wave — warn and shelter screenshots, camera in the cave, gifts back after gone 
+
+    Test timeout of 180000ms exceeded.
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/avalanche-avalanche-script-f53cf--cave-gifts-back-after-gone-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/avalanche-avalanche-script-f53cf--cave-gifts-back-after-gone-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/avalanche-avalanche-script-f53cf--cave-gifts-back-after-gone-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/avalanche-avalanche-script-f53cf--cave-gifts-back-after-gone-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[24/159] [desktop] › e2e/camera.spec.ts:160:1 › open, mountain 10 at 120 units/s: in 600 frames the camera never within hideDistance of the hero
+[25/159] [desktop] › e2e/caught.spec.ts:4:1 › snowed in on the slope: toast, the ball rolls into the cave below within 2 s, nothing lost; screenshot caught_1920x1080_ru.png
+  3) [desktop] › e2e/caught.spec.ts:4:1 › snowed in on the slope: toast, the ball rolls into the cave below within 2 s, nothing lost; screenshot caught_1920x1080_ru.png 
+
+    TimeoutError: page.waitForFunction: Timeout 60000ms exceeded.
+
+      18 |   await page.evaluate(() => window.__TEST__!.triggerWave());
+      19 |   await page.evaluate(() => window.__TEST__!.setTimeScale(2));
+    > 20 |   await page.waitForFunction(() => window.__TEST__!.state().caught !== null, undefined, { timeout: 60_000 });
+         |              ^
+      21 |   await page.evaluate(() => window.__TEST__!.setTimeScale(1));
+      22 |   let s = await testState(page);
+      23 |   expect(s.waveHud.toast).toBe('Накрыло снегом!');
+        at /home/user/obby-avalanche/e2e/caught.spec.ts:20:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/caught-snowed-in-on-the-sl-abe36-hot-caught-1920x1080-ru-png-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/caught-snowed-in-on-the-sl-abe36-hot-caught-1920x1080-ru-png-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/caught-snowed-in-on-the-sl-abe36-hot-caught-1920x1080-ru-png-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/caught-snowed-in-on-the-sl-abe36-hot-caught-1920x1080-ru-png-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[26/159] [desktop] › e2e/characters.spec.ts:4:1 › faces.png: eight emotions in a row; nine characters still fit in 8 draw calls
+[27/159] [desktop] › e2e/characters.spec.ts:17:1 › hero close-up: three-quarter view screenshot
+[28/159] [desktop] › e2e/d20-hints.spec.ts:28:3 › D-05 · the toast queue › D-05: «LEVEL UP!» is held ≥ 2 s though a toast waits behind it
+[desktop] › e2e/camera.spec.ts:70:1 › walk of mountain 1 by botPath: the camera is never inside a collider and never loses the hero
+camera walk: walls 12, waves 2, shot true, {"frames":770,"inside":0,"heroHidden":0,"heroNear":0,"heroBlocked":3,"signBlocked":0,"tight":294,"bad":["hero blocked t=36.55 hero=(10.6,12.0,184.5) cam=(16.9,15.4,177.7)","hero blocked t=140.65 hero=(-11.1,30.0,456.3) cam=(-17.3,34.3,449.8)","hero blocked t=214.05 hero=(-11.4,42.0,637.7) cam=(-16.7,46.1,632.0)"],"headFrames":347,"headBlocked":0,"headBy":{},"bossFrames":0,"bossSeen":0,"portal":0,"flagBlocked":0,"flagFrames":0,"headMin":2.624999999994079,"headMinAt":"hero (-0.0,60.0,938.3) camera (0.9,66.8,938.9) tight false fixed 0.00 raise 1.44 dist 2.9 pitch -0.17 view 0.00 shot false belt false shelter -1","shelterRun":103,"shelterWhite":0}
+
+[29/159] [desktop] › e2e/d20-hints.spec.ts:47:3 › D-05 · the toast queue › D-05: the giant toast that comes while «LEVEL UP!» waits is shown before it
+[30/159] [desktop] › e2e/d20-look.spec.ts:11:3 › D-04 · animals on the phone › D-04: low quality on mountain 1 — animals drawn, fewer than on high, ≤ +1 draw call
+[31/159] [desktop] › e2e/d20-look.spec.ts:50:5 › D-03 · middle of the slope 880×405 › D-03: frames of the middle of stages 1, 3 and 4 of mountain 1 (880×405)
+[32/159] [desktop] › e2e/d20-look.spec.ts:50:5 › D-03 · middle of the slope 815×290 › D-03: frames of the middle of stages 1, 3 and 4 of mountain 1 (815×290)
+[33/159] [desktop] › e2e/daily.spec.ts:16:1 › calendar: claim day 1, F5 keeps it, 19 h later still locked, 20 h later day 2; boost and ad egg survive F5 and the day change
+[34/159] [desktop] › e2e/daily.spec.ts:99:1 › calendar on a phone 844×390: cards 4 + 3, «Claim» inside the screen
+[desktop] › e2e/d20-look.spec.ts:11:3 › D-04 · animals on the phone › D-04: low quality on mountain 1 — animals drawn, fewer than on high, ≤ +1 draw call
+D-04 animals {"low":{"drawn":1,"calls":33,"off":32},"high":{"drawn":5,"calls":36,"off":35}}
+
+[35/159] [desktop] › e2e/debug.spec.ts:8:3 › debug panel › a slider change applies at once: doubled baseSpeed doubles the run speed
+[36/159] [desktop] › e2e/debug.spec.ts:30:3 › debug panel › Export gives JSON that passes the tuning.json schema
+[37/159] [desktop] › e2e/debug.spec.ts:40:3 › debug panel › on a phone the panel starts collapsed and the overlay shows level, DPR and frame time
+[38/159] [desktop] › e2e/fast-mountain.spec.ts:220:1 › fast pace: the bot plays mountain 1 to the portal within 120 s of game time, never down the slope, at a closed gate only on its belt
+[39/159] [desktop] › e2e/fast-mountain.spec.ts:238:1 › fast pace, first 2 minutes: gate_1 ≤ 8 s, gate_3 ≤ 20 s, the scripted wave in a cave ≤ 50 s, egg after it, gate 8 ≤ 75 s, summit ≤ 120 s; no window or interstitial before 180 s
+[40/159] [desktop] › e2e/fast-mountain.spec.ts:291:1 › fast pace, gates 1–6 on the way: the straight bot passes them without a belt; the first belt and treadmill_first are in the cave of gate 7
+[desktop] › e2e/fast-mountain.spec.ts:220:1 › fast pace: the bot plays mountain 1 to the portal within 120 s of game time, never down the slope, at a closed gate only on its belt
+fast-mountain: {"sec":104.56666666666666,"walls":15,"passSec":[3.7,6.6,7.9,9.3,11,12.3,29.6,35.6,40.2,46.4,52.6,58.8,65.1,71.4,103.2],"maxDown":2.5669887020707165,"standOffBelt":0,"gateStandMax":0,"shoes":2,"waves":2,"caught":0,"portal":true,"standAt":[],"firstBelt":{"passed":6,"shelter":6,"playSec":13.600000000000255},"axisMax6":19.380782335586716,"axisAt":"(19.4,6.0,118.0) cave:1 t=5.6 wave idle fun {\"padFlight\":false,\"launches\":1,\"top\":12.81250000000001,\"onSlide\":-1,\"slideLeft\":0,\"runSpeed\":22.625013960215707}","arrive":[null,null,null,"79",null,null,null,null,null,null,null,"4744.200000000014"]} — game seconds 104.6
+
+[41/159] [desktop] › e2e/fast-mountain.spec.ts:306:1 › fast pace: every one of the 10 mountains loads by teleport (camp, middle, summit), draw calls within 60; screenshots
+[desktop] › e2e/fast-mountain.spec.ts:291:1 › fast pace, gates 1–6 on the way: the straight bot passes them without a belt; the first belt and treadmill_first are in the cave of gate 7
+fast-gates: gates [3.7,6.1,7.7,9.2,12.6,13.9,41.9,72.5]; shoes_1 5.5 s, treadmill_first 15.5 s; first belt {"passed":6,"shelter":6,"playSec":15.516666666667017}; off the axis before gate 6 9.7 at (-9.7,15.0,257.1) up:4 t=11.5 wave idle fun {"padFlight":false,"launches":2,"top":12.812500000000014,"onSlide":-1,"slideLeft":0,"runSpeed":25.000294064280162}; stat at the gates ["15","20","42",null,"70 closed","108","1021.5999999999998 closed","1211.2000000000064 closed"]
+
+[42/159] [desktop] › e2e/fast-mountain.spec.ts:354:1 › fast pace: «Гора a/10» on the rebirth button and in its window; the rebirth opens only after the summit of mountain 10
+[43/159] [desktop] › e2e/fm-base.spec.ts:13:1 › mountain 1 → «Mountain 1 cleared!» → «Next» → the base (base_first) → portal 2 within 10 s → the camp of mountain 2; screenshots; draw calls
+[desktop] › e2e/fm-base.spec.ts:13:1 › mountain 1 → «Mountain 1 cleared!» → «Next» → the base (base_first) → portal 2 within 10 s → the camp of mountain 2; screenshots; draw calls
+base draw calls: 27
+
+[desktop] › e2e/fast-mountain.spec.ts:238:1 › fast pace, first 2 minutes: gate_1 ≤ 8 s, gate_3 ≤ 20 s, the scripted wave in a cave ≤ 50 s, egg after it, gate 8 ≤ 75 s, summit ≤ 120 s; no window or interstitial before 180 s
+ftue-fast: gate_1 2.5 s, shoes_1 5.1 s, gate_3 6.6 s, first_wave_survived 19.6 s, egg_1 21.2 s, treadmill_first 5.5 s; gate 8 34.8 s; summit 77.8 s; gates [3.8,6.6,7.8,9,10.5,11.7,29.2,34.8,40,46,51.6,57.2,64,70.4,76.4]
+
+[44/159] [desktop] › e2e/fm-base.spec.ts:52:1 › F5 on mountain 3 after ridge 2 → the base → portal 3 («ridge 2/3») → the flag of ridge 2
+[desktop] › e2e/fm-base.spec.ts:13:1 › mountain 1 → «Mountain 1 cleared!» → «Next» → the base (base_first) → portal 2 within 10 s → the camp of mountain 2; screenshots; draw calls
+base → portal 2: 1.9 s of game time
+
+[45/159] [desktop] › e2e/fm-base.spec.ts:78:1 › mountain 1 run again from the base: its summit with no window, chest or trophies — «Top again!» and back to the base
+[46/159] [desktop] › e2e/fm-base.spec.ts:97:1 › base.json off: the summit of mountain 1 → «Next» → the camp of mountain 2, as before FM
+[47/159] [desktop] › e2e/fm-bounds.spec.ts:33:1 › jumps sideways at both borders of mountains 1, 5 and 9 — no fall; screenshot
+[48/159] [desktop] › e2e/fm-bounds.spec.ts:78:3 › mountain 1: up along the left funnel wall of the summit, jumping — no fall, never past the portal beside it
+[49/159] [desktop] › e2e/fm-bounds.spec.ts:78:3 › mountain 1: up along the right funnel wall of the summit, jumping — no fall, never past the portal beside it
+[50/159] [desktop] › e2e/fm-camera.spec.ts:60:1 › mountain 1 foot → summit: the head is behind something opaque in ≤ 2% of the frames, the giant in the frame ≥ 90%; screenshot
+[51/159] [desktop] › e2e/fm-community-gift.spec.ts:32:1 › G-05: no gift for a visit to the group — the Telegram and VK buttons stay, nothing given back in the game
+[52/159] [desktop] › e2e/fm-community-gift.spec.ts:53:3 › «Chest for a review», mock_review=sent
+[53/159] [desktop] › e2e/fm-community-gift.spec.ts:53:3 › «Chest for a review», mock_review=closed
+[54/159] [desktop] › e2e/fm-community-gift.spec.ts:53:3 › «Chest for a review», mock_review=unavailable
+[55/159] [desktop] › e2e/fm-community-gift.spec.ts:84:3 › 640 × 360, ru: the gift cards fit
+[56/159] [desktop] › e2e/fm-community-gift.spec.ts:84:3 › 640 × 360, en: the gift cards fit
+[57/159] [desktop] › e2e/fm-camera.spec.ts:77:1 › mountain 1, the giant’s zone: a turn by hand is the player’s; screenshot of the giant in the frame
+[58/159] [desktop] › e2e/fm-community.spec.ts:25:1 › the channels by the side of the pause window: each opens its address in a new tab once; nothing given; community_open
+[59/159] [desktop] › e2e/fm-community.spec.ts:48:1 › without channels: no block, no window.open
+[60/159] [desktop] › e2e/fm-camera.spec.ts:107:1 › mountain 3 through the throat: the head is behind something opaque in ≤ 2% of the frames
+[61/159] [desktop] › e2e/fm-community.spec.ts:58:3 › 640 × 360, ru: the caption and both buttons fit
+[62/159] [desktop] › e2e/fm-community.spec.ts:58:3 › 640 × 360, en: the caption and both buttons fit
+[63/159] [desktop] › e2e/fm-gift.spec.ts:12:1 › the gift calendar stand: its name and «!», walking up opens the calendar, «Claim» once, then the timer as on «Calendar»; next day F5 — welcomeGift; screenshot
+[64/159] [desktop] › e2e/fm-hud.spec.ts:8:1 › open: the summit group by summits — trophies after 1, wardrobe and quests after 2, rebirth after 3; each new button shines
+[65/159] [desktop] › e2e/fm-readability.spec.ts:54:1 › the toast, the hint and the avalanche banner on their plaques: contrast ≥ 4.5:1 over snow and blizzard fog; «+N» ×1.5; the arrow ×2; screenshot
+[desktop] › e2e/fm-readability.spec.ts:54:1 › the toast, the hint and the avalanche banner on their plaques: contrast ≥ 4.5:1 over snow and blizzard fog; «+N» ×1.5; the arrow ×2; screenshot
+readability: подсказка над #FFFFFF: 14.59:1; подсказка над #DCE8F2: 14.35:1; тост над #FFFFFF: 6.49:1; тост над #DCE8F2: 7.20:1; баннер лавины над #FFFFFF: 7.60:1; баннер лавины над #DCE8F2: 8.26:1; +N 33/27 px, arrow 80 px
+
+[66/159] [desktop] › e2e/fm-readability.spec.ts:89:1 › 640×360: the toast and the hint stay off the Speed plaque and the buttons (SCR-01)
+[67/159] [desktop] › e2e/fm-records.spec.ts:17:1 › after mountain 2 the board shows the save (best Speed, trophies, 2/10, tier 0); no leaderboard — no button, no call; screenshot
+  4) [desktop] › e2e/fm-camera.spec.ts:107:1 › mountain 3 through the throat: the head is behind something opaque in ≤ 2% of the frames 
+
+    Test timeout of 300000ms exceeded.
+
+    TimeoutError: page.waitForFunction: Timeout 280000ms exceeded.
+
+      43 |   await page.evaluate((p) => window.__TEST__!.botPath(p), path.slice(1));
+      44 |   const t0 = (await testState(page)).ticks;
+    > 45 |   await page.waitForFunction((t) => window.__TEST__!.botLeft() === 0 || window.__TEST__!.state().ticks > t, t0 + maxTicks, { timeout: 280_000, polling: 250 });
+         |              ^
+      46 |   return page.evaluate(() => window.__TEST__!.cameraStats());
+      47 | }
+      48 |
+        at run (/home/user/obby-avalanche/e2e/fm-camera.spec.ts:45:14)
+        at /home/user/obby-avalanche/e2e/fm-camera.spec.ts:113:13
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fm-camera-mountain-3-throu-014da-opaque-in-≤-2-of-the-frames-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fm-camera-mountain-3-throu-014da-opaque-in-≤-2-of-the-frames-desktop/error-context.md
+
+    Error Context: test-results/fm-camera-mountain-3-throu-014da-opaque-in-≤-2-of-the-frames-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fm-camera-mountain-3-throu-014da-opaque-in-≤-2-of-the-frames-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fm-camera-mountain-3-throu-014da-opaque-in-≤-2-of-the-frames-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[68/159] [desktop] › e2e/fm-camera.spec.ts:119:1 › mountain 9, section 3: the head is behind something opaque in ≤ 2% of the frames
+[69/159] [desktop] › e2e/fm-records.spec.ts:39:1 › with a leaderboard and a login: «Records» at the board opens the records window
+[70/159] [desktop] › e2e/fm-shop.spec.ts:29:1 › the shop counter: no button before 180 s; then by standing — the tab by the coins; running past opens nothing; the hand; the Snow egg; screenshot
+  5) [desktop] › e2e/fm-bounds.spec.ts:33:1 › jumps sideways at both borders of mountains 1, 5 and 9 — no fall; screenshot 
+
+    Test timeout of 480000ms exceeded.
+
+    Error: page.waitForFunction: Test timeout of 480000ms exceeded.
+
+       at fixtures.ts:96
+
+      94 | export async function waitTicks(page: Page, n: number, timeout = 60_000): Promise<void> {
+      95 |   const start = await page.evaluate(() => window.__TEST__!.state().ticks);
+    > 96 |   await page.waitForFunction((t) => window.__TEST__!.state().ticks >= t, start + n, { timeout });
+         |              ^
+      97 | }
+      98 |
+        at waitTicks (/home/user/obby-avalanche/e2e/fixtures.ts:96:14)
+        at jumpSideways (/home/user/obby-avalanche/e2e/fm-bounds.spec.ts:28:5)
+        at /home/user/obby-avalanche/e2e/fm-bounds.spec.ts:56:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fm-bounds-jumps-sideways-a-a1f2d--and-9-—-no-fall-screenshot-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fm-bounds-jumps-sideways-a-a1f2d--and-9-—-no-fall-screenshot-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fm-bounds-jumps-sideways-a-a1f2d--and-9-—-no-fall-screenshot-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fm-bounds-jumps-sideways-a-a1f2d--and-9-—-no-fall-screenshot-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[71/159] [desktop] › e2e/fm-shortcut.spec.ts:19:1 › accepted: the button after summit 2 on the base, +5 spendable trophies once, gone for good (F5), shortcut_ok
+[72/159] [desktop] › e2e/fm-shortcut.spec.ts:42:1 › rejected: no reward, the button gone until a reload; on a mountain none
+[73/159] [desktop] › e2e/fm-shortcut.spec.ts:71:1 › unavailable: no button; without the SDK (NullPlatform): no button and no error
+[74/159] [desktop] › e2e/fm-treadmill.spec.ts:12:1 › after 2 summits: the sign «×6», a step on the belt × 6, the toast once, 2 bots on it, stat_now standing on it; screenshot
+[75/159] [desktop] › e2e/fm-way.spec.ts:58:3 › mountain 1: straight up -10 off the middle from the giant's line — into the portal without a stop
+[76/159] [desktop] › e2e/fm-way.spec.ts:58:3 › mountain 1: straight up 10 off the middle from the giant's line — into the portal without a stop
+[77/159] [desktop] › e2e/fm-way.spec.ts:73:1 › mountain 1: the pillar of light in the frame from the start of the finish straight; draw calls at the summit; screenshot
+[78/159] [desktop] › e2e/fm-way.spec.ts:105:3 › mountain 3: after ridge 1 along the arrows through the throat — no stand longer than 3 s; draw calls ≤ 40
+[79/159] [desktop] › e2e/fm-way.spec.ts:105:3 › mountain 9: after ridge 3 along the arrows through the throat — no stand longer than 3 s; draw calls ≤ 40
+[80/159] [desktop] › e2e/fun.spec.ts:16:1 › fast pace: straight up the middle — every gift on the path, the trampoline throws above 10 units, the slide boosts; screenshots
+[81/159] [desktop] › e2e/fun.spec.ts:75:1 › fast pace: the slide runs × fun.slideMult and holds it fun.slideSec after; gifts on the path in a row ring higher each
+[82/159] [desktop] › e2e/fx-evidence.spec.ts:39:5 › 880 × 405 › every window and toast, the bubble of a reason, a reward in flight
+[83/159] [desktop] › e2e/fx-evidence.spec.ts:39:5 › 815 × 290 › every window and toast, the bubble of a reason, a reward in flight
+[84/159] [desktop] › e2e/fx-ui.spec.ts:9:1 › FX-01 toasts: one at a time, the first held its minimum, an equal one once, a mark of its kind, fade ≤ 250 ms
+[85/159] [desktop] › e2e/fx-ui.spec.ts:61:1 › FX-02 FX-06 every press squeezes and taps; what cannot act shakes, says «no» and tells why; windows sound, an ad silences
+[86/159] [desktop] › e2e/fx-ui.spec.ts:105:1 › FX-04 a window: open within 150 ms of the press, its animation ≤ 150 ms, it fades out without taking presses
+[87/159] [desktop] › e2e/fx-ui.spec.ts:141:1 › FX-03 a reward of the calendar flies to its counter, the counter ticks to the true number; FX-05 the world answers a step
+[88/159] [desktop] › e2e/g-calendar.spec.ts:35:5 › G-04 · 880×405 › the calendar: 7 days whole in the window, nothing over them
+[89/159] [desktop] › e2e/g-calendar.spec.ts:61:5 › G-04 · 880×405 › «Gifts»: the timer tiles and the group cards apart
+  6) [desktop] › e2e/fx-ui.spec.ts:61:1 › FX-02 FX-06 every press squeezes and taps; what cannot act shakes, says «no» and tells why; windows sound, an ad silences 
+
+    Error: expect(locator).toHaveClass(expected) failed
+
+    Locator: locator('[data-hud="pause"]')
+    Expected pattern: /\bpress\b/
+    Received string:  "hud-btn hud-pause"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveClass" locator('[data-hud="pause"]') with timeout 15000ms
+      - waiting for locator('[data-hud="pause"]')
+        32 × locator resolved to <button data-hud="pause" aria-label="Пауза" class="hud-btn hud-pause">…</button>
+           - unexpected value "hud-btn hud-pause"
+
+
+      67 |   let n0 = (await sfx(page)).length;
+      68 |   await tap(page, '[data-hud="pause"]');
+    > 69 |   await expect(page.locator('[data-hud="pause"]')).toHaveClass(/\bpress\b/);
+         |                                                    ^
+      70 |   await expect.poll(async () => (await sfx(page)).slice(n0)).toEqual(expect.arrayContaining(['uiTap', 'uiOpen']));
+      71 |   expect(await page.evaluate(() => window.__TEST__!.state().audioRunning), 'a window alone keeps the sound').toBe(true);
+      72 |   await page.evaluate(() => window.__TEST__!.openMenu(false));
+        at /home/user/obby-avalanche/e2e/fx-ui.spec.ts:69:52
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fx-ui-FX-02-FX-06-every-pr-ed146-indows-sound-an-ad-silences-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fx-ui-FX-02-FX-06-every-pr-ed146-indows-sound-an-ad-silences-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fx-ui-FX-02-FX-06-every-pr-ed146-indows-sound-an-ad-silences-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fx-ui-FX-02-FX-06-every-pr-ed146-indows-sound-an-ad-silences-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[90/159] [desktop] › e2e/g-calendar.spec.ts:35:5 › G-04 · 815×290 › the calendar: 7 days whole in the window, nothing over them
+[91/159] [desktop] › e2e/g-calendar.spec.ts:61:5 › G-04 · 815×290 › «Gifts»: the timer tiles and the group cards apart
+[92/159] [desktop] › e2e/g-first-minute.spec.ts:8:3 › G-01 · first minute of mountain 1 › a newbie standing in the camp meets the first avalanche before 60 s
+[93/159] [desktop] › e2e/g-first-minute.spec.ts:18:3 › G-01 · first minute of mountain 1 › not inside the giant zone: the wave waits till the hero is out
+[94/159] [desktop] › e2e/g-first-minute.spec.ts:39:3 › G-01 · first minute of mountain 1 › the first giant catch keeps the hero in place, with «let you go»
+[95/159] [desktop] › e2e/g-hero.spec.ts:7:1 › G-08: the hero outlined, a jump bursts; frames
+[96/159] [desktop] › e2e/g-pad.spec.ts:24:5 › G-02 · 880×405 › a run over the pad does not fly to the camp
+[97/159] [desktop] › e2e/g-pad.spec.ts:33:5 › G-02 · 880×405 › standing on it shows «+N · to camp» with the ring and flies after ~0.5 s
+[98/159] [desktop] › e2e/g-pad.spec.ts:24:5 › G-02 · 815×290 › a run over the pad does not fly to the camp
+[99/159] [desktop] › e2e/g-pad.spec.ts:33:5 › G-02 · 815×290 › standing on it shows «+N · to camp» with the ring and flies after ~0.5 s
+[100/159] [desktop] › e2e/g-promo.spec.ts:11:1 › G-06: the pause has no «Enter a code»
+[101/159] [desktop] › e2e/g-promo.spec.ts:17:1 › G-06: the flag promo=true brings «Enter a code» back
+[102/159] [desktop] › e2e/g-shoes.spec.ts:13:5 › G-03 · 880×405 › «Buy sneakers» holds on the run with the arrow; the shop opened — gone
+[103/159] [desktop] › e2e/g-shoes.spec.ts:13:5 › G-03 · 815×290 › «Buy sneakers» holds on the run with the arrow; the shop opened — gone
+[104/159] [desktop] › e2e/gate-reward.spec.ts:28:3 › gate reward (classic): coins once, fountain and confetti within 0.3 s, «+N», a chime rising a semitone in a row and back after a pause
+[105/159] [desktop] › e2e/gate-reward.spec.ts:28:3 › gate reward (fast): coins once, fountain and confetti within 0.3 s, «+N», a chime rising a semitone in a row and back after a pause
+[106/159] [desktop] › e2e/gates.spec.ts:4:1 › gate 1 sign counts up to 20, turns green, the hero passes; screenshot gate_1920x1080_ru.png
+[107/159] [desktop] › e2e/gifts.spec.ts:4:1 › first gift: coins of zone 1, the gift disappears, the coin plaque slides in; after the avalanche gifts return
+[108/159] [desktop] › e2e/gold.spec.ts:24:1 › 2nd normal wave: a golden gift, carried into the cave → gold_take, gold_saved; caught with it → gold_lost; screenshot gold_carry
+[109/159] [desktop] › e2e/hatch-count.spec.ts:20:1 › collection counter ru: «Снежное яйцо: 2 из 5», «2/27» on the Pets button, the same after F5
+[110/159] [desktop] › e2e/hatch-count.spec.ts:41:1 › collection counter en: «Snow Egg: 2 of 5», «2/27»
+[111/159] [desktop] › e2e/hud.spec.ts:72:5 › core HUD › 640x360: places of 10.1, no overlaps at the spawn and with a wave, coins, shoes and a hint; spawn screenshot
+[112/159] [desktop] › e2e/hud.spec.ts:72:5 › core HUD › 844x390: places of 10.1, no overlaps at the spawn and with a wave, coins, shoes and a hint; spawn screenshot
+[113/159] [desktop] › e2e/hud.spec.ts:72:5 › core HUD › 1920x1080: places of 10.1, no overlaps at the spawn and with a wave, coins, shoes and a hint; spawn screenshot
+[114/159] [desktop] › e2e/hud.spec.ts:149:3 › core HUD › en: texts from en.json, number format with a point («1.23K»), ru with a comma
+[115/159] [desktop] › e2e/iap.spec.ts:37:1 › IAP off (?payments=0, as the archive without purchases): no «Special» tab, not a single call of ysdk.payments
+[116/159] [desktop] › e2e/iap.spec.ts:45:1 › G-10: on by default (game.json payments.enabled) — «Special» in the shop
+[117/159] [desktop] › e2e/iap.spec.ts:51:1 › IAP-04 «Special» only from 300 s; IAP-01 the price and the currency picture of the catalog
+[118/159] [desktop] › e2e/iap.spec.ts:71:1 › the show after a purchase: VIP, autopilot, starter, no ads — a change within 5 s, the fanfare, the pet jumps
+[119/159] [desktop] › e2e/iap.spec.ts:126:1 › IAP-01 bought before (another device): granted at the start with its show
+[120/159] [desktop] › e2e/input.spec.ts:5:3 › PC input › SCR-05 KeyW moves the hero up the slope even with a Russian layout (code, not key)
+[121/159] [desktop] › e2e/input.spec.ts:17:3 › PC input › arrows and WASD move in the control frame; A moves to screen-left (+X), D to screen-right (−X)
+[122/159] [desktop] › e2e/input.spec.ts:38:3 › PC input › SCR-03 Space jumps and never scrolls the page; wheel zooms the camera, not the page
+[123/159] [desktop] › e2e/input.spec.ts:53:3 › PC input › mouse drag turns the camera (both buttons), control yaw follows
+[124/159] [desktop] › e2e/input.spec.ts:72:3 › PC input › SCR-05 no shortcuts with Ctrl or Alt, F-keys and Tab do nothing
+[125/159] [desktop] › e2e/input.spec.ts:91:3 › PC input › Escape and KeyP open and close the pause menu; the menu pauses the simulation
+[126/159] [desktop] › e2e/k01-hints.spec.ts:39:3 › K-01 · plates, canopy, toasts, names (880 × 405) › K-01: forward only over the plates of stage 5 — at most 3 falls, «Jump!» held ≥ 2 s, never «Stand on the treadmill»
+[127/159] [desktop] › e2e/k01-hints.spec.ts:79:3 › K-01 · plates, canopy, toasts, names (880 × 405) › K-01: 3 units under the wall «8» the avalanche warns within 90 s — «Under the roof!»; in the canopy «Phew, made it!» before «LEVEL UP! 5»
+[desktop] › e2e/k01-hints.spec.ts:79:3 › K-01 · plates, canopy, toasts, names (880 × 405) › K-01: 3 units under the wall «8» the avalanche warns within 90 s — «Under the roof!»; in the canopy «Phew, made it!» before «LEVEL UP! 5»
+K-01 wall 8: first warning after 34.65 s
+
+[desktop] › e2e/k01-hints.spec.ts:39:3 › K-01 · plates, canopy, toasts, names (880 × 405) › K-01: forward only over the plates of stage 5 — at most 3 falls, «Jump!» held ≥ 2 s, never «Stand on the treadmill»
+K-01 plates {"falls":0,"sec":5.55} +Прыгай!@8657 +Купи кроссовки@13613 +Купи кроссовки — бег быстрее!@16929
+
+[128/159] [desktop] › e2e/k01-hints.spec.ts:126:3 › K-01 · plates, canopy, toasts, names (880 × 405) › K-01: bot names never run into each other (6 bots, the first seconds of the run)
+[129/159] [desktop] › e2e/k01-look.spec.ts:18:3 › K-01 · penguins on the phone › K-01: low quality — a light belly, ≥ 20 px, one in the frame ahead at each of stages 1, 3, 4
+[130/159] [desktop] › e2e/level.spec.ts:5:3 › level › falling off the track returns the hero to the flag within 0.5 s of game time
+[131/159] [desktop] › e2e/level.spec.ts:25:3 › level › closed walls stop the hero; gates and caves come from data
+[132/159] [desktop] › e2e/level.spec.ts:37:3 › level › a short run from the camp: the hero stays on the ground over the ramp of stretch 1
+[desktop] › e2e/k01-look.spec.ts:18:3 › K-01 · penguins on the phone › K-01: low quality — a light belly, ≥ 20 px, one in the frame ahead at each of stages 1, 3, 4
+K-01 penguins px {"stage 1":22.8,"stage 3":31.1,"stage 4":32.5}
+
+[133/159] [desktop] › e2e/loc.spec.ts:23:3 › LOC-01 ru at 640×360: no button overflows, in the HUD and every window
+[134/159] [desktop] › e2e/loc.spec.ts:23:3 › LOC-01 en at 640×360: no button overflows, in the HUD and every window
+[135/159] [desktop] › e2e/lv-camera.spec.ts:30:1 › PC: the mouse without a button turns the view, keys follow it, the view comes back behind the hero; a drag stays
+[136/159] [desktop] › e2e/lv-camera.spec.ts:89:1 › the scripted first wave from the grotto of a rock: the front and the hero in the frame, the camera out of the rock; screenshot
+[137/159] [desktop] › e2e/lv-gate.spec.ts:12:3 › ridge of stage 3: «level 8» on it, the plaque «1 more level» below the level and none with it (1280×720)
+[138/159] [desktop] › e2e/lv-gate.spec.ts:12:3 › ridge of stage 3: «level 8» on it, the plaque «1 more level» below the level and none with it (812×375)
+[139/159] [desktop] › e2e/lv-level.spec.ts:9:3 › level bar at the bottom with Speed over it, «Level up!» past a threshold (1280×720)
+[140/159] [desktop] › e2e/lv-level.spec.ts:9:3 › level bar at the bottom with Speed over it, «Level up!» past a threshold (812×375)
+[141/159] [desktop] › e2e/lv-level.spec.ts:33:1 › the open pace has no level bar
+[142/159] [desktop] › e2e/lv-maze.spec.ts:23:1 › maze of mountain 1 (stage 9): the real exit leads to the finish, a false one into the pit
+[143/159] [desktop] › e2e/lv-rollback.spec.ts:9:1 › a fall on stage 10 (chute) → the flag of stage 9; continue free once, then by the ad
+  7) [desktop] › e2e/lv-camera.spec.ts:89:1 › the scripted first wave from the grotto of a rock: the front and the hero in the frame, the camera out of the rock; screenshot 
+
+    TimeoutError: page.waitForFunction: Timeout 60000ms exceeded.
+
+      135 |   // Slow time: more rendered frames on the pass; the screenshot with the front above the hero.
+      136 |   await page.evaluate(() => window.__TEST__!.setTimeScale(0.25));
+    > 137 |   await page.waitForFunction(() => window.__TEST__!.state().wave?.phase === 'run', undefined, { timeout: 60_000 });
+          |              ^
+      138 |   await page.evaluate(() => window.__TEST__!.resetCameraStats());
+      139 |   let shot = false;
+      140 |   for (let i = 0; i < 2000 && !shot; i++) {
+        at /home/user/obby-avalanche/e2e/lv-camera.spec.ts:137:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/lv-camera-the-scripted-fir-b0297--out-of-the-rock-screenshot-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/lv-camera-the-scripted-fir-b0297--out-of-the-rock-screenshot-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/lv-camera-the-scripted-fir-b0297--out-of-the-rock-screenshot-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/lv-camera-the-scripted-fir-b0297--out-of-the-rock-screenshot-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[144/159] [desktop] › e2e/lv-stages.spec.ts:8:3 › mountain 1: every stage named on the HUD, draw calls ≤ 60, frames of a field and a bridge
+[145/159] [desktop] › e2e/lv-stages.spec.ts:8:3 › mountain 2: every stage named on the HUD, draw calls ≤ 60, frames of a field and a bridge
+[146/159] [desktop] › e2e/lv-steps.spec.ts:25:1 › steps sound at most ~3 a second: snow on the slope, ice on the slide; quiet by default
+[147/159] [desktop] › e2e/lv-steps.spec.ts:70:1 › «Footsteps» from the pause (MU-07, MU-12, ST-07): seven cards, «Light snow» on, the rest locked — the calendar day 2, the shop, two for an ad; «To the shop» opens its «Steps» tab
+[148/159] [desktop] › e2e/lv-steps.spec.ts:100:1 › the footsteps volume slider applies at once and survives F5 with the set bought in the shop
+  8) [desktop] › e2e/lv-steps.spec.ts:25:1 › steps sound at most ~3 a second: snow on the slope, ice on the slide; quiet by default 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 7
+    Received:    10
+
+      39 |   // SD-14: not a sound a step — at most perSec a second (2 s of play here), still a step every third of a second.
+      40 |   const heard = b.footsteps!.count - a.footsteps!.count;
+    > 41 |   expect(heard).toBeLessThanOrEqual(2 * steps.perSec + 1);
+         |                 ^
+      42 |   expect(heard).toBeGreaterThanOrEqual(3);
+      43 |   expect(heard).toBeLessThan(b.steps - a.steps);
+      44 |   expect(b.footsteps!.surface).toBe('snow');
+        at /home/user/obby-avalanche/e2e/lv-steps.spec.ts:41:17
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/lv-steps-steps-sound-at-mo-4ce55--the-slide-quiet-by-default-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/lv-steps-steps-sound-at-mo-4ce55--the-slide-quiet-by-default-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/lv-steps-steps-sound-at-mo-4ce55--the-slide-quiet-by-default-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/lv-steps-steps-sound-at-mo-4ce55--the-slide-quiet-by-default-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[149/159] [desktop] › e2e/lv-trophy.spec.ts:7:1 › stage 2: the reward button gives +130 coins once a run, then the camp
+[150/159] [desktop] › e2e/lv-summit.spec.ts:8:1 › mountain 1: from the finish of the last stage up to the portal of the summit
+[151/159] [desktop] › e2e/lv-tutorial.spec.ts:9:1 › the camp teleport to a passed stage for its trophies
+[152/159] [desktop] › e2e/lv-types.spec.ts:78:3 › mountain 1: the bot passes dips, giant, cracks, avalanche, plates, ice, maze, throat, chute at the level of the ridge
+[153/159] [desktop] › e2e/lv-types.spec.ts:78:3 › mountain 2: the bot passes stairs, catapult, blizzard at the level of the ridge
+[154/159] [desktop] › e2e/lv-ux.spec.ts:7:1 › 812×375: the pause window over the HUD with its buttons on the screen; the footsteps window OK visible
+[155/159] [desktop] › e2e/lv-ux.spec.ts:28:1 › 375×812 portrait: «Turn your phone» over the game
+[156/159] [desktop] › e2e/lv-ux.spec.ts:38:1 › 812×375: the tutorial step in the message slot under the stage strip (MU-02), the goal line gone
+[157/159] [desktop] › e2e/m3-fixes.spec.ts:75:3 › avalanche banner (classic): contrast plaque, no visible gate sign under it on warn
+[158/159] [desktop] › e2e/m3-fixes.spec.ts:115:3 › free egg (classic): not there and not taken before «Phew, made it!» of the scripted wave, then shown and taken
+[159/159] [desktop] › e2e/m3-fixes.spec.ts:162:3 › hint.stuck (classic): after 3 s at a closed gate, with an arrow to the belt of the cave below it
+  8 failed
+    [desktop] › e2e/ads-pause.spec.ts:72:1 › M4-02 the startup ad: the game stands while it plays and starts after it; startup_ad_start and startup_ad_end once 
+    [desktop] › e2e/avalanche.spec.ts:21:1 › avalanche: scripted wave in cave 1, then a normal wave — warn and shelter screenshots, camera in the cave, gifts back after gone 
+    [desktop] › e2e/caught.spec.ts:4:1 › snowed in on the slope: toast, the ball rolls into the cave below within 2 s, nothing lost; screenshot caught_1920x1080_ru.png 
+    [desktop] › e2e/fm-bounds.spec.ts:33:1 › jumps sideways at both borders of mountains 1, 5 and 9 — no fall; screenshot 
+    [desktop] › e2e/fm-camera.spec.ts:107:1 › mountain 3 through the throat: the head is behind something opaque in ≤ 2% of the frames 
+    [desktop] › e2e/fx-ui.spec.ts:61:1 › FX-02 FX-06 every press squeezes and taps; what cannot act shakes, says «no» and tells why; windows sound, an ad silences 
+    [desktop] › e2e/lv-camera.spec.ts:89:1 › the scripted first wave from the grotto of a rock: the front and the hero in the frame, the camera out of the rock; screenshot 
+    [desktop] › e2e/lv-steps.spec.ts:25:1 › steps sound at most ~3 a second: snow on the slope, ice on the slide; quiet by default 
+  1 did not run
+  150 passed (39.3m)
+EXIT=1

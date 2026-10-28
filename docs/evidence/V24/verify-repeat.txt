@@ -1,0 +1,90 @@
+
+Running 13 tests using 2 workers
+
+[1/13] [desktop] › e2e/avalanche.spec.ts:21:1 › avalanche: scripted wave in cave 1, then a normal wave — warn and shelter screenshots, camera in the cave, gifts back after gone
+[2/13] [desktop] › e2e/caught.spec.ts:4:1 › snowed in on the slope: toast, the ball rolls into the cave below within 2 s, nothing lost; screenshot caught_1920x1080_ru.png
+[3/13] [desktop] › e2e/fm-bounds.spec.ts:33:1 › jumps sideways at both borders of mountains 1, 5 and 9 — no fall; screenshot
+[4/13] [desktop] › e2e/m3-fixes.spec.ts:115:3 › free egg (classic): not there and not taken before «Phew, made it!» of the scripted wave, then shown and taken
+[5/13] [desktop] › e2e/m3-fixes.spec.ts:115:3 › free egg (fast): not there and not taken before «Phew, made it!» of the scripted wave, then shown and taken
+[6/13] [desktop] › e2e/m6-switch.spec.ts:31:1 › the base: the passed portal nearest to the hero is built ahead — a run again of mountain 1 ≤ 1 s at CPU ×4
+  1) [desktop] › e2e/m6-switch.spec.ts:31:1 › the base: the passed portal nearest to the hero is built ahead — a run again of mountain 1 ≤ 1 s at CPU ×4 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1000
+    Received:    1360.5
+
+      42 |   expect((await testState(page)).onBase).toBe(false);
+      43 |   lines.push(`base -> run again of mountain 1 (open), prebuilt: ${ms.toFixed(0)} ms / ${SWITCH_MS}`);
+    > 44 |   expect(ms).toBeLessThanOrEqual(SWITCH_MS);
+         |              ^
+      45 | });
+      46 |
+      47 | test('no base: past half of mountain 1 the next one is built ahead — its summit portal straight to mountain 2 ≤ 1 s at CPU ×4', async ({ page, openGame }) => {
+        at /home/user/obby-avalanche/e2e/m6-switch.spec.ts:44:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/m6-switch-the-base-the-pas-a0592--mountain-1-≤-1-s-at-CPU-×4-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/m6-switch-the-base-the-pas-a0592--mountain-1-≤-1-s-at-CPU-×4-desktop/error-context.md
+
+    Error Context: test-results/m6-switch-the-base-the-pas-a0592--mountain-1-≤-1-s-at-CPU-×4-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/m6-switch-the-base-the-pas-a0592--mountain-1-≤-1-s-at-CPU-×4-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/m6-switch-the-base-the-pas-a0592--mountain-1-≤-1-s-at-CPU-×4-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[7/13] [desktop] › e2e/m6-switch.spec.ts:47:1 › no base: past half of mountain 1 the next one is built ahead — its summit portal straight to mountain 2 ≤ 1 s at CPU ×4
+[8/13] [desktop] › e2e/open-boss.spec.ts:49:1 › at half the advice the giant catches the bot: back at the flag of the last ridge (RL-02), Speed and coins kept
+[9/13] [desktop] › e2e/open-mountain.spec.ts:13:1 › open slope: every one of the 10 mountains loads by teleport (camp, ridges, grotto before the giant, summit); screenshots
+[10/13] [desktop] › e2e/pets.spec.ts:13:1 › eggs and pets: buy at the camp stand, hatch in 1 s, 3 pets on next to the hero, the Pets window
+[11/13] [desktop] › e2e/records-lb.spec.ts:35:1 › M4-06 not signed in: no setScore on the summit; «Sign in» in the records window signs in
+[12/13] [desktop] › e2e/rg-camera-grotto.spec.ts:100:1 › fast: the same camera in a cave by a gate
+[13/13] [desktop] › e2e/rg-events.spec.ts:36:1 › mountain 5: the trail at once, the ball meets the standing hero ≥ 3 s later — a hit; a step aside — missed; screenshot
+  2) [desktop] › e2e/rg-camera-grotto.spec.ts:100:1 › fast: the same camera in a cave by a gate ────
+
+    Error: 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 0.004
+    Received:    0
+
+      59 |   if (tight) expect(st.tight).toBeGreaterThan(0);
+      60 |   // Z-03: hair and a hat cover the top of the round head — the skin colour is the face alone now (0.005–0.009 seen).
+    > 61 |   expect(Math.min(...shares), shares.map((s) => s.toFixed(3)).join(' ')).toBeGreaterThanOrEqual(0.004);
+         |                                                                          ^
+      62 |   // Straight out of the grotto onto the slope: within 1 s of leaving it the camera is behind the hero (on the side
+      63 |   // away from where he runs).
+      64 |   const far = -sign * (Math.abs(n.mouth[0]) - 2);
+        at inGrottoTurn (/home/user/obby-avalanche/e2e/rg-camera-grotto.spec.ts:61:74)
+        at /home/user/obby-avalanche/e2e/rg-camera-grotto.spec.ts:105:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/rg-camera-grotto-fast-the-same-camera-in-a-cave-by-a-gate-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/rg-camera-grotto-fast-the-same-camera-in-a-cave-by-a-gate-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rg-camera-grotto-fast-the-same-camera-in-a-cave-by-a-gate-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rg-camera-grotto-fast-the-same-camera-in-a-cave-by-a-gate-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  Slow test file: [desktop] › e2e/fm-bounds.spec.ts (6.1m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  2 failed
+    [desktop] › e2e/m6-switch.spec.ts:31:1 › the base: the passed portal nearest to the hero is built ahead — a run again of mountain 1 ≤ 1 s at CPU ×4 
+    [desktop] › e2e/rg-camera-grotto.spec.ts:100:1 › fast: the same camera in a cave by a gate ─────
+  11 passed (10.0m)
+EXIT=1

@@ -1,0 +1,8 @@
+verify «Лавина 24» (28.10, по частям, облако 4 ядра, SwiftShader, итоговый код)
+typecheck — ok; test — Vitest 674 из 674; validate:content — ok (verify:fast)
+e2e:sample 2/2, build, size (JS 442,0 КБ gzip), pack (ZIP 2944,7 КБ), check-release PASS, e2e:release 2/2, build:vk, check:vk, e2e:vk 21/21 — ok (verify-tail.txt)
+e2e четверть 1/4 (3 потока): 150 из 159, 8 красных, 1 не запустился (verify-e2e-1.txt): ads-pause:72 (звук), fx-ui:61, lv-steps:25, fm-camera:107, lv-camera:89 — красные и на main (L23 и сверка этой сессии), avalanche:21, caught:4, fm-bounds:33 — таймауты под нагрузкой
+e2e четверть 2/4 (3 потока): остановлена на 82 из 159 по лимиту сессии; 12 красных (verify-e2e-2.txt): m5-perf:13 и open-perf:72 (нагрузка; m5-perf отдельно зелёный, open-perf:72 красный и на main), rg-camera-grotto:84 (красный и на main), остальные — таймауты
+e2e четверти 3/4 и 4/4 — не запускались (лимит сессии); задетые места прогнаны отдельно (progress.md, V2-01…V2-05)
+повтор красных (verify-repeat.txt, 2 потока): 11 из 13 зелёные; красные m6-switch:31 (был красным и в L23 под нагрузкой), rg-camera-grotto:100 (на main в сверке этой сессии зелёный — открыт, Q-V24-1)
+EXIT=1

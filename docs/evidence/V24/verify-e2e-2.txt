@@ -1,0 +1,495 @@
+
+Running 159 tests using 3 workers, shard 2 of 4
+
+[1/159] [desktop] › e2e/m3-fixes.spec.ts:162:3 › hint.stuck (fast): after 3 s at a closed gate, with an arrow to the belt of the cave below it
+[2/159] [desktop] › e2e/m3-fixes.spec.ts:75:3 › avalanche banner (fast): contrast plaque, no visible gate sign under it on warn
+[3/159] [desktop] › e2e/m3-fixes.spec.ts:115:3 › free egg (fast): not there and not taken before «Phew, made it!» of the scripted wave, then shown and taken
+[4/159] [desktop] › e2e/m3-fixes.spec.ts:201:1 › hint.stuck (fast): at every closed gate, more than 3 times a session; holds on the way to the cave, off on entering it
+  1) [desktop] › e2e/m3-fixes.spec.ts:115:3 › free egg (fast): not there and not taken before «Phew, made it!» of the scripted wave, then shown and taken 
+
+    Error: before the toast: run
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+        "phase": "idle",
+    -   "shown": false,
+    -   "visible": false,
+    +   "shown": true,
+    +   "visible": true,
+      }
+
+      138 |       phew = s.waveHud.toast.startsWith(ru['wave.survived'].split(' +')[0]!);
+      139 |       if (phew) break;
+    > 140 |       expect(s.egg, `before the toast: ${s.wave!.phase}`).toMatchObject({ phase: 'idle', shown: false, visible: false });
+          |                                                           ^
+      141 |       if (!touchedOnWarn && s.wave!.phase === 'warn') {
+      142 |         // Onto its spot during the warning: still nothing, back to the belt.
+      143 |         await page.evaluate(([x, y, z]) => window.__TEST__!.teleport(z, x, y), [egg.x, egg.y + 0.05, egg.z] as const);
+        at /home/user/obby-avalanche/e2e/m3-fixes.spec.ts:140:59
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/m3-fixes-free-egg-fast-not-8551f-d-wave-then-shown-and-taken-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/m3-fixes-free-egg-fast-not-8551f-d-wave-then-shown-and-taken-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/m3-fixes-free-egg-fast-not-8551f-d-wave-then-shown-and-taken-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/m3-fixes-free-egg-fast-not-8551f-d-wave-then-shown-and-taken-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[5/159] [desktop] › e2e/m5-avalanche.spec.ts:13:5 › 880 × 405 › M5-02 mountain 1: warn, run and shelter — at most 4 draw calls, clumps, rumble
+[6/159] [desktop] › e2e/m5-avalanche.spec.ts:13:5 › 880 × 405 › M5-02 mountain 4: warn, run and shelter — at most 4 draw calls, clumps, rumble
+[7/159] [desktop] › e2e/m5-avalanche.spec.ts:13:5 › 880 × 405 › M5-02 mountain 10: warn, run and shelter — at most 4 draw calls, clumps, rumble
+[8/159] [desktop] › e2e/m5-avalanche.spec.ts:85:1 › M5-03: snow off the feet, a melting wall bursts and sounds
+[9/159] [desktop] › e2e/m5-content.spec.ts:33:5 › 880 × 405 › M5-05: all 27 pets, 12 skins, 8 wings — windows and figures
+[10/159] [desktop] › e2e/m5-content.spec.ts:33:5 › 815 × 290 › M5-05: all 27 pets, 12 skins, 8 wings — windows and figures
+[11/159] [desktop] › e2e/m5-perf.spec.ts:13:1 › M5-06: draw calls, triangles, textures at 3 points of each of the 10 mountains; a switch ≤ 1 s at CPU ×4, memory flat
+[12/159] [desktop] › e2e/m6-switch.spec.ts:31:1 › the base: the passed portal nearest to the hero is built ahead — a run again of mountain 1 ≤ 1 s at CPU ×4
+[13/159] [desktop] › e2e/m6-switch.spec.ts:47:1 › no base: past half of mountain 1 the next one is built ahead — its summit portal straight to mountain 2 ≤ 1 s at CPU ×4
+  2) [desktop] › e2e/m6-switch.spec.ts:31:1 › the base: the passed portal nearest to the hero is built ahead — a run again of mountain 1 ≤ 1 s at CPU ×4 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1000
+    Received:    1210.0999999977648
+
+      42 |   expect((await testState(page)).onBase).toBe(false);
+      43 |   lines.push(`base -> run again of mountain 1 (open), prebuilt: ${ms.toFixed(0)} ms / ${SWITCH_MS}`);
+    > 44 |   expect(ms).toBeLessThanOrEqual(SWITCH_MS);
+         |              ^
+      45 | });
+      46 |
+      47 | test('no base: past half of mountain 1 the next one is built ahead — its summit portal straight to mountain 2 ≤ 1 s at CPU ×4', async ({ page, openGame }) => {
+        at /home/user/obby-avalanche/e2e/m6-switch.spec.ts:44:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/m6-switch-the-base-the-pas-a0592--mountain-1-≤-1-s-at-CPU-×4-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/m6-switch-the-base-the-pas-a0592--mountain-1-≤-1-s-at-CPU-×4-desktop/error-context.md
+
+    Error Context: test-results/m6-switch-the-base-the-pas-a0592--mountain-1-≤-1-s-at-CPU-×4-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/m6-switch-the-base-the-pas-a0592--mountain-1-≤-1-s-at-CPU-×4-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/m6-switch-the-base-the-pas-a0592--mountain-1-≤-1-s-at-CPU-×4-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[14/159] [desktop] › e2e/milestone.spec.ts:16:1 › 1K Speed: flash class, toast «1K Скорости!», chime, one event per load, no analytics; screenshot
+  3) [desktop] › e2e/m6-switch.spec.ts:47:1 › no base: past half of mountain 1 the next one is built ahead — its summit portal straight to mountain 2 ≤ 1 s at CPU ×4 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1000
+    Received:    1816.6000000014901
+
+      64 |   expect((await testState(page)).hero!.z).toBeLessThan(60);
+      65 |   lines.push(`no base: mountain 1 -> 2 (stages), prebuilt: ${ms.toFixed(0)} ms / ${SWITCH_MS}; without the prebuild (-> 3): ${cold.toFixed(0)} ms`);
+    > 66 |   expect(ms).toBeLessThanOrEqual(SWITCH_MS);
+         |              ^
+      67 | });
+      68 |
+        at /home/user/obby-avalanche/e2e/m6-switch.spec.ts:66:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/m6-switch-no-base-past-hal-3504d--mountain-2-≤-1-s-at-CPU-×4-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/m6-switch-no-base-past-hal-3504d--mountain-2-≤-1-s-at-CPU-×4-desktop/error-context.md
+
+    Error Context: test-results/m6-switch-no-base-past-hal-3504d--mountain-2-≤-1-s-at-CPU-×4-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/m6-switch-no-base-past-hal-3504d--mountain-2-≤-1-s-at-CPU-×4-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/m6-switch-no-base-past-hal-3504d--mountain-2-≤-1-s-at-CPU-×4-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[15/159] [desktop] › e2e/milestone.spec.ts:40:1 › en: «1K Speed!»
+[16/159] [desktop] › e2e/moderation.spec.ts:7:1 › SCR-07 the browser «Back» and «Forward»: the game loads again with no hang and no error, history untouched
+[17/159] [desktop] › e2e/moderation.spec.ts:25:1 › BLD-06 no WebGL2: a calm screen with the name of the game, no «WebGL», no «error», no console error
+[18/159] [desktop] › e2e/moderation.spec.ts:41:1 › WebGL context lost and restored: the game stands while it is lost, then draws and is controlled again
+[19/159] [desktop] › e2e/mountain.spec.ts:4:1 › summit of mountain 1: walking into the portal moves the hero to the camp of mountain 2; screenshot summit_1920x1080_ru.png
+[20/159] [desktop] › e2e/mountain.spec.ts:37:1 › teleport to every mountain 1–5: camp, middle and summit load without errors; screenshots mountain_N_960x540_ru.png
+[21/159] [desktop] › e2e/mu-r2-reload.spec.ts:9:1 › MU round 2 (6): F5 after stage 3 reached by the camp teleport — the start of stage 3, no roll-back
+[22/159] [desktop] › e2e/numbers.spec.ts:4:1 › Speed of a late tier on the HUD: «1,23Qa» with the suffix from ru.json; screenshot
+[23/159] [desktop] › e2e/numbers.spec.ts:15:1 › wall sign in progress: «4,2K/12K» as on the HUD goal bar, plaque fits; screenshot
+[24/159] [desktop] › e2e/open-avalanche.spec.ts:17:1 › scripted wave at the entry of section 2: the bot in its grotto, «Phew, made it!» within 46 s
+[25/159] [desktop] › e2e/open-avalanche.spec.ts:55:1 › a normal wave with the hero in the giant’s zone (above spawnMaxZ) never catches him; no warning, arrow or «To the cave!» up there
+  4) [desktop] › e2e/m5-perf.spec.ts:13:1 › M5-06: draw calls, triangles, textures at 3 points of each of the 10 mountains; a switch ≤ 1 s at CPU ×4, memory flat 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1000
+    Received:    2566.699999999255
+
+      87 |   expect(worst.triangles).toBeLessThanOrEqual(LIMIT.triangles);
+      88 |   expect(worst.textures).toBeLessThanOrEqual(LIMIT.textures);
+    > 89 |   expect(Math.max(...switches)).toBeLessThanOrEqual(LIMIT.switchMs);
+         |                                 ^
+      90 |   expect(after.geometries).toBeLessThanOrEqual(before.geometries);
+      91 |   expect(after.textures).toBeLessThanOrEqual(before.textures);
+      92 | });
+        at /home/user/obby-avalanche/e2e/m5-perf.spec.ts:89:33
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/m5-perf-M5-06-draw-calls-t-5cb94-≤-1-s-at-CPU-×4-memory-flat-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/m5-perf-M5-06-draw-calls-t-5cb94-≤-1-s-at-CPU-×4-memory-flat-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/m5-perf-M5-06-draw-calls-t-5cb94-≤-1-s-at-CPU-×4-memory-flat-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/m5-perf-M5-06-draw-calls-t-5cb94-≤-1-s-at-CPU-×4-memory-flat-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[26/159] [desktop] › e2e/open-boss.spec.ts:17:1 › with the Speed of the advice the bot slips past the giant to the summit on the first try; screenshots
+[27/159] [desktop] › e2e/open-boss.spec.ts:49:1 › at half the advice the giant catches the bot: back at the flag of the last ridge (RL-02), Speed and coins kept
+[28/159] [desktop] › e2e/open-boss.spec.ts:73:1 › the giant is seen from the camp looking up the slope; in his zone no ad button and no window
+  5) [desktop] › e2e/open-boss.spec.ts:49:1 › at half the advice the giant catches the bot: back at the flag of the last ridge (RL-02), Speed and coins kept 
+
+    Error: expect(received).toContain(expected) // indexOf
+
+    Expected substring: "Спрячься за камень"
+    Received string:    ""
+
+    Call Log:
+    - Timeout 15000ms exceeded while waiting on the predicate
+
+      60 |   await page.evaluate(() => window.__TEST__!.botPath(null));
+      61 |   // The first catch in a zone with rocks (SP-06): «Duck behind a rock!» instead of «The giant caught you!».
+    > 62 |   await expect.poll(async () => (await testState(page)).waveHud.toast).toContain('Спрячься за камень');
+         |                                                                        ^
+      63 |   await page.waitForFunction(() => window.__TEST__!.state().caught === null, undefined, { timeout: 30_000 });
+      64 |   const s = await testState(page);
+      65 |   // RL-02 (docs/01-gdd.md 21.2): the flag past the last ridge, the start of the finish straight.
+        at /home/user/obby-avalanche/e2e/open-boss.spec.ts:62:72
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/open-boss-at-half-the-advi-49cd6--RL-02-Speed-and-coins-kept-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/open-boss-at-half-the-advi-49cd6--RL-02-Speed-and-coins-kept-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/open-boss-at-half-the-advi-49cd6--RL-02-Speed-and-coins-kept-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/open-boss-at-half-the-advi-49cd6--RL-02-Speed-and-coins-kept-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[29/159] [desktop] › e2e/open-continue.spec.ts:41:1 › no button before 60 s of play and the first avalanche; then at the pop of «Snowed in!» ≤ 1 s, gone after 6 s
+[30/159] [desktop] › e2e/open-continue.spec.ts:68:1 › after the giant’s catch the button goes with the first move
+[31/159] [desktop] › e2e/open-continue.spec.ts:81:1 › ?mock_ad=ok: back on the record flag, the threat at rest, ad_resume_ok; again within 120 s — no button
+[32/159] [desktop] › e2e/open-continue.spec.ts:122:3 › ?mock_ad=noshow: «Награда не получена», the hero where he was, no reward
+[33/159] [desktop] › e2e/open-continue.spec.ts:122:3 › ?mock_ad=error: «Видео сейчас недоступно», the hero where he was, no reward
+[34/159] [desktop] › e2e/open-continue.spec.ts:122:3 › ?mock_ad=closenoreward: «Награда не получена», the hero where he was, no reward
+[35/159] [desktop] › e2e/open-continue.spec.ts:139:3 › 640×360 ru: the label fits its button and the screen
+[36/159] [desktop] › e2e/open-continue.spec.ts:139:3 › 640×360 en: the label fits its button and the screen
+[37/159] [desktop] › e2e/open-design.spec.ts:23:1 › the bot takes the bold lane of section 3 on mountain 2: over the crevasse, past the cliff, up to ridge 3; screenshots
+[38/159] [desktop] › e2e/open-design.spec.ts:69:1 › «Two ways: pick one»: not while the hero runs through a fork; once after he stands at one for 2 s
+[39/159] [desktop] › e2e/open-events.spec.ts:27:1 › gameReady carries the pace; the flag pace of getFlags picks fast without ?pace=; an unknown value — game.json; ?pace= wins
+[40/159] [desktop] › e2e/open-events.spec.ts:49:1 › the giant’s catch sends boss_caught {world: 1}; back above the record flag — record_up, once a climb
+[41/159] [desktop] › e2e/open-first-minute.spec.ts:42:1 › first minutes on the open slope: ridge 1, the grotto at the siren, the egg, the ridges, the giant, the portal — 19.6 times and rhythm
+[42/159] [desktop] › e2e/open-first-minute.spec.ts:270:1 › the egg of the scripted wave stands in the grotto the hero hid in, either lane of the fork
+[43/159] [desktop] › e2e/open-first-minute.spec.ts:297:1 › ridge 2 of mountain 1 with its number of 19.6: screenshot
+[44/159] [desktop] › e2e/open-mountain.spec.ts:13:1 › open slope: every one of the 10 mountains loads by teleport (camp, ridges, grotto before the giant, summit); screenshots
+[45/159] [desktop] › e2e/open-perf.spec.ts:18:1 › draw calls, triangles, textures at the foot, ridge 2 and the giant’s line of each of the 10 mountains; perf.md
+[46/159] [desktop] › e2e/open-perf.spec.ts:72:1 › a simulation step on mountain 10 at CPU ×4 stays within 2 ms; memory does not grow over 5 transitions
+[47/159] [desktop] › e2e/open-perf.spec.ts:138:1 › the ridge view and the giant’s shot come back behind the hero within 1.5 s; a turn by hand ends them
+[48/159] [desktop] › e2e/open-perf.spec.ts:173:1 › 640×360: both lanes of the fork of section 3 of mountain 4 are in the frame from its start
+[49/159] [desktop] › e2e/open-ridge.spec.ts:29:1 › ridge 1 opens on the approach of the physical bot; all passages melt at once, fountain, flag, view frame; at ridge 2 only belt or run
+  6) [desktop] › e2e/open-mountain.spec.ts:13:1 › open slope: every one of the 10 mountains loads by teleport (camp, ridges, grotto before the giant, summit); screenshots 
+
+    Test timeout of 300000ms exceeded.
+
+    Error: page.waitForFunction: Test timeout of 300000ms exceeded.
+
+       at fixtures.ts:96
+
+      94 | export async function waitTicks(page: Page, n: number, timeout = 60_000): Promise<void> {
+      95 |   const start = await page.evaluate(() => window.__TEST__!.state().ticks);
+    > 96 |   await page.waitForFunction((t) => window.__TEST__!.state().ticks >= t, start + n, { timeout });
+         |              ^
+      97 | }
+      98 |
+        at waitTicks (/home/user/obby-avalanche/e2e/fixtures.ts:96:14)
+        at /home/user/obby-avalanche/e2e/open-mountain.spec.ts:40:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/open-mountain-open-slope-e-65ed3-he-giant-summit-screenshots-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/open-mountain-open-slope-e-65ed3-he-giant-summit-screenshots-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/open-mountain-open-slope-e-65ed3-he-giant-summit-screenshots-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/open-mountain-open-slope-e-65ed3-he-giant-summit-screenshots-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[50/159] [desktop] › e2e/open-ridge.spec.ts:107:1 › no «▶ Ad: open the wall» at any ridge; «▶ Ad: +N speed» in the ridge grotto after 60 s and the first avalanche
+[51/159] [desktop] › e2e/open-ridge.spec.ts:141:1 › section multiplier: past ridge 1 a step gives ×1.2 with the same shoes and pets; the plaque shows ×1,2
+[52/159] [desktop] › e2e/open-ridge.spec.ts:169:1 › the sign of a ridge the hero has passed is gone for good, also when he looks back down
+[53/159] [desktop] › e2e/pace.spec.ts:43:1 › without ?pace the pace of game.json (stages since LV: ridge 1 asks for level 2); ?pace=fast — 15 gates; ?pace=classic — 12 walls; unknown pace — game.json
+  7) [desktop] › e2e/open-perf.spec.ts:72:1 › a simulation step on mountain 10 at CPU ×4 stays within 2 ms; memory does not grow over 5 transitions 
+
+    TimeoutError: page.waitForFunction: Timeout 60000ms exceeded.
+
+       at fixtures.ts:96
+
+      94 | export async function waitTicks(page: Page, n: number, timeout = 60_000): Promise<void> {
+      95 |   const start = await page.evaluate(() => window.__TEST__!.state().ticks);
+    > 96 |   await page.waitForFunction((t) => window.__TEST__!.state().ticks >= t, start + n, { timeout });
+         |              ^
+      97 | }
+      98 |
+        at waitTicks (/home/user/obby-avalanche/e2e/fixtures.ts:96:14)
+        at /home/user/obby-avalanche/e2e/open-perf.spec.ts:127:3
+
+    Error Context: test-results/open-perf-a-simulation-ste-80b07-not-grow-over-5-transitions-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/open-perf-a-simulation-ste-80b07-not-grow-over-5-transitions-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/open-perf-a-simulation-ste-80b07-not-grow-over-5-transitions-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[54/159] [desktop] › e2e/perf.spec.ts:14:1 › SP-02: a simulation step on mountain 10 at CPU ×4 with 6 bots at 120 units/s stays within 2 ms
+[55/159] [desktop] › e2e/pace.spec.ts:72:1 › separate saves: classic progress (wall 3) is not seen in fast and not erased by it; F5 brings each pace to its flag
+[56/159] [desktop] › e2e/perf.spec.ts:60:1 › SP-03: draw calls at the foot, ridge 2 and the giant’s line of mountains 1, 5, 10 ≤ 45 (far 800)
+[57/159] [desktop] › e2e/pets.spec.ts:13:1 › eggs and pets: buy at the camp stand, hatch in 1 s, 3 pets on next to the hero, the Pets window
+[58/159] [desktop] › e2e/quality.spec.ts:6:3 › quality and budgets › render budgets on the slope of mountain 1 at three points, written to docs/evidence/M1/budgets.txt
+[59/159] [desktop] › e2e/quality.spec.ts:24:3 › quality and budgets › auto downgrade: slow frames lower DPR first, then the level; ?quality and ?dpr lock both
+[60/159] [desktop] › e2e/quality.spec.ts:50:3 › quality and budgets › ?gpuload=2 renders the scene twice per frame
+[61/159] [desktop] › e2e/quests.spec.ts:16:1 › quests and time rewards survive F5, refresh with the calendar after 20 h; one free spin a day
+[62/159] [desktop] › e2e/rebirth.spec.ts:6:1 › rebirth window ru: locked until mountain 5, then rebirth to tier 1 — camp of mountain 1, stat and coins 0, step ×3; screenshot rebirth_1920x1080_ru.png
+[63/159] [desktop] › e2e/rebirth.spec.ts:90:1 › portal of mountain 5 opens «All mountains cleared!»: «Rebirth» opens the rebirth window, «Stay» keeps the hero on the summit
+[64/159] [desktop] › e2e/records-lb.spec.ts:35:1 › M4-06 not signed in: no setScore on the summit; «Sign in» in the records window signs in
+  8) [desktop] › e2e/pets.spec.ts:13:1 › eggs and pets: buy at the camp stand, hatch in 1 s, 3 pets on next to the hero, the Pets window 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: page.waitForFunction: Test timeout of 120000ms exceeded.
+
+       at fixtures.ts:96
+
+      94 | export async function waitTicks(page: Page, n: number, timeout = 60_000): Promise<void> {
+      95 |   const start = await page.evaluate(() => window.__TEST__!.state().ticks);
+    > 96 |   await page.waitForFunction((t) => window.__TEST__!.state().ticks >= t, start + n, { timeout });
+         |              ^
+      97 | }
+      98 |
+        at waitTicks (/home/user/obby-avalanche/e2e/fixtures.ts:96:14)
+        at /home/user/obby-avalanche/e2e/pets.spec.ts:55:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/pets-eggs-and-pets-buy-at--660c0-to-the-hero-the-Pets-window-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/pets-eggs-and-pets-buy-at--660c0-to-the-hero-the-Pets-window-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/pets-eggs-and-pets-buy-at--660c0-to-the-hero-the-Pets-window-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/pets-eggs-and-pets-buy-at--660c0-to-the-hero-the-Pets-window-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[65/159] [desktop] › e2e/records-lb.spec.ts:48:1 › M4-06 signed in: the trophies go to the table on the summit, once
+[66/159] [desktop] › e2e/rg-boss.spec.ts:21:1 › mountain 1: the giant chases and slaps a bot within 90 s; then the hero with the advice passes; screenshot
+[67/159] [desktop] › e2e/rg-camera-grotto.spec.ts:84:1 › open: turned around by hand in a grotto the camera keeps off the hero, the head stays in frame; behind him outside
+  9) [desktop] › e2e/rg-camera-grotto.spec.ts:84:1 › open: turned around by hand in a grotto the camera keeps off the hero, the head stays in frame; behind him outside 
+
+    Error: 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 0.004
+    Received:    0
+
+      59 |   if (tight) expect(st.tight).toBeGreaterThan(0);
+      60 |   // Z-03: hair and a hat cover the top of the round head — the skin colour is the face alone now (0.005–0.009 seen).
+    > 61 |   expect(Math.min(...shares), shares.map((s) => s.toFixed(3)).join(' ')).toBeGreaterThanOrEqual(0.004);
+         |                                                                          ^
+      62 |   // Straight out of the grotto onto the slope: within 1 s of leaving it the camera is behind the hero (on the side
+      63 |   // away from where he runs).
+      64 |   const far = -sign * (Math.abs(n.mouth[0]) - 2);
+        at inGrottoTurn (/home/user/obby-avalanche/e2e/rg-camera-grotto.spec.ts:61:74)
+        at /home/user/obby-avalanche/e2e/rg-camera-grotto.spec.ts:93:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/rg-camera-grotto-open-turn-3df97-in-frame-behind-him-outside-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/rg-camera-grotto-open-turn-3df97-in-frame-behind-him-outside-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rg-camera-grotto-open-turn-3df97-in-frame-behind-him-outside-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rg-camera-grotto-open-turn-3df97-in-frame-behind-him-outside-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[68/159] [desktop] › e2e/rg-camera-grotto.spec.ts:100:1 › fast: the same camera in a cave by a gate
+  10) [desktop] › e2e/records-lb.spec.ts:35:1 › M4-06 not signed in: no setScore on the summit; «Sign in» in the records window signs in 
+
+    Test timeout of 120000ms exceeded.
+
+    Error: locator.click: Test timeout of 120000ms exceeded.
+    Call log:
+      - waiting for locator('[data-hud="win-next"]')
+        - locator resolved to <button data-next="1" data-hud="win-next" class="btn-primary win-next">Дальше</button>
+      - attempting click action
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - element is not visible
+      - retrying click action
+        - waiting for element to be visible, enabled and stable
+        - element is not visible
+      - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not visible
+        - retrying click action
+          - waiting 100ms
+        123 × waiting for element to be visible, enabled and stable
+            - element is not visible
+          - retrying click action
+            - waiting 500ms
+
+
+      26 |   await page.keyboard.press('Escape');
+      27 |   await page.waitForTimeout(300);
+    > 28 |   if (await page.locator('[data-role="window"].open').count()) await page.locator('[data-hud="win-next"]').click();
+         |                                                                                                            ^
+      29 |   await page.waitForFunction(() => window.__TEST__!.state().window === null, undefined, { timeout: 30_000 });
+      30 |   const more = page.locator('[data-hud="menu-more"]').first();
+      31 |   await more.dispatchEvent('pointerdown');
+        at openRecords (/home/user/obby-avalanche/e2e/records-lb.spec.ts:28:108)
+        at /home/user/obby-avalanche/e2e/records-lb.spec.ts:40:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/records-lb-M4-06-not-signe-72c64-the-records-window-signs-in-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/records-lb-M4-06-not-signe-72c64-the-records-window-signs-in-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/records-lb-M4-06-not-signe-72c64-the-records-window-signs-in-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/records-lb-M4-06-not-signe-72c64-the-records-window-signs-in-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[69/159] [desktop] › e2e/rg-chasm.spec.ts:56:1 › mountain 2: over the chasm from the middle trampoline with the gifts in the air; screenshot
+[70/159] [desktop] › e2e/rg-chasm.spec.ts:76:1 › mountain 2: by the walk at the edge down into the chasm, its gift, out up the ramp; the toast once; the siren from the bottom
+[71/159] [desktop] › e2e/rg-decor.spec.ts:23:1 › penguins of mountain 1 walk within their patch; a bird of mountain 3 turns to the hero; +1 draw call; screenshot
+  11) [desktop] › e2e/rg-camera-grotto.spec.ts:100:1 › fast: the same camera in a cave by a gate ───
+
+    Error: 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+
+    expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 0.004
+    Received:    0
+
+      59 |   if (tight) expect(st.tight).toBeGreaterThan(0);
+      60 |   // Z-03: hair and a hat cover the top of the round head — the skin colour is the face alone now (0.005–0.009 seen).
+    > 61 |   expect(Math.min(...shares), shares.map((s) => s.toFixed(3)).join(' ')).toBeGreaterThanOrEqual(0.004);
+         |                                                                          ^
+      62 |   // Straight out of the grotto onto the slope: within 1 s of leaving it the camera is behind the hero (on the side
+      63 |   // away from where he runs).
+      64 |   const far = -sign * (Math.abs(n.mouth[0]) - 2);
+        at inGrottoTurn (/home/user/obby-avalanche/e2e/rg-camera-grotto.spec.ts:61:74)
+        at /home/user/obby-avalanche/e2e/rg-camera-grotto.spec.ts:105:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/rg-camera-grotto-fast-the-same-camera-in-a-cave-by-a-gate-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/rg-camera-grotto-fast-the-same-camera-in-a-cave-by-a-gate-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rg-camera-grotto-fast-the-same-camera-in-a-cave-by-a-gate-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rg-camera-grotto-fast-the-same-camera-in-a-cave-by-a-gate-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[72/159] [desktop] › e2e/rg-decor.spec.ts:96:1 › quality low: the animals shown, fewer, ≤ +1 draw call
+[73/159] [desktop] › e2e/rg-events.spec.ts:36:1 › mountain 5: the trail at once, the ball meets the standing hero ≥ 3 s later — a hit; a step aside — missed; screenshot
+[74/159] [desktop] › e2e/rg-events.spec.ts:89:1 › mountain 7: the blizzard — fog nearer, snow, «+2 per step», ≤ 42 draw calls; it ends and the fog comes back; screenshot
+[75/159] [desktop] › e2e/rg-helpers.spec.ts:22:1 › mountain 4: a helper throws within 3 s, a hit — «×0,85» and «Snowball!»; the advice passes the zone first try; screenshot
+[76/159] [desktop] › e2e/rg-hump.spec.ts:56:1 › mountain 8: up the hump, off the crest into the landing; no «+N» in the air; the gifts of the flight; screenshot
+  12) [desktop] › e2e/rg-events.spec.ts:36:1 › mountain 5: the trail at once, the ball meets the standing hero ≥ 3 s later — a hit; a step aside — missed; screenshot 
+
+    TimeoutError: page.waitForFunction: Timeout 30000ms exceeded.
+
+      79 |   await page.waitForFunction(() => window.__TEST__!.state().snowball !== null, undefined, { timeout: 15_000 });
+      80 |   await page.evaluate((z) => window.__TEST__!.botPath([[8, z]]), s3 + 5);
+    > 81 |   await page.waitForFunction(() => window.__TEST__!.state().snowball === null, undefined, { timeout: 30_000 });
+         |              ^
+      82 |   const ev2 = (await events(page)).slice(ev.length);
+      83 |   expect(ev2.map((e) => e.name)).toEqual(['eventStart', 'eventEnd']);
+      84 |   expect(ev2[1]!.why).toBe('past');
+        at /home/user/obby-avalanche/e2e/rg-events.spec.ts:81:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/rg-events-mountain-5-the-t-eb625-p-aside-—-missed-screenshot-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/rg-events-mountain-5-the-t-eb625-p-aside-—-missed-screenshot-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/rg-events-mountain-5-the-t-eb625-p-aside-—-missed-screenshot-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/rg-events-mountain-5-the-t-eb625-p-aside-—-missed-screenshot-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[77/159] [desktop] › e2e/rg-hump.spec.ts:77:1 › mountain 8: the siren in the flight — into the landing grotto before the front
+[78/159] [desktop] › e2e/rg-sectors.spec.ts:24:3 › mountain 8: the bot runs section 2 through its elements without getting stuck; ≤ 40 draw calls at 3 points
+[79/159] [desktop] › e2e/rg-sectors.spec.ts:24:3 › mountain 9: the bot runs section 2 through its elements without getting stuck; ≤ 40 draw calls at 3 points
+[80/159] [desktop] › e2e/rg-sectors.spec.ts:24:3 › mountain 10: the bot runs section 2 through its elements without getting stuck; ≤ 40 draw calls at 3 points
+[81/159] [desktop] › e2e/rg-throat.spec.ts:32:1 › mountain 3: the bot runs the throat on its ice; the camera keeps off the cliffs and the hero; ≤ 40 draw calls; screenshot
+[82/159] [desktop] › e2e/rg-throat.spec.ts:73:1 › mountain 3: the siren at the throat entry — the bot runs it and is in the field grotto before the front
