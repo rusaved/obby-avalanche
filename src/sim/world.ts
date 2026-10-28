@@ -551,11 +551,11 @@ export function createSim(level: LevelData, tuning: TuningJson, opts: SimOptions
       prev.onGround = hero.onGround;
       // Gates: the number is all that matters; an open gate stays open until rebirth (docs/01-gdd.md 3.3).
       let opened = false;
-      // R-03 («Лавина 23», wall «13»): while a wave runs, the ridge on top of the safe finish the hero stands in stays
-      // closed — the steps on its belt reach the number, the wall melted and let him out into the wave; it opens as the
-      // wave is gone.
+      // R-03 («Лавина 23», wall «13»): stages pace — while a wave runs, the ridge on top of the safe finish (not the camp)
+      // the hero stands in stays closed — the steps on its belt reach the number, the wall melted and let him out into the
+      // wave; it opens as the wave is gone.
       const wave = sim.threat?.state;
-      const finish = wave && (wave.phase === 'warn' || wave.phase === 'run') ? level.safeZones.find(([a, b]) => hero.pos.z >= a && hero.pos.z <= b) : undefined;
+      const finish = level.stages && wave && (wave.phase === 'warn' || wave.phase === 'run') ? level.safeZones.slice(1).find(([a, b]) => hero.pos.z >= a && hero.pos.z <= b) : undefined;
       const holds = (z: number): boolean => !!finish && Math.abs(finish[1] - z) < 1;
       level.gates.forEach((gate, i) => {
         if (gatesOpen[i] || gate.kind === 'boss' || !gateIsOpen(progress.stat, sim.gateRequirement(i)) || holds(gate.z)) return;
