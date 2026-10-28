@@ -268,6 +268,10 @@ export interface TestApi {
   cameraInsideGeometry(): boolean;
   /** The camera position now (RG-13: behind the hero out of a grotto). */
   cameraPos(): [number, number, number];
+  /** V2-01: the canopy roofs — their hide volume (over the footprint from the roof's lower edge up) and drawn whole now. */
+  canopyRoofs(): Array<{ min: readonly number[]; max: readonly number[]; drawn: boolean }>;
+  /** V2-01: where «continue from stage n» puts the hero (the kit's `stage=n`). */
+  stageStart(n: number): { x: number; y: number; z: number } | null;
   /** RL-09: the tall walls drawn apart — their boxes and whether each is see-through now. */
   seeThrough(): Array<{ min: number[]; max: number[]; faded: boolean }>;
   /** Z-01: the wall and roof boxes of the grotto the hero is in (empty out of one). */
@@ -1106,6 +1110,8 @@ export function installTestApi(g: GameHandles): TestApi {
     },
     botLeft: () => g.botPath?.length ?? 0,
     stages: () => g.sim?.level.stages ?? null,
+    canopyRoofs: () => g.levelMeshes?.canopyRoofs() ?? [],
+    stageStart: (n) => g.sim?.stageStart(n) ?? null,
     botJump(on) {
       g.botJump = on;
     },

@@ -47,6 +47,8 @@ export interface PropCut {
   box: LevelBox;
   /** Turn about the Z axis (rad) of a tilted board of a gable roof. */
   tilt?: number;
+  /** Turn about the Y axis (rad): an icicle of a canopy as a diamond. */
+  yaw?: number;
 }
 
 /** One stripe of a belt: its centre at the start of the cycle, width across, the length of its belt and its speed. */
@@ -69,7 +71,8 @@ export interface TrackProps {
   stripes: PropStripe[];
   /** Roofs of the canopies drawn as a gable here: their flat collider boxes are not drawn. */
   hidden: Set<LevelBox>;
-  /** V-04: the space under and in the gable of each canopy — the camera there hides that roof (level-mesh cameraAt). */
+  /** V-04, V2-01: over the footprint of each canopy from the lower edge of its roof up — the camera there hides the whole
+   * roof (level-mesh cameraAt). */
   canopies: Array<{ niche: number; min: [number, number, number]; max: [number, number, number] }>;
   /** Where the summit chest stands (the coin burst of the summit), null — none. */
   chest: [number, number, number] | null;
@@ -439,18 +442,25 @@ function belt(k: Kit, p: LevelPoint, stripes: PropStripe[]): void {
 }
 
 /** V-04: a canopy of a finish belt — four log posts to the snow, beams along under a gable roof of boards with a snow cap
- * and an overhang, icicles along the eaves; the flat collider of the roof stays, not drawn. */
+ * and an overhang, icicles along the eaves; the flat collider of the roof stays, not drawn.
+ * V2-01 (staff 28.10, producer: «the canopies over the belts hang in the air»): the roof is drawn over the running camera
+ * (CANOPY_EAVES over the floor: under a canopy the camera of the stages runs 7.5–11.4 over it), and every part of it — beams, boards, snow,
+ * ridge, icicles — is one hidden group of the cut mesh: a roof is drawn whole or not at all, the posts stand on the snow. */
+const CANOPY_EAVES = 12.6;
 function canopy(k: Kit, level: LevelData, n: LevelNiche, i: number, cut: PropCut[], hidden: Set<LevelBox>, glows: TrackProps['glows'], canopies: TrackProps['canopies']): void {
   const roof = level.boxes.find((b) => b.kind === 'islandRoof' && b.min[1] >= n.box.max[1] - 0.01 && b.min[0] <= n.box.min[0] + 1e-6 && b.max[0] >= n.box.max[0] - 1e-6 && b.min[2] < n.box.max[2] && b.max[2] > n.box.min[2]);
   if (!roof) return;
   hidden.add(roof);
   const y = n.y;
-  const top = roof.min[1];
+  const top = Math.max(roof.min[1], y + CANOPY_EAVES);
   const a = (roof.max[0] - roof.min[0]) / 2;
   const cx = (roof.min[0] + roof.max[0]) / 2;
   const z0 = roof.min[2];
   const z1 = roof.max[2];
   const inset = 0.6;
+  const part = (b: LevelBox, tilt?: number, yaw?: number): void => {
+    cut.push({ niche: i, part: 'roof', box: b, ...(tilt !== undefined ? { tilt } : {}), ...(yaw !== undefined ? { yaw } : {}) });
+  };
   for (const sx of [-1, 1])
     for (const z of [z0 + inset, z1 - inset]) {
       const x = cx + sx * (a - inset);
@@ -458,8 +468,8 @@ function canopy(k: Kit, level: LevelData, n: LevelNiche, i: number, cut: PropCut
       const yb = Number.isFinite(g) ? Math.min(g, y) : y;
       k.post(x, yb - 0.3, z, 0.42, 0.36, top - yb + 0.3, 7, 'pole');
     }
-  for (const sx of [-1, 1]) k.box(cx + sx * (a - inset) - 0.35, top - 0.7, z0, cx + sx * (a - inset) + 0.35, top, z1, 'pole', 0.92);
-  for (const z of [z0 + inset, z1 - inset]) k.box(cx - a, top - 0.55, z - 0.3, cx + a, top, z + 0.3, 'pole', 0.85);
+  for (const sx of [-1, 1]) part(box(cx + sx * (a - inset) - 0.35, top - 0.7, z0, cx + sx * (a - inset) + 0.35, top, z1, 'pole'));
+  for (const z of [z0 + inset, z1 - inset]) part(box(cx - a, top - 0.55, z - 0.3, cx + a, top, z + 0.3, 'pole'));
   // The gable: two boards from the eaves (a little past the posts) up to the ridge along the run, a snow cap on each.
   const over = 1.2;
   const run = a + over;
@@ -469,17 +479,22 @@ function canopy(k: Kit, level: LevelData, n: LevelNiche, i: number, cut: PropCut
   for (const sx of [-1, 1]) {
     const mx = cx + (sx * run) / 2;
     const my = top + rise / 2 + 0.3;
-    cut.push({ niche: i, part: 'roof', box: box(mx - slope / 2, my - 0.25, z0 - over, mx + slope / 2, my + 0.25, z1 + over, 'roofPlank'), tilt: sx * -tilt });
-    cut.push({ niche: i, part: 'roof', box: box(mx - slope / 2 + 0.1, my + 0.25, z0 - over + 0.15, mx + slope / 2 - 0.3, my + 0.6, z1 + over - 0.15, 'track'), tilt: sx * -tilt });
-    // Icicles under the eaves.
-    for (let z = z0 - over + 0.8; z < z1 + over - 0.5; z += 1.7) k.icicle(cx + sx * (run - 0.3), top + 0.2, z, 0.18, 0.7 + ((z * 13) % 1) * 0.6);
+    part(box(mx - slope / 2, my - 0.25, z0 - over, mx + slope / 2, my + 0.25, z1 + over, 'roofPlank'), sx * -tilt);
+    part(box(mx - slope / 2 + 0.1, my + 0.25, z0 - over + 0.15, mx + slope / 2 - 0.3, my + 0.6, z1 + over - 0.15, 'track'), sx * -tilt);
+    // Icicles under the eaves: thin ice diamonds of the same group.
+    for (let z = z0 - over + 0.8; z < z1 + over - 0.5; z += 1.7) {
+      const len = 0.45 + ((z * 13) % 1) * 0.35;
+      const x = cx + sx * (run - 0.3);
+      part(box(x - 0.13, top + 0.25 - len, z - 0.13, x + 0.13, top + 0.25, z + 0.13, 'ice'), undefined, Math.PI / 4);
+    }
   }
-  // A ridge beam; the lamp on the front left post (off the run line: on the axis it hid the hero's head).
-  cut.push({ niche: i, part: 'roof', box: box(cx - 0.35, top + rise + 0.2, z0 - over, cx + 0.35, top + rise + 0.75, z1 + over, 'pole') });
+  // A ridge beam; the lamp low on the front left post (off the run line: on the axis it hid the hero's head).
+  part(box(cx - 0.35, top + rise + 0.2, z0 - over, cx + 0.35, top + rise + 0.75, z1 + over, 'pole'));
   const lx = cx + (a - inset);
-  k.post(lx, top - 1.6, z0 + inset - 0.6, 0.25, 0.3, 0.7, 6, 'portalLight', 1.1);
-  glows.push([lx, top - 1.2, z0 + inset - 0.6, 0.9]);
-  canopies.push({ niche: i, min: [cx - run - 0.5, top - 1.2, z0 - over - 0.5], max: [cx + run + 0.5, top + rise + 1.5, z1 + over + 0.5] });
+  const ly = y + 5.5;
+  k.post(lx, ly, z0 + inset - 0.6, 0.25, 0.3, 0.7, 6, 'portalLight', 1.1);
+  glows.push([lx, ly + 0.4, z0 + inset - 0.6, 0.9]);
+  canopies.push({ niche: i, min: [cx - run - 0.5, top - 0.8, z0 - over - 0.5], max: [cx + run + 0.5, Infinity, z1 + over + 0.5] });
 }
 
 /** V-06: a grotto in a rock — rock blocks of different heights round its walls, a snow cap over the roof, a stepped arch

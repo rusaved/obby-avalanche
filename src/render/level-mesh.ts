@@ -126,8 +126,11 @@ export interface LevelMeshes {
   /** These parts of cave `niche` are not drawn (−1 or no parts — all drawn); the boxes of the hidden ones (test API). */
   setCaveCut(niche: number, parts: readonly CavePart[]): void;
   cutBoxes(): Array<{ min: readonly number[]; max: readonly number[] }>;
-  /** V-04: the camera at (x, y, z) every frame — a canopy roof it is under or in is not drawn (the boards filled the frame). */
+  /** V-04, V2-01: the camera at (x, y, z) every frame — a canopy roof (boards, snow, ridge, beams, icicles at once) is not
+   * drawn while the camera is over its footprint above its lower edge (the boards filled the frame). */
   cameraAt(x: number, y: number, z: number): void;
+  /** V2-01 (test API): the canopy roofs — their hide volume and whether each is drawn whole now. */
+  canopyRoofs(): Array<{ min: readonly number[]; max: readonly number[]; drawn: boolean }>;
   /** V-05: where the summit chest stands beside the portal (its coins flash there), null — none. */
   chestAt: readonly [number, number, number] | null;
   /** Gifts of the mountain in `level.points` order (M2-04). */
@@ -331,7 +334,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   };
   // V22: the finished pieces of the track over their colliders (render/track-props.ts).
   const props = decor?.built?.props ?? buildTrackProps(level, theme, decor?.models);
-  const cutParts: Array<{ niche: number; part: CavePart; box: LevelBox; tilt?: number }> = [];
+  const cutParts: Array<{ niche: number; part: CavePart; box: LevelBox; tilt?: number; yaw?: number }> = [];
   // RL-09: with `fade` < 1 the tall walls are drawn apart, solid or see-through (the camera passes them, builder cameraThrough).
   const throughKinds = level.cameraThrough ?? CAMERA_THROUGH;
   const seeThrough = fade < 1 ? level.boxes.filter((b) => throughKinds.has(b.kind)) : [];
@@ -443,7 +446,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
     if (!w) return;
     const b = w.box;
     backDummy.position.set((b.min[0] + b.max[0]) / 2, (b.min[1] + b.max[1]) / 2, (b.min[2] + b.max[2]) / 2);
-    backDummy.rotation.set(0, 0, w.tilt ?? 0);
+    backDummy.rotation.set(0, w.yaw ?? 0, w.tilt ?? 0);
     backDummy.scale.set(b.max[0] - b.min[0], b.max[1] - b.min[1], b.max[2] - b.min[2]).multiplyScalar(shown ? 1 : 1e-4);
     backDummy.updateMatrix();
     backMesh.setMatrixAt(i, backDummy.matrix);
@@ -911,6 +914,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
         }
       });
     },
+    canopyRoofs: () => props.canopies.map((c, n) => ({ min: c.min, max: c.max, drawn: canopyParts[n]!.every((i) => !cutHidden[i] && !camHidden[i]) })),
     cutBoxes: () => cutParts.filter((_, i) => cutHidden[i]).map((w) => ({ min: w.box.min, max: w.box.max })),
     gateOpenness: (index) => melted[index] ?? 0,
     setGateOpen(index, openness) {
