@@ -1,0 +1,105 @@
+
+Running 6 tests using 2 workers
+
+  ✓  2 [desktop] › e2e/g-shoes.spec.ts:13:5 › G-03 · 880×405 › «Buy sneakers» holds on the run with the arrow; the shop opened — gone (10.9s)
+  ✓  3 [desktop] › e2e/g-shoes.spec.ts:13:5 › G-03 · 815×290 › «Buy sneakers» holds on the run with the arrow; the shop opened — gone (7.6s)
+  ✘  1 [desktop] › e2e/fm-treadmill.spec.ts:12:1 › after 2 summits: the sign «×6», a step on the belt × 6, the toast once, 2 bots on it, stat_now standing on it; screenshot (33.3s)
+«Phew» early: front 90.5 hero 94.0
+«Phew» early: front 92.8 hero 94.3
+  ✘  4 [desktop] › e2e/m5-perf.spec.ts:13:1 › M5-06: draw calls, triangles, textures at 3 points of each of the 10 mountains; a switch ≤ 1 s at CPU ×4, memory flat (2.1m)
+  ✓  6 [mobile] › e2e/layout.spec.ts:77:3 › layout › SCR-07 resize and rotation keep the game state (6.4s)
+«Phew» early: front 90.5 hero 94.2
+«Phew» early: front 309.5 hero 310.0
+«Phew» early: front 309.5 hero 310.0
+«Phew» early: front 307.3 hero 310.0
+«Phew» early: front 408.3 hero 411.0
+«Phew» early: front 408.3 hero 411.0
+«Phew» early: front 409.0 hero 411.0
+«Phew» early: front 617.5 hero 619.5
+«Phew» early: front 618.8 hero 620.5
+«Phew» early: front 618.0 hero 620.6
+white frames in shelters on the run of a wave:
+grotto z 94: without the flag 5 white of 67; with it 0 of 57, «Phew» after the snow true
+grotto z 94 (ran in late): without the flag 6 white of 25; with it 0 of 23, «Phew» after the snow true
+grotto z 94 (ran in late) (turned by hand): without the flag 18 white of 28; with it 0 of 28, «Phew» after the snow true
+ridgeGrotto z 310: without the flag 0 white of 136; with it 0 of 127, «Phew» after the snow true
+ridgeGrotto z 310 (ran in late): without the flag 0 white of 89; with it 0 of 89, «Phew» after the snow true
+ridgeGrotto z 310 (ran in late) (turned by hand): without the flag 13 white of 94; with it 0 of 95, «Phew» after the snow true
+chestGrotto z 411: without the flag 0 white of 168; with it 0 of 161, «Phew» after the snow true
+chestGrotto z 411 (ran in late): without the flag 0 white of 129; with it 0 of 127, «Phew» after the snow true
+chestGrotto z 411 (ran in late) (turned by hand): without the flag 20 white of 139; with it 0 of 144, «Phew» after the snow true
+island z 620: without the flag 0 white of 261; with it 0 of 246, «Phew» after the snow true
+island z 620 (ran in late): without the flag 0 white of 201; with it 0 of 202, «Phew» after the snow true
+island z 620 (ran in late) (turned by hand): without the flag 14 white of 182; with it 0 of 189, «Phew» after the snow true
+total: without 76/1519, with 0/1488
+  ✓  5 [desktop] › e2e/sp-shelter-white.spec.ts:95:1 › shelters of mountain 1: white frames on the run of a wave ≤ WHITE with shotUntilClear, more without; «Phew» after the snow; screenshots (10.0m)
+
+
+  1) [desktop] › e2e/fm-treadmill.spec.ts:12:1 › after 2 summits: the sign «×6», a step on the belt × 6, the toast once, 2 bots on it, stat_now standing on it; screenshot 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 1
+    Received length: 0
+    Received array:  []
+
+      29 |   expect(s.baseTread).toBe('×6');
+      30 |   const want = dict['toast.baseTreadmill']!.replace('{n}', '6');
+    > 31 |   expect(toasts.filter((x) => x.includes(want))).toHaveLength(1);
+         |                                                  ^
+      32 |   // 2 bots run on the belts.
+      33 |   const belts = Array.from({ length: base.treadmill.lanes }, (_, k) => base.treadmill.x + (k - (base.treadmill.lanes - 1) / 2) * base.treadmill.laneWidth);
+      34 |   const onBelt = s.bots.filter((b) => b.mode === 'treadmill' && belts.some((x) => Math.abs(b.x - x) < 0.5) && Math.abs(b.z - base.treadmill.z) < base.treadmill.length / 2);
+        at /home/user/obby-avalanche/e2e/fm-treadmill.spec.ts:31:50
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fm-treadmill-after-2-summi-45b56-w-standing-on-it-screenshot-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fm-treadmill-after-2-summi-45b56-w-standing-on-it-screenshot-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fm-treadmill-after-2-summi-45b56-w-standing-on-it-screenshot-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fm-treadmill-after-2-summi-45b56-w-standing-on-it-screenshot-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › e2e/m5-perf.spec.ts:13:1 › M5-06: draw calls, triangles, textures at 3 points of each of the 10 mountains; a switch ≤ 1 s at CPU ×4, memory flat 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1000
+    Received:    1136.0999999996275
+
+      87 |   expect(worst.triangles).toBeLessThanOrEqual(LIMIT.triangles);
+      88 |   expect(worst.textures).toBeLessThanOrEqual(LIMIT.textures);
+    > 89 |   expect(Math.max(...switches)).toBeLessThanOrEqual(LIMIT.switchMs);
+         |                                 ^
+      90 |   expect(after.geometries).toBeLessThanOrEqual(before.geometries);
+      91 |   expect(after.textures).toBeLessThanOrEqual(before.textures);
+      92 | });
+        at /home/user/obby-avalanche/e2e/m5-perf.spec.ts:89:33
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/m5-perf-M5-06-draw-calls-t-5cb94-≤-1-s-at-CPU-×4-memory-flat-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/m5-perf-M5-06-draw-calls-t-5cb94-≤-1-s-at-CPU-×4-memory-flat-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/m5-perf-M5-06-draw-calls-t-5cb94-≤-1-s-at-CPU-×4-memory-flat-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/m5-perf-M5-06-draw-calls-t-5cb94-≤-1-s-at-CPU-×4-memory-flat-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  Slow test file: [desktop] › e2e/sp-shelter-white.spec.ts (10.0m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  2 failed
+    [desktop] › e2e/fm-treadmill.spec.ts:12:1 › after 2 summits: the sign «×6», a step on the belt × 6, the toast once, 2 bots on it, stat_now standing on it; screenshot 
+    [desktop] › e2e/m5-perf.spec.ts:13:1 › M5-06: draw calls, triangles, textures at 3 points of each of the 10 mountains; a switch ≤ 1 s at CPU ×4, memory flat 
+  4 passed (10.6m)
+EXIT=1
