@@ -2641,7 +2641,7 @@
     "milestone": "L23",
     "description": "Тесты и итог: e2e задетых мест; бот первой горы на dist-vk в альбоме; плейтестер 5 минут в рамке VK на телефоне с портрета; check-release обоих архивов Яндекса без изменений, check:vk, build:vk, dist-vk на Pages; полный verify один раз (+ один повтор) (штаб 28.10, веха «Лавина 23 · Поворот в VK и остаток», по расписанию штаба)",
     "acceptance": "Итог в progress.md с «Что проверить продюсеру» (5 шагов, первой строкой ссылка VK) и push в main",
-    "passes": false,
+    "passes": true,
     "priority": "P0",
     "deferred": false
   }

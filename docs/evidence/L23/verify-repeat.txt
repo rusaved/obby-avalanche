@@ -1,0 +1,352 @@
+11:07
+
+Running 26 tests using 2 workers
+
+[1/26] [desktop] › e2e/fx-ui.spec.ts:61:1 › FX-02 FX-06 every press squeezes and taps; what cannot act shakes, says «no» and tells why; windows sound, an ad silences
+[2/26] [desktop] › e2e/fm-camera.spec.ts:107:1 › mountain 3 through the throat: the head is behind something opaque in ≤ 2% of the frames
+  1) [desktop] › e2e/fx-ui.spec.ts:61:1 › FX-02 FX-06 every press squeezes and taps; what cannot act shakes, says «no» and tells why; windows sound, an ad silences 
+
+    Error: expect(locator).toHaveClass(expected) failed
+
+    Locator: locator('[data-hud="pause"]')
+    Expected pattern: /\bpress\b/
+    Received string:  "hud-btn hud-pause"
+    Timeout: 15000ms
+
+    Call log:
+      - Expect "toHaveClass" locator('[data-hud="pause"]') with timeout 15000ms
+      - waiting for locator('[data-hud="pause"]')
+        33 × locator resolved to <button data-hud="pause" aria-label="Пауза" class="hud-btn hud-pause">…</button>
+           - unexpected value "hud-btn hud-pause"
+
+
+      67 |   let n0 = (await sfx(page)).length;
+      68 |   await tap(page, '[data-hud="pause"]');
+    > 69 |   await expect(page.locator('[data-hud="pause"]')).toHaveClass(/\bpress\b/);
+         |                                                    ^
+      70 |   await expect.poll(async () => (await sfx(page)).slice(n0)).toEqual(expect.arrayContaining(['uiTap', 'uiOpen']));
+      71 |   expect(await page.evaluate(() => window.__TEST__!.state().audioRunning), 'a window alone keeps the sound').toBe(true);
+      72 |   await page.evaluate(() => window.__TEST__!.openMenu(false));
+        at /home/user/obby-avalanche/e2e/fx-ui.spec.ts:69:52
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fx-ui-FX-02-FX-06-every-pr-ed146-indows-sound-an-ad-silences-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fx-ui-FX-02-FX-06-every-pr-ed146-indows-sound-an-ad-silences-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fx-ui-FX-02-FX-06-every-pr-ed146-indows-sound-an-ad-silences-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fx-ui-FX-02-FX-06-every-pr-ed146-indows-sound-an-ad-silences-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[3/26] [desktop] › e2e/g-shoes.spec.ts:13:5 › G-03 · 880×405 › «Buy sneakers» holds on the run with the arrow; the shop opened — gone
+[4/26] [desktop] › e2e/g-shoes.spec.ts:13:5 › G-03 · 815×290 › «Buy sneakers» holds on the run with the arrow; the shop opened — gone
+[5/26] [desktop] › e2e/lv-camera.spec.ts:30:1 › PC: the mouse without a button turns the view, keys follow it, the view comes back behind the hero; a drag stays
+[6/26] [desktop] › e2e/lv-steps.spec.ts:25:1 › steps sound at most ~3 a second: snow on the slope, ice on the slide; quiet by default
+  2) [desktop] › e2e/lv-steps.spec.ts:25:1 › steps sound at most ~3 a second: snow on the slope, ice on the slide; quiet by default 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 7
+    Received:    9
+
+      39 |   // SD-14: not a sound a step — at most perSec a second (2 s of play here), still a step every third of a second.
+      40 |   const heard = b.footsteps!.count - a.footsteps!.count;
+    > 41 |   expect(heard).toBeLessThanOrEqual(2 * steps.perSec + 1);
+         |                 ^
+      42 |   expect(heard).toBeGreaterThanOrEqual(3);
+      43 |   expect(heard).toBeLessThan(b.steps - a.steps);
+      44 |   expect(b.footsteps!.surface).toBe('snow');
+        at /home/user/obby-avalanche/e2e/lv-steps.spec.ts:41:17
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/lv-steps-steps-sound-at-mo-4ce55--the-slide-quiet-by-default-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/lv-steps-steps-sound-at-mo-4ce55--the-slide-quiet-by-default-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/lv-steps-steps-sound-at-mo-4ce55--the-slide-quiet-by-default-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/lv-steps-steps-sound-at-mo-4ce55--the-slide-quiet-by-default-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[7/26] [desktop] › e2e/m5-perf.spec.ts:13:1 › M5-06: draw calls, triangles, textures at 3 points of each of the 10 mountains; a switch ≤ 1 s at CPU ×4, memory flat
+  3) [desktop] › e2e/fm-camera.spec.ts:107:1 › mountain 3 through the throat: the head is behind something opaque in ≤ 2% of the frames 
+
+    Test timeout of 300000ms exceeded.
+
+    TimeoutError: page.waitForFunction: Timeout 280000ms exceeded.
+
+      43 |   await page.evaluate((p) => window.__TEST__!.botPath(p), path.slice(1));
+      44 |   const t0 = (await testState(page)).ticks;
+    > 45 |   await page.waitForFunction((t) => window.__TEST__!.botLeft() === 0 || window.__TEST__!.state().ticks > t, t0 + maxTicks, { timeout: 280_000, polling: 250 });
+         |              ^
+      46 |   return page.evaluate(() => window.__TEST__!.cameraStats());
+      47 | }
+      48 |
+        at run (/home/user/obby-avalanche/e2e/fm-camera.spec.ts:45:14)
+        at /home/user/obby-avalanche/e2e/fm-camera.spec.ts:113:13
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fm-camera-mountain-3-throu-014da-opaque-in-≤-2-of-the-frames-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fm-camera-mountain-3-throu-014da-opaque-in-≤-2-of-the-frames-desktop/error-context.md
+
+    Error Context: test-results/fm-camera-mountain-3-throu-014da-opaque-in-≤-2-of-the-frames-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/fm-camera-mountain-3-throu-014da-opaque-in-≤-2-of-the-frames-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/fm-camera-mountain-3-throu-014da-opaque-in-≤-2-of-the-frames-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[8/26] [desktop] › e2e/m5-perf.spec.ts:94:1 › M5-06 @full: time to ready() ≤ 4 s and ≤ 1.2 MB before it — median of 3 loads at 10 Mbit/s, RTT 100 ms, CPU ×4
+  4) [desktop] › e2e/m5-perf.spec.ts:94:1 › M5-06 @full: time to ready() ≤ 4 s and ≤ 1.2 MB before it — median of 3 loads at 10 Mbit/s, RTT 100 ms, CPU ×4 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 5300
+    Received:    14071
+
+      128 |     ].join('\n'),
+      129 |   );
+    > 130 |   expect(ms).toBeLessThanOrEqual(LIMIT.readyMs);
+          |              ^
+      131 |   expect(mb).toBeLessThanOrEqual(LIMIT.readyBytes);
+      132 | });
+      133 |
+        at /home/user/obby-avalanche/e2e/m5-perf.spec.ts:130:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/m5-perf-M5-06-full-time-to-9df63-10-Mbit-s-RTT-100-ms-CPU-×4-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/m5-perf-M5-06-full-time-to-9df63-10-Mbit-s-RTT-100-ms-CPU-×4-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/m5-perf-M5-06-full-time-to-9df63-10-Mbit-s-RTT-100-ms-CPU-×4-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/m5-perf-M5-06-full-time-to-9df63-10-Mbit-s-RTT-100-ms-CPU-×4-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[9/26] [desktop] › e2e/m6-switch.spec.ts:31:1 › the base: the passed portal nearest to the hero is built ahead — a run again of mountain 1 ≤ 1 s at CPU ×4
+  5) [desktop] › e2e/m5-perf.spec.ts:13:1 › M5-06: draw calls, triangles, textures at 3 points of each of the 10 mountains; a switch ≤ 1 s at CPU ×4, memory flat 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1000
+    Received:    1984.5
+
+      87 |   expect(worst.triangles).toBeLessThanOrEqual(LIMIT.triangles);
+      88 |   expect(worst.textures).toBeLessThanOrEqual(LIMIT.textures);
+    > 89 |   expect(Math.max(...switches)).toBeLessThanOrEqual(LIMIT.switchMs);
+         |                                 ^
+      90 |   expect(after.geometries).toBeLessThanOrEqual(before.geometries);
+      91 |   expect(after.textures).toBeLessThanOrEqual(before.textures);
+      92 | });
+        at /home/user/obby-avalanche/e2e/m5-perf.spec.ts:89:33
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/m5-perf-M5-06-draw-calls-t-5cb94-≤-1-s-at-CPU-×4-memory-flat-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/m5-perf-M5-06-draw-calls-t-5cb94-≤-1-s-at-CPU-×4-memory-flat-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/m5-perf-M5-06-draw-calls-t-5cb94-≤-1-s-at-CPU-×4-memory-flat-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/m5-perf-M5-06-draw-calls-t-5cb94-≤-1-s-at-CPU-×4-memory-flat-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[10/26] [desktop] › e2e/m6-switch.spec.ts:47:1 › no base: past half of mountain 1 the next one is built ahead — its summit portal straight to mountain 2 ≤ 1 s at CPU ×4
+[11/26] [desktop] › e2e/open-perf.spec.ts:18:1 › draw calls, triangles, textures at the foot, ridge 2 and the giant’s line of each of the 10 mountains; perf.md
+  6) [desktop] › e2e/m6-switch.spec.ts:47:1 › no base: past half of mountain 1 the next one is built ahead — its summit portal straight to mountain 2 ≤ 1 s at CPU ×4 
+
+    Error: expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 1000
+    Received:    1641
+
+      64 |   expect((await testState(page)).hero!.z).toBeLessThan(60);
+      65 |   lines.push(`no base: mountain 1 -> 2 (stages), prebuilt: ${ms.toFixed(0)} ms / ${SWITCH_MS}; without the prebuild (-> 3): ${cold.toFixed(0)} ms`);
+    > 66 |   expect(ms).toBeLessThanOrEqual(SWITCH_MS);
+         |              ^
+      67 | });
+      68 |
+        at /home/user/obby-avalanche/e2e/m6-switch.spec.ts:66:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/m6-switch-no-base-past-hal-3504d--mountain-2-≤-1-s-at-CPU-×4-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/m6-switch-no-base-past-hal-3504d--mountain-2-≤-1-s-at-CPU-×4-desktop/error-context.md
+
+    Error Context: test-results/m6-switch-no-base-past-hal-3504d--mountain-2-≤-1-s-at-CPU-×4-desktop/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/m6-switch-no-base-past-hal-3504d--mountain-2-≤-1-s-at-CPU-×4-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/m6-switch-no-base-past-hal-3504d--mountain-2-≤-1-s-at-CPU-×4-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[12/26] [desktop] › e2e/open-perf.spec.ts:72:1 › a simulation step on mountain 10 at CPU ×4 stays within 2 ms; memory does not grow over 5 transitions
+[13/26] [desktop] › e2e/open-perf.spec.ts:138:1 › the ridge view and the giant’s shot come back behind the hero within 1.5 s; a turn by hand ends them
+[14/26] [desktop] › e2e/open-perf.spec.ts:173:1 › 640×360: both lanes of the fork of section 3 of mountain 4 are in the frame from its start
+[15/26] [desktop] › e2e/perf.spec.ts:14:1 › SP-02: a simulation step on mountain 10 at CPU ×4 with 6 bots at 120 units/s stays within 2 ms
+  7) [desktop] › e2e/perf.spec.ts:14:1 › SP-02: a simulation step on mountain 10 at CPU ×4 with 6 bots at 120 units/s stays within 2 ms 
+
+    Error: mountain 10, CPU x4, 6 bots, run 120 units/s, 300 ticks: sim.step mean 2.759 ms, median 1.400 ms, p90 7.300 ms, max 32.700 ms
+
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 2
+    Received:    2.7586666665722928
+
+      55 |   expect(top, 'ran at 120').toBeGreaterThan(110);
+      56 |   // The mean: CPU throttling stops the page in quanta, a single tick that meets one is ~15 ms (docs/допущения.md).
+    > 57 |   expect(mean, line).toBeLessThanOrEqual(2);
+         |                      ^
+      58 | });
+      59 |
+      60 | test('SP-03: draw calls at the foot, ridge 2 and the giant’s line of mountains 1, 5, 10 ≤ 45 (far 800)', async ({ page, openGame }) => {
+        at /home/user/obby-avalanche/e2e/perf.spec.ts:57:22
+
+    Error Context: test-results/perf-SP-02-a-simulation-st-4e16e-0-units-s-stays-within-2-ms-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/perf-SP-02-a-simulation-st-4e16e-0-units-s-stays-within-2-ms-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/perf-SP-02-a-simulation-st-4e16e-0-units-s-stays-within-2-ms-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[16/26] [desktop] › e2e/perf.spec.ts:60:1 › SP-03: draw calls at the foot, ridge 2 and the giant’s line of mountains 1, 5, 10 ≤ 45 (far 800)
+  8) [desktop] › e2e/open-perf.spec.ts:72:1 › a simulation step on mountain 10 at CPU ×4 stays within 2 ms; memory does not grow over 5 transitions 
+
+    TimeoutError: page.waitForFunction: Timeout 60000ms exceeded.
+
+       at fixtures.ts:96
+
+      94 | export async function waitTicks(page: Page, n: number, timeout = 60_000): Promise<void> {
+      95 |   const start = await page.evaluate(() => window.__TEST__!.state().ticks);
+    > 96 |   await page.waitForFunction((t) => window.__TEST__!.state().ticks >= t, start + n, { timeout });
+         |              ^
+      97 | }
+      98 |
+        at waitTicks (/home/user/obby-avalanche/e2e/fixtures.ts:96:14)
+        at /home/user/obby-avalanche/e2e/open-perf.spec.ts:127:3
+
+    Error Context: test-results/open-perf-a-simulation-ste-80b07-not-grow-over-5-transitions-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/open-perf-a-simulation-ste-80b07-not-grow-over-5-transitions-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/open-perf-a-simulation-ste-80b07-not-grow-over-5-transitions-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[17/26] [desktop] › e2e/sp-belt-camera.spec.ts:54:1 › belts of mountains 1–3: in, off without a turn, turned round by hand and out — the camera ≥ NEAR off the head; screenshot
+[18/26] [desktop] › e2e/sp-camera.spec.ts:95:1 › 10 side grottos of mountains 1–3: out of each the view is behind the hero within shotReturnSec; screenshot
+[19/26] [desktop] › e2e/sp-camera.spec.ts:127:3 › mountain 1 summit: straight up -14 off the middle — into the portal ≤ 3 s from the funnel, the camera never in the arch or the light
+[20/26] [desktop] › e2e/sp-camera.spec.ts:127:3 › mountain 1 summit: straight up 0 off the middle — into the portal ≤ 3 s from the funnel, the camera never in the arch or the light
+[21/26] [desktop] › e2e/sp-camera.spec.ts:127:3 › mountain 1 summit: straight up 14 off the middle — into the portal ≤ 3 s from the funnel, the camera never in the arch or the light
+[22/26] [desktop] › e2e/sp-camera.spec.ts:158:1 › mountain 2: on the belt of the grotto of ridge 1 the record flag is never between the camera and the hero (300 frames)
+  9) [desktop] › e2e/sp-camera.spec.ts:158:1 › mountain 2: on the belt of the grotto of ridge 1 the record flag is never between the camera and the hero (300 frames) 
+
+    Test timeout of 180000ms exceeded.
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/sp-camera-mountain-2-on-th-8483a-ra-and-the-hero-300-frames--desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/sp-camera-mountain-2-on-th-8483a-ra-and-the-hero-300-frames--desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sp-camera-mountain-2-on-th-8483a-ra-and-the-hero-300-frames--desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sp-camera-mountain-2-on-th-8483a-ra-and-the-hero-300-frames--desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[23/26] [desktop] › e2e/sp-camera.spec.ts:215:1 › rock grottos with a belt, mountains 1–2: on the belt and in an avalanche frame the hero is seen, the camera never at him; ridge passages
+[desktop] › e2e/sp-camera.spec.ts:215:1 › rock grottos with a belt, mountains 1–2: on the belt and in an avalanche frame the hero is seen, the camera never at him; ridge passages
+mountain 1 z 620 belt: 26 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 620 avalanche: 3 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 1020 belt: 27 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 1020 avalanche: 3 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 1050 belt: 28 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 1 z 1050 avalanche: 3 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 2 z 1660 belt: 26 frames, hidden 0, blocked 0, at him 0, inside 0
+mountain 2 z 1660 avalanche: 3 frames, hidden 0, blocked 0, at him 0, inside 0
+ridge z 320 pass x 0: 8 frames, hidden 0, at him 0, inside 0
+ridge z 630 pass x 0: 8 frames, hidden 0, at him 0, inside 0
+ridge z 1030 pass x 0: 8 frames, hidden 0, at him 0, inside 0
+
+[24/26] [desktop] › e2e/sp-fork.spec.ts:23:1 › each lane of the fork up to ridge 2, no fall; the other lane in the frame; screenshot
+[25/26] [desktop] › e2e/sp-fork.spec.ts:68:1 › dropped on the bottom of the crevasse: out up its slope within 4 s, no fall
+[26/26] [desktop] › e2e/sp-fork.spec.ts:100:1 › «Two ways: pick one»: not while running through the fork; after a 2 s stop at it
+[desktop] › e2e/sp-belt-camera.spec.ts:54:1 › belts of mountains 1–3: in, off without a turn, turned round by hand and out — the camera ≥ NEAR off the head; screenshot
+belt camera (head, units; NEAR 6), 17 belts:
+m1 ridgeGrotto z 310: in 8.6, off 11.4, turn 10.7, off after the turn 8.9; 3 drags left 45°, right 45°
+m1 island z 620: in 8.3, off 8.6, turn 9.0, off after the turn 11.3; 3 drags left 45°, right 45°
+m1 chestGrotto z 411: in 8.7, off 10.1, turn 9.2, off after the turn 8.8; 3 drags left 45°, right 45°
+m1 island z 1020: in 8.3, off 8.8, turn 8.9, off after the turn 11.4; 3 drags left 45°, right 45°
+m1 island z 1050: in 9.5, off 8.4, turn 9.0, off after the turn 10.6; 3 drags left 45°, right 45°
+m2 ridgeGrotto z 360: in 8.6, off 11.3, turn 10.6, off after the turn 8.9; 3 drags left 45°, right 45°
+m2 ridgeGrotto z 740: in 8.7, off 11.3, turn 12.8, off after the turn 8.7; 3 drags left 45°, right 45°
+m2 ridgeGrotto z 1160: in 8.6, off 11.5, turn 10.7, off after the turn 9.0; 3 drags left 45°, right 45°
+m2 chestGrotto z 973: in 9.1, off 10.3, turn 8.9, off after the turn 8.1; 3 drags left 45°, right 45°
+m2 ridgeGrotto z 1630: in 8.7, off 12.4, turn 12.8, off after the turn 8.7; 3 drags left 45°, right 45°
+m2 island z 1660: in 11.5, off 7.4, turn 8.6, off after the turn 11.3; 3 drags left 45°, right 45°
+m3 ridgeGrotto z 420: in 7.4, off 11.3, turn 10.7, off after the turn 6.1; 3 drags left 45°, right 45°
+m3 ridgeGrotto z 850: in 7.5, off 11.2, turn 12.9, off after the turn 8.7; 3 drags left 45°, right 45°
+m3 chestGrotto z 643: in 9.0, off 10.0, turn 9.2, off after the turn 8.8; 3 drags left 45°, right 45°
+m3 ridgeGrotto z 1330: in 7.5, off 11.6, turn 10.7, off after the turn 9.7; 3 drags left 45°, right 45°
+m3 ridgeGrotto z 1860: in 7.5, off 11.3, turn 12.8, off after the turn 8.7; 3 drags left 45°, right 45°
+m3 island z 1890: in 11.5, off 7.6, turn 8.9, off after the turn 11.2; 3 drags left 45°, right 45°
+
+  Slow test file: [desktop] › e2e/sp-belt-camera.spec.ts (14.8m)
+  Slow test file: [desktop] › e2e/fm-camera.spec.ts (5.1m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  9 failed
+    [desktop] › e2e/fm-camera.spec.ts:107:1 › mountain 3 through the throat: the head is behind something opaque in ≤ 2% of the frames 
+    [desktop] › e2e/fx-ui.spec.ts:61:1 › FX-02 FX-06 every press squeezes and taps; what cannot act shakes, says «no» and tells why; windows sound, an ad silences 
+    [desktop] › e2e/lv-steps.spec.ts:25:1 › steps sound at most ~3 a second: snow on the slope, ice on the slide; quiet by default 
+    [desktop] › e2e/m5-perf.spec.ts:13:1 › M5-06: draw calls, triangles, textures at 3 points of each of the 10 mountains; a switch ≤ 1 s at CPU ×4, memory flat 
+    [desktop] › e2e/m5-perf.spec.ts:94:1 › M5-06 @full: time to ready() ≤ 4 s and ≤ 1.2 MB before it — median of 3 loads at 10 Mbit/s, RTT 100 ms, CPU ×4 
+    [desktop] › e2e/m6-switch.spec.ts:47:1 › no base: past half of mountain 1 the next one is built ahead — its summit portal straight to mountain 2 ≤ 1 s at CPU ×4 
+    [desktop] › e2e/open-perf.spec.ts:72:1 › a simulation step on mountain 10 at CPU ×4 stays within 2 ms; memory does not grow over 5 transitions 
+    [desktop] › e2e/perf.spec.ts:14:1 › SP-02: a simulation step on mountain 10 at CPU ×4 with 6 bots at 120 units/s stays within 2 ms 
+    [desktop] › e2e/sp-camera.spec.ts:158:1 › mountain 2: on the belt of the grotto of ridge 1 the record flag is never between the camera and the hero (300 frames) 
+  17 passed (28.1m)
+EXIT=1
+11:35

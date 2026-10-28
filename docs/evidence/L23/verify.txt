@@ -1,0 +1,9 @@
+verify «Лавина 23» (28.10, по частям, облако 4 ядра, SwiftShader)
+typecheck — ok; test — Vitest 674 из 674; validate:content — ok (verify:fast, после последней правки кода)
+build, size (ZIP 2943 КБ, JS 440,6 КБ gzip), pack, check-release (оба архива PASS), e2e:release, build:vk, check:vk, e2e:vk 21 из 21, e2e:sample — ok (verify-tail.txt)
+e2e прогон 0 (3 потока) — остановлен: перегрузка, красные от таймаутов (verify-e2e-run0-stopped.txt)
+e2e четверть 1/4 (2 потока) — 152 из 157; красные fm-camera:107, fx-ui:61, g-shoes 815×290, lv-camera:30, lv-steps:25 (verify-e2e-a.txt)
+e2e четверть 2/4 — оборвана лимитом фона 2 ч, сводка не записалась; красные по test-results: m5-perf:13, m6-switch ×2, open-perf:72, perf:14, sp-belt-camera, sp-camera:158, sp-fork ×2
+e2e четверти 3/4 и 4/4 — не запускались (лимит сессии); задетые места прогнаны отдельно: touch-l23 4/4, touch-mu-screens, touch-mu-giant, k01-hints, d20-hints, avalanche, open-ridge, m3-fixes, caught, ads-pause — зелёные
+повтор (verify-repeat.txt, 2 потока): 17 зелёных, 9 красных — fx-ui:61 и lv-steps:25 (красные и на main 81bd8a8), fm-camera:107, m5-perf ×2 (одна @full), m6-switch:47, perf:14, open-perf:72, sp-camera:158; в одиночку open-perf:72 и perf:14 зелёные (perf:14 на main — зелёный, у нас 2,41 мс и затем зелёный)
+EXIT=1
