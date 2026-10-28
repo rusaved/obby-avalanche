@@ -528,7 +528,9 @@ if (vObjNormal.z > 0.3 && vObjPos.z > 0.0) {
   const shapeMeshes = new Map<string, InstancedMesh>();
   const shapeGeo: Record<string, () => BoxGeometry | SphereGeometry | CylinderGeometry | ConeGeometry> = {
     box: () => new BoxGeometry(1, 1, 1),
-    sphere: () => new SphereGeometry(0.5, 12, 10),
+    // V2-02 (D-02, the triangles of the open slope ≤ 100 k): 10 × 8 — a pompom still reads round, 6.7 k fewer at the
+    // ridge of mountain 9 for the frames of the ridge passages.
+    sphere: () => new SphereGeometry(0.5, 10, 8),
     cylinder: () => new CylinderGeometry(0.5, 0.5, 1, 14),
     cone: () => new ConeGeometry(0.5, 1, 14),
   };

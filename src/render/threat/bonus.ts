@@ -11,6 +11,7 @@ import { AdditiveBlending, BoxGeometry, BufferAttribute, BufferGeometry, Color, 
 import type { BonusState } from '../../sim/bonus.ts';
 import { BONUS_HALF, BONUS_HEIGHT } from '../../sim/bonus.ts';
 import { HERO_HEIGHT } from '../../sim/controller.ts';
+import { roundDot } from '../dot.ts';
 
 /** Pillar of light: tall enough to be seen from the cave over the slope. */
 const PILLAR_HEIGHT = 80;
@@ -48,7 +49,7 @@ export function createBonusVisual(color: string): BonusVisual {
   const sparkPos = new Float32Array(SPARKS * 3);
   const sparkGeo = new BufferGeometry();
   sparkGeo.setAttribute('position', new BufferAttribute(sparkPos, 3));
-  const sparks = new Points(sparkGeo, new PointsMaterial({ color: gold, size: SPARK_SIZE, depthWrite: false }));
+  const sparks = new Points(sparkGeo, new PointsMaterial({ color: gold, size: SPARK_SIZE, map: roundDot(), transparent: true, depthWrite: false }));
   sparks.frustumCulled = false;
   group.add(box, pillar, sparks);
   group.visible = false;

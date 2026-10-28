@@ -129,6 +129,9 @@ export interface LevelMeshes {
   /** V-04, V2-01: the camera at (x, y, z) every frame — a canopy roof (boards, snow, ridge, beams, icicles at once) is not
    * drawn while the camera is over its footprint above its lower edge (the boards filled the frame). */
   cameraAt(x: number, y: number, z: number): void;
+  /** V2-02 (test API): the ice wall of ridge `index` — its parts (wall, snow cap, rime, cracks), how many are drawn now and
+   * the texture layer of the wall. */
+  ridgeLook(index: number): { parts: number; shown: number; layer: number };
   /** V2-01 (test API): the canopy roofs — their hide volume and whether each is drawn whole now. */
   canopyRoofs(): Array<{ min: readonly number[]; max: readonly number[]; drawn: boolean }>;
   /** V-05: where the summit chest stands beside the portal (its coins flash there), null — none. */
@@ -263,8 +266,9 @@ function giftGeometry(ribbon: Color): BufferGeometry {
     const a = (k * Math.PI) / 2;
     add(new PlaneGeometry(rw, h).translate(0, 0, w / 2 + off), 0, h / 2, 0, true, 0, a);
   }
-  // The bow: a three-sided knot on the lid.
-  add(new ConeGeometry(w * 0.26, w * 0.3, 3), 0, h + w * 0.15, 0, true);
+  // The bow (V2-04, staff 28.10: bigger, reads from the run): two loops leaning out over the lid and a knot between them.
+  for (const side of [-1, 1]) add(new ConeGeometry(w * 0.2, w * 0.5, 4), side * w * 0.2, h + w * 0.2, 0, true, side * 1.05);
+  add(new BoxGeometry(w * 0.2, w * 0.2, w * 0.24), 0, h + w * 0.1, 0, true);
   const merged = mergeGeometries(
     parts.map(({ g, keep }) => {
       const n = g.getAttribute('position').count;
@@ -473,9 +477,13 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
   const seeParts: SeePart[] = seeThrough.map((b, i) => ({ owner: i, box: b, color: materialColor(theme, lookOf(b, theme)), layer: texOf(theme, lookOf(b, theme)) }));
   const mazes = (level.stages ?? []).flatMap((st) => (st.maze ? [{ y: st.y, x0: st.maze.x0 - 1, x1: st.maze.x0 + st.maze.cols * st.maze.cell + 1, z0: st.maze.z0 - 1, z1: st.maze.z0 + st.maze.rows * st.maze.cell + 1 }] : []));
   const plinth = materialColor(theme, theme.materials['grottoRock'] ? 'grottoRock' : 'rock').multiplyScalar(0.62);
+  // V2-04 (staff 28.10): a maze wall in the camera's way is not a pale ghost slab over the path — it hides whole, its cap and
+  // plinth with it (a cliff still fades at `fade`).
+  const mazeWall = seeThrough.map(() => false);
   seeThrough.forEach((w, i) => {
     const mz = w.kind === 'throatWall' ? mazes.find((m) => w.min[0] >= m.x0 && w.max[0] <= m.x1 && w.min[2] >= m.z0 && w.max[2] <= m.z1) : undefined;
     if (!mz) return;
+    mazeWall[i] = true;
     seeParts.push({ owner: i, box: { min: [w.min[0] - 0.25, w.max[1], w.min[2] - 0.25], max: [w.max[0] + 0.25, w.max[1] + 0.5, w.max[2] + 0.25], material: 'track', kind: 'prop', solid: false }, color: materialColor(theme, 'track'), layer: texOf(theme, 'track') });
     seeParts.push({ owner: i, box: { min: [w.min[0] - 0.14, mz.y, w.min[2] - 0.14], max: [w.max[0] + 0.14, mz.y + 0.9, w.max[2] + 0.14], material: 'grottoRock', kind: 'prop', solid: false }, color: plinth, layer: texOf(theme, 'rock') });
   });
@@ -499,7 +507,7 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       const b = seeParts[k]!.box;
       backDummy.rotation.set(0, 0, 0);
       backDummy.position.set((b.min[0] + b.max[0]) / 2, (b.min[1] + b.max[1]) / 2, (b.min[2] + b.max[2]) / 2);
-      for (const [mesh, on] of [[seeSolid, !faded[i]], [seeFadedMesh, faded[i]]] as const) {
+      for (const [mesh, on] of [[seeSolid, !faded[i]], [seeFadedMesh, faded[i] && !mazeWall[i]]] as const) {
         backDummy.scale.set(b.max[0] - b.min[0], b.max[1] - b.min[1], b.max[2] - b.min[2]).multiplyScalar(on ? 1 : 1e-4);
         backDummy.updateMatrix();
         mesh.setMatrixAt(k, backDummy.matrix);
@@ -556,36 +564,93 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
 
   // Ridges (docs/01-gdd.md 17.3): ice plugs fill the passages up the step, a see-through crest over the carniz up to the
   // top of the collider (no invisible wall); both melt with the gate. Two draw calls for all ridges of the mountain.
+  // V2-02 (staff 28.10, producer: «some cubes here and there are still plain»): a plug is an ice wall laid in bricks like
+  // the maze walls (theme `gateWall`), with a snow cap on its top, rime at its foot and cracks over its face — parts of the
+  // same instance set that melt with it; its frame of stone and log stands in the chunks (render/track-props.ts).
   const ridgeParts = ridgePartsOf(level);
   const crestMat = new MeshLambertMaterial({ color: materialColor(theme, 'gateClosed'), transparent: true, opacity: RIDGE_CREST_OPACITY, depthWrite: false });
   const plugCount = ridgeParts.filter((p) => !p.crest).length;
-  const ridgePlugs = new InstancedMesh(gateGeo, gateMat, Math.max(1, plugCount));
+  const wallKey = theme.materials['gateWall'] ? 'gateWall' : 'gateClosed';
+  type PlugBit = { part: number; kind: 'body' | 'cap' | 'rime' | 'crack'; at: number; tilt: number; color: Color; layer: number };
+  const plugBits: PlugBit[] = [];
+  const crackColor = theme.materials['gateCrack'] ? materialColor(theme, 'gateCrack') : materialColor(theme, 'gateClosed').multiplyScalar(0.6);
+  ridgeParts.forEach((p, k) => {
+    if (p.crest) return;
+    plugBits.push({ part: k, kind: 'body', at: 0, tilt: 0, color: materialColor(theme, wallKey), layer: texOf(theme, wallKey) });
+    plugBits.push({ part: k, kind: 'cap', at: 0, tilt: 0, color: materialColor(theme, 'track'), layer: texOf(theme, 'track') });
+    plugBits.push({ part: k, kind: 'rime', at: 0, tilt: 0, color: materialColor(theme, 'track'), layer: texOf(theme, 'track') });
+    // Two cracks a face, zigzag, off the middle (the run line).
+    for (const [at, tilt] of [[-0.3, 0.45], [0.28, -0.6]] as const) plugBits.push({ part: k, kind: 'crack', at, tilt, color: crackColor, layer: 0 });
+  });
+  const plugGeo = backGeo.clone();
+  plugGeo.setAttribute('layer', new InstancedBufferAttribute(new Float32Array(Math.max(1, plugBits.length)).map((_, i) => plugBits[i]?.layer ?? 0), 1));
+  const plugMat = new MeshLambertMaterial({ vertexColors: true });
+  if (theme.blockTex) useBlockTexture(plugMat, blockTexture(), theme.blockTex.scale);
+  const ridgePlugs = new InstancedMesh(plugGeo, plugMat, Math.max(1, plugBits.length));
+  ridgePlugs.name = 'ridge-plugs';
   const ridgeCrests = new InstancedMesh(gateGeo, crestMat, Math.max(1, ridgeParts.length - plugCount));
-  ridgePlugs.count = plugCount;
+  ridgePlugs.count = plugBits.length;
   ridgeCrests.count = ridgeParts.length - plugCount;
+  plugBits.forEach((b, i) => ridgePlugs.setColorAt(i, b.color));
+  if (ridgePlugs.instanceColor) ridgePlugs.instanceColor.needsUpdate = true;
+  const bitsOf = ridgeParts.map(() => [] as number[]);
+  plugBits.forEach((b, i) => bitsOf[b.part]!.push(i));
   const ridgeSlot: number[] = [];
   const melted: number[] = level.gates.map(() => 0);
+  const placeBit = (i: number, b: { min: readonly number[]; max: readonly number[] } | null): void => {
+    const bit = plugBits[i]!;
+    const p = ridgeParts[bit.part]!;
+    dummy.rotation.set(0, 0, 0);
+    if (!b) {
+      dummy.position.set(p.x, p.y0, p.z);
+      dummy.scale.set(0, 0, 0);
+    } else {
+      const h = b.max[1]! - b.min[1]!;
+      const front = p.z - p.d / 2;
+      if (bit.kind === 'body') {
+        dummy.position.set(p.x, b.min[1]! + h / 2, p.z);
+        dummy.scale.set(p.w, h, p.d);
+      } else if (bit.kind === 'cap') {
+        dummy.position.set(p.x, b.max[1]! + 0.15, p.z);
+        dummy.scale.set(p.w + 0.3, 0.3, p.d + 0.3);
+      } else if (bit.kind === 'rime') {
+        const r = Math.min(0.7, h);
+        dummy.position.set(p.x, b.min[1]! + r / 2, p.z);
+        dummy.scale.set(p.w + 0.2, r, p.d + 0.2);
+      } else {
+        dummy.position.set(p.x + bit.at * p.w, b.min[1]! + h * 0.55, front - 0.02);
+        dummy.rotation.set(0, 0, bit.tilt);
+        dummy.scale.set(0.14, h * 0.45, 0.08);
+      }
+    }
+    dummy.updateMatrix();
+    ridgePlugs.setMatrixAt(i, dummy.matrix);
+  };
   const placeRidge = (k: number, openness: number): void => {
     const p = ridgeParts[k]!;
     // MU-13: melted — nothing left (a sliver of the crest hung as a blue line over the passage ramps).
     const b = ridgePartBox(p, openness);
+    if (!p.crest) {
+      for (const i of bitsOf[k]!) placeBit(i, b);
+      return;
+    }
     dummy.position.set(p.x, b ? (b.min[1] + b.max[1]) / 2 : p.y0, p.z);
     dummy.rotation.set(0, 0, 0);
     if (b) dummy.scale.set(p.w, b.max[1] - b.min[1], p.d);
     else dummy.scale.set(0, 0, 0);
     dummy.updateMatrix();
-    (p.crest ? ridgeCrests : ridgePlugs).setMatrixAt(ridgeSlot[k]!, dummy.matrix);
+    ridgeCrests.setMatrixAt(ridgeSlot[k]!, dummy.matrix);
   };
-  let plugN = 0;
   let crestN = 0;
   ridgeParts.forEach((p, k) => {
-    ridgeSlot[k] = p.crest ? crestN++ : plugN++;
+    if (p.crest) ridgeSlot[k] = crestN++;
     placeRidge(k, 0);
   });
   ridgePlugs.instanceMatrix.setUsage(DynamicDrawUsage);
   ridgeCrests.instanceMatrix.setUsage(DynamicDrawUsage);
   ridgePlugs.instanceMatrix.needsUpdate = true;
   ridgeCrests.instanceMatrix.needsUpdate = true;
+  ridgePlugs.computeBoundingSphere();
   if (plugCount > 0) group.add(ridgePlugs, ridgeCrests);
 
   const digits = createDigitLabels(level.gates.length * 10 + 8);
@@ -914,6 +979,16 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
         }
       });
     },
+    ridgeLook(index) {
+      const list = plugBits.flatMap((b, i) => (ridgeParts[b.part]!.gate === index ? [i] : []));
+      const shown = list.filter((i) => {
+        // Column lengths: decompose() reads a zero matrix as scale 1.
+        ridgePlugs.getMatrixAt(i, _m);
+        const e = _m.elements;
+        return Math.hypot(e[0]!, e[1]!, e[2]!) > 1e-3 && Math.hypot(e[4]!, e[5]!, e[6]!) > 1e-3;
+      }).length;
+      return { parts: list.length, shown, layer: list.length ? plugBits[list[0]!]!.layer : -1 };
+    },
     canopyRoofs: () => props.canopies.map((c, n) => ({ min: c.min, max: c.max, drawn: canopyParts[n]!.every((i) => !cutHidden[i] && !camHidden[i]) })),
     cutBoxes: () => cutParts.filter((_, i) => cutHidden[i]).map((w) => ({ min: w.box.min, max: w.box.max })),
     gateOpenness: (index) => melted[index] ?? 0,
@@ -964,6 +1039,8 @@ export function createLevelMeshes(level: LevelData, theme: ThemeJson, suffix: (k
       gateGeo.dispose();
       gateMat.dispose();
       crestMat.dispose();
+      plugGeo.dispose();
+      plugMat.dispose();
       signGeo.dispose();
       signMat.dispose();
       backGeo.dispose();

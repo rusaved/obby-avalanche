@@ -270,6 +270,8 @@ export interface TestApi {
   cameraPos(): [number, number, number];
   /** V2-01: the canopy roofs — their hide volume (over the footprint from the roof's lower edge up) and drawn whole now. */
   canopyRoofs(): Array<{ min: readonly number[]; max: readonly number[]; drawn: boolean }>;
+  /** V2-02: the ice wall of ridge `index` (level-mesh ridgeLook). */
+  ridgeLook(index: number): { parts: number; shown: number; layer: number } | null;
   /** V2-01: where «continue from stage n» puts the hero (the kit's `stage=n`). */
   stageStart(n: number): { x: number; y: number; z: number } | null;
   /** RL-09: the tall walls drawn apart — their boxes and whether each is see-through now. */
@@ -1112,6 +1114,7 @@ export function installTestApi(g: GameHandles): TestApi {
     stages: () => g.sim?.level.stages ?? null,
     canopyRoofs: () => g.levelMeshes?.canopyRoofs() ?? [],
     stageStart: (n) => g.sim?.stageStart(n) ?? null,
+    ridgeLook: (index) => g.levelMeshes?.ridgeLook(index) ?? null,
     botJump(on) {
       g.botJump = on;
     },

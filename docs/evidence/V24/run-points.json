@@ -1,0 +1,15 @@
+[
+  {"name": "P1-stage9-start", "stage": 9, "wait": 60, "stat": 0},
+  {"name": "P1-canopy1-run", "belt": 0, "dz": -24, "run": true, "wait": 40},
+  {"name": "P1-canopy3-run", "belt": 2, "dz": -24, "run": true, "wait": 40},
+  {"name": "P1-canopy1-belt", "belt": 0, "dz": 4, "wait": 60, "stat": 0},
+  {"name": "P2-wall8-belt", "belt": 1, "dz": 2, "wait": 60, "stat": 0},
+  {"name": "P2-wall13-belt", "belt": 2, "dz": 2, "wait": 60, "stat": 0},
+  {"name": "P3-maze-exit", "x": 6, "z": 2140, "run": true, "wait": 50, "stat": 1000000, "y": 40.05},
+  {"name": "P4-belt-stage2", "belt": 1, "dz": -12, "wait": 60, "stat": 0},
+  {"name": "P5-summit", "z": 2350, "run": true, "wait": 60},
+  {"name": "V2-03-maze-entry", "stage": 9, "dz": 6, "wait": 40, "stat": 0},
+  {"name": "V2-04-caves", "z": 120, "x": 20, "run": true, "wait": 40, "stat": 0},
+  {"name": "V2-04-gifts", "stage": 3, "dz": 20, "run": true, "wait": 30, "stat": 0},
+  {"name": "P2-open-ridge1", "pace": "open", "z": 300, "wait": 60, "stat": 0}
+]

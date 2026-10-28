@@ -8,10 +8,11 @@
  * kind of piece draws it on every mountain; the pieces merge into the chunks (+0 draw calls), the belt stripes are one
  * InstancedMesh a mountain (+1), the cold glows of the grottos one more.
  */
-import { BoxGeometry, BufferGeometry, Color, ConeGeometry, CylinderGeometry, Float32BufferAttribute, IcosahedronGeometry, LatheGeometry, Matrix4, Quaternion, Vector2, Vector3 } from 'three';
+import { BoxGeometry, BufferGeometry, Color, ConeGeometry, CylinderGeometry, Float32BufferAttribute, IcosahedronGeometry, LatheGeometry, Matrix4, Quaternion, SphereGeometry, Vector2, Vector3 } from 'three';
 import type { DecorModelsJson, ThemeJson } from '../content/types.ts';
 import type { LevelBox, LevelData, LevelNiche, LevelPoint } from '../level/types.ts';
 import { NICHE_HEIGHT, NICHE_WALL, PORTAL_WIDTH } from '../level/builder.ts';
+import { ridgeParts } from '../level/surface-lines.ts';
 import { layerOf } from './block-tex.ts';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
@@ -141,6 +142,10 @@ function kit(theme: ThemeJson, models: DecorModelsJson | undefined) {
   };
   const k = {
     pieces,
+    /** A shape in a colour of its own (a stage colour, not a theme material), plain texture. */
+    colored(z: number, geo: BufferGeometry, hex: string): void {
+      pieces.push({ z, geo: bake(geo, new Color(hex), 0) });
+    },
     /** Any shape already placed in world space. */
     shape(z: number, geo: BufferGeometry, key: string, shade = 1, fallback?: string): void {
       add(z, geo, key, shade, fallback);
@@ -289,26 +294,41 @@ export function buildTrackProps(level: LevelData, theme: ThemeJson, models?: Dec
     const walls = level.boxes.filter((b) => b.kind === 'throatWall' && b.min[2] >= mz.z0 - 2 && b.max[2] <= z + 2);
     const y = st.y;
     const top = walls.reduce((h, b) => Math.max(h, b.max[1]), y + 8);
-    const H = Math.max(top + 3, y + 14);
+    // V2-03 (LV-12, staff 28.10): the beam lies just over the walls — in the frame of the run from the way in and still at
+    // the exit (it stood 4 over them, over the top of the frame); its foot over the running camera of the stages (≤ 12.6).
+    const H = Math.max(top + 0.7, y + 12.7);
     // The pillars wrap the wall ends from the ground (over the walls' colliders), log bands on them.
     for (const side of [-1, 1]) {
       const px = cx + (side * mz.cell) / 2;
       k.box(px - 0.9, y, z - 0.9, px + 0.9, H, z + 0.9, 'ice', 1.05);
-      for (const by of [top - 0.4, H - 0.9]) k.box(px - 1, by, z - 1, px + 1, by + 0.45, z + 1, 'pole');
+      for (const by of [top - 3, top - 0.4]) k.box(px - 1, by, z - 1, px + 1, by + 0.45, z + 1, 'pole');
       k.box(px - 1.1, H, z - 1.1, px + 1.1, H + 0.35, z + 1.1, 'track');
+      // V2-05 (art review: from the way in no lamp): a lantern on each pillar top, over the walls.
+      k.post(px, H + 0.35, z, 0.45, 0.55, 1.1, 6, 'portalLight', 1.15);
+      glows.push([px, H + 1.1, z, 1.6]);
     }
     const x0 = cx - mz.cell / 2 - 1.2;
     const x1 = cx + mz.cell / 2 + 1.2;
     k.beamX(x0, x1, H + 0.9, z, 0.75, 7, 'pole');
     k.box(x0 + 0.2, H + 1.35, z - 0.55, x1 - 0.2, H + 1.75, z + 0.55, 'track');
     // The flag on a pole over the middle of the beam, its cloth across the run (seen from the way in).
-    k.post(cx, H + 1.4, z, 0.1, 0.1, 4.2, 5, 'pole');
-    const cloth = new BoxGeometry(2.6, 1.5, 0.1);
-    cloth.translate(cx + 1.4, H + 4.7, z);
-    k.pieces.push({ z, geo: bake(cloth, new Color(stageColor(level, theme, z)), 0) });
-    // The lamp under the beam and the soft light over the arch.
-    k.post(cx, H - 0.2, z, 0.35, 0.45, 0.8, 6, 'portalLight', 1.1);
-    glows.push([cx, H + 0.2, z, 1.4], [cx, H + 3.5, z, 4.5]);
+    const flag = new Color(stageColor(level, theme, z));
+    // V2-03: a tall pole and a big cloth — over the near walls of the maze from its way in, 60 and more units off.
+    k.post(cx, H + 1.4, z, 0.14, 0.12, 10.5, 5, 'pole');
+    const cloth = new BoxGeometry(4, 2.5, 0.1);
+    cloth.translate(cx + 2.1, H + 10.4, z);
+    k.pieces.push({ z, geo: bake(cloth, flag, 0) });
+    // Banners of the stage hang from the beam by the pillars, a lamp on each pillar under them — in the frame at the exit.
+    for (const side of [-1, 1]) {
+      const bx = cx + side * (mz.cell / 2 - 2.2);
+      const banner = new BoxGeometry(1.8, 2.4, 0.12);
+      banner.translate(bx, H + 0.2 - 1.2, z - 0.8);
+      k.pieces.push({ z, geo: bake(banner, flag, 0) });
+      const lx = cx + side * (mz.cell / 2 - 1.15);
+      k.post(lx, top - 2.2, z - 0.9, 0.3, 0.38, 0.7, 6, 'portalLight', 1.1);
+      glows.push([lx, top - 1.8, z - 0.9, 1.2]);
+    }
+    glows.push([cx, H + 3.5, z, 4.5]);
   }
 
   // V-02: the rocks of the giant's zone — a Kenney rock over the collider box; the ice rocks of the ice stage — the same
@@ -360,6 +380,28 @@ export function buildTrackProps(level: LevelData, theme: ThemeJson, models?: Dec
     }
     for (const a of [0.4, 2.5, 4.6]) k.post(cx + Math.cos(a) * (r - 0.4), b.max[1], cz + Math.sin(a) * (r - 0.4), 0.28, 0.12, 1.6, 5, 'portal', 1.05);
     coldGlows.push([cx, b.max[1] + 1.2, cz, 2.4]);
+  }
+
+  // V2-02 (staff 28.10, producer: «some cubes here and there are still plain»): every passage of a ridge in a frame —
+  // stone jambs against the step, a log lintel over the ice wall with a snow cap and a band in the colour of the stage; it
+  // stands after the wall melts (a gateway, nothing hangs). The ice wall itself is drawn by level-mesh (melts).
+  for (const p of ridgeParts(level)) {
+    if (p.crest) continue;
+    const front = p.z - p.d / 2;
+    const top = p.y0 + p.h + 0.5;
+    const j = 0.9;
+    for (const sx of [-1, 1]) {
+      const x = p.x + sx * (p.w / 2 + j / 2);
+      k.box(x - j / 2, p.y0 - 0.3, front - 0.55, x + j / 2, top, front + 0.6, 'gateFrame', 1, 'rock');
+      k.box(x - j / 2 - 0.15, p.y0 - 0.3, front - 0.7, x + j / 2 + 0.15, p.y0 + 0.5, front + 0.75, 'gateFrame', 0.86, 'rock');
+    }
+    const x0 = p.x - p.w / 2 - j - 0.3;
+    const x1 = p.x + p.w / 2 + j + 0.3;
+    k.beamX(x0, x1, top + 0.4, front, 0.45, 6, 'pole');
+    k.box(x0 + 0.15, top + 0.75, front - 0.4, x1 - 0.15, top + 1.05, front + 0.4, 'track');
+    const band = new BoxGeometry(Math.min(3, p.w * 0.5), 0.5, 0.12);
+    band.translate(p.x, top + 0.4, front - 0.5);
+    k.colored(front, band, stageColor(level, theme, front));
   }
 
   // Niches: V-04 the canopies, V-06 the rock grottos, V-11 the caves in the edge drifts.
@@ -488,12 +530,18 @@ function canopy(k: Kit, level: LevelData, n: LevelNiche, i: number, cut: PropCut
       part(box(x - 0.13, top + 0.25 - len, z - 0.13, x + 0.13, top + 0.25, z + 0.13, 'ice'), undefined, Math.PI / 4);
     }
   }
-  // A ridge beam; the lamp low on the front left post (off the run line: on the axis it hid the hero's head).
+  // A ridge beam; the lamp on the far left post (off the run line and off the camera: on the near post it was a yellow
+  // spot under the stick).
   part(box(cx - 0.35, top + rise + 0.2, z0 - over, cx + 0.35, top + rise + 0.75, z1 + over, 'pole'));
   const lx = cx + (a - inset);
   const ly = y + 5.5;
-  k.post(lx, ly, z0 + inset - 0.6, 0.25, 0.3, 0.7, 6, 'portalLight', 1.1);
-  glows.push([lx, ly + 0.4, z0 + inset - 0.6, 0.9]);
+  k.post(lx, ly, z1 - inset + 0.6, 0.25, 0.3, 0.7, 6, 'portalLight', 1.1);
+  glows.push([lx, ly + 0.4, z1 - inset + 0.6, 0.9]);
+  // V2-05 (art review: from the approach the roof is over the frame and the posts ran bare into the sky): log ties between
+  // the posts at the old roof height, all round — a frame that reads in every shot, drawn always (nothing hangs).
+  const tie = roof.min[1];
+  for (const z of [z0 + inset, z1 - inset]) k.beamX(cx - (a - inset), cx + (a - inset), tie, z, 0.3, 6, 'pole', 0.95);
+  for (const sx of [-1, 1]) k.beamZ(cx + sx * (a - inset), tie, z0 + inset, z1 - inset, 0.3, 6, 'pole', 0.95);
   canopies.push({ niche: i, min: [cx - run - 0.5, top - 0.8, z0 - over - 0.5], max: [cx + run + 0.5, Infinity, z1 + over + 0.5] });
 }
 
@@ -543,9 +591,16 @@ function drift(k: Kit, level: LevelData, n: LevelNiche, i: number, cut: PropCut[
   cut.push({ niche: i, part: 'roof', box: box(lo - 0.6, top + 1, zA - w - 0.6, hi + 0.6, top + 2, zB + w + 0.6, 'track') });
   const left = n.side === 'left';
   const outer = left ? lo : hi;
-  k.boulder(lo - 0.6, y - 0.8, zA - w - 4, hi + 0.6, top + 1.2, zA + 1.2, zA, 'drift', 'track');
-  k.boulder(lo - 0.6, y - 0.8, zB - 1.2, hi + 0.6, top + 1.2, zB + w + 4, zB, 'drift', 'track');
-  k.boulder(left ? outer - 4 : outer - 1.2, y - 0.8, zA - 0.5, left ? outer + 1.2 : outer + 4, top + 0.6, zB + 0.5, zA + zB, 'drift', 'track');
+  // V2-04 (staff 28.10): one round drift over the ends and the back (it was three boulders): a half dome from beyond the
+  // back wall, its near rim just short of the mouth (the cave's ice trim and mouth stay open to the field), 70 triangles.
+  const depth = hi - lo;
+  const cxo = outer + (left ? -1 : 1) * depth * 0.35;
+  const rx = depth * 1.35 - 0.4;
+  const rz = (zB - zA) / 2 + w + 4.5;
+  const dome = new SphereGeometry(1, 10, 4, 0, Math.PI * 2, 0, Math.PI / 2);
+  dome.scale(rx, top + 0.9 - (y - 0.6), rz);
+  dome.translate(cxo, y - 0.6, (zA + zB) / 2);
+  k.shape((zA + zB) / 2, dome, 'drift', 1, 'track');
   // The ice trim over the mouth (at the field edge) with icicles under it.
   const mouth = left ? hi : lo;
   const xa = left ? mouth - 0.5 : mouth;

@@ -1,5 +1,5 @@
 // What: One shared round soft dot texture for Points (snowflakes, avalanche dust, puffs) — no square sprites near the camera.
-// Called by: app/events-view.ts (blizzard snow), render/threat/avalanche.ts (dust), render/fx.ts (puffs).
+// Called by: app/events-view.ts (blizzard snow), render/threat/avalanche.ts (dust), render/fx.ts (puffs), render/threat/bonus.ts and render/ftue.ts (sparks).
 // Keep: Generated in code (no file, no canvas), white with alpha only — the material colour tints it; one texture for all.
 import { DataTexture, LinearFilter, RGBAFormat } from 'three';
 

@@ -14,6 +14,8 @@ import { PORTAL_WIDTH } from '../level/builder.ts';
 
 /** Arch height and pillar width of a portal (units); the arrows: length, width, stroke, gap between them. */
 export const PORTAL_HEIGHT = 10;
+/** The pillar of light (`fx.portal.pillar` tall) starts over the arch of the portal (V24). */
+const PILLAR_FROM = PORTAL_HEIGHT;
 const PILLAR_WIDTH = 3;
 const ARROW_LEN = 4;
 const ARROW_WIDTH = 4;
@@ -56,11 +58,14 @@ export function portalGlowGeometry(x: number, y: number, z: number, width: numbe
   quad(pos, col, fill, [x - hw, y, z], [x + hw, y, z], [x + hw, y + PORTAL_HEIGHT - 1, z], [x - hw, y + PORTAL_HEIGHT - 1, z]);
   if (pillar > 0) {
     const p = PILLAR_WIDTH / 2;
-    const top = y + pillar;
-    quad(pos, col, light, [x - p, y, z - p], [x + p, y, z - p], [x + p, top, z - p], [x - p, top, z - p]);
-    quad(pos, col, light, [x - p, y, z + p], [x + p, y, z + p], [x + p, top, z + p], [x - p, top, z + p]);
-    quad(pos, col, light, [x - p, y, z - p], [x - p, y, z + p], [x - p, top, z + p], [x - p, top, z - p]);
-    quad(pos, col, light, [x + p, y, z - p], [x + p, y, z + p], [x + p, top, z + p], [x + p, top, z - p]);
+    const top = y + PILLAR_FROM + pillar;
+    // V24 (producer: «a golden pole on the track», seen down the axis from the maze exit): the light rises from the top
+    // of the arch — a beacon over the portal, nothing standing on the run line.
+    const y0 = y + PILLAR_FROM;
+    quad(pos, col, light, [x - p, y0, z - p], [x + p, y0, z - p], [x + p, top, z - p], [x - p, top, z - p]);
+    quad(pos, col, light, [x - p, y0, z + p], [x + p, y0, z + p], [x + p, top, z + p], [x - p, top, z + p]);
+    quad(pos, col, light, [x - p, y0, z - p], [x - p, y0, z + p], [x - p, top, z + p], [x - p, top, z - p]);
+    quad(pos, col, light, [x + p, y0, z - p], [x + p, y0, z + p], [x + p, top, z + p], [x + p, top, z - p]);
   }
   return { pos, col };
 }
@@ -109,7 +114,7 @@ export function createWayMarks(level: LevelData, theme: ThemeJson): WayMarks {
   glowGeo.computeBoundingSphere();
   glow.renderOrder = 3;
   group.add(glow);
-  if (cfg.pillar > 0) pillar = { x: portal.x, z: portal.z, y0: portal.y, y1: portal.y + cfg.pillar };
+  if (cfg.pillar > 0) pillar = { x: portal.x, z: portal.z, y0: portal.y + PILLAR_FROM, y1: portal.y + PILLAR_FROM + cfg.pillar };
 
   // From the giant's line (the summit) to the portal, evenly; then before the way into every element.
   const summit = level.points.find((p) => p.type === 'summit');

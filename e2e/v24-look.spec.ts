@@ -6,6 +6,10 @@ import { test, expect, waitTicks } from './fixtures.ts';
 // V2-01 — a canopy roof is drawn whole or not at all, and only hidden while the camera is over it above its lower edge:
 // the first 2 s of «continue from stage 9» show no roof seen from above (the ridge log lay on the run line), a run at
 // level 25 under each of the 9 canopies of mountain 1 has the roof drawn in every frame the hero is under it.
+// V2-02 — the closed passage of a ridge is an ice wall in bricks with a snow cap, rime and cracks in a stone and log frame
+// (not a bare light-blue slab); it still melts whole when the wall opens.
+// V2-03 — the maze exit arch reads: its beam in the frame 8 before the exit, its banners and lamps at the exit itself.
+// V2-04 — on the belt under a canopy at the wall the camera stands at its usual distance, not in the hero's back.
 const OUT = 'docs/evidence/V24';
 
 type Rec = { frames: number; under: number[]; underHidden: number[]; above: number };
@@ -106,6 +110,117 @@ test.describe('V24 · canopies and gates in the usual camera', () => {
     for (const [i] of belts.entries()) {
       expect(total.under[i], `canopy ${i + 1}: frames with the hero under it`).toBeGreaterThan(0);
       expect(total.underHidden[i], `canopy ${i + 1}: frames with the hero under it and its roof not drawn`).toBe(0);
+    }
+  });
+
+  test('V2-02: the wall «8» of mountain 1 from the belt — an ice wall in bricks with cap, rime, cracks; it melts whole', async ({ page, openGame }) => {
+    test.setTimeout(150_000);
+    await openGame('pace=stages&mock_device=mobile&seed=7&quality=high');
+    mkdirSync(OUT, { recursive: true });
+    await page.evaluate(() => {
+      const T = window.__TEST__!;
+      T.setPlaySec(400);
+      T.setFlag('firstWaveDone', true);
+      T.setTutor(9);
+      T.noWaves(true);
+    });
+    const gate = await page.evaluate(() => {
+      const T = window.__TEST__!;
+      let i = 0;
+      while (T.ridgeLook(i) && T.gateSign(i).text !== '8') i++;
+      return T.ridgeLook(i) ? i : -1;
+    });
+    expect(gate, 'the ridge with «8» on its sign').toBeGreaterThanOrEqual(0);
+    const look = (await page.evaluate((i) => window.__TEST__!.ridgeLook(i), gate))!;
+    expect(look.parts, 'a wall, a snow cap, rime and two cracks a passage').toBeGreaterThanOrEqual(5);
+    expect(look.parts % 5).toBe(0);
+    expect(look.shown, 'all drawn while closed').toBe(look.parts);
+    expect(look.layer, 'the bricks texture (theme gateWall), not a plain slab').toBeGreaterThan(0);
+    // The hero on the belt of the canopy before it, the usual camera.
+    const belt = await page.evaluate(() => window.__TEST__!.shelters().filter((s) => s.kind === 'island' && s.belt)[1]!);
+    await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.05), [belt.belt![1] + 2, belt.y] as const);
+    await waitTicks(page, 90);
+    await page.screenshot({ path: `${OUT}/v2-02-wall8.jpg`, type: 'jpeg', quality: 80 });
+    // Open: past its level the wall melts — nothing of it stays (the frame stands, a gateway).
+    await page.evaluate((z) => {
+      window.__TEST__!.setStat(2300);
+      window.__TEST__!.botPath([[0, z]]);
+    }, belt.z + 30);
+    await expect.poll(() => page.evaluate((i) => window.__TEST__!.ridgeLook(i)!.shown, gate), { timeout: 60_000 }).toBe(0);
+    await waitTicks(page, 30);
+    await page.screenshot({ path: `${OUT}/v2-02-wall8-open.jpg`, type: 'jpeg', quality: 80 });
+  });
+
+  test('V2-03: the maze exit arch of mountain 1 — the beam in the frame 8 before the exit, the banners at the exit', async ({ page, openGame }) => {
+    test.setTimeout(150_000);
+    await openGame('pace=stages&mock_device=mobile&seed=7&quality=high');
+    mkdirSync(OUT, { recursive: true });
+    await page.evaluate(() => {
+      const T = window.__TEST__!;
+      T.setPlaySec(400);
+      T.setFlag('firstWaveDone', true);
+      T.setTutor(9);
+      T.noWaves(true);
+      T.setStat(1e6);
+    });
+    const arch = await page.evaluate(() => {
+      const T = window.__TEST__!;
+      const st = T.stages()!.find((s) => s.maze)!;
+      const m = st.maze!;
+      const real = m.exits.find((e) => e.real && e.side === 'top')!;
+      const z = m.z0 + m.rows * m.cell;
+      const top = T.seeThrough().filter((w) => w.min[2]! >= m.z0 - 2 && w.max[2]! <= z + 2).reduce((h, w) => Math.max(h, w.max[1]!), st.y + 8);
+      // render/track-props.ts V2-03: the beam over the walls, the banners hang from it by the pillars.
+      const H = Math.max(top + 0.7, st.y + 12.7);
+      return { x: m.x0 + (real.col + 0.5) * m.cell, z, y: st.y, beam: H + 0.9, banner: H - 1, side: m.cell / 2 - 2.2 };
+    });
+    const seen = async (dz: number, what: Array<[number, number]>, name: string): Promise<boolean[]> => {
+      await page.evaluate(([x, z, y]) => {
+        window.__TEST__!.botPath(null);
+        window.__TEST__!.teleport(z, x, y + 0.05);
+      }, [arch.x, arch.z + dz, arch.y] as const);
+      await waitTicks(page, 90);
+      await page.screenshot({ path: `${OUT}/v2-03-${name}.jpg`, type: 'jpeg', quality: 80 });
+      const view = page.viewportSize()!;
+      return page.evaluate(
+        ([pts, z, w, h]) =>
+          pts.map(([x, y]) => {
+            const p = window.__TEST__!.project(x, y, z);
+            return p.ahead && p.x >= 0 && p.x <= w && p.y >= 0 && p.y <= h;
+          }),
+        [what, arch.z, view.width, view.height] as const,
+      );
+    };
+    expect(await seen(-8, [[arch.x, arch.beam]], 'before-exit'), 'the beam in the frame 8 before the exit').toEqual([true]);
+    expect(
+      await seen(0, [[arch.x - arch.side, arch.banner], [arch.x + arch.side, arch.banner]], 'exit'),
+      'both banners in the frame at the exit',
+    ).toEqual([true, true]);
+  });
+
+  test('V2-04: on the belt under a canopy at the wall the camera keeps its distance (not in his back), the roof drawn', async ({ page, openGame }) => {
+    test.setTimeout(150_000);
+    await openGame('pace=stages&mock_device=mobile&seed=7&quality=high');
+    await page.evaluate(() => {
+      const T = window.__TEST__!;
+      T.setPlaySec(400);
+      T.setFlag('firstWaveDone', true);
+      T.setTutor(9);
+      T.noWaves(true);
+    });
+    const belts = await page.evaluate(() => window.__TEST__!.shelters().filter((s) => s.kind === 'island' && s.belt));
+    for (const s of belts.slice(0, 3)) {
+      await page.evaluate(([z, y]) => window.__TEST__!.teleport(z, 0, y + 0.05), [s.belt![1] + 4, s.y] as const);
+      await waitTicks(page, 90);
+      const r = await page.evaluate(() => {
+        const T = window.__TEST__!;
+        const h = T.state().hero!;
+        const c = T.cameraPos();
+        return { d: Math.hypot(c[0] - h.x, c[1] - h.y, c[2] - h.z), walls: T.shelterWalls().length, roofs: T.canopyRoofs().filter((q) => q.drawn).length, all: T.canopyRoofs().length };
+      });
+      expect(r.d, `canopy at ${s.z}: the camera off the hero`).toBeGreaterThan(11);
+      expect(r.walls, 'a canopy keeps no camera walls').toBe(0);
+      expect(r.roofs).toBe(r.all);
     }
   });
 });

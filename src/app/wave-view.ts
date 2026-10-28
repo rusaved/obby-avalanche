@@ -258,7 +258,9 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       const wallsOf = !frames && inCave >= 0 && !sim.caught ? inCave : -1;
       if (wallsOf !== solidCave) {
         solidCave = wallsOf;
-        const n = sim.level.niches[wallsOf];
+        // V2-04 (staff 28.10: under a canopy at the wall the camera pressed into his back): a canopy is open all round and its
+        // roof is drawn over the camera (render/track-props.ts) — no room to keep the view in, its roof collider stops nothing.
+        const n = sim.level.niches[wallsOf]?.canopy ? undefined : sim.level.niches[wallsOf];
         const m = NICHE_WALL + 0.05;
         solidWalls = n
           ? sim.level.boxes.filter((b) => GROTTO_WALLS.has(b.kind) && b.max[0] >= n.box.min[0] - m && b.min[0] <= n.box.max[0] + m && b.max[2] >= n.box.min[2] - m && b.min[2] <= n.box.max[2] + m && b.max[1] >= n.box.min[1] - m && b.min[1] <= n.box.max[1] + m)

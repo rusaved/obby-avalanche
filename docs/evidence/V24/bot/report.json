@@ -1,0 +1,276 @@
+{
+ "hops": 30,
+ "errors": 0,
+ "frames": [
+  {
+   "frame": "bot-000.jpg",
+   "from": 42,
+   "x": 0,
+   "z": 610,
+   "stage": 3,
+   "calls": 34,
+   "triangles": 71688
+  },
+  {
+   "frame": "bot-001.jpg",
+   "from": 180,
+   "x": 0,
+   "z": 423,
+   "stage": 2,
+   "calls": 34,
+   "triangles": 71614
+  },
+  {
+   "frame": "bot-002.jpg",
+   "from": 310,
+   "x": 0,
+   "z": 350,
+   "stage": 2,
+   "calls": 35,
+   "triangles": 75188
+  },
+  {
+   "frame": "bot-003.jpg",
+   "from": 342,
+   "x": 0,
+   "z": 369,
+   "stage": 2,
+   "calls": 33,
+   "triangles": 68662
+  },
+  {
+   "frame": "bot-004.jpg",
+   "from": 418,
+   "x": 0,
+   "z": 426,
+   "stage": 2,
+   "calls": 34,
+   "triangles": 71262
+  },
+  {
+   "frame": "bot-005.jpg",
+   "from": 497,
+   "x": 0,
+   "z": 1066,
+   "stage": 5,
+   "calls": 33,
+   "triangles": 60076
+  },
+  {
+   "frame": "bot-006.jpg",
+   "from": 541,
+   "x": 0,
+   "z": 1133,
+   "stage": 5,
+   "calls": 35,
+   "triangles": 62624
+  },
+  {
+   "frame": "bot-007.jpg",
+   "from": 621,
+   "x": 0,
+   "z": 1223,
+   "stage": 5,
+   "calls": 34,
+   "triangles": 63056
+  },
+  {
+   "frame": "bot-008.jpg",
+   "from": 705,
+   "x": 0,
+   "z": 1326,
+   "stage": 6,
+   "calls": 34,
+   "triangles": 60708
+  },
+  {
+   "frame": "bot-009.jpg",
+   "from": 749,
+   "x": 0,
+   "z": 1409,
+   "stage": 6,
+   "calls": 35,
+   "triangles": 63858
+  },
+  {
+   "frame": "bot-010.jpg",
+   "from": 880,
+   "x": 0,
+   "z": 1682,
+   "stage": 7,
+   "calls": 36,
+   "triangles": 57624
+  },
+  {
+   "frame": "bot-011.jpg",
+   "from": 1015,
+   "x": 0,
+   "z": 1809,
+   "stage": 8,
+   "calls": 37,
+   "triangles": 54540
+  },
+  {
+   "frame": "bot-012.jpg",
+   "from": 1059,
+   "x": 0,
+   "z": 1579,
+   "stage": 7,
+   "calls": 34,
+   "triangles": 57292
+  },
+  {
+   "frame": "bot-013.jpg",
+   "from": 1141,
+   "x": 0,
+   "z": 1916,
+   "stage": 8,
+   "calls": 36,
+   "triangles": 54820
+  },
+  {
+   "frame": "bot-014.jpg",
+   "from": 1228,
+   "x": 0,
+   "z": 1552,
+   "stage": 7,
+   "calls": 36,
+   "triangles": 58000
+  },
+  {
+   "frame": "bot-015.jpg",
+   "from": 1272,
+   "x": 0,
+   "z": 1433,
+   "stage": 7,
+   "calls": 35,
+   "triangles": 64182
+  },
+  {
+   "frame": "bot-016.jpg",
+   "from": 1334,
+   "x": 0,
+   "z": 1433,
+   "stage": 7,
+   "calls": 35,
+   "triangles": 64182
+  },
+  {
+   "frame": "bot-017.jpg",
+   "from": 1399,
+   "x": 0,
+   "z": 1433,
+   "stage": 7,
+   "calls": 35,
+   "triangles": 64182
+  },
+  {
+   "frame": "bot-018.jpg",
+   "from": 1443,
+   "x": 0,
+   "z": 1433,
+   "stage": 7,
+   "calls": 35,
+   "triangles": 64182
+  },
+  {
+   "frame": "bot-019.jpg",
+   "from": 1586,
+   "x": 0,
+   "z": 1541,
+   "stage": 7,
+   "calls": 36,
+   "triangles": 57648
+  },
+  {
+   "frame": "bot-020.jpg",
+   "from": 1733,
+   "x": 0,
+   "z": 1699,
+   "stage": 7,
+   "calls": 38,
+   "triangles": 57668
+  },
+  {
+   "frame": "bot-021.jpg",
+   "from": 1777,
+   "x": 0,
+   "z": 1753,
+   "stage": 7,
+   "calls": 40,
+   "triangles": 59738
+  },
+  {
+   "frame": "bot-022.jpg",
+   "from": 1909,
+   "x": 0,
+   "z": 1860,
+   "stage": 8,
+   "calls": 36,
+   "triangles": 54520
+  },
+  {
+   "frame": "bot-023.jpg",
+   "from": 2046,
+   "x": 0,
+   "z": 2086,
+   "stage": 9,
+   "calls": 35,
+   "triangles": 54824
+  },
+  {
+   "frame": "bot-024.jpg",
+   "from": 2090,
+   "x": 0,
+   "z": 2098,
+   "stage": 9,
+   "calls": 35,
+   "triangles": 53312
+  },
+  {
+   "frame": "bot-025.jpg",
+   "from": 2122,
+   "x": 0,
+   "z": 2122,
+   "stage": 9,
+   "calls": 35,
+   "triangles": 53312
+  },
+  {
+   "frame": "bot-026.jpg",
+   "from": 2158,
+   "x": 0,
+   "z": 2414,
+   "stage": 10,
+   "calls": 26,
+   "triangles": 38746
+  },
+  {
+   "frame": "bot-027.jpg",
+   "from": 2202,
+   "x": 0,
+   "z": 2202,
+   "stage": 10,
+   "calls": 36,
+   "triangles": 51932
+  },
+  {
+   "frame": "bot-028.jpg",
+   "from": 2268,
+   "x": 0,
+   "z": 2268,
+   "stage": 10,
+   "calls": 30,
+   "triangles": 41554
+  },
+  {
+   "frame": "bot-029.jpg",
+   "from": 2338,
+   "x": 0,
+   "z": 2338,
+   "stage": 10,
+   "calls": 27,
+   "triangles": 41086
+  }
+ ]
+}

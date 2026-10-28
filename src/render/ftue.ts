@@ -26,6 +26,7 @@ import {
   Vector3,
 } from 'three';
 import type { GiftEggState } from '../sim/gift-egg.ts';
+import { roundDot } from './dot.ts';
 import type { ThemeJson } from '../content/types.ts';
 
 /** Arrows on the snow: how many, their size and the gap from the hero and from the entrance (units). */
@@ -79,7 +80,7 @@ export function createFtueVisual(theme: ThemeJson): FtueVisual {
   const sparkGeo = new BufferGeometry();
   sparkGeo.setAttribute('position', new BufferAttribute(sparkPos, 3));
   // Golden, like every reward of the game (the coin colour of theme.json).
-  const sparkMat = new PointsMaterial({ color: theme.ui.coins, size: SPARK_SIZE, transparent: true, depthWrite: false });
+  const sparkMat = new PointsMaterial({ color: theme.ui.coins, size: SPARK_SIZE, map: roundDot(), transparent: true, depthWrite: false });
   const sparks = new Points(sparkGeo, sparkMat);
   sparks.frustumCulled = false;
   sparks.visible = false;

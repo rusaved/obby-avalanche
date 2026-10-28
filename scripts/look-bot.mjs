@@ -2,7 +2,7 @@
 // look review — no bare cube where a thing stands, nothing in the air, nothing on the run line the hero runs through.
 // The bot holds up the axis and jumps at edges, its Speed past every ridge, no avalanche; it starts at the start, the
 // middle and the finish of every stage (a forward-only bot is rolled back off the trials) and runs `every` s to a frame. A build with the test API (dist-e2e) served statically, 880 × 405.
-// usage: node scripts/look-bot.mjs [--dir dist-e2e] [--every 2] [--max 600] [--quality high]
+// usage: node scripts/look-bot.mjs [--dir dist-e2e] [--every 2] [--max 600] [--quality high] [--out docs/evidence/V24/bot]
 import { chromium } from '@playwright/test';
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -19,7 +19,7 @@ const every = Number(opt('every', '2'));
 const maxSec = Number(opt('max', '600'));
 const quality = opt('quality', 'high');
 const port = Number(opt('port', '4193'));
-const outDir = resolve(root, 'docs/evidence/V22/bot');
+const outDir = resolve(root, opt('out', 'docs/evidence/V22/bot'));
 mkdirSync(outDir, { recursive: true });
 
 const markerFile = resolve(root, '.cache/chromium-path');
