@@ -16,6 +16,8 @@ import { PORTAL_WIDTH } from '../level/builder.ts';
 export const PORTAL_HEIGHT = 10;
 /** The pillar of light (`fx.portal.pillar` tall) starts over the arch of the portal (V24). */
 const PILLAR_FROM = PORTAL_HEIGHT;
+/** On the stages pace the portal light is drawn from this near to the portal (units, V24). */
+const STAGES_GLOW_NEAR = 120;
 const PILLAR_WIDTH = 3;
 const ARROW_LEN = 4;
 const ARROW_WIDTH = 4;
@@ -155,7 +157,10 @@ export function createWayMarks(level: LevelData, theme: ThemeJson): WayMarks {
     marks,
     pillar,
     guard(camera) {
-      glow.visible = !this.insidePillar(camera);
+      // V24 (producer: «a golden pole on the track»): on the stages pace the light of the summit portal is not drawn from
+      // the far stages — seen down the axis from the maze exit it stood as a thin pole on the run line.
+      const far = !!level.stages && Math.hypot(camera.x - portal.x, camera.z - portal.z) > STAGES_GLOW_NEAR;
+      glow.visible = !far && !this.insidePillar(camera);
     },
     insidePillar(p) {
       return !!pillar && Math.abs(p.x - pillar.x) <= PILLAR_WIDTH / 2 && Math.abs(p.z - pillar.z) <= PILLAR_WIDTH / 2 && p.y >= pillar.y0 && p.y <= pillar.y1;

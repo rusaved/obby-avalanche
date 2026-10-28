@@ -85,7 +85,7 @@ export function createBossView(d: BossViewDeps): BossView {
   const look = d.theme.boss;
   const giants: CharacterInstance[] = [];
   /** A giant this near the camera (units off its box) is hidden whole, not dithered over the frame. */
-  const NEAR_HIDE = 4;
+  const NEAR_HIDE = 12;
   const giantBox = (ch: CharacterInstance): { center: [number, number, number]; size: [number, number, number] } => {
     const h = look?.height ?? 0;
     const k = h / HERO_HEIGHT;
@@ -189,14 +189,11 @@ export function createBossView(d: BossViewDeps): BossView {
         // Between the camera and the hero (his chest or head) — see-through until it no longer is (docs/01-gdd.md 19.8).
         const box = giantBox(ch);
         const hero = sim.hero.pos;
-        // V2-05 (art review: by the camera the screen-door dither filled half the frame like noise): a giant within NEAR_HIDE
-        // of the camera is not drawn at all.
+        // V2-05 (art review: by the camera the screen-door dither filled half the frame like noise): a giant in the way within
+        // NEAR_HIDE of the camera is not drawn at all.
         const near = camNow ? Math.hypot(...[0, 1, 2].map((a) => Math.max(0, Math.abs(camNow.position.getComponent(a) - box.center[a]!) - box.size[a]! / 2))) < NEAR_HIDE : false;
-        ch.fade = near
-          ? 0
-          : camNow && SIGHT.some((h) => segmentMeetsBox(camNow.position, _eye.set(hero.x, hero.y + h, hero.z), box.center, box.size, SIGHT_PAD))
-            ? d.fadeAlpha()
-            : 1;
+        const between = !!camNow && SIGHT.some((h) => segmentMeetsBox(camNow.position, _eye.set(hero.x, hero.y + h, hero.z), box.center, box.size, SIGHT_PAD));
+        ch.fade = between ? (near ? 0 : d.fadeAlpha()) : 1;
         ch.yaw = g.face;
         ch.pose = g.mode === 'sit' ? 'win' : g.mode === 'turn' ? 'idle' : 'run';
         ch.speedFactor = g.mode === 'chase' ? 1 : 0.6;

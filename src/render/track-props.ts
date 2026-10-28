@@ -546,9 +546,8 @@ function canopy(k: Kit, level: LevelData, n: LevelNiche, i: number, cut: PropCut
   k.post(lx, ly, z1 - inset + 0.6, 0.25, 0.3, 0.7, 6, 'portalLight', 1.1);
   glows.push([lx, ly + 0.4, z1 - inset + 0.6, 0.9]);
   // V2-05 (art review: from the approach the roof is over the frame and the posts ran bare into the sky): log ties between
-  // the posts at the old roof height, all round — a frame that reads in every shot, drawn always (nothing hangs).
+  // the posts at the old roof height along the sides (across the run they cut the frame through the hero), always drawn.
   const tie = roof.min[1];
-  for (const z of [z0 + inset, z1 - inset]) k.beamX(cx - (a - inset), cx + (a - inset), tie, z, 0.3, 6, 'pole', 0.95);
   for (const sx of [-1, 1]) k.beamZ(cx + sx * (a - inset), tie, z0 + inset, z1 - inset, 0.3, 6, 'pole', 0.95);
   canopies.push({ niche: i, min: [cx - run - 0.5, top - 0.8, z0 - over - 0.5], max: [cx + run + 0.5, Infinity, z1 + over + 0.5] });
 }
