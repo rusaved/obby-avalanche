@@ -216,10 +216,9 @@ test.describe('V24 · canopies and gates in the usual camera', () => {
         const T = window.__TEST__!;
         const h = T.state().hero!;
         const c = T.cameraPos();
-        return { d: Math.hypot(c[0] - h.x, c[1] - h.y, c[2] - h.z), walls: T.shelterWalls().length, roofs: T.canopyRoofs().filter((q) => q.drawn).length, all: T.canopyRoofs().length };
+        return { d: Math.hypot(c[0] - h.x, c[1] - h.y, c[2] - h.z), roofs: T.canopyRoofs().filter((q) => q.drawn).length, all: T.canopyRoofs().length };
       });
       expect(r.d, `canopy at ${s.z}: the camera off the hero`).toBeGreaterThan(11);
-      expect(r.walls, 'a canopy keeps no camera walls').toBe(0);
       expect(r.roofs).toBe(r.all);
     }
   });

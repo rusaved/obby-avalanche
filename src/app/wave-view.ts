@@ -20,6 +20,7 @@ import type { GameAudio } from '../audio/index.ts';
 import type { ControlFrame } from '../input/control-frame.ts';
 import { t } from '../ui/i18n.ts';
 import { NICHE_WALL } from '../level/builder.ts';
+import { canopyRoofSpace } from '../render/track-props.ts';
 import { distToEntrance, entranceX } from '../sim/shelter.ts';
 
 /** Shake amplitude share while the front is far (0.05 of 0.3 units, docs/01-gdd.md 4.8) and the longest strong burst. */
@@ -97,6 +98,9 @@ export function createWaveView(d: WaveViewDeps): WaveView {
   /** Z-01: the cave whose walls stop the camera now and those walls. */
   let solidCave = -1;
   let solidWalls: CameraRig['solid'] = null;
+  let canopyLevel: Sim['level'] | null = null;
+  let solidLevel: Sim['level'] | null = null;
+  let canopySpaces: Array<{ min: [number, number, number]; max: [number, number, number] }> = [];
   const view: WaveView & { banner: string | null; sub: string | null; arrow: boolean; shot: boolean; beltShot: boolean; veil: boolean; keep: Vector3 | null } = {
     banner: null,
     sub: null,
@@ -256,15 +260,23 @@ export function createWaveView(d: WaveViewDeps): WaveView {
       // Z-01 (playtest G, pc-049s: the camera went into the walls of a grotto): with the grotto frame off the level lets the
       // camera pass grotto walls (SD-01) — those of the grotto the hero is in stop it, so the view stays in the room with him.
       const wallsOf = !frames && inCave >= 0 && !sim.caught ? inCave : -1;
-      if (wallsOf !== solidCave) {
+      // V2-01, V2-04 (staff 28.10): a canopy is open all round and its roof is drawn high (render/track-props.ts) — the
+      // camera never goes into that roof (it would hide it): every canopy's roof space stops it, near the canopy or in it;
+      // its collider at 8 stops nothing (under it the camera pressed into his back).
+      if (canopyLevel !== sim.level) {
+        canopyLevel = sim.level;
+        canopySpaces = sim.level.niches.flatMap((nc) => (nc.canopy ? [canopyRoofSpace(sim.level, nc)].filter((b) => b !== null) : []));
+      }
+      if (wallsOf !== solidCave || canopyLevel !== solidLevel) {
         solidCave = wallsOf;
-        // V2-04 (staff 28.10: under a canopy at the wall the camera pressed into his back): a canopy is open all round and its
-        // roof is drawn over the camera (render/track-props.ts) — no room to keep the view in, its roof collider stops nothing.
-        const n = sim.level.niches[wallsOf]?.canopy ? undefined : sim.level.niches[wallsOf];
+        solidLevel = canopyLevel;
+        const nc = sim.level.niches[wallsOf];
+        const n = nc?.canopy ? undefined : nc;
         const m = NICHE_WALL + 0.05;
-        solidWalls = n
+        const walls = n
           ? sim.level.boxes.filter((b) => GROTTO_WALLS.has(b.kind) && b.max[0] >= n.box.min[0] - m && b.min[0] <= n.box.max[0] + m && b.max[2] >= n.box.min[2] - m && b.min[2] <= n.box.max[2] + m && b.max[1] >= n.box.min[1] - m && b.min[1] <= n.box.max[1] + m)
-          : null;
+          : [];
+        solidWalls = walls.length + canopySpaces.length > 0 ? [...walls, ...canopySpaces] : null;
       }
       d.camera.solid = solidWalls;
       // Q-067: held until the whole snow body has passed him (shotUntilClear), not only its front.

@@ -486,9 +486,17 @@ function belt(k: Kit, p: LevelPoint, stripes: PropStripe[]): void {
 /** V-04: a canopy of a finish belt — four log posts to the snow, beams along under a gable roof of boards with a snow cap
  * and an overhang, icicles along the eaves; the flat collider of the roof stays, not drawn.
  * V2-01 (staff 28.10, producer: «the canopies over the belts hang in the air»): the roof is drawn over the running camera
- * (CANOPY_EAVES over the floor: under a canopy the camera of the stages runs 7.5–11.4 over it), and every part of it — beams, boards, snow,
+ * (CANOPY_EAVES over the floor: under a canopy the camera of the stages runs 9.8–12.9 over it), and every part of it — beams, boards, snow,
  * ridge, icicles — is one hidden group of the cut mesh: a roof is drawn whole or not at all, the posts stand on the snow. */
-const CANOPY_EAVES = 12.6;
+const CANOPY_EAVES = 13.8;
+/** V2-01: the space of a canopy's drawn roof (over its footprint from the roof's lower edge up) — the camera stops under it
+ * (app/wave-view.ts: the camera kept off the roof never hides it), and over it the roof hides whole (level-mesh). */
+export function canopyRoofSpace(level: Pick<LevelData, 'boxes'>, n: LevelNiche): { min: [number, number, number]; max: [number, number, number] } | null {
+  const roof = level.boxes.find((b) => b.kind === 'islandRoof' && b.min[1] >= n.box.max[1] - 0.01 && b.min[0] <= n.box.min[0] + 1e-6 && b.max[0] >= n.box.max[0] - 1e-6 && b.min[2] < n.box.max[2] && b.max[2] > n.box.min[2]);
+  if (!roof) return null;
+  const top = Math.max(roof.min[1], n.y + CANOPY_EAVES);
+  return { min: [roof.min[0] - 1.7, top - 0.8, roof.min[2] - 1.7], max: [roof.max[0] + 1.7, top + 8, roof.max[2] + 1.7] };
+}
 function canopy(k: Kit, level: LevelData, n: LevelNiche, i: number, cut: PropCut[], hidden: Set<LevelBox>, glows: TrackProps['glows'], canopies: TrackProps['canopies']): void {
   const roof = level.boxes.find((b) => b.kind === 'islandRoof' && b.min[1] >= n.box.max[1] - 0.01 && b.min[0] <= n.box.min[0] + 1e-6 && b.max[0] >= n.box.max[0] - 1e-6 && b.min[2] < n.box.max[2] && b.max[2] > n.box.min[2]);
   if (!roof) return;
